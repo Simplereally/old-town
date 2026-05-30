@@ -1,8 +1,23 @@
+---
+doc_type: item_family
+canonical_path: docs/items/accessories/rings.md
+parent_index: docs/items/accessories/00-index.md
+system_index: docs/items/00-index.md
+root_index: docs/00-index.md
+---
+
 # Rings
 
 > **Ring slot documentation for Old Town.** Rings are finger-binds — small, heavy, and absolute. A Ring is a commitment you wear.
 >
 > **Rule:** Every Ring has a tradeoff. No Ring is universally best. Choose the Ring that matches your focus, not the one with the highest numbers.
+
+Parent: [`Accessories Index`](00-index.md)
+
+Authority references:
+- `docs/accessory-tiers.md`
+- `docs/combat/signature-mechanics.md`
+- `docs/combat/mechanics-implementation.md`
 
 ## Ring Philosophy
 
@@ -89,10 +104,11 @@ Rings are the slot for **single-stat obsession**. They support playstyles that w
 ## Related Documents
 
 - [`00-index.md`](00-index.md) — Accessory slot overview
-- [`../../accessory-tiers.md`](../../accessory-tiers.md) — Accessory tier system philosophy
-- [`../../combat/signature-mechanics.md`](../../combat/signature-mechanics.md) — Weapon family identities and how Rings support them
-- [`../../combat/mechanics-implementation.md`](../../combat/mechanics-implementation.md) — Operational rules for Ring mechanics
-- [`../../../POC_SPEC.md`](../../../POC_SPEC.md) §16 (Items, inventory, equipment)
+- [`capes.md`](capes.md) — Cape slot documentation
+- [`amulets.md`](amulets.md) — Amulet slot documentation
+- [`charms.md`](charms.md) — Charm slot documentation
+- [`belts.md`](belts.md) — Belt slot documentation
+- [`trophies.md`](trophies.md) — Trophy slot documentation
 
 ---
 

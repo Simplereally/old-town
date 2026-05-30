@@ -1,3 +1,11 @@
+---
+doc_type: index
+canonical_path: docs/items/accessories/00-index.md
+parent_index: docs/items/00-index.md
+system_index: docs/items/00-index.md
+root_index: docs/00-index.md
+---
+
 # Accessories Index
 
 > **Entry point for all accessory documentation in Old Town.** Accessories are Keepsakes — small, personal objects that say what kind of player you are becoming. They are not stat sticks. They are build glue.
@@ -44,7 +52,7 @@ Accessories are the items that turn a build into a *playstyle*.
 | 11 | **Crown** | crown | Royal, heraldic | Gold edging, white plates, lion motifs |
 | 12 | **Starfall** | starfall | Mythic, endgame | Dark steel, pale highlights, meteor flecks |
 
-**Full tier philosophy:** [`../../accessory-tiers.md`](../../accessory-tiers.md)
+**Full tier philosophy:** `docs/accessory-tiers.md`
 
 ## Build-Glue Summary
 
@@ -82,16 +90,17 @@ Accessories are the items that turn a build into a *playstyle*.
 
 ## Related Documents
 
-- [`../../accessory-tiers.md`](../../accessory-tiers.md) — Accessory tier system philosophy and rules
+- `docs/accessory-tiers.md` — Accessory tier system philosophy and rules
+- `docs/combat/signature-mechanics.md` — Weapon family identities and how accessories support them
+- `docs/combat/mechanics-implementation.md` — Operational rules for accessory mechanics
+
+Sibling slot docs:
 - [`capes.md`](capes.md) — Cape slot documentation
 - [`amulets.md`](amulets.md) — Amulet slot documentation
 - [`rings.md`](rings.md) — Ring slot documentation
 - [`charms.md`](charms.md) — Charm slot documentation
 - [`belts.md`](belts.md) — Belt slot documentation
 - [`trophies.md`](trophies.md) — Trophy slot documentation
-- [`../../combat/signature-mechanics.md`](../../combat/signature-mechanics.md) — Weapon family identities and how accessories support them
-- [`../../combat/mechanics-implementation.md`](../../combat/mechanics-implementation.md) — Operational rules for accessory mechanics
-- [`../../../POC_SPEC.md`](../../../POC_SPEC.md) §16 (Items, inventory, equipment)
 
 ---
 

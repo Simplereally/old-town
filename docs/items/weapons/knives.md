@@ -1,6 +1,20 @@
+---
+doc_type: item_family
+canonical_path: docs/items/weapons/knives.md
+parent_index: docs/items/weapons/00-index.md
+system_index: docs/items/00-index.md
+root_index: docs/00-index.md
+---
+
 # Thrown Knives
 
 > The fastest ranged weapon family in Old Town. One-handed, short range, and hungry for ammo. The signature **Fan** mechanic lets a skilled thrower unleash two blades in a single tick.
+
+Parent: [`Weapons Index`](00-index.md)
+
+Authority references:
+- `docs/combat/signature-mechanics.md`
+- `docs/ranged-tiers.md`
 
 ## Thrown Knife
 
@@ -42,8 +56,9 @@
 ## Related Documents
 
 - [`ranged.md`](ranged.md) — Bows and crossbows
-- [`signature-mechanics.md`](../../combat/signature-mechanics.md) — Weapon signature abilities
-- [`ranged-tiers.md`](../../ranged-tiers.md) — Ranged tier system philosophy
+- [`darts.md`](darts.md) — Thrown darts
+- [`javelins.md`](javelins.md) — Javelins
+- [`throwing-axes.md`](throwing-axes.md) — Throwing axes
 
 ---
 

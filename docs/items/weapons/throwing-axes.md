@@ -1,6 +1,20 @@
+---
+doc_type: item_family
+canonical_path: docs/items/weapons/throwing-axes.md
+parent_index: docs/items/weapons/00-index.md
+system_index: docs/items/00-index.md
+root_index: docs/00-index.md
+---
+
 # Throwing Axes
 
 > One-handed hybrid weapons that bridge melee and ranged combat. Thrown for distance, wielded for close quarters. A favourite of skirmishers, duelists, and anyone who wants to keep their options open.
+
+Parent: [`Weapons Index`](00-index.md)
+
+Authority references:
+- `docs/combat/signature-mechanics.md`
+- `docs/ranged-tiers.md`
 
 ## Throwing Axe Family
 
@@ -45,9 +59,9 @@
 - [`melee.md`](melee.md) — Melee weapons
 - [`ranged.md`](ranged.md) — Ranged weapons (bows and crossbows)
 - [`magic.md`](magic.md) — Magic weapons (staves)
-- [`signature-mechanics.md`](../../combat/signature-mechanics.md) — Weapon signature abilities
-- [`ranged-tiers.md`](../../ranged-tiers.md) — Ranged tier system philosophy
-- [`POC_SPEC.md`](../../POC_SPEC.md) §13 (Combat system)
+- [`knives.md`](knives.md) — Thrown knives
+- [`darts.md`](darts.md) — Thrown darts
+- [`javelins.md`](javelins.md) — Javelins
 
 ---
 

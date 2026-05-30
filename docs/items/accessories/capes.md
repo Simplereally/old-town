@@ -1,8 +1,23 @@
+---
+doc_type: item_family
+canonical_path: docs/items/accessories/capes.md
+parent_index: docs/items/accessories/00-index.md
+system_index: docs/items/00-index.md
+root_index: docs/00-index.md
+---
+
 # Capes
 
 > **Cape slot documentation for Old Town.** Capes are back-cloths — visible, dramatic, and declarative. A Cape tells the world what you value before you draw a weapon.
 >
 > **Rule:** Every Cape has a tradeoff. No Cape is universally best. Choose the Cape that matches your playstyle, not the one with the highest numbers.
+
+Parent: [`Accessories Index`](00-index.md)
+
+Authority references:
+- `docs/accessory-tiers.md`
+- `docs/combat/signature-mechanics.md`
+- `docs/combat/mechanics-implementation.md`
 
 ## Cape Philosophy
 
@@ -89,10 +104,11 @@ Capes are the slot for **visible commitment**. They support playstyles that want
 ## Related Documents
 
 - [`00-index.md`](00-index.md) — Accessory slot overview
-- [`../../accessory-tiers.md`](../../accessory-tiers.md) — Accessory tier system philosophy
-- [`../../combat/signature-mechanics.md`](../../combat/signature-mechanics.md) — Weapon family identities and how Capes support them
-- [`../../combat/mechanics-implementation.md`](../../combat/mechanics-implementation.md) — Operational rules for Cape mechanics
-- [`../../../POC_SPEC.md`](../../../POC_SPEC.md) §16 (Items, inventory, equipment)
+- [`amulets.md`](amulets.md) — Amulet slot documentation
+- [`rings.md`](rings.md) — Ring slot documentation
+- [`charms.md`](charms.md) — Charm slot documentation
+- [`belts.md`](belts.md) — Belt slot documentation
+- [`trophies.md`](trophies.md) — Trophy slot documentation
 
 ---
 

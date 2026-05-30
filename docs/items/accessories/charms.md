@@ -1,8 +1,23 @@
+---
+doc_type: item_family
+canonical_path: docs/items/accessories/charms.md
+parent_index: docs/items/accessories/00-index.md
+system_index: docs/items/00-index.md
+root_index: docs/00-index.md
+---
+
 # Charms
 
 > **Charm slot documentation for Old Town.** Charms are pocket-luck — small, hidden, and superstitious. A Charm is what you carry when no one is looking.
 >
 > **Rule:** Every Charm has a tradeoff. No Charm is universally best. Choose the Charm that matches your luck, not the one with the highest numbers.
+
+Parent: [`Accessories Index`](00-index.md)
+
+Authority references:
+- `docs/accessory-tiers.md`
+- `docs/combat/signature-mechanics.md`
+- `docs/combat/mechanics-implementation.md`
 
 ## Charm Philosophy
 
@@ -89,10 +104,11 @@ Charms are the slot for **utility and superstition**. They support playstyles th
 ## Related Documents
 
 - [`00-index.md`](00-index.md) — Accessory slot overview
-- [`../../accessory-tiers.md`](../../accessory-tiers.md) — Accessory tier system philosophy
-- [`../../combat/signature-mechanics.md`](../../combat/signature-mechanics.md) — Weapon family identities and how Charms support them
-- [`../../combat/mechanics-implementation.md`](../../combat/mechanics-implementation.md) — Operational rules for Charm mechanics
-- [`../../../POC_SPEC.md`](../../../POC_SPEC.md) §16 (Items, inventory, equipment)
+- [`capes.md`](capes.md) — Cape slot documentation
+- [`amulets.md`](amulets.md) — Amulet slot documentation
+- [`rings.md`](rings.md) — Ring slot documentation
+- [`belts.md`](belts.md) — Belt slot documentation
+- [`trophies.md`](trophies.md) — Trophy slot documentation
 
 ---
 

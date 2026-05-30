@@ -1,6 +1,20 @@
+---
+doc_type: item_family
+canonical_path: docs/items/weapons/darts.md
+parent_index: docs/items/weapons/00-index.md
+system_index: docs/items/00-index.md
+root_index: docs/00-index.md
+---
+
 # Darts
 
 > The fastest ranged weapon in Old Town. One-handed, short range, and built for delivering status rather than raw damage. Darts are cheap, disposable, and favoured by alchemists, rogues, and anyone who wants to poison something from five tiles away.
+
+Parent: [`Weapons Index`](00-index.md)
+
+Authority references:
+- `docs/combat/signature-mechanics.md`
+- `docs/ranged-tiers.md`
 
 ## Dart Family
 
@@ -49,10 +63,9 @@ Darts are not about the hit. They are about what the hit leaves behind.
 - [`ranged.md`](ranged.md) — All ranged weapons (bows and crossbows)
 - [`melee.md`](melee.md) — Melee weapons
 - [`magic.md`](magic.md) — Magic weapons (staves)
-- [`signature-mechanics.md`](../../combat/signature-mechanics.md) — Weapon signature abilities
-- [`ranged-tiers.md`](../../ranged-tiers.md) — Ranged tier system philosophy
-- [`misc/ammunition.md`](../misc/ammunition.md) — Ammunition
-- [`POC_SPEC.md`](../../POC_SPEC.md) §13 (Combat system)
+- [`knives.md`](knives.md) — Thrown knives
+- [`javelins.md`](javelins.md) — Javelins
+- [`throwing-axes.md`](throwing-axes.md) — Throwing axes
 
 ---
 

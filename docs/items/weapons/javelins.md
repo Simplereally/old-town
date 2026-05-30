@@ -1,6 +1,20 @@
+---
+doc_type: item_family
+canonical_path: docs/items/weapons/javelins.md
+parent_index: docs/items/weapons/00-index.md
+system_index: docs/items/00-index.md
+root_index: docs/00-index.md
+---
+
 # Javelins
 
 > Heavy one-handed thrown weapons. Slow, piercing, and shield-breaking. The javelin is the anti-shield answer to ranged combat, trading speed and cost for armour penetration and the ability to crack defensive formations.
+
+Parent: [`Weapons Index`](00-index.md)
+
+Authority references:
+- `docs/combat/signature-mechanics.md`
+- `docs/ranged-tiers.md`
 
 ## Javelin Family
 
@@ -33,10 +47,9 @@
 - [`melee.md`](melee.md) — Melee weapons
 - [`magic.md`](magic.md) — Magic weapons (staves)
 - [`ranged.md`](ranged.md) — Ranged weapons (bows and crossbows)
-- [`signature-mechanics.md`](../../combat/signature-mechanics.md) — Weapon signature abilities
-- [`ranged-tiers.md`](../../ranged-tiers.md) — Ranged tier system philosophy
-- [`misc/ammunition.md`](../misc/ammunition.md) — Ammunition
-- [`POC_SPEC.md`](../../POC_SPEC.md) §13 (Combat system)
+- [`knives.md`](knives.md) — Thrown knives
+- [`darts.md`](darts.md) — Thrown darts
+- [`throwing-axes.md`](throwing-axes.md) — Throwing axes
 
 ---
 

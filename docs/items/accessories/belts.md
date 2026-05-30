@@ -1,8 +1,23 @@
+---
+doc_type: item_family
+canonical_path: docs/items/accessories/belts.md
+parent_index: docs/items/accessories/00-index.md
+system_index: docs/items/00-index.md
+root_index: docs/00-index.md
+---
+
 # Belts
 
 > **Belt slot documentation for Old Town.** Belts are waist-straps — practical, preparatory, and weight-bearing. A Belt is what you carry into the unknown.
 >
 > **Rule:** Every Belt has a tradeoff. No Belt is universally best. Choose the Belt that matches your preparation, not the one with the highest numbers.
+
+Parent: [`Accessories Index`](00-index.md)
+
+Authority references:
+- `docs/accessory-tiers.md`
+- `docs/combat/signature-mechanics.md`
+- `docs/combat/mechanics-implementation.md`
 
 ## Belt Philosophy
 
@@ -89,10 +104,11 @@ Belts are the slot for **preparation and inventory**. They support playstyles th
 ## Related Documents
 
 - [`00-index.md`](00-index.md) — Accessory slot overview
-- [`../../accessory-tiers.md`](../../accessory-tiers.md) — Accessory tier system philosophy
-- [`../../combat/signature-mechanics.md`](../../combat/signature-mechanics.md) — Weapon family identities and how Belts support them
-- [`../../combat/mechanics-implementation.md`](../../combat/mechanics-implementation.md) — Operational rules for Belt mechanics
-- [`../../../POC_SPEC.md`](../../../POC_SPEC.md) §16 (Items, inventory, equipment)
+- [`capes.md`](capes.md) — Cape slot documentation
+- [`amulets.md`](amulets.md) — Amulet slot documentation
+- [`rings.md`](rings.md) — Ring slot documentation
+- [`charms.md`](charms.md) — Charm slot documentation
+- [`trophies.md`](trophies.md) — Trophy slot documentation
 
 ---
 
