@@ -19,12 +19,12 @@ Make the authoritative world navigable: load regions, maintain tile/collision st
 
 ## Completion checklist
 
-- [ ] Read `POC_SPEC.md` sections referenced above.
-- [ ] Complete the stories below in exact order.
-- [ ] Run all validation commands listed by completed stories.
-- [ ] Confirm no unchecked acceptance criteria remain in this epic's stories.
-- [ ] Move completed story files into `tasks/completed/stories/E04/`.
-- [ ] Move this epic file into `tasks/completed/epics/` after all stories are complete.
+- [X] Read `POC_SPEC.md` sections referenced above.
+- [X] Complete the stories below in exact order.
+- [X] Run all validation commands listed by completed stories.
+- [X] Confirm no unchecked acceptance criteria remain in this epic's stories.
+- [X] Move completed story files into `tasks/completed/stories/E04/`.
+- [X] Move this epic file into `tasks/completed/epics/` after all stories are complete.
 
 ## Ordered stories
 
@@ -32,10 +32,10 @@ Make the authoritative world navigable: load regions, maintain tile/collision st
 - [X] `E04-S02` — [Implement collision mask system](../completed/stories/E04/E04-S02_implement-collision-mask-system.md)
 - [X] `E04-S03` — [Implement A* tile pathfinding](../completed/stories/E04/E04-S03_implement-a-tile-pathfinding.md)
 - [X] `E04-S04` — [Implement movement system](../completed/stories/E04/E04-S04_implement-movement-system.md)
-- [ ] `E04-S05` — [Implement interaction reach resolution](../stories/E04/E04-S05_implement-interaction-reach-resolution.md)
+- [X] `E04-S05` — [Implement interaction reach resolution](../completed/stories/E04/E04-S05_implement-interaction-reach-resolution.md)
 
 ## Epic acceptance criteria
 
-- [ ] All listed story files are complete and moved to the completed folder.
-- [ ] The implementation still preserves server authority, integer tile truth, 600ms tick semantics, content-driven definitions, and client-only presentation.
-- [ ] No later epic has been implemented in a way that bypasses this epic's contracts.
+- [X] All listed story files are complete and moved to the completed folder.
+- [X] The implementation still preserves server authority, integer tile truth, 600ms tick semantics, content-driven definitions, and client-only presentation.
+- [X] No later epic has been implemented in a way that bypasses this epic's contracts.
