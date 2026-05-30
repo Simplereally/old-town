@@ -1,0 +1,10 @@
+[
+  {
+    "id": "cooking",
+    "name": "Cooking",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  }
+]

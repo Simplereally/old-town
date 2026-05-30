@@ -1,0 +1,536 @@
+{
+  "epics": [
+    {
+      "id": "E00",
+      "title": "Repository Foundation and Quality Gates",
+      "file": "epics/E00_repository-foundation-and-quality-gates.md",
+      "stories": [
+        {
+          "id": "E00-S01",
+          "title": "Initialize monorepo workspace",
+          "file": "stories/E00/E00-S01_initialize-monorepo-workspace.md"
+        },
+        {
+          "id": "E00-S02",
+          "title": "Configure TypeScript project references",
+          "file": "stories/E00/E00-S02_configure-typescript-project-references.md"
+        },
+        {
+          "id": "E00-S03",
+          "title": "Configure formatting, linting, and import hygiene",
+          "file": "stories/E00/E00-S03_configure-formatting-linting-and-import-hygiene.md"
+        },
+        {
+          "id": "E00-S04",
+          "title": "Configure test runner and coverage shell",
+          "file": "stories/E00/E00-S04_configure-test-runner-and-coverage-shell.md"
+        },
+        {
+          "id": "E00-S05",
+          "title": "Create task workflow conventions",
+          "file": "stories/E00/E00-S05_create-task-workflow-conventions.md"
+        }
+      ]
+    },
+    {
+      "id": "E01",
+      "title": "Shared Domain Primitives and Protocol Contracts",
+      "file": "epics/E01_shared-domain-primitives-and-protocol-contracts.md",
+      "stories": [
+        {
+          "id": "E01-S01",
+          "title": "Define integer world primitives",
+          "file": "stories/E01/E01-S01_define-integer-world-primitives.md"
+        },
+        {
+          "id": "E01-S02",
+          "title": "Define constants and deterministic math utilities",
+          "file": "stories/E01/E01-S02_define-constants-and-deterministic-math-utilities.md"
+        },
+        {
+          "id": "E01-S03",
+          "title": "Define client-to-server command contracts",
+          "file": "stories/E01/E01-S03_define-client-to-server-command-contracts.md"
+        },
+        {
+          "id": "E01-S04",
+          "title": "Define server-to-client delta protocol",
+          "file": "stories/E01/E01-S04_define-server-to-client-delta-protocol.md"
+        },
+        {
+          "id": "E01-S05",
+          "title": "Define entity update masks",
+          "file": "stories/E01/E01-S05_define-entity-update-masks.md"
+        },
+        {
+          "id": "E01-S06",
+          "title": "Define content ID and asset reference conventions",
+          "file": "stories/E01/E01-S06_define-content-id-and-asset-reference-conventions.md"
+        }
+      ]
+    },
+    {
+      "id": "E02",
+      "title": "Content System, Schemas, Registries, and Seed Data",
+      "file": "epics/E02_content-system-schemas-registries-and-seed-data.md",
+      "stories": [
+        {
+          "id": "E02-S01",
+          "title": "Implement content schema package",
+          "file": "stories/E02/E02-S01_implement-content-schema-package.md"
+        },
+        {
+          "id": "E02-S02",
+          "title": "Create content loader and dependency validator",
+          "file": "stories/E02/E02-S02_create-content-loader-and-dependency-validator.md"
+        },
+        {
+          "id": "E02-S03",
+          "title": "Seed core skills and XP table",
+          "file": "stories/E02/E02-S03_seed-core-skills-and-xp-table.md"
+        },
+        {
+          "id": "E02-S04",
+          "title": "Seed item and equipment definitions",
+          "file": "stories/E02/E02-S04_seed-item-and-equipment-definitions.md"
+        },
+        {
+          "id": "E02-S05",
+          "title": "Seed NPCs, objects, resource nodes, and drops",
+          "file": "stories/E02/E02-S05_seed-npcs-objects-resource-nodes-and-drops.md"
+        },
+        {
+          "id": "E02-S06",
+          "title": "Seed spellbook, dialogue, quest, and map content",
+          "file": "stories/E02/E02-S06_seed-spellbook-dialogue-quest-and-map-content.md"
+        }
+      ]
+    },
+    {
+      "id": "E03",
+      "title": "Server Simulation Kernel and ECS State",
+      "file": "epics/E03_server-simulation-kernel-and-ecs-state.md",
+      "stories": [
+        {
+          "id": "E03-S01",
+          "title": "Implement server process and runtime config",
+          "file": "stories/E03/E03-S01_implement-server-process-and-runtime-config.md"
+        },
+        {
+          "id": "E03-S02",
+          "title": "Implement ECS world state container",
+          "file": "stories/E03/E03-S02_implement-ecs-world-state-container.md"
+        },
+        {
+          "id": "E03-S03",
+          "title": "Implement 600ms tick loop and phase scheduler",
+          "file": "stories/E03/E03-S03_implement-600ms-tick-loop-and-phase-scheduler.md"
+        },
+        {
+          "id": "E03-S04",
+          "title": "Implement command buffer and validation pipeline",
+          "file": "stories/E03/E03-S04_implement-command-buffer-and-validation-pipeline.md"
+        },
+        {
+          "id": "E03-S05",
+          "title": "Implement action queue system",
+          "file": "stories/E03/E03-S05_implement-action-queue-system.md"
+        },
+        {
+          "id": "E03-S06",
+          "title": "Implement delta accumulator shell",
+          "file": "stories/E03/E03-S06_implement-delta-accumulator-shell.md"
+        }
+      ]
+    },
+    {
+      "id": "E04",
+      "title": "World Map, Collision, Movement, and Pathfinding",
+      "file": "epics/E04_world-map-collision-movement-and-pathfinding.md",
+      "stories": [
+        {
+          "id": "E04-S01",
+          "title": "Load map regions into server world",
+          "file": "stories/E04/E04-S01_load-map-regions-into-server-world.md"
+        },
+        {
+          "id": "E04-S02",
+          "title": "Implement collision mask system",
+          "file": "stories/E04/E04-S02_implement-collision-mask-system.md"
+        },
+        {
+          "id": "E04-S03",
+          "title": "Implement A* tile pathfinding",
+          "file": "stories/E04/E04-S03_implement-a-tile-pathfinding.md"
+        },
+        {
+          "id": "E04-S04",
+          "title": "Implement movement system",
+          "file": "stories/E04/E04-S04_implement-movement-system.md"
+        },
+        {
+          "id": "E04-S05",
+          "title": "Implement interaction reach resolution",
+          "file": "stories/E04/E04-S05_implement-interaction-reach-resolution.md"
+        }
+      ]
+    },
+    {
+      "id": "E05",
+      "title": "Networking Transport, Sessions, Interest Management, and Multiplayer Sync",
+      "file": "epics/E05_networking-transport-sessions-interest-management-and-multiplayer-sync.md",
+      "stories": [
+        {
+          "id": "E05-S01",
+          "title": "Create WebSocket transport shell",
+          "file": "stories/E05/E05-S01_create-websocket-transport-shell.md"
+        },
+        {
+          "id": "E05-S02",
+          "title": "Implement dev character session bootstrap",
+          "file": "stories/E05/E05-S02_implement-dev-character-session-bootstrap.md"
+        },
+        {
+          "id": "E05-S03",
+          "title": "Implement interest manager",
+          "file": "stories/E05/E05-S03_implement-interest-manager.md"
+        },
+        {
+          "id": "E05-S04",
+          "title": "Wire command transport into simulation command buffer",
+          "file": "stories/E05/E05-S04_wire-command-transport-into-simulation-command-buffer.md"
+        },
+        {
+          "id": "E05-S05",
+          "title": "Broadcast tick deltas to clients",
+          "file": "stories/E05/E05-S05_broadcast-tick-deltas-to-clients.md"
+        },
+        {
+          "id": "E05-S06",
+          "title": "Implement chat transport and overhead text packets",
+          "file": "stories/E05/E05-S06_implement-chat-transport-and-overhead-text-packets.md"
+        }
+      ]
+    },
+    {
+      "id": "E06",
+      "title": "Three.js Client Renderer and Scene Streaming",
+      "file": "epics/E06_three-js-client-renderer-and-scene-streaming.md",
+      "stories": [
+        {
+          "id": "E06-S01",
+          "title": "Create Vite Three.js client shell",
+          "file": "stories/E06/E06-S01_create-vite-three-js-client-shell.md"
+        },
+        {
+          "id": "E06-S02",
+          "title": "Implement camera and tile projection",
+          "file": "stories/E06/E06-S02_implement-camera-and-tile-projection.md"
+        },
+        {
+          "id": "E06-S03",
+          "title": "Render terrain chunks from region load packets",
+          "file": "stories/E06/E06-S03_render-terrain-chunks-from-region-load-packets.md"
+        },
+        {
+          "id": "E06-S04",
+          "title": "Render static and dynamic objects",
+          "file": "stories/E06/E06-S04_render-static-and-dynamic-objects.md"
+        },
+        {
+          "id": "E06-S05",
+          "title": "Render actors with interpolation",
+          "file": "stories/E06/E06-S05_render-actors-with-interpolation.md"
+        },
+        {
+          "id": "E06-S06",
+          "title": "Render projectiles, hitsplats, ground items, and overlays",
+          "file": "stories/E06/E06-S06_render-projectiles-hitsplats-ground-items-and-overlays.md"
+        }
+      ]
+    },
+    {
+      "id": "E07",
+      "title": "Client Input, Picking, UI Shell, and Debug Tooling",
+      "file": "epics/E07_client-input-picking-ui-shell-and-debug-tooling.md",
+      "stories": [
+        {
+          "id": "E07-S01",
+          "title": "Implement tile picking and move command UX",
+          "file": "stories/E07/E07-S01_implement-tile-picking-and-move-command-ux.md"
+        },
+        {
+          "id": "E07-S02",
+          "title": "Implement entity picking and context menu",
+          "file": "stories/E07/E07-S02_implement-entity-picking-and-context-menu.md"
+        },
+        {
+          "id": "E07-S03",
+          "title": "Create core UI panels",
+          "file": "stories/E07/E07-S03_create-core-ui-panels.md"
+        },
+        {
+          "id": "E07-S04",
+          "title": "Implement debug overlay controls",
+          "file": "stories/E07/E07-S04_implement-debug-overlay-controls.md"
+        },
+        {
+          "id": "E07-S05",
+          "title": "Implement UI command routing and feedback messages",
+          "file": "stories/E07/E07-S05_implement-ui-command-routing-and-feedback-messages.md"
+        }
+      ]
+    },
+    {
+      "id": "E08",
+      "title": "Inventory, Equipment, Items, and Character Stats",
+      "file": "epics/E08_inventory-equipment-items-and-character-stats.md",
+      "stories": [
+        {
+          "id": "E08-S01",
+          "title": "Implement inventory container system",
+          "file": "stories/E08/E08-S01_implement-inventory-container-system.md"
+        },
+        {
+          "id": "E08-S02",
+          "title": "Implement item action handling",
+          "file": "stories/E08/E08-S02_implement-item-action-handling.md"
+        },
+        {
+          "id": "E08-S03",
+          "title": "Implement equipment system",
+          "file": "stories/E08/E08-S03_implement-equipment-system.md"
+        },
+        {
+          "id": "E08-S04",
+          "title": "Implement consumables and healing",
+          "file": "stories/E08/E08-S04_implement-consumables-and-healing.md"
+        },
+        {
+          "id": "E08-S05",
+          "title": "Implement character skills and derived stats",
+          "file": "stories/E08/E08-S05_implement-character-skills-and-derived-stats.md"
+        }
+      ]
+    },
+    {
+      "id": "E09",
+      "title": "Skilling and Resource Node Loops",
+      "file": "epics/E09_skilling-and-resource-node-loops.md",
+      "stories": [
+        {
+          "id": "E09-S01",
+          "title": "Implement resource node runtime state",
+          "file": "stories/E09/E09-S01_implement-resource-node-runtime-state.md"
+        },
+        {
+          "id": "E09-S02",
+          "title": "Implement gathering action validator",
+          "file": "stories/E09/E09-S02_implement-gathering-action-validator.md"
+        },
+        {
+          "id": "E09-S03",
+          "title": "Implement woodcutting loop",
+          "file": "stories/E09/E09-S03_implement-woodcutting-loop.md"
+        },
+        {
+          "id": "E09-S04",
+          "title": "Implement mining loop",
+          "file": "stories/E09/E09-S04_implement-mining-loop.md"
+        },
+        {
+          "id": "E09-S05",
+          "title": "Implement cooking processing loop",
+          "file": "stories/E09/E09-S05_implement-cooking-processing-loop.md"
+        }
+      ]
+    },
+    {
+      "id": "E10",
+      "title": "NPC AI, Combat, Death, Drops, and Respawn",
+      "file": "epics/E10_npc-ai-combat-death-drops-and-respawn.md",
+      "stories": [
+        {
+          "id": "E10-S01",
+          "title": "Implement NPC spawn, wander, leash, and respawn AI",
+          "file": "stories/E10/E10-S01_implement-npc-spawn-wander-leash-and-respawn-ai.md"
+        },
+        {
+          "id": "E10-S02",
+          "title": "Implement combat target acquisition and validation",
+          "file": "stories/E10/E10-S02_implement-combat-target-acquisition-and-validation.md"
+        },
+        {
+          "id": "E10-S03",
+          "title": "Implement melee attack timing and rolls",
+          "file": "stories/E10/E10-S03_implement-melee-attack-timing-and-rolls.md"
+        },
+        {
+          "id": "E10-S04",
+          "title": "Apply hits, health bars, hitsplats, and XP",
+          "file": "stories/E10/E10-S04_apply-hits-health-bars-hitsplats-and-xp.md"
+        },
+        {
+          "id": "E10-S05",
+          "title": "Implement death, drops, ground items, and ownership",
+          "file": "stories/E10/E10-S05_implement-death-drops-ground-items-and-ownership.md"
+        }
+      ]
+    },
+    {
+      "id": "E11",
+      "title": "Magic, Projectiles, Line of Sight, and Teleports",
+      "file": "epics/E11_magic-projectiles-line-of-sight-and-teleports.md",
+      "stories": [
+        {
+          "id": "E11-S01",
+          "title": "Implement spell validation and rune costs",
+          "file": "stories/E11/E11-S01_implement-spell-validation-and-rune-costs.md"
+        },
+        {
+          "id": "E11-S02",
+          "title": "Implement combat spell projectile and delayed hit",
+          "file": "stories/E11/E11-S02_implement-combat-spell-projectile-and-delayed-hit.md"
+        },
+        {
+          "id": "E11-S03",
+          "title": "Implement bind/snare-style movement block hook",
+          "file": "stories/E11/E11-S03_implement-bind-snare-style-movement-block-hook.md"
+        },
+        {
+          "id": "E11-S04",
+          "title": "Implement interruptible home teleport",
+          "file": "stories/E11/E11-S04_implement-interruptible-home-teleport.md"
+        }
+      ]
+    },
+    {
+      "id": "E12",
+      "title": "Dialogue, Quest Vars, Quest Engine, and POC Quest",
+      "file": "epics/E12_dialogue-quest-vars-quest-engine-and-poc-quest.md",
+      "stories": [
+        {
+          "id": "E12-S01",
+          "title": "Implement player var and quest var storage",
+          "file": "stories/E12/E12-S01_implement-player-var-and-quest-var-storage.md"
+        },
+        {
+          "id": "E12-S02",
+          "title": "Implement dialogue graph engine",
+          "file": "stories/E12/E12-S02_implement-dialogue-graph-engine.md"
+        },
+        {
+          "id": "E12-S03",
+          "title": "Implement quest requirement/objective/trigger engine",
+          "file": "stories/E12/E12-S03_implement-quest-requirement-objective-trigger-engine.md"
+        },
+        {
+          "id": "E12-S04",
+          "title": "Implement quest rewards and completion safety",
+          "file": "stories/E12/E12-S04_implement-quest-rewards-and-completion-safety.md"
+        },
+        {
+          "id": "E12-S05",
+          "title": "Wire Smoke Over Old Town end-to-end",
+          "file": "stories/E12/E12-S05_wire-smoke-over-old-town-end-to-end.md"
+        }
+      ]
+    },
+    {
+      "id": "E13",
+      "title": "Persistence, Character Save/Load, and Item Audit",
+      "file": "epics/E13_persistence-character-save-load-and-item-audit.md",
+      "stories": [
+        {
+          "id": "E13-S01",
+          "title": "Define persistence adapter interface and dev storage",
+          "file": "stories/E13/E13-S01_define-persistence-adapter-interface-and-dev-storage.md"
+        },
+        {
+          "id": "E13-S02",
+          "title": "Persist character core state",
+          "file": "stories/E13/E13-S02_persist-character-core-state.md"
+        },
+        {
+          "id": "E13-S03",
+          "title": "Implement dirty-state persistence triggers",
+          "file": "stories/E13/E13-S03_implement-dirty-state-persistence-triggers.md"
+        },
+        {
+          "id": "E13-S04",
+          "title": "Implement item transaction audit",
+          "file": "stories/E13/E13-S04_implement-item-transaction-audit.md"
+        },
+        {
+          "id": "E13-S05",
+          "title": "Prepare PostgreSQL schema and migration files",
+          "file": "stories/E13/E13-S05_prepare-postgresql-schema-and-migration-files.md"
+        }
+      ]
+    },
+    {
+      "id": "E14",
+      "title": "World Editor and Content Authoring Tooling",
+      "file": "epics/E14_world-editor-and-content-authoring-tooling.md",
+      "stories": [
+        {
+          "id": "E14-S01",
+          "title": "Upgrade content validator CLI for authoring",
+          "file": "stories/E14/E14-S01_upgrade-content-validator-cli-for-authoring.md"
+        },
+        {
+          "id": "E14-S02",
+          "title": "Create world editor shell",
+          "file": "stories/E14/E14-S02_create-world-editor-shell.md"
+        },
+        {
+          "id": "E14-S03",
+          "title": "Implement tile paint and height/collision editing",
+          "file": "stories/E14/E14-S03_implement-tile-paint-and-height-collision-editing.md"
+        },
+        {
+          "id": "E14-S04",
+          "title": "Implement object, NPC, resource node, and trigger placement",
+          "file": "stories/E14/E14-S04_implement-object-npc-resource-node-and-trigger-placement.md"
+        },
+        {
+          "id": "E14-S05",
+          "title": "Implement pathing, LoS, and interaction probe tools",
+          "file": "stories/E14/E14-S05_implement-pathing-los-and-interaction-probe-tools.md"
+        }
+      ]
+    },
+    {
+      "id": "E15",
+      "title": "POC Assembly, Integration Tests, Performance, and Final Hardening",
+      "file": "epics/E15_poc-assembly-integration-tests-performance-and-final-hardening.md",
+      "stories": [
+        {
+          "id": "E15-S01",
+          "title": "Create end-to-end POC route and bootstrap script",
+          "file": "stories/E15/E15-S01_create-end-to-end-poc-route-and-bootstrap-script.md"
+        },
+        {
+          "id": "E15-S02",
+          "title": "Write movement, interaction, and networking integration tests",
+          "file": "stories/E15/E15-S02_write-movement-interaction-and-networking-integration-tests.md"
+        },
+        {
+          "id": "E15-S03",
+          "title": "Write gameplay loop integration tests",
+          "file": "stories/E15/E15-S03_write-gameplay-loop-integration-tests.md"
+        },
+        {
+          "id": "E15-S04",
+          "title": "Add performance and leak checks",
+          "file": "stories/E15/E15-S04_add-performance-and-leak-checks.md"
+        },
+        {
+          "id": "E15-S05",
+          "title": "Run final spec compliance pass",
+          "file": "stories/E15/E15-S05_run-final-spec-compliance-pass.md"
+        }
+      ]
+    }
+  ]
+}

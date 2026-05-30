@@ -1,0 +1,31 @@
+{
+  "name": "old-town",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Old Town — browser-first lo-fi 3D MMO inspired by 2006/2007 OSRS-era primitives.",
+  "workspaces": ["apps/*", "packages/*", "tools/*"],
+  "scripts": {
+    "typecheck": "bun run --filter '*' typecheck",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint": "biome lint .",
+    "check": "biome check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "tasks:status": "bun scripts/tasks-status.ts",
+    "content:validate": "bun tools/content-validator/src/index.ts",
+    "clean": "bun run --filter '*' clean || true"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/node": "^22.10.0",
+    "@vitest/coverage-v8": "^3.2.0",
+    "typescript": "^5.7.3",
+    "vitest": "^3.2.0"
+  },
+  "engines": {
+    "bun": ">=1.1.0"
+  }
+}

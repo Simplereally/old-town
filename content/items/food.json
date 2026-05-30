@@ -1,0 +1,26 @@
+[
+  {
+    "id": "crusty_loaf",
+    "name": "Crusty Loaf",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A dense loaf with a hard crust. Filling enough.",
+    "icon": "icon_crusty_loaf",
+    "value": 8,
+    "weight": 0.3,
+    "options": ["eat"],
+    "consumable": { "heal": 5, "consumeTicks": 1 }
+  },
+  {
+    "id": "roast_fowl",
+    "name": "Roast Fowl",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A whole roasted bird, crisp and hot.",
+    "icon": "icon_roast_fowl",
+    "value": 22,
+    "weight": 0.6,
+    "options": ["eat"],
+    "consumable": { "heal": 11, "consumeTicks": 1 }
+  }
+]

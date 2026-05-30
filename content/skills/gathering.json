@@ -1,0 +1,18 @@
+[
+  {
+    "id": "woodcutting",
+    "name": "Woodcutting",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  },
+  {
+    "id": "mining",
+    "name": "Mining",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  }
+]

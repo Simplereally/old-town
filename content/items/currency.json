@@ -1,0 +1,12 @@
+[
+  {
+    "id": "coins",
+    "name": "Coins",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A handful of small town coins.",
+    "icon": "icon_coins",
+    "value": 1,
+    "options": []
+  }
+]

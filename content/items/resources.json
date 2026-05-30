@@ -1,0 +1,46 @@
+[
+  {
+    "id": "greywood_log",
+    "name": "Greywood Log",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A pale length of greywood, fresh-cut.",
+    "icon": "icon_greywood_log",
+    "value": 8,
+    "weight": 1.5,
+    "options": []
+  },
+  {
+    "id": "amberbark_log",
+    "name": "Amberbark Log",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Resin-streaked amberbark. It smells faintly of pine.",
+    "icon": "icon_amberbark_log",
+    "value": 25,
+    "weight": 1.8,
+    "options": []
+  },
+  {
+    "id": "ferrite_ore",
+    "name": "Ferrite Ore",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A lump of dull ferrite, flecked with rust.",
+    "icon": "icon_ferrite_ore",
+    "value": 12,
+    "weight": 2.3,
+    "options": []
+  },
+  {
+    "id": "azure_ore",
+    "name": "Azure Ore",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Ore shot through with deep blue veins.",
+    "icon": "icon_azure_ore",
+    "value": 40,
+    "weight": 2.6,
+    "options": []
+  }
+]

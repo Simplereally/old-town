@@ -1,0 +1,28 @@
+[
+  {
+    "id": "woodsmans_axe",
+    "name": "Woodsman's Axe",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A worn felling axe. Good for chopping trees.",
+    "icon": "icon_woodsmans_axe",
+    "model": "model_woodsmans_axe",
+    "value": 16,
+    "weight": 1.6,
+    "options": [],
+    "tags": ["axe"]
+  },
+  {
+    "id": "prospectors_pickaxe",
+    "name": "Prospector's Pickaxe",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A blunt-pointed pickaxe for breaking rock.",
+    "icon": "icon_prospectors_pickaxe",
+    "model": "model_prospectors_pickaxe",
+    "value": 18,
+    "weight": 2.0,
+    "options": [],
+    "tags": ["pickaxe"]
+  }
+]
