@@ -7,14 +7,21 @@
  */
 import type { Server } from "node:http";
 import { createServer } from "node:http";
+import { GAME_TICK_MS } from "@old-town/shared";
 import { type BootContentResult, loadContent } from "./content-loader";
 import { type World, createWorld } from "./ecs/world";
 import { loadRuntimeConfig } from "./env";
 import { createLogger } from "./logger";
 import { CommandRouter } from "./net/command-router";
+import { DeltaBroadcaster } from "./net/delta-broadcaster";
 import { DevSessionManager } from "./net/dev-session";
+import { InterestManager } from "./net/interest-manager";
 import { type WebSocketTransport, createWebSocketTransport } from "./net/websocket-transport";
-import { CommandBuffer } from "./sim/command-buffer";
+import { CommandBuffer, IntentKind } from "./sim/command-buffer";
+import { DeltaAccumulator } from "./sim/delta-accumulator";
+import { TickLoop, TickPhase } from "./sim/tick-loop";
+import { handleMoveIntent, processMovementPhase } from "./systems/movement-system";
+import { CollisionMap } from "./world/collision";
 import { loadAllRegionMapsIntoWorld } from "./world/region-loader";
 import { type RuntimeMap, createRuntimeMap } from "./world/runtime-map";
 
@@ -29,6 +36,8 @@ export interface GameServer {
   map: RuntimeMap;
   /** WebSocket transport shell. */
   transport: WebSocketTransport;
+  /** Deterministic simulation tick loop. */
+  tickLoop: TickLoop;
 }
 
 export async function startServer(): Promise<GameServer> {
@@ -59,11 +68,37 @@ export async function startServer(): Promise<GameServer> {
   const map = createRuntimeMap();
   const loadedRegions = loadAllRegionMapsIntoWorld(world, map, content.registries);
   const devSessions = new DevSessionManager(world, map, content.registries);
+  const collision = new CollisionMap(map);
   const commandBuffer = new CommandBuffer();
+  const deltas = new DeltaAccumulator();
+  const interestManager = new InterestManager();
+  const tickLoop = new TickLoop({ logger, startServerTime: Date.now() });
   const commandRouter = new CommandRouter({
     commandBuffer,
     getEntityId: (session) => devSessions.getEntityId(session),
-    getCurrentTick: () => 0,
+    getCurrentTick: () => tickLoop.currentTick,
+  });
+  const netRuntime = {
+    deltaBroadcaster: undefined as DeltaBroadcaster | undefined,
+  };
+
+  tickLoop.registerPhase(TickPhase.InputClose, ({ tick }) => {
+    const commands = commandRouter.consumeTick(tick);
+    for (const group of commands.groups) {
+      for (const intent of group.intents) {
+        if (intent.kind === IntentKind.Move) {
+          handleMoveIntent({ world, collision, deltas }, group.ownerEntityId, {
+            dest: intent.payload.dest,
+          });
+        }
+      }
+    }
+  });
+  tickLoop.registerPhase(TickPhase.Movement, ({ tick }) => {
+    processMovementPhase({ world, collision, deltas }, tick);
+  });
+  tickLoop.registerPhase(TickPhase.SnapshotDeltaBuild, ({ tick, serverTime }) => {
+    netRuntime.deltaBroadcaster?.broadcastTick(tick, serverTime);
   });
   logger.info("world", "Regions loaded", {
     regions: loadedRegions.length,
@@ -93,22 +128,54 @@ export async function startServer(): Promise<GameServer> {
   const transport = createWebSocketTransport({
     httpServer,
     logger,
-    getFullState: (session) => devSessions.bootstrap(session),
+    getFullState: (session) => {
+      const fullState = devSessions.bootstrap(
+        session,
+        tickLoop.currentTick,
+        tickLoop.currentServerTime,
+      );
+      netRuntime.deltaBroadcaster?.primeSession(session, fullState.entities);
+      const selfSpawn = fullState.entities.find(
+        (entity) => entity.entityId === fullState.selfEntityId,
+      );
+      if (selfSpawn) {
+        deltas.markEntityAdd(selfSpawn);
+      }
+      return fullState;
+    },
     onCommand: (session, command) => commandRouter.route(session, command),
-    onClose: (session) => devSessions.remove(session),
+    onClose: (session) => {
+      const entityId = devSessions.getEntityId(session);
+      if (entityId !== undefined) {
+        deltas.markEntityRemove(entityId);
+      }
+      devSessions.remove(session);
+    },
+  });
+  netRuntime.deltaBroadcaster = new DeltaBroadcaster({
+    world,
+    deltas,
+    interestManager,
+    transport,
+    getEntityId: (session) => devSessions.getEntityId(session),
   });
 
   httpServer.listen(config.port, () => {
     logger.info("http", `Server listening on port ${config.port}`, { port: config.port });
   });
 
+  const tickTimer = setInterval(() => {
+    tickLoop.runDueTicks(Date.now());
+  }, GAME_TICK_MS);
+
   // --- Graceful shutdown -----------------------------------------------------------
   const shutdown = async (): Promise<void> => {
     logger.info("shutdown", "Graceful shutdown initiated");
+    clearInterval(tickTimer);
     await transport.close();
     await new Promise<void>((resolve) => httpServer.close(() => resolve()));
     logger.info("shutdown", "HTTP server closed");
   };
 
-  return { shutdown, httpServer, world, map, transport };
+  return { shutdown, httpServer, world, map, transport, tickLoop };
 }

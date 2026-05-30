@@ -201,7 +201,7 @@ export class InterestManager {
     const transition = this.updateInterest(player, center);
     const entityAdds: EntitySpawnPacket[] = [];
     for (const add of delta.entityAdds) {
-      if (sceneContainsTile(scene, add.tile)) {
+      if (!state.knownEntities.has(add.entityId) && sceneContainsTile(scene, add.tile)) {
         state.knownEntities.add(add.entityId);
         entityAdds.push(add);
       }

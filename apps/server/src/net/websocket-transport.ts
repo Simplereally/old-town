@@ -6,12 +6,13 @@ import {
   type FullStatePacket,
   TransportClientMessageType,
   TransportServerMessageType,
+  type TransportServerPacket,
   decodeTransportMessage,
   encodeTransportPacket,
   isCompatibleProtocol,
   parseClientCommand,
 } from "@old-town/shared";
-import { type WebSocket, WebSocketServer } from "ws";
+import { WebSocket, WebSocketServer } from "ws";
 import type { Logger } from "../logger";
 
 export interface TransportSession {
@@ -33,6 +34,7 @@ export interface WebSocketTransportOptions {
 export interface WebSocketTransport {
   readonly path: string;
   readonly sessions: ReadonlyMap<string, TransportSession>;
+  send(sessionId: string, packet: TransportServerPacket): boolean;
   close(): Promise<void>;
 }
 
@@ -60,6 +62,7 @@ function parseDevAuth(raw: unknown): DevAuthMessage | undefined {
 
 export function createWebSocketTransport(options: WebSocketTransportOptions): WebSocketTransport {
   const sessions = new Map<string, TransportSession>();
+  const socketsBySession = new Map<string, WebSocket>();
   const socketStates = new WeakMap<WebSocket, SocketState>();
   let nextSessionId = 1;
   const wss = new WebSocketServer({ noServer: true });
@@ -107,6 +110,7 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
         };
         nextSessionId += 1;
         sessions.set(session.id, session);
+        socketsBySession.set(session.id, socket);
         socketStates.set(socket, { session });
         send(socket, options.getFullState(session));
         return;
@@ -144,6 +148,7 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
       const session = socketStates.get(socket)?.session;
       if (session) {
         sessions.delete(session.id);
+        socketsBySession.delete(session.id);
         options.onClose?.(session);
       }
       options.logger.debug("ws", "Socket closed", session ? { sessionId: session.id } : undefined);
@@ -157,6 +162,14 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
   return {
     path: SOCKET_PATH,
     sessions,
+    send: (sessionId, packet) => {
+      const socket = socketsBySession.get(sessionId);
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        return false;
+      }
+      send(socket, packet);
+      return true;
+    },
     close: () =>
       new Promise<void>((resolve) => {
         for (const client of wss.clients) {
