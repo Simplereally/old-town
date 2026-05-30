@@ -28,7 +28,7 @@ Connect browsers to the authoritative world using intent commands and tick delta
 
 ## Ordered stories
 
-- [ ] `E05-S01` — [Create WebSocket transport shell](../stories/E05/E05-S01_create-websocket-transport-shell.md)
+- [X] `E05-S01` — [Create WebSocket transport shell](../completed/stories/E05/E05-S01_create-websocket-transport-shell.md)
 - [ ] `E05-S02` — [Implement dev character session bootstrap](../stories/E05/E05-S02_implement-dev-character-session-bootstrap.md)
 - [ ] `E05-S03` — [Implement interest manager](../stories/E05/E05-S03_implement-interest-manager.md)
 - [ ] `E05-S04` — [Wire command transport into simulation command buffer](../stories/E05/E05-S04_wire-command-transport-into-simulation-command-buffer.md)

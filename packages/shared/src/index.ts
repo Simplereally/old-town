@@ -18,6 +18,7 @@ export * from "./protocol/command-schemas";
 export * from "./protocol/entity-update";
 export * from "./protocol/update-mask";
 export * from "./protocol/packets";
+export * from "./protocol/transport";
 export * from "./content/content-ids";
 export * from "./content-schemas";
 export * from "./content/content-layout";

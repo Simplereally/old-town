@@ -7,5 +7,11 @@
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist",
     "server:dev": "bun --watch src/index.ts"
+  },
+  "dependencies": {
+    "ws": "^8.21.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.18.1"
   }
 }

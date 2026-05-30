@@ -7,10 +7,12 @@
  */
 import type { Server } from "node:http";
 import { createServer } from "node:http";
+import { PROTOCOL_VERSION, ServerPacketType, entityId } from "@old-town/shared";
 import { type BootContentResult, loadContent } from "./content-loader";
 import { type World, createWorld } from "./ecs/world";
 import { loadRuntimeConfig } from "./env";
 import { createLogger } from "./logger";
+import { type WebSocketTransport, createWebSocketTransport } from "./net/websocket-transport";
 import { loadAllRegionMapsIntoWorld } from "./world/region-loader";
 import { type RuntimeMap, createRuntimeMap } from "./world/runtime-map";
 
@@ -23,6 +25,8 @@ export interface GameServer {
   world: World;
   /** Runtime terrain, trigger, and region state. */
   map: RuntimeMap;
+  /** WebSocket transport shell. */
+  transport: WebSocketTransport;
 }
 
 export async function startServer(): Promise<GameServer> {
@@ -77,6 +81,19 @@ export async function startServer(): Promise<GameServer> {
     res.end(JSON.stringify({ error: "not found" }));
   });
 
+  const transport = createWebSocketTransport({
+    httpServer,
+    logger,
+    getFullState: () => ({
+      type: ServerPacketType.FullState,
+      protocolVersion: PROTOCOL_VERSION,
+      tick: 0,
+      serverTime: Date.now(),
+      selfEntityId: entityId(0),
+      entities: [],
+    }),
+  });
+
   httpServer.listen(config.port, () => {
     logger.info("http", `Server listening on port ${config.port}`, { port: config.port });
   });
@@ -84,10 +101,10 @@ export async function startServer(): Promise<GameServer> {
   // --- Graceful shutdown -----------------------------------------------------------
   const shutdown = async (): Promise<void> => {
     logger.info("shutdown", "Graceful shutdown initiated");
-    // Tick loop and sockets will be closed here when added in later stories.
+    await transport.close();
     await new Promise<void>((resolve) => httpServer.close(() => resolve()));
     logger.info("shutdown", "HTTP server closed");
   };
 
-  return { shutdown, httpServer, world, map };
+  return { shutdown, httpServer, world, map, transport };
 }
