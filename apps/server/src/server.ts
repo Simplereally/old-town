@@ -7,11 +7,11 @@
  */
 import type { Server } from "node:http";
 import { createServer } from "node:http";
-import { PROTOCOL_VERSION, ServerPacketType, entityId } from "@old-town/shared";
 import { type BootContentResult, loadContent } from "./content-loader";
 import { type World, createWorld } from "./ecs/world";
 import { loadRuntimeConfig } from "./env";
 import { createLogger } from "./logger";
+import { DevSessionManager } from "./net/dev-session";
 import { type WebSocketTransport, createWebSocketTransport } from "./net/websocket-transport";
 import { loadAllRegionMapsIntoWorld } from "./world/region-loader";
 import { type RuntimeMap, createRuntimeMap } from "./world/runtime-map";
@@ -56,6 +56,7 @@ export async function startServer(): Promise<GameServer> {
   const world = createWorld();
   const map = createRuntimeMap();
   const loadedRegions = loadAllRegionMapsIntoWorld(world, map, content.registries);
+  const devSessions = new DevSessionManager(world, map, content.registries);
   logger.info("world", "Regions loaded", {
     regions: loadedRegions.length,
     tiles: map.tiles.size,
@@ -84,14 +85,8 @@ export async function startServer(): Promise<GameServer> {
   const transport = createWebSocketTransport({
     httpServer,
     logger,
-    getFullState: () => ({
-      type: ServerPacketType.FullState,
-      protocolVersion: PROTOCOL_VERSION,
-      tick: 0,
-      serverTime: Date.now(),
-      selfEntityId: entityId(0),
-      entities: [],
-    }),
+    getFullState: (session) => devSessions.bootstrap(session),
+    onClose: (session) => devSessions.remove(session),
   });
 
   httpServer.listen(config.port, () => {

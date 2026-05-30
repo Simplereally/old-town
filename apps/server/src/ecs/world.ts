@@ -16,6 +16,7 @@ import type {
   PositionComponent,
   QuestVarsComponent,
   ResourceNodeComponent,
+  SkillsComponent,
 } from "./components";
 import { EntityPool } from "./entity";
 
@@ -29,6 +30,7 @@ export interface ComponentStores {
   groundItem: Map<EntityId, GroundItemComponent>;
   inventory: Map<EntityId, InventoryComponent>;
   equipment: Map<EntityId, EquipmentComponent>;
+  skills: Map<EntityId, SkillsComponent>;
   combatant: Map<EntityId, CombatantComponent>;
   resourceNode: Map<EntityId, ResourceNodeComponent>;
   questVars: Map<EntityId, QuestVarsComponent>;
@@ -56,6 +58,7 @@ export function createWorld(): World {
     groundItem: new Map(),
     inventory: new Map(),
     equipment: new Map(),
+    skills: new Map(),
     combatant: new Map(),
     resourceNode: new Map(),
     questVars: new Map(),

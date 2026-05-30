@@ -24,6 +24,7 @@ export interface WebSocketTransportOptions {
   readonly logger: Pick<Logger, "debug" | "warn">;
   readonly getFullState: (session: TransportSession) => FullStatePacket;
   readonly onCommand?: (session: TransportSession, command: ClientCommand) => void;
+  readonly onClose?: (session: TransportSession) => void;
 }
 
 export interface WebSocketTransport {
@@ -134,6 +135,7 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
       const session = socketStates.get(socket)?.session;
       if (session) {
         sessions.delete(session.id);
+        options.onClose?.(session);
       }
       options.logger.debug("ws", "Socket closed", session ? { sessionId: session.id } : undefined);
     });

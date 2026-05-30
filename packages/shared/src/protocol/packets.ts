@@ -95,6 +95,16 @@ export interface RegionUnloadPacket {
   readonly regionId: RegionId;
 }
 
+/** Spatial/temporal constants the client needs to interpret authoritative packets. */
+export interface WorldConstantsPacket {
+  readonly gameTickMs: number;
+  readonly tileSizeWorldUnits: number;
+  readonly chunkSize: number;
+  readonly regionSize: number;
+  readonly activeSceneSize: number;
+  readonly planes: number;
+}
+
 // --- Top-level messages -----------------------------------------------------------
 
 /** Authoritative bootstrap snapshot sent on login (POC_SPEC §8.1 S2C_FULL_STATE). */
@@ -103,6 +113,7 @@ export interface FullStatePacket {
   readonly protocolVersion: number;
   readonly tick: number;
   readonly serverTime: number;
+  readonly worldConstants?: WorldConstantsPacket;
   readonly selfEntityId: EntityId;
   readonly entities: readonly EntitySpawnPacket[];
   readonly inventory?: InventoryDelta;

@@ -78,6 +78,16 @@ export interface EquipmentComponent {
   slots: Record<string, string | undefined>;
 }
 
+export interface SkillState {
+  level: number;
+  xp: number;
+}
+
+export interface SkillsComponent {
+  entityId: EntityId;
+  skills: Record<string, SkillState>;
+}
+
 /** Combat stats and state. */
 export interface CombatantComponent {
   entityId: EntityId;
