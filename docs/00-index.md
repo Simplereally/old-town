@@ -22,6 +22,24 @@ docs/
     production-skills.md ← Production skills (Smithing, Bowcraft, etc.)
     utility-skills.md  ← Utility skills (Wayfaring, Sleight, etc.)
     skill-interlocks.md ← Skill economy web
+  resources/
+    00-index.md        ← Resource taxonomy entry point
+    resource-taxonomy.md ← Canonical resource names and banned list
+    ores-and-stone.md  ← Mining resources
+    woods-and-timber.md ← Woodcutting resources
+    fish-and-cooking.md ← Fishing resources
+    hides-bones-and-trophies.md ← Trapping resources
+    herbs-roots-and-fungi.md ← Gardening resources
+    bead-materials.md ← Beadwork resources
+  consumables/
+    00-index.md        ← Consumables system entry point
+    consumable-system.md ← Core consumable authority
+    food.md            ← Food system
+    potions.md         ← Potion system
+    brews.md           ← Brew system
+    poisons.md         ← Poison system
+    salves-and-oils.md ← Salves and oils
+    status-effects.md  ← Status effects
   items/
     00-index.md        ← Item system entry point
     melee-armour-tiers.md  ← Melee tier system philosophy
@@ -102,8 +120,10 @@ docs/
 | Understand the magic tier system | [`magic-tiers.md`](magic-tiers.md) |
 | Find a weapon | [`items/weapons/00-index.md`](items/weapons/00-index.md) → pick melee, ranged, or magic |
 | Find armour | [`items/armour/00-index.md`](items/armour/00-index.md) → pick melee, ranged, or magic slot |
-| Find food or potions | [`items/consumables/00-index.md`](items/consumables/00-index.md) |
-| Find wood, ore, or fish | [`items/resources/00-index.md`](items/resources/00-index.md) |
+| Find food or potions | [`consumables/00-index.md`](consumables/00-index.md) |
+| Find wood, ore, or fish | [`resources/00-index.md`](resources/00-index.md) |
+| Understand the resource taxonomy | [`resources/00-index.md`](resources/00-index.md) → [`resource-taxonomy.md`](resources/resource-taxonomy.md) |
+| Understand consumables | [`consumables/00-index.md`](consumables/00-index.md) → [`consumable-system.md`](consumables/consumable-system.md) |
 | Find an axe or pickaxe | [`items/tools/00-index.md`](items/tools/00-index.md) |
 | Find a quest item | [`items/quest/00-index.md`](items/quest/00-index.md) |
 | Find coins or arrows | [`items/misc/00-index.md`](items/misc/00-index.md) |

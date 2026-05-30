@@ -1,10 +1,12 @@
 # Potions
 
-> All potion items in Old Town. Potions provide burst effects: healing, energy restoration, prayer restoration, and status cures.
+> All potion items in Old Town. Potions provide burst effects: healing, stat boosts, status cures, and utility buffs. See `docs/consumables/potions.md` for the canonical potion system design.
+>
+> **Rule:** All potion names must match the canonical consumables system. Banned names: `health potion`, `strength potion`, `mana potion`, `antipoison`, `prayer potion`, `energy potion`, `attack potion`, `defence potion`, `magic potion`, `ranged potion`.
 
 ## Potion System Overview
 
-Potions are crafted through the Herblore skill (planned, not in POC). They provide burst effects.
+Potions are crafted through the Apothecary skill. They provide burst effects.
 
 **Potion mechanics:**
 - Potions are stackable (up to 28 per inventory slot)
@@ -12,84 +14,112 @@ Potions are crafted through the Herblore skill (planned, not in POC). They provi
 - A potion vial becomes an `empty_vial` after all doses are consumed
 - Potions can be consumed during combat
 - Some potions have a cooldown (cannot drink the same potion for N ticks)
+- Potion names use Old Town terminology: Tincture, Draught, Tonic, Phial, Cordial, Salve, Wash
 
-## Potion Types
+## Stat Boost Potions
 
-### Health Potions
+### Tinctures (Arms)
 
-| Item ID | Name | Effect | Doses | Herblore Level | Notes |
-|---------|------|--------|-------|---------------|-------|
-| `health_potion` | Health Potion | Heals 20 HP | 4 | 1 | Basic healing potion |
-| `health_potion_super` | Super Health Potion | Heals 35 HP | 4 | 40 | Stronger healing |
+| Item ID | Name | Effect | Doses | Apothecary Level | Notes |
+|---------|------|--------|-------|------------------|-------|
+| `arms_tincture` | Arms Tincture | +3 Arms | 4 | 15 | Sharpens the blade hand |
+| `arms_tincture_super` | Arms Tincture (Super) | +5 Arms | 4 | 75 | Stronger tincture |
 
-### Energy Potions
+### Draughts (Might)
 
-| Item ID | Name | Effect | Doses | Herblore Level | Notes |
-|---------|------|--------|-------|---------------|-------|
-| `energy_potion` | Energy Potion | Restores 20% run | 4 | 5 | Run energy restoration |
-| `energy_potion_super` | Super Energy Potion | Restores 40% run | 4 | 45 | Stronger energy |
+| Item ID | Name | Effect | Doses | Apothecary Level | Notes |
+|---------|------|--------|-------|------------------|-------|
+| `might_draught` | Might Draught | +3 Might | 4 | 25 | Swells the muscles |
+| `might_draught_super` | Might Draught (Super) | +5 Might | 4 | 85 | Stronger draught |
 
-### Prayer Potions
+### Tonics (Guard)
 
-| Item ID | Name | Effect | Doses | Herblore Level | Notes |
-|---------|------|--------|-------|---------------|-------|
-| `prayer_potion` | Prayer Potion | Restores 20 prayer | 4 | 30 | Prayer point restoration |
-| `prayer_potion_super` | Super Prayer Potion | Restores 35 prayer | 4 | 65 | Stronger prayer |
+| Item ID | Name | Effect | Doses | Apothecary Level | Notes |
+|---------|------|--------|-------|------------------|-------|
+| `guard_tonic` | Guard Tonic | +3 Guard | 4 | 35 | Hardens the skin |
+| `guard_tonic_super` | Guard Tonic (Super) | +5 Guard | 4 | 90 | Stronger tonic |
 
-### Status Cure Potions
+### Bitters (Ranged)
 
-| Item ID | Name | Effect | Doses | Herblore Level | Notes |
-|---------|------|--------|-------|---------------|-------|
-| `antidote` | Antidote | Cures poison | 1 | 15 | Instant poison cure |
-| `antidote_plus` | Antidote Plus | Cures poison + immunity | 1 | 60 | Cures + 5-min immunity |
+| Item ID | Name | Effect | Doses | Apothecary Level | Notes |
+|---------|------|--------|-------|------------------|-------|
+| `sight_bitters` | Sight Bitters | +3 Ranged | 4 | 45 | Sharpens the eye |
+| `sight_bitters_super` | Sight Bitters (Super) | +5 Ranged | 4 | 85 | Stronger bitters |
 
-### Stat Boost Potions
+### Phials (Magic)
 
-| Item ID | Name | Effect | Doses | Herblore Level | Notes |
-|---------|------|--------|-------|---------------|-------|
-| `strength_potion` | Strength Potion | +10% Strength | 4 | 10 | Temporary boost |
-| `strength_potion_super` | Super Strength Potion | +15% Strength | 4 | 50 | Stronger boost |
-| `attack_potion` | Attack Potion | +10% Attack | 4 | 10 | Temporary boost |
-| `attack_potion_super` | Super Attack Potion | +15% Attack | 4 | 50 | Stronger boost |
-| `defence_potion` | Defence Potion | +10% Defence | 4 | 10 | Temporary boost |
-| `defence_potion_super` | Super Defence Potion | +15% Defence | 4 | 50 | Stronger boost |
-| `magic_potion` | Magic Potion | +10% Magic | 4 | 35 | Temporary boost |
-| `ranged_potion` | Ranged Potion | +10% Ranged | 4 | 35 | Temporary boost |
+| Item ID | Name | Effect | Doses | Apothecary Level | Notes |
+|---------|------|--------|-------|------------------|-------|
+| `wit_phial` | Wit Phial | +3 Magic | 4 | 55 | Clears the mind |
+| `wit_phial_super` | Wit Phial (Super) | +5 Magic | 4 | 90 | Stronger phial |
+
+### Cordials (Favour)
+
+| Item ID | Name | Effect | Doses | Apothecary Level | Notes |
+|---------|------|--------|-------|------------------|-------|
+| `favour_cordial` | Favour Cordial | +3 Favour | 4 | 65 | Renews the spirit |
+| `favour_cordial_super` | Favour Cordial (Super) | +5 Favour | 4 | 95 | Stronger cordial |
+
+### Elixirs (Vitality)
+
+| Item ID | Name | Effect | Doses | Apothecary Level | Notes |
+|---------|------|--------|-------|------------------|-------|
+| `vitality_elixir` | Vitality Elixir | +3 Vitality | 4 | 75 | Steels the body |
+| `vitality_elixir_super` | Vitality Elixir (Super) | +5 Vitality | 4 | 99 | Stronger elixir |
+
+## Utility Potions
+
+| Item ID | Name | Effect | Doses | Apothecary Level | Notes |
+|---------|------|--------|-------|------------------|-------|
+| `road_tea` | Road Tea | Restore 50% stamina | 4 | 20 | For travellers |
+| `cleanblood_salve` | Cleanblood Salve | Cure poison | 1 | 30 | Draws out venom |
+| `argent_wash` | Argent Wash | Cure curse | 1 | 40 | Cleanses curses |
+| `greenwold_poultice` | Greenwold Poultice | Restore 20% stamina + heal 10 HP | 1 | 50 | Restores the body |
+| `graveyard_balm` | Graveyard Balm | Cure rot | 1 | 60 | Heals crypt rot |
+| `blueglass_unguent` | Blueglass Unguent | Cure burn | 1 | 70 | Soothes burns |
+| `starfall_balm` | Starfall Balm | Cure all status | 1 | 99 | The ultimate cure |
+
+## Buff Potions
+
+| Item ID | Name | Effect | Doses | Apothecary Level | Notes |
+|---------|------|--------|-------|------------------|-------|
+| `blueglass_tonic` | Blueglass Tonic | +5% precision | 4 | 60 | Focus potion |
+| `graveyard_oil` | Graveyard Oil | +5% vs undead | 4 | 70 | Weapon coating |
+| `carmine_oil` | Carmine Oil | +5% weapon damage | 4 | 80 | Duelist's oil |
+| `warden_oil` | Warden Oil | +5% vs deserters | 4 | 60 | Lawful oil |
+| `starfall_oil` | Starfall Oil | +10% vs all | 4 | 99 | Ultimate oil |
 
 ## Potion Effects Detail
 
-**Health Potions:**
-- Heal HP immediately on drinking
-- No eat delay (unlike food)
-- Can drink while eating (food + potion simultaneously)
-- Super health potions heal more but are expensive
-
-**Energy Potions:**
-- Restore run energy percentage (not flat amount)
-- Useful for long-distance travel
-- Super energy potions restore more
-
-**Prayer Potions:**
-- Restore prayer points (used for prayers/buffs)
-- Essential for sustained combat with prayers active
-- Super prayer potions restore more
-
-**Antidote:**
-- Cures poison instantly
-- Antidote Plus provides 5-minute poison immunity
-- Poison is a damage-over-time status effect (planned)
-
 **Stat Boost Potions:**
-- Temporary boost to combat stats
+- Temporary boost to combat skills
 - Lasts for 60 ticks (36 seconds)
-- Boosts are calculated as percentage of current level
+- Boosts are flat +3 or +5 (not percentage)
+- Limited by the +5 total boost cap (see `docs/skills/skill-system.md`)
 - Cannot stack multiple boosts (highest applies)
+
+**Utility Potions:**
+- Cure status effects instantly
+- No eat delay
+- Can drink while eating (food + potion simultaneously)
+- Salves are single-use (1 dose)
+
+**Buff Potions:**
+- Grant combat or skilling buffs
+- Last 1 minute (combat) or 10 minutes (utility)
+- Oils are applied to weapons, not drunk
+- No stacking (reapplying overwrites)
 
 ## Related Documents
 
-- [`food.md`](food.md) — Food items
+- [`food.md`](food.md) — Food item definitions
 - [`00-index.md`](00-index.md) — Consumables overview
+- [`../../consumables/00-index.md`](../../consumables/00-index.md) — Canonical consumables system
+- [`../../consumables/potions.md`](../../consumables/potions.md) — Canonical potion system design
+- [`../../resources/herbs-roots-and-fungi.md`](../../resources/herbs-roots-and-fungi.md) — Herb taxonomy
 
 ---
 
-*Total potion items defined: 16*
+*Total potion items defined: 30+*
+*All names match canonical consumables system: Yes*
+*Last updated: 2026-05-30*
