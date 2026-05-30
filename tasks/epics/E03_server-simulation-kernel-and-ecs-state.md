@@ -33,7 +33,7 @@ Create the authoritative 600ms simulation loop, command buffer, entity/component
 - [X] `E03-S02` — [Implement ECS world state container](../completed/stories/E03/E03-S02_implement-ecs-world-state-container.md)
 - [X] `E03-S03` — [Implement 600ms tick loop and phase scheduler](../completed/stories/E03/E03-S03_implement-600ms-tick-loop-and-phase-scheduler.md)
 - [X] `E03-S04` — [Implement command buffer and validation pipeline](../completed/stories/E03/E03-S04_implement-command-buffer-and-validation-pipeline.md)
-- [ ] `E03-S05` — [Implement action queue system](../stories/E03/E03-S05_implement-action-queue-system.md)
+- [X] `E03-S05` — [Implement action queue system](../completed/stories/E03/E03-S05_implement-action-queue-system.md)
 - [ ] `E03-S06` — [Implement delta accumulator shell](../stories/E03/E03-S06_implement-delta-accumulator-shell.md)
 
 ## Epic acceptance criteria
