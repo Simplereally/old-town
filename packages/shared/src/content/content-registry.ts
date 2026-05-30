@@ -3,7 +3,7 @@
  * happens in the caller — the content-validator CLI or the server boot loader) and:
  *   1. validates each definition against its Zod schema,
  *   2. indexes definitions into per-kind registries, detecting duplicate ids,
- *   3. validates cross-references between registries (drop items, rune costs, NPC drop
+ *   3. validates cross-references between registries (drop items, bead costs, NPC drop
  *      tables, quest/dialogue references, map placements, etc.).
  *
  * No filesystem access here, so this module stays usable from any environment.
@@ -196,8 +196,8 @@ export function validateContent(files: readonly LoadedContentFile[]): ContentVal
   }
 
   for (const [id, def] of maps.get("spell") as Map<string, SpellDef>) {
-    for (const cost of def.runeCosts) {
-      requireRef("item", cost.itemId, "spell", id, "runeCosts.itemId");
+    for (const cost of def.beadCosts) {
+      requireRef("item", cost.itemId, "spell", id, "beadCosts.itemId");
     }
     if (def.effect.kind === "alchemy") {
       requireRef("item", def.effect.coinItemId, "spell", id, "effect.coinItemId");

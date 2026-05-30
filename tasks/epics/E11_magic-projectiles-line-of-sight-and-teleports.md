@@ -16,7 +16,7 @@
 
 ## Epic goal
 
-Implement the first spellbook: rune-cost validation, targeted combat spell, projectile/graphic events, delayed magic hits, line-of-sight checks, and interruptible home teleport.
+Implement the first spellbook: bead-cost validation, targeted combat spell, projectile/graphic events, delayed magic hits, line-of-sight checks, and interruptible home teleport.
 
 ## Completion checklist
 
@@ -29,7 +29,7 @@ Implement the first spellbook: rune-cost validation, targeted combat spell, proj
 
 ## Ordered stories
 
-- [ ] `E11-S01` — [Implement spell validation and rune costs](../stories/E11/E11-S01_implement-spell-validation-and-rune-costs.md)
+- [ ] `E11-S01` — [Implement spell validation and bead costs](../stories/E11/E11-S01_implement-spell-validation-and-bead-costs.md)
 - [ ] `E11-S02` — [Implement combat spell projectile and delayed hit](../stories/E11/E11-S02_implement-combat-spell-projectile-and-delayed-hit.md)
 - [ ] `E11-S03` — [Implement bind/snare-style movement block hook](../stories/E11/E11-S03_implement-bind-snare-style-movement-block-hook.md)
 - [ ] `E11-S04` — [Implement interruptible home teleport](../stories/E11/E11-S04_implement-interruptible-home-teleport.md)

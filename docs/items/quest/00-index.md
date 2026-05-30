@@ -28,7 +28,7 @@ Quest items use the quest slug as a prefix:
 ```
 
 Examples:
-- `smoke_over_old_town_baker_key`
+- `smoke_over_old_town_baker_oven_key`
 - `smoke_over_old_town_dry_log`
 - `smoke_over_old_town_cellar_rat_tail`
 

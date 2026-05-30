@@ -1,27 +1,45 @@
 [
   {
-    "id": "woodsmans_axe",
-    "name": "Woodsman's Axe",
+    "id": "pennywrought_axe",
+    "name": "Pennywrought Axe",
     "stackable": false,
     "tradeable": true,
-    "examine": "A worn felling axe. Good for chopping trees.",
-    "icon": "icon_woodsmans_axe",
-    "model": "model_woodsmans_axe",
-    "value": 16,
+    "examine": "A first real axe, good enough for young trees and old pride.",
+    "icon": "icon_pennywrought_axe",
+    "model": "model_pennywrought_axe",
+    "value": 24,
     "weight": 1.6,
+    "tier": "pennywrought",
+    "tierOrder": 1,
+    "family": "axe",
+    "category": "melee",
+    "visualIdentity": {
+      "baseColor": "dull_copper_brown",
+      "accents": "cheap_rivets",
+      "handle": "plain_wood"
+    },
     "options": [],
     "tags": ["axe"]
   },
   {
-    "id": "prospectors_pickaxe",
-    "name": "Prospector's Pickaxe",
+    "id": "pennywrought_pickaxe",
+    "name": "Pennywrought Pickaxe",
     "stackable": false,
     "tradeable": true,
-    "examine": "A blunt-pointed pickaxe for breaking rock.",
-    "icon": "icon_prospectors_pickaxe",
-    "model": "model_prospectors_pickaxe",
-    "value": 18,
+    "examine": "A cheap pickaxe with a copper-brown head and a stubborn point.",
+    "icon": "icon_pennywrought_pickaxe",
+    "model": "model_pennywrought_pickaxe",
+    "value": 28,
     "weight": 2.0,
+    "tier": "pennywrought",
+    "tierOrder": 1,
+    "family": "pickaxe",
+    "category": "melee",
+    "visualIdentity": {
+      "baseColor": "dull_copper_brown",
+      "accents": "cheap_rivets",
+      "handle": "plain_wood"
+    },
     "options": [],
     "tags": ["pickaxe"]
   }

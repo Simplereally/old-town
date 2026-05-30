@@ -1,12 +1,22 @@
 [
   {
-    "id": "coins",
-    "name": "Coins",
+    "id": "coin",
+    "name": "Coin",
     "stackable": true,
     "tradeable": true,
-    "examine": "A handful of small town coins.",
-    "icon": "icon_coins",
+    "examine": "A small Old Town coin, bright where many hands have worn it.",
+    "icon": "icon_coin",
     "value": 1,
+    "options": []
+  },
+  {
+    "id": "quest_point",
+    "name": "Quest Point",
+    "stackable": true,
+    "tradeable": false,
+    "examine": "A record of a promise kept in Old Town.",
+    "icon": "icon_quest_point",
+    "value": 0,
     "options": []
   }
 ]

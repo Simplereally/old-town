@@ -105,7 +105,7 @@ Players will say:
 | Slot / type | Base name | Example | Notes |
 |-------------|-----------|---------|-------|
 | Wand | **Wand** | Chalkmarked Wand | Fast, one-handed, low damage |
-| Staff | **Staff** | Bellwax Staff | Two-handed, rune savings, slow |
+| Staff | **Staff** | Bellwax Staff | Two-handed, bead savings, slow |
 | Battle staff | **Rod** | Blacksalt Rod | Two-handed, melee/magic hybrid |
 | Orb / focus | **Focus** | Blueglass Focus | Off-hand, magic accuracy boost |
 | Spellbook | **Primer** | Chalkmarked Primer | Low-level spellbook |

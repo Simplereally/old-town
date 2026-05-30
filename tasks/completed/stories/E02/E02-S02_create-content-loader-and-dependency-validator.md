@@ -26,7 +26,7 @@ Load all content files from the content directory and validate cross-references.
 
 - [X] Implement recursive JSON loader.
 - [X] Build registries for items, NPCs, objects, skills, spells, quests, dialogue, drop tables, maps, materials, animations.
-- [X] Validate cross-references such as item IDs in drops, spell rune costs, NPC drop table IDs, quest dialogue IDs.
+- [X] Validate cross-references such as item IDs in drops, spell bead costs, NPC drop table IDs, quest dialogue IDs.
 - [X] Detect duplicate IDs across each registry.
 - [X] Expose a CLI command `content:validate`.
 

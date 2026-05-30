@@ -6,18 +6,21 @@ function validate(kind: ContentKind, value: unknown) {
 }
 
 const validItem = {
-  id: "bronze_hatchet",
-  name: "Bronze Hatchet",
+  id: "pennywrought_axe",
+  name: "Pennywrought Axe",
   stackable: false,
   tradeable: true,
   examine: "A sturdy chopping tool.",
-  icon: "icon_bronze_hatchet",
+  icon: "icon_pennywrought_axe",
   value: 16,
+  tier: "pennywrought",
+  tierOrder: 1,
+  family: "axe",
+  category: "melee",
   options: ["wield", "drop"],
   tags: ["axe"],
   equipment: {
     slot: "weapon",
-    weaponCategory: "axe",
     attackSpeedTicks: 5,
     bonuses: { slashAttack: 4 },
   },
@@ -60,11 +63,11 @@ const validResourceNode = {
 };
 
 const validSpell = {
-  id: "ember_strike",
-  name: "Ember Strike",
+  id: "ember_flick",
+  name: "Ember Flick",
   spellbook: "common",
   requiredMagic: 1,
-  runeCosts: [{ itemId: "ember_rune", quantity: 1 }],
+  beadCosts: [{ itemId: "ember_bead", quantity: 1 }],
   castXp: 5.5,
   rangeTiles: 6,
   targetType: "entity",
@@ -138,9 +141,9 @@ describe("schema strictness and field validation", () => {
   });
 
   it("rejects invalid ids", () => {
-    expect(validate("item", { ...validItem, id: "Bronze Hatchet" }).success).toBe(false);
+    expect(validate("item", { ...validItem, id: "Pennywrought Axe" }).success).toBe(false);
     expect(
-      validate("spell", { ...validSpell, runeCosts: [{ itemId: "Bad Id", quantity: 1 }] }).success,
+      validate("spell", { ...validSpell, beadCosts: [{ itemId: "Bad Id", quantity: 1 }] }).success,
     ).toBe(false);
   });
 

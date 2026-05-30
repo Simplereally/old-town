@@ -384,8 +384,8 @@
       "stories": [
         {
           "id": "E11-S01",
-          "title": "Implement spell validation and rune costs",
-          "file": "stories/E11/E11-S01_implement-spell-validation-and-rune-costs.md"
+          "title": "Implement spell validation and bead costs",
+          "file": "stories/E11/E11-S01_implement-spell-validation-and-bead-costs.md"
         },
         {
           "id": "E11-S02",

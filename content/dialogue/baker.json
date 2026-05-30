@@ -1,0 +1,42 @@
+{
+  "id": "baker_dialogue",
+  "name": "Baker Dialogue",
+  "root": "start",
+  "nodes": [
+    {
+      "id": "start",
+      "npcText": "If you're here for bread, you'll have to help me get the oven breathing first.",
+      "playerOptions": [
+        { "text": "What happened to the oven?", "next": "oven_trouble" },
+        { "text": "I should go.", "next": "end" }
+      ]
+    },
+    {
+      "id": "oven_trouble",
+      "npcText": "Smoke in the flue, rats in the cellar, and not enough dry wood to restart it cleanly.",
+      "playerOptions": [
+        {
+          "text": "I'll sort it out.",
+          "next": "accepted",
+          "effects": [
+            { "kind": "start_quest", "questId": "smoke_over_old_town" },
+            { "kind": "set_var", "key": "quest_smoke_over_old_town_stage", "value": 1 }
+          ]
+        },
+        { "text": "Sounds like a bakery problem.", "next": "end" }
+      ]
+    },
+    {
+      "id": "accepted",
+      "npcText": "Bring me three dry logs, clear out the cellar rats, then use this key on the oven.",
+      "effects": [
+        { "kind": "add_item", "itemId": "smoke_over_old_town_baker_oven_key", "quantity": 1 }
+      ],
+      "playerOptions": [{ "text": "I'll be back.", "next": "end" }]
+    },
+    {
+      "id": "end",
+      "npcText": "Mind the smoke. It gets into everything."
+    }
+  ]
+}

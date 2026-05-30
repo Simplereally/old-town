@@ -1,4 +1,4 @@
-# E11-S01 — Implement spell validation and rune costs
+# E11-S01 — Implement spell validation and bead costs
 
 ## Epic
 
@@ -20,23 +20,23 @@ E11 — Magic, Projectiles, Line of Sight, and Teleports
 
 ## Objective
 
-Validate magic level, rune inventory, target type, range, LoS, cooldown, and spellbook membership for SpellIntent.
+Validate magic level, bead inventory, target type, range, LoS, cooldown, and spellbook membership for SpellIntent.
 
 ## Implementation checklist
 
 - [ ] Implement SpellIntent handler.
 - [ ] Validate spell exists and player has required magic level.
-- [ ] Validate and consume rune costs only on successful cast start.
+- [ ] Validate and consume bead costs only on successful cast start.
 - [ ] Validate target type and range.
 - [ ] Check LoS when configured.
 - [ ] Emit server messages for invalid casts.
-- [ ] Add tests for missing runes, low level, wrong target, blocked LoS.
+- [ ] Add tests for missing beads, low level, wrong target, blocked LoS.
 
 ## Acceptance criteria
 
 - [ ] Client cannot cast by bypassing rune/level checks.
-- [ ] Rune consumption is transactional with cast start.
-- [ ] Invalid casts do not consume runes.
+- [ ] Bead consumption is transactional with cast start.
+- [ ] Invalid casts do not consume beads.
 
 ## Validation commands
 

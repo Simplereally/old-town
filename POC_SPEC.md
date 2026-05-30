@@ -781,7 +781,10 @@ type Combatant = {
 type WeaponDef = {
   id: string;
   slot: "weapon";
-  category: "sword" | "axe" | "bow" | "staff" | "dagger" | "mace";
+  category: "melee" | "ranged" | "magic";
+  family: string; // canonical family from docs/items/weapons/*
+  tier?: string;
+  tierOrder?: number;
   attackSpeedTicks: number;
   attackRangeTiles: number;
   allowedStyles: CombatStyle[];
@@ -1144,6 +1147,11 @@ type ItemDef = {
   model?: AssetId;
   value: number;
   weight?: number;
+  tier?: string;
+  tierOrder?: number;
+  family?: string;
+  category?: "melee" | "ranged" | "magic";
+  visualIdentity?: Record<string, string>;
   options: ItemOption[];
   equipment?: EquipmentDef;
   consumable?: ConsumableDef;
@@ -1206,20 +1214,20 @@ Do not recalculate every tick.
 type SpellDef = {
   id: string;
   name: string;
-  spellbook: "common" | "oldWays" | "wild" | "ritual";
+  spellbook: "common" | "old_ways" | "wild" | "ritual";
   requiredMagic: number;
-  runeCosts: ItemQuantity[];
+  beadCosts: ItemQuantity[];
   castXp: number;
   maxHit?: number;
   rangeTiles: number;
   targetType: "self" | "entity" | "tile" | "item";
   requiresLineOfSight: boolean;
   cooldownTicks?: number;
-  effectScript: ScriptId;
+  effect: SpellEffect;
 };
 ```
 
-RuneScape-style magic has combat spells, teleports, enchantments, utility, and rune costs; even public beginner/material pages describe runes and spell categories such as combat, teleportation, alchemy/enchantment/support. ([Old School RuneScape Wiki][21])
+Old Town magic keeps the familiar combat/teleport/enchant/utility spell shape, but the consumable resource is **beads**, not runes. Bead names, pouch rules, and magic gear tiers are defined in `docs/magic-tiers.md` and `docs/items/misc/bead-pouches.md`.
 
 ### 17.2 Spell categories for POC
 
@@ -1229,12 +1237,12 @@ RuneScape-style magic has combat spells, teleports, enchantments, utility, and r
 * item enchant: transforms item
 * alchemy: converts item to coins
 
-### 17.3 Rune costs
+### 17.3 Bead costs
 
 ```ts
 function canCast(player, spell) {
   return level >= spell.requiredMagic
-    && inventoryHasAll(player, spell.runeCosts)
+    && inventoryHasAll(player, spell.beadCosts)
     && targetValid(player, spell);
 }
 ```
@@ -1545,8 +1553,8 @@ Examine
 Attack Goblin
 Talk-to Baker
 Chop Twisted Pine
-Use Bronze axe -> Tree
-Cast Ember Strike -> Goblin
+Use Pennywrought axe -> Tree
+Cast Ember Flick -> Goblin
 ```
 
 Do not overmodernize this. The menu is part of the genre.
@@ -1812,12 +1820,12 @@ Done when: player can kill goblin, take drop, gain combat XP.
 ### Milestone 6: Magic and ranged
 
 * spellbook panel
-* rune item costs
+* bead item costs
 * projectile graphics
 * delayed hit
 * LoS check
 
-Done when: player can cast a basic spell if runes/level/LoS are valid.
+Done when: player can cast a basic spell if beads/level/LoS are valid.
 
 ### Milestone 7: Quest
 
@@ -2044,7 +2052,7 @@ The smallest impressive POC:
 * 2 foods
 * 2 logs
 * 2 ores
-* 2 runes
+* 2 beads
 * 1 spell staff
 * coins
 

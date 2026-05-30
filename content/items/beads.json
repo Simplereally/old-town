@@ -1,0 +1,46 @@
+[
+  {
+    "id": "ember_bead",
+    "name": "Ember Bead",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A tiny drilled bead glazed warm enough to suggest a spark.",
+    "icon": "icon_ember_bead",
+    "value": 4,
+    "options": [],
+    "tags": ["bead", "element_bead"]
+  },
+  {
+    "id": "gust_bead",
+    "name": "Gust Bead",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A feather-light bead that twitches against its cord.",
+    "icon": "icon_gust_bead",
+    "value": 4,
+    "options": [],
+    "tags": ["bead", "element_bead"]
+  },
+  {
+    "id": "wit_bead",
+    "name": "Wit Bead",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A slate bead etched with the smallest possible clever idea.",
+    "icon": "icon_wit_bead",
+    "value": 6,
+    "options": [],
+    "tags": ["bead", "catalyst_bead"]
+  },
+  {
+    "id": "writ_bead",
+    "name": "Writ Bead",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A licensed bead for spells that need permission to move.",
+    "icon": "icon_writ_bead",
+    "value": 10,
+    "options": [],
+    "tags": ["bead", "catalyst_bead"]
+  }
+]

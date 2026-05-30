@@ -2,13 +2,14 @@
 import { z } from "zod";
 import {
   combatBonusesSchema,
+  combatClassSchema,
   combatStyleSchema,
   contentIdSchema,
   equipmentSlotSchema,
   nonNegInt,
   positiveInt,
   skillRequirementSchema,
-  weaponCategorySchema,
+  tierOrderSchema,
 } from "./common";
 
 /** Equipment data attached to a wearable/wieldable item (POC_SPEC §16.1, §13.2). */
@@ -18,7 +19,6 @@ export const equipmentDefSchema = z
     bonuses: combatBonusesSchema.default({}),
     requirements: z.array(skillRequirementSchema).default([]),
     // Weapon-only fields:
-    weaponCategory: weaponCategorySchema.optional(),
     attackSpeedTicks: positiveInt.optional(),
     attackRangeTiles: nonNegInt.optional(),
     allowedStyles: z.array(combatStyleSchema).optional(),
@@ -51,6 +51,12 @@ export const itemDefSchema = z
     model: contentIdSchema.optional(),
     value: nonNegInt,
     weight: z.number().optional(),
+    /** Canonical tier/family metadata from docs/items/*. */
+    tier: contentIdSchema.optional(),
+    tierOrder: tierOrderSchema.optional(),
+    family: contentIdSchema.optional(),
+    category: combatClassSchema.optional(),
+    visualIdentity: z.record(z.string().min(1), z.string().min(1)).optional(),
     /** Inventory interaction verbs, e.g. ["wield"], ["eat", "drop"]. */
     options: z.array(z.string().min(1)).default([]),
     /** Tool tags for skilling (e.g. ["axe"], ["pickaxe"]). */

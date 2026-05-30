@@ -32,7 +32,7 @@ Record every authoritative item gain/loss/move reason for dupe investigation.
 
 - [ ] Every item quantity mutation creates an audit event.
 - [ ] Audit does not give gameplay authority.
-- [ ] Audit events include enough context to trace drops/quest rewards/food/runes.
+- [ ] Audit events include enough context to trace drops/quest rewards/food/beads.
 
 ## Validation commands
 

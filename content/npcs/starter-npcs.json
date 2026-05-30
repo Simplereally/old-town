@@ -1,0 +1,139 @@
+[
+  {
+    "id": "baker",
+    "name": "Baker",
+    "examine": "Flour on the sleeves, smoke in the hair, and no time for nonsense.",
+    "size": 1,
+    "combatLevel": 0,
+    "maxHp": 10,
+    "stats": {
+      "attack": 1,
+      "strength": 1,
+      "defence": 1,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 10
+    },
+    "wanderRadius": 2,
+    "respawnTicks": 50,
+    "dialogueId": "baker_dialogue",
+    "options": [{ "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "guard",
+    "name": "Town Guard",
+    "examine": "A tired guard in town colours, watching every door at once.",
+    "size": 1,
+    "combatLevel": 12,
+    "maxHp": 22,
+    "stats": {
+      "attack": 8,
+      "strength": 8,
+      "defence": 10,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 22
+    },
+    "bonuses": { "stabDefence": 4, "slashDefence": 4, "crushDefence": 3 },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "wanderRadius": 3,
+    "respawnTicks": 80,
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
+      { "label": "Attack", "actionId": "attack", "priority": 0, "requiredDistance": 1 }
+    ]
+  },
+  {
+    "id": "goblin",
+    "name": "Cellar Goblin",
+    "examine": "A soot-smudged nuisance with more appetite than courage.",
+    "size": 1,
+    "combatLevel": 5,
+    "maxHp": 9,
+    "stats": {
+      "attack": 4,
+      "strength": 4,
+      "defence": 3,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 9
+    },
+    "bonuses": { "slashAttack": 2, "meleeStrength": 2 },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 2,
+    "wanderRadius": 4,
+    "respawnTicks": 30,
+    "drops": "goblin_drops",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "rat",
+    "name": "Cellar Rat",
+    "examine": "A lean rat with bakery crumbs in its whiskers.",
+    "size": 1,
+    "combatLevel": 2,
+    "maxHp": 5,
+    "stats": {
+      "attack": 2,
+      "strength": 1,
+      "defence": 1,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 5
+    },
+    "bonuses": { "stabAttack": 1 },
+    "attackSpeedTicks": 4,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 1,
+    "wanderRadius": 3,
+    "respawnTicks": 20,
+    "drops": "rat_drops",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "miner",
+    "name": "Miner",
+    "examine": "A mine worker with dust in every crease and a good grip on a pick.",
+    "size": 1,
+    "combatLevel": 0,
+    "maxHp": 12,
+    "stats": {
+      "attack": 1,
+      "strength": 2,
+      "defence": 2,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 12
+    },
+    "wanderRadius": 2,
+    "respawnTicks": 50,
+    "options": [{ "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "woodsman",
+    "name": "Woodsman",
+    "examine": "A patient cutter who can tell dry wood by the sound of it.",
+    "size": 1,
+    "combatLevel": 0,
+    "maxHp": 12,
+    "stats": {
+      "attack": 2,
+      "strength": 2,
+      "defence": 1,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 12
+    },
+    "wanderRadius": 2,
+    "respawnTicks": 50,
+    "options": [{ "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 }]
+  }
+]

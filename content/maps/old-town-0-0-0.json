@@ -1,0 +1,72 @@
+{
+  "region": { "rx": 0, "ry": 0, "plane": 0 },
+  "tiles": {
+    "default": { "height": 0, "underlayId": "grass", "collision": 0 },
+    "overrides": [
+      { "x": 29, "y": 28, "underlayId": "dirt_path" },
+      { "x": 30, "y": 28, "underlayId": "dirt_path" },
+      { "x": 31, "y": 28, "underlayId": "dirt_path" },
+      { "x": 32, "y": 28, "underlayId": "dirt_path" },
+      { "x": 33, "y": 28, "underlayId": "dirt_path" },
+      { "x": 34, "y": 28, "underlayId": "dirt_path" },
+      { "x": 35, "y": 28, "underlayId": "dirt_path" },
+      { "x": 30, "y": 30, "underlayId": "wood_floor" },
+      { "x": 31, "y": 30, "underlayId": "wood_floor" },
+      { "x": 32, "y": 30, "underlayId": "wood_floor" },
+      { "x": 30, "y": 31, "underlayId": "wood_floor" },
+      { "x": 31, "y": 31, "underlayId": "wood_floor" },
+      { "x": 32, "y": 31, "underlayId": "wood_floor" },
+      { "x": 34, "y": 26, "underlayId": "dark_cellar_floor" },
+      { "x": 35, "y": 26, "underlayId": "dark_cellar_floor" },
+      { "x": 36, "y": 26, "underlayId": "dark_cellar_floor" },
+      { "x": 37, "y": 26, "underlayId": "dark_cellar_floor" },
+      { "x": 34, "y": 27, "underlayId": "dark_cellar_floor" },
+      { "x": 35, "y": 27, "underlayId": "dark_cellar_floor" },
+      { "x": 36, "y": 27, "underlayId": "dark_cellar_floor" },
+      { "x": 37, "y": 27, "underlayId": "dark_cellar_floor" },
+      { "x": 48, "y": 15, "underlayId": "stone_floor" },
+      { "x": 49, "y": 15, "underlayId": "stone_floor" },
+      { "x": 50, "y": 15, "underlayId": "stone_floor" },
+      { "x": 51, "y": 15, "underlayId": "stone_floor" },
+      { "x": 48, "y": 16, "underlayId": "stone_floor" },
+      { "x": 49, "y": 16, "underlayId": "stone_floor" },
+      { "x": 50, "y": 16, "underlayId": "stone_floor" },
+      { "x": 51, "y": 16, "underlayId": "stone_floor" }
+    ]
+  },
+  "objects": [
+    { "objectId": "quest_oven", "x": 31, "y": 31 },
+    { "objectId": "cooking_range", "x": 29, "y": 31 },
+    { "objectId": "supply_chest", "x": 30, "y": 30 },
+    { "objectId": "wooden_door", "x": 32, "y": 30 },
+    { "objectId": "cellar_door", "x": 34, "y": 29 },
+    { "objectId": "furnace", "x": 47, "y": 18 },
+    { "objectId": "dry_tree", "x": 12, "y": 47 },
+    { "objectId": "dry_tree", "x": 14, "y": 50 },
+    { "objectId": "oak_tree", "x": 18, "y": 48 },
+    { "objectId": "oak_tree", "x": 20, "y": 51 },
+    { "objectId": "copper_rock", "x": 48, "y": 15 },
+    { "objectId": "copper_rock", "x": 50, "y": 16 },
+    { "objectId": "iron_rock", "x": 53, "y": 18 }
+  ],
+  "npcSpawns": [
+    { "npcId": "baker", "x": 31, "y": 32, "wanderRadius": 2 },
+    { "npcId": "guard", "x": 35, "y": 32, "wanderRadius": 3 },
+    { "npcId": "woodsman", "x": 15, "y": 48, "wanderRadius": 3 },
+    { "npcId": "miner", "x": 49, "y": 18, "wanderRadius": 3 },
+    { "npcId": "rat", "x": 35, "y": 27, "wanderRadius": 3 },
+    { "npcId": "rat", "x": 37, "y": 27, "wanderRadius": 3 },
+    { "npcId": "goblin", "x": 55, "y": 11, "wanderRadius": 4 }
+  ],
+  "groundItemSpawns": [
+    { "itemId": "pennywrought_axe", "quantity": 1, "x": 13, "y": 46 },
+    { "itemId": "pennywrought_pickaxe", "quantity": 1, "x": 48, "y": 17 }
+  ],
+  "triggers": [
+    { "id": "village_square", "x": 27, "y": 27, "width": 12, "height": 10, "tag": "village" },
+    { "id": "forest_edge", "x": 8, "y": 44, "width": 16, "height": 14, "tag": "forest" },
+    { "id": "old_mine", "x": 44, "y": 12, "width": 14, "height": 12, "tag": "mine" },
+    { "id": "bakery_cellar", "x": 33, "y": 25, "width": 8, "height": 6, "tag": "cellar" },
+    { "id": "smoke_cave_marker", "x": 52, "y": 8, "width": 8, "height": 6, "tag": "cave" }
+  ]
+}

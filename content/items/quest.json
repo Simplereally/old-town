@@ -1,0 +1,38 @@
+[
+  {
+    "id": "smoke_over_old_town_cellar_rat_tail",
+    "name": "Cellar Rat Tail",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "Proof that a cellar rat will not be stealing from the bakery again.",
+    "icon": "icon_smoke_over_old_town_cellar_rat_tail",
+    "value": 0,
+    "options": [],
+    "tags": ["quest_item"]
+  },
+  {
+    "id": "smoke_over_old_town_baker_oven_key",
+    "name": "Baker Oven Key",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "A flour-dusted key for the baker's troublesome oven.",
+    "icon": "icon_smoke_over_old_town_baker_oven_key",
+    "model": "model_smoke_over_old_town_baker_oven_key",
+    "value": 0,
+    "options": [],
+    "tags": ["quest_item"]
+  },
+  {
+    "id": "smoke_over_old_town_old_town_bread",
+    "name": "Old Town Bread",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "A heroic loaf, dark-crusted and smoky in the best possible way.",
+    "icon": "icon_smoke_over_old_town_old_town_bread",
+    "value": 30,
+    "weight": 0.3,
+    "options": ["eat"],
+    "tags": ["quest_item"],
+    "consumable": { "heal": 20, "consumeTicks": 3 }
+  }
+]

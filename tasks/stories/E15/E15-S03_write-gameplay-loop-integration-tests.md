@@ -26,7 +26,7 @@ Validate inventory, skilling, combat, magic, drops, quest, and persistence as a 
 - [ ] Test chop tree -> logs -> XP -> depletion -> respawn.
 - [ ] Test mine rock -> ore -> XP.
 - [ ] Test attack goblin -> damage -> death -> private drop -> pickup.
-- [ ] Test cast spell -> rune cost -> projectile -> delayed hit.
+- [ ] Test cast spell -> bead cost -> projectile -> delayed hit.
 - [ ] Test complete Smoke Over Old Town quest.
 - [ ] Test refresh/reconnect preserves character progress in dev persistence mode.
 

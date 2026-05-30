@@ -14,6 +14,14 @@ docs/
     signature-mechanics.md ← Weapon family identities and mechanics
     mechanics-implementation.md ← Operational rules for every signature mechanic
   accessory-tiers.md   ← Accessory tier system philosophy
+  skills/
+    00-index.md        ← Skill system entry point
+    skill-system.md    ← Core skill authority: 25 skills, XP, requirements
+    combat-skills.md   ← Combat skills (Arms, Might, Guard, etc.)
+    gathering-skills.md ← Gathering skills (Mining, Woodcutting, etc.)
+    production-skills.md ← Production skills (Smithing, Bowcraft, etc.)
+    utility-skills.md  ← Utility skills (Wayfaring, Sleight, etc.)
+    skill-interlocks.md ← Skill economy web
   items/
     00-index.md        ← Item system entry point
     melee-armour-tiers.md  ← Melee tier system philosophy
@@ -100,6 +108,8 @@ docs/
 | Find a quest item | [`items/quest/00-index.md`](items/quest/00-index.md) |
 | Find coins or arrows | [`items/misc/00-index.md`](items/misc/00-index.md) |
 | Find a cape or amulet | [`items/accessories/00-index.md`](items/accessories/00-index.md) → pick a slot |
+| See skill requirements for an item | [`skills/00-index.md`](skills/00-index.md) → [`skill-system.md`](skills/skill-system.md) |
+| Understand the skill economy | [`skills/00-index.md`](skills/00-index.md) → [`skill-interlocks.md`](skills/skill-interlocks.md) |
 
 ### Non-Item Documentation
 
@@ -112,6 +122,8 @@ docs/
 | Understand weapon mechanics | [`combat/signature-mechanics.md`](combat/signature-mechanics.md) |
 | Understand accessory mechanics | [`accessory-tiers.md`](accessory-tiers.md) |
 | Understand combat implementation | [`combat/mechanics-implementation.md`](combat/mechanics-implementation.md) |
+| Understand the skill system | [`skills/00-index.md`](skills/00-index.md) |
+| See skill requirements for gear | [`skills/skill-system.md`](skills/skill-system.md) |
 
 ## Design Rules for Documentation
 

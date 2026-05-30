@@ -49,7 +49,7 @@ export const spellDefSchema = z
     name: z.string().min(1),
     spellbook: z.enum(["common", "old_ways", "wild", "ritual"]),
     requiredMagic: positiveInt,
-    runeCosts: z.array(itemQuantitySchema).default([]),
+    beadCosts: z.array(itemQuantitySchema).default([]),
     castXp: z.number().nonnegative(),
     rangeTiles: nonNegInt,
     targetType: z.enum(["self", "entity", "tile", "item"]),

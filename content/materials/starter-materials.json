@@ -1,0 +1,7 @@
+[
+  { "id": "grass", "name": "Grass", "color": 5214010 },
+  { "id": "dirt_path", "name": "Dirt Path", "color": 8871970 },
+  { "id": "stone_floor", "name": "Stone Floor", "color": 6316128 },
+  { "id": "wood_floor", "name": "Wood Floor", "color": 8015130 },
+  { "id": "dark_cellar_floor", "name": "Dark Cellar Floor", "color": 3026478 }
+]

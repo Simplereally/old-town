@@ -21,7 +21,7 @@ Authority references:
 
 ## Trophy Philosophy
 
-Trophies are the slot for **history and bragging rights**. They are the objects that prove you killed the dragon, survived the siege, or found the meteor. Trophies are rare, earned, and deeply personal.
+Trophies are the slot for **history and bragging rights**. They are the objects that prove you felled the drake, survived the siege, or found the starfall. Trophies are rare, earned, and deeply personal.
 
 **Design principles:**
 1. **Trophies are earned, not bought.** Every Trophy requires a specific achievement, kill, or discovery.

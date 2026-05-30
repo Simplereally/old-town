@@ -1,0 +1,118 @@
+[
+  {
+    "id": "dry_tree",
+    "name": "Dry Tree",
+    "examine": "Dead branches, dry bark, and enough wood for kindling.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": true,
+    "resourceNodeId": "dry_tree_node",
+    "options": [{ "label": "Chop", "actionId": "woodcut", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_dry_tree"
+  },
+  {
+    "id": "oak_tree",
+    "name": "Oak Tree",
+    "examine": "A young oak with timber worth the effort.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": true,
+    "resourceNodeId": "oak_tree_node",
+    "options": [{ "label": "Chop", "actionId": "woodcut", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_oak_tree"
+  },
+  {
+    "id": "copper_rock",
+    "name": "Copper Rock",
+    "examine": "A low rock face with copper showing through the cracks.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "resourceNodeId": "copper_rock_node",
+    "options": [{ "label": "Mine", "actionId": "mine", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_copper_rock"
+  },
+  {
+    "id": "iron_rock",
+    "name": "Iron Rock",
+    "examine": "A stubborn rock with dark iron veins.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "resourceNodeId": "iron_rock_node",
+    "options": [{ "label": "Mine", "actionId": "mine", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_iron_rock"
+  },
+  {
+    "id": "cooking_range",
+    "name": "Cooking Range",
+    "examine": "A blackened village range with steady heat.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Cook", "actionId": "cook", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_cooking_range"
+  },
+  {
+    "id": "furnace",
+    "name": "Furnace",
+    "examine": "A compact furnace hot enough to make honest ore nervous.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Smelt", "actionId": "smelt", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_furnace"
+  },
+  {
+    "id": "wooden_door",
+    "name": "Wooden Door",
+    "examine": "A plain plank door with a latch polished by use.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": true,
+    "options": [{ "label": "Open", "actionId": "open", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_wooden_door"
+  },
+  {
+    "id": "cellar_door",
+    "name": "Cellar Door",
+    "examine": "A low door leading down into old stone and colder air.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": true,
+    "options": [{ "label": "Open", "actionId": "open", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_cellar_door"
+  },
+  {
+    "id": "supply_chest",
+    "name": "Supply Chest",
+    "examine": "A scuffed chest for tools, crumbs, and things nobody admits losing.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Open", "actionId": "open", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_supply_chest"
+  },
+  {
+    "id": "quest_oven",
+    "name": "Smoking Oven",
+    "examine": "The baker's oven, coughing smoke from a flue that should know better.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [
+      { "label": "Inspect", "actionId": "inspect", "priority": 10, "requiredDistance": 1 }
+    ],
+    "model": "model_quest_oven"
+  }
+]

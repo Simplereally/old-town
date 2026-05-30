@@ -31,7 +31,7 @@ Tools are the enablers of skilling. You cannot cut a tree without an axe. You ca
 7. **Basic tools are cheap.** Pennywrought tools are affordable.
 8. **Endgame tools are expensive.** Starfall tools are status symbols.
 9. **Utility tools are not tiered.** Tinderboxes, needles, etc. do not have tiers.
-10. **Bait is a resource.** Feathers, lobster pots, etc. are consumed while fishing.
+10. **Bait is a resource.** Feathers, fishing traps, etc. are consumed while fishing.
 
 ## Related Documents
 

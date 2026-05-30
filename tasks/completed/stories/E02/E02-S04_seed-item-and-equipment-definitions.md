@@ -24,7 +24,7 @@ Create original Old Town starter items required by POC gameplay.
 
 ## Implementation checklist
 
-- [X] Create at least 3 weapons, 3 armour pieces, 2 foods, 2 logs, 2 ores, 2 runes, 1 staff, coins, axe, and pickaxe.
+- [X] Create at least 3 weapons, 3 armour pieces, 2 foods, 2 logs, 2 ores, 2 beads, 1 staff, coin, axe, and pickaxe.
 - [X] Define 28-slot inventory assumptions in shared constants.
 - [X] Add equipment slots and stat bonuses to equipment items.
 - [X] Add consumable healing data to food items.

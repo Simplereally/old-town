@@ -1,0 +1,57 @@
+{
+  "id": "smoke_over_old_town",
+  "name": "Smoke Over Old Town",
+  "questPoints": 1,
+  "requirements": [],
+  "varPrefix": "quest_smoke_over_old_town",
+  "stages": [
+    {
+      "stage": 0,
+      "journalText": "Speak to the baker in Old Town.",
+      "objectives": [{ "kind": "talk", "npcId": "baker" }],
+      "triggers": []
+    },
+    {
+      "stage": 1,
+      "journalText": "Gather three dry logs for the baker's oven.",
+      "objectives": [{ "kind": "gather", "itemId": "dry_log", "quantity": 3 }],
+      "triggers": []
+    },
+    {
+      "stage": 2,
+      "journalText": "Clear two cellar rats and bring back their tails.",
+      "objectives": [
+        { "kind": "kill", "npcId": "rat", "count": 2 },
+        { "kind": "have_item", "itemId": "smoke_over_old_town_cellar_rat_tail", "quantity": 2 }
+      ],
+      "triggers": []
+    },
+    {
+      "stage": 3,
+      "journalText": "Use the baker's key to inspect and relight the smoking oven.",
+      "objectives": [
+        { "kind": "have_item", "itemId": "smoke_over_old_town_baker_oven_key", "quantity": 1 },
+        { "kind": "object", "objectId": "quest_oven", "option": "inspect" }
+      ],
+      "triggers": [
+        {
+          "on": "stage_complete",
+          "effects": [{ "kind": "unlock", "unlockId": "bakery_range" }]
+        }
+      ]
+    },
+    {
+      "stage": 4,
+      "journalText": "Return to the baker for your reward.",
+      "objectives": [{ "kind": "talk", "npcId": "baker" }],
+      "triggers": []
+    }
+  ],
+  "rewards": [
+    { "kind": "add_item", "itemId": "smoke_over_old_town_old_town_bread", "quantity": 1 },
+    { "kind": "add_item", "itemId": "coin", "quantity": 100 },
+    { "kind": "add_xp", "skillId": "cooking", "amount": 500 },
+    { "kind": "complete_quest", "questId": "smoke_over_old_town" },
+    { "kind": "unlock", "unlockId": "bakery_range" }
+  ]
+}

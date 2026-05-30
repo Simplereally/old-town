@@ -1,92 +1,93 @@
 [
   {
-    "id": "padded_cap",
-    "name": "Padded Cap",
+    "id": "pennywrought_helm",
+    "name": "Pennywrought Helm",
     "stackable": false,
     "tradeable": true,
-    "examine": "A quilted cap that softens a glancing blow.",
-    "icon": "icon_padded_cap",
-    "model": "model_padded_cap",
-    "value": 18,
-    "weight": 0.4,
+    "examine": "A first real helmet, cheap and locally forged.",
+    "icon": "icon_pennywrought_helm",
+    "model": "model_pennywrought_helm",
+    "value": 35,
+    "weight": 1.0,
+    "tier": "pennywrought",
+    "tierOrder": 1,
+    "family": "helm",
+    "category": "melee",
+    "visualIdentity": {
+      "baseColor": "dull_copper_brown",
+      "accents": "cheap_rivets",
+      "trim": "worn_edges"
+    },
     "options": ["wear"],
     "equipment": {
       "slot": "head",
       "bonuses": {
         "stabDefence": 3,
         "slashDefence": 3,
-        "crushDefence": 2,
-        "rangedDefence": 2,
-        "magicDefence": 1
+        "crushDefence": 3
       },
       "requirements": []
     }
   },
   {
-    "id": "pewter_chestguard",
-    "name": "Pewter Chestguard",
+    "id": "pennywrought_harness",
+    "name": "Pennywrought Harness",
     "stackable": false,
     "tradeable": true,
-    "examine": "A dented chestplate of hammered pewter.",
-    "icon": "icon_pewter_chestguard",
-    "model": "model_pewter_chestguard",
-    "value": 84,
-    "weight": 6.5,
+    "examine": "A copper-brown breastplate and backplate with very honest dents.",
+    "icon": "icon_pennywrought_harness",
+    "model": "model_pennywrought_harness",
+    "value": 90,
+    "weight": 4.8,
+    "tier": "pennywrought",
+    "tierOrder": 1,
+    "family": "harness",
+    "category": "melee",
+    "visualIdentity": {
+      "baseColor": "dull_copper_brown",
+      "accents": "cheap_rivets",
+      "straps": "plain_leather"
+    },
     "options": ["wear"],
     "equipment": {
       "slot": "body",
       "bonuses": {
-        "stabDefence": 9,
-        "slashDefence": 11,
-        "crushDefence": 10,
-        "rangedDefence": 9,
-        "magicDefence": -2
+        "stabDefence": 5,
+        "slashDefence": 5,
+        "crushDefence": 5,
+        "rangedDefence": 2,
+        "magicDefence": -1
       },
-      "requirements": [{ "skillId": "defence", "level": 1 }]
+      "requirements": []
     }
   },
   {
-    "id": "pewter_legguards",
-    "name": "Pewter Legguards",
+    "id": "pennywrought_chausses",
+    "name": "Pennywrought Chausses",
     "stackable": false,
     "tradeable": true,
-    "examine": "Plated leg guards, heavier than they look.",
-    "icon": "icon_pewter_legguards",
-    "model": "model_pewter_legguards",
-    "value": 70,
-    "weight": 4.8,
+    "examine": "Starter leg armour that clinks more than it protects.",
+    "icon": "icon_pennywrought_chausses",
+    "model": "model_pennywrought_chausses",
+    "value": 60,
+    "weight": 2.6,
+    "tier": "pennywrought",
+    "tierOrder": 1,
+    "family": "chausses",
+    "category": "melee",
+    "visualIdentity": {
+      "baseColor": "dull_copper_brown",
+      "accents": "cheap_rivets",
+      "lining": "plain_cloth"
+    },
     "options": ["wear"],
     "equipment": {
       "slot": "legs",
       "bonuses": {
-        "stabDefence": 6,
-        "slashDefence": 7,
-        "crushDefence": 6,
-        "rangedDefence": 6,
-        "magicDefence": -1
-      },
-      "requirements": [{ "skillId": "defence", "level": 1 }]
-    }
-  },
-  {
-    "id": "greywood_round_shield",
-    "name": "Greywood Round Shield",
-    "stackable": false,
-    "tradeable": true,
-    "examine": "A round shield planked from greywood and iron-rimmed.",
-    "icon": "icon_greywood_round_shield",
-    "model": "model_greywood_round_shield",
-    "value": 52,
-    "weight": 3.2,
-    "options": ["wear"],
-    "equipment": {
-      "slot": "shield",
-      "bonuses": {
-        "stabDefence": 5,
-        "slashDefence": 6,
-        "crushDefence": 5,
-        "rangedDefence": 5,
-        "magicDefence": 1
+        "stabDefence": 3,
+        "slashDefence": 3,
+        "crushDefence": 3,
+        "rangedDefence": 1
       },
       "requirements": []
     }

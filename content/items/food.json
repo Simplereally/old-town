@@ -1,26 +1,26 @@
 [
   {
-    "id": "crusty_loaf",
-    "name": "Crusty Loaf",
-    "stackable": false,
+    "id": "bread",
+    "name": "Bread",
+    "stackable": true,
     "tradeable": true,
-    "examine": "A dense loaf with a hard crust. Filling enough.",
-    "icon": "icon_crusty_loaf",
-    "value": 8,
-    "weight": 0.3,
+    "examine": "A simple baked loaf. Cheap, warm, and useful.",
+    "icon": "icon_bread",
+    "value": 5,
+    "weight": 0.2,
     "options": ["eat"],
-    "consumable": { "heal": 5, "consumeTicks": 1 }
+    "consumable": { "heal": 5, "consumeTicks": 3 }
   },
   {
-    "id": "roast_fowl",
-    "name": "Roast Fowl",
-    "stackable": false,
+    "id": "cooked_fish",
+    "name": "Cooked Fish",
+    "stackable": true,
     "tradeable": true,
-    "examine": "A whole roasted bird, crisp and hot.",
-    "icon": "icon_roast_fowl",
-    "value": 22,
-    "weight": 0.6,
+    "examine": "A basic cooked fish, flaky at the edges.",
+    "icon": "icon_cooked_fish",
+    "value": 12,
+    "weight": 0.3,
     "options": ["eat"],
-    "consumable": { "heal": 11, "consumeTicks": 1 }
+    "consumable": { "heal": 8, "consumeTicks": 3 }
   }
 ]

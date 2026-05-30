@@ -1,0 +1,58 @@
+[
+  {
+    "id": "dry_tree_node",
+    "name": "Dry Tree",
+    "skill": "woodcutting",
+    "requiredLevel": 1,
+    "baseXp": 10,
+    "actionTicks": 4,
+    "depletionChance": 0.2,
+    "respawnTicks": 10,
+    "toolTags": ["axe"],
+    "outputItemId": "dry_log",
+    "baseChance": 0.45,
+    "levelScale": 0.01
+  },
+  {
+    "id": "oak_tree_node",
+    "name": "Oak Tree",
+    "skill": "woodcutting",
+    "requiredLevel": 15,
+    "baseXp": 25,
+    "actionTicks": 5,
+    "depletionChance": 0.125,
+    "respawnTicks": 20,
+    "toolTags": ["axe"],
+    "outputItemId": "oak_log",
+    "baseChance": 0.35,
+    "levelScale": 0.008
+  },
+  {
+    "id": "copper_rock_node",
+    "name": "Copper Rock",
+    "skill": "mining",
+    "requiredLevel": 1,
+    "baseXp": 15,
+    "actionTicks": 4,
+    "depletionChance": 0.2,
+    "respawnTicks": 12,
+    "toolTags": ["pickaxe"],
+    "outputItemId": "copper_ore",
+    "baseChance": 0.42,
+    "levelScale": 0.01
+  },
+  {
+    "id": "iron_rock_node",
+    "name": "Iron Rock",
+    "skill": "mining",
+    "requiredLevel": 15,
+    "baseXp": 35,
+    "actionTicks": 5,
+    "depletionChance": 0.15,
+    "respawnTicks": 25,
+    "toolTags": ["pickaxe"],
+    "outputItemId": "iron_ore",
+    "baseChance": 0.32,
+    "levelScale": 0.008
+  }
+]
