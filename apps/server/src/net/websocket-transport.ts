@@ -23,7 +23,10 @@ export interface WebSocketTransportOptions {
   readonly httpServer: Server;
   readonly logger: Pick<Logger, "debug" | "warn">;
   readonly getFullState: (session: TransportSession) => FullStatePacket;
-  readonly onCommand?: (session: TransportSession, command: ClientCommand) => void;
+  readonly onCommand?: (
+    session: TransportSession,
+    command: ClientCommand,
+  ) => { readonly ok: boolean; readonly reason?: string } | undefined;
   readonly onClose?: (session: TransportSession) => void;
 }
 
@@ -128,7 +131,13 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
         return;
       }
 
-      options.onCommand?.(state.session, parsed.value);
+      const routeResult = options.onCommand?.(state.session, parsed.value);
+      if (routeResult && !routeResult.ok) {
+        send(socket, {
+          type: TransportServerMessageType.CommandRejected,
+          reason: routeResult.reason ?? "rejected",
+        });
+      }
     });
 
     socket.on("close", () => {

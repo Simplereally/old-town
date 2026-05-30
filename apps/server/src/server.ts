@@ -11,8 +11,10 @@ import { type BootContentResult, loadContent } from "./content-loader";
 import { type World, createWorld } from "./ecs/world";
 import { loadRuntimeConfig } from "./env";
 import { createLogger } from "./logger";
+import { CommandRouter } from "./net/command-router";
 import { DevSessionManager } from "./net/dev-session";
 import { type WebSocketTransport, createWebSocketTransport } from "./net/websocket-transport";
+import { CommandBuffer } from "./sim/command-buffer";
 import { loadAllRegionMapsIntoWorld } from "./world/region-loader";
 import { type RuntimeMap, createRuntimeMap } from "./world/runtime-map";
 
@@ -57,6 +59,12 @@ export async function startServer(): Promise<GameServer> {
   const map = createRuntimeMap();
   const loadedRegions = loadAllRegionMapsIntoWorld(world, map, content.registries);
   const devSessions = new DevSessionManager(world, map, content.registries);
+  const commandBuffer = new CommandBuffer();
+  const commandRouter = new CommandRouter({
+    commandBuffer,
+    getEntityId: (session) => devSessions.getEntityId(session),
+    getCurrentTick: () => 0,
+  });
   logger.info("world", "Regions loaded", {
     regions: loadedRegions.length,
     tiles: map.tiles.size,
@@ -86,6 +94,7 @@ export async function startServer(): Promise<GameServer> {
     httpServer,
     logger,
     getFullState: (session) => devSessions.bootstrap(session),
+    onCommand: (session, command) => commandRouter.route(session, command),
     onClose: (session) => devSessions.remove(session),
   });
 
