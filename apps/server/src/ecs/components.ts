@@ -3,6 +3,7 @@
  * no methods. The world stores these in dense arrays indexed by entity slot.
  */
 import type { EntityId } from "@old-town/shared";
+import type { Direction, TileCoord } from "@old-town/shared";
 
 /** Position in tile coordinates (integer world truth). */
 export interface PositionComponent {
@@ -12,13 +13,16 @@ export interface PositionComponent {
   plane: number;
 }
 
-/** Movement state: current path, speed, and whether the entity is moving. */
+export type MovementMode = "walk" | "run";
+
+/** Movement state: current path, speed mode, and deterministic blocking state. */
 export interface MovementComponent {
   entityId: EntityId;
-  path: readonly { x: number; y: number }[];
-  speed: number; // tiles per tick
-  moving: boolean;
-  nextMoveTick: number;
+  mode: MovementMode;
+  path: readonly TileCoord[];
+  destination?: TileCoord;
+  lastStepDirection?: Direction;
+  blockedUntilTick?: number;
 }
 
 /** Base actor properties (name, level, appearance). */
