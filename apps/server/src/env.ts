@@ -4,6 +4,7 @@
  */
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { GAME_TICK_MS } from "@old-town/shared";
 
 export interface RuntimeConfig {
   /** Port the WebSocket server listens on. */
@@ -72,7 +73,7 @@ export function loadRuntimeConfig(): RuntimeConfig {
   const env = buildEnv();
   return {
     port: parseIntEnv(env.get("PORT"), 8080),
-    tickMs: parseIntEnv(env.get("TICK_MS"), 600),
+    tickMs: parseIntEnv(env.get("TICK_MS"), GAME_TICK_MS),
     contentDir: env.get("CONTENT_DIR") ?? "content",
     debug: parseBoolEnv(env.get("DEBUG"), false),
     logJson: parseBoolEnv(env.get("LOG_JSON"), false),
