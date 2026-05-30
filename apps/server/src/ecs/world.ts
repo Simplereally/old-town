@@ -7,6 +7,7 @@ import type {
   ActorComponent,
   CombatantComponent,
   EquipmentComponent,
+  GroundItemComponent,
   InventoryComponent,
   MovementComponent,
   NpcComponent,
@@ -25,6 +26,7 @@ export interface ComponentStores {
   player: Map<EntityId, PlayerComponent>;
   npc: Map<EntityId, NpcComponent>;
   object: Map<EntityId, ObjectComponent>;
+  groundItem: Map<EntityId, GroundItemComponent>;
   inventory: Map<EntityId, InventoryComponent>;
   equipment: Map<EntityId, EquipmentComponent>;
   combatant: Map<EntityId, CombatantComponent>;
@@ -51,6 +53,7 @@ export function createWorld(): World {
     player: new Map(),
     npc: new Map(),
     object: new Map(),
+    groundItem: new Map(),
     inventory: new Map(),
     equipment: new Map(),
     combatant: new Map(),

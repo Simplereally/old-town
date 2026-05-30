@@ -8,14 +8,21 @@
 import type { Server } from "node:http";
 import { createServer } from "node:http";
 import { type BootContentResult, loadContent } from "./content-loader";
+import { type World, createWorld } from "./ecs/world";
 import { loadRuntimeConfig } from "./env";
 import { createLogger } from "./logger";
+import { loadAllRegionMapsIntoWorld } from "./world/region-loader";
+import { type RuntimeMap, createRuntimeMap } from "./world/runtime-map";
 
 export interface GameServer {
   /** Stop the server and release all resources. */
   shutdown(): Promise<void>;
   /** The HTTP server instance (for tests). */
   httpServer: Server;
+  /** Authoritative ECS state. */
+  world: World;
+  /** Runtime terrain, trigger, and region state. */
+  map: RuntimeMap;
 }
 
 export async function startServer(): Promise<GameServer> {
@@ -41,6 +48,18 @@ export async function startServer(): Promise<GameServer> {
     .map(([k, r]) => `${k}=${r.size}`)
     .join(", ");
   logger.info("boot", "Content loaded", { registries: registryCounts });
+
+  const world = createWorld();
+  const map = createRuntimeMap();
+  const loadedRegions = loadAllRegionMapsIntoWorld(world, map, content.registries);
+  logger.info("world", "Regions loaded", {
+    regions: loadedRegions.length,
+    tiles: map.tiles.size,
+    objects: world.stores.object.size,
+    npcs: world.stores.npc.size,
+    groundItems: world.stores.groundItem.size,
+    resourceNodes: world.stores.resourceNode.size,
+  });
 
   // --- HTTP server (health + readiness) --------------------------------------------
   const httpServer = createServer((req, res) => {
@@ -70,5 +89,5 @@ export async function startServer(): Promise<GameServer> {
     logger.info("shutdown", "HTTP server closed");
   };
 
-  return { shutdown, httpServer };
+  return { shutdown, httpServer, world, map };
 }

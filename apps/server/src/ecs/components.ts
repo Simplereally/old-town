@@ -54,6 +54,13 @@ export interface ObjectComponent {
   variant: number;
 }
 
+/** Ground item spawn or drop. `itemId` is a content definition id, not the runtime entity id. */
+export interface GroundItemComponent {
+  entityId: EntityId;
+  itemId: string;
+  quantity: number;
+}
+
 /** Inventory container (slotted items). */
 export interface InventoryComponent {
   entityId: EntityId;
