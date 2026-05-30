@@ -20,6 +20,7 @@ import { type WebSocketTransport, createWebSocketTransport } from "./net/websock
 import { CommandBuffer, IntentKind } from "./sim/command-buffer";
 import { DeltaAccumulator } from "./sim/delta-accumulator";
 import { TickLoop, TickPhase } from "./sim/tick-loop";
+import { ChatSystem } from "./systems/chat-system";
 import { handleMoveIntent, processMovementPhase } from "./systems/movement-system";
 import { CollisionMap } from "./world/collision";
 import { loadAllRegionMapsIntoWorld } from "./world/region-loader";
@@ -73,6 +74,7 @@ export async function startServer(): Promise<GameServer> {
   const deltas = new DeltaAccumulator();
   const interestManager = new InterestManager();
   const tickLoop = new TickLoop({ logger, startServerTime: Date.now() });
+  const chatSystem = new ChatSystem();
   const commandRouter = new CommandRouter({
     commandBuffer,
     getEntityId: (session) => devSessions.getEntityId(session),
@@ -82,7 +84,7 @@ export async function startServer(): Promise<GameServer> {
     deltaBroadcaster: undefined as DeltaBroadcaster | undefined,
   };
 
-  tickLoop.registerPhase(TickPhase.InputClose, ({ tick }) => {
+  tickLoop.registerPhase(TickPhase.InputClose, ({ tick, serverTime }) => {
     const commands = commandRouter.consumeTick(tick);
     for (const group of commands.groups) {
       for (const intent of group.intents) {
@@ -90,6 +92,14 @@ export async function startServer(): Promise<GameServer> {
           handleMoveIntent({ world, collision, deltas }, group.ownerEntityId, {
             dest: intent.payload.dest,
           });
+        } else if (intent.kind === IntentKind.Chat) {
+          chatSystem.submit(
+            { world, deltas },
+            group.ownerEntityId,
+            { text: intent.payload.text },
+            tick,
+            serverTime,
+          );
         }
       }
     }

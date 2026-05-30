@@ -19,12 +19,12 @@ Connect browsers to the authoritative world using intent commands and tick delta
 
 ## Completion checklist
 
-- [ ] Read `POC_SPEC.md` sections referenced above.
-- [ ] Complete the stories below in exact order.
-- [ ] Run all validation commands listed by completed stories.
-- [ ] Confirm no unchecked acceptance criteria remain in this epic's stories.
-- [ ] Move completed story files into `tasks/completed/stories/E05/`.
-- [ ] Move this epic file into `tasks/completed/epics/` after all stories are complete.
+- [X] Read `POC_SPEC.md` sections referenced above.
+- [X] Complete the stories below in exact order.
+- [X] Run all validation commands listed by completed stories.
+- [X] Confirm no unchecked acceptance criteria remain in this epic's stories.
+- [X] Move completed story files into `tasks/completed/stories/E05/`.
+- [X] Move this epic file into `tasks/completed/epics/` after all stories are complete.
 
 ## Ordered stories
 
@@ -33,10 +33,10 @@ Connect browsers to the authoritative world using intent commands and tick delta
 - [X] `E05-S03` — [Implement interest manager](../completed/stories/E05/E05-S03_implement-interest-manager.md)
 - [X] `E05-S04` — [Wire command transport into simulation command buffer](../completed/stories/E05/E05-S04_wire-command-transport-into-simulation-command-buffer.md)
 - [X] `E05-S05` — [Broadcast tick deltas to clients](../completed/stories/E05/E05-S05_broadcast-tick-deltas-to-clients.md)
-- [ ] `E05-S06` — [Implement chat transport and overhead text packets](../stories/E05/E05-S06_implement-chat-transport-and-overhead-text-packets.md)
+- [X] `E05-S06` — [Implement chat transport and overhead text packets](../completed/stories/E05/E05-S06_implement-chat-transport-and-overhead-text-packets.md)
 
 ## Epic acceptance criteria
 
-- [ ] All listed story files are complete and moved to the completed folder.
-- [ ] The implementation still preserves server authority, integer tile truth, 600ms tick semantics, content-driven definitions, and client-only presentation.
-- [ ] No later epic has been implemented in a way that bypasses this epic's contracts.
+- [X] All listed story files are complete and moved to the completed folder.
+- [X] The implementation still preserves server authority, integer tile truth, 600ms tick semantics, content-driven definitions, and client-only presentation.
+- [X] No later epic has been implemented in a way that bypasses this epic's contracts.

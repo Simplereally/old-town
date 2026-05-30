@@ -1,4 +1,5 @@
 import {
+  type ChatPacket,
   type ClientCommand,
   type FullStatePacket,
   PROTOCOL_VERSION,
@@ -13,6 +14,7 @@ export interface GameSocketOptions {
   readonly protocolVersion?: number;
   readonly characterId?: string;
   readonly createSocket?: (url: string) => WebSocket;
+  readonly onChat?: (packet: ChatPacket) => void;
   readonly onDelta?: (packet: TickDeltaPacket) => void;
 }
 
@@ -21,6 +23,7 @@ export class GameSocket {
   private readonly protocolVersion: number;
   private readonly characterId: string;
   private readonly createSocket: (url: string) => WebSocket;
+  private readonly chatHandlers = new Set<(packet: ChatPacket) => void>();
   private readonly deltaHandlers = new Set<(packet: TickDeltaPacket) => void>();
 
   constructor(
@@ -30,6 +33,9 @@ export class GameSocket {
     this.protocolVersion = options.protocolVersion ?? PROTOCOL_VERSION;
     this.characterId = options.characterId ?? "dev-character";
     this.createSocket = options.createSocket ?? ((url) => new WebSocket(url));
+    if (options.onChat) {
+      this.chatHandlers.add(options.onChat);
+    }
     if (options.onDelta) {
       this.deltaHandlers.add(options.onDelta);
     }
@@ -74,6 +80,11 @@ export class GameSocket {
     return () => this.deltaHandlers.delete(handler);
   }
 
+  onChat(handler: (packet: ChatPacket) => void): () => void {
+    this.chatHandlers.add(handler);
+    return () => this.chatHandlers.delete(handler);
+  }
+
   sendCommand(command: ClientCommand): void {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
       throw new Error("GameSocket is not open");
@@ -88,6 +99,12 @@ export class GameSocket {
 
   private handleDelta(packet: TickDeltaPacket): void {
     console.debug("Old Town tick delta", packet);
+    for (const chat of packet.chat ?? []) {
+      console.debug("Old Town chat", chat);
+      for (const handler of this.chatHandlers) {
+        handler(chat);
+      }
+    }
     for (const handler of this.deltaHandlers) {
       handler(packet);
     }

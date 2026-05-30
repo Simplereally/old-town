@@ -1,6 +1,7 @@
 import {
   ACTIVE_SCENE_SIZE,
   CHUNK_SIZE,
+  type ChatPacket,
   type ChunkId,
   type EntityId,
   type EntitySpawnPacket,
@@ -66,7 +67,7 @@ function entityOrder(a: EntityId, b: EntityId): number {
 function packetWith(
   packet: TickDeltaPacket,
   changes: Pick<TickDeltaPacket, "entityAdds" | "entityRemoves" | "entityUpdates"> &
-    Partial<Pick<TickDeltaPacket, "regionLoads" | "regionUnloads">>,
+    Partial<Pick<TickDeltaPacket, "chat" | "regionLoads" | "regionUnloads">>,
 ): TickDeltaPacket {
   return {
     ...packet,
@@ -79,6 +80,7 @@ function packetWith(
     ...(changes.regionUnloads && changes.regionUnloads.length > 0
       ? { regionUnloads: changes.regionUnloads }
       : {}),
+    ...(changes.chat ? { chat: changes.chat } : {}),
   };
 }
 
@@ -228,10 +230,13 @@ export class InterestManager {
       }
     }
 
+    const chat = delta.chat?.filter((packet) => this.chatVisible(scene, packet, world)) ?? [];
+
     return packetWith(delta, {
       entityAdds,
       entityRemoves: Array.from(entityRemoves).sort(entityOrder),
       entityUpdates,
+      ...(delta.chat ? { chat } : {}),
       regionLoads: transition.regionLoads,
       regionUnloads: transition.regionUnloads,
     });
@@ -254,5 +259,13 @@ export class InterestManager {
     return position
       ? { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] }
       : undefined;
+  }
+
+  private chatVisible(scene: InterestScene, packet: ChatPacket, world: World): boolean {
+    if (packet.channel === "system" || packet.entityId === undefined) {
+      return true;
+    }
+    const tile = this.positionTile(world, packet.entityId);
+    return tile ? sceneContainsTile(scene, tile) : false;
   }
 }

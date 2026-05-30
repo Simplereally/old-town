@@ -83,6 +83,23 @@ describe("parseClientCommand — rejects malformed input", () => {
     });
     expect(result.ok).toBe(false);
   });
+
+  it("rejects malformed chat payloads", () => {
+    expect(
+      parseClientCommand({
+        type: ClientCommandType.Chat,
+        commandId: 1,
+        payload: { text: "" },
+      }).ok,
+    ).toBe(false);
+    expect(
+      parseClientCommand({
+        type: ClientCommandType.Chat,
+        commandId: 2,
+        payload: { text: "hi", tile: { x: 1, y: 1, plane: 0 } },
+      }).ok,
+    ).toBe(false);
+  });
 });
 
 describe("commands express intent only (server authority)", () => {
