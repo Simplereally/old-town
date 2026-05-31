@@ -17,6 +17,8 @@ export interface GameSocketOptions {
   readonly createSocket?: (url: string) => WebSocket;
 }
 
+const CONNECT_TIMEOUT_MS = 10000;
+
 /**
  * WebSocket connection to the authoritative server.
  * Handles handshake, full state bootstrap, and continuous tick deltas.
@@ -53,14 +55,38 @@ export class GameSocket {
   }
 
   connect(): Promise<FullStatePacket> {
+    this.close();
+
     const socket = this.createSocket(this.url);
     this.socket = socket;
 
     return new Promise((resolve, reject) => {
+      let settled = false;
+
+      const fail = (error: Error): void => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        clearTimeout(timeout);
+        this.onError?.(error);
+        reject(error);
+      };
+
+      const succeed = (packet: FullStatePacket): void => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        clearTimeout(timeout);
+        socket.onmessage = (event) => this._handleMessage(event);
+        resolve(packet);
+      };
+
       const timeout = setTimeout(() => {
+        fail(new Error(`GameSocket connection timeout after ${CONNECT_TIMEOUT_MS}ms`));
         socket.close();
-        reject(new Error("GameSocket connection timeout"));
-      }, 10000);
+      }, CONNECT_TIMEOUT_MS);
 
       socket.onopen = () => {
         const authMessage = {
@@ -75,40 +101,48 @@ export class GameSocket {
       };
 
       socket.onerror = () => {
-        clearTimeout(timeout);
-        reject(new Error("GameSocket connection failed"));
+        fail(new Error(`GameSocket connection failed: ${this.url}`));
       };
 
-      socket.onclose = () => {
-        clearTimeout(timeout);
+      socket.onclose = (event) => {
+        if (!settled) {
+          fail(new Error(`GameSocket closed before bootstrap: ${event.code} ${event.reason}`.trim()));
+        }
         this.onClose?.();
       };
 
       socket.onmessage = (event) => {
-        const packet = JSON.parse(String(event.data)) as TransportServerPacket;
+        let packet: TransportServerPacket;
+        try {
+          packet = JSON.parse(String(event.data)) as TransportServerPacket;
+        } catch (error) {
+          fail(error instanceof Error ? error : new Error(String(error)));
+          socket.close();
+          return;
+        }
 
         if (packet.type === ServerPacketType.FullState) {
-          clearTimeout(timeout);
           if (!isCompatibleProtocol(packet.protocolVersion)) {
             console.error("Protocol version mismatch", {
               clientVersion: this.protocolVersion,
               serverVersion: packet.protocolVersion,
             });
-            reject(new Error(`Incompatible protocol ${packet.protocolVersion}`));
+            fail(new Error(`Incompatible protocol ${packet.protocolVersion}`));
             socket.close();
             return;
           }
-          // Attach message handler for ongoing deltas
-          socket.onmessage = (event) => this._handleMessage(event);
-          resolve(packet);
+          succeed(packet);
           return;
         }
 
         if (packet.type === TransportServerMessageType.Error) {
-          clearTimeout(timeout);
-          reject(new Error(`Server error: ${(packet as { reason: string }).reason}`));
+          fail(new Error(`Server error: ${(packet as { reason: string }).reason}`));
           socket.close();
+          return;
         }
+
+        fail(new Error(`Unexpected bootstrap packet: ${packet.type}`));
+        socket.close();
       };
     });
   }
