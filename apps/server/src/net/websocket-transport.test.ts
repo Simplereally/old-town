@@ -56,9 +56,10 @@ function nextMessage(socket: WebSocket): Promise<unknown> {
 }
 
 function openSocket(url: string): Promise<WebSocket> {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const socket = new WebSocket(url);
     socket.once("open", () => resolve(socket));
+    socket.once("error", reject);
   });
 }
 
@@ -81,6 +82,26 @@ describe("WebSocket transport", () => {
     const message = await nextMessage(socket);
 
     expect(message).toMatchObject({
+      type: ServerPacketType.FullState,
+      protocolVersion: PROTOCOL_VERSION,
+      selfEntityId: 1,
+    });
+    expect(transport.sessions.size).toBe(1);
+    socket.close();
+  });
+
+  it("routes websocket upgrades by pathname so dev query strings do not break login", async () => {
+    const { url, transport } = await startHarness();
+    const socket = await openSocket(`${url}?devClientId=old-town`);
+
+    socket.send(
+      JSON.stringify({
+        type: TransportClientMessageType.DevAuth,
+        protocolVersion: PROTOCOL_VERSION,
+      }),
+    );
+
+    expect(await nextMessage(socket)).toMatchObject({
       type: ServerPacketType.FullState,
       protocolVersion: PROTOCOL_VERSION,
       selfEntityId: 1,
