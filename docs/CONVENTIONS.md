@@ -32,3 +32,10 @@ Only `docs/00-index.md` and high-level authority docs need to reference `POC_SPE
 
 ## 6. Do not manually maintain grand totals
 Indexes are navigation docs. Item family files and item tables are authoritative. Counts can be generated later.
+
+## 7. Content translation conventions
+When generating content JSON, follow `docs/content/00-index.md`:
+- Use kebab-case IDs consistently (see `docs/content/canonical-id-registry.md`)
+- Every content JSON must have a source doc reference in its manifest
+- Schema gaps must be documented in `docs/content/schema-gap-analysis.md` before generating unsupported JSON
+- Starter content must be listed in `docs/content/starter-content-manifest.md` before generation

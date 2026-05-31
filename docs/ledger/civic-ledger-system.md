@@ -14,6 +14,8 @@ Authority references:
 - `docs/ledger/rewards-and-stamps.md`
 - `docs/world/npc-cast.md`
 - `docs/world/districts-and-routes.md`
+- `docs/content/schema-gap-analysis.md`
+- `docs/content/seed-shops-services-ledger-manifest.md`
 
 # Civic Ledger System
 

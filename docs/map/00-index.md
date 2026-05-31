@@ -11,6 +11,8 @@ Authority references:
 - `docs/world/districts-and-routes.md`
 - `docs/world/starter-town.md`
 - `docs/ledger/district-deeds.md`
+- `docs/content/content-translation-system.md`
+- `docs/content/seed-map-and-spawns-manifest.md`
 - `POC_SPEC.md`
 
 # Map Placement Index

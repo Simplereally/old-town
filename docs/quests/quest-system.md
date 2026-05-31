@@ -11,6 +11,8 @@ Authority references:
 - `POC_SPEC.md`
 - `docs/quests/dialogue-style-guide.md`
 - `docs/quests/quest-rewards-and-reclaim.md`
+- `docs/content/seed-quests-and-dialogue-manifest.md`
+- `docs/content/validation-and-drift-control.md`
 
 # Quest System
 

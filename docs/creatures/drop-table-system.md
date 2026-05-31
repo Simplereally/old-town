@@ -10,6 +10,8 @@ Parent: [`Creatures Index`](00-index.md)
 Authority references:
 - `POC_SPEC.md`
 - `docs/creatures/creature-system.md`
+- `docs/content/seed-drops-and-contracts-manifest.md`
+- `docs/content/validation-and-drift-control.md`
 
 # Drop Table System
 

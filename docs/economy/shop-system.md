@@ -10,6 +10,8 @@ Parent: [`Economy Index`](00-index.md)
 Authority references:
 - `docs/economy/starter-shop-stocks.md`
 - `docs/world/shops-and-services.md`
+- `docs/content/schema-gap-analysis.md`
+- `docs/content/seed-shops-services-ledger-manifest.md`
 
 # Shop System
 

@@ -126,6 +126,25 @@ docs/
     ledger-placement.md ← Ledger physical anchors
     collision-and-route-rules.md ← Collision and path rules
     first-30-minute-paths.md ← Starter walkable loops
+  content/
+    00-index.md        ← Content translation entry point
+    content-translation-system.md ← Core translation authority and workflow
+    content-kind-contracts.md ← Runtime content kinds mapped to source docs
+    canonical-id-registry.md ← Stable ID naming rules
+    starter-content-manifest.md ← Minimum content set for vertical slice
+    schema-gap-analysis.md ← Schema gaps and POC priorities
+    seed-skills-manifest.md ← 25 skills as runtime candidates
+    seed-items-manifest.md ← Minimum item seed set
+    seed-materials-manifest.md ← Bridge docs/resources into content/materials
+    seed-objects-and-stations-manifest.md ← Landmarks, shops, stations, quest objects
+    seed-resource-nodes-manifest.md ← E09-critical resource nodes
+    seed-npcs-and-creatures-manifest.md ← Service NPCs and starter creatures
+    seed-map-and-spawns-manifest.md ← Bridge docs/map into content/maps
+    seed-recipes-manifest.md ← E09/E08 starter recipes
+    seed-drops-and-contracts-manifest.md ← Drop tables and Wardenry contracts
+    seed-quests-and-dialogue-manifest.md ← Starter quests and dialogue packs
+    seed-shops-services-ledger-manifest.md ← Schema-gap planning
+    validation-and-drift-control.md ← 14 validation checks and drift prevention
   spatial/
     00-index.md        ← Spatial simulation entry point
     spatial-system.md  ← Core spatial authority, layers, and design rules
@@ -240,6 +259,10 @@ docs/
 | Understand Favour and shrine economy | [`favour/00-index.md`](favour/00-index.md) |
 | Understand quests and dialogue | [`quests/00-index.md`](quests/00-index.md) |
 | Understand the Civic Ledger, deeds, and trails | [`ledger/00-index.md`](ledger/00-index.md) |
+| Understand content translation from docs to JSON | [`content/00-index.md`](content/00-index.md) → [`content-translation-system.md`](content/content-translation-system.md) |
+| Check ID naming rules | [`content/canonical-id-registry.md`](content/canonical-id-registry.md) |
+| See minimum POC content set | [`content/starter-content-manifest.md`](content/starter-content-manifest.md) |
+| Check schema gaps | [`content/schema-gap-analysis.md`](content/schema-gap-analysis.md) |
 | Understand shops, services, and prices | [`economy/00-index.md`](economy/00-index.md) |
 | Understand consumables | [`consumables/00-index.md`](consumables/00-index.md) → [`consumable-system.md`](consumables/consumable-system.md) |
 | Find an axe or pickaxe | [`items/tools/00-index.md`](items/tools/00-index.md) |
