@@ -11,6 +11,7 @@ Authority references:
 - `docs/world/starter-economy-loops.md`
 - `docs/quests/quest-system.md`
 - `docs/ledger/civic-ledger-system.md`
+- `docs/map/quest-object-placement.md`
 
 # Starter Quest Arc
 

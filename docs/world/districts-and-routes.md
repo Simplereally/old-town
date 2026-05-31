@@ -11,6 +11,8 @@ Authority references:
 - `docs/world/starter-town.md`
 - `docs/tools-and-intermediates/stations.md`
 - `docs/ledger/district-deeds.md`
+- `docs/map/district-boundaries.md`
+- `docs/map/collision-and-route-rules.md`
 
 # Districts and Routes
 

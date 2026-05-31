@@ -10,6 +10,7 @@ Parent: [`Creatures Index`](00-index.md)
 Authority references:
 - `docs/world/districts-and-routes.md`
 - `docs/creatures/starter-creatures.md`
+- `docs/map/creature-spawn-placement.md`
 
 # Creature Ecology
 

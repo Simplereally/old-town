@@ -12,10 +12,15 @@ Authority references:
 - `docs/world/districts-and-routes.md`
 - `docs/world/npc-cast.md`
 - `docs/creatures/00-index.md`
+- `docs/quests/starter-quest-arc.md`
+- `docs/economy/00-index.md`
+- `docs/map/first-30-minute-paths.md`
 
 # Starter Economy Loops
 
 The first 30 minutes should be playable on paper. These loops define what the player can do immediately in and around Old Town.
+
+Shop prices, service fees, and reward calibration for these loops live in [`../economy/00-index.md`](../economy/00-index.md).
 
 ## Loop 1: Full Penny
 
@@ -82,6 +87,8 @@ Detailed creature definitions and drop tables live in [`../creatures/00-index.md
 | Ash Drake Whelp | Later cellar or old kiln | First drake tease | Warm scale, ash, drake tooth |
 
 ## First Quest Hooks
+
+Detailed starter quest structure and dialogue tone live in [`../quests/starter-quest-arc.md`](../quests/starter-quest-arc.md).
 
 | Quest Hook | Giver | System Taught |
 |------------|-------|---------------|

@@ -11,10 +11,15 @@ Authority references:
 - `docs/world/npc-cast.md`
 - `docs/tools-and-intermediates/containers-and-pouches.md`
 - `docs/tools-and-intermediates/stations.md`
+- `docs/favour/shrine-economy.md`
+- `docs/economy/00-index.md`
+- `docs/map/shop-and-service-placement.md`
 
 # Shops and Services
 
 Starter shops teach identities. Stock lists should be small, legible, and tied to the NPC's loop.
+
+Hard stock counts, provisional prices, service fees, and shop policies live in [`../economy/00-index.md`](../economy/00-index.md).
 
 ## Services and Stock
 
@@ -52,4 +57,5 @@ Starter shops teach identities. Stock lists should be small, legible, and tied t
 2. Early sinks should be small and charming.
 3. Services should explain why the NPC exists.
 4. Reclaim and storage rules belong at the Counting House until a stronger system replaces it.
-
+5. Shrine stock, offerings, and Favour sinks are governed by [`../favour/shrine-economy.md`](../favour/shrine-economy.md).
+6. Starter stock tables and fees are governed by [`../economy/starter-shop-stocks.md`](../economy/starter-shop-stocks.md) and [`../economy/services-and-fees.md`](../economy/services-and-fees.md).

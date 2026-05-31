@@ -111,6 +111,21 @@ docs/
     public-works.md   ← Repeatable town jobs
     rewards-and-stamps.md ← Reward philosophy and types
     starter-ledger-content.md ← Quick-reference summary
+  map/
+    00-index.md        ← Map placement entry point
+    map-placement-system.md ← Core placement authority and rules
+    old-town-starter-region.md ← 96x96 region overview
+    district-boundaries.md ← District bounding boxes
+    spawn-points.md   ← Player spawn and respawn
+    npc-placement.md  ← NPC exact tiles
+    shop-and-service-placement.md ← Shop and service points
+    station-placement.md ← Skilling station tiles
+    resource-node-placement.md ← Mining, wood, fish, trap, garden nodes
+    creature-spawn-placement.md ← Creature spawn zones
+    quest-object-placement.md ← Quest object anchors
+    ledger-placement.md ← Ledger physical anchors
+    collision-and-route-rules.md ← Collision and path rules
+    first-30-minute-paths.md ← Starter walkable loops
   consumables/
     00-index.md        ← Consumables system entry point
     consumable-system.md ← Core consumable authority
@@ -206,6 +221,7 @@ docs/
 | Understand skill tools and intermediates | [`tools-and-intermediates/00-index.md`](tools-and-intermediates/00-index.md) |
 | Understand recipes and production actions | [`recipes/00-index.md`](recipes/00-index.md) |
 | Understand Old Town starter topology | [`world/00-index.md`](world/00-index.md) |
+| See map placement, districts, and coordinates | [`map/00-index.md`](map/00-index.md) |
 | Understand creatures, drops, and Wardenry | [`creatures/00-index.md`](creatures/00-index.md) |
 | Understand Favour and shrine economy | [`favour/00-index.md`](favour/00-index.md) |
 | Understand quests and dialogue | [`quests/00-index.md`](quests/00-index.md) |

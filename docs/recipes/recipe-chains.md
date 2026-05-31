@@ -17,6 +17,7 @@ Authority references:
 - `docs/quests/starter-quest-arc.md`
 - `docs/economy/00-index.md`
 - `docs/ledger/civic-ledger-system.md`
+- `docs/map/resource-node-placement.md`
 
 # Recipe Chains
 

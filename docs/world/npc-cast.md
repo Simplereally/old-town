@@ -12,6 +12,7 @@ Authority references:
 - `docs/world/shops-and-services.md`
 - `docs/quests/npc-voice-bible.md`
 - `docs/ledger/civic-ledger-system.md`
+- `docs/map/npc-placement.md`
 
 # NPC Cast
 

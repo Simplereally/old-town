@@ -14,6 +14,7 @@ Authority references:
 - `docs/ledger/charters-and-permits.md`
 - `docs/ledger/nooks-and-stash-spots.md`
 - `docs/ledger/rewards-and-stamps.md`
+- `docs/map/ledger-placement.md`
 
 # Starter Ledger Content
 
