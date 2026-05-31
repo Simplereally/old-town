@@ -50,13 +50,13 @@
     { "objectId": "iron_rock", "x": 53, "y": 18 }
   ],
   "npcSpawns": [
-    { "npcId": "baker", "x": 31, "y": 32, "wanderRadius": 2 },
-    { "npcId": "guard", "x": 35, "y": 32, "wanderRadius": 3 },
-    { "npcId": "woodsman", "x": 15, "y": 48, "wanderRadius": 3 },
-    { "npcId": "miner", "x": 49, "y": 18, "wanderRadius": 3 },
-    { "npcId": "rat", "x": 35, "y": 27, "wanderRadius": 3 },
-    { "npcId": "rat", "x": 37, "y": 27, "wanderRadius": 3 },
-    { "npcId": "goblin", "x": 55, "y": 11, "wanderRadius": 4 }
+    { "npcId": "mara_bellkeeper", "x": 31, "y": 32, "wanderRadius": 2 },
+    { "npcId": "pippa_hearth", "x": 35, "y": 32, "wanderRadius": 3 },
+    { "npcId": "tomas_tally", "x": 15, "y": 48, "wanderRadius": 3 },
+    { "npcId": "osric_penny", "x": 49, "y": 18, "wanderRadius": 3 },
+    { "npcId": "cellar_rat", "x": 35, "y": 27, "wanderRadius": 3 },
+    { "npcId": "cellar_rat", "x": 37, "y": 27, "wanderRadius": 3 },
+    { "npcId": "mud_goblin", "x": 55, "y": 11, "wanderRadius": 4 }
   ],
   "groundItemSpawns": [
     { "itemId": "pennywrought_axe", "quantity": 1, "x": 13, "y": 46 },

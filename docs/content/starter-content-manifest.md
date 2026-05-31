@@ -100,14 +100,34 @@ All 13 starter districts need content entries for objects, NPCs, and resource no
 - [x] `bun run typecheck` passes — all 5 workspaces clean
 - [x] `bun run format:check` passes — all files formatted
 
-### Batch 2: Pending (NPCs, Creatures, Drops, Quests, Dialogue, Maps)
+### Batch 2A: NPCs, Creatures, Drops, Quests, Dialogue (Completed)
 
-- [ ] All 14 service NPCs have `content/npcs/*.json` entries
-- [ ] All 12 starter creatures have `content/npcs/*.json` entries (creature kind)
-- [ ] All drop tables have `content/drops/*.json` entries
-- [ ] All 7 quests have `content/quests/*.json` entries
-- [ ] All dialogue packs have `content/dialogue/*.json` entries
+- [x] All 14 service NPCs have `content/npcs/*.json` entries — 26 NPCs total (14 service + 12 creatures)
+- [x] All 12 starter creatures have `content/npcs/*.json` entries — combat stats, drops, and options defined
+- [x] All 11 starter drop tables have `content/drops/*.json` entries — 13 drop tables total (including existing)
+- [x] All 7 quests have `content/quests/*.json` entries — schema-valid quest shells with stages and rewards
+- [x] All 14 dialogue packs have `content/dialogue/*.json` entries — 15 dialogue graphs total (including existing)
+- [x] `bun run content:validate` passes with zero errors — 27 content files validated
+- [x] `bun run test` passes with all content tests green — 545 tests passed
+- [x] `bun run typecheck` passes — all 5 workspaces clean
+- [x] `bun run format:check` passes — all files formatted
+
+### Batch 2B: Map JSON (Pending)
+
 - [ ] The starter region map has `content/maps/old-town-core.json`
+
+**Deferral note:** Batch 2A intentionally excludes full map JSON. The design docs use a 96×96 starter-region concept, while the runtime region-map schema is 64×64 local-coordinate based. Batch 2B must decide how to translate the 96×96 design-space map into the 64×64 runtime region schema.
+
+**Recommended Batch 2B direction:**
+- Use four 64×64 runtime regions covering a 128×128 envelope.
+- Place the 96×96 Old Town design space inside that envelope.
+- Convert design-space global tile `(x, y)` into runtime region coordinates:
+  - `rx = floor(x / 64)`
+  - `ry = floor(y / 64)`
+  - `local_x = x % 64`
+  - `local_y = y % 64`
+- Generate sparse region maps only after Batch 2A IDs exist.
+- A minimal `content/maps/old-town-0-0-0.json` placeholder exists for test compatibility (13 objects, 7 NPCs, 2 ground items, 5 triggers) but will be replaced by the world editor in E14.
 
 ## See also
 

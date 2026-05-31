@@ -1,0 +1,146 @@
+[
+  {
+    "id": "cellar_rat_drops",
+    "name": "Cellar Rat Drops",
+    "rolls": 1,
+    "alwaysDrops": [
+      { "itemId": "small_bones", "quantity": 1 },
+      { "itemId": "rat_tail", "quantity": 1 }
+    ],
+    "entries": [
+      { "itemId": "coin", "min": 1, "max": 3, "weight": 10 },
+      { "itemId": "bone_chips", "min": 1, "max": 1, "weight": 5 },
+      { "itemId": "grave_dust", "min": 1, "max": 1, "weight": 2 }
+    ]
+  },
+  {
+    "id": "soot_rat_drops",
+    "name": "Soot Rat Drops",
+    "rolls": 1,
+    "alwaysDrops": [
+      { "itemId": "small_bones", "quantity": 1 },
+      { "itemId": "rat_tail", "quantity": 1 }
+    ],
+    "entries": [
+      { "itemId": "coin", "min": 1, "max": 5, "weight": 10 },
+      { "itemId": "blackcoal", "min": 1, "max": 1, "weight": 5 },
+      { "itemId": "bone_chips", "min": 1, "max": 2, "weight": 3 }
+    ]
+  },
+  {
+    "id": "mud_goblin_drops",
+    "name": "Mud Goblin Drops",
+    "rolls": 1,
+    "alwaysDrops": [{ "itemId": "coin", "quantity": 1 }],
+    "entries": [
+      { "itemId": "pig_iron_ore", "min": 1, "max": 1, "weight": 10 },
+      { "itemId": "blackcoal", "min": 1, "max": 1, "weight": 8 },
+      { "itemId": "penny_copper_ore", "min": 1, "max": 1, "weight": 5 },
+      { "itemId": "coin", "min": 5, "max": 15, "weight": 10 }
+    ]
+  },
+  {
+    "id": "bell_bat_drops",
+    "name": "Bell Bat Drops",
+    "rolls": 1,
+    "alwaysDrops": [
+      { "itemId": "bellfeathers", "quantity": 1 },
+      { "itemId": "small_bones", "quantity": 1 }
+    ],
+    "entries": [
+      { "itemId": "coin", "min": 1, "max": 3, "weight": 8 },
+      { "itemId": "sinew_cord", "min": 1, "max": 1, "weight": 5 },
+      { "itemId": "grave_dust", "min": 1, "max": 1, "weight": 2 }
+    ]
+  },
+  {
+    "id": "bog_fox_drops",
+    "name": "Bog Fox Drops",
+    "rolls": 1,
+    "alwaysDrops": [{ "itemId": "fox_hide", "quantity": 1 }],
+    "entries": [
+      { "itemId": "coin", "min": 1, "max": 5, "weight": 8 },
+      { "itemId": "sinew_cord", "min": 1, "max": 1, "weight": 5 },
+      { "itemId": "bone_chips", "min": 1, "max": 1, "weight": 3 }
+    ]
+  },
+  {
+    "id": "grave_mite_drops",
+    "name": "Grave Mite Drops",
+    "rolls": 1,
+    "alwaysDrops": [
+      { "itemId": "small_bones", "quantity": 1 },
+      { "itemId": "bone_chips", "quantity": 1 }
+    ],
+    "entries": [
+      { "itemId": "grave_dust", "min": 1, "max": 1, "weight": 10 },
+      { "itemId": "coin", "min": 1, "max": 3, "weight": 8 },
+      { "itemId": "grave_flower", "min": 1, "max": 1, "weight": 2 }
+    ]
+  },
+  {
+    "id": "grave_wisp_drops",
+    "name": "Grave Wisp Drops",
+    "rolls": 1,
+    "alwaysDrops": [
+      { "itemId": "grave_dust", "quantity": 1 },
+      { "itemId": "small_bones", "quantity": 1 }
+    ],
+    "entries": [
+      { "itemId": "coin", "min": 1, "max": 5, "weight": 8 },
+      { "itemId": "bone_chips", "min": 1, "max": 2, "weight": 5 },
+      { "itemId": "ember_bead", "min": 1, "max": 1, "weight": 2 }
+    ]
+  },
+  {
+    "id": "ash_drake_whelp_drops",
+    "name": "Ash Drake Whelp Drops",
+    "rolls": 1,
+    "alwaysDrops": [
+      { "itemId": "warm_scale", "quantity": 1 },
+      { "itemId": "small_bones", "quantity": 1 }
+    ],
+    "entries": [
+      { "itemId": "blackcoal", "min": 1, "max": 2, "weight": 10 },
+      { "itemId": "coin", "min": 5, "max": 20, "weight": 8 },
+      { "itemId": "grave_bead", "min": 1, "max": 1, "weight": 3 }
+    ]
+  },
+  {
+    "id": "blacksealed_cutpurse_drops",
+    "name": "Blacksealed Cutpurse Drops",
+    "rolls": 1,
+    "alwaysDrops": [{ "itemId": "coin", "quantity": 1 }],
+    "entries": [
+      { "itemId": "coin", "min": 5, "max": 25, "weight": 10 },
+      { "itemId": "bone_chips", "min": 1, "max": 2, "weight": 5 },
+      { "itemId": "grave_dust", "min": 1, "max": 1, "weight": 3 }
+    ]
+  },
+  {
+    "id": "road_crow_drops",
+    "name": "Road Crow Drops",
+    "rolls": 1,
+    "alwaysDrops": [
+      { "itemId": "bellfeathers", "quantity": 1 },
+      { "itemId": "small_bones", "quantity": 1 }
+    ],
+    "entries": [
+      { "itemId": "coin", "min": 1, "max": 2, "weight": 8 },
+      { "itemId": "sinew_cord", "min": 1, "max": 1, "weight": 3 }
+    ]
+  },
+  {
+    "id": "river_snapper_drops",
+    "name": "River Snapper Drops",
+    "rolls": 1,
+    "alwaysDrops": [
+      { "itemId": "raw_tinfin", "quantity": 1 },
+      { "itemId": "small_bones", "quantity": 1 }
+    ],
+    "entries": [
+      { "itemId": "coin", "min": 1, "max": 3, "weight": 8 },
+      { "itemId": "ditch_shrimp", "min": 1, "max": 1, "weight": 5 }
+    ]
+  }
+]

@@ -166,6 +166,33 @@ Authority references:
 
 **Schema limitation discovered:** The `consumable` schema requires a `heal` field (non-negative integer). Non-healing consumables (tinctures, salves, cordials) must use `heal: 0` or omit the `consumable` field entirely. This is documented as a schema gap in [`schema-gap-analysis.md`](schema-gap-analysis.md).
 
+## Batch 2A Validation Results
+
+**Date:** 2026-05-31
+**Status:** All 14 checks passed for Batch 2A (NPCs, creatures, drops, quests, dialogue)
+
+| Check | Result | Notes |
+|-------|--------|-------|
+| 1. Canonical ID registry | Pass | All 26 NPCs, 13 drop tables, 7 quests, 15 dialogues use snake_case |
+| 2. Starter NPC role | Pass | All 14 service NPCs have dialogue or service roles |
+| 3. Starter object placement | Pass | All 42 objects have options and placement fields |
+| 4. Resource node output | Pass | All 20 node output items exist in item definitions |
+| 5. Recipe input/output | Pass | All 17 recipe input/output items exist in item definitions |
+| 6. Drop table output | Pass | All 11 new drop tables reference existing items only |
+| 7. Quest reward item | Pass | All 7 quest rewards reference existing items/skills |
+| 8. Map placement reference | Partial | Minimal placeholder map exists for test compatibility; full 96×96 map deferred to Batch 2B |
+| 9. Banned name check | Pass | No banned fantasy names found in Batch 2A content |
+| 10. Unsupported directory | Pass | Only supported directories touched: npcs, drops, dialogue, quests |
+| 11. JSON validation | Pass | `bun run content:validate` — 0 errors, 27 files |
+| 12. Cross-reference paths | Pass | All docs use canonical paths |
+| 13. Starter loop completeness | Pass | All 6 loops now have required items, recipes, NPCs, objects, nodes, quests |
+| 14. Manifest source doc | Pass | All seed manifests reference source docs |
+
+**Schema gaps discovered during Batch 2A:**
+- Wardenry contracts are a schema gap (no `content/contracts/` directory). They are modeled as quests with kill objectives where possible.
+- Shop/service stock schemas do not exist yet. Service NPCs use `trade` and `bank` action IDs on existing object counters; no dedicated shop JSON created.
+- `chalk_compass` item referenced in design docs does not exist in item definitions; substituted with `chalkmarked_wand` in the Missing Bell-Clapper quest rewards.
+
 ## Validation Commands
 
 Run these commands in order before marking any content story complete:

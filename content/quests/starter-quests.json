@@ -1,0 +1,272 @@
+[
+  {
+    "id": "smoke_over_old_town",
+    "name": "Smoke Over Old Town",
+    "questPoints": 1,
+    "requirements": [],
+    "varPrefix": "smoke_over_old_town",
+    "stages": [
+      {
+        "stage": 0,
+        "journalText": "I have not started this quest.",
+        "objectives": [],
+        "triggers": []
+      },
+      {
+        "stage": 10,
+        "journalText": "Pippa Hearth says the old kiln is smoking again. I should inspect it.",
+        "objectives": [{ "kind": "object", "objectId": "old_kiln", "option": "inspect" }],
+        "triggers": []
+      },
+      {
+        "stage": 20,
+        "journalText": "The kiln is warm but the flue is blocked. I need to find a sooted receipt nearby.",
+        "objectives": [{ "kind": "gather", "itemId": "sooted_receipt", "quantity": 1 }],
+        "triggers": []
+      },
+      {
+        "stage": 30,
+        "journalText": "I have the receipt. I should bring it back to Pippa Hearth.",
+        "objectives": [{ "kind": "talk", "npcId": "pippa_hearth" }],
+        "triggers": []
+      }
+    ],
+    "rewards": [
+      { "kind": "add_item", "itemId": "bellbread", "quantity": 5 },
+      { "kind": "add_xp", "skillId": "cooking", "amount": 50 },
+      { "kind": "add_xp", "skillId": "hearthcraft", "amount": 25 }
+    ]
+  },
+  {
+    "id": "rats_under_tallys",
+    "name": "Rats Under Tally's",
+    "questPoints": 1,
+    "requirements": [],
+    "varPrefix": "rats_under_tallys",
+    "stages": [
+      {
+        "stage": 0,
+        "journalText": "I have not started this quest.",
+        "objectives": [],
+        "triggers": []
+      },
+      {
+        "stage": 10,
+        "journalText": "Warden Holt wants the cellar rats cleared. I need to kill eight cellar rats.",
+        "objectives": [{ "kind": "kill", "npcId": "cellar_rat", "count": 8 }],
+        "triggers": []
+      },
+      {
+        "stage": 20,
+        "journalText": "The rats are dead. I should tell Tomas Tally the cellar is safe.",
+        "objectives": [{ "kind": "talk", "npcId": "tomas_tally" }],
+        "triggers": []
+      }
+    ],
+    "rewards": [
+      { "kind": "add_item", "itemId": "rat_tail", "quantity": 5 },
+      { "kind": "add_item", "itemId": "coin", "quantity": 20 },
+      { "kind": "add_xp", "skillId": "wardenry", "amount": 50 },
+      { "kind": "add_xp", "skillId": "favour", "amount": 25 }
+    ]
+  },
+  {
+    "id": "a_penny_for_the_forge",
+    "name": "A Penny for the Forge",
+    "questPoints": 1,
+    "requirements": [
+      { "kind": "skill", "skillId": "mining", "level": 1 },
+      { "kind": "skill", "skillId": "smithing", "level": 1 }
+    ],
+    "varPrefix": "a_penny_for_the_forge",
+    "stages": [
+      {
+        "stage": 0,
+        "journalText": "I have not started this quest.",
+        "objectives": [],
+        "triggers": []
+      },
+      {
+        "stage": 10,
+        "journalText": "Osric Penny needs ore for the forge. I should gather four penny copper ore and four tinstone.",
+        "objectives": [
+          { "kind": "gather", "itemId": "penny_copper_ore", "quantity": 4 },
+          { "kind": "gather", "itemId": "tinstone", "quantity": 4 }
+        ],
+        "triggers": []
+      },
+      {
+        "stage": 20,
+        "journalText": "I have the ore. I should bring it to Osric Penny at the forge.",
+        "objectives": [{ "kind": "talk", "npcId": "osric_penny" }],
+        "triggers": []
+      }
+    ],
+    "rewards": [
+      { "kind": "add_item", "itemId": "pennywrought_shortblade", "quantity": 1 },
+      { "kind": "add_xp", "skillId": "mining", "amount": 75 },
+      { "kind": "add_xp", "skillId": "smithing", "amount": 75 }
+    ]
+  },
+  {
+    "id": "string_enough_to_sing",
+    "name": "String Enough to Sing",
+    "questPoints": 1,
+    "requirements": [
+      { "kind": "skill", "skillId": "woodcutting", "level": 1 },
+      { "kind": "skill", "skillId": "bowcraft", "level": 1 }
+    ],
+    "varPrefix": "string_enough_to_sing",
+    "stages": [
+      {
+        "stage": 0,
+        "journalText": "I have not started this quest.",
+        "objectives": [],
+        "triggers": []
+      },
+      {
+        "stage": 10,
+        "journalText": "Letha Lath needs materials for a bow. I should gather four oldroad oak logs, bellfeathers, and sinew cord.",
+        "objectives": [
+          { "kind": "gather", "itemId": "oldroad_oak_log", "quantity": 4 },
+          { "kind": "gather", "itemId": "bellfeathers", "quantity": 1 },
+          { "kind": "gather", "itemId": "sinew_cord", "quantity": 1 }
+        ],
+        "triggers": []
+      },
+      {
+        "stage": 20,
+        "journalText": "I have the materials. I should bring them to Letha Lath.",
+        "objectives": [{ "kind": "talk", "npcId": "letha_lath" }],
+        "triggers": []
+      }
+    ],
+    "rewards": [
+      { "kind": "add_item", "itemId": "lathwood_shortbow", "quantity": 1 },
+      { "kind": "add_xp", "skillId": "woodcutting", "amount": 75 },
+      { "kind": "add_xp", "skillId": "bowcraft", "amount": 75 }
+    ]
+  },
+  {
+    "id": "the_beadwifes_errand",
+    "name": "The Beadwife's Errand",
+    "questPoints": 1,
+    "requirements": [
+      { "kind": "skill", "skillId": "beadwork", "level": 1 },
+      { "kind": "skill", "skillId": "magic", "level": 1 }
+    ],
+    "varPrefix": "the_beadwifes_errand",
+    "stages": [
+      {
+        "stage": 0,
+        "journalText": "I have not started this quest.",
+        "objectives": [],
+        "triggers": []
+      },
+      {
+        "stage": 10,
+        "journalText": "Mother Tallow needs clay and sand for her beads. I should gather two bead clay and one glass sand.",
+        "objectives": [
+          { "kind": "gather", "itemId": "bead_clay", "quantity": 2 },
+          { "kind": "gather", "itemId": "glass_sand", "quantity": 1 }
+        ],
+        "triggers": []
+      },
+      {
+        "stage": 20,
+        "journalText": "I have the materials. I should bring them to Mother Tallow.",
+        "objectives": [{ "kind": "talk", "npcId": "mother_tallow" }],
+        "triggers": []
+      }
+    ],
+    "rewards": [
+      { "kind": "add_item", "itemId": "ember_bead", "quantity": 3 },
+      { "kind": "add_xp", "skillId": "beadwork", "amount": 75 },
+      { "kind": "add_xp", "skillId": "magic", "amount": 50 }
+    ]
+  },
+  {
+    "id": "gravegate_flowers",
+    "name": "Gravegate Flowers",
+    "questPoints": 1,
+    "requirements": [
+      { "kind": "skill", "skillId": "gardening", "level": 1 },
+      { "kind": "skill", "skillId": "favour", "level": 1 }
+    ],
+    "varPrefix": "gravegate_flowers",
+    "stages": [
+      {
+        "stage": 0,
+        "journalText": "I have not started this quest.",
+        "objectives": [],
+        "triggers": []
+      },
+      {
+        "stage": 10,
+        "journalText": "Gravekeeper Soll needs flowers for the shrine. I should gather five grave flowers from the graveyard edge.",
+        "objectives": [{ "kind": "gather", "itemId": "grave_flower", "quantity": 5 }],
+        "triggers": []
+      },
+      {
+        "stage": 20,
+        "journalText": "I have the flowers. I should bring them to Gravekeeper Soll.",
+        "objectives": [{ "kind": "talk", "npcId": "gravekeeper_soll" }],
+        "triggers": []
+      }
+    ],
+    "rewards": [
+      { "kind": "add_item", "itemId": "grave_flower_bundle", "quantity": 1 },
+      { "kind": "add_item", "itemId": "shrine_candle", "quantity": 3 },
+      { "kind": "add_xp", "skillId": "gardening", "amount": 50 },
+      { "kind": "add_xp", "skillId": "favour", "amount": 50 }
+    ]
+  },
+  {
+    "id": "the_missing_bell_clapper",
+    "name": "The Missing Bell-Clapper",
+    "questPoints": 1,
+    "requirements": [
+      { "kind": "skill", "skillId": "sleight", "level": 1 },
+      { "kind": "skill", "skillId": "cartography", "level": 1 }
+    ],
+    "varPrefix": "the_missing_bell_clapper",
+    "stages": [
+      {
+        "stage": 0,
+        "journalText": "I have not started this quest.",
+        "objectives": [],
+        "triggers": []
+      },
+      {
+        "stage": 10,
+        "journalText": "Mara Bellkeeper says the bell clapper is missing. I should inspect the bell clapper hook.",
+        "objectives": [{ "kind": "object", "objectId": "bell_clapper_hook", "option": "inspect" }],
+        "triggers": []
+      },
+      {
+        "stage": 20,
+        "journalText": "The hook is empty. I should talk to Marn Lock. He knows things.",
+        "objectives": [{ "kind": "talk", "npcId": "marn_lock" }],
+        "triggers": []
+      },
+      {
+        "stage": 30,
+        "journalText": "Marn Lock says there was a sooted receipt near the kiln. I should find it.",
+        "objectives": [{ "kind": "gather", "itemId": "sooted_receipt", "quantity": 1 }],
+        "triggers": []
+      },
+      {
+        "stage": 40,
+        "journalText": "I have the receipt. I should bring it back to Mara Bellkeeper.",
+        "objectives": [{ "kind": "talk", "npcId": "mara_bellkeeper" }],
+        "triggers": []
+      }
+    ],
+    "rewards": [
+      { "kind": "add_item", "itemId": "bell_token_proof", "quantity": 1 },
+      { "kind": "add_item", "itemId": "chalkmarked_wand", "quantity": 1 },
+      { "kind": "add_xp", "skillId": "sleight", "amount": 50 },
+      { "kind": "add_xp", "skillId": "cartography", "amount": 50 }
+    ]
+  }
+]

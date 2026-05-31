@@ -51,8 +51,8 @@ describe("region loader", () => {
     expect(firstObject?.objectId).not.toBe(String(firstObject?.entityId));
 
     const firstNpc = world.getComponent(entityId(13), "npc");
-    expect(firstNpc?.npcId).toBe("baker");
-    expect(world.getComponent(entityId(13), "actor")?.name).toBe("Baker");
+    expect(firstNpc?.npcId).toBe("mara_bellkeeper");
+    expect(world.getComponent(entityId(13), "actor")?.name).toBe("Mara Bellkeeper");
 
     const firstGroundItem = world.getComponent(entityId(20), "groundItem");
     expect(firstGroundItem).toMatchObject({ itemId: "pennywrought_axe", quantity: 1 });
