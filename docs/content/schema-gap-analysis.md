@@ -32,6 +32,7 @@ Authority references:
 | **Shrine rites** | Partial via `object` and `processingRecipe` | Model with existing schema (rite as recipe with Favour XP output) | Medium |
 | **Public Works** | Partial via `quest` and minigame logic | Defer to post-POC; document as pure design authority | Low |
 | **Shop and service prices** | No clear schema | Defer to post-POC; prices live in economy docs | Medium |
+| **Consumable effects** | Partial via `consumable` (heal only) | Schema only supports `heal` and `consumeTicks`. Non-healing consumables (tinctures, salves, cordials) need `heal: 0` or omitted consumable field | Medium |
 
 ## Recommendation Definitions
 

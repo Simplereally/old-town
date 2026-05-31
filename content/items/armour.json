@@ -91,5 +91,119 @@
       },
       "requirements": []
     }
+  },
+  {
+    "id": "patchhide_coif",
+    "name": "Patchhide Coif",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A soft leather coif patched from rabbit hides.",
+    "icon": "icon_patchhide_coif",
+    "model": "model_patchhide_coif",
+    "value": 25,
+    "weight": 0.6,
+    "tier": "patchhide",
+    "tierOrder": 1,
+    "family": "coif",
+    "category": "ranged",
+    "visualIdentity": {
+      "baseColor": "tan_leather",
+      "accents": "stitched_patches"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "head",
+      "bonuses": {
+        "rangedAttack": 1,
+        "rangedDefence": 2
+      },
+      "requirements": []
+    }
+  },
+  {
+    "id": "patchhide_jerkin",
+    "name": "Patchhide Jerkin",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A light leather jerkin sewn from mismatched hides.",
+    "icon": "icon_patchhide_jerkin",
+    "model": "model_patchhide_jerkin",
+    "value": 55,
+    "weight": 2.2,
+    "tier": "patchhide",
+    "tierOrder": 1,
+    "family": "jerkin",
+    "category": "ranged",
+    "visualIdentity": {
+      "baseColor": "tan_leather",
+      "accents": "stitched_patches"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "body",
+      "bonuses": {
+        "rangedAttack": 2,
+        "rangedDefence": 3
+      },
+      "requirements": []
+    }
+  },
+  {
+    "id": "patchhide_chaps",
+    "name": "Patchhide Chaps",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Leather chaps reinforced with extra hide patches.",
+    "icon": "icon_patchhide_chaps",
+    "model": "model_patchhide_chaps",
+    "value": 40,
+    "weight": 1.4,
+    "tier": "patchhide",
+    "tierOrder": 1,
+    "family": "chaps",
+    "category": "ranged",
+    "visualIdentity": {
+      "baseColor": "tan_leather",
+      "accents": "stitched_patches"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "legs",
+      "bonuses": {
+        "rangedAttack": 1,
+        "rangedDefence": 2
+      },
+      "requirements": []
+    }
+  },
+  {
+    "id": "pennywrought_ward",
+    "name": "Pennywrought Ward",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A small round shield of pennywrought copper.",
+    "icon": "icon_pennywrought_ward",
+    "model": "model_pennywrought_ward",
+    "value": 45,
+    "weight": 2.0,
+    "tier": "pennywrought",
+    "tierOrder": 1,
+    "family": "ward",
+    "category": "melee",
+    "visualIdentity": {
+      "baseColor": "dull_copper_brown",
+      "accents": "cheap_rivets",
+      "boss": "plain_iron"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "stabDefence": 3,
+        "slashDefence": 3,
+        "crushDefence": 3
+      },
+      "requirements": []
+    }
   }
 ]

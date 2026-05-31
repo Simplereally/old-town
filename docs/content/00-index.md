@@ -22,7 +22,7 @@ Authority references:
 1. **Every design doc must produce runtime JSON, schema gap, or pure design authority.** No doc may exist without a defined output.
 2. **Do not invent content JSON paths that the loader cannot validate.** No unsupported directories like `content/shops/` or `content/ledger/` unless explicitly marked as schema gaps.
 3. **Do not generate actual JSON files in this directory.** This is planning documentation only. JSON generation happens in content stories.
-4. **Use kebab-case for all IDs consistently.** Never mix underscores or camelCase.
+4. **Use snake_case for all runtime content IDs.** The schema enforces `^[a-z][a-z0-9_]*$`. Design docs may use kebab-case for readability but must be translated to snake_case for JSON.
 5. **Cross-reference liberally.** Every manifest must link to its source docs and to related manifests.
 
 ## Files in this Directory

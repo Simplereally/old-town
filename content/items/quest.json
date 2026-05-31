@@ -34,5 +34,82 @@
     "options": ["eat"],
     "tags": ["quest_item"],
     "consumable": { "heal": 20, "consumeTicks": 3 }
+  },
+  {
+    "id": "ledger_seven",
+    "name": "Ledger Seven",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "The seventh ledger. Proof of something important.",
+    "icon": "icon_ledger_seven",
+    "value": 0,
+    "options": [],
+    "tags": ["quest_item"]
+  },
+  {
+    "id": "listening_clay",
+    "name": "Listening Clay",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "Clay that listens, or so the old story says.",
+    "icon": "icon_listening_clay",
+    "value": 0,
+    "options": [],
+    "tags": ["quest_item"]
+  },
+  {
+    "id": "warm_scale",
+    "name": "Warm Scale",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "A warm scale from something that should not be warm.",
+    "icon": "icon_warm_scale",
+    "value": 0,
+    "options": [],
+    "tags": ["quest_item"]
+  },
+  {
+    "id": "sooted_receipt",
+    "name": "Sooted Receipt",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "A receipt blackened by soot and old fire.",
+    "icon": "icon_sooted_receipt",
+    "value": 0,
+    "options": [],
+    "tags": ["quest_item"]
+  },
+  {
+    "id": "grave_flower_bundle",
+    "name": "Grave Flower Bundle",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "A bundle of flowers from the graveyard edge.",
+    "icon": "icon_grave_flower_bundle",
+    "value": 0,
+    "options": [],
+    "tags": ["quest_item"]
+  },
+  {
+    "id": "ratcatcher_tail",
+    "name": "Ratcatcher Tail",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "Proof of a ratcatcher's work.",
+    "icon": "icon_ratcatcher_tail",
+    "value": 0,
+    "options": [],
+    "tags": ["quest_item"]
+  },
+  {
+    "id": "bell_token_proof",
+    "name": "Bell Token Proof",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "Proof that the bell was rung.",
+    "icon": "icon_bell_token_proof",
+    "value": 0,
+    "options": [],
+    "tags": ["quest_item"]
   }
 ]

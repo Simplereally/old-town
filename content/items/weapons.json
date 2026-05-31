@@ -114,5 +114,123 @@
       "bonuses": { "magicAttack": 4, "magicDamage": 3, "crushAttack": 1 },
       "requirements": [{ "skillId": "magic", "level": 1 }]
     }
+  },
+  {
+    "id": "cobbled_sticker",
+    "name": "Cobbled Sticker",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A crude pointed weapon cobbled from scrap metal and wood.",
+    "icon": "icon_cobbled_sticker",
+    "model": "model_cobbled_sticker",
+    "value": 8,
+    "weight": 0.8,
+    "tier": "cobbled",
+    "tierOrder": 0,
+    "family": "sticker",
+    "category": "melee",
+    "visualIdentity": {
+      "baseColor": "rust_grey",
+      "accents": "rough_wood"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["stab", "slash"],
+      "bonuses": { "stabAttack": 1, "slashAttack": 1 },
+      "requirements": []
+    }
+  },
+  {
+    "id": "chalkmarked_wand",
+    "name": "Chalkmarked Wand",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A short wand marked with chalk sigils for channeling magic.",
+    "icon": "icon_chalkmarked_wand",
+    "model": "model_chalkmarked_wand",
+    "value": 35,
+    "weight": 0.5,
+    "tier": "chalkmarked",
+    "tierOrder": 1,
+    "family": "wand",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_tip"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic"],
+      "bonuses": { "magicAttack": 3, "magicDamage": 2 },
+      "requirements": [{ "skillId": "magic", "level": 1 }]
+    }
+  },
+  {
+    "id": "chalkmarked_primer",
+    "name": "Chalkmarked Primer",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A primer book bound in chalked leather for apprentice spellwork.",
+    "icon": "icon_chalkmarked_primer",
+    "model": "model_chalkmarked_primer",
+    "value": 30,
+    "weight": 0.6,
+    "tier": "chalkmarked",
+    "tierOrder": 1,
+    "family": "primer",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_binding"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic"],
+      "bonuses": { "magicAttack": 2, "magicDamage": 1 },
+      "requirements": []
+    }
+  },
+  {
+    "id": "lathwood_arrows",
+    "name": "Lathwood Arrows",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "Simple arrows fletched with lathwood shafts.",
+    "icon": "icon_lathwood_arrows",
+    "value": 2,
+    "weight": 0.1,
+    "options": [],
+    "tags": ["ammo"],
+    "equipment": {
+      "slot": "ammo",
+      "bonuses": { "rangedStrength": 1 },
+      "requirements": []
+    }
+  },
+  {
+    "id": "lathwood_dart",
+    "name": "Lathwood Dart",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A light dart carved from lathwood for throwing.",
+    "icon": "icon_lathwood_dart",
+    "value": 3,
+    "weight": 0.1,
+    "options": [],
+    "tags": ["ammo"],
+    "equipment": {
+      "slot": "ammo",
+      "bonuses": { "rangedStrength": 2 },
+      "requirements": []
+    }
   }
 ]

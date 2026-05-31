@@ -1,0 +1,50 @@
+[
+  {
+    "id": "smelt_pennywrought_ingot",
+    "name": "Smelt Pennywrought Ingot",
+    "skill": "smithing",
+    "requiredLevel": 1,
+    "actionTicks": 4,
+    "stationObjectIds": ["foundry_furnace"],
+    "inputItemId": "penny_copper_ore",
+    "successItemId": "pennywrought_ingot",
+    "xp": 15,
+    "failureChance": 0.1
+  },
+  {
+    "id": "forge_pennywrought_shortblade",
+    "name": "Forge Pennywrought Shortblade",
+    "skill": "smithing",
+    "requiredLevel": 5,
+    "actionTicks": 5,
+    "stationObjectIds": ["foundry_anvil"],
+    "inputItemId": "pennywrought_ingot",
+    "successItemId": "pennywrought_shortblade",
+    "xp": 30,
+    "failureChance": 0.1
+  },
+  {
+    "id": "forge_pennywrought_helm",
+    "name": "Forge Pennywrought Helm",
+    "skill": "smithing",
+    "requiredLevel": 5,
+    "actionTicks": 5,
+    "stationObjectIds": ["foundry_anvil"],
+    "inputItemId": "pennywrought_ingot",
+    "successItemId": "pennywrought_helm",
+    "xp": 30,
+    "failureChance": 0.1
+  },
+  {
+    "id": "forge_pennywrought_ward",
+    "name": "Forge Pennywrought Ward",
+    "skill": "smithing",
+    "requiredLevel": 5,
+    "actionTicks": 5,
+    "stationObjectIds": ["foundry_anvil"],
+    "inputItemId": "pennywrought_ingot",
+    "successItemId": "pennywrought_ward",
+    "xp": 30,
+    "failureChance": 0.1
+  }
+]

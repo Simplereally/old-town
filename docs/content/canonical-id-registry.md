@@ -18,15 +18,15 @@ Authority references:
 
 ## Core Rule
 
-**Kebab-case only.** All content IDs use lowercase letters and hyphens. No underscores, no camelCase, no mixed styles.
+**Lowercase snake_case only.** All runtime content IDs use lowercase letters and underscores. This matches the engine schema (`^[a-z][a-z0-9_]*$`). No hyphens, no camelCase, no mixed styles.
 
 | Allowed | Banned |
 |---------|--------|
-| `pennywrought-shortblade` | `pennywrought_shortblade` |
+| `pennywrought_shortblade` | `pennywrought-shortblade` |
 | `bellbread` | `bellBread` |
-| `small-bones` | `small_bones` |
-| `mara-bellkeeper` | `mara_bellkeeper` |
-| `market-bell` | `marketBell` |
+| `small_bones` | `small-bones` |
+| `mara_bellkeeper` | `mara-bellkeeper` |
+| `market_bell` | `marketBell` |
 
 ## Naming Conventions by Content Kind
 
@@ -36,10 +36,10 @@ Descriptive plus functional. The name should tell a player what it is.
 
 | Pattern | Example |
 |---------|---------|
-| `{tier}-{family}` | `pennywrought-shortblade`, `pig-iron-handaxe` |
-| `{descriptor}-{type}` | `bellbread`, `cleanblood-salve`, `arms-tincture` |
-| `{material}-{type}` | `penny-copper-ore`, `oldroad-oak-log`, `ditch-shrimp` |
-| `{quest}-{item}` | `smoke-over-old-town-baker-key`, `rat-tail` |
+| `{tier}_{family}` | `pennywrought_shortblade`, `pig_iron_handaxe` |
+| `{descriptor}_{type}` | `bellbread`, `cleanblood_salve`, `arms_tincture` |
+| `{material}_{type}` | `penny_copper_ore`, `oldroad_oak_log`, `ditch_shrimp` |
+| `{quest}_{item}` | `smoke_over_old_town_baker_key`, `rat_tail` |
 
 ### NPCs
 
@@ -47,7 +47,7 @@ Name plus role. Use the NPC's given name and a short role descriptor.
 
 | Pattern | Example |
 |---------|---------|
-| `{name}-{role}` | `mara-bellkeeper`, `tomas-tally`, `warden-holt` |
+| `{name}_{role}` | `mara_bellkeeper`, `tomas_tally`, `warden_holt` |
 
 ### Objects
 
@@ -55,8 +55,8 @@ Place plus function. The ID should locate the object in the world.
 
 | Pattern | Example |
 |---------|---------|
-| `{place}-{function}` | `market-bell`, `counting-house-door`, `foundry-furnace` |
-| `{district}-{station}` | `lath-bow-bench`, `patch-tanning-frame` |
+| `{place}_{function}` | `market_bell`, `counting_house_door`, `foundry_furnace` |
+| `{district}_{station}` | `lath_bow_bench`, `patch_tanning_frame` |
 
 ### Resource Nodes
 
@@ -64,7 +64,7 @@ Place plus resource plus type.
 
 | Pattern | Example |
 |---------|---------|
-| `{place}-{resource}-{type}` | `penny-copper-deposit`, `tinstone-deposit`, `oldroad-oak-tree` |
+| `{place}_{resource}_{type}` | `penny_copper_deposit`, `tinstone_deposit`, `oldroad_oak_tree` |
 
 ### Processing Recipes
 
@@ -72,15 +72,15 @@ Verb plus output.
 
 | Pattern | Example |
 |---------|---------|
-| `{verb}-{output}` | `smelt-pennywrought-ingot`, `cook-bellbread`, `forge-pennywrought-shortblade` |
+| `{verb}_{output}` | `smelt_pennywrought_ingot`, `cook_bellbread` |
 
 ### Quests
 
-Kebab-case title.
+snake_case title.
 
 | Pattern | Example |
 |---------|---------|
-| `{kebab-title}` | `smoke-over-old-town`, `rats-under-tallys`, `a-penny-for-the-forge` |
+| `{snake_title}` | `smoke_over_old_town`, `rats_under_tallys` |
 
 ### Dialogue
 
@@ -88,7 +88,7 @@ NPC plus context.
 
 | Pattern | Example |
 |---------|---------|
-| `{npc}-{context}` | `mara-bellkeeper-arrival`, `tomas-tally-rats-under-tallys` |
+| `{npc}_{context}` | `mara_bellkeeper_arrival`, `tomas_tally_rats_under_tallys` |
 
 ### Materials
 
@@ -96,7 +96,7 @@ Resource name. Materials are a subset of items with simpler IDs.
 
 | Pattern | Example |
 |---------|---------|
-| `{resource-name}` | `penny-copper`, `tinstone`, `oldroad-oak` |
+| `{resource_name}` | `penny_copper`, `tinstone`, `oldroad_oak` |
 
 ### Skills
 
@@ -104,7 +104,7 @@ Single word.
 
 | Pattern | Example |
 |---------|---------|
-| `{skill-name}` | `mining`, `smithing`, `arms`, `favour` |
+| `{skill_name}` | `mining`, `smithing`, `arms` |
 
 ### Spells
 
@@ -112,7 +112,7 @@ School plus descriptor.
 
 | Pattern | Example |
 |---------|---------|
-| `{school}-{descriptor}` | `chalkmarked-bolt`, `favour-cordial` |
+| `{school}_{descriptor}` | `chalkmarked_bolt`, `favour_cordial` |
 
 ## Banned ID Patterns
 
@@ -120,24 +120,24 @@ The following patterns are forbidden in all content IDs:
 
 | Banned Pattern | Example of Ban | Why |
 |----------------|----------------|-----|
-| Underscores | `penny_copper` | Use hyphens only |
-| camelCase | `pennyCopper` | Use hyphens only |
+| Hyphens | `penny-copper` | Use underscores only |
+| camelCase | `pennyCopper` | Use lowercase only |
 | PascalCase | `PennyCopper` | Use lowercase only |
-| Numbers only | `123`, `item-001` | IDs must be readable |
-| Generic prefixes | `item-`, `npc-`, `obj-` | The ID should describe the thing, not its kind |
-| Mixed case styles | `penny-copper_ore` | One style only: kebab-case |
-| RS-coded names | `bronze-sword`, `iron-dagger`, `health-potion` | Use Old Town names |
+| Numbers only | `123`, `item_001` | IDs must be readable |
+| Generic prefixes | `item_`, `npc_`, `obj_` | The ID should describe the thing, not its kind |
+| Mixed case styles | `penny_copper_ore` | One style only: snake_case |
+| RS-coded names | `bronze_sword`, `iron_dagger`, `health_potion` | Use Old Town names |
 | Fantasy generics | `mithril`, `adamantite`, `runite`, `dragon` | Use Old Town names |
 
 ## Migration Note
 
-Some existing docs and code may use underscores from early drafts. When migrating:
+Design docs originally recommended kebab-case for readability. The runtime schema enforces snake_case (`^[a-z][a-z0-9_]*$`). When creating content JSON:
 
-1. Update the doc or code to kebab-case.
-2. Update any cross-references in other docs.
-3. If the ID has already shipped in content JSON, create an alias or accept the legacy ID until a content wipe.
+1. Convert all kebab-case IDs from design docs to snake_case.
+2. Use the snake_case ID in the content JSON.
+3. Keep the kebab-case name in the display name and docs.
 
-**Rule:** New content must use kebab-case. Legacy content should be migrated when touched.
+**Rule:** Runtime content must use snake_case. Design docs may use kebab-case for readability but must be translated to snake_case for JSON.
 
 ## See also
 

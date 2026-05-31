@@ -42,5 +42,62 @@
     "value": 10,
     "options": [],
     "tags": ["bead", "catalyst_bead"]
+  },
+  {
+    "id": "tide_bead",
+    "name": "Tide Bead",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A cool bead that tastes faintly of river water.",
+    "icon": "icon_tide_bead",
+    "value": 4,
+    "options": [],
+    "tags": ["bead", "element_bead"]
+  },
+  {
+    "id": "loam_bead",
+    "name": "Loam Bead",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "An earthy bead that smells of turned soil.",
+    "icon": "icon_loam_bead",
+    "value": 4,
+    "options": [],
+    "tags": ["bead", "element_bead"]
+  },
+  {
+    "id": "bone_bead",
+    "name": "Bone Bead",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A small bead carved from bleached bone.",
+    "icon": "icon_bone_bead",
+    "value": 3,
+    "options": [],
+    "tags": ["bead", "material_bead"]
+  },
+  {
+    "id": "grave_bead",
+    "name": "Grave Bead",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A dark bead that seems to swallow light.",
+    "icon": "icon_grave_bead",
+    "value": 6,
+    "options": [],
+    "tags": ["bead", "material_bead"]
+  },
+  {
+    "id": "threadbare_bead_pouch",
+    "name": "Threadbare Bead Pouch",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A worn pouch for carrying beads and small charms.",
+    "icon": "icon_threadbare_bead_pouch",
+    "model": "model_threadbare_bead_pouch",
+    "value": 15,
+    "weight": 0.3,
+    "options": [],
+    "tags": ["bead", "container"]
   }
 ]

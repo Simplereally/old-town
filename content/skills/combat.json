@@ -38,5 +38,53 @@
     "xpTableId": "oldtown_default",
     "combat": true,
     "unlocks": []
+  },
+  {
+    "id": "arms",
+    "name": "Arms",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": true,
+    "unlocks": []
+  },
+  {
+    "id": "might",
+    "name": "Might",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": true,
+    "unlocks": []
+  },
+  {
+    "id": "guard",
+    "name": "Guard",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": true,
+    "unlocks": []
+  },
+  {
+    "id": "vitality",
+    "name": "Vitality",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": true,
+    "unlocks": []
+  },
+  {
+    "id": "ranged",
+    "name": "Ranged",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": true,
+    "unlocks": []
+  },
+  {
+    "id": "favour",
+    "name": "Favour",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": true,
+    "unlocks": []
   }
 ]

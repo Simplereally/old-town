@@ -44,5 +44,113 @@
     "value": 0,
     "weight": 0.3,
     "options": []
+  },
+  {
+    "id": "bellbread",
+    "name": "Bellbread",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A warm loaf baked to the sound of the market bell.",
+    "icon": "icon_bellbread",
+    "value": 8,
+    "weight": 0.2,
+    "options": ["eat"],
+    "consumable": { "heal": 5, "consumeTicks": 3 }
+  },
+  {
+    "id": "ditch_shrimp_skewer",
+    "name": "Ditch Shrimp Skewer",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "Grilled ditch shrimp on a stick. Better than it sounds.",
+    "icon": "icon_ditch_shrimp_skewer",
+    "value": 12,
+    "weight": 0.3,
+    "options": ["eat"],
+    "consumable": { "heal": 8, "consumeTicks": 3 }
+  },
+  {
+    "id": "tinfin_pie",
+    "name": "Tinfin Pie",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A flaky pie filled with river tinfin and herbs.",
+    "icon": "icon_tinfin_pie",
+    "value": 25,
+    "weight": 0.4,
+    "options": ["eat"],
+    "consumable": { "heal": 12, "consumeTicks": 3 }
+  },
+  {
+    "id": "warden_ration",
+    "name": "Warden Ration",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A compact ration issued to town wardens on patrol.",
+    "icon": "icon_warden_ration",
+    "value": 18,
+    "weight": 0.3,
+    "options": ["eat"],
+    "consumable": { "heal": 10, "consumeTicks": 3 }
+  },
+  {
+    "id": "arms_tincture",
+    "name": "Arms Tincture",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A bitter tincture for sharpening the arm.",
+    "icon": "icon_arms_tincture",
+    "value": 15,
+    "weight": 0.2,
+    "options": ["drink"],
+    "consumable": { "heal": 0, "consumeTicks": 1 }
+  },
+  {
+    "id": "cleanblood_salve",
+    "name": "Cleanblood Salve",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A thick salve said to purify the blood.",
+    "icon": "icon_cleanblood_salve",
+    "value": 20,
+    "weight": 0.2,
+    "options": ["use"],
+    "consumable": { "heal": 0, "consumeTicks": 1 }
+  },
+  {
+    "id": "favour_cordial",
+    "name": "Favour Cordial",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A sweet cordial offered at the shrine.",
+    "icon": "icon_favour_cordial",
+    "value": 12,
+    "weight": 0.2,
+    "options": ["drink"],
+    "consumable": { "heal": 0, "consumeTicks": 1 }
+  },
+  {
+    "id": "shrine_candle",
+    "name": "Shrine Candle",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A small candle for lighting at the shrine hearth.",
+    "icon": "icon_shrine_candle",
+    "value": 5,
+    "weight": 0.1,
+    "options": ["light"],
+    "consumable": { "heal": 0, "consumeTicks": 1 }
+  },
+  {
+    "id": "prayer_knot",
+    "name": "Prayer Knot",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A knotted cord carrying a whispered prayer.",
+    "icon": "icon_prayer_knot",
+    "value": 8,
+    "weight": 0.1,
+    "options": ["use"],
+    "consumable": { "heal": 0, "consumeTicks": 1 }
   }
 ]

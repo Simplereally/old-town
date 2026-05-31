@@ -5,11 +5,59 @@
     "skill": "cooking",
     "requiredLevel": 1,
     "actionTicks": 3,
-    "stationObjectIds": ["cooking_range", "quest_oven"],
+    "stationObjectIds": ["cooking_range", "quest_oven", "market_kitchen_hearth"],
     "inputItemId": "raw_fish",
     "successItemId": "cooked_fish",
     "failureItemId": "burnt_fish",
     "xp": 15,
     "failureChance": 0.25
+  },
+  {
+    "id": "cook_ditch_shrimp_skewer",
+    "name": "Cook Ditch Shrimp Skewer",
+    "skill": "cooking",
+    "requiredLevel": 1,
+    "actionTicks": 3,
+    "stationObjectIds": ["market_kitchen_hearth"],
+    "inputItemId": "ditch_shrimp",
+    "successItemId": "ditch_shrimp_skewer",
+    "xp": 15,
+    "failureChance": 0.2
+  },
+  {
+    "id": "bake_bellbread",
+    "name": "Bake Bellbread",
+    "skill": "cooking",
+    "requiredLevel": 1,
+    "actionTicks": 3,
+    "stationObjectIds": ["market_kitchen_hearth"],
+    "inputItemId": "bread",
+    "successItemId": "bellbread",
+    "xp": 10,
+    "failureChance": 0.1
+  },
+  {
+    "id": "make_tinfin_pie",
+    "name": "Make Tinfin Pie",
+    "skill": "cooking",
+    "requiredLevel": 15,
+    "actionTicks": 4,
+    "stationObjectIds": ["market_kitchen_hearth"],
+    "inputItemId": "raw_tinfin",
+    "successItemId": "tinfin_pie",
+    "xp": 25,
+    "failureChance": 0.15
+  },
+  {
+    "id": "make_warden_ration",
+    "name": "Make Warden Ration",
+    "skill": "cooking",
+    "requiredLevel": 10,
+    "actionTicks": 4,
+    "stationObjectIds": ["market_kitchen_hearth"],
+    "inputItemId": "cooked_fish",
+    "successItemId": "warden_ration",
+    "xp": 20,
+    "failureChance": 0.1
   }
 ]

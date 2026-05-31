@@ -87,20 +87,27 @@ All 13 starter districts need content entries for objects, NPCs, and resource no
 
 ## POC Readiness Checklist
 
-- [ ] All 25 skills have `content/skills/*.json` entries
-- [ ] All starter items have `content/items/*.json` entries
-- [ ] All starter materials have `content/materials/*.json` entries
-- [ ] All starter objects have `content/objects/*.json` entries
-- [ ] All starter resource nodes have `content/resource-nodes/*.json` entries
-- [ ] All starter recipes have `content/processing-recipes/*.json` entries
+### Batch 1: Foundational Definitions (Completed)
+
+- [x] All 25 skills have `content/skills/*.json` entries — 29 skills total (including existing OSRS-era placeholders)
+- [x] All starter items have `content/items/*.json` entries — 79 items total across 8 files
+- [x] All starter materials have `content/materials/*.json` entries — 23 materials total
+- [x] All starter objects have `content/objects/*.json` entries — 42 objects total
+- [x] All starter resource nodes have `content/resource-nodes/*.json` entries — 20 nodes total
+- [x] All starter recipes have `content/processing-recipes/*.json` entries — 17 recipes total
+- [x] `bun run content:validate` passes with zero errors — 25 content files validated
+- [x] `bun run test` passes with all content tests green — 537 tests passed
+- [x] `bun run typecheck` passes — all 5 workspaces clean
+- [x] `bun run format:check` passes — all files formatted
+
+### Batch 2: Pending (NPCs, Creatures, Drops, Quests, Dialogue, Maps)
+
 - [ ] All 14 service NPCs have `content/npcs/*.json` entries
 - [ ] All 12 starter creatures have `content/npcs/*.json` entries (creature kind)
 - [ ] All drop tables have `content/drops/*.json` entries
 - [ ] All 7 quests have `content/quests/*.json` entries
 - [ ] All dialogue packs have `content/dialogue/*.json` entries
 - [ ] The starter region map has `content/maps/old-town-core.json`
-- [ ] `bun run content:validate` passes with zero errors
-- [ ] `bun run test` passes with all content tests green
 
 ## See also
 

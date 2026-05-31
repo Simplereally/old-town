@@ -1,39 +1,39 @@
 [
   {
-    "id": "woodcutting",
-    "name": "Woodcutting",
+    "id": "wayfaring",
+    "name": "Wayfaring",
     "maxLevel": 99,
     "xpTableId": "oldtown_default",
     "combat": false,
     "unlocks": []
   },
   {
-    "id": "mining",
-    "name": "Mining",
+    "id": "sleight",
+    "name": "Sleight",
     "maxLevel": 99,
     "xpTableId": "oldtown_default",
     "combat": false,
     "unlocks": []
   },
   {
-    "id": "fishing",
-    "name": "Fishing",
+    "id": "wardenry",
+    "name": "Wardenry",
     "maxLevel": 99,
     "xpTableId": "oldtown_default",
     "combat": false,
     "unlocks": []
   },
   {
-    "id": "trapping",
-    "name": "Trapping",
+    "id": "hearthcraft",
+    "name": "Hearthcraft",
     "maxLevel": 99,
     "xpTableId": "oldtown_default",
     "combat": false,
     "unlocks": []
   },
   {
-    "id": "gardening",
-    "name": "Gardening",
+    "id": "cartography",
+    "name": "Cartography",
     "maxLevel": 99,
     "xpTableId": "oldtown_default",
     "combat": false,

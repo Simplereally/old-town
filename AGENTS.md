@@ -74,3 +74,4 @@ tools/
 - `POC_SPEC.md` is a large engine spec. Use the § references in epic/story files to read the relevant sections, not the whole document each time.
 - `adrs/` has ADRs for specific architectural areas. Consult the relevant one when making changes in that area. Create ADRs only when a story explicitly requires it.
 - `docs/content/00-index.md` is the authoritative bridge between design docs and runtime content JSON. When a story requires content generation, start there.
+- **Batch 1 content JSON is complete.** Foundational definitions (skills, materials, items, objects, resource nodes, processing recipes) exist in `content/` and pass `bun run content:validate`. Batch 2 (NPCs, creatures, drops, quests, dialogue, maps) is pending.
