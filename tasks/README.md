@@ -8,7 +8,7 @@ what to do next without asking for clarification.
 
 ```txt
 tasks/
-  epics/          — active epic files (E00 … E15), one per epic
+  epics/          — active epic files (E00, E01, ...), one per epic
   stories/E##/    — active story files for each epic, in numeric order
   completed/
     epics/        — finished epic files (moved here when all stories are done)
@@ -30,7 +30,7 @@ Work strictly linearly by epic number, then by story number:
    preserving the filename.
 5. When every story in an epic is complete, mark the epic file's checklist complete and
    move the epic file to `completed/epics/`.
-6. Continue until `E15` is complete.
+6. Continue until `tasks/epics/` is empty.
 
 ## Determining the next story
 

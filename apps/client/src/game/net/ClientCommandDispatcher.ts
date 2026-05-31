@@ -100,6 +100,26 @@ export class ClientCommandDispatcher {
     });
   }
 
+  bankAction(action: "deposit" | "withdraw" | "open" | "close", itemUid?: number, quantity?: number): void {
+    const payload = { action, ...(itemUid !== undefined && { itemUid }), ...(quantity !== undefined && { quantity }) } as const;
+    this._sendCommand({
+      type: ClientCommandType.BankAction,
+      commandId: ++this._commandId,
+      clientTickHint: this._currentTick,
+      payload: payload as unknown as import("@old-town/shared").BankIntent,
+    });
+  }
+
+  shopAction(action: "buy" | "sell" | "open" | "close", itemId?: string, quantity?: number): void {
+    const payload = { action, ...(itemId !== undefined && { itemId }), ...(quantity !== undefined && { quantity }) } as const;
+    this._sendCommand({
+      type: ClientCommandType.ShopAction,
+      commandId: ++this._commandId,
+      clientTickHint: this._currentTick,
+      payload: payload as unknown as import("@old-town/shared").ShopIntent,
+    });
+  }
+
   private _sendCommand(command: ClientCommand): void {
     this._socket.sendCommand(command);
   }

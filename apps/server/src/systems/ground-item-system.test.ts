@@ -20,6 +20,7 @@ import {
   DROP_PRIVATE_TICKS,
   GROUND_ITEM_DESPAWN_TICKS,
   type GroundItemSystemContext,
+  dropInventoryOnDeath,
   handleGroundItemIntent,
   processDeathResolution,
   processGroundItemLifecycle,
@@ -82,6 +83,9 @@ const NPC_DEF: NpcDef = {
   respawnTicks: 7,
   drops: "mud_goblin_drops",
   options: [{ label: "Attack", actionId: "attack", priority: 10, requiredDistance: 1 }],
+  movementType: "static",
+  aggressionMode: "peaceful",
+  contractEligible: false,
 };
 
 function fixedRng(values: readonly number[]): Rng {
@@ -244,7 +248,7 @@ describe("ground item and drop system", () => {
     if (!inventory) throw new Error("missing inventory");
     expect(count(inventory, "coin")).toBe(5);
     expect(world.isAlive(groundItem)).toBe(false);
-    expect(deltas.peek().inventoryDelta?.changes[0]).toMatchObject({
+    expect(deltas.peek().inventoryDeltas?.[0]?.changes[0]).toMatchObject({
       itemId: "coin",
       quantity: 5,
     });
@@ -323,5 +327,81 @@ describe("ground item and drop system", () => {
       "ground_drop_spawn",
       "ground_despawn",
     ]);
+  });
+
+  it("drops all inventory items on player death and tags them with owner", () => {
+    const { ctx, world, deltas } = setup();
+    const player = addPlayer(world, 5, 5);
+    const inventory = world.getComponent(player, "inventory");
+    if (!inventory) throw new Error("missing inventory");
+
+    inventory.slots[0] = { itemId: "coin", quantity: 10, uid: 1 };
+    inventory.slots[1] = { itemId: "small_bones", quantity: 3, uid: 2 };
+
+    dropInventoryOnDeath(ctx, player, 20);
+
+    expect(inventory.slots[0]).toBeUndefined();
+    expect(inventory.slots[1]).toBeUndefined();
+
+    const delta = deltas.peek();
+    expect(delta.inventoryDeltas?.[0]).toMatchObject({
+      containerId: `inventory:${player}`,
+      changes: [
+        { slot: 0, itemId: null, quantity: 0 },
+        { slot: 1, itemId: null, quantity: 0 },
+      ],
+    });
+
+    const groundItems = Array.from(world.componentEntries("groundItem"));
+    expect(groundItems).toHaveLength(2);
+    const items = groundItems.map(([, g]) => g);
+    expect(items.some((g) => g.itemId === "coin" && g.quantity === 10 && g.ownerId === player)).toBe(true);
+    expect(items.some((g) => g.itemId === "small_bones" && g.quantity === 3 && g.ownerId === player)).toBe(true);
+  });
+
+  it("grave items expire after despawn ticks", () => {
+    const { ctx, world } = setup();
+    const player = addPlayer(world, 5, 5);
+    const inventory = world.getComponent(player, "inventory");
+    if (!inventory) throw new Error("missing inventory");
+    inventory.slots[0] = { itemId: "coin", quantity: 5, uid: 1 };
+
+    dropInventoryOnDeath(ctx, player, 10);
+    const groundItems = Array.from(world.componentEntries("groundItem"));
+    expect(groundItems).toHaveLength(1);
+    const first = groundItems[0];
+    if (!first) throw new Error("ground item missing");
+    const entityId = first[0];
+
+    processGroundItemLifecycle(ctx, 10 + GROUND_ITEM_DESPAWN_TICKS);
+    expect(world.isAlive(entityId)).toBe(false);
+  });
+
+  it("owner can reclaim grave items immediately without ownership check", () => {
+    const { ctx, world, deltas } = setup();
+    const player = addPlayer(world, 5, 5);
+    const inventory = world.getComponent(player, "inventory");
+    if (!inventory) throw new Error("missing inventory");
+    inventory.slots[0] = { itemId: "coin", quantity: 5, uid: 1 };
+
+    dropInventoryOnDeath(ctx, player, 10);
+    deltas.consume(10, 6_000);
+
+    const groundItems = Array.from(world.componentEntries("groundItem"));
+    expect(groundItems).toHaveLength(1);
+    const first = groundItems[0];
+    if (!first) throw new Error("ground item missing");
+    const groundItemId = first[0];
+
+    const result = handleGroundItemIntent(
+      ctx,
+      player,
+      { groundItemEntityId: groundItemId, actionId: "pickup" },
+      10,
+      6_000,
+    );
+    expect(result).toBe(true);
+    expect(world.isAlive(groundItemId)).toBe(false);
+    expect(count(inventory, "coin")).toBe(5);
   });
 });

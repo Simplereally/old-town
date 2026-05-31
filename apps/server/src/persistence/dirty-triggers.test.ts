@@ -13,7 +13,10 @@ function setup() {
   } as unknown as CharacterSaveQueue;
   const observer = createPersistenceDirtyObserver({
     saveQueue,
-    players: { entityIds: () => [PLAYER, OTHER_PLAYER] },
+    players: {
+      entityIds: () => [PLAYER, OTHER_PLAYER],
+      hasPlayer: (eid: number) => eid === PLAYER || eid === OTHER_PLAYER,
+    },
     clock: () => ({ tick: 4, serverTime: 2_400 }),
   });
   return { observer, saveQueue };
@@ -55,5 +58,15 @@ describe("persistence dirty triggers", () => {
     expect(saveQueue.markLazy).toHaveBeenCalledWith(PLAYER, "position", 4, 2_400);
     expect(saveQueue.markLazy).toHaveBeenCalledWith(PLAYER, "hitpoints", 4, 2_400);
     expect(saveQueue.markImmediate).toHaveBeenCalledWith(PLAYER, "death", 4, 2_400);
+  });
+
+  it("ignores entity updates for non-player entities", () => {
+    const { observer, saveQueue } = setup();
+    const npc = entityId(99);
+
+    observer.onEntityUpdate?.(npc, { position: { x: 1, y: 2, plane: 0 } });
+
+    expect(saveQueue.markLazy).not.toHaveBeenCalled();
+    expect(saveQueue.markImmediate).not.toHaveBeenCalled();
   });
 });

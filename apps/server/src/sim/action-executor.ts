@@ -18,7 +18,12 @@ export type ActionHandler<TPayload extends { kind: string } = { kind: string }> 
   ctx: ActionContext,
 ) => void;
 
-export class ActionExecutor<TTable = Record<string, ActionHandler>> {
+// The default table type uses `ActionHandler<never>` so that a concrete table
+// of specific-payload handlers (e.g. `ActionHandler<GatherActionPayload>`)
+// remains assignable to a bare `ActionExecutor` — contravariance makes every
+// specific handler a subtype of `ActionHandler<never>`. This avoids `any`
+// while keeping the heterogeneous dispatch table well-typed.
+export class ActionExecutor<TTable = Record<string, ActionHandler<never>>> {
   constructor(
     private readonly table: TTable,
     private readonly cancelAction: (owner: EntityId, filter: ActionCancelFilter) => number = () =>

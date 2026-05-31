@@ -16,7 +16,7 @@ import type {
  * Wire protocol version. Bump on any breaking change to packet/command shapes. The
  * client compares the version in the bootstrap {@link FullStatePacket} against this.
  */
-export const PROTOCOL_VERSION = 3;
+export const PROTOCOL_VERSION = 5;
 
 /** Discriminators for the two top-level server messages. */
 export const ServerPacketType = {
@@ -94,6 +94,15 @@ export interface ProjectilePacket {
   readonly hitTick: number;
 }
 
+export interface DeathNoticePacket {
+  readonly entityId: EntityId;
+}
+
+export interface RespawnNoticePacket {
+  readonly entityId: EntityId;
+  readonly tile: TileCoord;
+}
+
 /** A sound cue to play. */
 export interface SoundPacket {
   readonly soundId: string;
@@ -116,9 +125,25 @@ export interface DialogueViewPacket {
   readonly options: readonly DialogueOptionPacket[];
 }
 
+export interface ShopStockPacket {
+  readonly itemId: string;
+  readonly quantity: number;
+  readonly price: number;
+  readonly maxQuantity: number;
+}
+
+export interface ShopViewPacket {
+  readonly shopId: string;
+  readonly name: string;
+  readonly stock: readonly ShopStockPacket[];
+  readonly sellMultiplier: number;
+  readonly buyMultiplier: number;
+}
+
 export interface InterfaceOpenPacket {
   readonly interfaceId: string;
   readonly dialogue?: DialogueViewPacket;
+  readonly shop?: ShopViewPacket;
 }
 
 /** A request for the client to close an interface/panel. */
@@ -181,6 +206,7 @@ export interface FullStatePacket {
   readonly selfEntityId: EntityId;
   readonly entities: readonly EntitySpawnPacket[];
   readonly inventory?: InventoryDelta;
+  readonly bank?: InventoryDelta;
   readonly equipment?: EquipmentUpdate;
   readonly skills?: readonly SkillDelta[];
   readonly vars?: readonly VarbitDelta[];
@@ -216,7 +242,7 @@ export interface TickDeltaPacket {
   readonly entityAdds: readonly EntitySpawnPacket[];
   readonly entityRemoves: readonly EntityId[];
   readonly entityUpdates: readonly EntityUpdatePacket[];
-  readonly inventoryDelta?: InventoryDelta;
+  readonly inventoryDeltas?: readonly InventoryDelta[];
   readonly skillDelta?: readonly SkillDelta[];
   readonly varbitDelta?: readonly VarbitDelta[];
   readonly chat?: readonly ChatPacket[];
@@ -228,6 +254,8 @@ export interface TickDeltaPacket {
   readonly regionUnloads?: readonly RegionUnloadPacket[];
   readonly interfaceOpens?: readonly InterfaceOpenPacket[];
   readonly interfaceCloses?: readonly InterfaceClosePacket[];
+  readonly deathNotices?: readonly DeathNoticePacket[];
+  readonly respawnNotices?: readonly RespawnNoticePacket[];
   readonly debug?: DebugTickData;
 }
 

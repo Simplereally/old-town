@@ -168,6 +168,7 @@ export interface CombatantComponent {
   autoRetaliate?: boolean;
   nextAttackTick?: number;
   dead?: boolean;
+  respawnTick?: number;
   lastDamageSourceId?: EntityId;
   spellCooldowns?: Record<string, number>;
   pendingHits?: PendingHit[];
@@ -195,4 +196,32 @@ export interface DialogueComponent {
   nodeId: string;
   speakerName: string;
   speakerEntityId?: EntityId;
+}
+
+export interface ShopStockEntry {
+  itemId: string;
+  quantity: number;
+  maxQuantity: number;
+  price: number;
+  restockRate: number;
+}
+
+export interface ShopComponent {
+  entityId: EntityId;
+  shopId: string;
+  stock: ShopStockEntry[];
+  lastRestockTick: number;
+}
+
+/**
+ * Bank container (slotted items). Same shape as InventoryComponent but stored
+ * under a separate component kind so a player can hold both inventory and bank.
+ */
+export interface BankComponent {
+  entityId: EntityId;
+  containerId: string;
+  capacity: number;
+  slots: (InventorySlot | undefined)[];
+  /** Monotonic allocator for slot `uid`s (starts at 1). */
+  nextUid: number;
 }

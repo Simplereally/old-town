@@ -15,6 +15,7 @@ import { ItemAuditLog } from "../items/item-audit";
 import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import { ActionRuntime } from "../sim/action-runtime";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
+import { makeRegistries } from "../test-support/registries";
 import { CollisionFlag, CollisionMap } from "../world/collision";
 import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
 import { appendPendingHit, processDamageResolutionEvents } from "./combat-system";
@@ -114,21 +115,10 @@ const ITEMS = new Map(BEAD_IDS.map((id) => [id, bead(id)]));
 const CATALOG = catalogFromItems(ITEMS);
 
 function registries(spells: readonly SpellDef[]): ContentRegistries {
-  return {
+  return makeRegistries({
     item: ITEMS,
-    npc: new Map(),
-    object: new Map(),
-    processingRecipe: new Map(),
-    skill: new Map(),
-    resourceNode: new Map(),
     spell: new Map(spells.map((spell) => [spell.id, spell])),
-    dropTable: new Map(),
-    quest: new Map(),
-    dialogue: new Map(),
-    regionMap: new Map(),
-    material: new Map(),
-    animation: new Map(),
-  };
+  });
 }
 
 function rng(float = 0, int = 2): Rng {
@@ -395,7 +385,7 @@ describe("SpellSystem", () => {
     expect(cast(ctx, player, "ember_flick", target)).toBe(true);
 
     expect(count(inventory, "ember_bead")).toBe(10);
-    expect(deltas.peek().inventoryDelta).toBeUndefined();
+    expect(deltas.peek().inventoryDeltas).toBeUndefined();
     expect(deltas.peek().chat?.[0]?.text).toBe("You do not have the required beads.");
   });
 

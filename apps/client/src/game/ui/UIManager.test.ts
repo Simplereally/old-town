@@ -65,6 +65,8 @@ describe("UIManager", () => {
       sendChatCommand: vi.fn(),
       enterSpellTargetMode: vi.fn(),
       sendUiActionCommand: vi.fn(),
+      sendBankCommand: vi.fn(),
+      sendShopCommand: vi.fn(),
     };
     manager = new UIManager(uiState, content, callbacks);
   });

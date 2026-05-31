@@ -48,13 +48,16 @@ const NPC_DEF: NpcDef = {
   wanderRadius: 2,
   respawnTicks: 5,
   options: [{ label: "Attack", actionId: "attack", priority: 10, requiredDistance: 1 }],
+  movementType: "static",
+  aggressionMode: "peaceful",
+  contractEligible: false,
 };
 
 function registries(npcDef = NPC_DEF, items: readonly ItemDef[] = []): ContentRegistries {
   return makeRegistries({
     item: new Map(items.map((item) => [item.id, item])),
     npc: new Map([[npcDef.id, npcDef]]),
-  };
+  });
 }
 
 function addOpenTiles(map: ReturnType<typeof createRuntimeMap>): void {

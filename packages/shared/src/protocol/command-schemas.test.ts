@@ -29,7 +29,9 @@ describe("parseClientCommand — valid commands", () => {
       },
       { type: "C2S_CHAT", commandId: 6, payload: { text: "hello town" } },
       { type: "C2S_UI_ACTION", commandId: 7, payload: { action: "open_panel" } },
-      { type: "C2S_PING", commandId: 8, payload: { clientTimeMs: 1700000000000 } },
+      { type: "C2S_BANK_ACTION", commandId: 8, payload: { action: "open" } },
+      { type: "C2S_SHOP_ACTION", commandId: 9, payload: { action: "open" } },
+      { type: "C2S_PING", commandId: 10, payload: { clientTimeMs: 1700000000000 } },
     ];
     for (const sample of samples) {
       expect(parseClientCommand(sample).ok).toBe(true);

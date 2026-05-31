@@ -551,7 +551,7 @@ describe("cooking processing loop", () => {
     expect(count(inventory, "raw_fish")).toBe(1);
     expect(count(inventory, "cooked_fish")).toBe(1);
     expect(ctx.world.getComponent(player, "skills")?.skills.cooking?.xp).toBe(15);
-    expect(deltas.peek().inventoryDelta?.changes).toEqual([
+    expect(deltas.peek().inventoryDeltas?.[0]?.changes).toEqual([
       { slot: 0, itemId: "raw_fish", quantity: 1, uid: 1 },
       { slot: 1, itemId: "cooked_fish", quantity: 1, uid: 2 },
     ]);

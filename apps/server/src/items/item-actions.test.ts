@@ -102,7 +102,7 @@ describe("handleItemIntent — validation", () => {
     );
 
     expect(result.outcome).toBe("invalid");
-    expect(deltas.peek().inventoryDelta).toBeUndefined();
+    expect(deltas.peek().inventoryDeltas).toBeUndefined();
     expect(deltas.peek().chat?.[0]).toMatchObject({ channel: "system", entityId: owner });
   });
 
@@ -133,7 +133,7 @@ describe("handleItemIntent — examine", () => {
 
     expect(result).toEqual({ outcome: "examined", message: "A sharp blade." });
     expect(count(inventory, "test_blade")).toBe(1);
-    expect(deltas.peek().inventoryDelta).toBeUndefined();
+    expect(deltas.peek().inventoryDeltas).toBeUndefined();
   });
 });
 
@@ -152,7 +152,7 @@ describe("handleItemIntent — drop", () => {
 
     expect(result.outcome).toBe("dropped");
     expect(count(inventory, "test_axe")).toBe(0);
-    expect(deltas.peek().inventoryDelta?.changes).toEqual([{ slot: 0, itemId: null, quantity: 0 }]);
+    expect(deltas.peek().inventoryDeltas?.[0]?.changes).toEqual([{ slot: 0, itemId: null, quantity: 0 }]);
     expect(itemAudit.snapshot()[0]).toMatchObject({
       tick: TICK,
       characterId: `entity:${owner}`,
@@ -254,7 +254,7 @@ describe("handleItemIntent — equip", () => {
     expect(result).toEqual({ outcome: "invalid", message: "You can't equip that." });
     expect(count(inventory, "test_axe")).toBe(1);
     expect(world.getComponent(owner, "equipment")?.slots.weapon).toBeUndefined();
-    expect(deltas.peek().inventoryDelta).toBeUndefined();
+    expect(deltas.peek().inventoryDeltas).toBeUndefined();
   });
 });
 
@@ -274,7 +274,7 @@ describe("handleItemIntent — eat", () => {
 
     expect(result.outcome).toBe("eaten");
     expect(count(inventory, "test_bread")).toBe(2);
-    expect(deltas.peek().inventoryDelta?.changes[0]).toMatchObject({
+    expect(deltas.peek().inventoryDeltas?.[0]?.changes[0]).toMatchObject({
       slot: 0,
       itemId: "test_bread",
       quantity: 2,
@@ -346,7 +346,7 @@ describe("handleItemIntent — eat", () => {
     expect(result.outcome).toBe("invalid");
     expect(count(inventory, "test_bread")).toBe(1);
     expect(consumables.pendingCount).toBe(0);
-    expect(deltas.peek().inventoryDelta).toBeUndefined();
+    expect(deltas.peek().inventoryDeltas).toBeUndefined();
   });
 
   it("fails to eat a non-consumable item without mutating", () => {
@@ -364,7 +364,7 @@ describe("handleItemIntent — eat", () => {
 
     expect(result.outcome).toBe("invalid");
     expect(count(inventory, "test_axe")).toBe(1);
-    expect(deltas.peek().inventoryDelta).toBeUndefined();
+    expect(deltas.peek().inventoryDeltas).toBeUndefined();
   });
 });
 
@@ -380,7 +380,7 @@ describe("handleItemIntent — use / unknown", () => {
     );
 
     expect(result.outcome).toBe("used");
-    expect(deltas.peek().inventoryDelta).toBeUndefined();
+    expect(deltas.peek().inventoryDeltas).toBeUndefined();
   });
 
   it("treats an unknown option as a no-op", () => {
@@ -394,7 +394,7 @@ describe("handleItemIntent — use / unknown", () => {
     );
 
     expect(result.outcome).toBe("invalid");
-    expect(deltas.peek().inventoryDelta).toBeUndefined();
+    expect(deltas.peek().inventoryDeltas).toBeUndefined();
   });
 });
 

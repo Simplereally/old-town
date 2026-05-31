@@ -3,7 +3,7 @@
 ## Dependency chain
 
 - Depends on: E26, E29
-- Unlocks: (none — final epic)
+- Unlocks: E31
 
 ## Spec references
 

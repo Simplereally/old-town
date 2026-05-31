@@ -284,366 +284,366 @@
     {
       "id": "E08",
       "title": "Inventory, Equipment, Items, and Character Stats",
-      "file": "epics/E08_inventory-equipment-items-and-character-stats.md",
+      "file": "completed/epics/E08_inventory-equipment-items-and-character-stats.md",
       "stories": [
         {
           "id": "E08-S01",
           "title": "Implement inventory container system",
-          "file": "stories/E08/E08-S01_implement-inventory-container-system.md"
+          "file": "completed/stories/E08/E08-S01_implement-inventory-container-system.md"
         },
         {
           "id": "E08-S02",
           "title": "Implement item action handling",
-          "file": "stories/E08/E08-S02_implement-item-action-handling.md"
+          "file": "completed/stories/E08/E08-S02_implement-item-action-handling.md"
         },
         {
           "id": "E08-S03",
           "title": "Implement equipment system",
-          "file": "stories/E08/E08-S03_implement-equipment-system.md"
+          "file": "completed/stories/E08/E08-S03_implement-equipment-system.md"
         },
         {
           "id": "E08-S04",
           "title": "Implement consumables and healing",
-          "file": "stories/E08/E08-S04_implement-consumables-and-healing.md"
+          "file": "completed/stories/E08/E08-S04_implement-consumables-and-healing.md"
         },
         {
           "id": "E08-S05",
           "title": "Implement character skills and derived stats",
-          "file": "stories/E08/E08-S05_implement-character-skills-and-derived-stats.md"
+          "file": "completed/stories/E08/E08-S05_implement-character-skills-and-derived-stats.md"
         }
       ]
     },
     {
       "id": "E09",
       "title": "Skilling and Resource Node Loops",
-      "file": "epics/E09_skilling-and-resource-node-loops.md",
+      "file": "completed/epics/E09_skilling-and-resource-node-loops.md",
       "stories": [
         {
           "id": "E09-S01",
           "title": "Implement resource node runtime state",
-          "file": "stories/E09/E09-S01_implement-resource-node-runtime-state.md"
+          "file": "completed/stories/E09/E09-S01_implement-resource-node-runtime-state.md"
         },
         {
           "id": "E09-S02",
           "title": "Implement gathering action validator",
-          "file": "stories/E09/E09-S02_implement-gathering-action-validator.md"
+          "file": "completed/stories/E09/E09-S02_implement-gathering-action-validator.md"
         },
         {
           "id": "E09-S03",
           "title": "Implement woodcutting loop",
-          "file": "stories/E09/E09-S03_implement-woodcutting-loop.md"
+          "file": "completed/stories/E09/E09-S03_implement-woodcutting-loop.md"
         },
         {
           "id": "E09-S04",
           "title": "Implement mining loop",
-          "file": "stories/E09/E09-S04_implement-mining-loop.md"
+          "file": "completed/stories/E09/E09-S04_implement-mining-loop.md"
         },
         {
           "id": "E09-S05",
           "title": "Implement cooking processing loop",
-          "file": "stories/E09/E09-S05_implement-cooking-processing-loop.md"
+          "file": "completed/stories/E09/E09-S05_implement-cooking-processing-loop.md"
         }
       ]
     },
     {
       "id": "E10",
       "title": "NPC AI, Combat, Death, Drops, and Respawn",
-      "file": "epics/E10_npc-ai-combat-death-drops-and-respawn.md",
+      "file": "completed/epics/E10_npc-ai-combat-death-drops-and-respawn.md",
       "stories": [
         {
           "id": "E10-S01",
           "title": "Implement NPC spawn, wander, leash, and respawn AI",
-          "file": "stories/E10/E10-S01_implement-npc-spawn-wander-leash-and-respawn-ai.md"
+          "file": "completed/stories/E10/E10-S01_implement-npc-spawn-wander-leash-and-respawn-ai.md"
         },
         {
           "id": "E10-S02",
           "title": "Implement combat target acquisition and validation",
-          "file": "stories/E10/E10-S02_implement-combat-target-acquisition-and-validation.md"
+          "file": "completed/stories/E10/E10-S02_implement-combat-target-acquisition-and-validation.md"
         },
         {
           "id": "E10-S03",
           "title": "Implement melee attack timing and rolls",
-          "file": "stories/E10/E10-S03_implement-melee-attack-timing-and-rolls.md"
+          "file": "completed/stories/E10/E10-S03_implement-melee-attack-timing-and-rolls.md"
         },
         {
           "id": "E10-S04",
           "title": "Apply hits, health bars, hitsplats, and XP",
-          "file": "stories/E10/E10-S04_apply-hits-health-bars-hitsplats-and-xp.md"
+          "file": "completed/stories/E10/E10-S04_apply-hits-health-bars-hitsplats-and-xp.md"
         },
         {
           "id": "E10-S05",
           "title": "Implement death, drops, ground items, and ownership",
-          "file": "stories/E10/E10-S05_implement-death-drops-ground-items-and-ownership.md"
+          "file": "completed/stories/E10/E10-S05_implement-death-drops-ground-items-and-ownership.md"
         }
       ]
     },
     {
       "id": "E11",
       "title": "Magic, Projectiles, Line of Sight, and Teleports",
-      "file": "epics/E11_magic-projectiles-line-of-sight-and-teleports.md",
+      "file": "completed/epics/E11_magic-projectiles-line-of-sight-and-teleports.md",
       "stories": [
         {
           "id": "E11-S01",
           "title": "Implement spell validation and bead costs",
-          "file": "stories/E11/E11-S01_implement-spell-validation-and-bead-costs.md"
+          "file": "completed/stories/E11/E11-S01_implement-spell-validation-and-bead-costs.md"
         },
         {
           "id": "E11-S02",
           "title": "Implement combat spell projectile and delayed hit",
-          "file": "stories/E11/E11-S02_implement-combat-spell-projectile-and-delayed-hit.md"
+          "file": "completed/stories/E11/E11-S02_implement-combat-spell-projectile-and-delayed-hit.md"
         },
         {
           "id": "E11-S03",
           "title": "Implement bind/snare-style movement block hook",
-          "file": "stories/E11/E11-S03_implement-bind-snare-style-movement-block-hook.md"
+          "file": "completed/stories/E11/E11-S03_implement-bind-snare-style-movement-block-hook.md"
         },
         {
           "id": "E11-S04",
           "title": "Implement interruptible home teleport",
-          "file": "stories/E11/E11-S04_implement-interruptible-home-teleport.md"
+          "file": "completed/stories/E11/E11-S04_implement-interruptible-home-teleport.md"
         }
       ]
     },
     {
       "id": "E12",
       "title": "Dialogue, Quest Vars, Quest Engine, and POC Quest",
-      "file": "epics/E12_dialogue-quest-vars-quest-engine-and-poc-quest.md",
+      "file": "completed/epics/E12_dialogue-quest-vars-quest-engine-and-poc-quest.md",
       "stories": [
         {
           "id": "E12-S01",
           "title": "Implement player var and quest var storage",
-          "file": "stories/E12/E12-S01_implement-player-var-and-quest-var-storage.md"
+          "file": "completed/stories/E12/E12-S01_implement-player-var-and-quest-var-storage.md"
         },
         {
           "id": "E12-S02",
           "title": "Implement dialogue graph engine",
-          "file": "stories/E12/E12-S02_implement-dialogue-graph-engine.md"
+          "file": "completed/stories/E12/E12-S02_implement-dialogue-graph-engine.md"
         },
         {
           "id": "E12-S03",
           "title": "Implement quest requirement/objective/trigger engine",
-          "file": "stories/E12/E12-S03_implement-quest-requirement-objective-trigger-engine.md"
+          "file": "completed/stories/E12/E12-S03_implement-quest-requirement-objective-trigger-engine.md"
         },
         {
           "id": "E12-S04",
           "title": "Implement quest rewards and completion safety",
-          "file": "stories/E12/E12-S04_implement-quest-rewards-and-completion-safety.md"
+          "file": "completed/stories/E12/E12-S04_implement-quest-rewards-and-completion-safety.md"
         },
         {
           "id": "E12-S05",
           "title": "Wire Smoke Over Old Town end-to-end",
-          "file": "stories/E12/E12-S05_wire-smoke-over-old-town-end-to-end.md"
+          "file": "completed/stories/E12/E12-S05_wire-smoke-over-old-town-end-to-end.md"
         }
       ]
     },
     {
       "id": "E13",
       "title": "Persistence, Character Save/Load, and Item Audit",
-      "file": "epics/E13_persistence-character-save-load-and-item-audit.md",
+      "file": "completed/epics/E13_persistence-character-save-load-and-item-audit.md",
       "stories": [
         {
           "id": "E13-S01",
           "title": "Define persistence adapter interface and dev storage",
-          "file": "stories/E13/E13-S01_define-persistence-adapter-interface-and-dev-storage.md"
+          "file": "completed/stories/E13/E13-S01_define-persistence-adapter-interface-and-dev-storage.md"
         },
         {
           "id": "E13-S02",
           "title": "Persist character core state",
-          "file": "stories/E13/E13-S02_persist-character-core-state.md"
+          "file": "completed/stories/E13/E13-S02_persist-character-core-state.md"
         },
         {
           "id": "E13-S03",
           "title": "Implement dirty-state persistence triggers",
-          "file": "stories/E13/E13-S03_implement-dirty-state-persistence-triggers.md"
+          "file": "completed/stories/E13/E13-S03_implement-dirty-state-persistence-triggers.md"
         },
         {
           "id": "E13-S04",
           "title": "Implement item transaction audit",
-          "file": "stories/E13/E13-S04_implement-item-transaction-audit.md"
+          "file": "completed/stories/E13/E13-S04_implement-item-transaction-audit.md"
         },
         {
           "id": "E13-S05",
           "title": "Prepare PostgreSQL schema and migration files",
-          "file": "stories/E13/E13-S05_prepare-postgresql-schema-and-migration-files.md"
+          "file": "completed/stories/E13/E13-S05_prepare-postgresql-schema-and-migration-files.md"
         }
       ]
     },
     {
       "id": "E14",
       "title": "World Editor and Content Authoring Tooling",
-      "file": "epics/E14_world-editor-and-content-authoring-tooling.md",
+      "file": "completed/epics/E14_world-editor-and-content-authoring-tooling.md",
       "stories": [
         {
           "id": "E14-S01",
           "title": "Upgrade content validator CLI for authoring",
-          "file": "stories/E14/E14-S01_upgrade-content-validator-cli-for-authoring.md"
+          "file": "completed/stories/E14/E14-S01_upgrade-content-validator-cli-for-authoring.md"
         },
         {
           "id": "E14-S02",
           "title": "Create world editor shell",
-          "file": "stories/E14/E14-S02_create-world-editor-shell.md"
+          "file": "completed/stories/E14/E14-S02_create-world-editor-shell.md"
         },
         {
           "id": "E14-S03",
           "title": "Implement tile paint and height/collision editing",
-          "file": "stories/E14/E14-S03_implement-tile-paint-and-height-collision-editing.md"
+          "file": "completed/stories/E14/E14-S03_implement-tile-paint-and-height-collision-editing.md"
         },
         {
           "id": "E14-S04",
           "title": "Implement object, NPC, resource node, and trigger placement",
-          "file": "stories/E14/E14-S04_implement-object-npc-resource-node-and-trigger-placement.md"
+          "file": "completed/stories/E14/E14-S04_implement-object-npc-resource-node-and-trigger-placement.md"
         },
         {
           "id": "E14-S05",
           "title": "Implement pathing, LoS, and interaction probe tools",
-          "file": "stories/E14/E14-S05_implement-pathing-los-and-interaction-probe-tools.md"
+          "file": "completed/stories/E14/E14-S05_implement-pathing-los-and-interaction-probe-tools.md"
         }
       ]
     },
     {
       "id": "E15",
       "title": "POC Assembly, Integration Tests, Performance, and Final Hardening",
-      "file": "epics/E15_poc-assembly-integration-tests-performance-and-final-hardening.md",
+      "file": "completed/epics/E15_poc-assembly-integration-tests-performance-and-final-hardening.md",
       "stories": [
         {
           "id": "E15-S01",
           "title": "Create end-to-end POC route and bootstrap script",
-          "file": "stories/E15/E15-S01_create-end-to-end-poc-route-and-bootstrap-script.md"
+          "file": "completed/stories/E15/E15-S01_create-end-to-end-poc-route-and-bootstrap-script.md"
         },
         {
           "id": "E15-S02",
           "title": "Write movement, interaction, and networking integration tests",
-          "file": "stories/E15/E15-S02_write-movement-interaction-and-networking-integration-tests.md"
+          "file": "completed/stories/E15/E15-S02_write-movement-interaction-and-networking-integration-tests.md"
         },
         {
           "id": "E15-S03",
           "title": "Write gameplay loop integration tests",
-          "file": "stories/E15/E15-S03_write-gameplay-loop-integration-tests.md"
+          "file": "completed/stories/E15/E15-S03_write-gameplay-loop-integration-tests.md"
         },
         {
           "id": "E15-S04",
           "title": "Add performance and leak checks",
-          "file": "stories/E15/E15-S04_add-performance-and-leak-checks.md"
+          "file": "completed/stories/E15/E15-S04_add-performance-and-leak-checks.md"
         },
         {
           "id": "E15-S05",
           "title": "Run final spec compliance pass",
-          "file": "stories/E15/E15-S05_run-final-spec-compliance-pass.md"
+          "file": "completed/stories/E15/E15-S05_run-final-spec-compliance-pass.md"
         }
       ]
     },
     {
       "id": "E16",
       "title": "Economy Schema Gaps",
-      "file": "epics/E16_economy-schema-gaps.md",
+      "file": "completed/epics/E16_economy-schema-gaps.md",
       "stories": [
         {
           "id": "E16-S01",
           "title": "Define Shop Schema",
-          "file": "stories/E16/E16-S01_define-shop-schema.md"
+          "file": "completed/stories/E16/E16-S01_define-shop-schema.md"
         },
         {
           "id": "E16-S02",
           "title": "Define Bank Schema",
-          "file": "stories/E16/E16-S02_define-bank-schema.md"
+          "file": "completed/stories/E16/E16-S02_define-bank-schema.md"
         },
         {
           "id": "E16-S03",
           "title": "Define Service Fee Schema",
-          "file": "stories/E16/E16-S03_define-service-fee-schema.md"
+          "file": "completed/stories/E16/E16-S03_define-service-fee-schema.md"
         },
         {
           "id": "E16-S04",
           "title": "Validate Economy Content and Cross-References",
-          "file": "stories/E16/E16-S04_validate-economy-content-and-cross-references.md"
+          "file": "completed/stories/E16/E16-S04_validate-economy-content-and-cross-references.md"
         }
       ]
     },
     {
       "id": "E17",
       "title": "Map Environment Schema Gaps",
-      "file": "epics/E17_map-environment-schema-gaps.md",
+      "file": "completed/epics/E17_map-environment-schema-gaps.md",
       "stories": [
         {
           "id": "E17-S01",
           "title": "Add Resource Node Placement to Region Map",
-          "file": "stories/E17/E17-S01_add-resource-node-placement-to-region-map.md"
+          "file": "completed/stories/E17/E17-S01_add-resource-node-placement-to-region-map.md"
         },
         {
           "id": "E17-S02",
           "title": "Add Player Spawn and Respawn to Region Map",
-          "file": "stories/E17/E17-S02_add-player-spawn-and-respawn-to-region-map.md"
+          "file": "completed/stories/E17/E17-S02_add-player-spawn-and-respawn-to-region-map.md"
         },
         {
           "id": "E17-S03",
           "title": "Validate Map Environment Content",
-          "file": "stories/E17/E17-S03_validate-map-environment-content.md"
+          "file": "completed/stories/E17/E17-S03_validate-map-environment-content.md"
         }
       ]
     },
     {
       "id": "E18",
       "title": "Combat and Status Schema Gaps",
-      "file": "epics/E18_combat-and-status-schema-gaps.md",
+      "file": "completed/epics/E18_combat-and-status-schema-gaps.md",
       "stories": [
         {
           "id": "E18-S01",
           "title": "Extend Creature Movement and Aggression",
-          "file": "stories/E18/E18-S01_extend-creature-movement-and-aggression.md"
+          "file": "completed/stories/E18/E18-S01_extend-creature-movement-and-aggression.md"
         },
         {
           "id": "E18-S02",
           "title": "Add Drop Table Conditionals",
-          "file": "stories/E18/E18-S02_add-drop-table-conditionals.md"
+          "file": "completed/stories/E18/E18-S02_add-drop-table-conditionals.md"
         },
         {
           "id": "E18-S03",
           "title": "Define Status Effects System",
-          "file": "stories/E18/E18-S03_define-status-effects-system.md"
+          "file": "completed/stories/E18/E18-S03_define-status-effects-system.md"
         },
         {
           "id": "E18-S04",
           "title": "Validate Combat Content",
-          "file": "stories/E18/E18-S04_validate-combat-content.md"
+          "file": "completed/stories/E18/E18-S04_validate-combat-content.md"
         }
       ]
     },
     {
       "id": "E19",
       "title": "Consumable and Recipe Schema Gaps",
-      "file": "epics/E19_consumable-and-recipe-schema-gaps.md",
+      "file": "completed/epics/E19_consumable-and-recipe-schema-gaps.md",
       "stories": [
         {
           "id": "E19-S01",
           "title": "Expand Consumable Effects Beyond Heal",
-          "file": "stories/E19/E19-S01_expand-consumable-effects-beyond-heal.md"
+          "file": "completed/stories/E19/E19-S01_expand-consumable-effects-beyond-heal.md"
         },
         {
           "id": "E19-S02",
           "title": "Define Recipe Selection Protocol",
-          "file": "stories/E19/E19-S02_define-recipe-selection-protocol.md"
+          "file": "completed/stories/E19/E19-S02_define-recipe-selection-protocol.md"
         },
         {
           "id": "E19-S03",
           "title": "Validate Consumable and Recipe Content",
-          "file": "stories/E19/E19-S03_validate-consumable-and-recipe-content.md"
+          "file": "completed/stories/E19/E19-S03_validate-consumable-and-recipe-content.md"
         }
       ]
     },
     {
       "id": "E20",
       "title": "Identity and Contract Schema Gaps",
-      "file": "epics/E20_identity-and-contract-schema-gaps.md",
+      "file": "completed/epics/E20_identity-and-contract-schema-gaps.md",
       "stories": [
         {
           "id": "E20-S01",
           "title": "Define Wardenry Contract Schema",
-          "file": "stories/E20/E20-S01_define-wardenry-contract-schema.md"
+          "file": "completed/stories/E20/E20-S01_define-wardenry-contract-schema.md"
         },
         {
           "id": "E20-S02",
           "title": "Create Contract Content and Validation",
-          "file": "stories/E20/E20-S02_create-contract-content-and-validation.md"
+          "file": "completed/stories/E20/E20-S02_create-contract-content-and-validation.md"
         }
       ]
     },
@@ -677,22 +677,22 @@
     {
       "id": "E22",
       "title": "Economy Runtime",
-      "file": "epics/E22_economy-runtime.md",
+      "file": "completed/epics/E22_economy-runtime.md",
       "stories": [
         {
           "id": "E22-S01",
           "title": "Bank Storage System Runtime",
-          "file": "stories/E22/E22-S01_bank-storage-system-runtime.md"
+          "file": "completed/stories/E22/E22-S01_bank-storage-system-runtime.md"
         },
         {
           "id": "E22-S02",
           "title": "Shop Trade Transaction System",
-          "file": "stories/E22/E22-S02_shop-trade-transaction-system.md"
+          "file": "completed/stories/E22/E22-S02_shop-trade-transaction-system.md"
         },
         {
           "id": "E22-S03",
           "title": "Economy UI Protocol and Client Rendering",
-          "file": "stories/E22/E22-S03_economy-ui-protocol-and-client-rendering.md"
+          "file": "completed/stories/E22/E22-S03_economy-ui-protocol-and-client-rendering.md"
         }
       ]
     },
@@ -721,17 +721,17 @@
     {
       "id": "E24",
       "title": "Player Death and Respawn",
-      "file": "epics/E24_player-death-and-respawn.md",
+      "file": "completed/epics/E24_player-death-and-respawn.md",
       "stories": [
         {
           "id": "E24-S01",
           "title": "Player Death State and Respawn Logic",
-          "file": "stories/E24/E24-S01_player-death-state-and-respawn-logic.md"
+          "file": "completed/stories/E24/E24-S01_player-death-state-and-respawn-logic.md"
         },
         {
           "id": "E24-S02",
           "title": "Death Penalty and Grave System",
-          "file": "stories/E24/E24-S02_death-penalty-and-grave-system.md"
+          "file": "completed/stories/E24/E24-S02_death-penalty-and-grave-system.md"
         }
       ]
     },
@@ -884,6 +884,181 @@
           "id": "E30-S06",
           "title": "Full Favour Boons, Oaths, and Rites",
           "file": "stories/E30/E30-S06_full-favour-boons-oaths-and-rites.md"
+        }
+      ]
+    },
+    {
+      "id": "E31",
+      "title": "Render Architecture Contracts",
+      "file": "epics/E31_render-architecture-contracts.md",
+      "stories": [
+        {
+          "id": "E31-S01",
+          "title": "Render ECS Architecture Decision",
+          "file": "stories/E31/E31-S01_render-ecs-architecture-decision.md"
+        },
+        {
+          "id": "E31-S02",
+          "title": "Snapshot Interpolation Contract",
+          "file": "stories/E31/E31-S02_snapshot-interpolation-contract.md"
+        },
+        {
+          "id": "E31-S03",
+          "title": "Asset Baking and Instancing Contract",
+          "file": "stories/E31/E31-S03_asset-baking-and-instancing-contract.md"
+        },
+        {
+          "id": "E31-S04",
+          "title": "Performance Budgets and Diagnostics Contract",
+          "file": "stories/E31/E31-S04_performance-budgets-and-diagnostics-contract.md"
+        }
+      ]
+    },
+    {
+      "id": "E32",
+      "title": "Snapshot Playout and Render State",
+      "file": "epics/E32_snapshot-playout-and-render-state.md",
+      "stories": [
+        {
+          "id": "E32-S01",
+          "title": "Snapshot Buffer",
+          "file": "stories/E32/E32-S01_snapshot-buffer.md"
+        },
+        {
+          "id": "E32-S02",
+          "title": "Render Clock",
+          "file": "stories/E32/E32-S02_render-clock.md"
+        },
+        {
+          "id": "E32-S03",
+          "title": "Render Transform Cache",
+          "file": "stories/E32/E32-S03_render-transform-cache.md"
+        },
+        {
+          "id": "E32-S04",
+          "title": "Pure Packet Ingestion",
+          "file": "stories/E32/E32-S04_pure-packet-ingestion.md"
+        },
+        {
+          "id": "E32-S05",
+          "title": "Presentation Movement Policies",
+          "file": "stories/E32/E32-S05_presentation-movement-policies.md"
+        },
+        {
+          "id": "E32-S06",
+          "title": "Render Frame Integration",
+          "file": "stories/E32/E32-S06_render-frame-integration.md"
+        }
+      ]
+    },
+    {
+      "id": "E33",
+      "title": "Render Resource Registry, Instancing, and Pools",
+      "file": "epics/E33_render-resource-registry-instancing-and-pools.md",
+      "stories": [
+        {
+          "id": "E33-S01",
+          "title": "Render Resource Registry",
+          "file": "stories/E33/E33-S01_render-resource-registry.md"
+        },
+        {
+          "id": "E33-S02",
+          "title": "Instance Bucket Core",
+          "file": "stories/E33/E33-S02_instance-bucket-core.md"
+        },
+        {
+          "id": "E33-S03",
+          "title": "Static Object Instancing",
+          "file": "stories/E33/E33-S03_static-object-instancing.md"
+        },
+        {
+          "id": "E33-S04",
+          "title": "Transient Effect Pools",
+          "file": "stories/E33/E33-S04_transient-effect-pools.md"
+        },
+        {
+          "id": "E33-S05",
+          "title": "Actor Presentation Pool",
+          "file": "stories/E33/E33-S05_actor-presentation-pool.md"
+        },
+        {
+          "id": "E33-S06",
+          "title": "Render Mutation Boundary Enforcement",
+          "file": "stories/E33/E33-S06_render-mutation-boundary-enforcement.md"
+        }
+      ]
+    },
+    {
+      "id": "E34",
+      "title": "Worker Chunk Baking and Scene Residency",
+      "file": "epics/E34_worker-chunk-baking-and-scene-residency.md",
+      "stories": [
+        {
+          "id": "E34-S01",
+          "title": "Chunk Lifecycle and Bake Queue",
+          "file": "stories/E34/E34-S01_chunk-lifecycle-and-bake-queue.md"
+        },
+        {
+          "id": "E34-S02",
+          "title": "Worker Bake Pipeline with Transferables",
+          "file": "stories/E34/E34-S02_worker-bake-pipeline-with-transferables.md"
+        },
+        {
+          "id": "E34-S03",
+          "title": "Budgeted GPU Upload Path",
+          "file": "stories/E34/E34-S03_budgeted-gpu-upload-path.md"
+        },
+        {
+          "id": "E34-S04",
+          "title": "Chunk Residency and LRU Eviction",
+          "file": "stories/E34/E34-S04_chunk-residency-and-lru-eviction.md"
+        },
+        {
+          "id": "E34-S05",
+          "title": "Region Crossing Integration",
+          "file": "stories/E34/E34-S05_region-crossing-integration.md"
+        },
+        {
+          "id": "E34-S06",
+          "title": "Asset Failure and Context Recovery",
+          "file": "stories/E34/E34-S06_asset-failure-and-context-recovery.md"
+        }
+      ]
+    },
+    {
+      "id": "E35",
+      "title": "Rendering Diagnostics and Stress Gates",
+      "file": "epics/E35_rendering-diagnostics-and-stress-gates.md",
+      "stories": [
+        {
+          "id": "E35-S01",
+          "title": "Renderer Metrics HUD and Budget Constants",
+          "file": "stories/E35/E35-S01_renderer-metrics-hud-and-budget-constants.md"
+        },
+        {
+          "id": "E35-S02",
+          "title": "Snapshot Jitter Stress Harness",
+          "file": "stories/E35/E35-S02_snapshot-jitter-stress-harness.md"
+        },
+        {
+          "id": "E35-S03",
+          "title": "Region Crossing Stress Harness",
+          "file": "stories/E35/E35-S03_region-crossing-stress-harness.md"
+        },
+        {
+          "id": "E35-S04",
+          "title": "Entity Scale Stress Harness",
+          "file": "stories/E35/E35-S04_entity-scale-stress-harness.md"
+        },
+        {
+          "id": "E35-S05",
+          "title": "Instanced Prop Scale Stress Harness",
+          "file": "stories/E35/E35-S05_instanced-prop-scale-stress-harness.md"
+        },
+        {
+          "id": "E35-S06",
+          "title": "Heap and Draw-Call Gate",
+          "file": "stories/E35/E35-S06_heap-and-draw-call-gate.md"
         }
       ]
     }

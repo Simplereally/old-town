@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@old-town/content-validator": "workspace:*",
+    "@old-town/shared": "workspace:*",
     "ws": "^8.21.0",
     "zod": "^3.23.8"
   },

@@ -18,6 +18,8 @@ export const ClientCommandType = {
   CastSpell: "C2S_CAST_SPELL",
   Chat: "C2S_CHAT",
   UiAction: "C2S_UI_ACTION",
+  BankAction: "C2S_BANK_ACTION",
+  ShopAction: "C2S_SHOP_ACTION",
   Ping: "C2S_PING",
 } as const;
 
@@ -84,6 +86,20 @@ export interface PingIntent {
   readonly clientTimeMs: number;
 }
 
+export interface BankIntent {
+  readonly action: "deposit" | "withdraw" | "open" | "close";
+  readonly itemUid?: number;
+  readonly quantity?: number;
+  readonly targetEntityId?: EntityId;
+}
+
+export interface ShopIntent {
+  readonly action: "buy" | "sell" | "open" | "close";
+  readonly itemId?: string;
+  readonly quantity?: number;
+  readonly targetEntityId?: EntityId;
+}
+
 // --- Command envelope -------------------------------------------------------------
 
 /** Common envelope: a typed payload plus dedupe/ordering metadata. */
@@ -110,6 +126,8 @@ export type GroundItemOptionCommand = ClientCommandBase<
 export type CastSpellCommand = ClientCommandBase<typeof ClientCommandType.CastSpell, SpellIntent>;
 export type ChatCommand = ClientCommandBase<typeof ClientCommandType.Chat, ChatIntent>;
 export type UiActionCommand = ClientCommandBase<typeof ClientCommandType.UiAction, UiActionIntent>;
+export type BankActionCommand = ClientCommandBase<typeof ClientCommandType.BankAction, BankIntent>;
+export type ShopActionCommand = ClientCommandBase<typeof ClientCommandType.ShopAction, ShopIntent>;
 export type PingCommand = ClientCommandBase<typeof ClientCommandType.Ping, PingIntent>;
 
 /** The discriminated union of every client → server command. */
@@ -122,4 +140,6 @@ export type ClientCommand =
   | CastSpellCommand
   | ChatCommand
   | UiActionCommand
+  | BankActionCommand
+  | ShopActionCommand
   | PingCommand;

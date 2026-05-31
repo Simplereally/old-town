@@ -85,10 +85,12 @@ describe("DeltaAccumulator", () => {
 
     const packet = deltas.consume(3, 1_800);
 
-    expect(packet.inventoryDelta).toEqual({
-      containerId: "inventory:1",
-      changes: [{ slot: 1, itemId: "logs", quantity: 2 }],
-    });
+    expect(packet.inventoryDeltas).toEqual([
+      {
+        containerId: "inventory:1",
+        changes: [{ slot: 1, itemId: "logs", quantity: 2 }],
+      },
+    ]);
     expect(packet.skillDelta).toEqual([{ skillId: "woodcutting", level: 2, xp: 100 }]);
     expect(packet.varbitDelta).toEqual([
       { varId: "quest.stage", value: 1 },

@@ -86,6 +86,11 @@ function createMockContext(): PacketApplierContext {
       addChat: vi.fn(),
       setDialogue: vi.fn(),
       clearDialogue: vi.fn(),
+      setBank: vi.fn(),
+      applyBankDelta: vi.fn(),
+      clearBank: vi.fn(),
+      setShop: vi.fn(),
+      clearShop: vi.fn(),
     },
     selfEntityId: 0,
     logDebug: vi.fn(),
@@ -500,7 +505,7 @@ describe("ClientPacketApplier", () => {
 
     applier.applyTickDelta(
       tickDeltaPacket({
-        inventoryDelta: { containerId: "inventory", changes: [] },
+        inventoryDeltas: [{ containerId: "inventory", changes: [] }],
         skillDelta: [{ skillId: "attack", level: 2, xp: 100 }],
         varbitDelta: [{ varId: "flag", value: 1 }],
         chat,

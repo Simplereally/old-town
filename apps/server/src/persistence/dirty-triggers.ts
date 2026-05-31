@@ -9,6 +9,7 @@ export interface DirtyTriggerClock {
 
 export interface DirtyPlayerDirectory {
   entityIds(): readonly EntityId[];
+  hasPlayer(entityId: EntityId): boolean;
 }
 
 export interface PersistenceDirtyTriggerOptions {
@@ -46,8 +47,11 @@ export function createPersistenceDirtyObserver(
         markAllImmediate("quest");
       }
     },
-    onEntityUpdate(entityId, changes) {
-      markEntityUpdate(options.saveQueue, options.clock(), entityId, changes);
+    onEntityUpdate(eid, changes) {
+      if (!options.players.hasPlayer(eid)) {
+        return;
+      }
+      markEntityUpdate(options.saveQueue, options.clock(), eid, changes);
     },
   };
 }
@@ -55,21 +59,21 @@ export function createPersistenceDirtyObserver(
 function markEntityUpdate(
   saveQueue: CharacterSaveQueue,
   clock: DirtyTriggerClock,
-  entityId: EntityId,
+  eid: EntityId,
   changes: EntityUpdatePayload,
 ): void {
   if (changes.equipment) {
-    saveQueue.markImmediate(entityId, "equipment", clock.tick, clock.serverTime);
+    saveQueue.markImmediate(eid, "equipment", clock.tick, clock.serverTime);
   }
   if (changes.position) {
-    saveQueue.markLazy(entityId, "position", clock.tick, clock.serverTime);
+    saveQueue.markLazy(eid, "position", clock.tick, clock.serverTime);
   }
   const health = changes.healthBar;
   if (health) {
     if (health.current <= 0) {
-      saveQueue.markImmediate(entityId, "death", clock.tick, clock.serverTime);
+      saveQueue.markImmediate(eid, "death", clock.tick, clock.serverTime);
     } else {
-      saveQueue.markLazy(entityId, "hitpoints", clock.tick, clock.serverTime);
+      saveQueue.markLazy(eid, "hitpoints", clock.tick, clock.serverTime);
     }
   }
 }

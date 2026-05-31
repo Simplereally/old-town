@@ -93,6 +93,11 @@ export interface IUIState {
   addChat(chat: readonly ChatPacket[]): void;
   setDialogue(dialogue: DialogueViewPacket): void;
   clearDialogue(): void;
+  setBank(delta: InventoryDelta): void;
+  applyBankDelta(delta: InventoryDelta): void;
+  clearBank(): void;
+  setShop(shop: import("@old-town/shared").ShopViewPacket): void;
+  clearShop(): void;
 }
 
 export interface PacketApplierContext {
@@ -273,8 +278,14 @@ export class ClientPacketApplier {
       }
     }
 
-    if (packet.inventoryDelta) {
-      ctx.uiState.applyInventoryDelta(packet.inventoryDelta);
+    if (packet.inventoryDeltas) {
+      for (const delta of packet.inventoryDeltas) {
+        if (delta.containerId === "bank") {
+          ctx.uiState.applyBankDelta(delta);
+        } else {
+          ctx.uiState.applyInventoryDelta(delta);
+        }
+      }
     }
     if (packet.skillDelta) {
       ctx.uiState.applySkillDelta(packet.skillDelta);
@@ -299,12 +310,23 @@ export class ClientPacketApplier {
         if (open.dialogue) {
           ctx.uiState.setDialogue(open.dialogue);
         }
+        if (open.interfaceId === "bank") {
+        }
+        if (open.shop) {
+          ctx.uiState.setShop(open.shop);
+        }
       }
     }
     if (packet.interfaceCloses) {
       for (const close of packet.interfaceCloses) {
         if (close.interfaceId === "dialogue") {
           ctx.uiState.clearDialogue();
+        }
+        if (close.interfaceId === "bank") {
+          ctx.uiState.clearBank();
+        }
+        if (close.interfaceId === "shop") {
+          ctx.uiState.clearShop();
         }
       }
     }

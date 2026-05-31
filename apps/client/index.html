@@ -4,11 +4,343 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Old Town</title>
-  <style>
+    <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+    }
+
+    /* Login Screen */
+    #login-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #login-screen.hidden {
+      display: none;
+    }
+
+    .login-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(ellipse at 50% 80%, rgba(60, 40, 20, 0.8) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 50%, rgba(40, 30, 20, 0.6) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 50%, rgba(40, 30, 20, 0.6) 0%, transparent 50%),
+        linear-gradient(180deg, #1a1510 0%, #2a2018 40%, #1a1510 100%);
+      z-index: 0;
+    }
+
+    .login-bg::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 4px
+      );
+    }
+
+    .login-vignette {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0, 0, 0, 0.7) 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Stone archways */
+    .arch {
+      position: absolute;
+      top: 0;
+      width: 120px;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .arch-left {
+      left: 0;
+      background: linear-gradient(90deg, rgba(20, 15, 10, 0.95) 0%, rgba(30, 25, 20, 0.7) 60%, transparent 100%);
+      border-right: 3px solid rgba(60, 50, 40, 0.5);
+    }
+    .arch-right {
+      right: 0;
+      background: linear-gradient(270deg, rgba(20, 15, 10, 0.95) 0%, rgba(30, 25, 20, 0.7) 60%, transparent 100%);
+      border-left: 3px solid rgba(60, 50, 40, 0.5);
+    }
+
+    /* World selector */
+    .world-selector {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+      background: rgba(20, 15, 10, 0.85);
+      border: 1px solid rgba(100, 80, 60, 0.5);
+      border-radius: 4px;
+      padding: 8px 14px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .world-selector-label {
+      color: #d4a843;
+      font-family: "Courier New", monospace;
+      font-size: 13px;
+      font-weight: bold;
+    }
+    .world-selector-change {
+      color: #4a9a4a;
+      font-family: "Courier New", monospace;
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    /* Online counter */
+    .online-counter {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(20, 15, 10, 0.85);
+      border: 1px solid rgba(100, 80, 60, 0.5);
+      border-radius: 4px;
+      padding: 8px 12px;
+    }
+    .online-counter-shield {
+      font-size: 20px;
+      color: #d4a843;
+    }
+    .online-counter-text {
+      font-family: "Courier New", monospace;
+    }
+    .online-counter-number {
+      color: #e8dcc8;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .online-counter-players {
+      color: #a09080;
+      font-size: 10px;
+    }
+
+    /* Info sign */
+    .info-sign {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      z-index: 10;
+      background: rgba(60, 50, 35, 0.85);
+      border: 2px solid rgba(100, 85, 60, 0.6);
+      border-radius: 3px;
+      padding: 12px 16px;
+      font-family: "Courier New", monospace;
+      text-align: center;
+    }
+    .info-sign-text {
+      color: #c8b8a0;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    /* Logo */
+    .login-logo-container {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .login-logo-shield {
+      font-size: 36px;
+      margin-bottom: 4px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    }
+    .login-logo {
+      font-family: "Courier New", monospace;
+      font-size: 42px;
+      font-weight: bold;
+      color: #c8b8a0;
+      text-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.8),
+        0 0 20px rgba(180, 160, 100, 0.3);
+      letter-spacing: 4px;
+    }
+    @supports (background-clip: text) {
+      .login-logo {
+        background: linear-gradient(180deg, #e8dcc8 0%, #b8a080 50%, #8a7050 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+      }
+    }
+    .login-logo-subtitle {
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      color: #a09080;
+      margin-top: 4px;
+      letter-spacing: 2px;
+    }
+
+    /* Login Panel */
+    .login-panel {
+      position: relative;
+      z-index: 10;
+      width: 360px;
+      background: rgba(20, 18, 25, 0.92);
+      border: 2px solid rgba(80, 70, 60, 0.6);
+      border-radius: 6px;
+      padding: 24px 28px;
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .login-panel-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .login-panel-title {
+      font-family: "Courier New", monospace;
+      font-size: 16px;
+      color: #d4a843;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .login-panel-subtitle {
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      color: #a09080;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .login-label {
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      color: #b8a060;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: -4px;
+    }
+    .login-input {
+      background: rgba(10, 10, 15, 0.9);
+      border: 1px solid rgba(80, 70, 60, 0.5);
+      border-radius: 3px;
+      padding: 10px 12px;
+      color: #e8dcc8;
+      font-family: "Courier New", monospace;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .login-input:focus {
+      border-color: #d4a843;
+      box-shadow: 0 0 8px rgba(212, 168, 67, 0.2);
+    }
+    .login-btn {
+      font-family: "Courier New", monospace;
+      font-size: 14px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 4px;
+    }
+    .login-btn-primary {
+      background: linear-gradient(180deg, #5a6c3a 0%, #4a5c2a 50%, #3a4c1a 100%);
+      color: #e8dcc8;
+      border: 1px solid rgba(100, 120, 60, 0.5);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+    .login-btn-primary:hover {
+      background: linear-gradient(180deg, #6a7c4a 0%, #5a6c3a 50%, #4a5c2a 100%);
+      box-shadow: 0 4px 12px rgba(80, 100, 40, 0.3);
+    }
+    .login-btn-secondary {
+      background: linear-gradient(180deg, #3a4a6c 0%, #2a3a5c 50%, #1a2a4c 100%);
+      color: #e8dcc8;
+      border: 1px solid rgba(60, 80, 120, 0.5);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+    .login-btn-secondary:hover {
+      background: linear-gradient(180deg, #4a5a7c 0%, #3a4a6c 50%, #2a3a5c 100%);
+      box-shadow: 0 4px 12px rgba(40, 60, 100, 0.3);
+    }
+    .login-forgot {
+      font-family: "Courier New", monospace;
+      font-size: 11px;
+      color: #4a9aaa;
+      text-align: center;
+      text-decoration: underline;
+      margin-top: 4px;
+      cursor: pointer;
+    }
+    .login-dev-note {
+      font-family: "Courier New", monospace;
+      font-size: 10px;
+      color: #888;
+      text-align: center;
+      margin-top: 4px;
+      font-style: italic;
+    }
+    .login-forgot:hover {
+      color: #6abaca;
+    }
+    @media (max-width: 480px) {
+      .login-panel {
+        width: 90%;
+        padding: 16px;
+      }
+      .login-logo {
+        font-size: 32px;
+      }
+      .arch {
+        width: 60px;
+      }
+      .world-selector {
+        top: 8px;
+        right: 8px;
+      }
+      .online-counter {
+        bottom: 8px;
+        left: 8px;
+      }
+      .info-sign {
+        display: none;
+      }
     }
     html, body {
       width: 100%;
@@ -319,6 +651,57 @@
   </style>
 </head>
 <body>
+  <!-- Login Screen -->
+  <div id="login-screen" role="dialog" aria-modal="true" aria-labelledby="login-panel-title">
+    <div class="login-bg" aria-hidden="true"></div>
+    <div class="login-vignette" aria-hidden="true"></div>
+
+    <div class="arch arch-left" aria-hidden="true"></div>
+    <div class="arch arch-right" aria-hidden="true"></div>
+
+    <div class="world-selector" aria-hidden="true">
+      <div class="world-selector-label">World 301</div>
+      <div class="world-selector-change">Change</div>
+    </div>
+
+    <div class="online-counter" aria-hidden="true">
+      <div class="online-counter-shield">⚔</div>
+      <div class="online-counter-text">
+        <div class="online-counter-number">Online: 6,842</div>
+        <div class="online-counter-players">Players Online</div>
+      </div>
+    </div>
+
+    <div class="info-sign" aria-hidden="true">
+      <div class="info-sign-text">Train skills.</div>
+      <div class="info-sign-text">Meet friends.</div>
+      <div class="info-sign-text">Make your legend.</div>
+    </div>
+
+    <div class="login-logo-container">
+      <div class="login-logo-shield" aria-hidden="true">🏰</div>
+      <div class="login-logo">Old Town</div>
+      <div class="login-logo-subtitle">The adventure is yours.</div>
+    </div>
+
+    <div class="login-panel">
+      <div class="login-panel-header">
+        <div class="login-panel-title" id="login-panel-title">Welcome to Old Town</div>
+        <div class="login-panel-subtitle">The adventure is yours.</div>
+      </div>
+
+      <div class="login-form">
+        <label class="login-label" for="login-username">Username</label>
+        <input type="text" id="login-username" class="login-input" name="username" autocomplete="username" maxlength="32" spellcheck="false" />
+
+        <button type="button" id="login-btn" class="login-btn login-btn-primary">LOG IN</button>
+        <button type="button" id="create-account-btn" class="login-btn login-btn-secondary">CREATE ACCOUNT</button>
+
+        <div class="login-dev-note">Dev mode — no password required</div>
+      </div>
+    </div>
+  </div>
+
   <canvas id="game-canvas"></canvas>
   <div id="status-overlay">
     <div id="connection-status" class="disconnected">Disconnected</div>
@@ -339,6 +722,10 @@
         <div class="ui-panel-header">Equipment</div>
         <div class="ui-panel-body" id="equipment-body"></div>
       </div>
+      <div id="bank-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Bank</div>
+        <div class="ui-panel-body" id="bank-body"></div>
+      </div>
     </div>
     <div id="ui-right">
       <div id="skills-panel" class="ui-panel hidden">
@@ -352,6 +739,10 @@
       <div id="quest-panel" class="ui-panel hidden">
         <div class="ui-panel-header">Quest Journal</div>
         <div class="ui-panel-body" id="quest-body"></div>
+      </div>
+      <div id="shop-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Shop</div>
+        <div class="ui-panel-body" id="shop-body"></div>
       </div>
     </div>
     <div id="ui-bottom">
@@ -377,6 +768,8 @@
       <button type="button" class="ui-bar-btn" id="btn-skills" data-panel="skills-panel">Skill</button>
       <button type="button" class="ui-bar-btn" id="btn-spellbook" data-panel="spellbook-panel">Spell</button>
       <button type="button" class="ui-bar-btn" id="btn-quest" data-panel="quest-panel">Quest</button>
+      <button type="button" class="ui-bar-btn" id="btn-bank" data-panel="bank-panel">Bank</button>
+      <button type="button" class="ui-bar-btn" id="btn-shop" data-panel="shop-panel">Shop</button>
       <button type="button" class="ui-bar-btn" id="btn-chat" data-panel="chat-box">Chat</button>
       <button type="button" class="ui-bar-btn" id="btn-debug" data-panel="debug-overlay">Debug</button>
     </div>

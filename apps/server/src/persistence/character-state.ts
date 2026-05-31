@@ -8,6 +8,7 @@ import {
   parseCharacterSnapshot,
 } from "@old-town/shared";
 import type {
+  BankComponent,
   EquipmentComponent,
   InventoryComponent,
   InventorySlot,
@@ -15,8 +16,10 @@ import type {
 } from "../ecs/components";
 import type { World } from "../ecs/world";
 import { aggregateBonuses, createEquipment } from "../items/equipment";
-import { createInventory } from "../items/inventory";
+import { createBank, createInventory } from "../items/inventory";
 import { createVarComponent } from "../vars/player-vars";
+
+const DEFAULT_BANK_CAPACITY = 400;
 
 export interface CharacterSnapshotContext {
   readonly world: World;
@@ -35,6 +38,7 @@ export function snapshotCharacter(
   const inventory = ctx.world.getComponent(entityId, "inventory");
   const equipment = ctx.world.getComponent(entityId, "equipment");
   const vars = ctx.world.getComponent(entityId, "vars");
+  const bank = ctx.world.getComponent(entityId, "bank");
 
   const snapshot: CharacterSnapshot = {
     version: CHARACTER_SNAPSHOT_VERSION,
@@ -55,7 +59,7 @@ export function snapshotCharacter(
     inventory: snapshotInventory(inventory, entityId),
     equipment: snapshotEquipment(equipment),
     vars: { ...(vars?.values ?? {}) },
-    bank: { slots: [] },
+    bank: snapshotBank(bank),
   };
 
   return parseCharacterSnapshot(snapshot);
@@ -74,6 +78,7 @@ export function applyCharacterSnapshot(
     plane: snapshot.position.plane,
   });
   ctx.world.setComponent(entityId, "inventory", restoreInventory(entityId, snapshot));
+  ctx.world.setComponent(entityId, "bank", restoreBank(entityId, snapshot));
   ctx.world.setComponent(entityId, "equipment", restoreEquipment(ctx, entityId, snapshot));
   const existingSkills = ctx.world.getComponent(entityId, "skills")?.skills ?? {};
   ctx.world.setComponent(entityId, "skills", {
@@ -124,6 +129,17 @@ function snapshotInventory(
   };
 }
 
+function snapshotBank(bank: BankComponent | undefined): CharacterSnapshot["bank"] {
+  if (!bank) {
+    return { slots: [] };
+  }
+  return {
+    slots: bank.slots.flatMap((item, slot) =>
+      item ? [{ slot, itemId: item.itemId, quantity: item.quantity }] : [],
+    ),
+  };
+}
+
 function snapshotEquipment(
   equipment: EquipmentComponent | undefined,
 ): CharacterSnapshot["equipment"] {
@@ -145,6 +161,19 @@ function restoreInventory(entityId: EntityId, snapshot: CharacterSnapshot): Inve
     } satisfies InventorySlot;
   }
   return inventory;
+}
+
+function restoreBank(entityId: EntityId, snapshot: CharacterSnapshot): BankComponent {
+  const bank = createBank(entityId, DEFAULT_BANK_CAPACITY);
+  for (const item of snapshot.bank.slots) {
+    bank.slots[item.slot] = {
+      itemId: item.itemId,
+      quantity: item.quantity,
+      uid: bank.nextUid,
+    } satisfies InventorySlot;
+    bank.nextUid += 1;
+  }
+  return bank;
 }
 
 function restoreEquipment(

@@ -94,6 +94,9 @@ describe("region loader", () => {
       objects: [{ objectId: "oldroad_signpost", x: 4, y: 5, rotation: 2 }],
       npcSpawns: [{ npcId: "stray_dog", x: 6, y: 7, wanderRadius: 3 }],
       groundItemSpawns: [{ itemId: "coin", quantity: 9, x: 8, y: 9 }],
+      resourceNodeSpawns: [],
+      playerSpawnPoints: [],
+      deathRespawnPoints: [],
       triggers: [{ id: "edited_trigger", x: 10, y: 11, width: 2, height: 3, tag: "edited_zone" }],
     };
 

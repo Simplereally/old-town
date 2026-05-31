@@ -59,6 +59,19 @@ export function createInventory(
   };
 }
 
+export function createBank(
+  entityId: EntityId,
+  capacity: number,
+): import("../ecs/components").BankComponent {
+  return {
+    entityId,
+    containerId: "bank",
+    capacity,
+    slots: Array.from({ length: capacity }, () => undefined),
+    nextUid: 1,
+  };
+}
+
 /** Snapshot one slot as a delta change (`itemId: null` when empty). */
 function changeFor(inv: InventoryComponent, slot: number): InventorySlotChange {
   const item = inv.slots[slot];

@@ -4,6 +4,7 @@ import type { World } from "../ecs/world";
 import { handleItemIntent, handleUnequipIntent } from "../items/item-actions";
 import type { ItemAuditLog } from "../items/item-audit";
 import { dispatchQuestEvent } from "../quests/quest-engine";
+import { handleBankIntent } from "../systems/bank-system";
 import type { ChatSystem } from "../systems/chat-system";
 import { handleNpcCombatIntent } from "../systems/combat-system";
 import type { ConsumableSystem } from "../systems/consumable-system";
@@ -14,6 +15,7 @@ import {
   processMovementPhase,
 } from "../systems/movement-system";
 import { handleObjectSkillingIntent } from "../systems/skilling-system";
+import { handleShopIntent } from "../systems/shop-system";
 import { handleSpellIntent } from "../systems/spell-system";
 import type { CollisionMap } from "../world/collision";
 import { ActionQueueType } from "./action-queue";
@@ -167,6 +169,26 @@ function dispatchSingleIntent(
 
     case IntentKind.Npc: {
       ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      if (intent.payload.actionId === "bank") {
+        handleBankIntent(
+          { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, registries: ctx.registries, itemAudit: ctx.itemAudit },
+          owner,
+          { action: "open", targetEntityId: intent.payload.npcEntityId },
+          tick,
+          serverTime,
+        );
+        return;
+      }
+      if (intent.payload.actionId === "trade") {
+        handleShopIntent(
+          { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, registries: ctx.registries, itemAudit: ctx.itemAudit },
+          owner,
+          { action: "open", targetEntityId: intent.payload.npcEntityId },
+          tick,
+          serverTime,
+        );
+        return;
+      }
       if (handleNpcDialogueIntent(ctx, owner, intent.payload, serverTime, tick)) {
         return;
       }
@@ -174,6 +196,30 @@ function dispatchSingleIntent(
         return;
       }
       emitSystemMessage(ctx, owner, "NPC interaction is not yet implemented.", serverTime);
+      return;
+    }
+
+    case IntentKind.BankAction: {
+      ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      handleBankIntent(
+        { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, registries: ctx.registries, itemAudit: ctx.itemAudit },
+        owner,
+        intent.payload,
+        tick,
+        serverTime,
+      );
+      return;
+    }
+
+    case IntentKind.ShopAction: {
+      ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      handleShopIntent(
+        { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, registries: ctx.registries, itemAudit: ctx.itemAudit },
+        owner,
+        intent.payload,
+        tick,
+        serverTime,
+      );
       return;
     }
 

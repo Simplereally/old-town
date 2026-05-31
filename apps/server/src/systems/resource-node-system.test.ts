@@ -10,6 +10,7 @@ import { createWorld, type World } from "../ecs/world";
 import { ActionExecutor } from "../sim/action-executor";
 import { ActionRuntime } from "../sim/action-runtime";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
+import { makeRegistries } from "../test-support/registries";
 import {
   applyObjectCollision,
   CollisionFlag,
@@ -52,21 +53,10 @@ const NODE_DEF: ResourceNodeDef = {
 };
 
 function registries(node: ResourceNodeDef = NODE_DEF): ContentRegistries {
-  return {
-    item: new Map(),
-    npc: new Map(),
+  return makeRegistries({
     object: new Map([[TREE_DEF.id, TREE_DEF]]),
-    processingRecipe: new Map(),
-    skill: new Map(),
     resourceNode: new Map([[node.id, node]]),
-    spell: new Map(),
-    dropTable: new Map(),
-    quest: new Map(),
-    dialogue: new Map(),
-    regionMap: new Map(),
-    material: new Map(),
-    animation: new Map(),
-  };
+  });
 }
 
 function setup(node: ResourceNodeDef = NODE_DEF): {

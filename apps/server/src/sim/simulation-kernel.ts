@@ -30,10 +30,12 @@ import {
   processDamageResolutionEvents,
 } from "../systems/combat-system";
 import { ConsumableSystem } from "../systems/consumable-system";
+import { processPlayerRespawn } from "../systems/death-system";
 import { processDeathResolution, processGroundItemLifecycle } from "../systems/ground-item-system";
 import { npcFootprintResolver, processNpcAiPhase, syncNpcOccupancy } from "../systems/npc-system";
 import { createResourceNodeActionHandlers } from "../systems/resource-node-system";
 import { createSkillingActionHandlers } from "../systems/skilling-system";
+import { processShopRestockPhase } from "../systems/shop-system";
 import { createSpellActionHandlers } from "../systems/spell-system";
 import { applyObjectCollision, CollisionMap } from "../world/collision";
 import { loadAllRegionMapsIntoWorld } from "../world/region-loader";
@@ -318,11 +320,16 @@ function wireTickPhases(
 
   tickLoop.registerPhase(TickPhase.DeathResolution, ({ tick, serverTime }) => {
     processDeathResolution(combatContext, tick, serverTime);
+    processPlayerRespawn(combatContext, tick, serverTime);
     processGroundItemLifecycle(combatContext, tick);
   });
 
   tickLoop.registerPhase(TickPhase.FoodPotionPrayerStatChanges, () => {
     dispatchConsumablePhase(dispatchContext);
+  });
+
+  tickLoop.registerPhase(TickPhase.ShopRestock, ({ tick }) => {
+    processShopRestockPhase({ world, collision, deltas, registries, itemAudit }, tick);
   });
 
   tickLoop.registerPhase(TickPhase.QuestTriggersVarbits, ({ tick, serverTime }) => {

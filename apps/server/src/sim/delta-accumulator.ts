@@ -1,6 +1,7 @@
 import {
   buildEntityUpdate,
   type ChatPacket,
+  type DeathNoticePacket,
   type DebugPathData,
   type DebugTickData,
   type EntityId,
@@ -13,6 +14,7 @@ import {
   type InventoryDelta,
   type InventorySlotChange,
   type ProjectilePacket,
+  type RespawnNoticePacket,
   ServerPacketType,
   type SkillDelta,
   type TickDeltaPacket,
@@ -25,7 +27,25 @@ export interface DirtyState {
   readonly entityAdds: readonly EntitySpawnPacket[];
   readonly entityRemoves: readonly EntityId[];
   readonly entityUpdates: readonly EntityUpdatePacket[];
-  readonly inventoryDelta?: InventoryDelta;
+  readonly inventoryDeltas?: readonly InventoryDelta[];
+  readonly skillDelta?: readonly SkillDelta[];
+  readonly varbitDelta?: readonly VarbitDelta[];
+  readonly chat?: readonly ChatPacket[];
+  readonly hitsplats?: readonly HitsplatPacket[];
+  readonly xpDrops?: readonly XpDropPacket[];
+  readonly projectiles?: readonly ProjectilePacket[];
+  readonly interfaceOpens?: readonly InterfaceOpenPacket[];
+  readonly interfaceCloses?: readonly InterfaceClosePacket[];
+  readonly deathNotices?: readonly DeathNoticePacket[];
+  readonly respawnNotices?: readonly RespawnNoticePacket[];
+  readonly debug?: DebugTickData;
+}
+
+export interface DirtyState {
+  readonly entityAdds: readonly EntitySpawnPacket[];
+  readonly entityRemoves: readonly EntityId[];
+  readonly entityUpdates: readonly EntityUpdatePacket[];
+  readonly inventoryDeltas?: readonly InventoryDelta[];
   readonly skillDelta?: readonly SkillDelta[];
   readonly varbitDelta?: readonly VarbitDelta[];
   readonly chat?: readonly ChatPacket[];
@@ -61,7 +81,7 @@ export class DeltaAccumulator {
   private readonly entityAdds = new Map<EntityId, EntitySpawnPacket>();
   private readonly entityRemoves = new Set<EntityId>();
   private readonly entityUpdates = new Map<EntityId, EntityUpdatePayload>();
-  private inventoryDelta: InventoryDeltaBuilder | undefined;
+  private inventoryDeltas = new Map<string, InventoryDeltaBuilder>();
   private readonly skillDeltas = new Map<string, SkillDelta>();
   private readonly varbitDeltas = new Map<string, VarbitDelta>();
   private chatPackets: ChatPacket[] = [];
@@ -70,6 +90,8 @@ export class DeltaAccumulator {
   private projectilePackets: ProjectilePacket[] = [];
   private interfaceOpenPackets: InterfaceOpenPacket[] = [];
   private interfaceClosePackets: InterfaceClosePacket[] = [];
+  private deathNoticePackets: DeathNoticePacket[] = [];
+  private respawnNoticePackets: RespawnNoticePacket[] = [];
   private readonly debugPaths = new Map<EntityId, DebugPathData>();
   private observer: DeltaMutationObserver | undefined;
 
@@ -107,18 +129,15 @@ export class DeltaAccumulator {
   }
 
   markInventoryDelta(delta: InventoryDelta): void {
-    let inventoryDelta = this.inventoryDelta;
-    if (!inventoryDelta) {
-      inventoryDelta = {
+    let builder = this.inventoryDeltas.get(delta.containerId);
+    if (!builder) {
+      builder = {
         containerId: delta.containerId,
         changesBySlot: new Map(),
       };
-      this.inventoryDelta = inventoryDelta;
+      this.inventoryDeltas.set(delta.containerId, builder);
     }
-    if (inventoryDelta.containerId !== delta.containerId) {
-      throw new Error("A tick delta packet can only carry one inventory container delta");
-    }
-    const changesBySlot = inventoryDelta.changesBySlot;
+    const changesBySlot = builder.changesBySlot;
     for (const change of delta.changes) {
       changesBySlot.set(change.slot, change);
     }
@@ -159,12 +178,20 @@ export class DeltaAccumulator {
     this.interfaceClosePackets.push(packet);
   }
 
+  markDeathNotice(packet: DeathNoticePacket): void {
+    this.deathNoticePackets.push(packet);
+  }
+
+  markRespawnNotice(packet: RespawnNoticePacket): void {
+    this.respawnNoticePackets.push(packet);
+  }
+
   markDebugPath(entityId: EntityId, path: readonly TileCoord[]): void {
     this.debugPaths.set(entityId, { entityId, path });
   }
 
   peek(): DirtyState {
-    const inventoryDelta = this.buildInventoryDelta();
+    const inventoryDeltas = this.buildInventoryDeltas();
 
     const entityAdds =
       this.entityAdds.size === 0
@@ -187,7 +214,7 @@ export class DeltaAccumulator {
       entityAdds,
       entityRemoves,
       entityUpdates,
-      ...(inventoryDelta ? { inventoryDelta } : {}),
+      ...(inventoryDeltas.length > 0 ? { inventoryDeltas } : {}),
       ...(this.skillDeltas.size > 0
         ? {
             skillDelta: Array.from(this.skillDeltas.values()).toSorted((a, b) =>
@@ -211,6 +238,12 @@ export class DeltaAccumulator {
         : {}),
       ...(this.interfaceClosePackets.length > 0
         ? { interfaceCloses: [...this.interfaceClosePackets] }
+        : {}),
+      ...(this.deathNoticePackets.length > 0
+        ? { deathNotices: [...this.deathNoticePackets] }
+        : {}),
+      ...(this.respawnNoticePackets.length > 0
+        ? { respawnNotices: [...this.respawnNoticePackets] }
         : {}),
       ...(this.debugPaths.size > 0
         ? {
@@ -239,26 +272,26 @@ export class DeltaAccumulator {
     return packet;
   }
 
-  private buildInventoryDelta(): InventoryDelta | undefined {
-    const inventoryDelta = this.inventoryDelta;
-    if (!inventoryDelta) {
-      return undefined;
+  private buildInventoryDeltas(): InventoryDelta[] {
+    if (this.inventoryDeltas.size === 0) {
+      return [];
     }
-    let changes = Array.from(inventoryDelta.changesBySlot.values());
-    if (changes.length > 1) {
-      changes = changes.toSorted((a, b) => a.slot - b.slot);
+    const deltas: InventoryDelta[] = [];
+    for (const builder of this.inventoryDeltas.values()) {
+      let changes = Array.from(builder.changesBySlot.values());
+      if (changes.length > 1) {
+        changes = changes.toSorted((a, b) => a.slot - b.slot);
+      }
+      deltas.push({ containerId: builder.containerId, changes });
     }
-    return {
-      containerId: inventoryDelta.containerId,
-      changes,
-    };
+    return deltas.toSorted((a, b) => a.containerId.localeCompare(b.containerId));
   }
 
   private clear(): void {
     this.entityAdds.clear();
     this.entityRemoves.clear();
     this.entityUpdates.clear();
-    this.inventoryDelta = undefined;
+    this.inventoryDeltas.clear();
     this.skillDeltas.clear();
     this.varbitDeltas.clear();
     this.chatPackets = [];
@@ -267,6 +300,8 @@ export class DeltaAccumulator {
     this.projectilePackets = [];
     this.interfaceOpenPackets = [];
     this.interfaceClosePackets = [];
+    this.deathNoticePackets = [];
+    this.respawnNoticePackets = [];
     this.debugPaths.clear();
   }
 }

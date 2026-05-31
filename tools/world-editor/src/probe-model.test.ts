@@ -22,6 +22,9 @@ const region: RegionMapDef = {
   objects: [{ objectId: "tree", x: 4, y: 4, rotation: 0 }],
   npcSpawns: [{ npcId: "rat", x: 7, y: 7, wanderRadius: 2 }],
   groundItemSpawns: [],
+  resourceNodeSpawns: [],
+  playerSpawnPoints: [],
+  deathRespawnPoints: [],
   triggers: [],
 };
 
@@ -51,6 +54,9 @@ const registries = {
         wanderRadius: 0,
         respawnTicks: 10,
         options: [],
+        movementType: "static",
+        aggressionMode: "peaceful",
+        contractEligible: false,
       },
     ],
   ]),

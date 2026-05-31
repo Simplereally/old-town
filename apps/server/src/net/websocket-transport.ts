@@ -7,6 +7,7 @@ import {
   encodeTransportPacket,
   type FullStatePacket,
   isCompatibleProtocol,
+  PROTOCOL_VERSION,
   parseClientCommand,
   TransportClientMessageType,
   TransportServerMessageType,
@@ -99,6 +100,10 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
           return;
         }
         if (!isCompatibleProtocol(auth.protocolVersion)) {
+          options.logger.warn("ws", "Protocol version mismatch", {
+            clientVersion: auth.protocolVersion,
+            serverVersion: PROTOCOL_VERSION,
+          });
           send(socket, { type: TransportServerMessageType.Error, reason: "incompatible_protocol" });
           socket.close(1002, "incompatible_protocol");
           return;

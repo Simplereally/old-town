@@ -7,6 +7,8 @@ export interface UIManagerCallbacks {
   sendChatCommand(text: string): void;
   enterSpellTargetMode(spellId: string): void;
   sendUiActionCommand(action: string, targetId?: string, value?: number): void;
+  sendBankCommand(action: "deposit" | "withdraw" | "open" | "close", itemUid?: number, quantity?: number): void;
+  sendShopCommand(action: "buy" | "sell" | "open" | "close", itemId?: string, quantity?: number): void;
 }
 
 /**
@@ -26,6 +28,8 @@ export class UIManager {
     "spellbook-panel",
     "quest-panel",
     "chat-box",
+    "bank-panel",
+    "shop-panel",
   ];
   private readonly keyBindings: Record<string, string> = {
     i: "inventory-panel",
@@ -34,6 +38,8 @@ export class UIManager {
     m: "spellbook-panel",
     q: "quest-panel",
     c: "chat-box",
+    b: "bank-panel",
+    s: "shop-panel",
     d: "debug-overlay",
   };
   private _unsubscribe: (() => void) | undefined;
@@ -183,6 +189,8 @@ export class UIManager {
     this._renderQuests();
     this._renderChat();
     this._renderDialogue();
+    this._renderBank();
+    this._renderShop();
   }
 
   private _renderInventory(): void {
@@ -400,5 +408,69 @@ export class UIManager {
     }
 
     box.classList.remove("hidden");
+  }
+
+  private _renderBank(): void {
+    const body = document.getElementById("bank-body");
+    if (!body) return;
+    body.innerHTML = "";
+    const grid = document.createElement("div");
+    grid.classList.add("inventory-grid");
+
+    for (let slot = 0; slot < 400; slot++) {
+      const cell = document.createElement("div");
+      cell.classList.add("inventory-cell");
+      cell.title = `Slot ${slot}`;
+
+      const item = this.uiState.bank.get(slot);
+      if (item) {
+        const itemId = item.itemId ?? "";
+        const quantity = item.quantity;
+        const def = this.content.getItem(itemId);
+        const name = def?.name ?? itemId ?? "";
+        cell.textContent = name.length > 8 ? `${name.slice(0, 7)}…` : name;
+        cell.title = `${name}${quantity > 1 ? ` x${quantity}` : ""}`;
+        const uid = item.uid;
+        if (uid !== undefined) {
+          cell.addEventListener("click", () => {
+            this.callbacks.sendBankCommand("withdraw", uid, 1);
+          });
+        }
+      }
+      grid.appendChild(cell);
+    }
+    body.appendChild(grid);
+  }
+
+  private _renderShop(): void {
+    const body = document.getElementById("shop-body");
+    if (!body) return;
+    body.innerHTML = "";
+
+    const shop = this.uiState.shop;
+    if (!shop) {
+      body.textContent = "No shop open.";
+      body.classList.add("text-dim");
+      return;
+    }
+    body.classList.remove("text-dim");
+
+    for (const stock of shop.stock) {
+      const row = document.createElement("div");
+      row.classList.add("ui-row");
+      const name = document.createElement("span");
+      const def = this.content.getItem(stock.itemId);
+      name.textContent = def?.name ?? stock.itemId;
+      const price = document.createElement("span");
+      const buyPrice = Math.max(1, Math.floor(stock.price * shop.buyMultiplier));
+      price.textContent = `${buyPrice} gp`;
+      price.classList.add("text-muted");
+      row.appendChild(name);
+      row.appendChild(price);
+      row.addEventListener("click", () => {
+        this.callbacks.sendShopCommand("buy", stock.itemId, 1);
+      });
+      body.appendChild(row);
+    }
   }
 }

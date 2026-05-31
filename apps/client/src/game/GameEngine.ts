@@ -32,6 +32,7 @@ export interface GameEngineOptions {
   readonly statusOverlay: HTMLDivElement;
   readonly debugOverlay: HTMLDivElement;
   readonly serverUrl: string;
+  readonly characterId?: string;
 }
 
 interface OverlayElements {
@@ -77,7 +78,7 @@ export class GameEngine {
   private _debugOverlayUpdatePending = false;
 
   constructor(options: GameEngineOptions) {
-    const { canvas, statusOverlay, serverUrl } = options;
+    const { canvas, statusOverlay, serverUrl, characterId } = options;
     this.canvas = canvas;
 
     this.renderer = new ThreeRenderer({ canvas });
@@ -89,7 +90,7 @@ export class GameEngine {
     this.groundItems = new GroundItemLayer({ scene: this.renderer.scene });
     this.chatOverhead = new ChatOverheadLayer({ scene: this.renderer.scene });
     this.debug = import.meta.env.DEV ? new DebugLayer({ scene: this.renderer.scene }) : undefined;
-    this.socket = new GameSocket(serverUrl);
+    this.socket = new GameSocket(serverUrl, { characterId });
     this._dispatcher = new ClientCommandDispatcher(this.socket);
     this._inputInterpreter = new InputInterpreter(this.content);
     this._packetApplier = new ClientPacketApplier({
@@ -154,17 +155,17 @@ export class GameEngine {
     const contentLoad = this.content.load(this.socket.serverUrl).catch((error) => {
       console.warn("Failed to load content registries:", error);
     });
-    const connect = this.socket
-      .connect()
-      .then((fullState) => {
-        this._handleFullState(fullState);
-      })
-      .catch((error) => {
-        console.error("Failed to connect to server:", error);
-        this.overlays.connectionStatus.textContent = "Connection failed";
-        this.overlays.connectionStatus.className = "disconnected";
-      });
-    await Promise.all([contentLoad, connect]);
+    let fullState: FullStatePacket | undefined;
+    try {
+      fullState = await this.socket.connect();
+    } catch (error) {
+      console.error("Failed to connect to server:", error);
+      this.overlays.connectionStatus.textContent = "Connection failed";
+      this.overlays.connectionStatus.className = "disconnected";
+      throw error;
+    }
+    this._handleFullState(fullState);
+    await contentLoad;
 
     const uiCallbacks: UIManagerCallbacks = {
       sendItemCommand: (uid, actionId) => this.sendItemCommand(uid, actionId),
@@ -172,6 +173,8 @@ export class GameEngine {
       enterSpellTargetMode: (spellId) => this.enterSpellTargetMode(spellId),
       sendUiActionCommand: (action, targetId, value) =>
         this.sendUiActionCommand(action, targetId, value),
+      sendBankCommand: (action, itemUid, quantity) => this.sendBankCommand(action, itemUid, quantity),
+      sendShopCommand: (action, itemId, quantity) => this.sendShopCommand(action, itemId, quantity),
     };
     this.uiManager = new UIManager(this.uiState, this.content, uiCallbacks);
 
@@ -449,6 +452,16 @@ export class GameEngine {
   sendUiActionCommand(action: string, targetId?: string, value?: number): void {
     this._dispatcher.uiAction(action, targetId, value);
     this._logDebug(`UI: action ${action}${targetId ? ` ${targetId}` : ""}`);
+  }
+
+  sendBankCommand(action: "deposit" | "withdraw" | "open" | "close", itemUid?: number, quantity?: number): void {
+    this._dispatcher.bankAction(action, itemUid, quantity);
+    this._logDebug(`UI: bank ${action}${itemUid ? ` ${itemUid}` : ""}`);
+  }
+
+  sendShopCommand(action: "buy" | "sell" | "open" | "close", itemId?: string, quantity?: number): void {
+    this._dispatcher.shopAction(action, itemId, quantity);
+    this._logDebug(`UI: shop ${action}${itemId ? ` ${itemId}` : ""}`);
   }
 
   private _logDebug(message: string): void {

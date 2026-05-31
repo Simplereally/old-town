@@ -1,6 +1,17 @@
 import { Direction, GAME_TICK_MS, TILE_SIZE_WORLD_UNITS, type TileCoord } from "@old-town/shared";
-import type { Scene } from "three";
-import { BoxGeometry, Group, Mesh, MeshLambertMaterial, SphereGeometry, Vector3 } from "three";
+import type { BufferGeometry, Scene } from "three";
+import {
+  BoxGeometry,
+  ConeGeometry,
+  CylinderGeometry,
+  Group,
+  IcosahedronGeometry,
+  Mesh,
+  MeshLambertMaterial,
+  SphereGeometry,
+  Vector3,
+} from "three";
+import { compose, PALETTE, vertexColorMaterial } from "./lowpoly";
 
 export type AnimationState = "idle" | "walk" | "run" | "attack" | "cast" | "hit" | "die";
 
@@ -25,6 +36,25 @@ interface ActorMeshes {
   readonly marker: Mesh | undefined;
 }
 
+/** Non-humanoid body plan for a creature, resolved from its def keyword. */
+type CreatureArchetype =
+  | "humanoid"
+  | "rodent"
+  | "canine"
+  | "goblinoid"
+  | "bat"
+  | "bird"
+  | "drake"
+  | "wisp"
+  | "serpent";
+
+interface CreatureSpec {
+  readonly archetype: CreatureArchetype;
+  readonly body: number;
+  readonly accent: number;
+  readonly scale: number;
+}
+
 // Local-space layout for the blocky low-poly humanoid (feet at y = 0).
 const LEG_H = 0.5;
 const TORSO_H = 0.55;
@@ -35,6 +65,222 @@ const ARM_Y = LEG_H + TORSO_H * 0.55;
 const HEAD_Y = LEG_H + TORSO_H + HEAD_S / 2;
 // Lift the whole figure so its feet rest on top of the terrain tile surface.
 const GROUND_OFFSET = 0.1;
+
+/**
+ * Pick a non-humanoid body plan from a creature def. Keyword-based and purely
+ * presentational; gameplay never reads it. Townsfolk and players fall through to
+ * the humanoid plan. The client only receives a `defId` at spawn (not the def's
+ * `creatureKind`), so resolution keys off the id string.
+ */
+function resolveCreature(defId: string, kind: "player" | "npc"): CreatureSpec {
+  if (kind === "player") {
+    return { archetype: "humanoid", body: PALETTE.clothBlue, accent: PALETTE.skin, scale: 1 };
+  }
+  const id = defId;
+  const has = (...keys: string[]): boolean => keys.some((k) => id.includes(k));
+
+  if (has("rat", "mite", "mouse", "vermin")) {
+    return {
+      archetype: "rodent",
+      body: PALETTE.furGrey,
+      accent: PALETTE.skin,
+      scale: id.includes("mite") ? 0.42 : 0.6,
+    };
+  }
+  if (has("fox")) {
+    return { archetype: "canine", body: PALETTE.furRed, accent: PALETTE.highlight, scale: 0.72 };
+  }
+  if (has("dog", "hound", "wolf", "cur")) {
+    return { archetype: "canine", body: PALETTE.furBrown, accent: PALETTE.barkDark, scale: 0.82 };
+  }
+  if (has("goblin", "imp")) {
+    return { archetype: "goblinoid", body: PALETTE.clothBrown, accent: PALETTE.goblinSkin, scale: 0.88 };
+  }
+  if (has("bat")) {
+    return { archetype: "bat", body: PALETTE.furBlack, accent: PALETTE.drakeHide, scale: 0.72 };
+  }
+  if (has("crow", "raven", "rook", "bird")) {
+    return { archetype: "bird", body: PALETTE.furBlack, accent: PALETTE.goldMetal, scale: 0.58 };
+  }
+  if (has("drake", "whelp", "dragon", "wyrm", "wyvern")) {
+    return { archetype: "drake", body: PALETTE.drakeHide, accent: PALETTE.ember, scale: 1.05 };
+  }
+  if (has("wisp", "wraith", "ghost", "spirit", "shade", "spectre")) {
+    return { archetype: "wisp", body: PALETTE.wispGlow, accent: PALETTE.highlight, scale: 0.82 };
+  }
+  if (has("snapper", "turtle", "crab", "eel", "snake", "serpent")) {
+    return { archetype: "serpent", body: PALETTE.furGrey, accent: PALETTE.leafDark, scale: 0.92 };
+  }
+  return { archetype: "humanoid", body: PALETTE.clothBrown, accent: PALETTE.skin, scale: 1 };
+}
+
+const creatureTemplates = new Map<string, BufferGeometry>();
+
+function getCreatureTemplate(spec: CreatureSpec): BufferGeometry {
+  const key = `${spec.archetype}:${spec.body}:${spec.accent}`;
+  const cached = creatureTemplates.get(key);
+  if (cached) return cached;
+  const geometry = buildCreatureGeometry(spec);
+  creatureTemplates.set(key, geometry);
+  return geometry;
+}
+
+/** Build a creature's merged vertex-coloured body geometry, facing +Z (south). */
+function buildCreatureGeometry(spec: CreatureSpec): BufferGeometry {
+  const { archetype, body, accent } = spec;
+  switch (archetype) {
+    case "rodent": {
+      const leg = (x: number, z: number) => ({
+        geometry: new BoxGeometry(0.06, 0.16, 0.06),
+        color: body,
+        x,
+        y: 0.08,
+        z,
+      });
+      return compose([
+        { geometry: new BoxGeometry(0.24, 0.2, 0.46), color: body, y: 0.22 },
+        { geometry: new BoxGeometry(0.18, 0.18, 0.18), color: body, y: 0.26, z: 0.3 },
+        { geometry: new ConeGeometry(0.08, 0.16, 4), color: accent, y: 0.24, z: 0.45, rotX: Math.PI / 2 },
+        { geometry: new IcosahedronGeometry(0.06, 0), color: body, x: -0.07, y: 0.4, z: 0.27 },
+        { geometry: new IcosahedronGeometry(0.06, 0), color: body, x: 0.07, y: 0.4, z: 0.27 },
+        leg(-0.09, 0.16),
+        leg(0.09, 0.16),
+        leg(-0.09, -0.16),
+        leg(0.09, -0.16),
+        {
+          geometry: new CylinderGeometry(0.03, 0.015, 0.5, 4),
+          color: accent,
+          y: 0.2,
+          z: -0.42,
+          rotX: -0.4,
+        },
+      ]);
+    }
+    case "canine": {
+      const leg = (x: number, z: number) => ({
+        geometry: new BoxGeometry(0.1, 0.34, 0.1),
+        color: body,
+        x,
+        y: 0.17,
+        z,
+      });
+      return compose([
+        { geometry: new BoxGeometry(0.32, 0.3, 0.66), color: body, y: 0.5 },
+        { geometry: new BoxGeometry(0.26, 0.26, 0.26), color: body, y: 0.56, z: 0.42 },
+        { geometry: new BoxGeometry(0.14, 0.13, 0.18), color: accent, y: 0.5, z: 0.58 },
+        { geometry: new BoxGeometry(0.06, 0.12, 0.04), color: body, x: -0.09, y: 0.73, z: 0.4 },
+        { geometry: new BoxGeometry(0.06, 0.12, 0.04), color: body, x: 0.09, y: 0.73, z: 0.4 },
+        leg(-0.11, 0.22),
+        leg(0.11, 0.22),
+        leg(-0.11, -0.22),
+        leg(0.11, -0.22),
+        { geometry: new BoxGeometry(0.09, 0.09, 0.32), color: accent, y: 0.58, z: -0.48, rotX: -0.6 },
+      ]);
+    }
+    case "goblinoid": {
+      return compose([
+        { geometry: new BoxGeometry(0.13, 0.3, 0.14), color: body, x: -0.1, y: 0.15 },
+        { geometry: new BoxGeometry(0.13, 0.3, 0.14), color: body, x: 0.1, y: 0.15 },
+        { geometry: new BoxGeometry(0.36, 0.36, 0.24), color: body, y: 0.48 },
+        { geometry: new BoxGeometry(0.1, 0.32, 0.1), color: accent, x: -0.25, y: 0.46 },
+        { geometry: new BoxGeometry(0.1, 0.32, 0.1), color: accent, x: 0.25, y: 0.46 },
+        { geometry: new BoxGeometry(0.27, 0.26, 0.26), color: accent, y: 0.8 },
+        { geometry: new ConeGeometry(0.06, 0.16, 4), color: accent, x: -0.17, y: 0.84, rotZ: 1.1 },
+        { geometry: new ConeGeometry(0.06, 0.16, 4), color: accent, x: 0.17, y: 0.84, rotZ: -1.1 },
+        { geometry: new ConeGeometry(0.05, 0.12, 4), color: accent, y: 0.78, z: 0.16, rotX: Math.PI / 2 },
+      ]);
+    }
+    case "bat": {
+      return compose([
+        { geometry: new IcosahedronGeometry(0.15, 0), color: body, y: 0.55 },
+        { geometry: new BoxGeometry(0.36, 0.03, 0.22), color: accent, x: -0.28, y: 0.56, rotZ: 0.25 },
+        { geometry: new BoxGeometry(0.36, 0.03, 0.22), color: accent, x: 0.28, y: 0.56, rotZ: -0.25 },
+        { geometry: new ConeGeometry(0.04, 0.1, 4), color: body, x: -0.06, y: 0.68 },
+        { geometry: new ConeGeometry(0.04, 0.1, 4), color: body, x: 0.06, y: 0.68 },
+      ]);
+    }
+    case "bird": {
+      const leg = (x: number) => ({
+        geometry: new BoxGeometry(0.03, 0.16, 0.03),
+        color: PALETTE.barkDark,
+        x,
+        y: 0.08,
+      });
+      return compose([
+        { geometry: new IcosahedronGeometry(0.16, 0), color: body, y: 0.32, sz: 1.3 },
+        { geometry: new BoxGeometry(0.15, 0.16, 0.14), color: body, y: 0.46, z: 0.05 },
+        { geometry: new ConeGeometry(0.05, 0.14, 4), color: accent, y: 0.44, z: 0.18, rotX: Math.PI / 2 },
+        { geometry: new BoxGeometry(0.12, 0.04, 0.24), color: body, y: 0.3, z: -0.18 },
+        { geometry: new BoxGeometry(0.05, 0.18, 0.28), color: body, x: -0.14, y: 0.34 },
+        { geometry: new BoxGeometry(0.05, 0.18, 0.28), color: body, x: 0.14, y: 0.34 },
+        leg(-0.06),
+        leg(0.06),
+      ]);
+    }
+    case "drake": {
+      const leg = (x: number, z: number) => ({
+        geometry: new BoxGeometry(0.12, 0.32, 0.12),
+        color: body,
+        x,
+        y: 0.16,
+        z,
+      });
+      return compose([
+        { geometry: new BoxGeometry(0.4, 0.36, 0.7), color: body, y: 0.55 },
+        { geometry: new BoxGeometry(0.2, 0.2, 0.28), color: body, y: 0.66, z: 0.42 },
+        { geometry: new BoxGeometry(0.24, 0.22, 0.26), color: body, y: 0.66, z: 0.6 },
+        { geometry: new ConeGeometry(0.05, 0.16, 4), color: accent, x: -0.08, y: 0.84, z: 0.56 },
+        { geometry: new ConeGeometry(0.05, 0.16, 4), color: accent, x: 0.08, y: 0.84, z: 0.56 },
+        { geometry: new BoxGeometry(0.5, 0.03, 0.34), color: accent, x: -0.42, y: 0.72, z: -0.05, rotZ: 0.3 },
+        { geometry: new BoxGeometry(0.5, 0.03, 0.34), color: accent, x: 0.42, y: 0.72, z: -0.05, rotZ: -0.3 },
+        leg(-0.15, 0.22),
+        leg(0.15, 0.22),
+        leg(-0.15, -0.22),
+        leg(0.15, -0.22),
+        { geometry: new ConeGeometry(0.1, 0.6, 5), color: body, y: 0.5, z: -0.62, rotX: -Math.PI / 2 },
+      ]);
+    }
+    case "wisp": {
+      return compose([
+        { geometry: new IcosahedronGeometry(0.2, 1), color: body, y: 0.7 },
+        { geometry: new IcosahedronGeometry(0.32, 0), color: body, y: 0.7 },
+        { geometry: new IcosahedronGeometry(0.05, 0), color: accent, x: 0.28, y: 0.92 },
+        { geometry: new IcosahedronGeometry(0.05, 0), color: accent, x: -0.24, y: 0.5 },
+      ]);
+    }
+    case "serpent": {
+      const shell = new IcosahedronGeometry(0.34, 1);
+      const leg = (x: number, z: number) => ({
+        geometry: new BoxGeometry(0.12, 0.14, 0.12),
+        color: body,
+        x,
+        y: 0.09,
+        z,
+      });
+      return compose([
+        { geometry: shell, color: accent, y: 0.24, sy: 0.55 },
+        { geometry: new CylinderGeometry(0.32, 0.32, 0.12, 8), color: body, y: 0.1 },
+        { geometry: new BoxGeometry(0.2, 0.18, 0.2), color: body, y: 0.2, z: 0.36 },
+        leg(-0.22, 0.18),
+        leg(0.22, 0.18),
+        leg(-0.22, -0.18),
+        leg(0.22, -0.18),
+        { geometry: new ConeGeometry(0.06, 0.2, 4), color: body, y: 0.16, z: -0.4, rotX: -Math.PI / 2 },
+      ]);
+    }
+    default: {
+      // A simple vertex-coloured humanoid, used when a creature spec somehow
+      // routes here. The shared-material humanoid build is preferred (see
+      // _buildHumanoid); this keeps the function total.
+      return compose([
+        { geometry: new BoxGeometry(0.2, LEG_H, 0.24), color: PALETTE.clothGrey, x: -0.13, y: LEG_Y },
+        { geometry: new BoxGeometry(0.2, LEG_H, 0.24), color: PALETTE.clothGrey, x: 0.13, y: LEG_Y },
+        { geometry: new BoxGeometry(0.52, TORSO_H, 0.34), color: body, y: TORSO_Y },
+        { geometry: new BoxGeometry(HEAD_S, HEAD_S, HEAD_S), color: accent, y: HEAD_Y },
+      ]);
+    }
+  }
+}
 
 export interface ActorRendererOptions {
   readonly scene: Scene;
@@ -69,6 +315,8 @@ export class ActorRenderer {
   private readonly legMaterial = new MeshLambertMaterial({ color: 0x394a63, flatShading: true });
   private readonly markerGeometry = new SphereGeometry(0.14, 8, 6);
   private readonly markerMaterial = new MeshLambertMaterial({ color: 0xffd23f, flatShading: true });
+  // One shared material for every non-humanoid creature; colour lives in the geometry.
+  private readonly creatureMaterial = vertexColorMaterial();
 
   constructor(options: ActorRendererOptions) {
     this.scene = options.scene;
@@ -211,6 +459,11 @@ export class ActorRenderer {
     this.legMaterial.dispose();
     this.markerGeometry.dispose();
     this.markerMaterial.dispose();
+    this.creatureMaterial.dispose();
+    for (const geometry of creatureTemplates.values()) {
+      geometry.dispose();
+    }
+    creatureTemplates.clear();
   }
 
   /** Number of rendered actors. */
@@ -236,6 +489,16 @@ export class ActorRenderer {
   }
 
   private _createMeshes(state: ActorState): void {
+    const spec = resolveCreature(state.name, state.kind);
+    const meshes =
+      spec.archetype === "humanoid"
+        ? this._buildHumanoid(state)
+        : this._buildCreature(state, spec);
+    this.meshes.set(state.entityId, meshes);
+  }
+
+  /** Build the shared-material blocky humanoid used for players and townsfolk. */
+  private _buildHumanoid(state: ActorState): ActorMeshes {
     const entityId = state.entityId;
     const kind = state.kind;
     const isLocalPlayer = state.isLocalPlayer;
@@ -287,7 +550,25 @@ export class ActorRenderer {
     group.position.copy(state.visualPosition);
     group.position.y += GROUND_OFFSET;
     this.actorGroup.add(group);
-    this.meshes.set(state.entityId, { group, body, parts, marker });
+    return { group, body, parts, marker };
+  }
+
+  /** Build a non-humanoid creature as a single merged vertex-coloured mesh. */
+  private _buildCreature(state: ActorState, spec: CreatureSpec): ActorMeshes {
+    const group = new Group();
+    group.name = `actor_${state.entityId}`;
+
+    const body = new Mesh(getCreatureTemplate(spec), this.creatureMaterial);
+    body.castShadow = false;
+    body.receiveShadow = false;
+    body.userData = { entityId: state.entityId, kind: state.kind };
+    group.add(body);
+
+    group.scale.setScalar(spec.scale);
+    group.position.copy(state.visualPosition);
+    group.position.y += GROUND_OFFSET;
+    this.actorGroup.add(group);
+    return { group, body, parts: [], marker: undefined };
   }
 
   private _tileToWorld(tile: TileCoord): Vector3 {

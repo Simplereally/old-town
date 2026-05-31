@@ -210,13 +210,55 @@ export function processDeathResolution(
       health: 0,
       targetId: undefined,
       dead: true,
+      respawnTick: tick + 5,
     });
+    ctx.world.removeComponent(entityId, "movement");
     ctx.deltas.markEntityUpdate(entityId, {
       healthBar: { current: 0, max: combatant.maxHealth },
     });
+    dropInventoryOnDeath(ctx, entityId, tick);
+    systemMessage(ctx.deltas, entityId, "You have died. You will respawn shortly.", serverTime);
   }
 
   syncNpcOccupancy(ctx);
+}
+
+export function dropInventoryOnDeath(
+  ctx: GroundItemSystemContext,
+  playerId: EntityId,
+  tick: number,
+): void {
+  const inventory = ctx.world.getComponent(playerId, "inventory");
+  const position = ctx.world.getComponent(playerId, "position");
+  if (!inventory || !position) {
+    return;
+  }
+
+  const tile = tileFromPosition(position);
+  const changes: import("@old-town/shared").InventorySlotChange[] = [];
+
+  for (let slot = 0; slot < inventory.capacity; slot += 1) {
+    const item = inventory.slots[slot];
+    if (!item) {
+      continue;
+    }
+
+    spawnGroundItem(ctx, item.itemId, item.quantity, tile, {
+      tick,
+      ownerId: playerId,
+      sourceEntityId: playerId,
+    });
+
+    inventory.slots[slot] = undefined;
+    changes.push({ slot, itemId: null, quantity: 0 });
+  }
+
+  if (changes.length > 0) {
+    ctx.deltas.markInventoryDelta({
+      containerId: inventory.containerId,
+      changes,
+    });
+  }
 }
 
 export function processGroundItemLifecycle(ctx: GroundItemSystemContext, tick: number): void {

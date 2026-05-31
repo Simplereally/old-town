@@ -12,8 +12,8 @@ import {
 } from "@old-town/shared";
 
 export interface GameSocketOptions {
-  readonly protocolVersion?: number;
-  readonly characterId?: string;
+  readonly protocolVersion?: number | undefined;
+  readonly characterId?: string | undefined;
   readonly createSocket?: (url: string) => WebSocket;
 }
 
@@ -63,13 +63,15 @@ export class GameSocket {
       }, 10000);
 
       socket.onopen = () => {
-        socket.send(
-          JSON.stringify({
-            type: TransportClientMessageType.DevAuth,
-            protocolVersion: this.protocolVersion,
-            characterId: this.characterId,
-          }),
-        );
+        const authMessage = {
+          type: TransportClientMessageType.DevAuth,
+          protocolVersion: this.protocolVersion,
+          characterId: this.characterId,
+        };
+        console.log("[GameSocket] Sending DevAuth", {
+          protocolVersion: authMessage.protocolVersion,
+        });
+        socket.send(JSON.stringify(authMessage));
       };
 
       socket.onerror = () => {
@@ -88,6 +90,10 @@ export class GameSocket {
         if (packet.type === ServerPacketType.FullState) {
           clearTimeout(timeout);
           if (!isCompatibleProtocol(packet.protocolVersion)) {
+            console.error("Protocol version mismatch", {
+              clientVersion: this.protocolVersion,
+              serverVersion: packet.protocolVersion,
+            });
             reject(new Error(`Incompatible protocol ${packet.protocolVersion}`));
             socket.close();
             return;

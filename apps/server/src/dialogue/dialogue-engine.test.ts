@@ -66,6 +66,9 @@ const BAKER_NPC: NpcDef = {
   wanderRadius: 0,
   dialogueId: "baker_dialogue",
   options: [{ label: "Talk-to", actionId: "talk", priority: 10, requiredDistance: 1 }],
+  movementType: "static",
+  aggressionMode: "peaceful",
+  contractEligible: false,
 };
 
 const BAKER_DIALOGUE: DialogueDef = {

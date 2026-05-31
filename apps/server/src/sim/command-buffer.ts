@@ -1,4 +1,5 @@
 import {
+  type BankActionCommand,
   type CastSpellCommand,
   type ChatCommand,
   ClientCommandType,
@@ -10,6 +11,7 @@ import {
   type ObjectOptionCommand,
   type PingCommand,
   parseClientCommand,
+  type ShopActionCommand,
   type UiActionCommand,
 } from "@old-town/shared";
 
@@ -22,6 +24,8 @@ export const IntentKind = {
   Spell: "spell",
   Chat: "chat",
   UiAction: "uiAction",
+  BankAction: "bankAction",
+  ShopAction: "shopAction",
   Ping: "ping",
 } as const;
 
@@ -36,6 +40,8 @@ type NormalizedByCommand =
   | { readonly kind: typeof IntentKind.Spell; readonly command: CastSpellCommand }
   | { readonly kind: typeof IntentKind.Chat; readonly command: ChatCommand }
   | { readonly kind: typeof IntentKind.UiAction; readonly command: UiActionCommand }
+  | { readonly kind: typeof IntentKind.BankAction; readonly command: BankActionCommand }
+  | { readonly kind: typeof IntentKind.ShopAction; readonly command: ShopActionCommand }
   | { readonly kind: typeof IntentKind.Ping; readonly command: PingCommand };
 
 export type BufferedIntent = NormalizedByCommand extends infer T
@@ -132,6 +138,16 @@ function normalize(raw: unknown, source: CommandSource): CommandBufferAcceptResu
       return {
         ok: true,
         intent: { ...base, kind: IntentKind.UiAction, payload: parsed.value.payload },
+      };
+    case ClientCommandType.BankAction:
+      return {
+        ok: true,
+        intent: { ...base, kind: IntentKind.BankAction, payload: parsed.value.payload },
+      };
+    case ClientCommandType.ShopAction:
+      return {
+        ok: true,
+        intent: { ...base, kind: IntentKind.ShopAction, payload: parsed.value.payload },
       };
     case ClientCommandType.Ping:
       return {

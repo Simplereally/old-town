@@ -78,6 +78,28 @@ const uiActionCommandSchema = command(
     .strict(),
 );
 
+const bankActionCommandSchema = command(
+  ClientCommandType.BankAction,
+  z
+    .object({
+      action: z.enum(["deposit", "withdraw", "open", "close"]),
+      itemUid: z.number().int().nonnegative().optional(),
+      quantity: z.number().int().nonnegative().optional(),
+    })
+    .strict(),
+);
+
+const shopActionCommandSchema = command(
+  ClientCommandType.ShopAction,
+  z
+    .object({
+      action: z.enum(["buy", "sell", "open", "close"]),
+      itemId: z.string().min(1).max(64).optional(),
+      quantity: z.number().int().nonnegative().optional(),
+    })
+    .strict(),
+);
+
 const pingCommandSchema = command(
   ClientCommandType.Ping,
   z.object({ clientTimeMs: z.number().int().nonnegative() }).strict(),
@@ -93,6 +115,8 @@ export const clientCommandSchema = z.discriminatedUnion("type", [
   castSpellCommandSchema,
   chatCommandSchema,
   uiActionCommandSchema,
+  bankActionCommandSchema,
+  shopActionCommandSchema,
   pingCommandSchema,
 ]);
 

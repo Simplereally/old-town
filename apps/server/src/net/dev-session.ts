@@ -106,6 +106,10 @@ export class DevSessionManager {
     );
   }
 
+  hasPlayer(entityId: EntityId): boolean {
+    return this.characterIdByEntity.has(entityId);
+  }
+
   characterIdForEntity(entityId: EntityId): string | undefined {
     return this.characterIdByEntity.get(entityId);
   }
@@ -140,6 +144,7 @@ export class DevSessionManager {
         this.entityVisibleToPlayer(entityId, spawn.entityId, tick),
       ),
       inventory: this.inventoryDelta(entityId),
+      bank: this.bankDelta(entityId),
       equipment: this.equipmentUpdate(entityId),
       skills: this.skillDeltas(entityId),
       vars: this.varDeltas(entityId),
@@ -282,6 +287,14 @@ export class DevSessionManager {
       return { containerId: `inventory:${entityId}`, changes: [] };
     }
     return toInventoryDelta(inventory);
+  }
+
+  private bankDelta(entityId: EntityId): InventoryDelta {
+    const bank = this.world.getComponent(entityId, "bank");
+    if (!bank) {
+      return { containerId: "bank", changes: [] };
+    }
+    return toInventoryDelta(bank);
   }
 
   private equipmentUpdate(entityId: EntityId): EquipmentUpdate {

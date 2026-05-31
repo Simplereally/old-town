@@ -32,6 +32,9 @@ const NPC_DEF: NpcDef = {
   wanderRadius: 1,
   respawnTicks: 3,
   options: [{ label: "Attack", actionId: "attack", priority: 10, requiredDistance: 1 }],
+  movementType: "static",
+  aggressionMode: "peaceful",
+  contractEligible: false,
 };
 
 function registries(npcDef: NpcDef): ContentRegistries {

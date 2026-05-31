@@ -155,6 +155,9 @@ const BAKER: NpcDef = {
   respawnTicks: 1,
   wanderRadius: 0,
   options: [],
+  movementType: "static",
+  aggressionMode: "peaceful",
+  contractEligible: false,
 };
 
 const RAT: NpcDef = {
@@ -164,6 +167,9 @@ const RAT: NpcDef = {
   respawnTicks: 1,
   wanderRadius: 0,
   options: [],
+  movementType: "static",
+  aggressionMode: "peaceful",
+  contractEligible: false,
 };
 
 function registries(): ContentRegistries {

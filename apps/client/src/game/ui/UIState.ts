@@ -4,6 +4,7 @@ import type {
   InventoryDelta,
   InventorySlotChange,
   PlayerVarValue,
+  ShopViewPacket,
   SkillDelta,
   VarbitDelta,
 } from "@old-town/shared";
@@ -20,6 +21,8 @@ export class UIState {
   private _vars = new Map<string, PlayerVarValue>();
   private _chat: ChatPacket[] = [];
   private _dialogue: DialogueViewPacket | undefined;
+  private _bank = new Map<number, InventorySlotChange>();
+  private _shop: ShopViewPacket | undefined;
   private _listeners = new Set<() => void>();
 
   get inventory(): ReadonlyMap<number, InventorySlotChange> {
@@ -119,6 +122,48 @@ export class UIState {
 
   clearDialogue(): void {
     this._dialogue = undefined;
+    this._notify();
+  }
+
+  get bank(): ReadonlyMap<number, InventorySlotChange> {
+    return this._bank;
+  }
+
+  setBank(delta: InventoryDelta): void {
+    this._bank.clear();
+    for (const change of delta.changes) {
+      this._bank.set(change.slot, change);
+    }
+    this._notify();
+  }
+
+  applyBankDelta(delta: InventoryDelta): void {
+    for (const change of delta.changes) {
+      if (change.itemId === null) {
+        this._bank.delete(change.slot);
+      } else {
+        this._bank.set(change.slot, change);
+      }
+    }
+    this._notify();
+  }
+
+  clearBank(): void {
+    this._bank.clear();
+    this._notify();
+  }
+
+  get shop(): ShopViewPacket | undefined {
+    return this._shop;
+  }
+
+  setShop(shop: ShopViewPacket): void {
+    this._shop = shop;
+    this._notify();
+  }
+
+  clearShop(): void {
+    this._shop = undefined;
     this._notify();
   }
 
