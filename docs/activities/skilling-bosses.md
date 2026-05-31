@@ -121,10 +121,10 @@ The kiln has a **stability meter** that starts at 100 and decreases over time. T
 
 The player can choose to end the encounter at any time. The rewards are based on the number of successful bead batches fired:
 
-- 1-5 batches: Hearthcraft XP, Beadwork XP, basic fired beads.
-- 6-10 batches: Above plus ash materials, ember beads.
-- 11-15 batches: Above plus Kiln Tokens, ashproof gloves.
-- 16+ batches: Above plus rare chance at Tallow Drake Scale.
+- 1-5 batches: Hearthcraft XP, Beadwork XP, basic fired beads, 1 Kiln Token.
+- 6-10 batches: Above plus ash materials, ember beads, 2 Kiln Tokens.
+- 11-15 batches: Above plus 3-5 Kiln Tokens, ashproof gloves.
+- 16+ batches: Above plus 4-6 Kiln Tokens, rare chance at Tallow Drake Scale.
 
 ### Failure State
 
@@ -134,7 +134,7 @@ If the stability meter reaches zero, the kiln erupts. The player is forced to re
 
 | reward_id | name | type | source |
 |-----------|------|------|--------|
-| `kiln_token` | Kiln Token | currency | All successful runs |
+| `kiln_token` | Kiln Token | currency | 11+ batches |
 | `fired_beads` | Fired beads | material | All successful runs |
 | `ash_materials` | Ash materials | material | 6+ batches |
 | `ember_beads` | Ember beads | material | 6+ batches |
@@ -196,10 +196,10 @@ The dock has a **surge meter** that starts at 0 and increases over time. Higher 
 
 The player can choose to end the encounter at any time. The rewards are based on the number of baskets hauled:
 
-- 1-5 baskets: Fishing XP, Cooking XP, Wayfaring XP, basic fish.
-- 6-10 baskets: Above plus river bait, Wardenbrook fish.
-- 11-15 baskets: Above plus Tide Tokens, fish hamper upgrade.
-- 16+ baskets: Above plus rare chance at Argent Ray clue.
+- 1-5 baskets: Fishing XP, Cooking XP, Wayfaring XP, basic fish, 1 Tide Token.
+- 6-10 baskets: Above plus river bait, Wardenbrook fish, 2 Tide Tokens.
+- 11-15 baskets: Above plus 3-5 Tide Tokens, fish hamper upgrade.
+- 16+ baskets: Above plus 4-6 Tide Tokens, rare chance at Argent Ray clue.
 
 ### Failure State
 
@@ -209,7 +209,7 @@ If the player is washed off the dock by a wave, the encounter ends. All fish in 
 
 | reward_id | name | type | source |
 |-----------|------|------|--------|
-| `tide_token` | Tide Token | currency | All successful runs |
+| `tide_token` | Tide Token | currency | 11+ baskets |
 | `river_fish` | River fish | material | All successful runs |
 | `river_bait` | River bait | material | 6+ baskets |
 | `wardenbrook_fish` | Wardenbrook fish | material | 6+ baskets |
@@ -273,10 +273,10 @@ The chapel has a **reverence meter** that starts at 100 and decreases over time.
 
 The player can choose to end the encounter at any time. The rewards are based on the number of graves tended:
 
-- 1-5 graves: Favour XP, Gardening XP, basic grave flowers.
-- 6-10 graves: Above plus grave flower seeds, rot-resistant salves.
-- 11-15 graves: Above plus Vigil Tokens, candle trims.
-- 16+ graves: Above plus rare chance at Gravekeeper's Tooth fragment.
+- 1-5 graves: Favour XP, Gardening XP, basic grave flowers, 1 Vigil Token.
+- 6-10 graves: Above plus grave flower seeds, rot-resistant salves, 2 Vigil Tokens.
+- 11-15 graves: Above plus 3-5 Vigil Tokens, candle trims.
+- 16+ graves: Above plus 4-6 Vigil Tokens, rare chance at Gravekeeper's Tooth fragment.
 
 ### Failure State
 
@@ -286,7 +286,7 @@ If the reverence meter reaches zero, the chapel bells toll and the night ends. T
 
 | reward_id | name | type | source |
 |-----------|------|------|--------|
-| `vigil_token` | Vigil Token | currency | All successful runs |
+| `vigil_token` | Vigil Token | currency | 11+ graves |
 | `grave_flowers` | Grave flowers | material | All successful runs |
 | `grave_flower_seeds` | Grave flower seeds | material | 6+ graves |
 | `rot_resistant_salve` | Rot-resistant salve | material | 6+ graves |

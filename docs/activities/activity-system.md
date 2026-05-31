@@ -103,7 +103,7 @@ A player can do an activity at a guild without having unlocked the guild. The ac
 Activities and quests are separate systems that can overlap. A quest might introduce an activity, but the activity does not require quest completion. Conversely, an activity might have quest hooks that unlock new loops or rewards.
 
 - The quest `A Penny for the Forge` introduces Foundry Shift.
-- The activity Foundry Shift has a quest hook `The Bellows That Would Not Hold` that unlocks a better bellows repair method.
+- The activity Foundry Shift has quest hooks documented in [`activity-quest-hooks`](activity-quest-hooks.md).
 
 See [`activity-quest-hooks`](activity-quest-hooks.md) for the full list of quest hooks tied to activities.
 

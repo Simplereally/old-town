@@ -206,7 +206,7 @@ Every hook in this document follows the same structure:
 | # | Quest Name | Giver | Activity | Systems | Reward |
 |---|------------|-------|----------|---------|--------|
 | 1 | The Bell That Ran Ahead | Mara Bellkeeper | Bell Run | Wayfaring, Cartography, Sleight | Bell Token, route hint, Bell Runner ribbon |
-| 2 | The Sweep That Never Ends | Marn Lock | Soot Sweep | Arms, Guard, Sleight, Cartography | Soot ash, Soot Sweeper apron, Soot Mark |
+| 2 | The Sweep That Never Ends | Marn Lock | Soot Sweep | Arms, Guard, Sleight, Cartography | Soot Sweeper apron, Soot Mark, small coins |
 | 3 | The Ledger That Would Not Balance | Clerk Penn | Ledger Sort | Cartography, Sleight, Favour | Ledger Sort discount, Counting House Clerk trim, small coins |
 | 4 | The Market That Moved | Pell Hookline | Market Rush | Wayfaring, Cooking, Cartography | Market Token, Market Runner ribbon, cooking ingredients |
 | 5 | The Grave That Bloomed Twice | Sister Writ | Graveflower Round | Favour, Gardening, Apothecary | Grave Token, Gravekeeper ribbon, grave flower seeds |
@@ -216,7 +216,7 @@ Every hook in this document follows the same structure:
 | 9 | The Relay That Broke | Orven Roadcap | Crowmile Relay | Wayfaring, Cartography, Arms | Road Token, Crowmile Road Ribbon, cosmetics |
 | 10 | The Replant That Grew Backwards | Aunt Bracken | Bellwood Replant | Woodcutting, Gardening, Bowcraft, Apothecary | Replant Token, Bellwood Axe Mark, bow staves |
 | 11 | The Quarry That Whispered | Sella Coalhand | Quarry Shift | Mining, Smithing, Cartography, Favour | Quarry Token, Quarry Worker apron, ore bundles |
-| 12 | The Drive That Lost the Fox | Rowen Hidepeg | Patchfield Drive | Trapping, Tailoring, Wayfaring | Drive Token, Patchfield Hide Stamp, hides |
+| 12 | The Drive That Lost the Fox | Rowen Hidepeg | Patchfield Drive | Trapping, Tailoring, Wayfaring | Drive Token, Patchfield Hide Stamp, hide bundles |
 | 13 | The Tide That Came Early | Pell Hookline | Wardenbrook Tide | Fishing, Cooking, Wayfaring, Hearthcraft | Tide Token, Wardenbrook Angler Pin, fish hamper upgrade |
 | 14 | The Vigil That Never Ended | Cress Lowgrave | Lowgrave Vigil | Favour, Gardening, Hearthcraft, Apothecary | Vigil Token, Lowgrave Candle Trim, candle trims |
 | 15 | The Watch That Caught Fire | Noll Kilnwatch | Old Kiln Watch | Hearthcraft, Beadwork, Magic, Mining | Kiln Token, Kilnwatch Oath mark, ashproof gloves |

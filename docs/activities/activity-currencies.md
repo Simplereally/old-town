@@ -40,7 +40,7 @@ This narrowness prevents inflation, preserves the identity of each activity, and
 
 | Currency ID | Name | Source Activity | Activity Family | Use |
 |-------------|------|-----------------|-----------------|-----|
-| `bell_token` | Bell Token | Bell Run, Crowmile Relay | Course | Route hints, district maps, course cosmetics |
+| `bell_token` | Bell Token | Bell Run | Course | Route hints, district maps, course cosmetics |
 | `market_token` | Market Token | Market Rush | Public Work | Cooking ingredients, market cosmetics |
 | `grave_token` | Grave Token | Graveflower Round | Skilling Activity | Grave flower seeds, grave cosmetics |
 | `foundry_token` | Foundry Token | Foundry Shift | Production Activity | Smithing tools, foundry cosmetics |
@@ -53,17 +53,16 @@ This narrowness prevents inflation, preserves the identity of each activity, and
 | `tide_token` | Tide Token | Wardenbrook Tide | Skilling Boss | Fishing supplies, fish hamper upgrades, ferry cosmetics |
 | `vigil_token` | Vigil Token | Lowgrave Vigil | Skilling Boss | Grave supplies, candle trims, Favour tools |
 | `lockroom_token` | Lockroom Token | Sootstairs Lockroom | Puzzle Activity | Lockpick upgrades, lockroom cosmetics |
-| `soot_mark` | Soot Mark | Soot Sweep, Sootstairs Lockroom | Public Work / Puzzle | Sleight tools, lockpick upgrades, undercity cosmetics |
+| `soot_mark` | Soot Mark | Soot Sweep | Public Work | Sleight tools, broom upgrades, undercity cosmetics |
 
 ## Currency Notes
 
 ### Bell Token
 
-The Bell Token is earned by completing the Bell Run and the Crowmile Relay. It is the currency of the course family. Players spend Bell Tokens at the Bell Shop for route hints, district maps, and the Bell Runner ribbon.
+The Bell Token is earned by completing the Bell Run. It is the currency of the course family. Players spend Bell Tokens at the Bell Shop for route hints, district maps, and the Bell Runner ribbon.
 
 - **Earn rate:** 1-3 tokens per run, depending on speed.
 - **Sink:** Route hints (5 tokens), district maps (20 tokens), Bell Runner ribbon (50 tokens).
-- **Related:** Crowmile Relay also earns Bell Tokens at a lower rate (1-2 per run). Its primary currency is Road Token.
 
 ### Kiln Token
 
@@ -99,11 +98,11 @@ The Road Token is earned by completing the Crowmile Relay. It is the currency of
 
 ### Soot Mark
 
-The Soot Mark is earned by completing the Soot Sweep and the Sootstairs Lockroom. It is the currency of the undercity family. Players spend Soot Marks at the Soot Shop for Sleight tools, lockpick upgrades, and the Blacksealed Cloak.
+The Soot Mark is earned by completing the Soot Sweep. It is the currency of the undercity family. Players spend Soot Marks at the Soot Shop for Sleight tools, brooms, and soot-related cosmetics.
 
-- **Earn rate:** 1-2 marks per sweep, 2-4 marks per lockroom run.
-- **Sink:** Sleight tools (5 marks), lockpick upgrades (20 marks), Blacksealed Cloak (100 marks).
-- **Related:** Sootstairs Lockroom earns more marks but is more difficult.
+- **Earn rate:** 1-2 marks per sweep.
+- **Sink:** Sleight tools (5 marks), broom upgrades (15 marks), Soot Sweeper apron (50 marks).
+- **Related:** Sootstairs Lockroom uses Lockroom Tokens, not Soot Marks.
 
 ## Currency Exchange Rates
 
@@ -127,7 +126,7 @@ Every currency must have meaningful sinks. A sink is a way to spend tokens that 
 | Tide Token | River bait | Fish hamper upgrade | Wardenbrook Angler Pin |
 | Vigil Token | Grave flower seeds | Candle trims | Lowgrave Candle Trim |
 | Road Token | Route cosmetics | Shortcut unlocks | Crowmile Road Ribbon |
-| Soot Mark | Sleight tools | Lockpick upgrades | Blacksealed Cloak |
+| Soot Mark | Sleight tools | Broom upgrades | Soot Sweeper apron |
 
 ## Currency Inflation Prevention
 

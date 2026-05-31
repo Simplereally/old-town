@@ -165,9 +165,9 @@ Some activities can be done by multiple players simultaneously:
 | Bellwood Replant | Active | 90% | 2-3/run | Pause | No |
 | Quarry Shift | Risky | 105% | 3-5/run | Lost materials + tool damage | No |
 | Patchfield Drive | Active | 90% | 2-3/run | Lost materials | No |
-| Wardenbrook Tide | Mastery | 110% | 2-5/run | Lost materials + damage | Yes |
-| Lowgrave Vigil | Risky | 105% | 2-5/run | Lost materials + retreat | Yes |
-| Old Kiln Watch | Mastery | 110% | 3-6/run | Lost materials + damage | Yes |
+| Wardenbrook Tide | Mastery | 110% | 3-5/run (11+ baskets) | Lost materials + damage | Yes |
+| Lowgrave Vigil | Risky | 105% | 3-5/run (11+ graves) | Lost materials + retreat | Yes |
+| Old Kiln Watch | Mastery | 110% | 3-6/run (11+ batches) | Lost materials + damage | Yes |
 | Sootstairs Lockroom | Risky | 100% | 2-4/run | Lost progress | No |
 
 ## Balance Testing
