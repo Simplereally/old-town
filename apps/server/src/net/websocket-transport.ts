@@ -44,9 +44,22 @@ interface SocketState {
 }
 
 const SOCKET_PATH = "/ws";
+const UPGRADE_URL_BASE = "ws://old-town.local";
+const MAX_SOCKET_PAYLOAD_BYTES = 64 * 1024;
 
 function send(socket: WebSocket, packet: Parameters<typeof encodeTransportPacket>[0]): void {
   socket.send(encodeTransportPacket(packet));
+}
+
+function parseUpgradePath(requestUrl: string | undefined): string | undefined {
+  if (!requestUrl) {
+    return undefined;
+  }
+  try {
+    return new URL(requestUrl, UPGRADE_URL_BASE).pathname;
+  } catch {
+    return undefined;
+  }
 }
 
 function parseDevAuth(raw: unknown): DevAuthMessage | undefined {
@@ -66,10 +79,16 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
   const socketsBySession = new Map<string, WebSocket>();
   const socketStates = new WeakMap<WebSocket, SocketState>();
   let nextSessionId = 1;
-  const wss = new WebSocketServer({ noServer: true });
+  const wss = new WebSocketServer({
+    noServer: true,
+    maxPayload: MAX_SOCKET_PAYLOAD_BYTES,
+    perMessageDeflate: false,
+  });
 
   options.httpServer.on("upgrade", (request, socket, head) => {
-    if (request.url !== SOCKET_PATH) {
+    const pathname = parseUpgradePath(request.url);
+    if (pathname !== SOCKET_PATH) {
+      socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
       socket.destroy();
       return;
     }
@@ -82,7 +101,13 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
     socketStates.set(socket, {});
     options.logger.debug("ws", "Socket opened");
 
-    socket.on("message", async (data) => {
+    socket.on("message", async (data, isBinary) => {
+      if (isBinary) {
+        send(socket, { type: TransportServerMessageType.Error, reason: "text_frames_only" });
+        socket.close(1003, "text_frames_only");
+        return;
+      }
+
       let message: unknown;
       try {
         message = decodeTransportMessage(data.toString());
@@ -120,6 +145,9 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
         try {
           send(socket, await options.getFullState(session));
         } catch (error) {
+          sessions.delete(session.id);
+          socketsBySession.delete(session.id);
+          socketStates.set(socket, {});
           options.logger.warn("ws", "Full-state bootstrap failed", {
             message: error instanceof Error ? error.message : String(error),
           });
