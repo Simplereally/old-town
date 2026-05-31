@@ -1,0 +1,148 @@
+[
+  {
+    "id": "gust_flick",
+    "name": "Gust Flick",
+    "spellbook": "common",
+    "requiredMagic": 1,
+    "beadCosts": [
+      { "itemId": "gust_bead", "quantity": 1 },
+      { "itemId": "wit_bead", "quantity": 1 }
+    ],
+    "castXp": 5,
+    "rangeTiles": 6,
+    "targetType": "entity",
+    "requiresLineOfSight": true,
+    "cooldownTicks": 4,
+    "effect": {
+      "kind": "damage",
+      "maxHit": 2,
+      "hitDelayTicks": 2,
+      "projectileId": "projectile_gust_flick"
+    }
+  },
+  {
+    "id": "tide_flick",
+    "name": "Tide Flick",
+    "spellbook": "common",
+    "requiredMagic": 1,
+    "beadCosts": [
+      { "itemId": "tide_bead", "quantity": 1 },
+      { "itemId": "wit_bead", "quantity": 1 }
+    ],
+    "castXp": 5,
+    "rangeTiles": 6,
+    "targetType": "entity",
+    "requiresLineOfSight": true,
+    "cooldownTicks": 4,
+    "effect": {
+      "kind": "damage",
+      "maxHit": 2,
+      "hitDelayTicks": 2,
+      "projectileId": "projectile_tide_flick"
+    }
+  },
+  {
+    "id": "loam_flick",
+    "name": "Loam Flick",
+    "spellbook": "common",
+    "requiredMagic": 1,
+    "beadCosts": [
+      { "itemId": "loam_bead", "quantity": 1 },
+      { "itemId": "wit_bead", "quantity": 1 }
+    ],
+    "castXp": 5,
+    "rangeTiles": 6,
+    "targetType": "entity",
+    "requiresLineOfSight": true,
+    "cooldownTicks": 4,
+    "effect": {
+      "kind": "damage",
+      "maxHit": 2,
+      "hitDelayTicks": 2,
+      "projectileId": "projectile_loam_flick"
+    }
+  },
+  {
+    "id": "ember_flick",
+    "name": "Ember Flick",
+    "spellbook": "common",
+    "requiredMagic": 1,
+    "beadCosts": [
+      { "itemId": "ember_bead", "quantity": 1 },
+      { "itemId": "wit_bead", "quantity": 1 }
+    ],
+    "castXp": 5.5,
+    "rangeTiles": 6,
+    "targetType": "entity",
+    "requiresLineOfSight": true,
+    "cooldownTicks": 4,
+    "effect": {
+      "kind": "damage",
+      "maxHit": 2,
+      "hitDelayTicks": 2,
+      "projectileId": "projectile_ember_flick"
+    }
+  },
+  {
+    "id": "ember_dart",
+    "name": "Ember Dart",
+    "spellbook": "common",
+    "requiredMagic": 5,
+    "beadCosts": [
+      { "itemId": "ember_bead", "quantity": 1 },
+      { "itemId": "wit_bead", "quantity": 2 }
+    ],
+    "castXp": 7.5,
+    "rangeTiles": 8,
+    "targetType": "entity",
+    "requiresLineOfSight": true,
+    "cooldownTicks": 4,
+    "effect": {
+      "kind": "damage",
+      "maxHit": 4,
+      "hitDelayTicks": 2,
+      "projectileId": "projectile_ember_dart"
+    }
+  },
+  {
+    "id": "bone_bind",
+    "name": "Bone Bind",
+    "spellbook": "common",
+    "requiredMagic": 3,
+    "beadCosts": [
+      { "itemId": "bone_bead", "quantity": 1 },
+      { "itemId": "wit_bead", "quantity": 1 }
+    ],
+    "castXp": 6,
+    "rangeTiles": 6,
+    "targetType": "entity",
+    "requiresLineOfSight": true,
+    "cooldownTicks": 10,
+    "effect": {
+      "kind": "bind",
+      "durationTicks": 10,
+      "maxHit": 0
+    }
+  },
+  {
+    "id": "homeward_murmur",
+    "name": "Homeward Murmur",
+    "spellbook": "common",
+    "requiredMagic": 1,
+    "beadCosts": [
+      { "itemId": "gust_bead", "quantity": 1 },
+      { "itemId": "writ_bead", "quantity": 1 }
+    ],
+    "castXp": 10,
+    "rangeTiles": 0,
+    "targetType": "self",
+    "requiresLineOfSight": false,
+    "cooldownTicks": 100,
+    "effect": {
+      "kind": "teleport",
+      "destination": { "x": 48, "y": 50, "plane": 0 },
+      "delayTicks": 10,
+      "interruptible": true
+    }
+  }
+]

@@ -134,10 +134,41 @@ All 13 starter districts need content entries for objects, NPCs, and resource no
 **Implementation:** Generator script `scripts/generate-old-town-map.ts` converts design-space global coordinates to runtime region/local coordinates, splits placements across four region files, validates IDs, and emits sorted stable JSON.
 
 **Schema gaps documented:**
-- Resource node placement: the region-map schema has no `resourceNodeSpawns` array. Resource nodes are represented as objects with `resourceNodeId` where the object schema supports it. Authoritative resource node positions remain in `docs/map/resource-node-placement.md`.
-- Player spawn / death respawn: represented as area triggers (`player_spawn_market_bell`, `death_respawn_counting_house`) since the schema has no dedicated `spawnTile` field.
-- Collision: minimal collision authored for Batch 2B. A future E14 collision-authoring pass will add full directional bitmask collision.
-- Shop/service stock: no dedicated shop JSON yet. Service NPCs use `trade` and `bank` action IDs on existing object counters.
+- Resource node placement: the region-map schema has no `resourceNodeSpawns` array. Objects with `resourceNodeId` serve as runtime representation. Authoritative resource node positions remain in `docs/map/resource-node-placement.md`.
+- Player spawn / death respawn: no dedicated `spawnTile` field. Represented as area triggers (`player_spawn_market_bell`, `death_respawn_counting_house`).
+- Collision: minimal collision for Batch 2B. Full directional bitmask collision deferred to E14 world-editor pass.
+- Shop/service stock: no dedicated shop JSON. Service NPCs use `trade`/`bank` action IDs on existing counters.
+
+### Batch 2C: Starter Spells, Favour-lite, and Wiring Audit (Completed)
+
+- [x] Starter spell content exists — 7 spells in `content/spells/starter-spells.json`
+  - `gust_flick`, `tide_flick`, `loam_flick`, `ember_flick` — elemental combat spells (damage effect)
+  - `ember_dart` — stronger elemental combat spell (damage effect, maxHit 4)
+  - `bone_bind` — bind utility spell (bind effect)
+  - `homeward_murmur` — teleport to Market Bell (teleport effect)
+- [x] All spells use valid bead IDs and schema-supported effects only (damage, bind, teleport)
+- [x] No unsupported healing/boon spell effects are faked
+- [x] `bun run content:validate` passes — 30 files, 0 errors (spell registry now shows 7 spells)
+- [x] Favour-lite content readiness verified:
+  - `favour` skill exists in `content/skills/combat.json`
+  - All 6 Favour items exist: `small_bones`, `bone_chips`, `grave_dust`, `shrine_candle`, `prayer_knot`, `favour_cordial`
+  - `shrine_hearth` object has `pray` option (schema-valid)
+- [x] `docs/content/action-wiring-audit.md` created — inventories all action IDs and classifies runtime support
+- [x] `docs/content/first-30-minute-playability-audit.md` created — 7 canonical loops audited honestly
+- [x] `docs/content/runtime-gap-list.md` created — 25 gaps classified as P0/P1/P2
+- [x] `bun run format:check` passes — all files formatted
+
+**Validation results:**
+- `content:validate`: 30 files, 0 errors
+- `format:check`: 228 files, no fixes
+- `typecheck`: 4/5 workspaces clean (server has pre-existing E10 type errors)
+- `test`: 547 tests pass, 10 fail (pre-existing E10 simulation-kernel failures)
+
+**Key audit findings:**
+- 2 of 7 starter loops are fully playable (Full Penny, Full Lath)
+- 1 loop is partially playable (Food/Survival — fishing action not supported)
+- 4 loops are blocked by missing runtime: dialogue engine, quest tracker, spell effect application, trapping/tanning actions
+- Spellcasting validation works (beads consumed, cooldowns set) but effects (damage, bind, teleport) are not applied
 
 ## See also
 

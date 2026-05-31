@@ -221,6 +221,39 @@ Authority references:
 - Collision: minimal collision for Batch 2B. Full directional bitmask collision deferred to E14 world-editor pass.
 - Shop/service stock: no dedicated shop JSON. Service NPCs use `trade`/`bank` action IDs on existing counters.
 
+## Batch 2C Validation Results
+
+**Date:** 2026-05-31
+**Status:** Content validation passed. Runtime audit complete. Some pre-existing E10 type/test failures remain.
+
+| Check | Result | Notes |
+|-------|--------|-------|
+| 1. Canonical ID registry | Pass | All 7 spells use snake_case; no duplicate IDs after merging `common-spellbook.json` into `starter-spells.json` |
+| 2. Starter NPC role | Pass | All 14 service NPCs have dialogue or service roles |
+| 3. Starter object placement | Pass | All 42 objects have options and placement fields |
+| 4. Resource node output | Pass | All 20 node output items exist in item definitions |
+| 5. Recipe input/output | Pass | All 17 recipe input/output items exist in item definitions |
+| 6. Drop table output | Pass | All 13 drop tables reference existing items only |
+| 7. Quest reward item | Pass | All 7 quest rewards reference existing items/skills |
+| 8. Map placement reference | Pass | All 32 objects, 42 NPCs, 1 ground item, 23 triggers reference existing content IDs |
+| 9. Banned name check | Pass | No banned fantasy names found |
+| 10. Unsupported directory | Pass | No new directories created |
+| 11. JSON validation | Pass | `bun run content:validate` — 0 errors, 30 files (7 spells) |
+| 12. Cross-reference paths | Pass | All docs use canonical paths |
+| 13. Starter loop completeness | Partial | 2 loops fully playable (Penny, Lath), 1 partial (Food), 4 blocked (dialogue, quest, spell effects, trapping) |
+| 14. Manifest source doc | Pass | All seed manifests reference source docs |
+
+**Schema gaps discovered during Batch 2C:**
+- Spell effect application: `spell-system.ts` validates and consumes beads but does not apply `damage`, `bind`, `teleport`, `enchant`, or `alchemy` effects. Documented as P0 gap in `runtime-gap-list.md`.
+- Healing spell effects: not supported by schema. `loam_mend` deferred. No fake healing spells added.
+- Favour offering: `pray` action on `shrine_hearth` is schema-valid but not wired in runtime. Documented as P1 gap.
+- `writ_bead` and `grove_bead`: `writ_bead` exists; `grove_bead` does not exist. `townstep` deferred. `homeward_murmur` uses `writ_bead`.
+- `fish` action: not in `GATHER_ACTION_IDS`. Fishing gather loop needs action handler. Documented as P1 gap.
+
+**Pre-existing issues (not introduced by Batch 2C):**
+- `typecheck`: Server workspace has 4 type errors in `action-executor.ts`, `simulation-kernel.ts`, `resource-node-system.test.ts` (from E10 combat work).
+- `test`: 10 tests fail in `simulation-kernel.test.ts` — "Tick phase deathResolution failed" (from E10 combat work).
+
 ## Validation Commands
 
 Run these commands in order before marking any content story complete:
