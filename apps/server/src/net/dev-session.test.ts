@@ -44,8 +44,8 @@ describe("DevSessionManager", () => {
     expect(fullState.inventory).toEqual({
       containerId: `inventory:${fullState.selfEntityId}`,
       changes: [
-        { slot: 0, itemId: "pennywrought_axe", quantity: 1 },
-        { slot: 1, itemId: "pennywrought_pickaxe", quantity: 1 },
+        { slot: 0, itemId: "pennywrought_axe", quantity: 1, uid: 1 },
+        { slot: 1, itemId: "pennywrought_pickaxe", quantity: 1, uid: 2 },
       ],
     });
     expect(fullState.skills?.map((skill) => skill.skillId)).toEqual([

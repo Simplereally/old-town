@@ -28,7 +28,7 @@ Implement authoritative item containers, item actions, equipment stat aggregatio
 
 ## Ordered stories
 
-- [ ] `E08-S01` — [Implement inventory container system](../stories/E08/E08-S01_implement-inventory-container-system.md)
+- [X] `E08-S01` — [Implement inventory container system](../completed/stories/E08/E08-S01_implement-inventory-container-system.md)
 - [ ] `E08-S02` — [Implement item action handling](../stories/E08/E08-S02_implement-item-action-handling.md)
 - [ ] `E08-S03` — [Implement equipment system](../stories/E08/E08-S03_implement-equipment-system.md)
 - [ ] `E08-S04` — [Implement consumables and healing](../stories/E08/E08-S04_implement-consumables-and-healing.md)

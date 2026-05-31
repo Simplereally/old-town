@@ -20,7 +20,9 @@ import {
   TILE_SIZE_WORLD_UNITS,
   type TileCoord,
 } from "@old-town/shared";
+import type { InventoryComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
+import { addItem, catalogFromItems, createInventory, toInventoryDelta } from "../items/inventory";
 import type { RuntimeMap } from "../world/runtime-map";
 import type { TransportSession } from "./websocket-transport";
 
@@ -99,11 +101,7 @@ export class DevSessionManager {
       mode: "walk",
       path: [],
     });
-    this.world.stores.inventory.set(entityId, {
-      entityId,
-      capacity: INVENTORY_SIZE,
-      items: this.defaultInventory(),
-    });
+    this.world.stores.inventory.set(entityId, this.createStarterInventory(entityId));
     this.world.stores.equipment.set(entityId, {
       entityId,
       slots: Object.fromEntries(
@@ -131,16 +129,13 @@ export class DevSessionManager {
     return entityId;
   }
 
-  private defaultInventory(): (readonly [string, number] | undefined)[] {
-    const items: (readonly [string, number] | undefined)[] = Array.from({
-      length: INVENTORY_SIZE,
-    });
-    STARTER_ITEMS.forEach((itemId, slot) => {
-      if (this.registries.item.has(itemId)) {
-        items[slot] = [itemId, 1] as const;
-      }
-    });
-    return items;
+  private createStarterInventory(entityId: EntityId): InventoryComponent {
+    const inventory = createInventory(entityId, `inventory:${entityId}`, INVENTORY_SIZE);
+    const catalog = catalogFromItems(this.registries.item);
+    for (const itemId of STARTER_ITEMS) {
+      addItem(inventory, catalog, itemId, 1);
+    }
+    return inventory;
   }
 
   private visibleEntitySpawns(): readonly EntitySpawnPacket[] {
@@ -168,13 +163,10 @@ export class DevSessionManager {
 
   private inventoryDelta(entityId: EntityId): InventoryDelta {
     const inventory = this.world.stores.inventory.get(entityId);
-    return {
-      containerId: `inventory:${entityId}`,
-      changes:
-        inventory?.items.flatMap((item, slot) =>
-          item ? [{ slot, itemId: item[0], quantity: item[1] }] : [],
-        ) ?? [],
-    };
+    if (!inventory) {
+      return { containerId: `inventory:${entityId}`, changes: [] };
+    }
+    return toInventoryDelta(inventory);
   }
 
   private skillDeltas(entityId: EntityId): readonly SkillDelta[] {

@@ -65,11 +65,28 @@ export interface GroundItemComponent {
   quantity: number;
 }
 
-/** Inventory container (slotted items). */
+/**
+ * A single occupied inventory slot. `uid` is a per-container instance id assigned when an
+ * item first enters the container; it travels with the item across moves/swaps so the
+ * client can reference a specific stack in item-option commands (`itemUid`).
+ */
+export interface InventorySlot {
+  itemId: string;
+  quantity: number;
+  uid: number;
+}
+
+/**
+ * Inventory container (slotted items). Plain data — all mutation logic lives in
+ * `items/inventory.ts`. `slots` is length `capacity`; `undefined` marks an empty slot.
+ */
 export interface InventoryComponent {
   entityId: EntityId;
+  containerId: string;
   capacity: number;
-  items: (readonly [string, number] | undefined)[];
+  slots: (InventorySlot | undefined)[];
+  /** Monotonic allocator for slot `uid`s (starts at 1). */
+  nextUid: number;
 }
 
 /** Equipment slots. */
