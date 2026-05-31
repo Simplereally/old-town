@@ -52,25 +52,25 @@ Activities should not reward any of the following:
 
 | ID | Name | Type | Activity | What it does | Why it is good |
 |----|------|------|----------|--------------|----------------|
-| `bell_runner_ribbon` | Bell Runner ribbon | cosmetic | Bell Run | A blue ribbon worn on the belt or cloak. | Shows you run the Bell Run. Pure identity, no stat change. |
-| `soot_sweeper_apron` | Soot Sweeper apron | cosmetic | Soot Sweep | A soot-stained apron with a broom motif. | Shows you keep the Sootcellar clean. Signals belonging without changing stats. |
+| `bell_runner_ribbon` | Bell Runner Ribbon | cosmetic | Bell Run | A blue ribbon worn on the belt or cloak. | Shows you run the Bell Run. Pure identity, no stat change. |
+| `soot_sweeper_apron` | Soot Sweeper Apron | cosmetic | Soot Sweep | A soot-stained apron with a broom motif. | Shows you keep the Sootcellar clean. Signals belonging without changing stats. |
 | `counting_house_clerk` | Counting House Clerk trim | cosmetic | Ledger Sort | A wax-seal pattern on the collar. | Shows you sort ledgers. Pure identity. |
-| `market_runner_ribbon` | Market Runner ribbon | cosmetic | Market Rush | A green ribbon with a basket weave pattern. | Shows you run the market. Pure identity. |
-| `gravekeeper_ribbon` | Gravekeeper ribbon | cosmetic | Graveflower Round | A grey ribbon with a small flower sigil. | Shows you tend the graves. Pure identity. |
-| `foundry_shift_apron` | Foundry Shift apron | cosmetic | Foundry Shift | A leather apron with furnace scorch marks. | Shows you work the Foundry Row shift. Pure identity. |
-| `kilnwatch_ribbon` | Kilnwatch ribbon | cosmetic | Kilnwatch Primer | A red ribbon with a bead motif. | Shows you fire beads at the Chalkhouse kiln. Pure identity. |
-| `river_basket_ribbon` | River Basket ribbon | cosmetic | River Basket | A blue ribbon with a fish scale pattern. | Shows you haul the River Basket. Pure identity. |
+| `market_runner_ribbon` | Market Runner Ribbon | cosmetic | Market Rush | A green ribbon with a basket weave pattern. | Shows you run the market. Pure identity. |
+| `gravekeeper_ribbon` | Gravekeeper Ribbon | cosmetic | Graveflower Round | A grey ribbon with a small flower sigil. | Shows you tend the graves. Pure identity. |
+| `foundry_shift_apron` | Foundry Shift Apron | cosmetic | Foundry Shift | A leather apron with furnace scorch marks. | Shows you work the Foundry Row shift. Pure identity. |
+| `kilnwatch_ribbon` | Kilnwatch Ribbon | cosmetic | Kilnwatch Primer | A red ribbon with a bead motif. | Shows you fire beads at the Chalkhouse kiln. Pure identity. |
+| `river_basket_ribbon` | River Basket Ribbon | cosmetic | River Basket | A blue ribbon with a fish scale pattern. | Shows you haul the River Basket. Pure identity. |
 | `crowmile_road_ribbon` | Crowmile Road Ribbon | cosmetic | Crowmile Relay | A faded ribbon with a road marker sigil. | Shows you maintain the road. Signals Wayfaring belonging. |
-| `bellwood_axe_mark` | Bellwood axe mark | cosmetic | Bellwood Replant | A brass inlay on the axe head. | Shows you replant the copse. Pure identity. |
-| `quarry_worker_apron` | Quarry Worker apron | cosmetic | Quarry Shift | A heavy leather apron with ore dust. | Shows you work the quarry. Pure identity. |
-| `patchfield_hide_stamp` | Patchfield hide stamp | cosmetic | Patchfield Drive | A heated iron stamp for leather. | Shows you drive the Patchfield. Pure identity. |
-| `wardenbrook_angler_pin` | Wardenbrook angler pin | cosmetic | Wardenbrook Tide | A tinfin-shaped pin for the cloak. | Shows you work the tide. Pure identity. |
-| `lowgrave_candle_trim` | Lowgrave candle trim | cosmetic | Lowgrave Vigil | A wax-drip pattern on the cloak edge. | Shows you keep the vigil. Pure identity. |
-| `kilnwatch_oath` | Kilnwatch Oath mark | cosmetic | Old Kiln Watch | A scorch mark on the glove. | Shows you keep the kiln alive. Pure identity. |
-| `blacksealed_cloak` | Blacksealed cloak | cosmetic | Sootstairs Lockroom | A dark cloak with a lock sigil. | Shows you master the lockroom. Pure identity. |
-| `fish_hamper_upgrade` | Fish hamper upgrade | utility | Wardenbrook Tide | A wicker hamper that holds more raw fish. | Narrow convenience. Not a universal bag upgrade. |
-| `ashproof_gloves` | Ashproof gloves | cosmetic | Old Kiln Watch | Fingerless gloves with ash-grey leather. | Fire-resistant appearance. Pure identity. |
-| `false_bottom_pouch` | False-bottom pouch | utility | Sootstairs Lockroom | A belt pouch with a hidden compartment. | Adds a few extra slots for small items. Not a full inventory expansion. |
+| `bellwood_axe_mark` | Bellwood Axe Mark | cosmetic | Bellwood Replant | A brass inlay on the axe head. | Shows you replant the copse. Pure identity. |
+| `quarry_worker_apron` | Quarry Worker Apron | cosmetic | Quarry Shift | A heavy leather apron with ore dust. | Shows you work the quarry. Pure identity. |
+| `patchfield_hide_stamp` | Patchfield Hide Stamp | cosmetic | Patchfield Drive | A heated iron stamp for leather. | Shows you drive the Patchfield. Pure identity. |
+| `wardenbrook_angler_pin` | Wardenbrook Angler Pin | cosmetic | Wardenbrook Tide | A tinfin-shaped pin for the cloak. | Shows you work the tide. Pure identity. |
+| `lowgrave_candle_trim` | Lowgrave Candle Trim | cosmetic | Lowgrave Vigil | A wax-drip pattern on the cloak edge. | Shows you keep the vigil. Pure identity. |
+| `kilnwatch_oath` | Kilnwatch Oath Mark | cosmetic | Old Kiln Watch | A scorch mark on the glove. | Shows you keep the kiln alive. Pure identity. |
+| `blacksealed_cloak` | Blacksealed Cloak | cosmetic | Sootstairs Lockroom | A dark cloak with a lock sigil. | Shows you master the lockroom. Pure identity. |
+| `fish_hamper_upgrade` | Fish Hamper Upgrade | utility | Wardenbrook Tide | A wicker hamper that holds more raw fish. | Narrow convenience. Not a universal bag upgrade. |
+| `ashproof_gloves` | Ashproof Gloves | cosmetic | Old Kiln Watch | Fingerless gloves with ash-grey leather. | Fire-resistant appearance. Pure identity. |
+| `false_bottom_pouch` | False-Bottom Pouch | utility | Sootstairs Lockroom | A belt pouch with a hidden compartment. | Adds a few extra slots for small items. Not a full inventory expansion. |
 
 ## Bad Rewards
 
@@ -94,10 +94,10 @@ Activities should not reward any of the following:
 | Activity | Reward 1 | Reward 2 | Reward 3 |
 |----------|----------|----------|----------|
 | Bell Run | Bell Runner ribbon | Bell Token | route hints |
-| Soot Sweep | Soot Sweeper apron | Soot ash | small coins |
+| Soot Sweep | Soot Sweeper apron | Soot Mark | small coins |
 | Ledger Sort | Counting House Clerk trim | Ledger Sort discount | small coins |
 | Market Rush | Market Runner ribbon | Market Token | cooking ingredients |
-| Graveflower Round | Gravekeeper ribbon | Grave Token | grave flowers |
+| Graveflower Round | Gravekeeper ribbon | Grave Token | grave flower seeds |
 | Foundry Shift | Foundry Shift apron | Foundry Token | copper bars |
 | Kilnwatch Primer | Kilnwatch ribbon | Kiln Token | fired beads |
 | River Basket | River Basket ribbon | River Token | raw fish |
@@ -113,7 +113,7 @@ Activities should not reward any of the following:
 | Wardenbrook Tide | Wardenbrook Angler Pin | Tide Token | fish hamper upgrade |
 | Lowgrave Vigil | Lowgrave Candle Trim | Vigil Token | candle trims |
 | Old Kiln Watch | Kilnwatch Oath mark | Kiln Token | ashproof gloves |
-| Sootstairs Lockroom | Blacksealed Cloak | Lockroom Token | false-bottom pouch |
+| Sootstairs Lockroom | Blacksealed Cloak | Lockroom Token | false-bottom pouch parts |
 
 ### Skilling Bosses
 
@@ -150,7 +150,7 @@ Every activity with a token has a reward shop. The shop is located at the activi
 | Shop | NPC | Location | Token | Primary Stock |
 |------|-----|----------|-------|---------------|
 | Bell Shop | Mara Bellkeeper | Market Bell | Bell Token | route hints, district maps, Bell Runner ribbon |
-| Soot Shop | Marn Lock | Sootcellar | Soot ash | beadwork materials, Soot Sweeper apron |
+| Soot Shop | Marn Lock | Sootcellar | Soot Mark | Sleight tools, Soot Sweeper apron |
 | Ledger Shop | Clerk Penn | Counting House | Ledger Sort discount | civic discounts, Counting House Clerk trim |
 | Market Shop | Pell Hookline | Market Bell | Market Token | cooking ingredients, Market Runner ribbon |
 | Grave Shop | Sister Writ | Shrine Hearth | Grave Token | grave flower seeds, Gravekeeper ribbon |

@@ -296,7 +296,7 @@ describe("IntentDispatcher", () => {
 
     expect(actionRuntime.getDebugState()).toEqual([]);
     const packet = deltas.consume(1, 600);
-    expect(packet.chat?.[0]?.text).toBe("Spell casting is not yet implemented.");
+    expect(packet.chat?.[0]?.text).toBe("You do not know that spell.");
   });
 
   it("chat intent submits through chat system", () => {

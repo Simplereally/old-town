@@ -24,6 +24,7 @@ import { processDeathResolution, processGroundItemLifecycle } from "../systems/g
 import { npcFootprintResolver, processNpcAiPhase, syncNpcOccupancy } from "../systems/npc-system";
 import { createResourceNodeActionHandlers } from "../systems/resource-node-system";
 import { createSkillingActionHandlers } from "../systems/skilling-system";
+import { createSpellActionHandlers } from "../systems/spell-system";
 import { applyObjectCollision, CollisionMap } from "../world/collision";
 import { loadAllRegionMapsIntoWorld } from "../world/region-loader";
 import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
@@ -120,9 +121,11 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
   syncNpcOccupancy({ world, collision, registries });
   const skillingHandlers = createSkillingActionHandlers(skillingContext);
   const resourceNodeHandlers = createResourceNodeActionHandlers(skillingContext);
+  const spellHandlers = createSpellActionHandlers(skillingContext);
   const actionTable: ActionHandlerTable = {
     ...skillingHandlers,
     ...resourceNodeHandlers,
+    ...spellHandlers,
   };
   const actionExecutor = new ActionExecutor(
     actionTable,

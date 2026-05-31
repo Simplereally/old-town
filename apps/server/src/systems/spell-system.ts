@@ -11,7 +11,7 @@ import {
 import type { World } from "../ecs/world";
 import { buildDelta, hasAll, removeItem } from "../items/inventory";
 import type { ActionHandler } from "../sim/action-executor";
-import { ActionQueueType, InterruptGroup, type ActionExecution } from "../sim/action-queue";
+import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import type { ActionRuntime } from "../sim/action-runtime";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { addXp, getCurrentLevel } from "../skills/skill-state";
@@ -31,17 +31,10 @@ export interface TeleportActionPayload {
 }
 
 export type SpellPayload = TeleportActionPayload;
-
 export type SpellKind = SpellPayload["kind"];
-
 export type SpellHandlerTable = {
   [K in SpellKind]: ActionHandler<Extract<SpellPayload, { kind: K }>>;
 };
-
-interface ResolvedSpellTarget {
-  readonly tile: TileCoord;
-  readonly entityId?: EntityId;
-}
 
 export interface SpellSystemContext {
   readonly world: World;
@@ -50,6 +43,18 @@ export interface SpellSystemContext {
   readonly registries: ContentRegistries;
   readonly actionRuntime: ActionRuntime;
   readonly rng: Rng;
+}
+
+interface ResolvedSpellTarget {
+  readonly tile: TileCoord;
+  readonly entityId?: EntityId;
+}
+
+function positionTile(world: World, entityId: EntityId): TileCoord | undefined {
+  const position = world.getComponent(entityId, "position");
+  return position
+    ? { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] }
+    : undefined;
 }
 
 function systemMessage(
@@ -61,212 +66,243 @@ function systemMessage(
   deltas.markChat({ entityId: owner, channel: "system", text, serverTime });
 }
 
-function positionTile(world: World, entityId: EntityId): TileCoord | undefined {
-  const position = world.getComponent(entityId, "position");
-  return position
-    ? {
-        x: position.x,
-        y: position.y,
-        plane: position.plane as TileCoord["plane"],
-      }
-    : undefined;
-}
-
 function combatTargetRequired(spell: SpellDef): boolean {
   return spell.effect.kind === "damage" || spell.effect.kind === "bind";
 }
 
-function targetInRange(
-  casterTile: TileCoord,
-  targetTile: TileCoord,
-  rangeTiles: number,
-): boolean {
-  return chebyshevDistance(casterTile, targetTile) <= rangeTiles;
+function targetTypeMessage(spell: SpellDef): string {
+  switch (spell.targetType) {
+    case "self":
+      return "That spell is cast on yourself.";
+    case "entity":
+      return "That spell needs an entity target.";
+    case "tile":
+      return "That spell needs a tile target.";
+    case "item":
+      return "That spell needs an item target.";
+  }
 }
 
 function resolveTarget(
   ctx: SpellSystemContext,
-  _owner: EntityId,
+  owner: EntityId,
   spell: SpellDef,
   target: SpellTarget,
 ): ResolvedSpellTarget | string {
-  switch (target.kind) {
-    case "none": {
-      if (combatTargetRequired(spell)) {
-        return "You need a target for that spell.";
-      }
-      const casterTile = positionTile(ctx.world, _owner);
-      if (!casterTile) {
-        return "You cannot cast from here.";
-      }
-      return { tile: casterTile };
+  if (spell.targetType === "self") {
+    const tile = positionTile(ctx.world, owner);
+    return target.kind === "none" && tile ? { tile, entityId: owner } : targetTypeMessage(spell);
+  }
+
+  if (spell.targetType === "tile") {
+    return target.kind === "tile" ? { tile: target.tile } : targetTypeMessage(spell);
+  }
+
+  if (spell.targetType === "item") {
+    return targetTypeMessage(spell);
+  }
+
+  if (target.kind !== "entity") {
+    return targetTypeMessage(spell);
+  }
+
+  const tile = positionTile(ctx.world, target.entityId);
+  if (!tile || !ctx.world.isAlive(target.entityId)) {
+    return "That target is no longer there.";
+  }
+
+  if (combatTargetRequired(spell)) {
+    const combatant = ctx.world.getComponent(target.entityId, "combatant");
+    if (!combatant) {
+      return "That spell cannot be cast on that target.";
     }
-    case "entity": {
-      const entityTile = positionTile(ctx.world, target.entityId);
-      if (!entityTile) {
-        return "That target is not available.";
-      }
-      return { tile: entityTile, entityId: target.entityId };
-    }
-    case "tile": {
-      return { tile: target.tile };
+    if (combatant.dead === true || combatant.health <= 0) {
+      return "That target is already dead.";
     }
   }
+
+  return { tile, entityId: target.entityId };
 }
 
-function getCooldowns(world: World, entityId: EntityId): Record<string, number> {
-  const combatant = world.getComponent(entityId, "combatant");
-  return combatant?.spellCooldowns ?? {};
-}
-
-function setCooldowns(world: World, entityId: EntityId, cooldowns: Record<string, number>): void {
-  const combatant = world.getComponent(entityId, "combatant");
-  if (!combatant) {
-    return;
-  }
-  world.setComponent(entityId, "combatant", {
-    ...combatant,
-    spellCooldowns: cooldowns,
-  });
+function targetInRange(caster: TileCoord, target: TileCoord, rangeTiles: number): boolean {
+  return caster.plane === target.plane && chebyshevDistance(caster, target) <= rangeTiles;
 }
 
 function validateCooldown(
   ctx: SpellSystemContext,
-  entityId: EntityId,
+  owner: EntityId,
   spell: SpellDef,
   tick: number,
 ): string | undefined {
-  if (!spell.cooldownTicks) {
-    return undefined;
+  const combatant = ctx.world.getComponent(owner, "combatant");
+  if (!combatant) {
+    return spell.cooldownTicks === undefined ? undefined : "You are not ready to cast spells.";
   }
-  const cooldowns = getCooldowns(ctx.world, entityId);
-  const availableTick = cooldowns[spell.id];
-  if (availableTick !== undefined && availableTick > tick) {
-    const remaining = Math.ceil((availableTick - tick) * 0.6);
-    return `You must wait ${remaining}s before casting ${spell.name} again.`;
-  }
-  return undefined;
+  const readyTick = combatant.spellCooldowns?.[spell.id] ?? 0;
+  return tick >= readyTick ? undefined : "That spell is not ready yet.";
 }
 
 function setCooldown(
   ctx: SpellSystemContext,
-  entityId: EntityId,
+  owner: EntityId,
   spell: SpellDef,
   tick: number,
 ): void {
-  if (!spell.cooldownTicks) {
+  const cooldownTicks = spell.cooldownTicks ?? 0;
+  if (cooldownTicks <= 0) {
     return;
   }
-  const cooldowns = { ...getCooldowns(ctx.world, entityId) };
-  cooldowns[spell.id] = tick + spell.cooldownTicks;
-  setCooldowns(ctx.world, entityId, cooldowns);
+  const combatant = ctx.world.getComponent(owner, "combatant");
+  if (!combatant) {
+    return;
+  }
+  ctx.world.setComponent(owner, "combatant", {
+    ...combatant,
+    spellCooldowns: {
+      ...(combatant.spellCooldowns ?? {}),
+      [spell.id]: tick + cooldownTicks,
+    },
+  });
+}
+
+function projectileId(
+  owner: EntityId,
+  spell: SpellDef,
+  target: ResolvedSpellTarget,
+  tick: number,
+): string {
+  const targetKey =
+    target.entityId !== undefined
+      ? `entity:${target.entityId}`
+      : `tile:${target.tile.x}:${target.tile.y}:${target.tile.plane}`;
+  return `${tick}:${owner}:${spell.id}:${targetKey}`;
 }
 
 function startDamageSpell(
   ctx: SpellSystemContext,
-  caster: EntityId,
+  owner: EntityId,
   spell: SpellDef,
-  resolved: ResolvedSpellTarget,
-  _casterTile: TileCoord,
+  target: ResolvedSpellTarget,
+  casterTile: TileCoord,
   tick: number,
 ): void {
-  if (spell.effect.kind !== "damage") {
+  if (spell.effect.kind !== "damage" || target.entityId === undefined) {
     return;
   }
-  const targetEntityId = resolved.entityId;
-  if (!targetEntityId) {
-    return;
-  }
-  const hit = rollMagicHit(ctx, caster, targetEntityId, spell.effect.maxHit);
+  const hit = rollMagicHit(ctx, owner, target.entityId, spell.effect.maxHit);
   if (!hit) {
     return;
   }
-  const pendingHit = {
-    sourceId: caster,
-    targetId: targetEntityId,
-    applyTick: tick,
-    style: hit.style,
-    attackRoll: hit.attackRoll,
-    defenceRoll: hit.defenceRoll,
-    hitChance: hit.hitChance,
-    maxHit: hit.maxHit,
-    damage: hit.damage,
-    hitLanded: hit.hitLanded,
-  };
-  appendPendingHit(ctx, targetEntityId, pendingHit);
+  const hitTick = tick + (spell.effect.hitDelayTicks ?? 2);
+  appendPendingHit(ctx, target.entityId, {
+    sourceId: owner,
+    targetId: target.entityId,
+    applyTick: hitTick,
+    ...hit,
+  });
+  ctx.deltas.markEntityUpdate(owner, {
+    facingEntity: target.entityId,
+    animation: { id: SPELL_CAST_ANIMATION_ID, startTick: tick },
+    graphic: { id: `${spell.id}_cast` },
+  });
+  ctx.deltas.markProjectile({
+    id: projectileId(owner, spell, target, tick),
+    projectileId: spell.effect.projectileId ?? spell.id,
+    sourceEntityId: owner,
+    targetEntityId: target.entityId,
+    startTile: casterTile,
+    endTile: target.tile,
+    startTick: tick,
+    hitTick,
+  });
 }
 
 function startBindSpell(
   ctx: SpellSystemContext,
-  caster: EntityId,
+  owner: EntityId,
   spell: SpellDef,
-  resolved: ResolvedSpellTarget,
+  target: ResolvedSpellTarget,
   tick: number,
 ): void {
-  if (spell.effect.kind !== "bind") {
+  if (spell.effect.kind !== "bind" || target.entityId === undefined) {
     return;
   }
-  const targetEntityId = resolved.entityId;
-  if (!targetEntityId) {
-    return;
-  }
-  const hit = rollMagicHit(ctx, caster, targetEntityId, spell.effect.maxHit);
-  if (hit && hit.damage > 0) {
-    const pendingHit = {
-      sourceId: caster,
-      targetId: targetEntityId,
-      applyTick: tick,
-      style: hit.style,
-      attackRoll: hit.attackRoll,
-      defenceRoll: hit.defenceRoll,
-      hitChance: hit.hitChance,
-      maxHit: hit.maxHit,
-      damage: hit.damage,
-      hitLanded: hit.hitLanded,
-    };
-    appendPendingHit(ctx, targetEntityId, pendingHit);
-  }
-  applyMovementBlock(ctx, targetEntityId, tick + spell.effect.durationTicks);
+  ctx.deltas.markEntityUpdate(owner, {
+    facingEntity: target.entityId,
+    animation: { id: SPELL_CAST_ANIMATION_ID, startTick: tick },
+    graphic: { id: `${spell.id}_cast` },
+  });
+  applyMovementBlock(ctx, target.entityId, tick + spell.effect.durationTicks, {
+    overheadText: SPELL_BIND_OVERHEAD_TEXT,
+    graphicId: `${spell.id}_bind`,
+  });
+}
+
+function teleportActionId(owner: EntityId, spellId: string): string {
+  return `teleport:${owner}:${spellId}`;
 }
 
 function startTeleportSpell(
   ctx: SpellSystemContext,
-  caster: EntityId,
+  owner: EntityId,
   spell: SpellDef,
   tick: number,
 ): void {
   if (spell.effect.kind !== "teleport") {
     return;
   }
-  const actionId = `teleport:${spell.id}:${caster}`;
-  ctx.actionRuntime.cancel(caster, { id: actionId });
-  const payload: TeleportActionPayload = {
-    kind: "teleport",
-    spellId: spell.id,
-    destination: spell.effect.destination ?? { x: 0, y: 0, plane: 0 },
-  };
+  const destination = spell.effect.destination;
+  if (!destination) {
+    return;
+  }
+  const id = teleportActionId(owner, spell.id);
+  const payload: TeleportActionPayload = { kind: "teleport", spellId: spell.id, destination };
+  ctx.actionRuntime.cancel(owner, { id });
   ctx.actionRuntime.enqueue({
-    id: actionId,
-    owner: caster,
-    type: ActionQueueType.Weak,
+    id,
+    owner,
+    type: spell.effect.interruptible ? ActionQueueType.Weak : ActionQueueType.Normal,
     delayTicks: spell.effect.delayTicks,
-    interruptGroup: InterruptGroup.Skilling,
+    interruptGroup: InterruptGroup.Combat,
     payload,
   });
-  ctx.deltas.markEntityUpdate(caster, {
+  ctx.deltas.markEntityUpdate(owner, {
     animation: { id: TELEPORT_CAST_ANIMATION_ID, startTick: tick },
+    graphic: { id: `${spell.id}_channel` },
+    moveSpeed: "stationary",
   });
+}
+
+function validateSpellEffect(spell: SpellDef): string | undefined {
+  switch (spell.effect.kind) {
+    case "damage":
+    case "bind":
+      return undefined;
+    case "teleport":
+      return spell.effect.destination ? undefined : "You cannot teleport from here.";
+    case "alchemy":
+    case "enchant":
+      return "That spell is not yet implemented.";
+  }
 }
 
 export function completeTeleportAction(
   ctx: SpellSystemContext,
   action: ActionExecution,
   payload: TeleportActionPayload,
-): void {
+): boolean {
+  if (
+    !ctx.world.isAlive(action.entry.owner) ||
+    !ctx.world.hasComponent(action.entry.owner, "position")
+  ) {
+    return true;
+  }
   const movement = ctx.world.getComponent(action.entry.owner, "movement");
   ctx.world.setComponent(action.entry.owner, "position", {
     entityId: action.entry.owner,
-    ...payload.destination,
+    x: payload.destination.x,
+    y: payload.destination.y,
+    plane: payload.destination.plane,
   });
   ctx.world.setComponent(action.entry.owner, "movement", {
     entityId: action.entry.owner,
@@ -282,12 +318,12 @@ export function completeTeleportAction(
     graphic: { id: `${payload.spellId}_arrive` },
   });
   ctx.deltas.markDebugPath(action.entry.owner, []);
+  return true;
 }
 
 export function createSpellActionHandlers(ctx: SpellSystemContext): SpellHandlerTable {
   return {
-    teleport: (payload, actionCtx) =>
-      completeTeleportAction(ctx, actionCtx.execution, payload),
+    teleport: (payload, actionCtx) => completeTeleportAction(ctx, actionCtx.execution, payload),
   };
 }
 
@@ -341,20 +377,26 @@ export function handleSpellIntent(
     return true;
   }
 
-  const resolvedTarget = resolveTarget(ctx, owner, spell, intent.target);
-  if (typeof resolvedTarget === "string") {
-    systemMessage(ctx.deltas, owner, resolvedTarget, serverTime);
+  const target = resolveTarget(ctx, owner, spell, intent.target);
+  if (typeof target === "string") {
+    systemMessage(ctx.deltas, owner, target, serverTime);
     return true;
   }
-  if (!targetInRange(casterTile, resolvedTarget.tile, spell.rangeTiles)) {
+  if (!targetInRange(casterTile, target.tile, spell.rangeTiles)) {
     systemMessage(ctx.deltas, owner, "That target is too far away.", serverTime);
     return true;
   }
   if (
     spell.requiresLineOfSight &&
-    !ctx.collision.hasLineOfSight(casterTile, resolvedTarget.tile, { projectile: true })
+    !ctx.collision.hasLineOfSight(casterTile, target.tile, { projectile: true })
   ) {
     systemMessage(ctx.deltas, owner, "You cannot see that target.", serverTime);
+    return true;
+  }
+
+  const effectError = validateSpellEffect(spell);
+  if (effectError) {
+    systemMessage(ctx.deltas, owner, effectError, serverTime);
     return true;
   }
 
@@ -364,17 +406,16 @@ export function handleSpellIntent(
     return true;
   }
 
-  const changes = spell.beadCosts.flatMap((cost) => {
-    const result = removeItem(inventory, cost.itemId, cost.quantity);
-    return result.changes;
-  });
+  const changes = spell.beadCosts.flatMap(
+    (cost) => removeItem(inventory, cost.itemId, cost.quantity).changes,
+  );
   if (changes.length > 0) {
     ctx.deltas.markInventoryDelta(buildDelta(inventory, changes));
   }
   setCooldown(ctx, owner, spell, tick);
   addXp(ctx, owner, "magic", spell.castXp);
-  startDamageSpell(ctx, owner, spell, resolvedTarget, casterTile, tick);
-  startBindSpell(ctx, owner, spell, resolvedTarget, tick);
+  startDamageSpell(ctx, owner, spell, target, casterTile, tick);
+  startBindSpell(ctx, owner, spell, target, tick);
   startTeleportSpell(ctx, owner, spell, tick);
   return true;
 }

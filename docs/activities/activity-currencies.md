@@ -41,10 +41,18 @@ This narrowness prevents inflation, preserves the identity of each activity, and
 | Currency ID | Name | Source Activity | Activity Family | Use |
 |-------------|------|-----------------|-----------------|-----|
 | `bell_token` | Bell Token | Bell Run, Crowmile Relay | Course | Route hints, district maps, course cosmetics |
+| `market_token` | Market Token | Market Rush | Public Work | Cooking ingredients, market cosmetics |
+| `grave_token` | Grave Token | Graveflower Round | Skilling Activity | Grave flower seeds, grave cosmetics |
+| `foundry_token` | Foundry Token | Foundry Shift | Production Activity | Smithing tools, foundry cosmetics |
 | `kiln_token` | Kiln Token | Kilnwatch Primer, Old Kiln Watch | Production / Skilling Boss | Bead supplies, kiln materials, hearthcraft tools |
+| `river_token` | River Token | River Basket | Skilling Activity | Bait, fishing hints, river cosmetics |
+| `road_token` | Road Token | Crowmile Relay | Course | Route cosmetics, shortcut unlocks, Wayfaring tools |
+| `replant_token` | Replant Token | Bellwood Replant | Skilling Activity | Bowcraft materials, replant cosmetics |
+| `quarry_token` | Quarry Token | Quarry Shift | Risk Activity | Mining tools, quarry cosmetics |
+| `drive_token` | Drive Token | Patchfield Drive | Skilling Activity | Tailoring materials, drive cosmetics |
 | `tide_token` | Tide Token | Wardenbrook Tide | Skilling Boss | Fishing supplies, fish hamper upgrades, ferry cosmetics |
 | `vigil_token` | Vigil Token | Lowgrave Vigil | Skilling Boss | Grave supplies, candle trims, Favour tools |
-| `road_token` | Road Token | Crowmile Relay | Course | Route cosmetics, shortcut unlocks, Wayfaring tools |
+| `lockroom_token` | Lockroom Token | Sootstairs Lockroom | Puzzle Activity | Lockpick upgrades, lockroom cosmetics |
 | `soot_mark` | Soot Mark | Soot Sweep, Sootstairs Lockroom | Public Work / Puzzle | Sleight tools, lockpick upgrades, undercity cosmetics |
 
 ## Currency Notes
@@ -55,7 +63,7 @@ The Bell Token is earned by completing the Bell Run and the Crowmile Relay. It i
 
 - **Earn rate:** 1-3 tokens per run, depending on speed.
 - **Sink:** Route hints (5 tokens), district maps (20 tokens), Bell Runner ribbon (50 tokens).
-- **Related:** Crowmile Relay also earns Bell Tokens, but at a higher rate (3-5 per run).
+- **Related:** Crowmile Relay also earns Bell Tokens at a lower rate (1-2 per run). Its primary currency is Road Token.
 
 ### Kiln Token
 
@@ -87,7 +95,7 @@ The Road Token is earned by completing the Crowmile Relay. It is the currency of
 
 - **Earn rate:** 3-5 tokens per run, depending on markers repaired.
 - **Sink:** Route cosmetics (10 tokens), shortcut unlocks (50 tokens), Crowmile Road Ribbon (75 tokens).
-- **Related:** Crowmile Relay also earns Bell Tokens at a lower rate.
+- **Related:** Crowmile Relay earns Road Tokens as its primary currency. It also earns a small number of Bell Tokens (1-2 per run) as a secondary reward.
 
 ### Soot Mark
 
@@ -99,14 +107,14 @@ The Soot Mark is earned by completing the Soot Sweep and the Sootstairs Lockroom
 
 ## Currency Exchange Rates
 
-Tokens are not exchangeable for raw coin. They are not tradable between players. They are not convertible into other tokens.
+Tokens are not exchangeable for raw coin. They are not tradable between players.
 
-However, some NPCs may offer a limited barter service:
+Tokens are generally not convertible into other tokens. However, some NPCs may offer a limited barter service as a convenience for players who are close to a reward but lack the specific token:
 
 - **Mara Bellkeeper** (Bell Shop) will trade 10 Bell Tokens for 1 Road Token, once per day. This is a convenience, not a primary exchange method.
 - **Pell Hookline** (River Shop) will trade 10 River Tokens for 1 Tide Token, once per day. This is a convenience for players who prefer river fishing to tide work.
 
-These barter exchanges are limited and expensive. They exist to prevent players from being completely locked out of a reward, but they do not create a token economy.
+These barter exchanges are limited and expensive. They exist to prevent players from being completely locked out of a reward, but they do not create a token economy. The general rule is that tokens are not convertible.
 
 ## Currency Sinks
 

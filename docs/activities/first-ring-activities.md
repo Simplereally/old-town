@@ -30,12 +30,12 @@ This document defines the eight repeatable activities in first-ring areas beyond
 |-------------|--------------|------------------|----------|----------|----------------|-------------------|----------------------|
 | `crowmile_relay` | Crowmile Relay | "the relay" | Crowmile Road | Course | Wayfaring, Cartography | Wayfaring 20, mapped route to Crowmile | Safe |
 | `bellwood_replant` | Bellwood Replant | "the replant" | Bellwood Copse | Skilling Activity | Woodcutting, Gardening, Bowcraft | Woodcutting 20 | Safe |
-| `quarry_shift` | Quarry Shift | "the quarry" | Tinstone Cut | Production / Risk | Mining, Smithing | Mining 20, route unlock to Tinstone Cut | Risky |
+| `quarry_shift` | Quarry Shift | "the quarry" | Tinstone Cut | Risk Activity | Mining, Smithing | Mining 20, route unlock to Tinstone Cut | Risky |
 | `patchfield_drive` | Patchfield Drive | "the drive" | Patchfield | Skilling Activity | Trapping, Tailoring | Trapping 20 or Tailoring 20 | Safe |
-| `wardenbrook_tide` | Wardenbrook Tide | "the tide" | Wardenbrook | Skilling Boss-lite | Fishing, Cooking, Wayfaring | Fishing 20, route unlock to Wardenbrook | Dangerous |
-| `lowgrave_vigil` | Lowgrave Vigil | "the vigil" | Lowgrave | Skilling Activity / Risk | Favour, Gardening, Hearthcraft, Apothecary | Favour 20, `Gravegate Flowers` completed | Risky |
+| `wardenbrook_tide` | Wardenbrook Tide | "the tide" | Wardenbrook | Skilling Boss | Fishing, Cooking, Wayfaring | Fishing 20, route unlock to Wardenbrook | Dangerous |
+| `lowgrave_vigil` | Lowgrave Vigil | "the vigil" | Lowgrave | Skilling Boss | Favour, Gardening, Hearthcraft, Apothecary | Favour 20, `Gravegate Flowers` completed | Risky |
 | `old_kiln_watch` | Old Kiln Watch | "the watch" | The Old Kiln | Skilling Boss | Hearthcraft, Beadwork, Magic | Hearthcraft 20 or Beadwork 20, `Smoke Over Old Town` completed | Dangerous |
-| `sootstairs_lockroom` | Sootstairs Lockroom | "the lockroom" | Sootstairs | Course / Puzzle | Sleight, Cartography | Sleight 20 or `Keys That Open Nothing` completed | Risky |
+| `sootstairs_lockroom` | Sootstairs Lockroom | "the lockroom" | Sootstairs | Puzzle Activity | Sleight, Cartography | Sleight 20 or `Keys That Open Nothing` completed | Risky |
 
 ---
 
@@ -175,7 +175,7 @@ This document defines the eight repeatable activities in first-ring areas beyond
 
 **location:** Wardenbrook ferry dock.
 
-**category:** Skilling Boss-lite
+**category:** Skilling Boss
 
 **skills trained:** Fishing, Cooking, Wayfaring
 
@@ -189,7 +189,7 @@ This document defines the eight repeatable activities in first-ring areas beyond
 
 **outputs:** Fishing XP, Cooking XP, Wayfaring XP, fish crates, river bait, Tide Token.
 
-**reward identity:** Tide Tokens can be exchanged for fish hamper upgrades, ferry-route cosmetics, and the Wardenbrook Angler Pin. Rare chance at an Argent Ray clue.
+**reward identity:** Tide Tokens can be exchanged for ferry-route cosmetics and the Wardenbrook Angler Pin. Fish hamper upgrades are also earned directly during successful tides. Rare chance at an Argent Ray clue.
 
 **failure state:** If the player is swept off the dock by a wave, they are washed downstream and must recover at the bank. Fish baskets are lost. If a basket is snapped by a River Snapper, the fish are lost.
 
@@ -207,7 +207,7 @@ This document defines the eight repeatable activities in first-ring areas beyond
 
 **location:** Lowgrave Chapel and surrounding graves.
 
-**category:** Skilling Activity / Risk Activity
+**category:** Skilling Boss
 
 **skills trained:** Favour, Gardening, Hearthcraft, Apothecary
 
@@ -221,7 +221,7 @@ This document defines the eight repeatable activities in first-ring areas beyond
 
 **outputs:** Favour XP, Gardening XP, Hearthcraft XP, Apothecary XP, grave flowers, rot-resistant salves, grave ash, Vigil Token.
 
-**reward identity:** Vigil Tokens can be exchanged for candle trims, grave flower seeds, salve recipes, and the Lowgrave Candle Trim cosmetic. Rare chance at a Gravekeeper's Tooth fragment.
+**reward identity:** Vigil Tokens can be exchanged for grave flower seeds, salve recipes, and the Lowgrave Candle Trim cosmetic. Candle trims are also earned directly during successful vigils. Rare chance at a Gravekeeper's Tooth fragment.
 
 **failure state:** If the rot spreads too far, the player is forced to retreat to the chapel. If a Grave Wisp becomes hostile, the player must flee. Lost materials are not recovered.
 
@@ -253,7 +253,7 @@ This document defines the eight repeatable activities in first-ring areas beyond
 
 **outputs:** Hearthcraft XP, Beadwork XP, Magic XP, fired beads, ash materials, ember beads, Kiln Token.
 
-**reward identity:** Kiln Tokens can be exchanged for bead-firing materials, ashproof gloves, heat-safe firing access, and the Kilnwatch Oath cosmetic. Rare chance at a Tallow Drake Scale.
+**reward identity:** Kiln Tokens can be exchanged for bead-firing materials, heat-safe firing access, and the Kilnwatch Oath cosmetic. Ashproof gloves are also earned directly during successful watches. Rare chance at a Tallow Drake Scale.
 
 **failure state:** If the kiln erupts, the player is forced to retreat and all materials in the kiln are lost. If an Ash Drake Whelp bites the player, the bite interrupts the current action and deals minor damage.
 
@@ -271,7 +271,7 @@ This document defines the eight repeatable activities in first-ring areas beyond
 
 **location:** Sootstairs Rooms.
 
-**category:** Course / Puzzle Activity
+**category:** Puzzle Activity
 
 **skills trained:** Sleight, Cartography
 

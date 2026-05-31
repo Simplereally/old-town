@@ -56,7 +56,7 @@ Every hook in this document follows the same structure:
 - **activity:** Soot Sweep
 - **premise:** The Sootcellar is filling faster than anyone can sweep. Marn asks the player to find the source of the extra soot.
 - **systems:** Arms, Guard, Sleight, Cartography
-- **reward:** Soot ash, Soot Sweeper apron, Soot Mark
+- **reward:** Soot Sweeper apron, Soot Mark, small coins
 - **hook_line:** "The soot don't come from nowhere. Something's burning down there that ain't supposed to burn."
 
 ### Hook 3: The Ledger That Would Not Balance
@@ -207,9 +207,9 @@ Every hook in this document follows the same structure:
 |---|------------|-------|----------|---------|--------|
 | 1 | The Bell That Ran Ahead | Mara Bellkeeper | Bell Run | Wayfaring, Cartography, Sleight | Bell Token, route hint, Bell Runner ribbon |
 | 2 | The Sweep That Never Ends | Marn Lock | Soot Sweep | Arms, Guard, Sleight, Cartography | Soot ash, Soot Sweeper apron, Soot Mark |
-| 3 | The Ledger That Would Not Balance | Clerk Penn | Ledger Sort | Cartography, Sleight, Favour | Ledger Sort discount, Counting House Clerk trim, coins |
-| 4 | The Market That Moved | Pell Hookline | Market Rush | Wayfaring, Cooking, Cartography | Market Token, Market Runner ribbon, ingredients |
-| 5 | The Grave That Bloomed Twice | Sister Writ | Graveflower Round | Favour, Gardening, Apothecary | Grave Token, Gravekeeper ribbon, seeds |
+| 3 | The Ledger That Would Not Balance | Clerk Penn | Ledger Sort | Cartography, Sleight, Favour | Ledger Sort discount, Counting House Clerk trim, small coins |
+| 4 | The Market That Moved | Pell Hookline | Market Rush | Wayfaring, Cooking, Cartography | Market Token, Market Runner ribbon, cooking ingredients |
+| 5 | The Grave That Bloomed Twice | Sister Writ | Graveflower Round | Favour, Gardening, Apothecary | Grave Token, Gravekeeper ribbon, grave flower seeds |
 | 6 | The Shift That Would Not End | Osric Penny | Foundry Shift | Smithing, Mining, Hearthcraft | Foundry Token, Foundry Shift apron, copper bars |
 | 7 | The Primer That Cracked | Pippa Hearth | Kilnwatch Primer | Hearthcraft, Beadwork, Magic | Kiln Token, Kilnwatch ribbon, fired beads |
 | 8 | The Basket That Caught Nothing | Pell Hookline | River Basket | Fishing, Cooking, Wayfaring | River Token, River Basket ribbon, raw fish |
@@ -217,10 +217,10 @@ Every hook in this document follows the same structure:
 | 10 | The Replant That Grew Backwards | Aunt Bracken | Bellwood Replant | Woodcutting, Gardening, Bowcraft, Apothecary | Replant Token, Bellwood Axe Mark, bow staves |
 | 11 | The Quarry That Whispered | Sella Coalhand | Quarry Shift | Mining, Smithing, Cartography, Favour | Quarry Token, Quarry Worker apron, ore bundles |
 | 12 | The Drive That Lost the Fox | Rowen Hidepeg | Patchfield Drive | Trapping, Tailoring, Wayfaring | Drive Token, Patchfield Hide Stamp, hides |
-| 13 | The Tide That Came Early | Pell Hookline | Wardenbrook Tide | Fishing, Cooking, Wayfaring, Hearthcraft | Tide Token, Wardenbrook Angler Pin, hamper upgrade |
+| 13 | The Tide That Came Early | Pell Hookline | Wardenbrook Tide | Fishing, Cooking, Wayfaring, Hearthcraft | Tide Token, Wardenbrook Angler Pin, fish hamper upgrade |
 | 14 | The Vigil That Never Ended | Cress Lowgrave | Lowgrave Vigil | Favour, Gardening, Hearthcraft, Apothecary | Vigil Token, Lowgrave Candle Trim, candle trims |
 | 15 | The Watch That Caught Fire | Noll Kilnwatch | Old Kiln Watch | Hearthcraft, Beadwork, Magic, Mining | Kiln Token, Kilnwatch Oath mark, ashproof gloves |
-| 16 | The Lockroom That Opened Itself | Vey Falsewick | Sootstairs Lockroom | Sleight, Cartography, Arms | Lockroom Token, Blacksealed Cloak, pouch parts |
+| 16 | The Lockroom That Opened Itself | Vey Falsewick | Sootstairs Lockroom | Sleight, Cartography, Arms | Lockroom Token, Blacksealed Cloak, false-bottom pouch parts |
 
 ## Deferred to Implementation
 

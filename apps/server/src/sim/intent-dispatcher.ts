@@ -12,6 +12,7 @@ import {
   processMovementPhase,
 } from "../systems/movement-system";
 import { handleObjectSkillingIntent } from "../systems/skilling-system";
+import { handleSpellIntent } from "../systems/spell-system";
 import type { CollisionMap } from "../world/collision";
 import { ActionQueueType } from "./action-queue";
 import type { ActionRuntime } from "./action-runtime";
@@ -146,6 +147,9 @@ function dispatchSingleIntent(
 
     case IntentKind.Spell: {
       ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      if (handleSpellIntent(ctx, owner, intent.payload, tick, serverTime)) {
+        return;
+      }
       emitSystemMessage(ctx, owner, "Spell casting is not yet implemented.", serverTime);
       return;
     }

@@ -90,7 +90,7 @@ This document defines the eight repeatable activities inside Old Town proper. Th
 
 **inputs:** A broom (provided at the start) or a personal weapon.
 
-**outputs:** Arms XP, Guard XP, Sleight XP, small coins, soot ash (crafting material).
+**outputs:** Arms XP, Guard XP, Sleight XP, small coins, soot ash (crafting material), Soot Mark.
 
 **reward identity:** Soot ash can be sold to the Old Kiln House for beadwork materials. Large sweeps grant the Soot Sweeper apron cosmetic.
 
