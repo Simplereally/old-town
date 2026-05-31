@@ -14,7 +14,7 @@ import {
   handleMoveIntent,
   processMovementPhase,
 } from "../systems/movement-system";
-import { handleObjectSkillingIntent } from "../systems/skilling-system";
+import { handleObjectIntent } from "../systems/object-interaction-router";
 import { handleShopIntent } from "../systems/shop-system";
 import { handleSpellIntent } from "../systems/spell-system";
 import type { CollisionMap } from "../world/collision";
@@ -131,7 +131,7 @@ function dispatchSingleIntent(
     case IntentKind.Object: {
       ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
       const object = ctx.world.getComponent(intent.payload.objectEntityId, "object");
-      if (handleObjectSkillingIntent(ctx, owner, intent.payload, serverTime, tick)) {
+      if (handleObjectIntent(ctx, owner, intent.payload, serverTime, tick)) {
         if (object) {
           dispatchQuestEvent(
             ctx,

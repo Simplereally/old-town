@@ -115,7 +115,7 @@ function enqueueBeginDialogue(ctx: DialogueContext, owner: EntityId, npcEntityId
   });
 }
 
-function openDialogueNode(
+export function openDialogueNode(
   ctx: DialogueContext,
   owner: EntityId,
   dialogue: DialogueDef,
