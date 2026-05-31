@@ -134,11 +134,12 @@ If the stability meter reaches zero, the kiln erupts. The player is forced to re
 
 | reward_id | name | type | source |
 |-----------|------|------|--------|
+| `kilnwatch_oath` | Kilnwatch Oath Mark | cosmetic | 11+ batches |
 | `kiln_token` | Kiln Token | currency | 11+ batches |
 | `fired_beads` | Fired beads | material | All successful runs |
 | `ash_materials` | Ash materials | material | 6+ batches |
 | `ember_beads` | Ember beads | material | 6+ batches |
-| `ashproof_gloves` | Ashproof gloves | cosmetic | 11+ batches |
+| `ashproof_gloves` | Ashproof Gloves | cosmetic | 11+ batches |
 | `tallow_drake_scale` | Tallow Drake Scale | rare material | 16+ batches, rare chance |
 
 ### What It Does Not Replace
@@ -209,11 +210,12 @@ If the player is washed off the dock by a wave, the encounter ends. All fish in 
 
 | reward_id | name | type | source |
 |-----------|------|------|--------|
+| `wardenbrook_angler_pin` | Wardenbrook Angler Pin | cosmetic | 11+ baskets |
 | `tide_token` | Tide Token | currency | 11+ baskets |
 | `river_fish` | River fish | material | All successful runs |
 | `river_bait` | River bait | material | 6+ baskets |
 | `wardenbrook_fish` | Wardenbrook fish | material | 6+ baskets |
-| `fish_hamper_upgrade` | Fish hamper upgrade | utility | 11+ baskets |
+| `fish_hamper_upgrade` | Fish Hamper Upgrade | utility | 11+ baskets |
 | `argent_ray_clue` | Argent Ray clue | rare quest item | 16+ baskets, rare chance |
 
 ### What It Does Not Replace
@@ -286,11 +288,12 @@ If the reverence meter reaches zero, the chapel bells toll and the night ends. T
 
 | reward_id | name | type | source |
 |-----------|------|------|--------|
+| `lowgrave_candle_trim` | Lowgrave Candle Trim | cosmetic | 11+ graves |
 | `vigil_token` | Vigil Token | currency | 11+ graves |
 | `grave_flowers` | Grave flowers | material | All successful runs |
 | `grave_flower_seeds` | Grave flower seeds | material | 6+ graves |
 | `rot_resistant_salve` | Rot-resistant salve | material | 6+ graves |
-| `candle_trim` | Candle trim | cosmetic | 11+ graves |
+| `candle_trim` | Candle Trim | cosmetic | 11+ graves |
 | `gravekeepers_tooth` | Gravekeeper's Tooth fragment | rare quest item | 16+ graves, rare chance |
 
 ### What It Does Not Replace

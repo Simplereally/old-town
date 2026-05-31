@@ -70,7 +70,7 @@ Activities should not reward any of the following:
 | `blacksealed_cloak` | Blacksealed Cloak | cosmetic | Sootstairs Lockroom | A dark cloak with a lock sigil. | Shows you master the lockroom. Pure identity. |
 | `fish_hamper_upgrade` | Fish Hamper Upgrade | utility | Wardenbrook Tide | A wicker hamper that holds more raw fish. | Narrow convenience. Not a universal bag upgrade. |
 | `ashproof_gloves` | Ashproof Gloves | cosmetic | Old Kiln Watch | Fingerless gloves with ash-grey leather. | Fire-resistant appearance. Pure identity. |
-| `false_bottom_pouch` | False-Bottom Pouch | utility | Sootstairs Lockroom | A belt pouch with a hidden compartment. | Adds a few extra slots for small items. Not a full inventory expansion. |
+| `false_bottom_pouch` | False-Bottom Pouch Parts | utility | Sootstairs Lockroom | Parts for a belt pouch with a hidden compartment. | Assembled over multiple runs. Adds a few extra slots for small items. Not a full inventory expansion. |
 
 ## Bad Rewards
 
@@ -113,15 +113,15 @@ Activities should not reward any of the following:
 | Wardenbrook Tide | Wardenbrook Angler Pin | Tide Token | fish hamper upgrade |
 | Lowgrave Vigil | Lowgrave Candle Trim | Vigil Token | candle trims |
 | Old Kiln Watch | Kilnwatch Oath mark | Kiln Token | ashproof gloves |
-| Sootstairs Lockroom | Blacksealed Cloak | Lockroom Token | false-bottom pouch parts |
+| Sootstairs Lockroom | Blacksealed Cloak | Lockroom Token | False-Bottom Pouch parts |
 
 ### Skilling Bosses
 
 | Boss | Primary Reward | Secondary Reward | Rare Reward |
 |------|---------------|-------------------|-------------|
-| Old Kiln Watch | Kiln Token | fired beads, ash materials | Tallow Drake Scale |
-| Wardenbrook Tide | Tide Token | river fish, river bait | Argent Ray clue |
-| Lowgrave Vigil | Vigil Token | grave flowers, salves | Gravekeeper's Tooth fragment |
+| Old Kiln Watch | Kilnwatch Oath Mark | Kiln Token, ashproof gloves | Tallow Drake Scale |
+| Wardenbrook Tide | Wardenbrook Angler Pin | Tide Token, fish hamper upgrade | Argent Ray clue |
+| Lowgrave Vigil | Lowgrave Candle Trim | Vigil Token, candle trims | Gravekeeper's Tooth fragment |
 
 ## Reward Tiers
 
