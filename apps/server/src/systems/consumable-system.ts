@@ -71,7 +71,7 @@ export class ConsumableSystem {
 
 /** Restore `heal` HP to a combatant, clamped to its max, emitting health/hitsplat deltas. */
 function applyHeal(ctx: ConsumableContext, entityId: EntityId, heal: number): void {
-  const combatant = ctx.world.stores.combatant.get(entityId);
+  const combatant = ctx.world.getComponent(entityId, "combatant");
   if (!combatant) {
     return;
   }

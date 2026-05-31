@@ -1,0 +1,350 @@
+import { createRng, type ContentRegistries } from "@old-town/shared";
+import { describe, expect, it } from "vitest";
+import { createWorld } from "../ecs/world";
+import { ChatSystem } from "../systems/chat-system";
+import { ConsumableSystem } from "../systems/consumable-system";
+import { CollisionMap } from "../world/collision";
+import { createRuntimeMap } from "../world/runtime-map";
+import { ActionQueueType, InterruptGroup } from "./action-queue";
+import { ActionRuntime } from "./action-runtime";
+import { type ConsumedCommandGroup, IntentKind } from "./command-buffer";
+import { DeltaAccumulator } from "./delta-accumulator";
+import { dispatchIntentGroup } from "./intent-dispatcher";
+
+function setup() {
+  const world = createWorld();
+  const player = world.createEntity();
+  world.setComponent(player, "position", { entityId: player, x: 0, y: 0, plane: 0 });
+  world.setComponent(player, "actor", {
+    entityId: player,
+    name: "Test",
+    level: 1,
+    appearanceId: "test",
+  });
+
+  const collision = new CollisionMap(createRuntimeMap());
+  const deltas = new DeltaAccumulator();
+  const actionRuntime = new ActionRuntime();
+  const chatSystem = new ChatSystem();
+  const consumableSystem = new ConsumableSystem();
+  const registries: ContentRegistries = {
+    item: new Map(),
+    npc: new Map(),
+    object: new Map(),
+    processingRecipe: new Map(),
+    skill: new Map(),
+    resourceNode: new Map(),
+    spell: new Map(),
+    dropTable: new Map(),
+    quest: new Map(),
+    dialogue: new Map(),
+    regionMap: new Map(),
+    material: new Map(),
+    animation: new Map(),
+  };
+
+  const ctx = {
+    world,
+    collision,
+    deltas,
+    actionRuntime,
+    registries,
+    rng: createRng(1),
+    chatSystem,
+    consumableSystem,
+  };
+
+  return {
+    world,
+    player,
+    collision,
+    deltas,
+    actionRuntime,
+    chatSystem,
+    consumableSystem,
+    registries,
+    ctx,
+  };
+}
+
+function makeGroup(owner: number, intents: ConsumedCommandGroup["intents"]): ConsumedCommandGroup {
+  return { ownerEntityId: owner as unknown as import("@old-town/shared").EntityId, intents };
+}
+
+describe("IntentDispatcher", () => {
+  it("move intent cancels weak actions for the owner", () => {
+    const { ctx, player, actionRuntime } = setup();
+    actionRuntime.enqueue({
+      id: "woodcutting",
+      owner: player,
+      type: ActionQueueType.Weak,
+      delayTicks: 4,
+      interruptGroup: InterruptGroup.Skilling,
+      payload: { action: "woodcut" },
+    });
+
+    dispatchIntentGroup(
+      ctx,
+      makeGroup(player, [
+        {
+          kind: IntentKind.Move,
+          ownerEntityId: player,
+          connectionId: "c1",
+          commandId: 1,
+          receivedTick: 0,
+          targetTick: 1,
+          payload: { dest: { x: 1, y: 0, plane: 0 } },
+        },
+      ]),
+      1,
+      600,
+    );
+
+    expect(actionRuntime.getDebugState()).toEqual([]);
+  });
+
+  it("item intent cancels weak actions for the owner", () => {
+    const { ctx, player, actionRuntime } = setup();
+    actionRuntime.enqueue({
+      id: "woodcutting",
+      owner: player,
+      type: ActionQueueType.Weak,
+      delayTicks: 4,
+      interruptGroup: InterruptGroup.Skilling,
+      payload: { action: "woodcut" },
+    });
+
+    dispatchIntentGroup(
+      ctx,
+      makeGroup(player, [
+        {
+          kind: IntentKind.Item,
+          ownerEntityId: player,
+          connectionId: "c1",
+          commandId: 1,
+          receivedTick: 0,
+          targetTick: 1,
+          payload: { itemUid: 1, actionId: "examine" },
+        },
+      ]),
+      1,
+      600,
+    );
+
+    expect(actionRuntime.getDebugState()).toEqual([]);
+  });
+
+  it("ui unequip intent cancels weak actions for the owner", () => {
+    const { ctx, player, actionRuntime } = setup();
+    actionRuntime.enqueue({
+      id: "woodcutting",
+      owner: player,
+      type: ActionQueueType.Weak,
+      delayTicks: 4,
+      interruptGroup: InterruptGroup.Skilling,
+      payload: { action: "woodcut" },
+    });
+
+    dispatchIntentGroup(
+      ctx,
+      makeGroup(player, [
+        {
+          kind: IntentKind.UiAction,
+          ownerEntityId: player,
+          connectionId: "c1",
+          commandId: 1,
+          receivedTick: 0,
+          targetTick: 1,
+          payload: { action: "unequip", value: 0 },
+        },
+      ]),
+      1,
+      600,
+    );
+
+    expect(actionRuntime.getDebugState()).toEqual([]);
+  });
+
+  it("object intent emits explicit feedback and cancels weak actions", () => {
+    const { ctx, player, actionRuntime, deltas } = setup();
+    actionRuntime.enqueue({
+      id: "woodcutting",
+      owner: player,
+      type: ActionQueueType.Weak,
+      delayTicks: 4,
+      interruptGroup: InterruptGroup.Skilling,
+      payload: { action: "woodcut" },
+    });
+
+    dispatchIntentGroup(
+      ctx,
+      makeGroup(player, [
+        {
+          kind: IntentKind.Object,
+          ownerEntityId: player,
+          connectionId: "c1",
+          commandId: 1,
+          receivedTick: 0,
+          targetTick: 1,
+          payload: { objectEntityId: player, actionId: "woodcut" },
+        },
+      ]),
+      1,
+      600,
+    );
+
+    expect(actionRuntime.getDebugState()).toEqual([]);
+    const packet = deltas.consume(1, 600);
+    expect(packet.chat?.[0]?.text).toBe("Object interaction is not yet implemented.");
+    expect(packet.chat?.[0]?.channel).toBe("system");
+  });
+
+  it("npc intent emits explicit feedback and cancels weak actions", () => {
+    const { ctx, player, actionRuntime, deltas } = setup();
+    actionRuntime.enqueue({
+      id: "woodcutting",
+      owner: player,
+      type: ActionQueueType.Weak,
+      delayTicks: 4,
+      interruptGroup: InterruptGroup.Skilling,
+      payload: { action: "woodcut" },
+    });
+
+    dispatchIntentGroup(
+      ctx,
+      makeGroup(player, [
+        {
+          kind: IntentKind.Npc,
+          ownerEntityId: player,
+          connectionId: "c1",
+          commandId: 1,
+          receivedTick: 0,
+          targetTick: 1,
+          payload: { npcEntityId: player, actionId: "talk" },
+        },
+      ]),
+      1,
+      600,
+    );
+
+    expect(actionRuntime.getDebugState()).toEqual([]);
+    const packet = deltas.consume(1, 600);
+    expect(packet.chat?.[0]?.text).toBe("NPC interaction is not yet implemented.");
+  });
+
+  it("ground item intent emits explicit feedback and cancels weak actions", () => {
+    const { ctx, player, actionRuntime, deltas } = setup();
+    actionRuntime.enqueue({
+      id: "woodcutting",
+      owner: player,
+      type: ActionQueueType.Weak,
+      delayTicks: 4,
+      interruptGroup: InterruptGroup.Skilling,
+      payload: { action: "woodcut" },
+    });
+
+    dispatchIntentGroup(
+      ctx,
+      makeGroup(player, [
+        {
+          kind: IntentKind.GroundItem,
+          ownerEntityId: player,
+          connectionId: "c1",
+          commandId: 1,
+          receivedTick: 0,
+          targetTick: 1,
+          payload: { groundItemEntityId: player, actionId: "pickup" },
+        },
+      ]),
+      1,
+      600,
+    );
+
+    expect(actionRuntime.getDebugState()).toEqual([]);
+    const packet = deltas.consume(1, 600);
+    expect(packet.chat?.[0]?.text).toBe("Ground item interaction is not yet implemented.");
+    expect(packet.chat?.[0]?.channel).toBe("system");
+  });
+
+  it("spell intent emits explicit feedback and cancels weak actions", () => {
+    const { ctx, player, actionRuntime, deltas } = setup();
+    actionRuntime.enqueue({
+      id: "woodcutting",
+      owner: player,
+      type: ActionQueueType.Weak,
+      delayTicks: 4,
+      interruptGroup: InterruptGroup.Skilling,
+      payload: { action: "woodcut" },
+    });
+
+    dispatchIntentGroup(
+      ctx,
+      makeGroup(player, [
+        {
+          kind: IntentKind.Spell,
+          ownerEntityId: player,
+          connectionId: "c1",
+          commandId: 1,
+          receivedTick: 0,
+          targetTick: 1,
+          payload: { spellId: "spell_1", target: { kind: "none" } },
+        },
+      ]),
+      1,
+      600,
+    );
+
+    expect(actionRuntime.getDebugState()).toEqual([]);
+    const packet = deltas.consume(1, 600);
+    expect(packet.chat?.[0]?.text).toBe("Spell casting is not yet implemented.");
+  });
+
+  it("chat intent submits through chat system", () => {
+    const { ctx, player, deltas } = setup();
+
+    dispatchIntentGroup(
+      ctx,
+      makeGroup(player, [
+        {
+          kind: IntentKind.Chat,
+          ownerEntityId: player,
+          connectionId: "c1",
+          commandId: 1,
+          receivedTick: 0,
+          targetTick: 1,
+          payload: { text: "Hello world" },
+        },
+      ]),
+      1,
+      600,
+    );
+
+    const packet = deltas.consume(1, 600);
+    expect(packet.chat?.[0]?.text).toBe("Hello world");
+    expect(packet.chat?.[0]?.channel).toBe("public");
+  });
+
+  it("ping intent is silently ignored", () => {
+    const { ctx, player, deltas } = setup();
+
+    dispatchIntentGroup(
+      ctx,
+      makeGroup(player, [
+        {
+          kind: IntentKind.Ping,
+          ownerEntityId: player,
+          connectionId: "c1",
+          commandId: 1,
+          receivedTick: 0,
+          targetTick: 1,
+          payload: { clientTimeMs: 0 },
+        },
+      ]),
+      1,
+      600,
+    );
+
+    const packet = deltas.consume(1, 600);
+    expect(packet.chat).toBeUndefined();
+  });
+});

@@ -34,28 +34,28 @@ describe("ECS World", () => {
     const world = createWorld();
     const id = world.createEntity();
     const pos = { entityId: id, x: 10, y: 20, plane: 0 };
-    world.stores.position.set(id, pos);
-    expect(world.stores.position.get(id)).toBe(pos);
+    world.setComponent(id, "position", pos);
+    expect(world.getComponent(id, "position")).toBe(pos);
   });
 
   it("removes all components on destroy", () => {
     const world = createWorld();
     const id = world.createEntity();
-    world.stores.position.set(id, { entityId: id, x: 0, y: 0, plane: 0 });
-    world.stores.actor.set(id, { entityId: id, name: "Test", level: 1, appearanceId: "test" });
+    world.setComponent(id, "position", { entityId: id, x: 0, y: 0, plane: 0 });
+    world.setComponent(id, "actor", { entityId: id, name: "Test", level: 1, appearanceId: "test" });
     world.destroyEntity(id);
-    expect(world.stores.position.has(id)).toBe(false);
-    expect(world.stores.actor.has(id)).toBe(false);
+    expect(world.hasComponent(id, "position")).toBe(false);
+    expect(world.hasComponent(id, "actor")).toBe(false);
   });
 
-  it("queryAlive excludes destroyed entities", () => {
+  it("componentEntries excludes destroyed entities", () => {
     const world = createWorld();
     const a = world.createEntity();
     const b = world.createEntity();
-    world.stores.position.set(a, { entityId: a, x: 0, y: 0, plane: 0 });
-    world.stores.position.set(b, { entityId: b, x: 1, y: 1, plane: 0 });
+    world.setComponent(a, "position", { entityId: a, x: 0, y: 0, plane: 0 });
+    world.setComponent(b, "position", { entityId: b, x: 1, y: 1, plane: 0 });
     world.destroyEntity(a);
-    const alive = world.queryAlive(world.stores.position);
+    const alive = world.componentEntries("position").map(([, c]) => c);
     expect(alive).toHaveLength(1);
     expect(alive[0]?.entityId).toBe(b);
   });
@@ -71,7 +71,98 @@ describe("ECS World", () => {
     const world = createWorld();
     const id = world.createEntity();
     const stored = id;
-    world.stores.position.set(id, { entityId: id, x: 5, y: 5, plane: 0 });
-    expect(world.stores.position.get(stored)?.x).toBe(5);
+    world.setComponent(id, "position", { entityId: id, x: 5, y: 5, plane: 0 });
+    expect(world.getComponent(stored, "position")?.x).toBe(5);
+  });
+
+  it("setComponent rejects dead entities", () => {
+    const world = createWorld();
+    const id = world.createEntity();
+    world.destroyEntity(id);
+    expect(() =>
+      world.setComponent(id, "position", { entityId: id, x: 0, y: 0, plane: 0 }),
+    ).toThrow("Cannot set component on dead entity");
+  });
+
+  it("setComponent rejects component.entityId mismatch", () => {
+    const world = createWorld();
+    const id = world.createEntity();
+    const wrongId = world.createEntity();
+    expect(() =>
+      world.setComponent(id, "position", { entityId: wrongId, x: 0, y: 0, plane: 0 }),
+    ).toThrow("Component entityId mismatch");
+  });
+
+  it("aliveEntityIds returns ascending IDs", () => {
+    const world = createWorld();
+    const a = world.createEntity();
+    const b = world.createEntity();
+    const c = world.createEntity();
+    world.destroyEntity(b);
+    const ids = world.aliveEntityIds();
+    expect(ids).toEqual([a, c]);
+    expect(ids[0] as number).toBeLessThan(ids[1] as number);
+  });
+
+  it("entityIdsWith returns ascending IDs", () => {
+    const world = createWorld();
+    const a = world.createEntity();
+    const _b = world.createEntity();
+    const c = world.createEntity();
+    world.setComponent(c, "position", { entityId: c, x: 0, y: 0, plane: 0 });
+    world.setComponent(a, "position", { entityId: a, x: 1, y: 1, plane: 0 });
+    const ids = world.entityIdsWith("position");
+    expect(ids).toEqual([a, c]);
+    expect(ids[0] as number).toBeLessThan(ids[1] as number);
+  });
+
+  it("componentEntries returns ascending entries", () => {
+    const world = createWorld();
+    const a = world.createEntity();
+    const b = world.createEntity();
+    const c = world.createEntity();
+    world.setComponent(c, "position", { entityId: c, x: 10, y: 10, plane: 0 });
+    world.setComponent(a, "position", { entityId: a, x: 5, y: 5, plane: 0 });
+    world.setComponent(b, "position", { entityId: b, x: 7, y: 7, plane: 0 });
+    const entries = world.componentEntries("position");
+    expect(entries.map(([id]) => id)).toEqual([a, b, c]);
+  });
+
+  it("componentCount returns the number of components for a kind", () => {
+    const world = createWorld();
+    const a = world.createEntity();
+    const b = world.createEntity();
+    world.setComponent(a, "position", { entityId: a, x: 0, y: 0, plane: 0 });
+    world.setComponent(b, "position", { entityId: b, x: 1, y: 1, plane: 0 });
+    expect(world.componentCount("position")).toBe(2);
+    expect(world.componentCount("actor")).toBe(0);
+  });
+
+  it("hasComponent returns true only when component exists", () => {
+    const world = createWorld();
+    const id = world.createEntity();
+    expect(world.hasComponent(id, "position")).toBe(false);
+    world.setComponent(id, "position", { entityId: id, x: 0, y: 0, plane: 0 });
+    expect(world.hasComponent(id, "position")).toBe(true);
+  });
+
+  it("removeComponent deletes the component and returns true", () => {
+    const world = createWorld();
+    const id = world.createEntity();
+    world.setComponent(id, "position", { entityId: id, x: 0, y: 0, plane: 0 });
+    expect(world.removeComponent(id, "position")).toBe(true);
+    expect(world.hasComponent(id, "position")).toBe(false);
+    expect(world.removeComponent(id, "position")).toBe(false);
+  });
+
+  it("aliveEntityCount matches aliveEntityIds length", () => {
+    const world = createWorld();
+    const _a = world.createEntity();
+    const b = world.createEntity();
+    const _c = world.createEntity();
+    expect(world.aliveEntityCount()).toBe(3);
+    world.destroyEntity(b);
+    expect(world.aliveEntityCount()).toBe(2);
+    expect(world.aliveEntityCount()).toBe(world.aliveEntityIds().length);
   });
 });

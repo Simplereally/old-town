@@ -25,12 +25,3 @@ export const commandIdSchema = z.number().int().nonnegative();
 
 /** An advisory client tick hint (non-negative integer). */
 export const clientTickHintSchema = z.number().int().nonnegative();
-
-/**
- * An interaction option verb (the label of a content-defined option, e.g. "chop",
- * "mine", "attack", "talk"). Engine-level vocabulary; the concrete behavior is resolved
- * by the server from content. Constrained to a short lowercase snake token.
- */
-export const interactionOptionSchema = z
-  .string()
-  .regex(/^[a-z][a-z0-9_]{0,31}$/, "must be a lowercase snake_case verb (1-32 chars)");

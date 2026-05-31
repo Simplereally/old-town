@@ -28,12 +28,14 @@ describe("DevSessionManager", () => {
     expect(first.tick).toBe(7);
     expect(first.worldConstants?.activeSceneSize).toBe(ACTIVE_SCENE_SIZE);
     expect(first.selfEntityId).not.toBe(second.selfEntityId);
-    expect(second.entities.map((entity) => entity.entityId)).toEqual([
-      first.selfEntityId,
-      second.selfEntityId,
-    ]);
-    expect(world.stores.position.get(first.selfEntityId)).toMatchObject(DEV_SPAWN_TILE);
-    expect(world.stores.player.get(first.selfEntityId)?.sessionId).toBe("session-1");
+    expect(second.entities.map((entity) => entity.entityId)).toEqual(
+      expect.arrayContaining([first.selfEntityId, second.selfEntityId]),
+    );
+    expect(second.entities.map((entity) => entity.kind)).toEqual(
+      expect.arrayContaining(["object", "npc", "ground_item", "player"]),
+    );
+    expect(world.getComponent(first.selfEntityId, "position")).toMatchObject(DEV_SPAWN_TILE);
+    expect(world.getComponent(first.selfEntityId, "player")?.sessionId).toBe("session-1");
   });
 
   it("seeds inventory, equipment, skills, and visible region loads", async () => {
@@ -47,6 +49,11 @@ describe("DevSessionManager", () => {
         { slot: 0, itemId: "pennywrought_axe", quantity: 1, uid: 1 },
         { slot: 1, itemId: "pennywrought_pickaxe", quantity: 1, uid: 2 },
         { slot: 2, itemId: "bread", quantity: 5, uid: 3 },
+        { slot: 3, itemId: "raw_fish", quantity: 5, uid: 4 },
+        { slot: 4, itemId: "ember_bead", quantity: 20, uid: 5 },
+        { slot: 5, itemId: "gust_bead", quantity: 20, uid: 6 },
+        { slot: 6, itemId: "wit_bead", quantity: 20, uid: 7 },
+        { slot: 7, itemId: "writ_bead", quantity: 20, uid: 8 },
       ],
     });
     expect(fullState.skills?.map((skill) => skill.skillId)).toEqual([
@@ -59,7 +66,7 @@ describe("DevSessionManager", () => {
       "strength",
       "woodcutting",
     ]);
-    const equipment = world.stores.equipment.get(fullState.selfEntityId);
+    const equipment = world.getComponent(fullState.selfEntityId, "equipment");
     expect(equipment?.slots).toEqual({});
     expect(equipment?.bonuses.slashAttack).toBe(0);
     expect(fullState.regionLoads).toEqual([

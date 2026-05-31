@@ -1,4 +1,5 @@
 import type { ChunkData } from "@old-town/shared";
+import type { Scene } from "three";
 import {
   BoxGeometry,
   DoubleSide,
@@ -8,7 +9,6 @@ import {
   MeshLambertMaterial,
   PlaneGeometry,
 } from "three";
-import type { Scene } from "three";
 
 /** Simple material cache for terrain tiles by underlay ID. */
 const materialCache = new Map<string, MeshLambertMaterial>();

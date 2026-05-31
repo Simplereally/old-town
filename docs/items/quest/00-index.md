@@ -7,6 +7,7 @@
 | Category | Doc | Count | Status | What is inside |
 |----------|-----|-------|--------|----------------|
 | **Smoke Over Old Town** | [`smoke-over-old-town.md`](smoke-over-old-town.md) | 5 | Complete | POC quest items |
+| **Quest and Dialogue Bible** | [`../../quests/00-index.md`](../../quests/00-index.md) | - | Draft | Starter quest arcs, voice, rewards, reclaim rules |
 
 ## Quest Item System Overview
 
@@ -48,7 +49,8 @@ Examples:
 ## Related Documents
 
 - [`smoke-over-old-town.md`](smoke-over-old-town.md) — POC quest items
-- [`POC_SPEC.md`](../../POC_SPEC.md) §18 (Quest engine)
+- [`../../quests/00-index.md`](../../quests/00-index.md) — Quest and dialogue bible
+- [`POC_SPEC.md`](../../../POC_SPEC.md) §18 (Quest engine)
 
 ---
 

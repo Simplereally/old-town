@@ -1,5 +1,5 @@
-import { Mesh } from "three";
 import type { BufferGeometry, Material } from "three";
+import { Mesh } from "three";
 
 interface PooledMesh {
   mesh: Mesh;
@@ -45,7 +45,7 @@ export class MeshPool {
   /** Release a mesh back to the pool. */
   release(mesh: Mesh): void {
     const entry = this.meshToEntry.get(mesh);
-    if (!entry || !entry.inUse) return;
+    if (!entry?.inUse) return;
     entry.inUse = false;
     this._activeCount--;
     entry.mesh.visible = false;

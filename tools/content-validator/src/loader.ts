@@ -6,7 +6,7 @@
 import { existsSync, readdirSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
-import { type ContentIssue, type LoadedContentFile, kindForContentDir } from "@old-town/shared";
+import { type ContentIssue, kindForContentDir, type LoadedContentFile } from "@old-town/shared";
 
 export interface LoadResult {
   readonly files: LoadedContentFile[];

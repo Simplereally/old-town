@@ -11,7 +11,7 @@ import type { EntitySpawnPacket, EntityUpdatePacket, Hitsplat } from "./entity-u
  * Wire protocol version. Bump on any breaking change to packet/command shapes. The
  * client compares the version in the bootstrap {@link FullStatePacket} against this.
  */
-export const PROTOCOL_VERSION = 1;
+export const PROTOCOL_VERSION = 2;
 
 /** Discriminators for the two top-level server messages. */
 export const ServerPacketType = {

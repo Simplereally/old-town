@@ -1,16 +1,16 @@
 import {
   ACTIVE_SCENE_SIZE,
+  buildEntityUpdate,
   CHUNK_SIZE,
+  entityId,
   ServerPacketType,
   type TileCoord,
-  buildEntityUpdate,
-  entityId,
 } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { createWorld } from "../ecs/world";
 import {
-  InterestManager,
   computeInterestScene,
+  InterestManager,
   intersectingChunks,
   sceneContainsTile,
 } from "./interest-manager";
@@ -65,7 +65,7 @@ describe("InterestManager", () => {
     const world = createWorld();
     const player = entityId(1);
     const npc = world.createEntity();
-    world.stores.position.set(npc, { entityId: npc, x: 1, y: 1, plane: 0 });
+    world.setComponent(npc, "position", { entityId: npc, x: 1, y: 1, plane: 0 });
     manager.primeKnownEntities(player, [
       { entityId: npc, kind: "npc", tile: { x: 1, y: 1, plane: 0 } },
     ]);

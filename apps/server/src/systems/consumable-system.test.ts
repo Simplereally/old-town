@@ -9,13 +9,14 @@ function setup(combat?: Partial<CombatantComponent> & { health: number; maxHealt
   const world = createWorld();
   const owner = world.createEntity();
   if (combat) {
-    world.stores.combatant.set(owner, {
+    world.setComponent(owner, "combatant", {
       entityId: owner,
       attackLevel: 1,
       strengthLevel: 1,
       defenceLevel: 1,
       targetId: undefined,
       attackCooldown: 0,
+      combatLevel: 3,
       eatBlockedUntilTick: 0,
       ...combat,
     });
@@ -31,7 +32,7 @@ describe("ConsumableSystem.processConsumablePhase", () => {
     consumables.enqueueHeal(owner, 5);
     consumables.processConsumablePhase({ world, deltas });
 
-    expect(world.stores.combatant.get(owner)?.health).toBe(9);
+    expect(world.getComponent(owner, "combatant")?.health).toBe(9);
     const dirty = deltas.peek();
     expect(dirty.hitsplats).toEqual([{ entityId: owner, hitsplat: { amount: 5, type: "heal" } }]);
     const update = dirty.entityUpdates.find((u) => u.entityId === owner);
@@ -43,7 +44,7 @@ describe("ConsumableSystem.processConsumablePhase", () => {
     consumables.enqueueHeal(owner, 5);
     consumables.processConsumablePhase({ world, deltas });
 
-    expect(world.stores.combatant.get(owner)?.health).toBe(10);
+    expect(world.getComponent(owner, "combatant")?.health).toBe(10);
     expect(deltas.peek().hitsplats).toEqual([
       { entityId: owner, hitsplat: { amount: 2, type: "heal" } },
     ]);
@@ -54,7 +55,7 @@ describe("ConsumableSystem.processConsumablePhase", () => {
     consumables.enqueueHeal(owner, 5);
     consumables.processConsumablePhase({ world, deltas });
 
-    expect(world.stores.combatant.get(owner)?.health).toBe(10);
+    expect(world.getComponent(owner, "combatant")?.health).toBe(10);
     const dirty = deltas.peek();
     expect(dirty.hitsplats).toBeUndefined();
     expect(dirty.entityUpdates).toHaveLength(0);
@@ -72,7 +73,7 @@ describe("ConsumableSystem.processConsumablePhase", () => {
     consumables.processConsumablePhase({ world, deltas });
     consumables.processConsumablePhase({ world, deltas }); // no-op: queue already drained
 
-    expect(world.stores.combatant.get(owner)?.health).toBe(4);
+    expect(world.getComponent(owner, "combatant")?.health).toBe(4);
     expect(consumables.pendingCount).toBe(0);
   });
 
@@ -95,7 +96,7 @@ describe("tick-phase priority: damage resolves before food heals", () => {
 
     // Phase 8: a delayed hit deals 7 -> health 3.
     tickLoop.registerPhase(TickPhase.DamageResolutionEvents, () => {
-      const combatant = world.stores.combatant.get(owner);
+      const combatant = world.getComponent(owner, "combatant");
       if (combatant) {
         combatant.health -= 7;
         deltas.markHitsplat({ entityId: owner, hitsplat: { amount: 7, type: "damage" } });
@@ -110,6 +111,6 @@ describe("tick-phase priority: damage resolves before food heals", () => {
     tickLoop.runOneTick();
 
     // 8 proves damage-then-heal. Heal-then-damage would have left 3 (10+5 capped, then -7).
-    expect(world.stores.combatant.get(owner)?.health).toBe(8);
+    expect(world.getComponent(owner, "combatant")?.health).toBe(8);
   });
 });

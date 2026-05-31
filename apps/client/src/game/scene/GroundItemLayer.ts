@@ -1,6 +1,6 @@
 import { TILE_SIZE_WORLD_UNITS, type TileCoord } from "@old-town/shared";
-import { BoxGeometry, Group, type Mesh, MeshLambertMaterial, Vector3 } from "three";
 import type { Scene } from "three";
+import { BoxGeometry, Group, type Mesh, MeshLambertMaterial, Vector3 } from "three";
 import { MeshPool } from "../renderer/MeshPool";
 
 interface GroundItem {

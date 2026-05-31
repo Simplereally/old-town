@@ -50,6 +50,7 @@ Old Town items are content-driven. Every item has a definition in `content/items
 | **Quest Items** | [`quest/00-index.md`](quest/00-index.md) | Complete | Quest-specific items |
 | **Miscellaneous** | [`misc/00-index.md`](misc/00-index.md) | Complete | Currency, ammo, bead pouches |
 | **Accessories** | [`accessories/00-index.md`](accessories/00-index.md) | Complete | Capes, amulets, rings, charms, belts, trophies |
+| **Economy** | [`../economy/00-index.md`](../economy/00-index.md) | Draft | Value bands, shop stock, services, sinks |
 
 ## Item ID Format
 
@@ -155,6 +156,7 @@ Examples: `pennywrought_shortblade`, `oak_log`, `health_potion`, `smoke_over_old
 | Ammunition | 9 types × 13 tiers | See [`misc/ammunition.md`](misc/ammunition.md) |
 | Bead pouches | 5 tiers | See [`misc/bead-pouches.md`](misc/bead-pouches.md) |
 | Accessories | 6 slots × 13 tiers | See [`accessories/00-index.md`](accessories/00-index.md) |
+| Economy | Value bands, shops, services | See [`../economy/00-index.md`](../economy/00-index.md) |
 
 ## Design Rules for Adding Items
 
@@ -174,6 +176,7 @@ Examples: `pennywrought_shortblade`, `oak_log`, `health_potion`, `smoke_over_old
 - [`melee-armour-tiers.md`](../melee-armour-tiers.md) — Melee tier system philosophy and naming conventions
 - [`ranged-tiers.md`](../ranged-tiers.md) — Ranged tier system philosophy and naming conventions
 - [`magic-tiers.md`](../magic-tiers.md) — Magic tier system philosophy and naming conventions
+- [`../economy/currency-and-value-bands.md`](../economy/currency-and-value-bands.md) — Item value bands
 - [`../../POC_SPEC.md`](../../POC_SPEC.md) §13 (Combat), §16 (Items, inventory, equipment)
 - `content/items/` — Actual JSON definitions (populated as stories land)
 

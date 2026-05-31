@@ -2,13 +2,13 @@ import {
   type ClientCommand,
   ClientCommandType,
   type FullStatePacket,
+  isCompatibleProtocol,
   PROTOCOL_VERSION,
   ServerPacketType,
   type TickDeltaPacket,
   TransportClientMessageType,
   TransportServerMessageType,
   type TransportServerPacket,
-  isCompatibleProtocol,
 } from "@old-town/shared";
 
 export interface GameSocketOptions {

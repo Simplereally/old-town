@@ -4,7 +4,7 @@ import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import type { InterestManager } from "./interest-manager";
 import type { TransportSession } from "./websocket-transport";
 
-interface DeltaTransport {
+export interface DeltaTransport {
   readonly sessions: ReadonlyMap<string, TransportSession>;
   send(sessionId: string, packet: TickDeltaPacket): boolean;
 }
@@ -18,7 +18,7 @@ export interface DeltaBroadcasterOptions {
 }
 
 function positionTile(world: World, entityId: EntityId): TileCoord | undefined {
-  const position = world.stores.position.get(entityId);
+  const position = world.getComponent(entityId, "position");
   return position
     ? { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] }
     : undefined;

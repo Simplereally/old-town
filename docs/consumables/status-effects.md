@@ -13,6 +13,7 @@ Authority references:
 - `docs/consumables/poisons.md`
 - `docs/consumables/salves-and-oils.md`
 - `docs/combat/signature-mechanics.md`
+- `docs/favour/boons-and-oaths.md`
 
 # Status Effects
 
@@ -116,6 +117,8 @@ Environmental status effects come from the world, not from combat.
 - **Consumables:** Potions, teas, and salves can prevent statuses for 10 minutes.
 - **Favour blessings:** Favour blessings can prevent statuses for 10 minutes.
 - **Skills:** High Guard reduces poison damage. High Favour reduces curse duration.
+
+Favour-specific resistance comes from boons, wards, and rites defined in [`../favour/boons-and-oaths.md`](../favour/boons-and-oaths.md).
 
 ---
 
@@ -222,6 +225,7 @@ Status effects are defined in JSON content files with the following schema:
 - [`brews.md`](brews.md) — Brew system
 - [`poisons.md`](poisons.md) — Poison system
 - [`salves-and-oils.md`](salves-and-oils.md) — Salves and oils
+- [`../favour/boons-and-oaths.md`](../favour/boons-and-oaths.md) — Favour boons and wards
 - [`../combat/signature-mechanics.md`](../combat/signature-mechanics.md) — Combat mechanics
 - [`../skills/production-skills.md`](../skills/production-skills.md) — Apothecary skill definitions
 

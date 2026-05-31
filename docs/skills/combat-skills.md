@@ -13,6 +13,7 @@ Authority references:
 - `docs/combat/signature-mechanics.md`
 - `docs/combat/mechanics-implementation.md`
 - `docs/items/00-index.md`
+- `docs/favour/00-index.md`
 
 # Combat Skills
 
@@ -306,6 +307,8 @@ Magic is trained by casting spells and dealing magic damage. Every spell cast an
 
 Favour governs shrine boons, blessings, protections, and oaths. It is the spiritual counterpart to the physical combat skills. Higher Favour unlocks stronger shrine effects and more powerful ritual outcomes.
 
+Favour's shrine economy, offerings, rites, boons, wards, and oaths are defined in [`../favour/00-index.md`](../favour/00-index.md).
+
 ### How to Train Favour
 
 Favour is trained by completing shrine rituals, burying remains, and using blessings. Every ritual action and every blessing consumed grants Favour XP.
@@ -372,6 +375,7 @@ Favour has no equipment requirements. All players benefit from its level automat
 - [`production-skills.md`](production-skills.md) — Production skill definitions
 - [`utility-skills.md`](utility-skills.md) — Utility skill definitions
 - [`skill-interlocks.md`](skill-interlocks.md) — Skill economy web
+- [`../favour/00-index.md`](../favour/00-index.md) — Favour and shrine economy
 
 ---
 

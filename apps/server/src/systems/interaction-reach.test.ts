@@ -1,9 +1,9 @@
-import { EntityUpdateMask, type TileCoord, entityId, tileKey } from "@old-town/shared";
+import { EntityUpdateMask, entityId, type TileCoord, tileKey } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { ActionQueue, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { CollisionFlag, CollisionMap } from "../world/collision";
-import { type RuntimeMap, createRuntimeMap } from "../world/runtime-map";
+import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
 import {
   footprintDistance,
   isWithinInteractionRange,

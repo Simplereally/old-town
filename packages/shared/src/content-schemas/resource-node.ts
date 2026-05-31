@@ -22,6 +22,11 @@ export const resourceNodeDefSchema = z
     levelScale: z.number().min(0).default(0.005),
     /** How many output items per success (default 1). */
     outputQuantity: positiveInt.default(1),
+    /** Presentational transform sent while this runtime node is depleted. */
+    depletedTransformId: contentIdSchema.optional(),
+    /** Runtime collision state while depleted. Defaults to non-blocking stumps/empty veins. */
+    depletedBlocksMovement: z.boolean().optional(),
+    depletedBlocksLineOfSight: z.boolean().optional(),
   })
   .strict()
   .refine((n) => n.requiredLevel >= 1, { message: "requiredLevel must be >= 1" });

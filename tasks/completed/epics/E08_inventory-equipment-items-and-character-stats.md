@@ -19,12 +19,12 @@ Implement authoritative item containers, item actions, equipment stat aggregatio
 
 ## Completion checklist
 
-- [ ] Read `POC_SPEC.md` sections referenced above.
-- [ ] Complete the stories below in exact order.
-- [ ] Run all validation commands listed by completed stories.
-- [ ] Confirm no unchecked acceptance criteria remain in this epic's stories.
-- [ ] Move completed story files into `tasks/completed/stories/E08/`.
-- [ ] Move this epic file into `tasks/completed/epics/` after all stories are complete.
+- [X] Read `POC_SPEC.md` sections referenced above.
+- [X] Complete the stories below in exact order.
+- [X] Run all validation commands listed by completed stories.
+- [X] Confirm no unchecked acceptance criteria remain in this epic's stories.
+- [X] Move completed story files into `tasks/completed/stories/E08/`.
+- [X] Move this epic file into `tasks/completed/epics/` after all stories are complete.
 
 ## Ordered stories
 
@@ -32,10 +32,10 @@ Implement authoritative item containers, item actions, equipment stat aggregatio
 - [X] `E08-S02` — [Implement item action handling](../completed/stories/E08/E08-S02_implement-item-action-handling.md)
 - [X] `E08-S03` — [Implement equipment system](../completed/stories/E08/E08-S03_implement-equipment-system.md)
 - [X] `E08-S04` — [Implement consumables and healing](../completed/stories/E08/E08-S04_implement-consumables-and-healing.md)
-- [ ] `E08-S05` — [Implement character skills and derived stats](../stories/E08/E08-S05_implement-character-skills-and-derived-stats.md)
+- [X] `E08-S05` — [Implement character skills and derived stats](../completed/stories/E08/E08-S05_implement-character-skills-and-derived-stats.md)
 
 ## Epic acceptance criteria
 
-- [ ] All listed story files are complete and moved to the completed folder.
-- [ ] The implementation still preserves server authority, integer tile truth, 600ms tick semantics, content-driven definitions, and client-only presentation.
-- [ ] No later epic has been implemented in a way that bypasses this epic's contracts.
+- [X] All listed story files are complete and moved to the completed folder.
+- [X] The implementation still preserves server authority, integer tile truth, 600ms tick semantics, content-driven definitions, and client-only presentation.
+- [X] No later epic has been implemented in a way that bypasses this epic's contracts.

@@ -1,5 +1,5 @@
-import { CanvasTexture, Sprite, SpriteMaterial } from "three";
 import type { Scene, Vector3 } from "three";
+import { CanvasTexture, Sprite, SpriteMaterial } from "three";
 
 interface ChatBubble {
   readonly sprite: Sprite;

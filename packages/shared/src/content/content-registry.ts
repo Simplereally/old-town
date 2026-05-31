@@ -12,21 +12,21 @@ import type { ZodError } from "zod";
 import {
   type AnimationDef,
   type ContentKind,
+  contentSchemas,
   type DialogueDef,
   type DropTableDef,
-  type Effect,
   type ItemDef,
   type MaterialDef,
   type NpcDef,
   type ObjectDef,
+  type ProcessingRecipeDef,
   type QuestDef,
   type RegionMapDef,
-  type Requirement,
   type ResourceNodeDef,
   type SkillDef,
   type SpellDef,
-  contentSchemas,
 } from "../content-schemas";
+import { validateContentGraph } from "./content-references";
 
 /** A single content file's parsed JSON, tagged with the kind its directory implies. */
 export interface LoadedContentFile {
@@ -47,6 +47,7 @@ export interface ContentRegistries {
   readonly item: ReadonlyMap<string, ItemDef>;
   readonly npc: ReadonlyMap<string, NpcDef>;
   readonly object: ReadonlyMap<string, ObjectDef>;
+  readonly processingRecipe: ReadonlyMap<string, ProcessingRecipeDef>;
   readonly skill: ReadonlyMap<string, SkillDef>;
   readonly resourceNode: ReadonlyMap<string, ResourceNodeDef>;
   readonly spell: ReadonlyMap<string, SpellDef>;
@@ -68,6 +69,7 @@ const CONTENT_KINDS: readonly ContentKind[] = [
   "item",
   "npc",
   "object",
+  "processingRecipe",
   "skill",
   "resourceNode",
   "spell",
@@ -136,192 +138,11 @@ export function validateContent(files: readonly LoadedContentFile[]): ContentVal
   }
 
   // --- Cross-reference validation ---------------------------------------------------
-  const has = (kind: ContentKind, id: string): boolean => maps.get(kind)?.has(id) ?? false;
-
-  const requireRef = (
-    refKind: ContentKind,
-    refId: string,
-    ownerKind: ContentKind,
-    ownerId: string,
-    field: string,
-  ): void => {
-    if (!has(refKind, refId)) {
-      issues.push({
-        path: sources.get(`${ownerKind}:${ownerId}`),
-        id: ownerId,
-        message: `${ownerKind} "${ownerId}" references missing ${refKind} "${refId}" (${field})`,
-      });
-    }
-  };
-
-  const checkEffects = (effects: readonly Effect[], ownerId: string, field: string): void => {
-    for (const effect of effects) {
-      switch (effect.kind) {
-        case "add_item":
-        case "remove_item":
-          requireRef("item", effect.itemId, "quest", ownerId, `${field}.itemId`);
-          break;
-        case "add_xp":
-          requireRef("skill", effect.skillId, "quest", ownerId, `${field}.skillId`);
-          break;
-        case "start_quest":
-        case "complete_quest":
-          requireRef("quest", effect.questId, "quest", ownerId, `${field}.questId`);
-          break;
-        default:
-          break;
-      }
-    }
-  };
-
-  const checkRequirements = (
-    requirements: readonly Requirement[],
-    ownerId: string,
-    field: string,
-  ): void => {
-    for (const req of requirements) {
-      if (req.kind === "skill") {
-        requireRef("skill", req.skillId, "quest", ownerId, `${field}.skillId`);
-      } else if (req.kind === "item") {
-        requireRef("item", req.itemId, "quest", ownerId, `${field}.itemId`);
-      } else if (req.kind === "quest_stage") {
-        requireRef("quest", req.questId, "quest", ownerId, `${field}.questId`);
-      }
-    }
-  };
-
-  for (const [id, def] of maps.get("resourceNode") as Map<string, ResourceNodeDef>) {
-    requireRef("item", def.outputItemId, "resourceNode", id, "outputItemId");
-    requireRef("skill", def.skill, "resourceNode", id, "skill");
-  }
-
-  for (const [id, def] of maps.get("spell") as Map<string, SpellDef>) {
-    for (const cost of def.beadCosts) {
-      requireRef("item", cost.itemId, "spell", id, "beadCosts.itemId");
-    }
-    if (def.effect.kind === "alchemy") {
-      requireRef("item", def.effect.coinItemId, "spell", id, "effect.coinItemId");
-    } else if (def.effect.kind === "enchant") {
-      requireRef("item", def.effect.fromItemId, "spell", id, "effect.fromItemId");
-      requireRef("item", def.effect.toItemId, "spell", id, "effect.toItemId");
-    }
-  }
-
-  for (const [id, def] of maps.get("npc") as Map<string, NpcDef>) {
-    if (def.drops !== undefined) {
-      requireRef("dropTable", def.drops, "npc", id, "drops");
-    }
-    if (def.dialogueId !== undefined) {
-      requireRef("dialogue", def.dialogueId, "npc", id, "dialogueId");
-    }
-  }
-
-  for (const [id, def] of maps.get("object") as Map<string, ObjectDef>) {
-    if (def.resourceNodeId !== undefined) {
-      requireRef("resourceNode", def.resourceNodeId, "object", id, "resourceNodeId");
-    }
-    if (def.dialogueId !== undefined) {
-      requireRef("dialogue", def.dialogueId, "object", id, "dialogueId");
-    }
-  }
-
-  for (const [id, def] of maps.get("dropTable") as Map<string, DropTableDef>) {
-    for (const entry of def.entries) {
-      requireRef("item", entry.itemId, "dropTable", id, "entries.itemId");
-    }
-    for (const always of def.alwaysDrops) {
-      requireRef("item", always.itemId, "dropTable", id, "alwaysDrops.itemId");
-    }
-  }
-
-  for (const [id, def] of maps.get("quest") as Map<string, QuestDef>) {
-    checkRequirements(def.requirements, id, "requirements");
-    checkEffects(def.rewards, id, "rewards");
-    for (const stage of def.stages) {
-      for (const objective of stage.objectives) {
-        switch (objective.kind) {
-          case "talk":
-          case "kill":
-            requireRef("npc", objective.npcId, "quest", id, `stage ${stage.stage}.objective.npcId`);
-            break;
-          case "gather":
-          case "have_item":
-            requireRef(
-              "item",
-              objective.itemId,
-              "quest",
-              id,
-              `stage ${stage.stage}.objective.itemId`,
-            );
-            break;
-          case "object":
-            requireRef(
-              "object",
-              objective.objectId,
-              "quest",
-              id,
-              `stage ${stage.stage}.objective.objectId`,
-            );
-            break;
-          default:
-            break;
-        }
-      }
-      for (const trigger of stage.triggers) {
-        checkEffects(trigger.effects, id, `stage ${stage.stage}.trigger`);
-      }
-    }
-  }
-
-  for (const [id, def] of maps.get("dialogue") as Map<string, DialogueDef>) {
-    const nodeIds = new Set(def.nodes.map((node) => node.id));
-    for (const node of def.nodes) {
-      for (const option of node.playerOptions ?? []) {
-        if (!nodeIds.has(option.next)) {
-          issues.push({
-            path: sources.get(`dialogue:${id}`),
-            id,
-            message: `dialogue "${id}" option in node "${node.id}" links to missing node "${option.next}"`,
-          });
-        }
-        checkRequirements(option.requirements, id, `node ${node.id}.option`);
-        checkEffects(option.effects, id, `node ${node.id}.option`);
-      }
-      checkEffects(node.effects, id, `node ${node.id}`);
-    }
-  }
-
-  for (const [id, def] of maps.get("regionMap") as Map<string, RegionMapDef>) {
-    requireRef(
-      "material",
-      def.tiles.default.underlayId,
-      "regionMap",
-      id,
-      "tiles.default.underlayId",
-    );
-    for (const override of def.tiles.overrides) {
-      if (override.underlayId !== undefined) {
-        requireRef("material", override.underlayId, "regionMap", id, "tile override.underlayId");
-      }
-      if (override.overlayId !== undefined) {
-        requireRef("material", override.overlayId, "regionMap", id, "tile override.overlayId");
-      }
-    }
-    for (const placed of def.objects) {
-      requireRef("object", placed.objectId, "regionMap", id, "objects.objectId");
-    }
-    for (const spawn of def.npcSpawns) {
-      requireRef("npc", spawn.npcId, "regionMap", id, "npcSpawns.npcId");
-    }
-    for (const spawn of def.groundItemSpawns) {
-      requireRef("item", spawn.itemId, "regionMap", id, "groundItemSpawns.itemId");
-    }
-  }
-
   const registries: ContentRegistries = {
     item: maps.get("item") as Map<string, ItemDef>,
     npc: maps.get("npc") as Map<string, NpcDef>,
     object: maps.get("object") as Map<string, ObjectDef>,
+    processingRecipe: maps.get("processingRecipe") as Map<string, ProcessingRecipeDef>,
     skill: maps.get("skill") as Map<string, SkillDef>,
     resourceNode: maps.get("resourceNode") as Map<string, ResourceNodeDef>,
     spell: maps.get("spell") as Map<string, SpellDef>,
@@ -332,6 +153,9 @@ export function validateContent(files: readonly LoadedContentFile[]): ContentVal
     material: maps.get("material") as Map<string, MaterialDef>,
     animation: maps.get("animation") as Map<string, AnimationDef>,
   };
+
+  const graphResult = validateContentGraph(registries, sources);
+  issues.push(...graphResult.issues);
 
   return { ok: issues.length === 0, issues, registries };
 }

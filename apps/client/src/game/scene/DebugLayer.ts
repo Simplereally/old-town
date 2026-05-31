@@ -1,4 +1,5 @@
 import { TILE_SIZE_WORLD_UNITS, type TileCoord } from "@old-town/shared";
+import type { Scene } from "three";
 import {
   BoxGeometry,
   BufferGeometry,
@@ -9,7 +10,6 @@ import {
   MeshBasicMaterial,
   type Vector3,
 } from "three";
-import type { Scene } from "three";
 
 export interface DebugLayerOptions {
   readonly scene: Scene;

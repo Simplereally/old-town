@@ -1,19 +1,19 @@
 import { describe, expect, it } from "vitest";
 import {
-  CHUNKS_PER_REGION,
   CHUNK_SIZE,
+  CHUNKS_PER_REGION,
   PLANES,
   REGION_SIZE,
   TILE_SIZE_WORLD_UNITS,
 } from "../constants";
 import {
-  PACKED_TILE_AXIS_MAX,
-  type TileCoord,
   chunkId,
   chunkToRegion,
   isPlane,
+  PACKED_TILE_AXIS_MAX,
   packTile,
   regionId,
+  type TileCoord,
   tileKey,
   tileToChunk,
   tileToRegion,

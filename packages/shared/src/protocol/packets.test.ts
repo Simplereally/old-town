@@ -3,13 +3,13 @@ import { regionId } from "../types/coords";
 import { entityId } from "../types/ids";
 import type { EntitySpawnPacket, EntityUpdatePacket } from "./entity-update";
 import {
+  decodeServerPacket,
+  encodeServerPacket,
   type FullStatePacket,
+  isCompatibleProtocol,
   PROTOCOL_VERSION,
   ServerPacketType,
   type TickDeltaPacket,
-  decodeServerPacket,
-  encodeServerPacket,
-  isCompatibleProtocol,
 } from "./packets";
 
 const spawn: EntitySpawnPacket = {

@@ -14,7 +14,7 @@ import { CommandBuffer } from "../sim/command-buffer";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { handleMoveIntent, processMovementPhase } from "../systems/movement-system";
 import { CollisionMap } from "../world/collision";
-import { type RuntimeMap, createRuntimeMap } from "../world/runtime-map";
+import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
 import { CommandRouter } from "./command-router";
 import { createWebSocketTransport } from "./websocket-transport";
 
@@ -58,8 +58,8 @@ function openSocket(url: string): Promise<WebSocket> {
 async function startHarness() {
   const world = createWorld();
   const player = world.createEntity();
-  world.stores.position.set(player, { entityId: player, x: 30, y: 32, plane: 0 });
-  world.stores.movement.set(player, { entityId: player, mode: "walk", path: [] });
+  world.setComponent(player, "position", { entityId: player, x: 30, y: 32, plane: 0 });
+  world.setComponent(player, "movement", { entityId: player, mode: "walk", path: [] });
   const map = testMap();
   const collision = new CollisionMap(map);
   const deltas = new DeltaAccumulator();
@@ -139,7 +139,7 @@ describe("socket command movement integration", () => {
     );
     await harness.commandSeen;
 
-    expect(harness.world.stores.position.get(harness.player)).toMatchObject({ x: 30, y: 32 });
+    expect(harness.world.getComponent(harness.player, "position")).toMatchObject({ x: 30, y: 32 });
 
     const consumed = harness.router.consumeTick(1);
     const move = consumed.groups[0]?.intents[0];
@@ -154,14 +154,14 @@ describe("socket command movement integration", () => {
         move.payload,
       );
     }
-    expect(harness.world.stores.position.get(harness.player)).toMatchObject({ x: 30, y: 32 });
+    expect(harness.world.getComponent(harness.player, "position")).toMatchObject({ x: 30, y: 32 });
 
     processMovementPhase(
       { world: harness.world, collision: harness.collision, deltas: harness.deltas },
       1,
     );
 
-    expect(harness.world.stores.position.get(harness.player)).toMatchObject({ x: 31, y: 32 });
+    expect(harness.world.getComponent(harness.player, "position")).toMatchObject({ x: 31, y: 32 });
     expect(harness.deltas.consume(1, 600).entityUpdates[0]?.changes.position).toEqual(tile(31, 32));
   });
 });

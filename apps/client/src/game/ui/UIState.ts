@@ -1,10 +1,10 @@
 import type {
+  ChatPacket,
   InventoryDelta,
   InventorySlotChange,
   SkillDelta,
   VarbitDelta,
 } from "@old-town/shared";
-import type { ChatPacket } from "@old-town/shared";
 
 /**
  * Client-side UI state container. Holds all authoritative state received from server

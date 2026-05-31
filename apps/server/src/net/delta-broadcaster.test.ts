@@ -9,11 +9,11 @@ import {
 } from "@old-town/shared";
 import { afterEach, describe, expect, it } from "vitest";
 import WebSocket from "ws";
-import { type World, createWorld } from "../ecs/world";
+import { createWorld, type World } from "../ecs/world";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { DeltaBroadcaster } from "./delta-broadcaster";
 import { InterestManager } from "./interest-manager";
-import { type TransportSession, createWebSocketTransport } from "./websocket-transport";
+import { createWebSocketTransport, type TransportSession } from "./websocket-transport";
 
 let cleanup: (() => Promise<void>) | undefined;
 
@@ -23,14 +23,14 @@ function tile(x: number, y: number): TileCoord {
 
 function createPlayer(world: World, session: TransportSession, at: TileCoord) {
   const entityId = world.createEntity();
-  world.stores.position.set(entityId, { entityId, x: at.x, y: at.y, plane: at.plane });
-  world.stores.player.set(entityId, {
+  world.setComponent(entityId, "position", { entityId, x: at.x, y: at.y, plane: at.plane });
+  world.setComponent(entityId, "player", {
     entityId,
     accountId: "dev",
     sessionId: session.id,
     interestRadius: ACTIVE_SCENE_SIZE / 2,
   });
-  world.stores.actor.set(entityId, {
+  world.setComponent(entityId, "actor", {
     entityId,
     name: session.characterId,
     level: 3,
@@ -40,19 +40,17 @@ function createPlayer(world: World, session: TransportSession, at: TileCoord) {
 }
 
 function playerSpawns(world: World) {
-  return Array.from(world.stores.player.keys())
-    .toSorted((a, b) => (a as number) - (b as number))
-    .map((entityId) => {
-      const position = world.stores.position.get(entityId);
-      if (!position) {
-        throw new Error(`Missing position for ${entityId}`);
-      }
-      return {
-        entityId,
-        kind: "player" as const,
-        tile: tile(position.x, position.y),
-      };
-    });
+  return world.entityIdsWith("player").map((entityId) => {
+    const position = world.getComponent(entityId, "position");
+    if (!position) {
+      throw new Error(`Missing position for ${entityId}`);
+    }
+    return {
+      entityId,
+      kind: "player" as const,
+      tile: tile(position.x, position.y),
+    };
+  });
 }
 
 function nextMessage(socket: WebSocket): Promise<unknown> {
@@ -144,7 +142,7 @@ describe("DeltaBroadcaster", () => {
     const player = createPlayer(world, session, tile(0, 0));
     const far = world.createEntity();
     const sent: TickDeltaPacket[] = [];
-    world.stores.position.set(far, { entityId: far, x: 1_000, y: 1_000, plane: 0 });
+    world.setComponent(far, "position", { entityId: far, x: 1_000, y: 1_000, plane: 0 });
 
     const broadcaster = new DeltaBroadcaster({
       world,
@@ -207,7 +205,7 @@ describe("DeltaBroadcaster", () => {
       secondFullState.selfEntityId,
     ]);
 
-    harness.world.stores.position.set(secondFullState.selfEntityId, {
+    harness.world.setComponent(secondFullState.selfEntityId, "position", {
       entityId: secondFullState.selfEntityId,
       x: 31,
       y: 32,

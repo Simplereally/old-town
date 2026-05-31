@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  levelForXp,
   MAX_SKILL_LEVEL,
   MAX_SKILL_XP,
   MIN_SKILL_LEVEL,
   XP_TABLE,
-  levelForXp,
   xpForLevel,
 } from "./xp-table";
 

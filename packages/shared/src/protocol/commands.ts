@@ -14,6 +14,7 @@ export const ClientCommandType = {
   ObjectOption: "C2S_OBJECT_OPTION",
   NpcOption: "C2S_NPC_OPTION",
   ItemOption: "C2S_ITEM_OPTION",
+  GroundItemOption: "C2S_GROUND_ITEM_OPTION",
   CastSpell: "C2S_CAST_SPELL",
   Chat: "C2S_CHAT",
   UiAction: "C2S_UI_ACTION",
@@ -29,23 +30,29 @@ export interface MoveIntent {
   readonly dest: TileCoord;
 }
 
-/** Request to use an option on a world object (e.g. "chop", "mine", "open"). */
+/** Request to use an action on a world object (e.g. "chop", "mine", "open"). */
 export interface ObjectIntent {
   readonly objectEntityId: EntityId;
-  readonly option: string;
+  readonly actionId: string;
 }
 
-/** Request to use an option on an NPC (e.g. "attack", "talk"). */
+/** Request to use an action on an NPC (e.g. "attack", "talk"). */
 export interface NpcIntent {
   readonly npcEntityId: EntityId;
-  readonly option: string;
+  readonly actionId: string;
 }
 
-/** Request to use an option on an inventory item (e.g. "equip", "eat", "drop"). */
+/** Request to use an action on an inventory item (e.g. "equip", "eat", "drop"). */
 export interface ItemIntent {
   /** Server-assigned inventory item instance id (received via inventory deltas). */
   readonly itemUid: number;
-  readonly option: string;
+  readonly actionId: string;
+}
+
+/** Request to use an action on a ground item (e.g. "pickup"). */
+export interface GroundItemIntent {
+  readonly groundItemEntityId: EntityId;
+  readonly actionId: string;
 }
 
 /** What a spell is aimed at. Some spells target an entity, a tile, or nothing (self). */
@@ -96,6 +103,10 @@ export type ObjectOptionCommand = ClientCommandBase<
 >;
 export type NpcOptionCommand = ClientCommandBase<typeof ClientCommandType.NpcOption, NpcIntent>;
 export type ItemOptionCommand = ClientCommandBase<typeof ClientCommandType.ItemOption, ItemIntent>;
+export type GroundItemOptionCommand = ClientCommandBase<
+  typeof ClientCommandType.GroundItemOption,
+  GroundItemIntent
+>;
 export type CastSpellCommand = ClientCommandBase<typeof ClientCommandType.CastSpell, SpellIntent>;
 export type ChatCommand = ClientCommandBase<typeof ClientCommandType.Chat, ChatIntent>;
 export type UiActionCommand = ClientCommandBase<typeof ClientCommandType.UiAction, UiActionIntent>;
@@ -107,6 +118,7 @@ export type ClientCommand =
   | ObjectOptionCommand
   | NpcOptionCommand
   | ItemOptionCommand
+  | GroundItemOptionCommand
   | CastSpellCommand
   | ChatCommand
   | UiActionCommand

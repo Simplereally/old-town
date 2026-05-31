@@ -1,4 +1,5 @@
 import {
+  buildEntityUpdate,
   type ChatPacket,
   type DebugPathData,
   type DebugTickData,
@@ -16,7 +17,6 @@ import {
   type TileCoord,
   type VarbitDelta,
   type XpDropPacket,
-  buildEntityUpdate,
 } from "@old-town/shared";
 
 export interface DirtyState {

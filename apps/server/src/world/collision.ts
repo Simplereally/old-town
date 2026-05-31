@@ -1,4 +1,4 @@
-import type { ContentRegistries, TileCoord } from "@old-town/shared";
+import type { ContentRegistries, ObjectDef, TileCoord } from "@old-town/shared";
 import { tileKey } from "@old-town/shared";
 import type { World } from "../ecs/world";
 import type { RuntimeMap } from "./runtime-map";
@@ -286,33 +286,34 @@ export class CollisionMap {
   }
 }
 
+export function objectCollisionFlags(def: ObjectDef): number {
+  let flags = CollisionFlag.OCCUPIED_OBJECT;
+  if (def.blocksMovement) {
+    flags |= CollisionFlag.BLOCK_FULL;
+  }
+  if (def.blocksLineOfSight) {
+    flags |= CollisionFlag.BLOCK_LOS_FULL | CollisionFlag.PROJECTILE_BLOCK;
+  }
+  return flags;
+}
+
 export function applyObjectCollision(
   world: World,
   registries: ContentRegistries,
   collision: CollisionMap,
 ): void {
-  const positionStore = world.stores.position;
-  const objectStore = world.stores.object;
   const objectRegistry = registries.object;
-  for (const [entityId, object] of objectStore) {
-    const position = positionStore.get(entityId);
+  for (const [entityId, object] of world.componentEntries("object")) {
+    const position = world.getComponent(entityId, "position");
     const def = objectRegistry.get(object.objectId);
     if (!position || !def) {
       continue;
     }
 
-    let flags = CollisionFlag.OCCUPIED_OBJECT;
-    if (def.blocksMovement) {
-      flags |= CollisionFlag.BLOCK_FULL;
-    }
-    if (def.blocksLineOfSight) {
-      flags |= CollisionFlag.BLOCK_LOS_FULL | CollisionFlag.PROJECTILE_BLOCK;
-    }
-
     collision.applyFootprint(
       { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] },
       { width: def.width, length: def.length },
-      flags,
+      objectCollisionFlags(def),
     );
   }
 }

@@ -1,13 +1,13 @@
 import {
   ACTIVE_SCENE_SIZE,
   EntityUpdateMask,
+  hasFlag,
   ServerPacketType,
   type TickDeltaPacket,
   type TileCoord,
-  hasFlag,
 } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
-import { type World, createWorld } from "../ecs/world";
+import { createWorld, type World } from "../ecs/world";
 import { DeltaBroadcaster } from "../net/delta-broadcaster";
 import { InterestManager } from "../net/interest-manager";
 import type { TransportSession } from "../net/websocket-transport";
@@ -20,14 +20,14 @@ function tile(x: number, y: number): TileCoord {
 
 function createPlayer(world: World, session: TransportSession, at: TileCoord) {
   const entityId = world.createEntity();
-  world.stores.position.set(entityId, { entityId, x: at.x, y: at.y, plane: at.plane });
-  world.stores.player.set(entityId, {
+  world.setComponent(entityId, "position", { entityId, x: at.x, y: at.y, plane: at.plane });
+  world.setComponent(entityId, "player", {
     entityId,
     accountId: "dev",
     sessionId: session.id,
     interestRadius: ACTIVE_SCENE_SIZE / 2,
   });
-  world.stores.actor.set(entityId, {
+  world.setComponent(entityId, "actor", {
     entityId,
     name: session.characterId,
     level: 3,
@@ -37,7 +37,7 @@ function createPlayer(world: World, session: TransportSession, at: TileCoord) {
 }
 
 function spawn(world: World, entityId: ReturnType<World["createEntity"]>) {
-  const position = world.stores.position.get(entityId);
+  const position = world.getComponent(entityId, "position");
   if (!position) {
     throw new Error(`Missing position for ${entityId}`);
   }

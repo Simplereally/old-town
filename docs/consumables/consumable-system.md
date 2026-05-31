@@ -13,6 +13,7 @@ Authority references:
 - `docs/skills/production-skills.md`
 - `docs/skills/skill-system.md`
 - `docs/combat/signature-mechanics.md`
+- `docs/economy/currency-and-value-bands.md`
 
 # Consumable System
 
@@ -25,6 +26,8 @@ Authority references:
 ## Consumable Families
 
 Old Town recognizes six consumable families. Each family has a distinct purpose, production skill, and gameplay identity.
+
+Consumable prices and shop convenience premiums are governed by [`../economy/currency-and-value-bands.md`](../economy/currency-and-value-bands.md).
 
 | Family | Production Skill | Purpose | Examples |
 |--------|-----------------|---------|----------|

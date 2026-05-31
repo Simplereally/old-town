@@ -3,13 +3,14 @@ import {
   type ChatCommand,
   ClientCommandType,
   type EntityId,
+  type GroundItemOptionCommand,
   type ItemOptionCommand,
   type MoveClickCommand,
   type NpcOptionCommand,
   type ObjectOptionCommand,
   type PingCommand,
-  type UiActionCommand,
   parseClientCommand,
+  type UiActionCommand,
 } from "@old-town/shared";
 
 export const IntentKind = {
@@ -17,6 +18,7 @@ export const IntentKind = {
   Object: "object",
   Npc: "npc",
   Item: "item",
+  GroundItem: "groundItem",
   Spell: "spell",
   Chat: "chat",
   UiAction: "uiAction",
@@ -30,6 +32,7 @@ type NormalizedByCommand =
   | { readonly kind: typeof IntentKind.Object; readonly command: ObjectOptionCommand }
   | { readonly kind: typeof IntentKind.Npc; readonly command: NpcOptionCommand }
   | { readonly kind: typeof IntentKind.Item; readonly command: ItemOptionCommand }
+  | { readonly kind: typeof IntentKind.GroundItem; readonly command: GroundItemOptionCommand }
   | { readonly kind: typeof IntentKind.Spell; readonly command: CastSpellCommand }
   | { readonly kind: typeof IntentKind.Chat; readonly command: ChatCommand }
   | { readonly kind: typeof IntentKind.UiAction; readonly command: UiActionCommand }
@@ -109,6 +112,11 @@ function normalize(raw: unknown, source: CommandSource): CommandBufferAcceptResu
       return {
         ok: true,
         intent: { ...base, kind: IntentKind.Item, payload: parsed.value.payload },
+      };
+    case ClientCommandType.GroundItemOption:
+      return {
+        ok: true,
+        intent: { ...base, kind: IntentKind.GroundItem, payload: parsed.value.payload },
       };
     case ClientCommandType.CastSpell:
       return {

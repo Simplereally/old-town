@@ -1,0 +1,15 @@
+[
+  {
+    "id": "cook_raw_fish",
+    "name": "Cook Raw Fish",
+    "skill": "cooking",
+    "requiredLevel": 1,
+    "actionTicks": 3,
+    "stationObjectIds": ["cooking_range", "quest_oven"],
+    "inputItemId": "raw_fish",
+    "successItemId": "cooked_fish",
+    "failureItemId": "burnt_fish",
+    "xp": 15,
+    "failureChance": 0.25
+  }
+]

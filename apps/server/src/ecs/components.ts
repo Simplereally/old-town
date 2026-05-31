@@ -2,8 +2,13 @@
  * Component definitions for the ECS world. Every component is a plain data object with
  * no methods. The world stores these in dense arrays indexed by entity slot.
  */
-import type { CombatBonuses, EntityId, EquipmentSlotName } from "@old-town/shared";
-import type { Direction, TileCoord } from "@old-town/shared";
+import type {
+  CombatBonuses,
+  Direction,
+  EntityId,
+  EquipmentSlotName,
+  TileCoord,
+} from "@old-town/shared";
 
 /** Position in tile coordinates (integer world truth). */
 export interface PositionComponent {
@@ -42,12 +47,24 @@ export interface PlayerComponent {
 }
 
 /** NPC-specific data (type, brain state, respawn). */
+export type NpcBrainState =
+  | "idle"
+  | "wander"
+  | "aggro"
+  | "chase"
+  | "attack"
+  | "returnHome"
+  | "dead"
+  | "respawning";
+
 export interface NpcComponent {
   entityId: EntityId;
   npcId: string;
-  brainState: string;
+  brainState: NpcBrainState;
   respawnTick: number;
   wanderRadius: number;
+  home?: TileCoord;
+  leashDistance?: number;
 }
 
 /** World object (tree, rock, door, etc.). */
@@ -63,6 +80,9 @@ export interface GroundItemComponent {
   entityId: EntityId;
   itemId: string;
   quantity: number;
+  ownerId?: EntityId;
+  publicAtTick?: number;
+  despawnTick?: number;
 }
 
 /**
@@ -103,6 +123,10 @@ export interface EquipmentComponent {
 export interface SkillState {
   level: number;
   xp: number;
+  /** Temporary boost above base level (e.g. from potions). */
+  boost: number;
+  /** Temporary drain below base level (e.g. from spells). */
+  drain: number;
 }
 
 export interface SkillsComponent {
@@ -120,18 +144,20 @@ export interface CombatantComponent {
   defenceLevel: number;
   targetId: EntityId | undefined;
   attackCooldown: number;
-  /**
-   * Tick (exclusive) until which eating/drinking is blocked, implementing the content-defined
-   * eat delay (`consumeTicks`). `0` means free to eat. Lives here because the eat delay is a
-   * combat-timing mechanic (POC_SPEC §13.9) that interacts with the same tick as damage.
-   */
+  combatLevel: number;
   eatBlockedUntilTick: number;
+  autoRetaliate?: boolean;
+  nextAttackTick?: number;
+  dead?: boolean;
+  lastDamageSourceId?: EntityId;
+  spellCooldowns?: Record<string, number>;
 }
 
 /** Resource node (tree, rock, fishing spot). */
 export interface ResourceNodeComponent {
   entityId: EntityId;
   nodeId: string;
+  active?: boolean;
   depleted: boolean;
   respawnTick: number;
 }

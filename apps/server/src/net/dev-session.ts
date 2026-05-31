@@ -3,7 +3,6 @@ import {
   CHUNK_SIZE,
   type ContentRegistries,
   type EntityId,
-  type EntitySpawnPacket,
   type FullStatePacket,
   GAME_TICK_MS,
   INVENTORY_SIZE,
@@ -23,7 +22,10 @@ import type { InventoryComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
 import { createEquipment } from "../items/equipment";
 import { addItem, catalogFromItems, createInventory, toInventoryDelta } from "../items/inventory";
+import { computeCombatLevel } from "../skills/combat-level";
+import { maxHealthForHitpointsLevel } from "../skills/skill-state";
 import type { RuntimeMap } from "../world/runtime-map";
+import { projectWorldEntities } from "./entity-spawn-projector";
 import type { TransportSession } from "./websocket-transport";
 
 export const DEV_SPAWN_TILE: TileCoord = { x: 30, y: 32, plane: 0 };
@@ -32,6 +34,11 @@ const STARTER_ITEMS: readonly { itemId: string; quantity: number }[] = [
   { itemId: "pennywrought_axe", quantity: 1 },
   { itemId: "pennywrought_pickaxe", quantity: 1 },
   { itemId: "bread", quantity: 5 },
+  { itemId: "raw_fish", quantity: 5 },
+  { itemId: "ember_bead", quantity: 20 },
+  { itemId: "gust_bead", quantity: 20 },
+  { itemId: "wit_bead", quantity: 20 },
+  { itemId: "writ_bead", quantity: 20 },
 ];
 
 export class DevSessionManager {
@@ -47,6 +54,8 @@ export class DevSessionManager {
     const entityId = this.entityBySession.get(session.id) ?? this.createPlayer(session);
     this.entityBySession.set(session.id, entityId);
 
+    const { spawns } = projectWorldEntities(this.world);
+
     return {
       type: ServerPacketType.FullState,
       protocolVersion: PROTOCOL_VERSION,
@@ -61,7 +70,7 @@ export class DevSessionManager {
         planes: PLANES,
       },
       selfEntityId: entityId,
-      entities: this.visibleEntitySpawns(),
+      entities: spawns,
       inventory: this.inventoryDelta(entityId),
       skills: this.skillDeltas(entityId),
       regionLoads: this.regionLoads(),
@@ -82,49 +91,57 @@ export class DevSessionManager {
 
   private createPlayer(session: TransportSession): EntityId {
     const entityId = this.world.createEntity();
-    this.world.stores.position.set(entityId, {
+    this.world.setComponent(entityId, "position", {
       entityId,
       x: DEV_SPAWN_TILE.x,
       y: DEV_SPAWN_TILE.y,
       plane: DEV_SPAWN_TILE.plane,
     });
-    this.world.stores.player.set(entityId, {
+    this.world.setComponent(entityId, "player", {
       entityId,
       accountId: "dev",
       sessionId: session.id,
       interestRadius: ACTIVE_SCENE_SIZE / 2,
     });
-    this.world.stores.actor.set(entityId, {
+    this.world.setComponent(entityId, "actor", {
       entityId,
       name: session.characterId,
       level: 3,
       appearanceId: "dev_player",
     });
-    this.world.stores.movement.set(entityId, {
+    this.world.setComponent(entityId, "movement", {
       entityId,
       mode: "walk",
       path: [],
     });
-    this.world.stores.inventory.set(entityId, this.createStarterInventory(entityId));
-    this.world.stores.equipment.set(entityId, createEquipment(entityId));
-    this.world.stores.skills.set(entityId, {
+    this.world.setComponent(entityId, "inventory", this.createStarterInventory(entityId));
+    this.world.setComponent(entityId, "equipment", createEquipment(entityId));
+    this.world.setComponent(entityId, "skills", {
       entityId,
       skills: Object.fromEntries(
         Array.from(this.registries.skill.keys())
           .toSorted()
-          .map((skillId) => [skillId, { level: 1, xp: 0 }]),
+          .map((skillId) => [skillId, { level: 1, xp: 0, boost: 0, drain: 0 }]),
       ),
     });
-    this.world.stores.combatant.set(entityId, {
+    const hitpointsLevel =
+      this.world.getComponent(entityId, "skills")?.skills.hitpoints?.level ?? 1;
+    const maxHealth = maxHealthForHitpointsLevel(hitpointsLevel);
+    this.world.setComponent(entityId, "combatant", {
       entityId,
-      health: 10,
-      maxHealth: 10,
+      health: maxHealth,
+      maxHealth,
       attackLevel: 1,
       strengthLevel: 1,
       defenceLevel: 1,
       targetId: undefined,
       attackCooldown: 0,
+      combatLevel: computeCombatLevel(this.world, entityId),
       eatBlockedUntilTick: 0,
+      autoRetaliate: true,
+      nextAttackTick: 0,
+      dead: false,
+      spellCooldowns: {},
     });
     return entityId;
   }
@@ -138,31 +155,8 @@ export class DevSessionManager {
     return inventory;
   }
 
-  private visibleEntitySpawns(): readonly EntitySpawnPacket[] {
-    return Array.from(this.world.stores.player.keys())
-      .toSorted((a, b) => (a as number) - (b as number))
-      .map((entityId) => {
-        const position = this.world.stores.position.get(entityId);
-        const actor = this.world.stores.actor.get(entityId);
-        const combatant = this.world.stores.combatant.get(entityId);
-        if (!position) {
-          throw new Error(`Player ${entityId} is missing position`);
-        }
-        return {
-          entityId,
-          kind: "player",
-          tile: { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] },
-          moveSpeed: "stationary",
-          ...(actor ? { appearance: { name: actor.name, bodyId: actor.appearanceId } } : {}),
-          ...(combatant
-            ? { healthBar: { current: combatant.health, max: combatant.maxHealth } }
-            : {}),
-        };
-      });
-  }
-
   private inventoryDelta(entityId: EntityId): InventoryDelta {
-    const inventory = this.world.stores.inventory.get(entityId);
+    const inventory = this.world.getComponent(entityId, "inventory");
     if (!inventory) {
       return { containerId: `inventory:${entityId}`, changes: [] };
     }
@@ -170,7 +164,7 @@ export class DevSessionManager {
   }
 
   private skillDeltas(entityId: EntityId): readonly SkillDelta[] {
-    const skills = this.world.stores.skills.get(entityId);
+    const skills = this.world.getComponent(entityId, "skills");
     if (!skills) {
       return [];
     }

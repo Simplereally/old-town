@@ -11,8 +11,12 @@ Authority references:
 - `docs/creatures/drop-table-system.md`
 - `docs/tools-and-intermediates/intermediate-items.md`
 - `docs/items/accessories/trophies.md`
+- `docs/favour/offerings-and-training.md`
+- `docs/economy/reward-calibration.md`
 
 # Starter Drop Tables
+
+Drop value should follow [`../economy/reward-calibration.md`](../economy/reward-calibration.md): combat gives a coin trickle plus skill-feeding drops.
 
 ## Cellar Rat
 
@@ -63,4 +67,3 @@ Authority references:
 | Drake Tooth | Uncommon | Handicraft / Wardenry proof |
 | Ashwyrm Bone | Uncommon | Favour, high-value bone |
 | Tallow Drake Scale | Rare | Trophy / heat resistance |
-

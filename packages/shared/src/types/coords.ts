@@ -3,7 +3,7 @@
  * All gameplay truth uses these; raw `{ x, y }` objects must not stand in for a
  * {@link TileCoord} where tile truth is required (see POC_SPEC.md §2.2, §4).
  */
-import { CHUNKS_PER_REGION, CHUNK_SIZE, REGION_SIZE } from "../constants";
+import { CHUNK_SIZE, CHUNKS_PER_REGION, REGION_SIZE } from "../constants";
 import type { ChunkId, RegionId } from "./ids";
 
 /** Vertical plane index, 0..3. */

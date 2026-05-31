@@ -3,8 +3,8 @@ import {
   type EntityId,
   REGION_SIZE,
   type RegionMapDef,
-  type TileCoord,
   regionId,
+  type TileCoord,
   tileKey,
 } from "@old-town/shared";
 import type { World } from "../ecs/world";
@@ -92,9 +92,6 @@ export function loadRegionMapIntoWorld(
 
   const objectEntityIds: EntityId[] = [];
   const resourceNodeEntityIds: EntityId[] = [];
-  const positionStore = world.stores.position;
-  const objectStore = world.stores.object;
-  const resourceNodeStore = world.stores.resourceNode;
   const objectRegistry = registries.object;
   for (const placed of def.objects) {
     const objectDef = objectRegistry.get(placed.objectId);
@@ -103,8 +100,8 @@ export function loadRegionMapIntoWorld(
     }
     const entityId = world.createEntity();
     const tile = globalTile(def.region, placed.x, placed.y);
-    positionStore.set(entityId, { entityId, x: tile.x, y: tile.y, plane: tile.plane });
-    objectStore.set(entityId, {
+    world.setComponent(entityId, "position", { entityId, x: tile.x, y: tile.y, plane: tile.plane });
+    world.setComponent(entityId, "object", {
       entityId,
       objectId: placed.objectId,
       facing: placed.rotation,
@@ -113,9 +110,10 @@ export function loadRegionMapIntoWorld(
     objectEntityIds.push(entityId);
 
     if (objectDef.resourceNodeId) {
-      resourceNodeStore.set(entityId, {
+      world.setComponent(entityId, "resourceNode", {
         entityId,
         nodeId: objectDef.resourceNodeId,
+        active: true,
         depleted: false,
         respawnTick: 0,
       });
@@ -125,9 +123,6 @@ export function loadRegionMapIntoWorld(
 
   const npcEntityIds: EntityId[] = [];
   const npcRegistry = registries.npc;
-  const npcStore = world.stores.npc;
-  const actorStore = world.stores.actor;
-  const combatantStore = world.stores.combatant;
   for (const spawn of def.npcSpawns) {
     const npcDef = npcRegistry.get(spawn.npcId);
     if (!npcDef) {
@@ -135,22 +130,24 @@ export function loadRegionMapIntoWorld(
     }
     const entityId = world.createEntity();
     const tile = globalTile(def.region, spawn.x, spawn.y);
-    positionStore.set(entityId, { entityId, x: tile.x, y: tile.y, plane: tile.plane });
-    npcStore.set(entityId, {
+    world.setComponent(entityId, "position", { entityId, x: tile.x, y: tile.y, plane: tile.plane });
+    world.setComponent(entityId, "npc", {
       entityId,
       npcId: spawn.npcId,
       brainState: "idle",
       respawnTick: 0,
       wanderRadius: spawn.wanderRadius ?? npcDef.wanderRadius,
+      home: tile,
+      leashDistance: (spawn.wanderRadius ?? npcDef.wanderRadius) + (npcDef.aggressiveRadius ?? 0) + 4,
     });
-    actorStore.set(entityId, {
+    world.setComponent(entityId, "actor", {
       entityId,
       name: npcDef.name,
       level: npcDef.combatLevel ?? 0,
       appearanceId: spawn.npcId,
     });
     if (npcDef.maxHp) {
-      combatantStore.set(entityId, {
+      world.setComponent(entityId, "combatant", {
         entityId,
         health: npcDef.maxHp,
         maxHealth: npcDef.maxHp,
@@ -159,22 +156,28 @@ export function loadRegionMapIntoWorld(
         defenceLevel: npcDef.stats?.defence ?? 1,
         targetId: undefined,
         attackCooldown: 0,
+        combatLevel: npcDef.combatLevel ?? 3,
         eatBlockedUntilTick: 0,
+        autoRetaliate: true,
+        nextAttackTick: 0,
+        dead: false,
+        spellCooldowns: {},
       });
     }
     npcEntityIds.push(entityId);
   }
 
   const groundItemEntityIds: EntityId[] = [];
-  const groundItemStore = world.stores.groundItem;
   for (const spawn of def.groundItemSpawns) {
     const entityId = world.createEntity();
     const tile = globalTile(def.region, spawn.x, spawn.y);
-    positionStore.set(entityId, { entityId, x: tile.x, y: tile.y, plane: tile.plane });
-    groundItemStore.set(entityId, {
+    world.setComponent(entityId, "position", { entityId, x: tile.x, y: tile.y, plane: tile.plane });
+    world.setComponent(entityId, "groundItem", {
       entityId,
       itemId: spawn.itemId,
       quantity: spawn.quantity,
+      publicAtTick: 0,
+      despawnTick: Number.MAX_SAFE_INTEGER,
     });
     groundItemEntityIds.push(entityId);
   }

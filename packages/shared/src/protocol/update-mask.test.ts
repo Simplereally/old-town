@@ -3,11 +3,11 @@ import { entityId } from "../types/ids";
 import type { EntityUpdatePayload } from "./entity-update";
 import {
   ALL_MASKS,
-  EntityUpdateMask,
   assertValidEntityUpdate,
   buildEntityUpdate,
   composeMask,
   decomposeMask,
+  EntityUpdateMask,
   hasFlag,
   maskFromPayload,
   payloadMatchesMask,

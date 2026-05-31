@@ -12,6 +12,7 @@ Authority references:
 - `docs/skills/skill-interlocks.md`
 - `docs/items/resources/00-index.md`
 - `docs/creatures/starter-drop-tables.md`
+- `docs/favour/favour-items.md`
 
 # Intermediate Items
 
@@ -155,3 +156,16 @@ Intermediate items are the middle of the economy. They sit between raw resources
 | Warm Scale | Ash Drake Whelp | Tailoring and heat resistance |
 | Blackcoal Ash | Ash Drake Whelp | Apothecary and Hearthcraft |
 | Drake Tooth | Ash Drake Whelp | Handicraft and Wardenry proof |
+
+## Favour Intermediates
+
+| Item | Source | Used For |
+|------|--------|----------|
+| Shrine Candle | Hearthcraft | Light Candle rite, starter restore |
+| Prayer Knot | Tailoring / Handicraft | Boon extension and prepared offerings |
+| Votive Bead | Beadwork | Favour/Magic crossover |
+| Offering Bowl | Handicraft | Prepared offerings |
+| Grave Flower | Gardening / Gravegate | Grave rites and cleanse |
+| Bell Token | Wardenry / shops | Civic shrine offering |
+| Writ Ribbon | Tailoring / Sleight | Warden and Writ rites |
+| Ash Bundle | Hearthcraft | Foundry and Hearth offerings |

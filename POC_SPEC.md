@@ -66,9 +66,9 @@ The client sends **intent commands** only:
 
 ```ts
 MoveIntent { dest: TileCoord }
-ObjectIntent { objectEntityId, option: "chop" | "mine" | "open" }
-NpcIntent { npcEntityId, option: "attack" | "talk" }
-ItemIntent { itemUid, option: "equip" | "eat" | "drop" }
+ObjectIntent { objectEntityId, actionId: "chop" | "mine" | "open" }
+NpcIntent { npcEntityId, actionId: "attack" | "talk" }
+ItemIntent { itemUid, actionId: "equip" | "eat" | "drop" }
 SpellIntent { spellId, targetEntityId | targetTile }
 ```
 
@@ -394,6 +394,7 @@ Client → server:
 C2S_MOVE_CLICK
 C2S_NPC_OPTION
 C2S_OBJECT_OPTION
+C2S_GROUND_ITEM_OPTION
 C2S_ITEM_OPTION
 C2S_CAST_SPELL
 C2S_CHAT
@@ -416,6 +417,7 @@ S2C_CHAT
 S2C_HITSPLAT
 S2C_XP_DROP
 S2C_INTERFACE_OPEN
+S2C_DEBUG_DATA
 S2C_SOUND
 ```
 
@@ -449,9 +451,13 @@ type TickDelta = {
   entityAdds: EntitySpawnPacket[];
   entityRemoves: EntityId[];
   entityUpdates: EntityUpdatePacket[];
+  hitsplats?: HitsplatPacket[];
   inventoryDelta?: InventoryDelta;
-  skillDelta?: SkillDelta[];
-  varbitDelta?: VarbitDelta[];
+  skillDelta?: SkillDelta;
+  varbitDelta?: VarbitDelta;
+  chat?: ChatPacket[];
+  interfaceOpens?: InterfaceOpenPacket[];
+  debug?: DebugData;
 };
 ```
 
@@ -470,6 +476,8 @@ For smoother players in a modern web client, you may optionally send small visua
 ---
 
 ## 9. Server tick loop
+
+The tick loop is owned by a `SimulationKernel` — the closed public API for server simulation. The kernel connects sessions, routes commands, runs ticks, and broadcasts deltas. No internals escape.
 
 Core loop:
 
@@ -532,7 +540,7 @@ The “alpha” is that most OSRS-like weirdness comes from order-of-operations.
 
 OSRS Docs describes a central queue system used by players and NPCs, with scripts processed in order and queue types with interruption semantics. ([osrs-docs.com][7])
 
-Implement this directly.
+The server owns one `ActionRuntime` (created by the `SimulationKernel`), which wraps a single `ActionQueue`. Systems do not create their own queues. The `ActionRuntime` is advanced during the `ActionQueueTimers` tick phase.
 
 ```ts
 type ActionQueueEntry = {
@@ -558,7 +566,19 @@ Use:
 * **strong:** clears weak actions, closes modal interface, executes when timer expires
 * **soft:** cannot be interrupted, used for guaranteed delayed effects, area triggers, delayed damage, respawn events
 
-### 10.2 Examples
+### 10.2 Intent-to-action spine
+
+All consumed intents pass through `IntentDispatcher` (not a raw switch inside the kernel). The dispatcher:
+
+1. Cancels weak actions for the owner before movement, item, UI, object, NPC, or spell intents.
+2. Routes move intents to `movement-system`.
+3. Routes item intents to `item-actions`.
+4. Routes chat intents to `chat-system`.
+5. Routes UI unequip intents to `item-actions`.
+6. Emits explicit system feedback for unimplemented object/NPC/spell intents (never silently swallows).
+7. Ignores ping intents.
+
+### 10.3 Examples
 
 Woodcutting:
 
@@ -689,10 +709,15 @@ type Interactable = {
   options: InteractionOption[];
 };
 
+/** Durable vocabulary:
+ *  - label:    human-facing text (e.g. "Chop", "Mine", "Talk-to", "Attack")
+ *  - actionId: engine/wire token, lowercase snake (e.g. "chop", "mine", "talk", "attack")
+ *  - option:   a content/menu row containing label, actionId, priority, distance rules
+ */
 type InteractionOption = {
   label: string;          // "Chop", "Mine", "Talk-to", "Attack"
   priority: number;
-  actionId: ActionId;
+  actionId: ActionId;     // "chop", "mine", "talk", "attack"
   requiredDistance: number;
   requiresLineOfSight?: boolean;
   faceTarget?: boolean;
@@ -704,13 +729,13 @@ type InteractionOption = {
 Client sends:
 
 ```ts
-{ entityId, optionIndex }
+{ entityId, actionId }
 ```
 
 Server resolves:
 
 1. entity exists
-2. option exists
+2. actionId exists in entity's options
 3. player can interact
 4. path to interaction tile if out of range
 5. once in range, enqueue action
@@ -1688,6 +1713,9 @@ packages/
       types/
       math/
       content-schemas/
+      content/
+        content-registry.ts
+        content-references.ts
 content/
 scripts/
 tools/
@@ -1698,25 +1726,34 @@ tools/
 ### 25.1 Server systems
 
 ```txt
-simulation/
-  TickLoop.ts
-  CommandBuffer.ts
-  InterestManager.ts
+sim/
+  simulation-kernel.ts
+  tick-loop.ts
+  command-buffer.ts
+  delta-accumulator.ts
+  action-queue.ts
+  action-runtime.ts
+  action-executor.ts
+  intent-dispatcher.ts
+
+net/
+  interest-manager.ts
+  delta-broadcaster.ts
+  command-router.ts
+  websocket-transport.ts
+  dev-session.ts
+  entity-spawn-projector.ts
+
+ecs/
+  world.ts
+  components.ts
+  entity.ts
 
 systems/
-  MovementSystem.ts
-  ActionQueueSystem.ts
-  CombatSystem.ts
-  PendingHitSystem.ts
-  NpcAiSystem.ts
-  SkillingSystem.ts
-  InventorySystem.ts
-  EquipmentSystem.ts
-  QuestSystem.ts
-  DropSystem.ts
-  RespawnSystem.ts
-  RegenSystem.ts
-  ChatSystem.ts
+  movement-system.ts
+  chat-system.ts
+  interaction-reach.ts
+  consumable-system.ts
 ```
 
 ### 25.2 Client systems
@@ -1735,12 +1772,12 @@ input/
   MousePicker.ts
   TilePicker.ts
   ContextMenu.ts
-  CommandClient.ts
+  InputInterpreter.ts
 
 net/
   GameSocket.ts
-  DeltaApplier.ts
-  StateBuffer.ts
+  ClientCommandDispatcher.ts
+  ClientPacketApplier.ts
 
 ui/
   InventoryPanel.tsx

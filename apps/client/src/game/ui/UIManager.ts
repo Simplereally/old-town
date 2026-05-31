@@ -3,7 +3,7 @@ import { GlobalKeydownBus } from "./GlobalKeydownBus";
 import type { UIState } from "./UIState";
 
 export interface UIManagerCallbacks {
-  sendItemCommand(itemUid: number, option: string): void;
+  sendItemCommand(itemUid: number, actionId: string): void;
   sendChatCommand(text: string): void;
   enterSpellTargetMode(spellId: string): void;
   sendUiActionCommand(action: string, targetId?: string, value?: number): void;
@@ -51,7 +51,6 @@ export class UIManager {
   }
 
   private _barButtonListeners: Map<string, () => void> = new Map();
-  private _chatInputListener: (() => void) | undefined;
   private _chatSendListener: (() => void) | undefined;
   private _chatKeydownListener: ((e: KeyboardEvent) => void) | undefined;
 
@@ -211,14 +210,14 @@ export class UIManager {
           cell.addEventListener("click", () => {
             this.callbacks.sendItemCommand(uid, "use");
           });
-          const allowedOptions = new Set(["drop", "equip", "eat", "drink"]);
-          const extraOptions = def?.options?.filter((o) => allowedOptions.has(o));
-          if (extraOptions && extraOptions.length > 0) {
+          const allowedActionIds = new Set(["drop", "equip", "eat", "drink"]);
+          const extraActions = def?.options?.filter((o) => allowedActionIds.has(o));
+          if (extraActions && extraActions.length > 0) {
             cell.addEventListener("contextmenu", (e) => {
               e.preventDefault();
-              const option = extraOptions[0];
-              if (option) {
-                this.callbacks.sendItemCommand(uid, option);
+              const actionId = extraActions[0];
+              if (actionId) {
+                this.callbacks.sendItemCommand(uid, actionId);
               }
             });
           }

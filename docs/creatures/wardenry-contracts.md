@@ -11,6 +11,7 @@ Authority references:
 - `docs/skills/utility-skills.md`
 - `docs/world/npc-cast.md`
 - `docs/creatures/starter-drop-tables.md`
+- `docs/quests/rats-under-tallys.md`
 
 # Wardenry Contracts
 
@@ -39,10 +40,11 @@ Wardenry is civic monster work: posted bounties, signed contracts, proof items, 
 | Mites at Gravegate | Gravekeeper Soll | Bring 6 Bone Chips | Grave Dust, Favour |
 | Smoke in the Old Kiln | Pippa Hearth | Investigate Ash Drake Whelp | Warm Scale, quest hook |
 
+Starter Wardenry quest hook: [`Rats Under Tally's`](../quests/rats-under-tallys.md).
+
 ## Design Rules
 
 1. Contracts should specify target, place, proof, and reward.
 2. Contract proof drops may be assignment-only.
 3. Early contracts should teach drops before complex objectives.
 4. Named bounties are miniboss hooks, not ordinary grind tasks.
-

@@ -1,14 +1,15 @@
 import {
-  ClientCommandType,
   Direction,
   type FullStatePacket,
   type SpellTarget,
   TILE_SIZE_WORLD_UNITS,
   type TickDeltaPacket,
   type TileCoord,
-  entityId,
 } from "@old-town/shared";
 import { Mesh, MeshBasicMaterial, RingGeometry, Vector3 } from "three";
+import { type ClientDecision, InputInterpreter } from "./input/InputInterpreter";
+import { ClientCommandDispatcher } from "./net/ClientCommandDispatcher";
+import { ClientPacketApplier } from "./net/ClientPacketApplier";
 import { GameSocket } from "./net/GameSocket";
 import { EntityPicker } from "./picking/EntityPicker";
 import { HoverHighlighter } from "./picking/HoverHighlighter";
@@ -26,18 +27,6 @@ import { ContextMenu } from "./ui/ContextMenu";
 import { GlobalKeydownBus } from "./ui/GlobalKeydownBus";
 import { UIManager, type UIManagerCallbacks } from "./ui/UIManager";
 import { UIState } from "./ui/UIState";
-
-const _objectActionCache = new Map<string, string>();
-function inferObjectActionCached(defId: string): string {
-  const cached = _objectActionCache.get(defId);
-  if (cached !== undefined) return cached;
-  let result = "use";
-  if (defId.includes("tree")) result = "chop";
-  else if (defId.includes("rock") || defId.includes("ore")) result = "mine";
-  else if (defId.includes("door")) result = "open";
-  _objectActionCache.set(defId, result);
-  return result;
-}
 
 export interface GameEngineOptions {
   readonly canvas: HTMLCanvasElement;
@@ -69,6 +58,9 @@ export class GameEngine {
   readonly uiState = new UIState();
   readonly content = new ContentClient();
   private readonly socket: GameSocket;
+  private readonly _dispatcher: ClientCommandDispatcher;
+  private readonly _inputInterpreter: InputInterpreter;
+  private readonly _packetApplier: ClientPacketApplier;
   private readonly overlays: OverlayElements;
   private readonly canvas: HTMLCanvasElement;
   private readonly entityPicker: EntityPicker;
@@ -80,13 +72,8 @@ export class GameEngine {
   private _serverTime = 0;
   private _connected = false;
   private _selfEntityId = 0;
-  private _commandId = 0;
   private _clickMarker: Mesh | undefined;
-  private _lastClickTile: TileCoord | undefined;
-  private _lastClickTick = 0;
   private _lastPingRtt = 0;
-  private _lastServerTime = 0;
-  private _hoveredEntity: import("./picking/EntityPicker").PickedEntity | null = null;
   private _spellTargetMode: { spellId: string } | undefined;
   private _debugOverlayUpdatePending = false;
 
@@ -104,6 +91,21 @@ export class GameEngine {
     this.chatOverhead = new ChatOverheadLayer({ scene: this.renderer.scene });
     this.debug = import.meta.env.DEV ? new DebugLayer({ scene: this.renderer.scene }) : undefined;
     this.socket = new GameSocket(serverUrl);
+    this._dispatcher = new ClientCommandDispatcher(this.socket);
+    this._inputInterpreter = new InputInterpreter(this.content);
+    this._packetApplier = new ClientPacketApplier({
+      terrain: this.terrain,
+      objects: this.objects,
+      actors: this.actors,
+      groundItems: this.groundItems,
+      hitsplats: this.hitsplats,
+      chatOverhead: this.chatOverhead,
+      debug: this.debug,
+      uiState: this.uiState,
+      selfEntityId: 0,
+      logDebug: (msg) => this._logDebug(msg),
+      tileSizeWorldUnits: TILE_SIZE_WORLD_UNITS,
+    });
     this.overlays = {
       connectionStatus: statusOverlay.querySelector("#connection-status") as HTMLDivElement,
       tickStatus: statusOverlay.querySelector("#tick-status") as HTMLDivElement,
@@ -114,11 +116,27 @@ export class GameEngine {
     this.contextMenu = new ContextMenu({
       container: document.body,
       callbacks: {
-        onWalkHere: (tile) => this._onWalkHere(tile),
-        onExamine: (entity) => this._onExamine(entity),
-        onNpcOption: (entity, option) => this._onNpcOption(entity, option),
-        onObjectOption: (entity, option) => this._onObjectOption(entity, option),
-        onItemOption: (entity, option) => this._onItemOption(entity, option),
+        onOptionSelected: (actionId, entity, tile) => {
+          const decision = this._inputInterpreter.interpretContextMenu(entity, tile, actionId);
+          this._applyDecision(decision);
+          if (decision.type === "move") {
+            this._showClickMarker(decision.tile);
+            this._packetApplier.recordClickTile(decision.tile, this._currentTick);
+            this._logDebug(`Context: Walk here (${decision.tile.x}, ${decision.tile.y})`);
+          }
+          if (decision.type === "examine") {
+            this._logDebug(`Examine: ${entity?.defId ?? entity?.itemId ?? "entity"}`);
+          }
+          if (decision.type === "npcOption") {
+            this._logDebug(`Context: ${actionId} ${entity?.defId ?? "NPC"}`);
+          }
+          if (decision.type === "objectOption") {
+            this._logDebug(`Context: ${actionId} ${entity?.defId ?? "object"}`);
+          }
+          if (decision.type === "groundItemOption") {
+            this._logDebug(`Context: ${actionId} ${entity?.itemId ?? "item"}`);
+          }
+        },
       },
     });
 
@@ -140,8 +158,6 @@ export class GameEngine {
       .connect()
       .then((fullState) => {
         this._handleFullState(fullState);
-        this._connected = true;
-        this._updateOverlay();
       })
       .catch((error) => {
         console.error("Failed to connect to server:", error);
@@ -159,10 +175,11 @@ export class GameEngine {
     };
     this.uiManager = new UIManager(this.uiState, this.content, uiCallbacks);
 
-    this.socket.onTickDelta = (packet) => this._handleTickDelta(packet);
-    this.socket.onPong = (_clientTimeMs, serverTime) => {
+    this.socket.onTickDelta = (packet) => {
+      this._handleTickDelta(packet);
+    };
+    this.socket.onPong = () => {
       this._lastPingRtt = performance.now() - this.socket.lastPingTime;
-      this._lastServerTime = serverTime;
     };
     this.socket.onCommandRejected = (reason) => {
       this._logDebug(`Command rejected: ${reason}`);
@@ -179,6 +196,24 @@ export class GameEngine {
       this._connected = false;
       this._updateOverlay();
     };
+  }
+
+  private _handleFullState(fullState: FullStatePacket): void {
+    const result = this._packetApplier.applyFullState(fullState);
+    this._currentTick = result.tick;
+    this._dispatcher.setCurrentTick(result.tick);
+    this._serverTime = result.serverTime;
+    this._selfEntityId = result.selfEntityId;
+    this.actors.setSelfEntityId(this._selfEntityId);
+    this._connected = true;
+    this._updateOverlay();
+  }
+
+  private _handleTickDelta(packet: TickDeltaPacket): void {
+    const result = this._packetApplier.applyTickDelta(packet, this._currentTick);
+    this._currentTick = result.tick;
+    this._dispatcher.setCurrentTick(result.tick);
+    this._serverTime = result.serverTime;
   }
 
   shutdown(): void {
@@ -212,7 +247,8 @@ export class GameEngine {
 
   private _handleKeyDown = (event: KeyboardEvent): void => {
     if (event.key === "Escape") {
-      if (this._spellTargetMode) {
+      const decision = this._inputInterpreter.interpretEscape(this._spellTargetMode);
+      if (decision.type === "cancelSpellTarget") {
         this._spellTargetMode = undefined;
         this._logDebug("Spell target mode cancelled");
         this._updateSpellTargetOverlay();
@@ -230,42 +266,47 @@ export class GameEngine {
   private _handleCanvasClick = (event: MouseEvent): void => {
     if (!this._connected) return;
 
-    if (this._spellTargetMode) {
-      const entity = this._pickEntityAt(event.clientX, event.clientY);
-      const tile = this.renderer.tilePicker.screenToTile(event.clientX, event.clientY);
-      const target: SpellTarget = entity
-        ? { kind: "entity", entityId: entityId(entity.entityId) }
-        : tile
-          ? { kind: "tile", tile: { x: tile.x, y: tile.y, plane: 0 } }
-          : { kind: "none" };
-      this.sendSpellCommand(this._spellTargetMode.spellId, target);
+    const entity = this._pickEntityAt(event.clientX, event.clientY);
+    const tile = this.renderer.tilePicker.screenToTile(event.clientX, event.clientY);
+    const playerTile =
+      entity?.kind === "player"
+        ? (this.actors.getActorState(entity.entityId)?.serverTile ?? null)
+        : null;
+    const decision = this._inputInterpreter.interpretCanvasClick(
+      entity,
+      tile,
+      playerTile,
+      this._spellTargetMode,
+    );
+
+    if (decision.type === "castSpell") {
+      this._dispatcher.castSpell(decision.spellId, decision.target);
       this._spellTargetMode = undefined;
       this._updateSpellTargetOverlay();
-      this._logDebug(`Spell target: ${target.kind}`);
+      this._logDebug(`Spell target: ${decision.target.kind}`);
       return;
     }
 
-    const entity = this._pickEntityAt(event.clientX, event.clientY);
-    if (entity) {
-      this._executeDefaultAction(entity, event.clientX, event.clientY);
-      return;
+    this._applyDecision(decision);
+    if (decision.type === "move") {
+      this._showClickMarker(decision.tile);
+      this._packetApplier.recordClickTile(decision.tile, this._currentTick);
+      this._logDebug(`Click: move to (${decision.tile.x}, ${decision.tile.y})`);
     }
-
-    const tile = this.renderer.tilePicker.screenToTile(event.clientX, event.clientY);
-    if (!tile) return;
-
-    const tileCoord: TileCoord = { x: tile.x, y: tile.y, plane: 0 };
-    this._showClickMarker(tileCoord);
-    this._sendMoveCommand(tileCoord);
-    this._lastClickTile = tileCoord;
-    this._lastClickTick = this._currentTick;
-    this._logDebug(`Click: move to (${tile.x}, ${tile.y})`);
+    if (decision.type === "npcOption") {
+      this._logDebug(`Click: ${decision.actionId} ${entity?.defId ?? "NPC"}`);
+    }
+    if (decision.type === "objectOption") {
+      this._logDebug(`Click: ${decision.actionId} ${entity?.defId ?? "object"}`);
+    }
+    if (decision.type === "groundItemOption") {
+      this._logDebug(`Click: Pick up ${entity?.itemId ?? "item"}`);
+    }
   };
 
   private _handleMouseMove = (event: MouseEvent): void => {
     if (!this._connected) return;
     const entity = this._pickEntityAt(event.clientX, event.clientY);
-    this._hoveredEntity = entity;
     if (entity) {
       const pos = this._getEntityWorldPosition(entity);
       if (pos) {
@@ -283,7 +324,8 @@ export class GameEngine {
 
     const entity = this._pickEntityAt(event.clientX, event.clientY);
     const tile = this.renderer.tilePicker.screenToTile(event.clientX, event.clientY);
-    this.contextMenu.show(event.clientX, event.clientY, entity, tile);
+    const options = this._inputInterpreter.getContextMenuOptions(entity, tile);
+    this.contextMenu.show(event.clientX, event.clientY, options, entity, tile);
   };
 
   private _pickEntityAt(
@@ -310,108 +352,37 @@ export class GameEngine {
     return null;
   }
 
-  private _executeDefaultAction(
-    entity: import("./picking/EntityPicker").PickedEntity,
-    _screenX: number,
-    _screenY: number,
-  ): void {
-    switch (entity.kind) {
-      case "npc": {
-        this._sendNpcCommand(entity.entityId, "talk-to");
-        this._logDebug(`Click: Talk-to ${entity.defId ?? "NPC"}`);
+  private _applyDecision(decision: ClientDecision): void {
+    switch (decision.type) {
+      case "move":
+        this._dispatcher.move(decision.tile);
         break;
-      }
-      case "object": {
-        const action = this._inferObjectAction(entity.defId ?? "");
-        this._sendObjectCommand(entity.entityId, action);
-        this._logDebug(`Click: ${action} ${entity.defId ?? "object"}`);
+      case "npcOption":
+        this._dispatcher.npcOption(decision.entityId, decision.actionId);
         break;
-      }
-      case "groundItem": {
-        this._sendItemCommand(entity.entityId, "pick-up");
-        this._logDebug(`Click: Pick up ${entity.itemId ?? "item"}`);
+      case "objectOption":
+        this._dispatcher.objectOption(decision.entityId, decision.actionId);
         break;
-      }
-      default: {
-        const actor = this.actors.getActorState(entity.entityId);
-        if (actor) {
-          this._sendMoveCommand(actor.serverTile);
-          this._logDebug(`Click: walk to player ${entity.defId ?? ""}`);
-        }
+      case "groundItemOption":
+        this._dispatcher.groundItemOption(decision.entityId, decision.actionId);
         break;
-      }
+      case "inventoryItemOption":
+        this._dispatcher.inventoryItemOption(decision.itemUid, decision.actionId);
+        break;
+      case "castSpell":
+        this._dispatcher.castSpell(decision.spellId, decision.target);
+        break;
+      case "chat":
+        this._dispatcher.chat(decision.text);
+        break;
+      case "uiAction":
+        this._dispatcher.uiAction(decision.action, decision.targetId, decision.value);
+        break;
+      case "examine":
+      case "cancelSpellTarget":
+      case "none":
+        break;
     }
-  }
-
-  private _inferObjectAction(defId: string): string {
-    return inferObjectActionCached(defId);
-  }
-
-  private _onWalkHere(tile: { x: number; y: number }): void {
-    const tileCoord: TileCoord = { x: tile.x, y: tile.y, plane: 0 };
-    this._showClickMarker(tileCoord);
-    this._sendMoveCommand(tileCoord);
-    this._lastClickTile = tileCoord;
-    this._lastClickTick = this._currentTick;
-    this._logDebug(`Context: Walk here (${tile.x}, ${tile.y})`);
-  }
-
-  private _onExamine(entity: import("./picking/EntityPicker").PickedEntity): void {
-    this._logDebug(`Examine: ${entity.defId ?? entity.itemId ?? "entity"}`);
-  }
-
-  private _onNpcOption(
-    entity: import("./picking/EntityPicker").PickedEntity,
-    option: string,
-  ): void {
-    this._sendNpcCommand(entity.entityId, option);
-    this._logDebug(`Context: ${option} ${entity.defId ?? "NPC"}`);
-  }
-
-  private _onObjectOption(
-    entity: import("./picking/EntityPicker").PickedEntity,
-    option: string,
-  ): void {
-    this._sendObjectCommand(entity.entityId, option);
-    this._logDebug(`Context: ${option} ${entity.defId ?? "object"}`);
-  }
-
-  private _onItemOption(
-    entity: import("./picking/EntityPicker").PickedEntity,
-    option: string,
-  ): void {
-    this._sendItemCommand(entity.entityId, option);
-    this._logDebug(`Context: ${option} ${entity.itemId ?? "item"}`);
-  }
-
-  private _sendNpcCommand(npcEntityId: number, option: string): void {
-    this._commandId += 1;
-    this.socket.sendCommand({
-      type: ClientCommandType.NpcOption,
-      commandId: this._commandId,
-      clientTickHint: this._currentTick,
-      payload: { npcEntityId: entityId(npcEntityId), option },
-    });
-  }
-
-  private _sendObjectCommand(objectEntityId: number, option: string): void {
-    this._commandId += 1;
-    this.socket.sendCommand({
-      type: ClientCommandType.ObjectOption,
-      commandId: this._commandId,
-      clientTickHint: this._currentTick,
-      payload: { objectEntityId: entityId(objectEntityId), option },
-    });
-  }
-
-  private _sendItemCommand(itemEntityId: number, option: string): void {
-    this._commandId += 1;
-    this.socket.sendCommand({
-      type: ClientCommandType.ItemOption,
-      commandId: this._commandId,
-      clientTickHint: this._currentTick,
-      payload: { itemUid: itemEntityId, option },
-    });
   }
 
   private _showClickMarker(tile: TileCoord): void {
@@ -451,49 +422,21 @@ export class GameEngine {
     }
   }
 
-  private _sendMoveCommand(tile: TileCoord): void {
-    this._commandId += 1;
-    this.socket.sendCommand({
-      type: ClientCommandType.MoveClick,
-      commandId: this._commandId,
-      clientTickHint: this._currentTick,
-      payload: { dest: tile },
-    });
-  }
-
   /** Send an item option command from UI panels (equip, drop, eat, use). */
-  sendItemCommand(itemUid: number, option: string): void {
-    this._commandId += 1;
-    this.socket.sendCommand({
-      type: ClientCommandType.ItemOption,
-      commandId: this._commandId,
-      clientTickHint: this._currentTick,
-      payload: { itemUid, option },
-    });
-    this._logDebug(`UI: ${option} item ${itemUid}`);
+  sendItemCommand(itemUid: number, actionId: string): void {
+    this._dispatcher.inventoryItemOption(itemUid, actionId);
+    this._logDebug(`UI: ${actionId} item ${itemUid}`);
   }
 
   /** Send a spell cast command from the spellbook panel. */
   sendSpellCommand(spellId: string, target: SpellTarget): void {
-    this._commandId += 1;
-    this.socket.sendCommand({
-      type: ClientCommandType.CastSpell,
-      commandId: this._commandId,
-      clientTickHint: this._currentTick,
-      payload: { spellId, target },
-    });
+    this._dispatcher.castSpell(spellId, target);
     this._logDebug(`UI: cast ${spellId}`);
   }
 
   /** Send a chat message from the chat box. */
   sendChatCommand(text: string): void {
-    this._commandId += 1;
-    this.socket.sendCommand({
-      type: ClientCommandType.Chat,
-      commandId: this._commandId,
-      clientTickHint: this._currentTick,
-      payload: { text },
-    });
+    this._dispatcher.chat(text);
     this._logDebug(`UI: chat "${text}"`);
   }
 
@@ -504,16 +447,7 @@ export class GameEngine {
   }
 
   sendUiActionCommand(action: string, targetId?: string, value?: number): void {
-    this._commandId += 1;
-    const payload: { action: string; targetId?: string; value?: number } = { action };
-    if (targetId !== undefined) payload.targetId = targetId;
-    if (value !== undefined) payload.value = value;
-    this.socket.sendCommand({
-      type: ClientCommandType.UiAction,
-      commandId: this._commandId,
-      clientTickHint: this._currentTick,
-      payload,
-    });
+    this._dispatcher.uiAction(action, targetId, value);
     this._logDebug(`UI: action ${action}${targetId ? ` ${targetId}` : ""}`);
   }
 
@@ -530,247 +464,6 @@ export class GameEngine {
     log.scrollTop = log.scrollHeight;
   }
 
-  private _handleFullState(state: FullStatePacket): void {
-    this._currentTick = state.tick;
-    this._serverTime = state.serverTime;
-    this._selfEntityId = state.selfEntityId;
-    this.actors.setSelfEntityId(this._selfEntityId);
-
-    if (state.regionLoads) {
-      for (const region of state.regionLoads) {
-        if (region.chunks) {
-          for (const chunk of region.chunks) {
-            this.terrain.loadChunk(region.regionId, chunk);
-          }
-        }
-      }
-    }
-
-    for (const entity of state.entities) {
-      const entityId = entity.entityId;
-      const kind = entity.kind;
-      const tile = entity.tile;
-      const defId = entity.defId;
-      if (kind === "object") {
-        this.objects.spawn(entityId, tile, defId ?? "default");
-      } else if (kind === "player" || kind === "npc") {
-        this.actors.spawn(entityId, tile, defId, entityId === this._selfEntityId, kind);
-      }
-      if (kind === "player" && entityId === this._selfEntityId) {
-        if (entity.appearance) {
-          this.actors.updateAppearance(entityId, entity.appearance);
-        }
-      }
-    }
-
-    if (state.inventory) {
-      this.uiState.setInventory(state.inventory);
-    }
-    if (state.skills) {
-      this.uiState.setSkills(state.skills);
-    }
-    if (state.vars) {
-      this.uiState.setVars(state.vars);
-    }
-  }
-
-  private _handleTickDelta(delta: TickDeltaPacket): void {
-    this._currentTick = delta.tick;
-    this._serverTime = delta.serverTime;
-
-    if (delta.regionUnloads) {
-      for (const region of delta.regionUnloads) {
-        this.terrain.unloadRegion(region.regionId);
-      }
-    }
-
-    if (delta.regionLoads) {
-      for (const region of delta.regionLoads) {
-        if (region.chunks) {
-          for (const chunk of region.chunks) {
-            this.terrain.loadChunk(region.regionId, chunk);
-          }
-        }
-      }
-    }
-
-    for (const entity of delta.entityAdds) {
-      if (entity.kind === "object") {
-        this.objects.spawn(entity.entityId, entity.tile, entity.defId ?? "default");
-      } else if (entity.kind === "player" || entity.kind === "npc") {
-        this.actors.spawn(
-          entity.entityId,
-          entity.tile,
-          entity.defId,
-          entity.entityId === this._selfEntityId,
-          entity.kind,
-        );
-      }
-    }
-
-    for (const id of delta.entityRemoves) {
-      this.objects.remove(id);
-      this.actors.remove(id);
-    }
-
-    for (const update of delta.entityUpdates) {
-      const changes = update.changes;
-      if (changes.position) {
-        this.actors.updateTile(update.entityId, changes.position);
-      }
-      if (changes.facingTile) {
-        const actor = this.actors.getActorState(update.entityId);
-        if (actor) {
-          const dx = changes.facingTile.x - actor.serverTile.x;
-          const dy = changes.facingTile.y - actor.serverTile.y;
-          if (dx !== 0 || dy !== 0) {
-            const direction = this._getDirectionFromDelta(dx, dy);
-            this.actors.updateFacing(update.entityId, direction);
-          }
-        }
-      }
-      if (changes.hitsplat) {
-        this.hitsplats.show(update.entityId, changes.hitsplat.amount, changes.hitsplat.type);
-      }
-      if (changes.equipment && update.entityId === this._selfEntityId) {
-        this._syncEquipment(changes.equipment.slots);
-      }
-      if (changes.appearance) {
-        this.actors.updateAppearance(update.entityId, changes.appearance);
-      }
-    }
-
-    if (delta.hitsplats) {
-      for (const hitsplat of delta.hitsplats) {
-        this.hitsplats.show(hitsplat.entityId, hitsplat.hitsplat.amount, hitsplat.hitsplat.type);
-      }
-    }
-
-    if (delta.inventoryDelta) {
-      this.uiState.applyInventoryDelta(delta.inventoryDelta);
-    }
-    if (delta.skillDelta) {
-      this.uiState.applySkillDelta(delta.skillDelta);
-    }
-    if (delta.varbitDelta) {
-      this.uiState.applyVarbitDelta(delta.varbitDelta);
-    }
-    if (delta.chat) {
-      this.uiState.addChat(delta.chat);
-      for (const msg of delta.chat) {
-        if (msg.channel !== "system" && msg.entityId !== undefined) {
-          const actor = this.actors.getActorState(msg.entityId);
-          if (actor) {
-            this.chatOverhead.show(msg.entityId, msg.text, actor.visualPosition);
-          }
-        }
-      }
-    }
-
-    if (delta.interfaceOpens) {
-      for (const open of delta.interfaceOpens) {
-        this.uiState.setDialogue(open.interfaceId, "start");
-      }
-    }
-
-    const debugData = delta.debug;
-    if (debugData?.paths) {
-      this._handleDebugPaths(debugData.paths);
-    }
-    if (debugData?.trueTiles) {
-      for (const tt of debugData.trueTiles) {
-        this.debug?.markTrueTile(tt.tile, tt.entityId);
-      }
-    }
-    if (debugData?.collisionTiles) {
-      for (const tile of debugData.collisionTiles) {
-        this.debug?.markCollisionTile(tile);
-      }
-    }
-    if (debugData?.footprints) {
-      for (const tile of debugData.footprints) {
-        this.debug?.markFootprint(tile);
-      }
-    }
-    if (debugData?.reachTiles) {
-      for (const rt of debugData.reachTiles) {
-        this.debug?.markReachTiles(rt.center, rt.radius);
-      }
-    }
-    if (debugData?.loSRays) {
-      for (const ray of debugData.loSRays) {
-        const start = new Vector3(
-          ray.start.x * TILE_SIZE_WORLD_UNITS,
-          0.5,
-          -ray.start.y * TILE_SIZE_WORLD_UNITS,
-        );
-        const end = new Vector3(
-          ray.end.x * TILE_SIZE_WORLD_UNITS,
-          0.5,
-          -ray.end.y * TILE_SIZE_WORLD_UNITS,
-        );
-        this.debug?.markLoSRay(start, end);
-      }
-    }
-    if (debugData?.actionQueue) {
-      this.debug?.setActionQueue(debugData.actionQueue as string[]);
-    }
-    if (debugData?.combatCooldown !== undefined) {
-      this.debug?.setCombatCooldown(debugData.combatCooldown);
-    }
-    if (debugData?.pendingHits) {
-      const hits = new Map<string, number>();
-      for (const h of debugData.pendingHits) {
-        hits.set(h.targetId.toString(), h.amount);
-      }
-      this.debug?.setPendingHits(hits);
-    }
-    if (debugData?.npcLeash) {
-      this.debug?.setNpcLeash(debugData.npcLeash);
-    }
-    if (debugData?.varbits) {
-      const vars = new Map<string, number>();
-      for (const v of debugData.varbits) {
-        vars.set(v.varId, v.value);
-      }
-      this.debug?.setVarbits(vars);
-    }
-  }
-
-  private _syncEquipment(slots: readonly (string | null)[]): void {
-    this.uiState.setEquipment(slots);
-  }
-
-  private _handleDebugPaths(
-    paths: readonly { readonly entityId: number; readonly path: readonly TileCoord[] }[],
-  ): void {
-    let foundSelfPath = false;
-    for (const pathData of paths) {
-      const entityId = pathData.entityId;
-      const path = pathData.path;
-      if (entityId === this._selfEntityId) {
-        foundSelfPath = true;
-        if (
-          path.length === 0 &&
-          this._lastClickTile &&
-          this._lastClickTick > this._currentTick - 2
-        ) {
-          this._logDebug(
-            `Move rejected: no path to (${this._lastClickTile.x}, ${this._lastClickTile.y})`,
-          );
-        } else {
-          for (const tile of path) {
-            this.debug?.markPathTile(tile);
-          }
-        }
-      }
-    }
-    if (!foundSelfPath && this._lastClickTile && this._lastClickTick > this._currentTick - 2) {
-      this._logDebug(
-        `Move rejected: no path to (${this._lastClickTile.x}, ${this._lastClickTile.y})`,
-      );
-    }
-  }
 
   private _getDirectionFromDelta(dx: number, dy: number): Direction {
     if (dy > 0)

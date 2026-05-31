@@ -1,10 +1,9 @@
 import { EntityUpdateMask, type TileCoord, tileKey } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { createWorld } from "../ecs/world";
-import { ActionQueue, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { CollisionFlag, CollisionMap } from "../world/collision";
-import { type RuntimeMap, createRuntimeMap } from "../world/runtime-map";
+import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
 import { handleMoveIntent, processMovementPhase } from "./movement-system";
 
 function tile(x: number, y: number): TileCoord {
@@ -32,7 +31,7 @@ function testMap(size = 8): RuntimeMap {
 function setup() {
   const world = createWorld();
   const player = world.createEntity();
-  world.stores.position.set(player, { entityId: player, x: 0, y: 0, plane: 0 });
+  world.setComponent(player, "position", { entityId: player, x: 0, y: 0, plane: 0 });
   const collision = new CollisionMap(testMap());
   const deltas = new DeltaAccumulator();
   return { world, player, collision, deltas };
@@ -47,15 +46,15 @@ describe("movement system", () => {
     });
 
     expect(result).toMatchObject({ accepted: true, pathLength: 3, reached: true });
-    expect(context.world.stores.position.get(context.player)).toMatchObject({ x: 0, y: 0 });
-    expect(context.world.stores.movement.get(context.player)?.path).toEqual([
+    expect(context.world.getComponent(context.player, "position")).toMatchObject({ x: 0, y: 0 });
+    expect(context.world.getComponent(context.player, "movement")?.path).toEqual([
       tile(1, 0),
       tile(2, 0),
       tile(3, 0),
     ]);
 
     processMovementPhase(context, 1);
-    expect(context.world.stores.position.get(context.player)).toMatchObject({ x: 1, y: 0 });
+    expect(context.world.getComponent(context.player, "position")).toMatchObject({ x: 1, y: 0 });
   });
 
   it("advances walk one tile per tick and emits movement deltas", () => {
@@ -65,7 +64,7 @@ describe("movement system", () => {
     processMovementPhase(context, 1);
     const packet = context.deltas.consume(1, 600);
 
-    expect(context.world.stores.position.get(context.player)).toMatchObject({ x: 1, y: 0 });
+    expect(context.world.getComponent(context.player, "position")).toMatchObject({ x: 1, y: 0 });
     expect(packet.entityUpdates[0]?.mask).toBe(
       EntityUpdateMask.POSITION | EntityUpdateMask.MOVE_SPEED | EntityUpdateMask.FACING_TILE,
     );
@@ -79,8 +78,8 @@ describe("movement system", () => {
 
     processMovementPhase(context, 1);
 
-    expect(context.world.stores.position.get(context.player)).toMatchObject({ x: 2, y: 0 });
-    expect(context.world.stores.movement.get(context.player)?.path).toEqual([tile(3, 0)]);
+    expect(context.world.getComponent(context.player, "position")).toMatchObject({ x: 2, y: 0 });
+    expect(context.world.getComponent(context.player, "movement")?.path).toEqual([tile(3, 0)]);
   });
 
   it("clears path cleanly when the next step becomes blocked", () => {
@@ -90,26 +89,9 @@ describe("movement system", () => {
 
     processMovementPhase(context, 1);
 
-    expect(context.world.stores.position.get(context.player)).toMatchObject({ x: 0, y: 0 });
-    expect(context.world.stores.movement.get(context.player)?.path).toEqual([]);
-    expect(context.world.stores.movement.get(context.player)?.blockedUntilTick).toBe(2);
+    expect(context.world.getComponent(context.player, "position")).toMatchObject({ x: 0, y: 0 });
+    expect(context.world.getComponent(context.player, "movement")?.path).toEqual([]);
+    expect(context.world.getComponent(context.player, "movement")?.blockedUntilTick).toBe(2);
     expect(context.deltas.consume(1, 600).entityUpdates).toEqual([]);
-  });
-
-  it("cancels weak actions when accepting movement", () => {
-    const context = setup();
-    const actionQueue = new ActionQueue();
-    actionQueue.enqueue({
-      id: "woodcutting",
-      owner: context.player,
-      type: ActionQueueType.Weak,
-      delayTicks: 4,
-      interruptGroup: InterruptGroup.Skilling,
-      payload: { action: "woodcut" },
-    });
-
-    handleMoveIntent({ ...context, actionQueue }, context.player, { dest: tile(1, 0) });
-
-    expect(actionQueue.getDebugState()).toEqual([]);
   });
 });

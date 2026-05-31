@@ -5,13 +5,13 @@
  * and the discriminated union rejects unknown command types.
  */
 import { z } from "zod";
+import { actionIdSchema } from "../content/action-id";
 import { type ClientCommand, ClientCommandType } from "./commands";
 import type { ParseResult } from "./parse-result";
 import {
   clientTickHintSchema,
   commandIdSchema,
   entityIdSchema,
-  interactionOptionSchema,
   tileCoordSchema,
 } from "./schema-primitives";
 
@@ -39,17 +39,22 @@ const moveClickCommandSchema = command(
 
 const objectOptionCommandSchema = command(
   ClientCommandType.ObjectOption,
-  z.object({ objectEntityId: entityIdSchema, option: interactionOptionSchema }).strict(),
+  z.object({ objectEntityId: entityIdSchema, actionId: actionIdSchema }).strict(),
 );
 
 const npcOptionCommandSchema = command(
   ClientCommandType.NpcOption,
-  z.object({ npcEntityId: entityIdSchema, option: interactionOptionSchema }).strict(),
+  z.object({ npcEntityId: entityIdSchema, actionId: actionIdSchema }).strict(),
 );
 
 const itemOptionCommandSchema = command(
   ClientCommandType.ItemOption,
-  z.object({ itemUid: z.number().int().nonnegative(), option: interactionOptionSchema }).strict(),
+  z.object({ itemUid: z.number().int().nonnegative(), actionId: actionIdSchema }).strict(),
+);
+
+const groundItemOptionCommandSchema = command(
+  ClientCommandType.GroundItemOption,
+  z.object({ groundItemEntityId: entityIdSchema, actionId: actionIdSchema }).strict(),
 );
 
 const castSpellCommandSchema = command(
@@ -84,6 +89,7 @@ export const clientCommandSchema = z.discriminatedUnion("type", [
   objectOptionCommandSchema,
   npcOptionCommandSchema,
   itemOptionCommandSchema,
+  groundItemOptionCommandSchema,
   castSpellCommandSchema,
   chatCommandSchema,
   uiActionCommandSchema,

@@ -1,5 +1,5 @@
-import { Plane, Raycaster, Vector2, Vector3 } from "three";
 import type { OrthographicCamera } from "three";
+import { Plane, Raycaster, Vector2, Vector3 } from "three";
 
 export interface TilePickerOptions {
   readonly camera: OrthographicCamera;

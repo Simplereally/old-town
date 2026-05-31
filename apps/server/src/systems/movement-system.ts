@@ -1,14 +1,13 @@
 import {
+  directionFromDelta,
+  directionToDelta,
   type EntityId,
   type MoveIntent,
   type MoveSpeed,
   type TileCoord,
-  directionFromDelta,
-  directionToDelta,
 } from "@old-town/shared";
 import type { MovementMode } from "../ecs/components";
 import type { World } from "../ecs/world";
-import { type ActionQueue, ActionQueueType } from "../sim/action-queue";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import type { CollisionMap, Footprint } from "../world/collision";
 import { findPath } from "../world/pathfinding";
@@ -28,7 +27,6 @@ export interface MovementSystemContext {
   readonly world: World;
   readonly collision: CollisionMap;
   readonly deltas: DeltaAccumulator;
-  readonly actionQueue?: ActionQueue;
 }
 
 function positionTile(position: {
@@ -43,10 +41,8 @@ function moveSpeed(mode: MovementMode): MoveSpeed {
   return mode === "run" ? "run" : "walk";
 }
 
-function sortedMovementEntityIds(world: World): EntityId[] {
-  const keys = Array.from(world.stores.movement.keys());
-  if (keys.length <= 1) return keys;
-  return keys.toSorted((a, b) => (a as number) - (b as number));
+function sortedMovementEntityIds(world: World): readonly EntityId[] {
+  return world.entityIdsWith("movement");
 }
 
 export function handleMoveIntent(
@@ -55,12 +51,12 @@ export function handleMoveIntent(
   intent: MoveIntent,
   options: MoveIntentOptions = {},
 ): MoveIntentResult {
-  const position = context.world.stores.position.get(entityId);
+  const position = context.world.getComponent(entityId, "position");
   if (!position) {
     return { accepted: false, pathLength: 0, reached: false };
   }
 
-  const mode = options.mode ?? context.world.stores.movement.get(entityId)?.mode ?? "walk";
+  const mode = options.mode ?? context.world.getComponent(entityId, "movement")?.mode ?? "walk";
   const result = findPath(
     context.collision,
     positionTile(position),
@@ -68,8 +64,7 @@ export function handleMoveIntent(
     options.footprint ? { footprint: options.footprint } : {},
   );
 
-  context.actionQueue?.cancel(entityId, { type: ActionQueueType.Weak });
-  context.world.stores.movement.set(entityId, {
+  context.world.setComponent(entityId, "movement", {
     entityId,
     mode,
     path: result.path,
@@ -84,10 +79,9 @@ export function processMovementPhase(
   tick: number,
   footprint: Footprint = { width: 1, length: 1 },
 ): void {
-  const stores = context.world.stores;
   for (const entityId of sortedMovementEntityIds(context.world)) {
-    const movement = stores.movement.get(entityId);
-    const position = stores.position.get(entityId);
+    const movement = context.world.getComponent(entityId, "movement");
+    const position = context.world.getComponent(entityId, "position");
     if (!movement || !position || movement.path.length === 0) {
       continue;
     }
@@ -109,7 +103,7 @@ export function processMovementPhase(
       }
       if (!context.collision.canStep(current, next, footprint)) {
         remainingPath = [];
-        context.world.stores.movement.set(entityId, {
+        context.world.setComponent(entityId, "movement", {
           entityId,
           mode: movement.mode,
           path: [],
@@ -134,13 +128,13 @@ export function processMovementPhase(
       continue;
     }
 
-    context.world.stores.position.set(entityId, {
+    context.world.setComponent(entityId, "position", {
       entityId,
       x: current.x,
       y: current.y,
       plane: current.plane,
     });
-    context.world.stores.movement.set(entityId, {
+    context.world.setComponent(entityId, "movement", {
       entityId,
       mode: movement.mode,
       path: remainingPath,

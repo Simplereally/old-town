@@ -2,7 +2,7 @@ import { type TileCoord, tileKey } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { CollisionFlag, CollisionMap } from "./collision";
 import { findPath } from "./pathfinding";
-import { type RuntimeMap, createRuntimeMap } from "./runtime-map";
+import { createRuntimeMap, type RuntimeMap } from "./runtime-map";
 
 function tile(x: number, y: number): TileCoord {
   return { x, y, plane: 0 };

@@ -15,6 +15,7 @@ Authority references:
 - `docs/skills/gathering-skills.md`
 - `docs/skills/production-skills.md`
 - `docs/skills/utility-skills.md`
+- `docs/favour/00-index.md`
 
 # Skill Interlocks
 
@@ -45,7 +46,7 @@ Skills form an economy, not isolated grinds. Every skill feeds another through t
 | Vitality | Health pool | Food (Cooking) | Combat level |
 | Ranged | Ranged accuracy, meat bait | Bows/ammo (Bowcraft) | Combat level, Trapping (meat bait) |
 | Magic | Spell accuracy | Magic weapons (Smithing), beads (Beadwork) | Combat level |
-| Favour | Shrine boons, Favour points | Beads (Beadwork), shrines | Wardenry |
+| Favour | Shrine boons, Favour points | Offerings, beads, candles, flowers, shrines | Wardenry, Magic, Hearthcraft |
 | Wayfaring | Shortcuts, stamina | None (body) | Cartography |
 | Sleight | Loot, coins, forged documents, smuggled goods | None (body) | Wardenry (forged permits), Handicraft (stolen gems), Market (coins) |
 | Wardenry | Bounty loot, trophy tokens, monster parts | Favour (Favour), forged documents (Sleight) | Handicraft (trophies), Tailoring (rare hides), Smithing (drakebone for Blueglass) |
@@ -204,6 +205,7 @@ Every skill in Old Town has a three-phase progression that mirrors the player's 
 - [`gathering-skills.md`](gathering-skills.md)
 - [`production-skills.md`](production-skills.md)
 - [`utility-skills.md`](utility-skills.md)
+- [`../favour/00-index.md`](../favour/00-index.md)
 
 *Total skills audited: 25*
 *Dead ends: 0*

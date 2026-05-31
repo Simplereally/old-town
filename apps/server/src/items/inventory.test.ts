@@ -1,8 +1,6 @@
-import { INVENTORY_SIZE, entityId } from "@old-town/shared";
+import { entityId, INVENTORY_SIZE } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import {
-  type ItemCatalog,
-  MAX_STACK,
   addItem,
   catalogFromItems,
   count,
@@ -13,6 +11,8 @@ import {
   hasAll,
   hasItem,
   hasSpaceFor,
+  type ItemCatalog,
+  MAX_STACK,
   moveItem,
   removeFromSlot,
   removeItem,

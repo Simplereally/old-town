@@ -8,8 +8,8 @@
  */
 import {
   type CombatBonuses,
-  EQUIPMENT_SLOTS,
   type EntityId,
+  EQUIPMENT_SLOTS,
   type EquipmentSlotName,
   type EquipmentUpdate,
   type InventorySlotChange,
@@ -17,8 +17,8 @@ import {
 } from "@old-town/shared";
 import type { EquipmentComponent, InventoryComponent, SkillsComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
-import { addItem, buildDelta, catalogFromItems, freeSlotCount, removeFromSlot } from "./inventory";
 import type { ItemCatalog } from "./inventory";
+import { addItem, buildDelta, catalogFromItems, freeSlotCount, removeFromSlot } from "./inventory";
 
 /** Every combat-bonus field, used to seed a zeroed aggregate. */
 const BONUS_FIELDS = [
@@ -109,12 +109,12 @@ export interface EquipContext {
 }
 
 function getOrCreateEquipment(world: World, owner: EntityId): EquipmentComponent {
-  const existing = world.stores.equipment.get(owner);
+  const existing = world.getComponent(owner, "equipment");
   if (existing) {
     return existing;
   }
   const created = createEquipment(owner);
-  world.stores.equipment.set(owner, created);
+  world.setComponent(owner, "equipment", created);
   return created;
 }
 
@@ -137,7 +137,7 @@ export function equipItem(
     return { ok: false, reason: "requirements" };
   }
 
-  const skills = ctx.world.stores.skills.get(owner);
+  const skills = ctx.world.getComponent(owner, "skills");
   if (!meetsRequirements(def, skills)) {
     return { ok: false, reason: "requirements" };
   }
@@ -178,7 +178,7 @@ export function unequipSlot(
   inventory: InventoryComponent,
   slotName: EquipmentSlotName,
 ): UnequipResult {
-  const equipment = ctx.world.stores.equipment.get(owner);
+  const equipment = ctx.world.getComponent(owner, "equipment");
   const itemId = equipment?.slots[slotName];
   if (!equipment || !itemId) {
     return { ok: false, reason: "empty" };

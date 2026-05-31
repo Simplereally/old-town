@@ -5,7 +5,7 @@ import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { ConsumableSystem } from "../systems/consumable-system";
 import { createEquipment } from "./equipment";
 import { addItem, catalogFromItems, count, createInventory } from "./inventory";
-import { type ItemActionContext, handleItemIntent, handleUnequipIntent } from "./item-actions";
+import { handleItemIntent, handleUnequipIntent, type ItemActionContext } from "./item-actions";
 
 function defItem(over: Partial<ItemDef> & { id: string }): ItemDef {
   return {

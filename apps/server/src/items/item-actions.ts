@@ -1,7 +1,7 @@
 /**
  * Authoritative item-action dispatch (POC_SPEC §16, §13.9).
  *
- * Routes a client {@link ItemIntent} (an inventory item `uid` + an option verb) to a small
+ * Routes a client {@link ItemIntent} (an inventory item `uid` + an actionId) to a small
  * server-side "script" per option. The client never mutates inventory — it only asks; the
  * server validates the item still exists in the slot, that the action's content preconditions
  * are met (e.g. equippable / edible), and then mutates *only* through the inventory container
@@ -13,7 +13,7 @@
  *   - S03 layers combat-bonus/appearance derivation onto equip changes.
  *   - S04 layers HP healing + eat-delay/tick-phase priority onto the eat script.
  */
-import { EQUIPMENT_SLOTS, type EntityId, type ItemDef, type ItemIntent } from "@old-town/shared";
+import { type EntityId, EQUIPMENT_SLOTS, type ItemDef, type ItemIntent } from "@old-town/shared";
 import type { World } from "../ecs/world";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import type { ConsumableSystem } from "../systems/consumable-system";
@@ -74,7 +74,7 @@ export function handleItemIntent(
     return { outcome: "invalid", message };
   };
 
-  const inventory = ctx.world.stores.inventory.get(owner);
+  const inventory = ctx.world.getComponent(owner, "inventory");
   if (!inventory) {
     return { outcome: "invalid", message: "" };
   }
@@ -90,14 +90,14 @@ export function handleItemIntent(
     return invalid(GENERIC_NOTHING);
   }
 
-  const option = intent.option;
-  if (option === "examine") {
+  const actionId = intent.actionId;
+  if (actionId === "examine") {
     const message = def.examine;
     emitMessage(ctx, owner, message, serverTime);
     return { outcome: "examined", message };
   }
 
-  if (option === "drop") {
+  if (actionId === "drop") {
     const { changes } = removeFromSlot(inventory, slot, occupant.quantity);
     ctx.deltas.markInventoryDelta(buildDelta(inventory, changes));
     const message = `You drop the ${def.name}.`;
@@ -105,7 +105,7 @@ export function handleItemIntent(
     return { outcome: "dropped", message };
   }
 
-  if (EQUIP_OPTIONS.has(option)) {
+  if (EQUIP_OPTIONS.has(actionId)) {
     if (!def.equipment) {
       return invalid("You can't equip that.");
     }
@@ -120,11 +120,11 @@ export function handleItemIntent(
     return { outcome: "equipped", message };
   }
 
-  if (EAT_OPTIONS.has(option)) {
+  if (EAT_OPTIONS.has(actionId)) {
     if (!def.consumable) {
       return invalid(GENERIC_NOTHING);
     }
-    const combatant = ctx.world.stores.combatant.get(owner);
+    const combatant = ctx.world.getComponent(owner, "combatant");
     if (!combatant) {
       // No hitpoints to restore — leave the food untouched rather than wasting it.
       return invalid(GENERIC_NOTHING);
@@ -142,13 +142,13 @@ export function handleItemIntent(
     ctx.deltas.markInventoryDelta(buildDelta(inventory, changes));
     ctx.consumables.enqueueHeal(owner, def.consumable.heal);
     combatant.eatBlockedUntilTick = tick + def.consumable.consumeTicks;
-    const verb = option === "drink" ? "drink" : "eat";
+    const verb = actionId === "drink" ? "drink" : "eat";
     const message = `You ${verb} the ${def.name}.`;
     emitMessage(ctx, owner, message, serverTime);
     return { outcome: "eaten", message };
   }
 
-  if (option === "use") {
+  if (actionId === "use") {
     // Placeholder: "use on X" targeting is wired in a later epic.
     const message = `You need to use the ${def.name} on something.`;
     emitMessage(ctx, owner, message, serverTime);
@@ -169,7 +169,7 @@ export function handleUnequipIntent(
   slotIndex: number,
   serverTime: number,
 ): ItemActionResult {
-  const inventory = ctx.world.stores.inventory.get(owner);
+  const inventory = ctx.world.getComponent(owner, "inventory");
   const slotName = EQUIPMENT_SLOTS[slotIndex];
   if (!inventory || slotName === undefined) {
     return { outcome: "invalid", message: "" };

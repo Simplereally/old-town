@@ -107,7 +107,7 @@ describe("CommandBuffer", () => {
       {
         type: ClientCommandType.NpcOption,
         commandId: 14,
-        payload: { npcEntityId: 5, option: "talk" },
+        payload: { npcEntityId: 5, actionId: "talk" },
       },
       source(1),
     );

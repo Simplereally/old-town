@@ -2,45 +2,27 @@
  * Old Town authoritative game server.
  *
  * Boots with content validation, starts a lightweight HTTP server for health checks,
- * and prepares the tick loop and ECS state (added in later stories). Graceful shutdown
- * stops the tick loop and closes sockets when those are wired in.
+ * wires the simulation kernel, and starts the WebSocket transport. Graceful shutdown
+ * stops the tick loop and closes sockets.
  */
 import type { Server } from "node:http";
 import { createServer } from "node:http";
 import { GAME_TICK_MS } from "@old-town/shared";
 import { type BootContentResult, loadContent } from "./content-loader";
-import { type World, createWorld } from "./ecs/world";
 import { loadRuntimeConfig } from "./env";
-import { handleItemIntent, handleUnequipIntent } from "./items/item-actions";
 import { createLogger } from "./logger";
-import { CommandRouter } from "./net/command-router";
-import { DeltaBroadcaster } from "./net/delta-broadcaster";
-import { DevSessionManager } from "./net/dev-session";
-import { InterestManager } from "./net/interest-manager";
-import { type WebSocketTransport, createWebSocketTransport } from "./net/websocket-transport";
-import { CommandBuffer, IntentKind } from "./sim/command-buffer";
-import { DeltaAccumulator } from "./sim/delta-accumulator";
-import { TickLoop, TickPhase } from "./sim/tick-loop";
-import { ChatSystem } from "./systems/chat-system";
-import { ConsumableSystem } from "./systems/consumable-system";
-import { handleMoveIntent, processMovementPhase } from "./systems/movement-system";
-import { CollisionMap } from "./world/collision";
-import { loadAllRegionMapsIntoWorld } from "./world/region-loader";
-import { type RuntimeMap, createRuntimeMap } from "./world/runtime-map";
+import { createWebSocketTransport, type WebSocketTransport } from "./net/websocket-transport";
+import { createSimulationKernel, type SimulationKernel } from "./sim/simulation-kernel";
 
 export interface GameServer {
   /** Stop the server and release all resources. */
   shutdown(): Promise<void>;
   /** The HTTP server instance (for tests). */
   httpServer: Server;
-  /** Authoritative ECS state. */
-  world: World;
-  /** Runtime terrain, trigger, and region state. */
-  map: RuntimeMap;
   /** WebSocket transport shell. */
   transport: WebSocketTransport;
-  /** Deterministic simulation tick loop. */
-  tickLoop: TickLoop;
+  /** The authoritative simulation kernel. */
+  kernel: SimulationKernel;
 }
 
 export async function startServer(): Promise<GameServer> {
@@ -67,86 +49,14 @@ export async function startServer(): Promise<GameServer> {
     .join(", ");
   logger.info("boot", "Content loaded", { registries: registryCounts });
 
-  const world = createWorld();
-  const map = createRuntimeMap();
-  const loadedRegions = loadAllRegionMapsIntoWorld(world, map, content.registries);
-  const devSessions = new DevSessionManager(world, map, content.registries);
-  const collision = new CollisionMap(map);
-  const commandBuffer = new CommandBuffer();
-  const deltas = new DeltaAccumulator();
-  const interestManager = new InterestManager();
-  const tickLoop = new TickLoop({ logger, startServerTime: Date.now() });
-  const chatSystem = new ChatSystem();
-  const consumableSystem = new ConsumableSystem();
-  const commandRouter = new CommandRouter({
-    commandBuffer,
-    getEntityId: (session) => devSessions.getEntityId(session),
-    getCurrentTick: () => tickLoop.currentTick,
-  });
-  const netRuntime = {
-    deltaBroadcaster: undefined as DeltaBroadcaster | undefined,
-  };
-
-  tickLoop.registerPhase(TickPhase.InputClose, ({ tick, serverTime }) => {
-    const commands = commandRouter.consumeTick(tick);
-    for (const group of commands.groups) {
-      for (const intent of group.intents) {
-        if (intent.kind === IntentKind.Move) {
-          handleMoveIntent({ world, collision, deltas }, group.ownerEntityId, {
-            dest: intent.payload.dest,
-          });
-        } else if (intent.kind === IntentKind.Chat) {
-          chatSystem.submit(
-            { world, deltas },
-            group.ownerEntityId,
-            { text: intent.payload.text },
-            tick,
-            serverTime,
-          );
-        } else if (intent.kind === IntentKind.Item) {
-          handleItemIntent(
-            { world, deltas, items: content.registries.item, consumables: consumableSystem },
-            group.ownerEntityId,
-            intent.payload,
-            tick,
-            serverTime,
-          );
-        } else if (
-          intent.kind === IntentKind.UiAction &&
-          intent.payload.action === "unequip" &&
-          intent.payload.value !== undefined
-        ) {
-          handleUnequipIntent(
-            { world, deltas, items: content.registries.item, consumables: consumableSystem },
-            group.ownerEntityId,
-            intent.payload.value,
-            serverTime,
-          );
-        }
-      }
-    }
-  });
-  tickLoop.registerPhase(TickPhase.Movement, ({ tick }) => {
-    processMovementPhase({ world, collision, deltas }, tick);
-  });
-  // Food/potion stat changes (§9.1 phase 9) run strictly after damage resolution (phase 8),
-  // so a same-tick incoming hit always lands before food heals (POC_SPEC §13.9).
-  tickLoop.registerPhase(TickPhase.FoodPotionPrayerStatChanges, () => {
-    consumableSystem.processConsumablePhase({ world, deltas });
-  });
-  tickLoop.registerPhase(TickPhase.SnapshotDeltaBuild, ({ tick, serverTime }) => {
-    netRuntime.deltaBroadcaster?.broadcastTick(tick, serverTime);
-  });
-  logger.info("world", "Regions loaded", {
-    regions: loadedRegions.length,
-    tiles: map.tiles.size,
-    objects: world.stores.object.size,
-    npcs: world.stores.npc.size,
-    groundItems: world.stores.groundItem.size,
-    resourceNodes: world.stores.resourceNode.size,
+  // --- Create simulation kernel ----------------------------------------------------
+  const kernel = createSimulationKernel({
+    registries: content.registries,
+    logger,
+    startServerTime: Date.now(),
   });
 
-  // --- HTTP server (health + readiness) --------------------------------------------
+  // --- HTTP server (health + readiness + content) -----------------------------------
   const serializedContent = JSON.stringify(serializeContentForClient(content.registries));
 
   const httpServer = createServer((req, res) => {
@@ -172,49 +82,27 @@ export async function startServer(): Promise<GameServer> {
     res.end(JSON.stringify({ error: "not found" }));
   });
 
+  // --- WebSocket transport ----------------------------------------------------------
   const transport = createWebSocketTransport({
     httpServer,
     logger,
-    getFullState: (session) => {
-      const fullState = devSessions.bootstrap(
-        session,
-        tickLoop.currentTick,
-        tickLoop.currentServerTime,
-      );
-      netRuntime.deltaBroadcaster?.primeSession(session, fullState.entities);
-      const entityById = new Map(fullState.entities.map((e) => [e.entityId, e]));
-      const selfSpawn = entityById.get(fullState.selfEntityId);
-      if (selfSpawn) {
-        deltas.markEntityAdd(selfSpawn);
-      }
-      return fullState;
-    },
-    onCommand: (session, command) => commandRouter.route(session, command),
-    onClose: (session) => {
-      const entityId = devSessions.getEntityId(session);
-      if (entityId !== undefined) {
-        deltas.markEntityRemove(entityId);
-      }
-      devSessions.remove(session);
-    },
+    getFullState: (session) => kernel.connectSession(session),
+    onCommand: (session, command) => kernel.routeCommand(session, command),
+    onClose: (session) => kernel.disconnectSession(session),
   });
-  netRuntime.deltaBroadcaster = new DeltaBroadcaster({
-    world,
-    deltas,
-    interestManager,
-    transport,
-    getEntityId: (session) => devSessions.getEntityId(session),
-  });
+
+  kernel.attachDeltaTransport(transport);
 
   httpServer.listen(config.port, () => {
     logger.info("http", `Server listening on port ${config.port}`, { port: config.port });
   });
 
+  // --- Tick loop timer --------------------------------------------------------------
   const tickTimer = setInterval(() => {
-    tickLoop.runDueTicks(Date.now());
+    kernel.runDueTicks(Date.now());
   }, GAME_TICK_MS);
 
-  // --- Graceful shutdown -----------------------------------------------------------
+  // --- Graceful shutdown ------------------------------------------------------------
   const shutdown = async (): Promise<void> => {
     logger.info("shutdown", "Graceful shutdown initiated");
     clearInterval(tickTimer);
@@ -225,7 +113,7 @@ export async function startServer(): Promise<GameServer> {
     logger.info("shutdown", "HTTP server closed");
   };
 
-  return { shutdown, httpServer, world, map, transport, tickLoop };
+  return { shutdown, httpServer, transport, kernel };
 }
 
 function serializeContentForClient(registries: BootContentResult["registries"]): unknown {

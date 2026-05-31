@@ -77,7 +77,7 @@ export class ChatSystem {
     }
 
     const filteredText = this.profanityFilter(text);
-    const actor = context.world.stores.actor.get(entityId);
+    const actor = context.world.getComponent(entityId, "actor");
     const packet: ChatPacket = {
       entityId,
       ...(actor ? { name: actor.name } : {}),

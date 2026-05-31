@@ -1,5 +1,6 @@
 /** NPC definitions (POC_SPEC §14.1). */
 import { z } from "zod";
+import { actionIdSchema } from "../content/action-id";
 import {
   combatBonusesSchema,
   combatStatsSchema,
@@ -13,7 +14,7 @@ export const interactionOptionDefSchema = z
   .object({
     label: z.string().min(1),
     /** Engine action verb resolved from content (e.g. "attack", "talk"). */
-    actionId: z.string().regex(/^[a-z][a-z0-9_]*$/),
+    actionId: actionIdSchema,
     priority: nonNegInt.default(0),
     requiredDistance: nonNegInt.default(1),
     requiresLineOfSight: z.boolean().optional(),

@@ -1,5 +1,5 @@
-import { Raycaster, Vector2 } from "three";
 import type { Mesh, OrthographicCamera } from "three";
+import { Raycaster, Vector2 } from "three";
 
 export interface EntityPickerOptions {
   readonly camera: OrthographicCamera;

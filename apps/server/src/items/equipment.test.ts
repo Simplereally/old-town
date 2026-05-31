@@ -58,8 +58,8 @@ function setup(seed: readonly { itemId: string; quantity: number }[], capacity =
   const world = createWorld();
   const owner = world.createEntity();
   const inventory = createInventory(owner, `inventory:${owner}`, capacity);
-  world.stores.inventory.set(owner, inventory);
-  world.stores.equipment.set(owner, createEquipment(owner));
+  world.setComponent(owner, "inventory", inventory);
+  world.setComponent(owner, "equipment", createEquipment(owner));
   const catalog = catalogFromItems(ITEMS);
   for (const { itemId, quantity } of seed) {
     addItem(inventory, catalog, itemId, quantity);
@@ -74,8 +74,8 @@ function setSkill(
   skillId: string,
   level: number,
 ) {
-  const skills: Record<string, SkillState> = { [skillId]: { level, xp: 0 } };
-  world.stores.skills.set(owner, { entityId: owner, skills });
+  const skills: Record<string, SkillState> = { [skillId]: { level, xp: 0, boost: 0, drain: 0 } };
+  world.setComponent(owner, "skills", { entityId: owner, skills });
 }
 
 describe("zeroBonuses", () => {
@@ -93,9 +93,9 @@ describe("equipItem", () => {
     const result = equipItem(ctx, owner, inventory, 0, IRON_BLADE);
 
     expect(result.ok).toBe(true);
-    expect(world.stores.equipment.get(owner)?.slots.weapon).toBe("iron_blade");
+    expect(world.getComponent(owner, "equipment")?.slots.weapon).toBe("iron_blade");
     expect(count(inventory, "iron_blade")).toBe(0);
-    const bonuses = world.stores.equipment.get(owner)?.bonuses;
+    const bonuses = world.getComponent(owner, "equipment")?.bonuses;
     expect(bonuses?.slashAttack).toBe(5);
     expect(bonuses?.meleeStrength).toBe(3);
   });
@@ -107,7 +107,7 @@ describe("equipItem", () => {
 
     expect(result).toEqual({ ok: false, reason: "requirements" });
     expect(count(inventory, "steel_blade")).toBe(1);
-    expect(world.stores.equipment.get(owner)?.slots.weapon).toBeUndefined();
+    expect(world.getComponent(owner, "equipment")?.slots.weapon).toBeUndefined();
   });
 
   it("equips once the skill requirement is met", () => {
@@ -115,7 +115,7 @@ describe("equipItem", () => {
     setSkill(world, owner, "attack", 5);
     const result = equipItem(ctx, owner, inventory, 0, STEEL_BLADE);
     expect(result.ok).toBe(true);
-    expect(world.stores.equipment.get(owner)?.slots.weapon).toBe("steel_blade");
+    expect(world.getComponent(owner, "equipment")?.slots.weapon).toBe("steel_blade");
   });
 
   it("swaps the previously-equipped item back into the inventory and re-aggregates", () => {
@@ -129,9 +129,9 @@ describe("equipItem", () => {
     const steelSlot = inventory.slots.findIndex((s) => s?.itemId === "steel_blade");
     equipItem(ctx, owner, inventory, steelSlot, STEEL_BLADE);
 
-    expect(world.stores.equipment.get(owner)?.slots.weapon).toBe("steel_blade");
+    expect(world.getComponent(owner, "equipment")?.slots.weapon).toBe("steel_blade");
     expect(count(inventory, "iron_blade")).toBe(1);
-    expect(world.stores.equipment.get(owner)?.bonuses.slashAttack).toBe(9);
+    expect(world.getComponent(owner, "equipment")?.bonuses.slashAttack).toBe(9);
   });
 });
 
@@ -150,7 +150,7 @@ describe("aggregateBonuses", () => {
       BRONZE_HELM,
     );
 
-    const equipment = world.stores.equipment.get(owner);
+    const equipment = world.getComponent(owner, "equipment");
     if (!equipment) throw new Error("equipment missing");
     const totals = aggregateBonuses(equipment, ITEMS);
     expect(totals.slashAttack).toBe(5);
@@ -174,7 +174,7 @@ describe("equipmentUpdate", () => {
       BRONZE_HELM,
     );
 
-    const equipment = world.stores.equipment.get(owner);
+    const equipment = world.getComponent(owner, "equipment");
     if (!equipment) throw new Error("equipment missing");
     const update = equipmentUpdate(equipment);
     expect(update.slots).toHaveLength(11);
@@ -189,9 +189,9 @@ describe("meetsRequirements", () => {
     const { world, owner } = setup([]);
     expect(meetsRequirements(IRON_BLADE, undefined)).toBe(true);
     setSkill(world, owner, "attack", 4);
-    expect(meetsRequirements(STEEL_BLADE, world.stores.skills.get(owner))).toBe(false);
+    expect(meetsRequirements(STEEL_BLADE, world.getComponent(owner, "skills"))).toBe(false);
     setSkill(world, owner, "attack", 5);
-    expect(meetsRequirements(STEEL_BLADE, world.stores.skills.get(owner))).toBe(true);
+    expect(meetsRequirements(STEEL_BLADE, world.getComponent(owner, "skills"))).toBe(true);
   });
 });
 
@@ -203,8 +203,8 @@ describe("unequipSlot", () => {
 
     expect(result.ok).toBe(true);
     expect(count(inventory, "iron_blade")).toBe(1);
-    expect(world.stores.equipment.get(owner)?.slots.weapon).toBeUndefined();
-    expect(world.stores.equipment.get(owner)?.bonuses.slashAttack).toBe(0);
+    expect(world.getComponent(owner, "equipment")?.slots.weapon).toBeUndefined();
+    expect(world.getComponent(owner, "equipment")?.bonuses.slashAttack).toBe(0);
   });
 
   it("fails on an empty slot without mutating", () => {
@@ -219,7 +219,7 @@ describe("unequipSlot", () => {
 
     const result = unequipSlot(ctx, owner, inventory, "weapon");
     expect(result).toEqual({ ok: false, reason: "inventory_full" });
-    expect(world.stores.equipment.get(owner)?.slots.weapon).toBe("iron_blade");
+    expect(world.getComponent(owner, "equipment")?.slots.weapon).toBe("iron_blade");
     expect(count(inventory, "rock")).toBe(1);
   });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type EntityId, type Tick, entityId, tick } from "./ids";
+import { type EntityId, entityId, type Tick, tick } from "./ids";
 
 describe("entityId", () => {
   it("brands valid non-negative integers", () => {

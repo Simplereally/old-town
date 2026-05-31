@@ -1,5 +1,5 @@
-import { Group, type Mesh, MeshBasicMaterial, PlaneGeometry, type Vector3 } from "three";
 import type { Scene } from "three";
+import { Group, type Mesh, MeshBasicMaterial, PlaneGeometry, type Vector3 } from "three";
 import { MeshPool } from "../renderer/MeshPool";
 
 interface Hitsplat {

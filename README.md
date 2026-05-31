@@ -49,6 +49,7 @@ Additional scripts are wired up as the foundation epics land:
 | `bun run format:check`  | Verify formatting without writing                  |
 | `bun run lint`          | Lint the repo (Biome)                              |
 | `bun run check`         | Format check + lint + import organize in one pass  |
+| `bun run fix`           | Apply safe Biome fixes, formatting, and imports    |
 | `bun run test`          | Run the test suites                                |
 | `bun run test:coverage` | Run tests with coverage (E00-S04)                  |
 
@@ -59,14 +60,14 @@ configured in `biome.json`:
 
 - **Formatting:** 2-space indent, 100-column width, LF line endings, double quotes,
   always-on semicolons and trailing commas.
-- **Import hygiene:** imports are auto-organized/ordered (`organizeImports`), unused
-  imports and variables are errors (`noUnusedImports`, `noUnusedVariables`), and type-only
-  imports must use `import type` (`useImportType`).
+- **Import hygiene:** imports are auto-organized by Biome's `assist/source/organizeImports`
+  action, unused imports and variables are errors (`noUnusedImports`, `noUnusedVariables`),
+  and type-only imports must use `import type` (`useImportType`).
 - **Exclusions:** `node_modules`, `dist`, `build`, `out`, `coverage`, `.vite`, `.cache`,
   `*.tsbuildinfo`, and lockfiles are never linted or formatted. The repo `.gitignore` is
   also honored via Biome's VCS integration.
 
-Run `bun run format` before committing, and `bun run check` to verify everything at once.
+Run `bun run fix` before committing, and `bun run check` to verify everything at once.
 
 ## Task workflow
 

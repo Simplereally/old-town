@@ -1,9 +1,9 @@
 import {
   ClientCommandType,
+  entityId,
   type FullStatePacket,
   ServerPacketType,
   type TickDeltaPacket,
-  entityId,
 } from "@old-town/shared";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -204,11 +204,11 @@ describe("GameEngine entity picking and context menu", () => {
     const calls = socket.sendCommand.mock.calls as unknown[][];
     const call = (calls[0] as unknown[])[0] as Record<string, unknown>;
     expect(call.type).toBe(ClientCommandType.NpcOption);
-    expect((call.payload as Record<string, unknown>).option).toBe("talk-to");
+    expect((call.payload as Record<string, unknown>).actionId).toBe("talk");
     expect((call.payload as Record<string, unknown>).npcEntityId).toBe(10);
   });
 
-  it("sends ObjectOption on left-click object", () => {
+  it("sends ObjectOption on left-click object (fallback when content empty)", () => {
     const mockEntity = { entityId: 20, kind: "object" as const, defId: "tree_oak", distance: 1 };
     (asEngine(engine) as { _pickEntityAt: ReturnType<typeof vi.fn> })._pickEntityAt = vi.fn(
       () => mockEntity,
@@ -221,11 +221,11 @@ describe("GameEngine entity picking and context menu", () => {
     const calls = socket.sendCommand.mock.calls as unknown[][];
     const call = (calls[0] as unknown[])[0] as Record<string, unknown>;
     expect(call.type).toBe(ClientCommandType.ObjectOption);
-    expect((call.payload as Record<string, unknown>).option).toBe("chop");
+    expect((call.payload as Record<string, unknown>).actionId).toBe("use");
     expect((call.payload as Record<string, unknown>).objectEntityId).toBe(20);
   });
 
-  it("sends ItemOption on left-click ground item", () => {
+  it("sends GroundItemOption on left-click ground item", () => {
     const mockEntity = {
       entityId: 30,
       kind: "groundItem" as const,
@@ -243,9 +243,9 @@ describe("GameEngine entity picking and context menu", () => {
     expect(socket.sendCommand).toHaveBeenCalled();
     const calls = socket.sendCommand.mock.calls as unknown[][];
     const call = (calls[0] as unknown[])[0] as Record<string, unknown>;
-    expect(call.type).toBe(ClientCommandType.ItemOption);
-    expect((call.payload as Record<string, unknown>).option).toBe("pick-up");
-    expect((call.payload as Record<string, unknown>).itemUid).toBe(30);
+    expect(call.type).toBe(ClientCommandType.GroundItemOption);
+    expect((call.payload as Record<string, unknown>).actionId).toBe("pickup");
+    expect((call.payload as Record<string, unknown>).groundItemEntityId).toBe(30);
   });
 
   it("sends MoveClick on left-click player (default)", () => {
@@ -285,31 +285,67 @@ describe("GameEngine entity picking and context menu", () => {
     expect(contextMenu.show).toHaveBeenCalled();
   });
 
-  it("sends NpcOption from context menu callback", () => {
+  it("sends NpcOption from context menu click", () => {
     const mockEntity = { entityId: 10, kind: "npc" as const, defId: "guard", distance: 1 };
-    (asEngine(engine)._onNpcOption as (e: unknown, o: string) => void)(mockEntity, "attack");
+    (asEngine(engine) as { _pickEntityAt: ReturnType<typeof vi.fn> })._pickEntityAt = vi.fn(
+      () => mockEntity,
+    );
+    (
+      asEngine(engine)._inputInterpreter as { getContextMenuOptions: ReturnType<typeof vi.fn> }
+    ).getContextMenuOptions = vi.fn(() => [{ label: "Attack", actionId: "attack", priority: 1 }]);
+
+    const rightClickEvent = new MouseEvent("contextmenu", {
+      clientX: 400,
+      clientY: 300,
+      bubbles: true,
+    });
+    canvas.dispatchEvent(rightClickEvent);
+
+    const attackItem = Array.from(document.querySelectorAll(".context-menu-item")).find((el) =>
+      el.textContent?.includes("Attack"),
+    );
+    expect(attackItem).toBeDefined();
+    (attackItem as HTMLDivElement)?.click();
 
     expect(socket.sendCommand).toHaveBeenCalled();
     const calls = socket.sendCommand.mock.calls as unknown[][];
     const call = (calls[0] as unknown[])[0] as Record<string, unknown>;
     expect(call.type).toBe(ClientCommandType.NpcOption);
-    expect((call.payload as Record<string, unknown>).option).toBe("attack");
+    expect((call.payload as Record<string, unknown>).actionId).toBe("attack");
     expect((call.payload as Record<string, unknown>).npcEntityId).toBe(10);
   });
 
-  it("sends ObjectOption from context menu callback", () => {
+  it("sends ObjectOption from context menu click", () => {
     const mockEntity = { entityId: 20, kind: "object" as const, defId: "rock_copper", distance: 1 };
-    (asEngine(engine)._onObjectOption as (e: unknown, o: string) => void)(mockEntity, "mine");
+    (asEngine(engine) as { _pickEntityAt: ReturnType<typeof vi.fn> })._pickEntityAt = vi.fn(
+      () => mockEntity,
+    );
+    (
+      asEngine(engine)._inputInterpreter as { getContextMenuOptions: ReturnType<typeof vi.fn> }
+    ).getContextMenuOptions = vi.fn(() => [{ label: "Mine", actionId: "mine", priority: 1 }]);
+
+    const rightClickEvent = new MouseEvent("contextmenu", {
+      clientX: 400,
+      clientY: 300,
+      bubbles: true,
+    });
+    canvas.dispatchEvent(rightClickEvent);
+
+    const mineItem = Array.from(document.querySelectorAll(".context-menu-item")).find((el) =>
+      el.textContent?.includes("Mine"),
+    );
+    expect(mineItem).toBeDefined();
+    (mineItem as HTMLDivElement)?.click();
 
     expect(socket.sendCommand).toHaveBeenCalled();
     const calls = socket.sendCommand.mock.calls as unknown[][];
     const call = (calls[0] as unknown[])[0] as Record<string, unknown>;
     expect(call.type).toBe(ClientCommandType.ObjectOption);
-    expect((call.payload as Record<string, unknown>).option).toBe("mine");
+    expect((call.payload as Record<string, unknown>).actionId).toBe("mine");
     expect((call.payload as Record<string, unknown>).objectEntityId).toBe(20);
   });
 
-  it("sends ItemOption from context menu callback", () => {
+  it("sends GroundItemOption from context menu click", () => {
     const mockEntity = {
       entityId: 30,
       kind: "groundItem" as const,
@@ -317,18 +353,56 @@ describe("GameEngine entity picking and context menu", () => {
       quantity: 1,
       distance: 1,
     };
-    (asEngine(engine)._onItemOption as (e: unknown, o: string) => void)(mockEntity, "pick-up");
+    (asEngine(engine) as { _pickEntityAt: ReturnType<typeof vi.fn> })._pickEntityAt = vi.fn(
+      () => mockEntity,
+    );
+    (
+      asEngine(engine)._inputInterpreter as { getContextMenuOptions: ReturnType<typeof vi.fn> }
+    ).getContextMenuOptions = vi.fn(() => [{ label: "Pick up", actionId: "pickup", priority: 1 }]);
+
+    const rightClickEvent = new MouseEvent("contextmenu", {
+      clientX: 400,
+      clientY: 300,
+      bubbles: true,
+    });
+    canvas.dispatchEvent(rightClickEvent);
+
+    const pickupItem = Array.from(document.querySelectorAll(".context-menu-item")).find((el) =>
+      el.textContent?.includes("Pick up"),
+    );
+    expect(pickupItem).toBeDefined();
+    (pickupItem as HTMLDivElement)?.click();
 
     expect(socket.sendCommand).toHaveBeenCalled();
     const calls = socket.sendCommand.mock.calls as unknown[][];
     const call = (calls[0] as unknown[])[0] as Record<string, unknown>;
-    expect(call.type).toBe(ClientCommandType.ItemOption);
-    expect((call.payload as Record<string, unknown>).option).toBe("pick-up");
-    expect((call.payload as Record<string, unknown>).itemUid).toBe(30);
+    expect(call.type).toBe(ClientCommandType.GroundItemOption);
+    expect((call.payload as Record<string, unknown>).actionId).toBe("pickup");
+    expect((call.payload as Record<string, unknown>).groundItemEntityId).toBe(30);
   });
 
-  it("sends MoveClick from Walk here context menu callback", () => {
-    (asEngine(engine)._onWalkHere as (t: { x: number; y: number }) => void)({ x: 30, y: 32 });
+  it("sends MoveClick from Walk here context menu click", () => {
+    (asEngine(engine) as { _pickEntityAt: ReturnType<typeof vi.fn> })._pickEntityAt = vi.fn(
+      () => null,
+    );
+    (
+      asEngine(engine)._inputInterpreter as { getContextMenuOptions: ReturnType<typeof vi.fn> }
+    ).getContextMenuOptions = vi.fn(() => [
+      { label: "Walk here", actionId: "walk_here", priority: 0 },
+    ]);
+
+    const rightClickEvent = new MouseEvent("contextmenu", {
+      clientX: 400,
+      clientY: 300,
+      bubbles: true,
+    });
+    canvas.dispatchEvent(rightClickEvent);
+
+    const walkItem = Array.from(document.querySelectorAll(".context-menu-item")).find((el) =>
+      el.textContent?.includes("Walk here"),
+    );
+    expect(walkItem).toBeDefined();
+    (walkItem as HTMLDivElement)?.click();
 
     expect(socket.sendCommand).toHaveBeenCalled();
     const calls = socket.sendCommand.mock.calls as unknown[][];
@@ -354,26 +428,6 @@ describe("GameEngine entity picking and context menu", () => {
 
     const onFrame = asEngine(engine).renderer as { onFrame: (d: number, e: number) => void };
     expect(() => onFrame.onFrame(16, 1000)).not.toThrow();
-  });
-
-  it("infers chop action for tree objects", () => {
-    const action = (asEngine(engine)._inferObjectAction as (d: string) => string)("tree_oak");
-    expect(action).toBe("chop");
-  });
-
-  it("infers mine action for rock objects", () => {
-    const action = (asEngine(engine)._inferObjectAction as (d: string) => string)("rock_copper");
-    expect(action).toBe("mine");
-  });
-
-  it("infers open action for door objects", () => {
-    const action = (asEngine(engine)._inferObjectAction as (d: string) => string)("door_wooden");
-    expect(action).toBe("open");
-  });
-
-  it("infers use action for unknown objects", () => {
-    const action = (asEngine(engine)._inferObjectAction as (d: string) => string)("chest");
-    expect(action).toBe("use");
   });
 });
 

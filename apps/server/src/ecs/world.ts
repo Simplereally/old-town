@@ -1,7 +1,3 @@
-/**
- * ECS world state container. Stores components in dense maps keyed by entity id.
- * Provides create/destroy lifecycle, component queries, and isolation guarantees.
- */
 import type { EntityId } from "@old-town/shared";
 import type {
   ActorComponent,
@@ -20,35 +16,64 @@ import type {
 } from "./components";
 import { EntityPool } from "./entity";
 
-export interface ComponentStores {
-  position: Map<EntityId, PositionComponent>;
-  movement: Map<EntityId, MovementComponent>;
-  actor: Map<EntityId, ActorComponent>;
-  player: Map<EntityId, PlayerComponent>;
-  npc: Map<EntityId, NpcComponent>;
-  object: Map<EntityId, ObjectComponent>;
-  groundItem: Map<EntityId, GroundItemComponent>;
-  inventory: Map<EntityId, InventoryComponent>;
-  equipment: Map<EntityId, EquipmentComponent>;
-  skills: Map<EntityId, SkillsComponent>;
-  combatant: Map<EntityId, CombatantComponent>;
-  resourceNode: Map<EntityId, ResourceNodeComponent>;
-  questVars: Map<EntityId, QuestVarsComponent>;
-}
+export type WorldComponentMap = {
+  position: PositionComponent;
+  movement: MovementComponent;
+  actor: ActorComponent;
+  player: PlayerComponent;
+  npc: NpcComponent;
+  object: ObjectComponent;
+  groundItem: GroundItemComponent;
+  inventory: InventoryComponent;
+  equipment: EquipmentComponent;
+  skills: SkillsComponent;
+  combatant: CombatantComponent;
+  resourceNode: ResourceNodeComponent;
+  questVars: QuestVarsComponent;
+};
+
+export type WorldComponentKind = keyof WorldComponentMap;
+
+export type WorldComponent<K extends WorldComponentKind> = WorldComponentMap[K];
 
 export interface World {
-  readonly entities: EntityPool;
-  readonly stores: ComponentStores;
   createEntity(): EntityId;
   destroyEntity(id: EntityId): void;
   isAlive(id: EntityId): boolean;
-  query<T>(store: Map<EntityId, T>): readonly T[];
-  queryAlive<T>(store: Map<EntityId, T>): readonly T[];
+  aliveEntityIds(): readonly EntityId[];
+  aliveEntityCount(): number;
+
+  getComponent<K extends WorldComponentKind>(
+    entityId: EntityId,
+    kind: K,
+  ): WorldComponent<K> | undefined;
+
+  setComponent<K extends WorldComponentKind>(
+    entityId: EntityId,
+    kind: K,
+    component: WorldComponent<K>,
+  ): void;
+
+  removeComponent<K extends WorldComponentKind>(entityId: EntityId, kind: K): boolean;
+
+  hasComponent<K extends WorldComponentKind>(entityId: EntityId, kind: K): boolean;
+
+  componentCount(kind: WorldComponentKind): number;
+
+  entityIdsWith(kind: WorldComponentKind): readonly EntityId[];
+
+  componentEntries<K extends WorldComponentKind>(
+    kind: K,
+  ): readonly (readonly [EntityId, WorldComponent<K>])[];
+}
+
+function entityOrder(a: EntityId, b: EntityId): number {
+  return (a as number) - (b as number);
 }
 
 export function createWorld(): World {
   const entities = new EntityPool();
-  const stores: ComponentStores = {
+  const componentTables: { [K in WorldComponentKind]: Map<EntityId, WorldComponent<K>> } = {
     position: new Map(),
     movement: new Map(),
     actor: new Map(),
@@ -72,8 +97,7 @@ export function createWorld(): World {
     if (!entities.isAlive(id)) {
       throw new Error(`Cannot destroy non-existent entity ${id}`);
     }
-    // Remove all components for this entity.
-    for (const store of Object.values(stores)) {
+    for (const store of Object.values(componentTables)) {
       store.delete(id);
     }
     entities.release(id);
@@ -83,27 +107,69 @@ export function createWorld(): World {
     return entities.isAlive(id);
   };
 
-  const query = <T>(store: Map<EntityId, T>): readonly T[] => {
-    return Array.from(store.values());
+  const aliveEntityIds = (): readonly EntityId[] => {
+    return entities.getAlive().toSorted(entityOrder);
   };
 
-  const queryAlive = <T>(store: Map<EntityId, T>): readonly T[] => {
-    const results: T[] = [];
-    for (const [id, component] of store) {
-      if (entities.isAlive(id)) {
-        results.push(component);
-      }
+  const aliveEntityCount = (): number => {
+    return entities.getAlive().length;
+  };
+
+  const getComponent = <K extends WorldComponentKind>(
+    entityId: EntityId,
+    kind: K,
+  ): WorldComponent<K> | undefined => {
+    return componentTables[kind].get(entityId);
+  };
+
+  const setComponent = <K extends WorldComponentKind>(
+    entityId: EntityId,
+    kind: K,
+    component: WorldComponent<K>,
+  ): void => {
+    if (!entities.isAlive(entityId)) {
+      throw new Error(`Cannot set component on dead entity ${entityId}`);
     }
-    return results;
+    if (component.entityId !== entityId) {
+      throw new Error(`Component entityId mismatch: ${component.entityId} !== ${entityId}`);
+    }
+    componentTables[kind].set(entityId, component);
+  };
+
+  const removeComponent = <K extends WorldComponentKind>(entityId: EntityId, kind: K): boolean => {
+    return componentTables[kind].delete(entityId);
+  };
+
+  const hasComponent = <K extends WorldComponentKind>(entityId: EntityId, kind: K): boolean => {
+    return componentTables[kind].has(entityId);
+  };
+
+  const componentCount = (kind: WorldComponentKind): number => {
+    return componentTables[kind].size;
+  };
+
+  const entityIdsWith = (kind: WorldComponentKind): readonly EntityId[] => {
+    return Array.from(componentTables[kind].keys()).toSorted(entityOrder);
+  };
+
+  const componentEntries = <K extends WorldComponentKind>(
+    kind: K,
+  ): readonly (readonly [EntityId, WorldComponent<K>])[] => {
+    return Array.from(componentTables[kind].entries()).toSorted((a, b) => entityOrder(a[0], b[0]));
   };
 
   return {
-    entities,
-    stores,
     createEntity,
     destroyEntity,
     isAlive,
-    query,
-    queryAlive,
+    aliveEntityIds,
+    aliveEntityCount,
+    getComponent,
+    setComponent,
+    removeComponent,
+    hasComponent,
+    componentCount,
+    entityIdsWith,
+    componentEntries,
   };
 }

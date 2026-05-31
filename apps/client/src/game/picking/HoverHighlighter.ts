@@ -1,5 +1,5 @@
-import { Mesh, MeshBasicMaterial, RingGeometry } from "three";
 import type { Scene, Vector3 } from "three";
+import { Mesh, MeshBasicMaterial, RingGeometry } from "three";
 
 export interface HoverHighlighterOptions {
   readonly scene: Scene;

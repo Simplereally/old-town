@@ -12,6 +12,7 @@ Authority references:
 - `docs/consumables/consumable-system.md`
 - `docs/resources/herbs-roots-and-fungi.md`
 - `docs/skills/production-skills.md`
+- `docs/favour/favour-items.md`
 
 # Salves and Oils
 
@@ -116,6 +117,7 @@ Armour oils are applied to armour for defensive buffs.
 
 - Salves and oils are crafted by Apothecary.
 - Salves require herbs, water, and wax.
+- Favour-facing salves and washes also feed shrine cleanse loops.
 - Oils require herbs, oil base (from Trapping or Cooking), and wax.
 - Oil base comes from animal fat (bear fat, drake fat) or plant oil (olive oil, nut oil).
 
@@ -218,6 +220,7 @@ Salves and oils are defined in JSON content files with the following schema:
 - [`brews.md`](brews.md) — Brew system
 - [`poisons.md`](poisons.md) — Poison system
 - [`status-effects.md`](status-effects.md) — Status effects
+- [`../favour/favour-items.md`](../favour/favour-items.md) — Favour items and cordials
 - [`../skills/production-skills.md`](../skills/production-skills.md) — Apothecary skill definitions
 - [`../resources/herbs-roots-and-fungi.md`](../resources/herbs-roots-and-fungi.md) — Herb taxonomy
 

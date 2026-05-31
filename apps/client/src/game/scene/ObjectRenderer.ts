@@ -1,4 +1,5 @@
 import type { TileCoord } from "@old-town/shared";
+import type { Scene } from "three";
 import {
   BoxGeometry,
   ConeGeometry,
@@ -8,7 +9,6 @@ import {
   MeshLambertMaterial,
   Vector3,
 } from "three";
-import type { Scene } from "three";
 
 interface ObjectInstance {
   readonly entityId: number;
@@ -167,6 +167,14 @@ export class ObjectRenderer {
     const obj = this.objects.get(entityId);
     if (!obj) return;
     obj.mesh.rotation.y = (rotation * Math.PI) / 2;
+  }
+
+  /** Replace the object's render definition while keeping its authoritative tile. */
+  transform(entityId: number, defId: string): void {
+    const obj = this.objects.get(entityId);
+    if (!obj) return;
+    this.remove(entityId);
+    this.spawn(entityId, obj.tile, defId);
   }
 
   /** Clear all objects. */

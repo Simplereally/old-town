@@ -14,9 +14,14 @@ describe("parseClientCommand — valid commands", () => {
 
   it("accepts each intent type", () => {
     const samples: unknown[] = [
-      { type: "C2S_OBJECT_OPTION", commandId: 2, payload: { objectEntityId: 5, option: "chop" } },
-      { type: "C2S_NPC_OPTION", commandId: 3, payload: { npcEntityId: 6, option: "attack" } },
-      { type: "C2S_ITEM_OPTION", commandId: 4, payload: { itemUid: 7, option: "eat" } },
+      { type: "C2S_OBJECT_OPTION", commandId: 2, payload: { objectEntityId: 5, actionId: "chop" } },
+      { type: "C2S_NPC_OPTION", commandId: 3, payload: { npcEntityId: 6, actionId: "attack" } },
+      { type: "C2S_ITEM_OPTION", commandId: 4, payload: { itemUid: 7, actionId: "eat" } },
+      {
+        type: "C2S_GROUND_ITEM_OPTION",
+        commandId: 4,
+        payload: { groundItemEntityId: 9, actionId: "pickup" },
+      },
       {
         type: "C2S_CAST_SPELL",
         commandId: 5,
@@ -71,7 +76,16 @@ describe("parseClientCommand — rejects malformed input", () => {
     const result = parseClientCommand({
       type: ClientCommandType.NpcOption,
       commandId: 1,
-      payload: { npcEntityId: -3, option: "talk" },
+      payload: { npcEntityId: -3, actionId: "talk" },
+    });
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects a hyphenated actionId (label leak)", () => {
+    const result = parseClientCommand({
+      type: ClientCommandType.NpcOption,
+      commandId: 1,
+      payload: { npcEntityId: 5, actionId: "talk-to" },
     });
     expect(result.ok).toBe(false);
   });
@@ -118,7 +132,7 @@ describe("commands express intent only (server authority)", () => {
     const result = parseClientCommand({
       type: ClientCommandType.ItemOption,
       commandId: 1,
-      payload: { itemUid: 1, option: "eat", hp: 9999 },
+      payload: { itemUid: 1, actionId: "eat", hp: 9999 },
     });
     expect(result.ok).toBe(false);
   });

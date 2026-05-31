@@ -1,4 +1,4 @@
-import { REGION_SIZE, entityId, tileKey } from "@old-town/shared";
+import { entityId, REGION_SIZE, tileKey } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { loadContent } from "../content-loader";
 import { createWorld } from "../ecs/world";
@@ -40,21 +40,21 @@ describe("region loader", () => {
   it("instantiates runtime entities while preserving content ids", async () => {
     const { world } = await loadSeedRegion();
 
-    expect(world.stores.object.size).toBe(13);
-    expect(world.stores.npc.size).toBe(7);
-    expect(world.stores.groundItem.size).toBe(2);
-    expect(world.stores.resourceNode.size).toBe(7);
+    expect(world.componentCount("object")).toBe(13);
+    expect(world.componentCount("npc")).toBe(7);
+    expect(world.componentCount("groundItem")).toBe(2);
+    expect(world.componentCount("resourceNode")).toBe(7);
 
-    const firstObject = world.stores.object.get(entityId(0));
+    const firstObject = world.getComponent(entityId(0), "object");
     expect(firstObject?.entityId).toBe(0);
     expect(firstObject?.objectId).toBe("quest_oven");
     expect(firstObject?.objectId).not.toBe(String(firstObject?.entityId));
 
-    const firstNpc = world.stores.npc.get(entityId(13));
+    const firstNpc = world.getComponent(entityId(13), "npc");
     expect(firstNpc?.npcId).toBe("baker");
-    expect(world.stores.actor.get(entityId(13))?.name).toBe("Baker");
+    expect(world.getComponent(entityId(13), "actor")?.name).toBe("Baker");
 
-    const firstGroundItem = world.stores.groundItem.get(entityId(20));
+    const firstGroundItem = world.getComponent(entityId(20), "groundItem");
     expect(firstGroundItem).toMatchObject({ itemId: "pennywrought_axe", quantity: 1 });
   });
 
@@ -62,12 +62,8 @@ describe("region loader", () => {
     const first = await loadSeedRegion();
     const second = await loadSeedRegion();
 
-    expect(Array.from(first.world.stores.object.entries())).toEqual(
-      Array.from(second.world.stores.object.entries()),
-    );
-    expect(Array.from(first.world.stores.npc.entries())).toEqual(
-      Array.from(second.world.stores.npc.entries()),
-    );
+    expect(first.world.componentEntries("object")).toEqual(second.world.componentEntries("object"));
+    expect(first.world.componentEntries("npc")).toEqual(second.world.componentEntries("npc"));
     expect(Array.from(first.map.tiles.entries())).toEqual(Array.from(second.map.tiles.entries()));
   });
 });

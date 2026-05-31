@@ -1,5 +1,5 @@
-import { entityId } from "@old-town/shared";
 import type { TileCoord } from "@old-town/shared";
+import { entityId } from "@old-town/shared";
 import { Scene } from "three";
 import { beforeEach, describe, expect, it } from "vitest";
 import { ObjectRenderer } from "./ObjectRenderer";
@@ -50,6 +50,15 @@ describe("ObjectRenderer", () => {
     renderer.spawn(ID1, TILE, "door_wood");
     renderer.updateTransform(ID1, 1);
     expect(renderer.objectCount).toBe(1);
+  });
+
+  it("transforms object render definition in place", () => {
+    renderer.spawn(ID1, TILE, "dry_tree");
+    renderer.transform(ID1, "dry_tree_depleted");
+    const group = scene.children[0];
+    const mesh = group?.children[0] as import("three").Mesh | undefined;
+    expect(renderer.objectCount).toBe(1);
+    expect(mesh?.userData.defId).toBe("dry_tree_depleted");
   });
 
   it("handles remove of non-existent object gracefully", () => {

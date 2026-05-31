@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
-  CONTENT_ID_PATTERN,
-  MAX_CONTENT_ID_LENGTH,
   animationId,
   assetId,
+  CONTENT_ID_PATTERN,
   dropTableId,
   isContentId,
   itemId,
+  MAX_CONTENT_ID_LENGTH,
   materialId,
   npcId,
   objectId,

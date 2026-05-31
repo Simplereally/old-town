@@ -3,6 +3,7 @@ import {
   CHUNK_SIZE,
   type ChatPacket,
   type ChunkId,
+  chunkId,
   type EntityId,
   type EntitySpawnPacket,
   type EntityUpdatePacket,
@@ -11,10 +12,9 @@ import {
   type RegionId,
   type RegionLoadPacket,
   type RegionUnloadPacket,
+  regionId,
   type TickDeltaPacket,
   type TileCoord,
-  chunkId,
-  regionId,
 } from "@old-town/shared";
 import type { World } from "../ecs/world";
 
@@ -270,7 +270,7 @@ export class InterestManager {
   }
 
   private positionTile(world: World, entityId: EntityId): TileCoord | undefined {
-    const position = world.stores.position.get(entityId);
+    const position = world.getComponent(entityId, "position");
     return position
       ? { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] }
       : undefined;

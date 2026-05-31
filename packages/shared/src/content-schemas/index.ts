@@ -3,19 +3,21 @@
  * content kind to its Zod schema; the loader/validator (E02-S02) picks a schema by the
  * file's directory. All inferred TypeScript types are exported alongside the schemas.
  */
+
+export * from "./animation";
 export * from "./common";
+export * from "./dialogue";
+export * from "./drop-table";
 export * from "./item";
+export * from "./material";
 export * from "./npc";
 export * from "./object";
-export * from "./skill";
-export * from "./resource-node";
-export * from "./spell";
-export * from "./drop-table";
+export * from "./processing-recipe";
 export * from "./quest";
-export * from "./dialogue";
 export * from "./region-map";
-export * from "./material";
-export * from "./animation";
+export * from "./resource-node";
+export * from "./skill";
+export * from "./spell";
 
 import type { z } from "zod";
 import { animationDefSchema } from "./animation";
@@ -25,6 +27,7 @@ import { itemDefSchema } from "./item";
 import { materialDefSchema } from "./material";
 import { npcDefSchema } from "./npc";
 import { objectDefSchema } from "./object";
+import { processingRecipeDefSchema } from "./processing-recipe";
 import { questDefSchema } from "./quest";
 import { regionMapDefSchema } from "./region-map";
 import { resourceNodeDefSchema } from "./resource-node";
@@ -39,6 +42,7 @@ export const contentSchemas = {
   item: itemDefSchema,
   npc: npcDefSchema,
   object: objectDefSchema,
+  processingRecipe: processingRecipeDefSchema,
   skill: skillDefSchema,
   resourceNode: resourceNodeDefSchema,
   spell: spellDefSchema,

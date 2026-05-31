@@ -1,5 +1,5 @@
-import { Direction, entityId } from "@old-town/shared";
 import type { TileCoord } from "@old-town/shared";
+import { Direction, entityId } from "@old-town/shared";
 import { Scene, Vector3 } from "three";
 import { beforeEach, describe, expect, it } from "vitest";
 import { ActorRenderer } from "./ActorRenderer";

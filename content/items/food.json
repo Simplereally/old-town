@@ -1,5 +1,16 @@
 [
   {
+    "id": "raw_fish",
+    "name": "Raw Fish",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A small raw fish ready for a hot range.",
+    "icon": "icon_raw_fish",
+    "value": 4,
+    "weight": 0.3,
+    "options": []
+  },
+  {
     "id": "bread",
     "name": "Bread",
     "stackable": true,
@@ -22,5 +33,16 @@
     "weight": 0.3,
     "options": ["eat"],
     "consumable": { "heal": 8, "consumeTicks": 3 }
+  },
+  {
+    "id": "burnt_fish",
+    "name": "Burnt Fish",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "Charred enough to teach a lesson.",
+    "icon": "icon_burnt_fish",
+    "value": 0,
+    "weight": 0.3,
+    "options": []
   }
 ]

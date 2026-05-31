@@ -6,14 +6,14 @@
 
 ## Source of truth hierarchy
 
-1. `POC_SPEC.md` — authoritative spec for all engine behavior, data formats, and acceptance tests.
+1. `POC_SPEC.md` — authoritative spec for all engine behavior, data formats, and acceptance tests. Use § references in story files to jump to relevant sections rather than reading the whole document.
 2. `tasks/` tree — ordered work items. Epic files describe story groups; story files describe single implementation increments.
 3. `POC_SPEC.md` wins if any task file seems under-specified or contradicts it.
 
-## What to work on next
+## Task system
 
 - The repo contains a linear epic/story task tree in `tasks/`.
-- `TASK_MANIFEST.json` is the machine-readable index.
+- [`TASK_MANIFEST.json`](tasks/TASK_MANIFEST.json) is the machine-readable index.
 - `tasks/README.md` defines execution rules: work by epic number, then by story number.
 - Start at the lowest-numbered remaining epic (run `bun run tasks:status` to identify it). Do not skip ahead.
 - Within an epic, complete stories in numeric order.
@@ -22,12 +22,12 @@
 
 ## Engineering invariants (never violate)
 
-- **Server is authoritative.** Client sends intents only (MoveIntent, ObjectIntent, NpcIntent, ItemIntent, SpellIntent). The server decides all truth.
-- **Integer world, float renderer.** Gameplay truth is integer tiles, planes, ticks, IDs, masks. Three.js positions are presentational only and must never drive gameplay.
-- **600ms tick.** No `await sleep`, `setTimeout`, or animation-complete callbacks for gameplay. Use tick queues and action delays.
-- **Tile bitmask collision.** No physics engine. Movement blocking is directional bitmask flags.
-- **Content-driven.** Items, NPCs, objects, quests, skills, spells are JSON definitions loaded into registries. Do not hardcode specific content behavior.
-- **Original assets only.** Do not import OSRS cache, assets, protocol, names, maps, or copied quests.
+- 🔒 **Server is authoritative.** Client sends intents only (MoveIntent, ObjectIntent, NpcIntent, ItemIntent, SpellIntent). The server decides all truth.
+- 🔒 **Integer world, float renderer.** Gameplay truth is integer tiles, planes, ticks, IDs, masks. Three.js positions are presentational only and must never drive gameplay.
+- 🔒 **600ms tick.** No `await sleep`, `setTimeout`, or animation-complete callbacks for gameplay. Use tick queues and action delays.
+- 🔒 **Tile bitmask collision.** No physics engine. Movement blocking is directional bitmask flags.
+- 🔒 **Content-driven.** Items, NPCs, objects, quests, skills, spells are JSON definitions loaded into registries. Do not hardcode specific content behavior.
+- 🔒 **Original assets only.** Do not import OSRS cache, assets, protocol, names, maps, or copied quests.
 
 ## Default stack
 
@@ -41,7 +41,7 @@
 ## Validation discipline
 
 - Every story lists validation commands. Run them before marking complete.
-- Typical validation: `bun install`, `bun run test`, `bun run lint`, `bun run typecheck`, `bun run content:validate`.
+- Typical validation: `bun run test`, `bun run lint`, `bun run typecheck`, `bun run content:validate`.
 - Never leave broken builds between completed stories.
 - Add or improve tests for any deterministic logic a story creates.
 
@@ -72,4 +72,4 @@ tools/
 ## Important notes
 
 - `POC_SPEC.md` is a large engine spec. Use the § references in epic/story files to read the relevant sections, not the whole document each time.
-- `adrs/` is empty. Create ADRs only if a story explicitly requires architectural decisions that need documenting.
+- `adrs/` has ADRs for specific architectural areas. Consult the relevant one when making changes in that area. Create ADRs only when a story explicitly requires it.

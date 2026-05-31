@@ -1,6 +1,6 @@
 import { GAME_TICK_MS, TILE_SIZE_WORLD_UNITS, type TileCoord } from "@old-town/shared";
-import { Group, MeshBasicMaterial, SphereGeometry, Vector3 } from "three";
 import type { Mesh, Scene } from "three";
+import { Group, MeshBasicMaterial, SphereGeometry, Vector3 } from "three";
 import { MeshPool } from "../renderer/MeshPool";
 
 interface Projectile {

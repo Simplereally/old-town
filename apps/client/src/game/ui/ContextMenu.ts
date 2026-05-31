@@ -1,29 +1,16 @@
+import type { ContextMenuOption } from "../input/InputInterpreter";
 import type { PickedEntity } from "../picking/EntityPicker";
 
-const _objectActionCache = new Map<string, string>();
-function inferObjectActionCache(defId: string): string {
-  const cached = _objectActionCache.get(defId);
-  if (cached !== undefined) return cached;
-  let result = "Use";
-  if (defId.includes("tree")) result = "Chop";
-  else if (defId.includes("rock") || defId.includes("ore")) result = "Mine";
-  else if (defId.includes("door")) result = "Open";
-  _objectActionCache.set(defId, result);
-  return result;
-}
-
-export interface ContextMenuOption {
-  readonly label: string;
-  readonly action: () => void;
-  readonly priority: number;
-}
-
 export interface ContextMenuCallbacks {
-  onWalkHere: (tile: { x: number; y: number }) => void;
-  onExamine: (entity: PickedEntity) => void;
-  onNpcOption: (entity: PickedEntity, option: string) => void;
-  onObjectOption: (entity: PickedEntity, option: string) => void;
-  onItemOption: (entity: PickedEntity, option: string) => void;
+  /**
+   * Called when the player selects any option from the context menu.
+   * `actionId` is the canonical action token (e.g. "walk_here", "examine", "talk", "woodcut").
+   */
+  onOptionSelected: (
+    actionId: string,
+    entity: PickedEntity | null,
+    tile: { x: number; y: number } | null,
+  ) => void;
 }
 
 export interface ContextMenuOptions {
@@ -33,7 +20,9 @@ export interface ContextMenuOptions {
 
 /**
  * DOM-based context menu for right-click interactions.
- * Renders a list of options and invokes callbacks on selection.
+ * Pure view adapter: renders pre-built options and reports the chosen action.
+ * No semantic routing — the caller (GameEngine + InputInterpreter) decides what
+ * each action means.
  */
 export class ContextMenu {
   private readonly container: HTMLElement;
@@ -42,6 +31,8 @@ export class ContextMenu {
   private _visible = false;
   private _clickOutsideListener: ((e: MouseEvent) => void) | undefined;
   private _keydownListener: ((e: KeyboardEvent) => void) | undefined;
+  private _lastEntity: PickedEntity | null = null;
+  private _lastTile: { x: number; y: number } | null = null;
 
   constructor(options: ContextMenuOptions) {
     this.container = options.container;
@@ -53,18 +44,21 @@ export class ContextMenu {
   }
 
   /**
-   * Show the context menu at the given screen position with options for the picked entity.
+   * Show the context menu at the given screen position with the provided options.
    */
   show(
     screenX: number,
     screenY: number,
+    options: readonly ContextMenuOption[],
     entity: PickedEntity | null,
     tileUnderCursor: { x: number; y: number } | null,
   ): void {
     this.hide();
 
-    const options = this._buildOptions(entity, tileUnderCursor);
     if (options.length === 0) return;
+
+    this._lastEntity = entity;
+    this._lastTile = tileUnderCursor;
 
     this._menuElement = document.createElement("div");
     this._menuElement.className = "context-menu";
@@ -77,7 +71,7 @@ export class ContextMenu {
       item.textContent = option.label;
       item.addEventListener("click", (e) => {
         e.stopPropagation();
-        option.action();
+        this.callbacks.onOptionSelected(option.actionId, this._lastEntity, this._lastTile);
         this.hide();
       });
       this._menuElement.appendChild(item);
@@ -115,6 +109,8 @@ export class ContextMenu {
       this._menuElement = undefined;
     }
     this._visible = false;
+    this._lastEntity = null;
+    this._lastTile = null;
     if (this._clickOutsideListener) {
       document.removeEventListener("click", this._clickOutsideListener);
       this._clickOutsideListener = undefined;
@@ -123,116 +119,5 @@ export class ContextMenu {
       document.removeEventListener("keydown", this._keydownListener);
       this._keydownListener = undefined;
     }
-  }
-
-  /** Build interaction options based on the picked entity and tile. */
-  private _buildOptions(
-    entity: PickedEntity | null,
-    tileUnderCursor: { x: number; y: number } | null,
-  ): ContextMenuOption[] {
-    const options: ContextMenuOption[] = [];
-
-    // Always offer Walk here if we have a tile
-    if (tileUnderCursor) {
-      options.push({
-        label: "Walk here",
-        action: () => this._onWalkHere(tileUnderCursor),
-        priority: 0,
-      });
-    }
-
-    if (!entity) {
-      return options;
-    }
-
-    // Entity-specific options
-    switch (entity.kind) {
-      case "player": {
-        options.push({
-          label: `Examine ${entity.defId ?? "player"}`,
-          action: () => this._onExamine(entity),
-          priority: 10,
-        });
-        break;
-      }
-      case "npc": {
-        options.push({
-          label: `Talk-to ${entity.defId ?? "NPC"}`,
-          action: () => this._onNpcOption(entity, "talk-to"),
-          priority: 1,
-        });
-        options.push({
-          label: `Attack ${entity.defId ?? "NPC"}`,
-          action: () => this._onNpcOption(entity, "attack"),
-          priority: 2,
-        });
-        options.push({
-          label: `Cast ${entity.defId ?? "NPC"}`,
-          action: () => this._onNpcOption(entity, "cast"),
-          priority: 3,
-        });
-        options.push({
-          label: `Examine ${entity.defId ?? "NPC"}`,
-          action: () => this._onExamine(entity),
-          priority: 10,
-        });
-        break;
-      }
-      case "object": {
-        const objectDefId = entity.defId ?? "object";
-        const actionLabel = this._inferObjectAction(objectDefId);
-        options.push({
-          label: `${actionLabel} ${objectDefId}`,
-          action: () => this._onObjectOption(entity, actionLabel.toLowerCase()),
-          priority: 1,
-        });
-        options.push({
-          label: `Examine ${objectDefId}`,
-          action: () => this._onExamine(entity),
-          priority: 10,
-        });
-        break;
-      }
-      case "groundItem": {
-        const itemName = entity.itemId ?? "item";
-        options.push({
-          label: `Pick up ${itemName}${entity.quantity && entity.quantity > 1 ? ` x${entity.quantity}` : ""}`,
-          action: () => this._onItemOption(entity, "pick-up"),
-          priority: 1,
-        });
-        options.push({
-          label: `Examine ${itemName}`,
-          action: () => this._onExamine(entity),
-          priority: 10,
-        });
-        break;
-      }
-    }
-
-    return options.toSorted((a, b) => a.priority - b.priority);
-  }
-
-  private _inferObjectAction(defId: string): string {
-    return inferObjectActionCache(defId);
-  }
-
-  private _onWalkHere(tile: { x: number; y: number }): void {
-    this.callbacks.onWalkHere(tile);
-  }
-
-  private _onExamine(entity: PickedEntity): void {
-    this.callbacks.onExamine(entity);
-  }
-
-  private _onNpcOption(entity: PickedEntity, option: string): void {
-    this.callbacks.onNpcOption(entity, option);
-  }
-
-  private _onObjectOption(entity: PickedEntity, option: string): void {
-    this.callbacks.onObjectOption(entity, option);
-  }
-
-  private _onItemOption(entity: PickedEntity, option: string): void {
-    this.callbacks.onItemOption(entity, option);
   }
 }
