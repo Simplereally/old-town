@@ -226,13 +226,7 @@ function serializeContentForClient(registries: BootContentResult["registries"]):
     npc: Object.fromEntries(registries.npc),
     object: Object.fromEntries(registries.object),
     skill: Object.fromEntries(registries.skill),
-    resourceNode: Object.fromEntries(registries.resourceNode),
     spell: Object.fromEntries(registries.spell),
-    dropTable: Object.fromEntries(registries.dropTable),
     quest: Object.fromEntries(registries.quest),
-    dialogue: Object.fromEntries(registries.dialogue),
-    regionMap: Object.fromEntries(registries.regionMap),
-    material: Object.fromEntries(registries.material),
-    animation: Object.fromEntries(registries.animation),
   };
 }

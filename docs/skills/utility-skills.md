@@ -11,6 +11,7 @@ Parent: [`Skills Index`](00-index.md)
 Authority references:
 - `docs/skills/skill-system.md`
 - `docs/skills/skill-interlocks.md`
+- `docs/creatures/wardenry-contracts.md`
 - `POC_SPEC.md`
 
 # Utility Skills
@@ -125,6 +126,8 @@ Train Wardenry by completing bounties, killing assigned contract targets, and tu
 ### Output and Benefit
 
 Wardenry yields combat XP, loot, rare drops, and warden points that can be exchanged for gear or contract rerolls. A Warden badge is required to take contracts; this is a quest item earned early in the skill path. Favour protects the player during Wardenry missions, reducing damage from assigned targets and warding off environmental hazards in contract zones.
+
+Starter contract types, proof items, and named bounties are defined in [`../creatures/wardenry-contracts.md`](../creatures/wardenry-contracts.md).
 
 ### Skill Verbs
 
@@ -249,6 +252,7 @@ Cartography unlocks fast travel points between surveyed locations, route optimiz
 - [`gathering-skills.md`](gathering-skills.md) — Gathering skill definitions
 - [`production-skills.md`](production-skills.md) — Production skill definitions
 - [`skill-interlocks.md`](skill-interlocks.md) — Skill economy web
+- [`../creatures/wardenry-contracts.md`](../creatures/wardenry-contracts.md) — Wardenry contract ladder
 
 ---
 

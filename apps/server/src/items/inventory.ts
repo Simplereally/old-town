@@ -77,7 +77,8 @@ function allocUid(inv: InventoryComponent): number {
 
 /** Index of the first empty slot, or `undefined` if the container is full. */
 export function firstFreeSlot(inv: InventoryComponent): number | undefined {
-  for (let slot = 0; slot < inv.capacity; slot += 1) {
+  const cap = inv.capacity;
+  for (let slot = 0; slot < cap; slot += 1) {
     if (!inv.slots[slot]) {
       return slot;
     }
@@ -88,7 +89,8 @@ export function firstFreeSlot(inv: InventoryComponent): number | undefined {
 /** Number of empty slots. */
 export function freeSlotCount(inv: InventoryComponent): number {
   let free = 0;
-  for (let slot = 0; slot < inv.capacity; slot += 1) {
+  const cap = inv.capacity;
+  for (let slot = 0; slot < cap; slot += 1) {
     if (!inv.slots[slot]) {
       free += 1;
     }
@@ -128,7 +130,8 @@ export function hasAll(inv: InventoryComponent, requirements: readonly ItemRequi
 
 /** Slot index holding the given instance uid, or `undefined`. */
 export function findSlotByUid(inv: InventoryComponent, uid: number): number | undefined {
-  for (let slot = 0; slot < inv.capacity; slot += 1) {
+  const cap = inv.capacity;
+  for (let slot = 0; slot < cap; slot += 1) {
     if (inv.slots[slot]?.uid === uid) {
       return slot;
     }
@@ -316,7 +319,8 @@ export function buildDelta(
 /** Full snapshot of every occupied slot as delta changes (for initial full-state sync). */
 export function snapshotChanges(inv: InventoryComponent): InventorySlotChange[] {
   const changes: InventorySlotChange[] = [];
-  for (let slot = 0; slot < inv.capacity; slot += 1) {
+  const cap = inv.capacity;
+  for (let slot = 0; slot < cap; slot += 1) {
     if (inv.slots[slot]) {
       changes.push(changeFor(inv, slot));
     }

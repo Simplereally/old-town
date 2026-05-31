@@ -8,6 +8,7 @@
 |----------|-----|-------|--------|----------------|
 | **Gathering Tools** | [`gathering.md`](gathering.md) | 39 | Complete | Axe, pickaxe, rod |
 | **Crafting Tools** | [`crafting.md`](crafting.md) | 14 | Complete | Hammer, needle, etc. |
+| **Skill Utility Substrate** | [`../../tools-and-intermediates/00-index.md`](../../tools-and-intermediates/00-index.md) | - | Draft | Full tool canon, intermediates, containers, stations |
 
 ## Tool System Overview
 
@@ -37,7 +38,8 @@ Tools are the enablers of skilling. You cannot cut a tree without an axe. You ca
 
 - [`gathering.md`](gathering.md) — Gathering tools
 - [`crafting.md`](crafting.md) — Crafting tools
-- [`POC_SPEC.md`](../../POC_SPEC.md) §15 (Skills and XP)
+- [`../../tools-and-intermediates/00-index.md`](../../tools-and-intermediates/00-index.md) — Full skill utility substrate
+- [`POC_SPEC.md`](../../../POC_SPEC.md) §15 (Skills and XP)
 
 ---
 

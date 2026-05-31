@@ -18,10 +18,13 @@ Authority references:
 - `docs/accessory-tiers.md`
 - `docs/combat/signature-mechanics.md`
 - `docs/combat/mechanics-implementation.md`
+- `docs/creatures/rare-drops-and-trophies.md`
 
 ## Trophy Philosophy
 
 Trophies are the slot for **history and bragging rights**. They are the objects that prove you felled the drake, survived the siege, or found the starfall. Trophies are rare, earned, and deeply personal.
+
+Creature-sourced trophy drops and starter trophy acquisition are defined in [`../../creatures/rare-drops-and-trophies.md`](../../creatures/rare-drops-and-trophies.md).
 
 **Design principles:**
 1. **Trophies are earned, not bought.** Every Trophy requires a specific achievement, kill, or discovery.
@@ -108,6 +111,7 @@ Trophies are the slot for **specialization and history**. They support playstyle
 - [`rings.md`](rings.md) — Ring slot documentation
 - [`charms.md`](charms.md) — Charm slot documentation
 - [`belts.md`](belts.md) — Belt slot documentation
+- [`../../creatures/rare-drops-and-trophies.md`](../../creatures/rare-drops-and-trophies.md) — Creature-sourced trophies
 
 ---
 

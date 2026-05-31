@@ -38,8 +38,10 @@ function tileWithZone(tile: RuntimeTile, zoneId: string): RuntimeTile {
 
 function applyTriggerZones(map: RuntimeMap, trigger: RuntimeAreaTrigger): void {
   const zoneId = trigger.tag ?? trigger.id;
-  for (let dx = 0; dx < trigger.width; dx += 1) {
-    for (let dy = 0; dy < trigger.height; dy += 1) {
+  const w = trigger.width;
+  const h = trigger.height;
+  for (let dx = 0; dx < w; dx += 1) {
+    for (let dy = 0; dy < h; dy += 1) {
       const tile: TileCoord = {
         x: trigger.x + dx,
         y: trigger.y + dy,

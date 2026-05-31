@@ -211,9 +211,8 @@ export class UIManager {
           cell.addEventListener("click", () => {
             this.callbacks.sendItemCommand(uid, "use");
           });
-          const itemDef = this.content.getItem(itemId);
           const allowedOptions = new Set(["drop", "equip", "eat", "drink"]);
-          const extraOptions = itemDef?.options?.filter((o) => allowedOptions.has(o));
+          const extraOptions = def?.options?.filter((o) => allowedOptions.has(o));
           if (extraOptions && extraOptions.length > 0) {
             cell.addEventListener("contextmenu", (e) => {
               e.preventDefault();
@@ -247,7 +246,7 @@ export class UIManager {
       "Ring",
       "Ammo",
     ];
-    for (let i = 0; i < slots.length; i++) {
+    for (let i = 0, len = slots.length; i < len; i++) {
       const row = document.createElement("div");
       row.classList.add("ui-row");
       const label = document.createElement("span");
@@ -336,10 +335,6 @@ export class UIManager {
       body.textContent = "No active quests.";
       body.classList.add("text-dim");
     }
-    if (body.children.length === 0) {
-      body.textContent = "No active quests.";
-      body.style.color = "#555";
-    }
   }
 
   private _renderChat(): void {
@@ -376,20 +371,19 @@ export class UIManager {
       return;
     }
 
-    const def =
-      this.content.getQuest(dialogue.dialogueId) ?? this.content.getNpc(dialogue.dialogueId);
+    const questDef = this.content.getQuest(dialogue.dialogueId);
+    const def = questDef ?? this.content.getNpc(dialogue.dialogueId);
     npcHeader.textContent = def?.name ?? dialogue.dialogueId;
     textEl.textContent = "...";
     optionsEl.innerHTML = "";
 
-    const questDef = this.content.getQuest(dialogue.dialogueId);
     const uiVars = this.uiState.vars;
     if (questDef) {
       const stage = uiVars.get(`${questDef.varPrefix}.stage`);
       const questStage = this.content.getQuestStage(questDef.id, stage ?? -1);
       if (questStage) {
         textEl.textContent = questStage.journalText;
-        for (let i = 0; i < questStage.objectives.length; i++) {
+        for (let i = 0, len = questStage.objectives.length; i < len; i++) {
           const objective = questStage.objectives[i];
           if (!objective) continue;
           const opt = document.createElement("div");

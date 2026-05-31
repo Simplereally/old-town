@@ -68,20 +68,8 @@ export class ContextMenu {
 
     this._menuElement = document.createElement("div");
     this._menuElement.className = "context-menu";
-    this._menuElement.style.position = "absolute";
     this._menuElement.style.left = `${screenX}px`;
     this._menuElement.style.top = `${screenY}px`;
-    this._menuElement.style.background = "rgba(0, 0, 0, 0.85)";
-    this._menuElement.style.border = "1px solid #666";
-    this._menuElement.style.borderRadius = "4px";
-    this._menuElement.style.padding = "4px 0";
-    this._menuElement.style.zIndex = "1000";
-    this._menuElement.style.minWidth = "140px";
-    this._menuElement.style.fontFamily = "monospace";
-    this._menuElement.style.fontSize = "12px";
-    this._menuElement.style.color = "#fff";
-    this._menuElement.style.userSelect = "none";
-    this._menuElement.style.cursor = "pointer";
 
     for (const option of options) {
       const item = document.createElement("div");

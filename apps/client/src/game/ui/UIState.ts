@@ -97,7 +97,7 @@ export class UIState {
 
   setEquipment(slots: readonly (string | null)[]): void {
     this._equipment.clear();
-    for (let i = 0; i < slots.length; i++) {
+    for (let i = 0, len = slots.length; i < len; i++) {
       const itemId = slots[i];
       if (itemId) {
         this._equipment.set(i, itemId);

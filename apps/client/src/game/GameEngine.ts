@@ -133,22 +133,22 @@ export class GameEngine {
     this.renderer.start();
     this._updateOverlay();
 
-    try {
-      await this.content.load(this.socket.serverUrl);
-    } catch (error) {
+    const contentLoad = this.content.load(this.socket.serverUrl).catch((error) => {
       console.warn("Failed to load content registries:", error);
-    }
-
-    try {
-      const fullState = await this.socket.connect();
-      this._handleFullState(fullState);
-      this._connected = true;
-      this._updateOverlay();
-    } catch (error) {
-      console.error("Failed to connect to server:", error);
-      this.overlays.connectionStatus.textContent = "Connection failed";
-      this.overlays.connectionStatus.className = "disconnected";
-    }
+    });
+    const connect = this.socket
+      .connect()
+      .then((fullState) => {
+        this._handleFullState(fullState);
+        this._connected = true;
+        this._updateOverlay();
+      })
+      .catch((error) => {
+        console.error("Failed to connect to server:", error);
+        this.overlays.connectionStatus.textContent = "Connection failed";
+        this.overlays.connectionStatus.className = "disconnected";
+      });
+    await Promise.all([contentLoad, connect]);
 
     const uiCallbacks: UIManagerCallbacks = {
       sendItemCommand: (uid, option) => this.sendItemCommand(uid, option),

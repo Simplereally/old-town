@@ -11,6 +11,7 @@
 | **Currency** | [`currency.md`](currency.md) | Complete | Coins, quest points |
 | **Ammunition** | [`ammunition.md`](ammunition.md) | Complete | 9 ammo types × 13 tiers |
 | **Bead Pouches** | [`bead-pouches.md`](bead-pouches.md) | Complete | Threadbare, Waxed, Warden, Grave, Starfall |
+| **Containers and Pouches** | [`../../tools-and-intermediates/containers-and-pouches.md`](../../tools-and-intermediates/containers-and-pouches.md) | Draft | Tool rolls, sacks, satchels, tubes, books |
 | **Special Items** | [`special.md`](special.md) | Complete | Keys, maps, tokens |
 
 ## Misc Item System Overview
@@ -40,9 +41,10 @@ Misc items are the glue of the item system. They are the economy, the projectile
 
 - [`currency.md`](currency.md) — Currency
 - [`ammunition.md`](ammunition.md) — Ammunition
+- [`../../tools-and-intermediates/containers-and-pouches.md`](../../tools-and-intermediates/containers-and-pouches.md) — Containers and pouches
 - [`../accessories/00-index.md`](../accessories/00-index.md) — Accessories (moved to dedicated category)
 - [`special.md`](special.md) — Special items
-- [`POC_SPEC.md`](../../POC_SPEC.md) §16 (Items, inventory, equipment)
+- [`POC_SPEC.md`](../../../POC_SPEC.md) §16 (Items, inventory, equipment)
 
 ---
 

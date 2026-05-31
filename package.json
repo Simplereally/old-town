@@ -29,5 +29,8 @@
   },
   "engines": {
     "bun": ">=1.1.0"
+  },
+  "dependencies": {
+    "oh-my-opencode": "^4.5.12"
   }
 }

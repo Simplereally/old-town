@@ -31,6 +31,41 @@ docs/
     hides-bones-and-trophies.md ← Trapping resources
     herbs-roots-and-fungi.md ← Gardening resources
     bead-materials.md ← Beadwork resources
+  tools-and-intermediates/
+    00-index.md        ← Skill utility substrate entry point
+    tool-system.md     ← Shared tool rules
+    skill-tools.md     ← Canonical skill tool families
+    intermediate-items.md ← Production-chain intermediates
+    containers-and-pouches.md ← Container families
+    stations.md        ← Skilling stations
+    skill-outfits.md   ← Profession identity items
+  recipes/
+    00-index.md        ← Recipe and production graph entry point
+    recipe-system.md   ← Recipe fields, families, and rules
+    recipe-chains.md   ← Starter identity chains
+    cooking-recipes.md ← Cooking recipe families
+    smithing-recipes.md ← Smithing recipe families
+    bowcraft-recipes.md ← Bowcraft recipe families
+    beadwork-recipes.md ← Beadwork recipe families
+  world/
+    00-index.md        ← Starter town and world topology entry point
+    world-pillars.md   ← Old Town tone and place rules
+    starter-town.md    ← Starter hub overview
+    districts-and-routes.md ← District layout and routes
+    npc-cast.md        ← Named starter NPCs
+    shops-and-services.md ← Shop identities and services
+    starter-economy-loops.md ← First 30-minute loops
+  creatures/
+    00-index.md        ← Creature, drop, and Wardenry entry point
+    creature-system.md ← Creature definition rules
+    starter-creatures.md ← First creature roster
+    creature-ecology.md ← Creature placement by district
+    combat-roles.md    ← Enemy teaching roles
+    drop-table-system.md ← Drop table format and rules
+    starter-drop-tables.md ← First drop tables
+    wardenry-contracts.md ← Contract ladder and starter contracts
+    rare-drops-and-trophies.md ← Rare reward identity
+    minibosses.md      ← First named encounters
   consumables/
     00-index.md        ← Consumables system entry point
     consumable-system.md ← Core consumable authority
@@ -123,6 +158,10 @@ docs/
 | Find food or potions | [`consumables/00-index.md`](consumables/00-index.md) |
 | Find wood, ore, or fish | [`resources/00-index.md`](resources/00-index.md) |
 | Understand the resource taxonomy | [`resources/00-index.md`](resources/00-index.md) → [`resource-taxonomy.md`](resources/resource-taxonomy.md) |
+| Understand skill tools and intermediates | [`tools-and-intermediates/00-index.md`](tools-and-intermediates/00-index.md) |
+| Understand recipes and production actions | [`recipes/00-index.md`](recipes/00-index.md) |
+| Understand Old Town starter topology | [`world/00-index.md`](world/00-index.md) |
+| Understand creatures, drops, and Wardenry | [`creatures/00-index.md`](creatures/00-index.md) |
 | Understand consumables | [`consumables/00-index.md`](consumables/00-index.md) → [`consumable-system.md`](consumables/consumable-system.md) |
 | Find an axe or pickaxe | [`items/tools/00-index.md`](items/tools/00-index.md) |
 | Find a quest item | [`items/quest/00-index.md`](items/quest/00-index.md) |

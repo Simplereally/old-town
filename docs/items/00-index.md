@@ -46,6 +46,7 @@ Old Town items are content-driven. Every item has a definition in `content/items
 | **Consumables** | [`consumables/00-index.md`](consumables/00-index.md) | Complete | Food, potions |
 | **Resources** | [`resources/00-index.md`](resources/00-index.md) | Complete | Wood, ore, fish, crafting |
 | **Tools** | [`tools/00-index.md`](tools/00-index.md) | Complete | Gathering, crafting tools |
+| **Skill Utility Substrate** | [`../tools-and-intermediates/00-index.md`](../tools-and-intermediates/00-index.md) | Draft | Tools, intermediates, containers, stations |
 | **Quest Items** | [`quest/00-index.md`](quest/00-index.md) | Complete | Quest-specific items |
 | **Miscellaneous** | [`misc/00-index.md`](misc/00-index.md) | Complete | Currency, ammo, bead pouches |
 | **Accessories** | [`accessories/00-index.md`](accessories/00-index.md) | Complete | Capes, amulets, rings, charms, belts, trophies |
@@ -148,6 +149,7 @@ Examples: `pennywrought_shortblade`, `oak_log`, `health_potion`, `smoke_over_old
 | Consumables | Food + potions | See [`consumables/00-index.md`](consumables/00-index.md) |
 | Resources | Wood, ore, fish, crafting | See [`resources/00-index.md`](resources/00-index.md) |
 | Tools | Gathering + crafting | See [`tools/00-index.md`](tools/00-index.md) |
+| Skill utility substrate | Tools, intermediates, containers, stations | See [`../tools-and-intermediates/00-index.md`](../tools-and-intermediates/00-index.md) |
 | Quest items | Per-quest | See [`quest/00-index.md`](quest/00-index.md) |
 | Currency | Coins, quest points | See [`misc/currency.md`](misc/currency.md) |
 | Ammunition | 9 types × 13 tiers | See [`misc/ammunition.md`](misc/ammunition.md) |

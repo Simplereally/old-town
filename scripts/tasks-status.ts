@@ -23,7 +23,7 @@ function listMarkdown(dir: string): string[] {
   }
   return readdirSync(dir)
     .filter((file) => file.endsWith(".md"))
-    .sort();
+    .toSorted();
 }
 
 function epicIdOf(filename: string): string {
