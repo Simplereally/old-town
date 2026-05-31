@@ -129,8 +129,10 @@ These are the Biome lint rules most frequently mentioned across community source
 | `useExhaustiveDependencies` | correctness | **5** | AI misses React hook dependencies. |
 | `noFloatingPromises` | nursery | **5** | AI creates unhandled async operations. |
 | `noUndeclaredVariables` | correctness | **4** | AI references variables that don't exist. |
-| `noProcessEnv` | style | **4** | AI accesses `process.env` directly. |
-| `noDefaultExport` | style | **4** | AI overuses `export default`. |
+| `noUndeclaredDependencies` | correctness | **4** | AI imports packages not declared in `package.json`. |
+| `noUnresolvedImports` | correctness | **4** | AI imports modules that don't resolve. |
+| `noProcessEnv` | style | **4** | AI accesses `process.env` directly. (Error in app code; off in env/config modules.) |
+| `noDefaultExport` | style | **4** | AI overuses `export default`. (Warn with framework/config overrides.) |
 | `useNamingConvention` | style | **4** | AI generates generic names like `data`, `result`. |
 
 ### Tier 3: Recommended (2-3 mentions)
@@ -140,36 +142,48 @@ These are the Biome lint rules most frequently mentioned across community source
 | `noStaticOnlyClass` | complexity | **3** | AI creates unnecessary classes. |
 | `useTemplate` | style | **3** | AI uses string concatenation instead of templates. |
 | `noNegationElse` | style | **3** | AI writes confusing inverted conditionals. |
-| `noVar` | style | **3** | AI uses `var` instead of `const`/`let`. |
+| `noVar` | suspicious | **3** | AI uses `var` instead of `const`/`let`. |
 | `useExportType` | style | **3** | AI doesn't distinguish type-only exports. |
 | `useImportType` | style | **3** | AI doesn't distinguish type-only imports. |
-| `useExplicitType` / `useExplicitReturnType` | nursery | **3** | AI omits return types on module boundaries. |
+| `useExplicitReturnType` | nursery | **3** | AI omits return types on module boundaries. (Narrower, higher-signal than `useExplicitType`.) |
 | `noMisusedPromises` | nursery | **3** | AI passes async functions where sync expected. |
 | `useAwaitThenable` | nursery | **3** | AI `await`s non-Promise values. |
 | `noUnnecessaryConditions` | nursery | **3** | AI writes dead code that types make unreachable. |
 | `useExhaustiveSwitchCases` | nursery | **3** | AI misses switch cases on union types. |
 | `noExcessiveCognitiveComplexity` | complexity | **2** | AI generates deeply nested functions. |
 | `noBannedTypes` | complexity | **2** | AI uses `String`, `Number`, `Boolean` wrapper types. |
-| `noSecrets` | security | **2** | AI hardcodes API keys in source. |
+| `noSecrets` | security | **2** | AI hardcodes API keys in source. (Warn; use a real secret scanner in CI.) |
 | `noDangerouslySetInnerHtml` | security | **2** | AI uses `dangerouslySetInnerHTML`. |
 | `noGlobalEval` | security | **2** | AI uses `eval()`. |
 | `noAlert` | suspicious | **3** | AI uses `alert()` for debugging. |
+| `noImportCycles` | suspicious | **2** | AI creates circular import chains. |
+| `noDeprecatedImports` | suspicious | **2** | AI imports deprecated APIs. |
+| `noFocusedTests` | suspicious | **2** | AI commits `.only` test blocks. |
+| `noSkippedTests` | suspicious | **2** | AI commits `.skip` test blocks. |
 
 ### Type-Aware Nursery Rules (Biome v2)
 
-In Biome v2, enable type-aware rules via `domains`:
+In Biome v2.4+, enable type-aware rules via `domains`:
 
 ```json
 {
   "linter": {
     "domains": {
-      "types": "all"
+      "types": "all",
+      "react": "recommended",
+      "test": "recommended"
     }
   }
 }
 ```
 
-This enables `noFloatingPromises`, `noMisusedPromises`, `useAwaitThenable`, `noUnnecessaryConditions`, `useExhaustiveSwitchCases`, and `useExplicitType` automatically.
+`domains.types = "all"` enables the type-inference-backed rules in the `types` domain. This includes async-safety rules such as `noFloatingPromises`, `noMisusedPromises`, `useAwaitThenable`, exhaustiveness rules such as `useExhaustiveSwitchCases`, and additional type-aware correctness rules such as `noUnsafePlusOperands`, `noMisleadingReturnType`, `noUselessTypeConversion`, `useArraySortCompare`, `useFind`, and `useNullishCoalescing`.
+
+`useExplicitType` is **not** a types-domain rule. If desired, enable it explicitly under `nursery`, but expect high noise.
+
+`domains.react = "recommended"` enables React-specific rules such as `useExhaustiveDependencies`, `useHookAtTopLevel`, `useJsxKeyInIterable`, `noDangerouslySetInnerHtml`, and `noArrayIndexKey`.
+
+`domains.test = "recommended"` enables test-specific rules for Jest/Mocha/Ava/Vitest globals and test file patterns.
 
 ### Sources
 
@@ -195,14 +209,14 @@ These are the specific anti-patterns most prevalent in AI-generated code, as rep
 | Rank | Anti-Pattern | Sources | Catching Rule(s) |
 |---|---|---|---|
 | 1 | **`any` / type assertion abuse** (`as any`, `as unknown as X`) | **15+** | `noExplicitAny`, `noNonNullAssertion`, TS `strict` |
-| 2 | **Empty catch blocks / silent error swallowing** | **14+** | `noEmptyBlockStatements` (Biome), custom rules |
+| 2 | **Empty catch blocks / silent error swallowing** | **14+** | `noEmptyBlockStatements` (Biome — error), custom rules |
 | 3 | **Unused variables / dead code / unused imports** | **12+** | `noUnusedVariables`, `noUnusedImports`, `noUnusedFunctionParameters` |
 | 4 | **Narrative / obvious comments** (`// gets the user`) | **11+** | Not caught by standard linters — use custom tools |
 | 5 | **Hardcoded secrets / security flaws** | **10+** | `noSecrets`, `eslint-plugin-security` |
 | 6 | **Console.log / debugging artifacts** | **10+** | `noConsole` |
 | 7 | **TODO stubs / placeholder comments** | **9+** | `noEmptyBlockStatements`, custom rules |
 | 8 | **Code duplication / DRY violations** | **9+** | `jscpd`, SonarQube — not standard Biome/ESLint |
-| 9 | **Hallucinated imports / phantom packages** | **8+** | Not caught by standard linters — use `karpeslop` |
+| 9 | **Hallucinated imports / phantom packages** | **8+** | `noUndeclaredDependencies`, `noUnresolvedImports` (Biome project domain), `karpeslop` |
 | 10 | **Deep nesting / complexity bloat** | **8+** | `noExcessiveCognitiveComplexity`, `max-depth` |
 | 11 | **Generic naming** (`data`, `result`, `temp`) | **7+** | `useNamingConvention` |
 | 12 | **Defensive overreach / unnecessary guards** | **6+** | Not caught by standard linters |
@@ -325,10 +339,26 @@ These are the specific anti-patterns most prevalent in AI-generated code, as rep
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "include": ["src/**/*", "tests/**/*", "**/*.test.ts", "**/*.spec.ts"],
+  "exclude": ["node_modules", "dist"]
+}
+```
+
+### `tsconfig.build.json`
+
+```jsonc
+{
+  "extends": "./tsconfig.json",
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts", "tests"]
 }
 ```
 
@@ -337,13 +367,20 @@ These are the specific anti-patterns most prevalent in AI-generated code, as rep
 ```jsonc
 {
   "$schema": "https://biomejs.dev/schemas/2.4.14/schema.json",
-  "organizeImports": {
-    "enabled": true
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
   },
   "linter": {
     "enabled": true,
     "domains": {
-      "types": "all"
+      "types": "all",
+      "react": "recommended",
+      "test": "recommended"
     },
     "rules": {
       "recommended": true,
@@ -353,7 +390,10 @@ These are the specific anti-patterns most prevalent in AI-generated code, as rep
         "noUnusedFunctionParameters": "warn",
         "noUndeclaredVariables": "error",
         "noConstAssign": "error",
-        "useExhaustiveDependencies": "error"
+        "useExhaustiveDependencies": "error",
+        "noUndeclaredDependencies": "error",
+        "noUnresolvedImports": "error",
+        "noPrivateImports": "warn"
       },
       "suspicious": {
         "noExplicitAny": "error",
@@ -367,12 +407,16 @@ These are the specific anti-patterns most prevalent in AI-generated code, as rep
         "noDoubleEquals": "error",
         "noAlert": "error",
         "noAssignInExpressions": "warn",
-        "noEmptyBlockStatements": "warn"
+        "noEmptyBlockStatements": "error",
+        "noVar": "error",
+        "noImportCycles": "warn",
+        "noDeprecatedImports": "warn",
+        "noFocusedTests": "error",
+        "noSkippedTests": "error"
       },
       "style": {
         "useConst": "error",
         "noNonNullAssertion": "error",
-        "noVar": "error",
         "useTemplate": "warn",
         "noNegationElse": "warn",
         "useExportType": "error",
@@ -385,7 +429,12 @@ These are the specific anti-patterns most prevalent in AI-generated code, as rep
           }
         },
         "noProcessEnv": "error",
-        "noDefaultExport": "error"
+        "noDefaultExport": {
+          "level": "warn",
+          "options": {
+            "exceptModules": ["next.config", "vite.config", "vitest.config"]
+          }
+        }
       },
       "complexity": {
         "noStaticOnlyClass": "warn",
@@ -403,7 +452,6 @@ These are the specific anti-patterns most prevalent in AI-generated code, as rep
         "useAwaitThenable": "warn",
         "noUnnecessaryConditions": "warn",
         "useExhaustiveSwitchCases": "warn",
-        "useExplicitType": "error",
         "useExplicitReturnType": "warn"
       },
       "security": {
@@ -429,14 +477,28 @@ These are the specific anti-patterns most prevalent in AI-generated code, as rep
     }
   },
   "files": {
-    "ignore": [
-      "node_modules",
-      "dist",
-      "build",
-      "coverage",
-      "*.generated.ts"
+    "ignoreUnknown": true,
+    "includes": [
+      "**",
+      "!!**/node_modules",
+      "!!**/dist",
+      "!!**/build",
+      "!!**/coverage",
+      "!**/*.generated.ts"
     ]
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["**/env/**/*", "**/config/**/*", "**/*.config.*"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noProcessEnv": "off"
+          }
+        }
+      }
+    }
+  ]
 }
 ```
 
@@ -457,6 +519,23 @@ jobs:
       - run: bun install
       - run: bun run biome ci --reporter=github
       - run: bun run tsc --noEmit
+      - run: bun run knip
+      - run: bun run jscpd .
+      - run: gitleaks detect --source .
+      - run: bun audit
+```
+
+### Package Scripts
+
+```json
+{
+  "scripts": {
+    "check": "biome ci . && tsc --noEmit",
+    "check:deps": "knip",
+    "check:dupes": "jscpd .",
+    "check:security": "gitleaks detect --source . && bun audit"
+  }
+}
 ```
 
 ### Pre-Commit Hook (Lefthook)
@@ -606,4 +685,4 @@ pre-commit:
 
 4. **All claims** are sourced. Every statistic, rule, and anti-pattern has at least one URL reference.
 
-5. **No personal opinions** were added. This report synthesizes only what the sources say.
+5. **No personal opinions** were added. This report combines source synthesis with opinionated configuration recommendations. Mention counts are useful prioritization signals, not proof of rule correctness.
