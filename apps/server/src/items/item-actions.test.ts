@@ -55,10 +55,10 @@ function setup(
   const world = createWorld();
   const owner = world.createEntity();
   const inventory = createInventory(owner, `inventory:${owner}`, 28);
-  world.stores.inventory.set(owner, inventory);
-  world.stores.equipment.set(owner, createEquipment(owner));
+  world.setComponent(owner, "inventory", inventory);
+  world.setComponent(owner, "equipment", createEquipment(owner));
   if (combat) {
-    world.stores.combatant.set(owner, {
+    world.setComponent(owner, "combatant", {
       entityId: owner,
       health: combat.health,
       maxHealth: combat.maxHealth,
@@ -67,6 +67,7 @@ function setup(
       defenceLevel: 1,
       targetId: undefined,
       attackCooldown: 0,
+      combatLevel: 3,
       eatBlockedUntilTick: 0,
     });
   }
@@ -93,7 +94,7 @@ describe("handleItemIntent — validation", () => {
     const result = handleItemIntent(
       ctx,
       owner,
-      { itemUid: 999, option: "drop" },
+      { itemUid: 999, actionId: "drop" },
       TICK,
       SERVER_TIME,
     );
@@ -108,7 +109,7 @@ describe("handleItemIntent — validation", () => {
     handleItemIntent(
       ctx,
       owner,
-      { itemUid: uidOf(inventory), option: "examine" },
+      { itemUid: uidOf(inventory), actionId: "examine" },
       TICK,
       SERVER_TIME,
     );
@@ -123,7 +124,7 @@ describe("handleItemIntent — examine", () => {
     const result = handleItemIntent(
       ctx,
       owner,
-      { itemUid: uidOf(inventory), option: "examine" },
+      { itemUid: uidOf(inventory), actionId: "examine" },
       TICK,
       SERVER_TIME,
     );
@@ -140,7 +141,7 @@ describe("handleItemIntent — drop", () => {
     const result = handleItemIntent(
       ctx,
       owner,
-      { itemUid: uidOf(inventory), option: "drop" },
+      { itemUid: uidOf(inventory), actionId: "drop" },
       TICK,
       SERVER_TIME,
     );
@@ -157,38 +158,56 @@ describe("handleItemIntent — equip", () => {
     const result = handleItemIntent(
       ctx,
       owner,
-      { itemUid: uidOf(inventory), option: "wield" },
+      { itemUid: uidOf(inventory), actionId: "wield" },
       TICK,
       SERVER_TIME,
     );
 
     expect(result.outcome).toBe("equipped");
     expect(count(inventory, "test_blade")).toBe(0);
-    expect(world.stores.equipment.get(owner)?.slots.weapon).toBe("test_blade");
+    expect(world.getComponent(owner, "equipment")?.slots.weapon).toBe("test_blade");
   });
 
   it("swaps the previously-equipped item back into the inventory", () => {
     const { ctx, owner, world, inventory } = setup([{ itemId: "test_blade", quantity: 1 }]);
-    const equipment = world.stores.equipment.get(owner);
+    const equipment = world.getComponent(owner, "equipment");
     if (equipment) {
       equipment.slots.weapon = "test_axe"; // pretend an axe is already wielded
     }
-    handleItemIntent(ctx, owner, { itemUid: uidOf(inventory), option: "wield" }, TICK, SERVER_TIME);
+    handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), actionId: "wield" },
+      TICK,
+      SERVER_TIME,
+    );
 
-    expect(world.stores.equipment.get(owner)?.slots.weapon).toBe("test_blade");
+    expect(world.getComponent(owner, "equipment")?.slots.weapon).toBe("test_blade");
     expect(count(inventory, "test_axe")).toBe(1);
     expect(count(inventory, "test_blade")).toBe(0);
   });
 
   it("equips into the correct content-defined slot", () => {
     const { ctx, owner, world, inventory } = setup([{ itemId: "test_helm", quantity: 1 }]);
-    handleItemIntent(ctx, owner, { itemUid: uidOf(inventory), option: "wear" }, TICK, SERVER_TIME);
-    expect(world.stores.equipment.get(owner)?.slots.head).toBe("test_helm");
+    handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), actionId: "wear" },
+      TICK,
+      SERVER_TIME,
+    );
+    expect(world.getComponent(owner, "equipment")?.slots.head).toBe("test_helm");
   });
 
   it("emits an EQUIPMENT entity update so the client can render the change", () => {
     const { ctx, owner, inventory, deltas } = setup([{ itemId: "test_blade", quantity: 1 }]);
-    handleItemIntent(ctx, owner, { itemUid: uidOf(inventory), option: "wield" }, TICK, SERVER_TIME);
+    handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), actionId: "wield" },
+      TICK,
+      SERVER_TIME,
+    );
 
     const update = deltas.peek().entityUpdates.find((u) => u.entityId === owner);
     expect(update?.changes.equipment?.slots[3]).toBe("test_blade"); // weapon index
@@ -199,14 +218,14 @@ describe("handleItemIntent — equip", () => {
     const result = handleItemIntent(
       ctx,
       owner,
-      { itemUid: uidOf(inventory), option: "equip" },
+      { itemUid: uidOf(inventory), actionId: "equip" },
       TICK,
       SERVER_TIME,
     );
 
     expect(result).toEqual({ outcome: "invalid", message: "You can't equip that." });
     expect(count(inventory, "test_axe")).toBe(1);
-    expect(world.stores.equipment.get(owner)?.slots.weapon).toBeUndefined();
+    expect(world.getComponent(owner, "equipment")?.slots.weapon).toBeUndefined();
     expect(deltas.peek().inventoryDelta).toBeUndefined();
   });
 });
@@ -220,7 +239,7 @@ describe("handleItemIntent — eat", () => {
     const result = handleItemIntent(
       ctx,
       owner,
-      { itemUid: uidOf(inventory), option: "eat" },
+      { itemUid: uidOf(inventory), actionId: "eat" },
       TICK,
       SERVER_TIME,
     );
@@ -234,8 +253,8 @@ describe("handleItemIntent — eat", () => {
     });
     // The heal is deferred to the stat-change phase — health is untouched at input close.
     expect(consumables.pendingCount).toBe(1);
-    expect(world.stores.combatant.get(owner)?.health).toBe(4);
-    expect(world.stores.combatant.get(owner)?.eatBlockedUntilTick).toBe(TICK + 3);
+    expect(world.getComponent(owner, "combatant")?.health).toBe(4);
+    expect(world.getComponent(owner, "combatant")?.eatBlockedUntilTick).toBe(TICK + 3);
   });
 
   it("silently ignores a second eat while still inside the eat delay", () => {
@@ -243,11 +262,11 @@ describe("handleItemIntent — eat", () => {
       health: 4,
       maxHealth: 10,
     });
-    handleItemIntent(ctx, owner, { itemUid: uidOf(inventory), option: "eat" }, TICK, SERVER_TIME);
+    handleItemIntent(ctx, owner, { itemUid: uidOf(inventory), actionId: "eat" }, TICK, SERVER_TIME);
     const second = handleItemIntent(
       ctx,
       owner,
-      { itemUid: uidOf(inventory), option: "eat" },
+      { itemUid: uidOf(inventory), actionId: "eat" },
       TICK + 1, // still < TICK + 3
       SERVER_TIME,
     );
@@ -262,11 +281,11 @@ describe("handleItemIntent — eat", () => {
       health: 4,
       maxHealth: 10,
     });
-    handleItemIntent(ctx, owner, { itemUid: uidOf(inventory), option: "eat" }, TICK, SERVER_TIME);
+    handleItemIntent(ctx, owner, { itemUid: uidOf(inventory), actionId: "eat" }, TICK, SERVER_TIME);
     const later = handleItemIntent(
       ctx,
       owner,
-      { itemUid: uidOf(inventory), option: "eat" },
+      { itemUid: uidOf(inventory), actionId: "eat" },
       TICK + 3,
       SERVER_TIME,
     );
@@ -283,7 +302,7 @@ describe("handleItemIntent — eat", () => {
     const result = handleItemIntent(
       ctx,
       owner,
-      { itemUid: uidOf(inventory), option: "eat" },
+      { itemUid: uidOf(inventory), actionId: "eat" },
       TICK,
       SERVER_TIME,
     );
@@ -302,7 +321,7 @@ describe("handleItemIntent — eat", () => {
     const result = handleItemIntent(
       ctx,
       owner,
-      { itemUid: uidOf(inventory), option: "eat" },
+      { itemUid: uidOf(inventory), actionId: "eat" },
       TICK,
       SERVER_TIME,
     );
@@ -319,7 +338,7 @@ describe("handleItemIntent — use / unknown", () => {
     const result = handleItemIntent(
       ctx,
       owner,
-      { itemUid: uidOf(inventory), option: "use" },
+      { itemUid: uidOf(inventory), actionId: "use" },
       TICK,
       SERVER_TIME,
     );
@@ -333,7 +352,7 @@ describe("handleItemIntent — use / unknown", () => {
     const result = handleItemIntent(
       ctx,
       owner,
-      { itemUid: uidOf(inventory), option: "smell" },
+      { itemUid: uidOf(inventory), actionId: "smell" },
       TICK,
       SERVER_TIME,
     );
@@ -346,19 +365,31 @@ describe("handleItemIntent — use / unknown", () => {
 describe("handleUnequipIntent", () => {
   it("returns an equipped item to the inventory and emits an equipment update", () => {
     const { ctx, owner, world, inventory, deltas } = setup([{ itemId: "test_blade", quantity: 1 }]);
-    handleItemIntent(ctx, owner, { itemUid: uidOf(inventory), option: "wield" }, TICK, SERVER_TIME);
+    handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), actionId: "wield" },
+      TICK,
+      SERVER_TIME,
+    );
 
     const result = handleUnequipIntent(ctx, owner, 3, SERVER_TIME); // weapon index
     expect(result.outcome).toBe("unequipped");
     expect(count(inventory, "test_blade")).toBe(1);
-    expect(world.stores.equipment.get(owner)?.slots.weapon).toBeUndefined();
+    expect(world.getComponent(owner, "equipment")?.slots.weapon).toBeUndefined();
     const update = deltas.peek().entityUpdates.find((u) => u.entityId === owner);
     expect(update?.changes.equipment?.slots[3]).toBeNull();
   });
 
   it("fails to unequip into a full inventory without mutating", () => {
     const { ctx, owner, world, inventory } = setup([{ itemId: "test_blade", quantity: 1 }]);
-    handleItemIntent(ctx, owner, { itemUid: uidOf(inventory), option: "wield" }, TICK, SERVER_TIME);
+    handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), actionId: "wield" },
+      TICK,
+      SERVER_TIME,
+    );
     // Fill every inventory slot so the unequip has nowhere to land.
     for (let i = 0; i < inventory.capacity; i += 1) {
       if (!inventory.slots[i]) {
@@ -367,6 +398,6 @@ describe("handleUnequipIntent", () => {
     }
     const result = handleUnequipIntent(ctx, owner, 3, SERVER_TIME);
     expect(result.outcome).toBe("invalid");
-    expect(world.stores.equipment.get(owner)?.slots.weapon).toBe("test_blade");
+    expect(world.getComponent(owner, "equipment")?.slots.weapon).toBe("test_blade");
   });
 });

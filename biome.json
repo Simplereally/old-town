@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -7,23 +7,22 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "ignore": [
-      "**/node_modules",
-      "**/dist",
-      "**/build",
-      "**/out",
-      "**/coverage",
-      "**/.vite",
-      "**/.cache",
-      "**/.omo",
-      "**/*.tsbuildinfo",
-      "bun.lock",
-      "bun.lockb"
+    "includes": [
+      "**",
+      "!node_modules",
+      "!dist",
+      "!build",
+      "!out",
+      "!coverage",
+      "!.vite",
+      "!.cache",
+      "!.omo",
+      "!*.tsbuildinfo",
+      "!bun.lock",
+      "!bun.lockb"
     ]
   },
-  "organizeImports": {
-    "enabled": true
-  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "formatter": {
     "enabled": true,
     "formatWithErrors": false,
@@ -46,7 +45,7 @@
         "noNonNullAssertion": "warn"
       },
       "suspicious": {
-        "noConsoleLog": "off"
+        "noConsole": { "level": "off", "options": { "allow": ["log"] } }
       }
     }
   },
