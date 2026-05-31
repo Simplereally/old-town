@@ -87,35 +87,6 @@
     }
   },
   {
-    "id": "chalkmarked_staff",
-    "name": "Chalkmarked Staff",
-    "stackable": false,
-    "tradeable": true,
-    "examine": "An apprentice staff marked with chalk lines and fitted for beadwork.",
-    "icon": "icon_chalkmarked_staff",
-    "model": "model_chalkmarked_staff",
-    "value": 55,
-    "weight": 1.5,
-    "tier": "chalkmarked",
-    "tierOrder": 1,
-    "family": "staff",
-    "category": "magic",
-    "visualIdentity": {
-      "baseColor": "chalk_white",
-      "accents": "slate_beads",
-      "shaft": "plain_ash"
-    },
-    "options": ["wield"],
-    "equipment": {
-      "slot": "weapon",
-      "attackSpeedTicks": 5,
-      "attackRangeTiles": 1,
-      "allowedStyles": ["magic", "crush"],
-      "bonuses": { "magicAttack": 4, "magicDamage": 3, "crushAttack": 1 },
-      "requirements": [{ "skillId": "magic", "level": 1 }]
-    }
-  },
-  {
     "id": "cobbled_sticker",
     "name": "Cobbled Sticker",
     "stackable": false,
@@ -140,62 +111,6 @@
       "attackRangeTiles": 1,
       "allowedStyles": ["stab", "slash"],
       "bonuses": { "stabAttack": 1, "slashAttack": 1 },
-      "requirements": []
-    }
-  },
-  {
-    "id": "chalkmarked_wand",
-    "name": "Chalkmarked Wand",
-    "stackable": false,
-    "tradeable": true,
-    "examine": "A short wand marked with chalk sigils for channeling magic.",
-    "icon": "icon_chalkmarked_wand",
-    "model": "model_chalkmarked_wand",
-    "value": 35,
-    "weight": 0.5,
-    "tier": "chalkmarked",
-    "tierOrder": 1,
-    "family": "wand",
-    "category": "magic",
-    "visualIdentity": {
-      "baseColor": "chalk_white",
-      "accents": "slate_tip"
-    },
-    "options": ["wield"],
-    "equipment": {
-      "slot": "weapon",
-      "attackSpeedTicks": 5,
-      "attackRangeTiles": 1,
-      "allowedStyles": ["magic"],
-      "bonuses": { "magicAttack": 3, "magicDamage": 2 },
-      "requirements": [{ "skillId": "magic", "level": 1 }]
-    }
-  },
-  {
-    "id": "chalkmarked_primer",
-    "name": "Chalkmarked Primer",
-    "stackable": false,
-    "tradeable": true,
-    "examine": "A primer book bound in chalked leather for apprentice spellwork.",
-    "icon": "icon_chalkmarked_primer",
-    "model": "model_chalkmarked_primer",
-    "value": 30,
-    "weight": 0.6,
-    "tier": "chalkmarked",
-    "tierOrder": 1,
-    "family": "primer",
-    "category": "magic",
-    "visualIdentity": {
-      "baseColor": "chalk_white",
-      "accents": "slate_binding"
-    },
-    "options": ["wield"],
-    "equipment": {
-      "slot": "weapon",
-      "attackSpeedTicks": 5,
-      "attackRangeTiles": 1,
-      "allowedStyles": ["magic"],
-      "bonuses": { "magicAttack": 2, "magicDamage": 1 },
       "requirements": []
     }
   },

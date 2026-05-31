@@ -461,7 +461,22 @@ type TickDelta = {
 };
 ```
 
-### 8.4 Patch cadence
+### 8.4 Snapshot/delta spine
+
+The server maps ECS entities to spawn packets through a pure `EntitySpawnProjector` module:
+- player → `kind: "player"`, optional `appearance` and `healthBar`
+- npc → `kind: "npc"`, optional `appearance` and `healthBar`
+- object → `kind: "object"`, `defId`
+- ground item → `kind: "ground_item"`, `defId`, `quantity`
+- Missing `position` component → skipped and reported (never silently dropped)
+
+The client applies all S2C packets through a single `ClientPacketApplier` module:
+- `applyFullState(packet)` performs an authoritative reset: clears all scene layers before spawning entities
+- `applyTickDelta(packet, currentTick)` handles incremental updates: region unloads/loads, entity adds/removes, actor updates, hitsplats, UI deltas, chat, interface opens, debug overlays
+- `recordClickTile(tile, tick)` stores the last click for move-rejection tracking
+- `GameEngine` only routes socket packets into the applier; no packet-application logic lives in the orchestrator
+
+### 8.5 Patch cadence
 
 For OSRS-like purity:
 

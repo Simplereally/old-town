@@ -8,6 +8,7 @@ interface Projectile {
   startTile: TileCoord;
   endTile: TileCoord;
   startTime: number;
+  durationMs: number;
   mesh: Mesh;
 }
 
@@ -33,7 +34,7 @@ export class ProjectileLayer {
   }
 
   /** Spawn a projectile from start to end tile. */
-  spawn(id: string, startTile: TileCoord, endTile: TileCoord): void {
+  spawn(id: string, startTile: TileCoord, endTile: TileCoord, durationTicks = 1): void {
     if (this.projectiles.has(id)) {
       this.remove(id);
     }
@@ -49,6 +50,7 @@ export class ProjectileLayer {
       startTile,
       endTile,
       startTime: performance.now(),
+      durationMs: Math.max(1, durationTicks) * GAME_TICK_MS,
       mesh,
     });
   }
@@ -72,8 +74,7 @@ export class ProjectileLayer {
       const mesh = proj.mesh;
       const id = proj.id;
 
-      const duration = GAME_TICK_MS;
-      const progress = Math.min((now - startTime) / duration, 1);
+      const progress = Math.min((now - startTime) / proj.durationMs, 1);
       const startWorld = this._tileToWorld(startTile);
       const endWorld = this._tileToWorld(endTile);
       mesh.position.lerpVectors(startWorld, endWorld, progress);

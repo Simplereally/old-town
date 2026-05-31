@@ -1,6 +1,7 @@
 import type { ContentRegistries, EntityId, ResourceNodeDef, TileCoord } from "@old-town/shared";
 import type { ObjectComponent, ResourceNodeComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
+import type { ActionHandler } from "../sim/action-executor";
 import { ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import type { ActionRuntime } from "../sim/action-runtime";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
@@ -18,6 +19,14 @@ export interface ResourceNodeRespawnPayload {
   readonly kind: "resource_respawn";
   readonly nodeEntityId: EntityId;
 }
+
+export type ResourceNodePayload = ResourceNodeRespawnPayload;
+
+export type ResourceNodeKind = ResourceNodePayload["kind"];
+
+export type ResourceNodeHandlerTable = {
+  [K in ResourceNodeKind]: ActionHandler<Extract<ResourceNodePayload, { kind: K }>>;
+};
 
 export function resourceRespawnActionId(nodeEntityId: EntityId): string {
   return `resource-respawn:${nodeEntityId}`;
@@ -93,16 +102,14 @@ export function depleteResourceNode(
   setNodeCollision(ctx, entityId, false, def);
   ctx.deltas.markEntityUpdate(entityId, { transform: depletedTransformId(object, def) });
   ctx.actionRuntime.cancel(entityId, { id: resourceRespawnActionId(entityId) });
+  const payload: ResourceNodeRespawnPayload = { kind: "resource_respawn", nodeEntityId: entityId };
   ctx.actionRuntime.enqueue({
     id: resourceRespawnActionId(entityId),
     owner: entityId,
     type: ActionQueueType.Soft,
     delayTicks: def.respawnTicks,
     interruptGroup: InterruptGroup.Skilling,
-    payload: {
-      kind: "resource_respawn",
-      nodeEntityId: entityId,
-    } satisfies ResourceNodeRespawnPayload,
+    payload,
   });
   return true;
 }
@@ -127,4 +134,14 @@ export function respawnResourceNode(ctx: ResourceNodeContext, entityId: EntityId
   setNodeCollision(ctx, entityId, true, def);
   ctx.deltas.markEntityUpdate(entityId, { transform: object.objectId });
   return true;
+}
+
+export function createResourceNodeActionHandlers(
+  ctx: ResourceNodeContext,
+): ResourceNodeHandlerTable {
+  return {
+    resource_respawn: (payload, _actionCtx) => {
+      respawnResourceNode(ctx, payload.nodeEntityId);
+    },
+  };
 }

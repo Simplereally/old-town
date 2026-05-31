@@ -7,6 +7,7 @@ import {
   type EntityId,
   type EntitySpawnPacket,
   type EntityUpdatePacket,
+  type ProjectilePacket,
   REGION_SIZE,
   type RegionCoord,
   type RegionId,
@@ -17,6 +18,7 @@ import {
   type TileCoord,
 } from "@old-town/shared";
 import type { World } from "../ecs/world";
+import { groundItemVisibleToPlayer } from "../systems/ground-item-system";
 
 export interface InterestScene {
   readonly minX: number;
@@ -80,13 +82,15 @@ function entityOrder(a: EntityId, b: EntityId): number {
 function packetWith(
   packet: TickDeltaPacket,
   changes: Pick<TickDeltaPacket, "entityAdds" | "entityRemoves" | "entityUpdates"> &
-    Partial<Pick<TickDeltaPacket, "chat" | "regionLoads" | "regionUnloads">>,
+    Partial<Pick<TickDeltaPacket, "chat" | "projectiles" | "regionLoads" | "regionUnloads">>,
 ): TickDeltaPacket {
+  const { projectiles: _projectiles, ...base } = packet;
   return {
-    ...packet,
+    ...base,
     entityAdds: changes.entityAdds,
     entityRemoves: changes.entityRemoves,
     entityUpdates: changes.entityUpdates,
+    ...(changes.projectiles !== undefined ? { projectiles: changes.projectiles } : {}),
     ...(changes.regionLoads && changes.regionLoads.length > 0
       ? { regionLoads: changes.regionLoads }
       : {}),
@@ -218,7 +222,11 @@ export class InterestManager {
     const knownEntities = state.knownEntities;
     const entityAdds: EntitySpawnPacket[] = [];
     for (const add of delta.entityAdds) {
-      if (!knownEntities.has(add.entityId) && sceneContainsTile(scene, add.tile)) {
+      if (
+        !knownEntities.has(add.entityId) &&
+        sceneContainsTile(scene, add.tile) &&
+        this.entityVisibleToPlayer(player, add.entityId, delta.tick, world)
+      ) {
         knownEntities.add(add.entityId);
         entityAdds.push(add);
       }
@@ -246,12 +254,15 @@ export class InterestManager {
 
     const chat =
       delta.chat?.filter((packet) => this.chatVisible(scene, packet, world, player)) ?? [];
+    const projectiles =
+      delta.projectiles?.filter((projectile) => this.projectileVisible(scene, projectile)) ?? [];
 
     return packetWith(delta, {
       entityAdds,
       entityRemoves: Array.from(entityRemoves).toSorted(entityOrder),
       entityUpdates,
       ...(delta.chat ? { chat } : {}),
+      ...(delta.projectiles ? { projectiles } : {}),
       regionLoads: transition.regionLoads,
       regionUnloads: transition.regionUnloads,
     });
@@ -274,6 +285,22 @@ export class InterestManager {
     return position
       ? { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] }
       : undefined;
+  }
+
+  private entityVisibleToPlayer(
+    player: EntityId,
+    entityId: EntityId,
+    tick: number,
+    world: World,
+  ): boolean {
+    const groundItem = world.getComponent(entityId, "groundItem");
+    return groundItem ? groundItemVisibleToPlayer(groundItem, player, tick) : true;
+  }
+
+  private projectileVisible(scene: InterestScene, projectile: ProjectilePacket): boolean {
+    return (
+      sceneContainsTile(scene, projectile.startTile) || sceneContainsTile(scene, projectile.endTile)
+    );
   }
 
   private chatVisible(

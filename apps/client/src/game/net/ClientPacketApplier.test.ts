@@ -40,6 +40,7 @@ function createMockContext(): PacketApplierContext {
       remove: vi.fn(),
       updateTile: vi.fn(),
       updateFacing: vi.fn(),
+      updateHealthBar: vi.fn(),
       updateAppearance: vi.fn(),
       getActorState: vi.fn(),
     },
@@ -51,6 +52,10 @@ function createMockContext(): PacketApplierContext {
     hitsplats: {
       clear: vi.fn(),
       show: vi.fn(),
+    },
+    projectiles: {
+      clear: vi.fn(),
+      spawn: vi.fn(),
     },
     chatOverhead: {
       clear: vi.fn(),
@@ -400,6 +405,58 @@ describe("ClientPacketApplier", () => {
 
     expect(ctx.hitsplats.show).toHaveBeenCalledWith(eid(42), 5, "damage");
     expect(ctx.uiState.setEquipment).toHaveBeenCalledWith(["helm"]);
+  });
+
+  it("applyTickDelta spawns projectile visual events", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(fullStatePacket({ selfEntityId: eid(42) }));
+
+    applier.applyTickDelta(
+      tickDeltaPacket({
+        projectiles: [
+          {
+            id: "proj-1",
+            projectileId: "projectile_ember_flick",
+            sourceEntityId: eid(42),
+            targetEntityId: eid(7),
+            startTile: { x: 1, y: 1, plane: 0 },
+            endTile: { x: 3, y: 1, plane: 0 },
+            startTick: 10,
+            hitTick: 12,
+          },
+        ],
+      }),
+      1,
+    );
+
+    expect(ctx.projectiles.spawn).toHaveBeenCalledWith(
+      "proj-1",
+      { x: 1, y: 1, plane: 0 },
+      { x: 3, y: 1, plane: 0 },
+      2,
+    );
+  });
+
+  it("applyTickDelta updates actor health bars", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(fullStatePacket({ selfEntityId: eid(42) }));
+
+    applier.applyTickDelta(
+      tickDeltaPacket({
+        entityUpdates: [
+          {
+            entityId: eid(7),
+            mask: 0,
+            changes: { healthBar: { current: 3, max: 10 } },
+          },
+        ],
+      }),
+      1,
+    );
+
+    expect(ctx.actors.updateHealthBar).toHaveBeenCalledWith(eid(7), 3, 10);
   });
 
   it("applyTickDelta ignores equipment for non-self entity", () => {

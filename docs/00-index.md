@@ -126,6 +126,39 @@ docs/
     ledger-placement.md ← Ledger physical anchors
     collision-and-route-rules.md ← Collision and path rules
     first-30-minute-paths.md ← Starter walkable loops
+  areas/
+    00-index.md        ← Area progression entry point
+    area-progression-system.md ← Ring structure, unlocks, gates
+    first-ring-areas.md ← 8 first-ring areas (Crowmile Road, Bellwood Copse, etc.)
+    second-ring-areas.md ← 7 second-ring area seeds
+    route-unlocks-and-gates.md ← Route network and traversal
+    area-level-bands.md ← Level ranges and danger classification
+    area-resource-progression.md ← Resource escalation by area
+    area-creature-progression.md ← Creature identities and escalation
+    area-quest-hooks.md ← Quest starters and chains
+    area-reward-identities.md ← Reward identity and repeat value
+  guilds/
+    00-index.md        ← Guilds and skill hubs entry point
+    guild-system.md    ← Core guild authority: categories, rules, banned patterns
+    starter-skill-hubs.md ← 9 starter district skill hubs
+    first-ring-guilds.md ← 8 first-ring guilds and access hubs
+    second-ring-guild-seeds.md ← 7 second-ring guild concepts
+    entry-requirements.md ← Guild access requirements and gates
+    guild-services-and-shops.md ← Services, shops, and conveniences
+    guild-resource-access.md ← Resource clusters and station quality
+    guild-quest-hooks.md ← Quest hooks that introduce and deepen guilds
+     guild-rewards.md    ← Reward identity: what guilds offer and what they do not
+  activities/
+     00-index.md        ← Activities and minigames entry point
+     activity-system.md  ← Core activity authority: categories, rules, banned patterns
+     activity-categories.md ← 8 activity categories and their design rules
+     starter-activities.md ← 8 starter activities in Old Town proper
+     first-ring-activities.md ← 8 first-ring activities beyond Old Town
+     skilling-bosses.md  ← 3 dangerous skilling encounters: Old Kiln Watch, Wardenbrook Tide, Lowgrave Vigil
+     activity-rewards.md ← Reward identity: what activities offer and what they do not
+     activity-currencies.md ← Local activity currencies and their sinks
+     activity-quest-hooks.md ← Quest hooks that introduce and deepen activities
+     activity-balance-rules.md ← Effort bands, XP calibration, and anti-power-creep
   content/
     00-index.md        ← Content translation entry point
     content-translation-system.md ← Core translation authority and workflow
@@ -271,6 +304,16 @@ docs/
 | Find a cape or amulet | [`items/accessories/00-index.md`](items/accessories/00-index.md) → pick a slot |
 | See skill requirements for an item | [`skills/00-index.md`](skills/00-index.md) → [`skill-system.md`](skills/skill-system.md) |
 | Understand the skill economy | [`skills/00-index.md`](skills/00-index.md) → [`skill-interlocks.md`](skills/skill-interlocks.md) |
+| Understand area progression beyond Old Town | [`areas/00-index.md`](areas/00-index.md) |
+| See first-ring area designs | [`areas/00-index.md`](areas/00-index.md) → [`first-ring-areas.md`](areas/first-ring-areas.md) |
+| See second-ring area seeds | [`areas/00-index.md`](areas/00-index.md) → [`second-ring-areas.md`](areas/second-ring-areas.md) |
+| Check level bands and danger | [`areas/00-index.md`](areas/00-index.md) → [`area-level-bands.md`](areas/area-level-bands.md) |
+| Understand guilds and skill hubs | [`guilds/00-index.md`](guilds/00-index.md) |
+| See starter skill hubs | [`guilds/00-index.md`](guilds/00-index.md) → [`starter-skill-hubs.md`](guilds/starter-skill-hubs.md) |
+| See first-ring guilds | [`guilds/00-index.md`](guilds/00-index.md) → [`first-ring-guilds.md`](guilds/first-ring-guilds.md) |
+| See guild entry requirements | [`guilds/00-index.md`](guilds/00-index.md) → [`entry-requirements.md`](guilds/entry-requirements.md) |
+| See guild services and shops | [`guilds/00-index.md`](guilds/00-index.md) → [`guild-services-and-shops.md`](guilds/guild-services-and-shops.md) |
+| See guild rewards | [`guilds/00-index.md`](guilds/00-index.md) → [`guild-rewards.md`](guilds/guild-rewards.md) |
 
 ### Non-Item Documentation
 

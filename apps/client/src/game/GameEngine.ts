@@ -98,6 +98,7 @@ export class GameEngine {
       actors: this.actors,
       groundItems: this.groundItems,
       hitsplats: this.hitsplats,
+      projectiles: this.projectiles,
       chatOverhead: this.chatOverhead,
       debug: this.debug,
       uiState: this.uiState,
@@ -166,7 +167,7 @@ export class GameEngine {
     await Promise.all([contentLoad, connect]);
 
     const uiCallbacks: UIManagerCallbacks = {
-      sendItemCommand: (uid, option) => this.sendItemCommand(uid, option),
+      sendItemCommand: (uid, actionId) => this.sendItemCommand(uid, actionId),
       sendChatCommand: (text) => this.sendChatCommand(text),
       enterSpellTargetMode: (spellId) => this.enterSpellTargetMode(spellId),
       sendUiActionCommand: (action, targetId, value) =>
@@ -299,7 +300,7 @@ export class GameEngine {
       this._logDebug(`Click: ${decision.actionId} ${entity?.defId ?? "object"}`);
     }
     if (decision.type === "groundItemOption") {
-      this._logDebug(`Click: Pick up ${entity?.itemId ?? "item"}`);
+      this._logDebug(`Click: ${decision.actionId} ${entity?.itemId ?? "item"}`);
     }
   };
 

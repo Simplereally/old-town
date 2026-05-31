@@ -1,0 +1,329 @@
+import {
+  type ContentRegistries,
+  type DropTableDef,
+  type EntityId,
+  type ItemDef,
+  type NpcDef,
+  type Rng,
+  tileKey,
+} from "@old-town/shared";
+import { describe, expect, it } from "vitest";
+import { createWorld, type World } from "../ecs/world";
+import { count, createInventory } from "../items/inventory";
+import { ItemAuditLog } from "../items/item-audit";
+import { InterestManager } from "../net/interest-manager";
+import { DeltaAccumulator } from "../sim/delta-accumulator";
+import { CollisionMap } from "../world/collision";
+import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
+import {
+  DROP_PRIVATE_TICKS,
+  GROUND_ITEM_DESPAWN_TICKS,
+  type GroundItemSystemContext,
+  handleGroundItemIntent,
+  processDeathResolution,
+  processGroundItemLifecycle,
+  rollDropTable,
+  spawnGroundItem,
+} from "./ground-item-system";
+
+const COIN: ItemDef = {
+  id: "coin",
+  name: "Coin",
+  stackable: true,
+  tradeable: true,
+  examine: "Currency.",
+  icon: "icon_coin",
+  value: 1,
+  options: [],
+  tags: [],
+};
+
+const BONES: ItemDef = {
+  id: "small_bones",
+  name: "Small Bones",
+  stackable: true,
+  tradeable: true,
+  examine: "Small bones.",
+  icon: "icon_small_bones",
+  value: 1,
+  options: [],
+  tags: [],
+};
+
+const DROP_TABLE: DropTableDef = {
+  id: "mud_goblin_drops",
+  rolls: 1,
+  alwaysDrops: [{ itemId: "small_bones", quantity: 1 }],
+  entries: [
+    { itemId: "coin", min: 2, max: 2, weight: 1, requirements: [] },
+    { itemId: "small_bones", min: 3, max: 3, weight: 3, requirements: [] },
+  ],
+};
+
+const NPC_DEF: NpcDef = {
+  id: "mud_goblin",
+  name: "Mud Goblin",
+  size: 1,
+  combatLevel: 5,
+  maxHp: 8,
+  stats: {
+    attack: 3,
+    strength: 3,
+    defence: 3,
+    ranged: 1,
+    magic: 1,
+    prayer: 1,
+    hitpoints: 8,
+  },
+  attackSpeedTicks: 5,
+  attackRangeTiles: 1,
+  wanderRadius: 3,
+  respawnTicks: 7,
+  drops: "mud_goblin_drops",
+  options: [{ label: "Attack", actionId: "attack", priority: 10, requiredDistance: 1 }],
+};
+
+function fixedRng(values: readonly number[]): Rng {
+  let index = 0;
+  return {
+    nextFloat: () => 0,
+    nextInt: (min, max) => {
+      const value = values[index] ?? min;
+      index += 1;
+      return Math.min(Math.max(value, min), max);
+    },
+    chanceOneIn: () => false,
+  };
+}
+
+function registries(): ContentRegistries {
+  return {
+    item: new Map([
+      [COIN.id, COIN],
+      [BONES.id, BONES],
+    ]),
+    npc: new Map([[NPC_DEF.id, NPC_DEF]]),
+    object: new Map(),
+    processingRecipe: new Map(),
+    skill: new Map(),
+    resourceNode: new Map(),
+    spell: new Map(),
+    dropTable: new Map([[DROP_TABLE.id, DROP_TABLE]]),
+    quest: new Map(),
+    dialogue: new Map(),
+    regionMap: new Map(),
+    material: new Map(),
+    animation: new Map(),
+  };
+}
+
+function addOpenTiles(map: RuntimeMap): void {
+  for (let x = 0; x < 4; x += 1) {
+    for (let y = 0; y < 4; y += 1) {
+      const tile = { x, y, plane: 0 as const };
+      map.tiles.set(tileKey(tile), {
+        tile,
+        height: 0,
+        underlayId: "grass",
+        collision: 0,
+        water: false,
+        bridge: false,
+      });
+    }
+  }
+}
+
+function addPlayer(world: World, x = 1, y = 1): EntityId {
+  const entityId = world.createEntity();
+  world.setComponent(entityId, "position", { entityId, x, y, plane: 0 });
+  world.setComponent(entityId, "player", {
+    entityId,
+    accountId: `account:${entityId}`,
+    sessionId: `session:${entityId}`,
+    interestRadius: 8,
+  });
+  world.setComponent(entityId, "inventory", createInventory(entityId, `inventory:${entityId}`, 28));
+  return entityId;
+}
+
+function addNpc(world: World, x = 1, y = 1): EntityId {
+  const entityId = world.createEntity();
+  world.setComponent(entityId, "position", { entityId, x, y, plane: 0 });
+  world.setComponent(entityId, "npc", {
+    entityId,
+    npcId: NPC_DEF.id,
+    brainState: "idle",
+    respawnTick: 0,
+    wanderRadius: 3,
+    home: { x, y, plane: 0 },
+    occupiedTile: { x, y, plane: 0 },
+  });
+  world.setComponent(entityId, "combatant", {
+    entityId,
+    health: 0,
+    maxHealth: 8,
+    attackLevel: 3,
+    strengthLevel: 3,
+    defenceLevel: 3,
+    targetId: undefined,
+    attackCooldown: 0,
+    combatLevel: 5,
+    eatBlockedUntilTick: 0,
+    autoRetaliate: true,
+    dead: false,
+  });
+  return entityId;
+}
+
+function setup(rng: Rng = fixedRng([1, 2])) {
+  const world = createWorld();
+  const map = createRuntimeMap();
+  addOpenTiles(map);
+  const collision = new CollisionMap(map);
+  const deltas = new DeltaAccumulator();
+  const itemAudit = new ItemAuditLog();
+  const ctx: GroundItemSystemContext = {
+    world,
+    collision,
+    deltas,
+    registries: registries(),
+    rng,
+    itemAudit,
+  };
+  return { ctx, world, deltas, itemAudit };
+}
+
+describe("ground item and drop system", () => {
+  it("rolls always drops plus weighted entries deterministically", () => {
+    expect(rollDropTable(DROP_TABLE, fixedRng([2, 3]))).toEqual([
+      { itemId: "small_bones", quantity: 1 },
+      { itemId: "small_bones", quantity: 3 },
+    ]);
+  });
+
+  it("spawns private drops for the eligible killer and reveals them after the private window", () => {
+    const { ctx, world, deltas } = setup(fixedRng([1, 2]));
+    const owner = addPlayer(world);
+    const bystander = addPlayer(world);
+    const npc = addNpc(world);
+    const combatant = world.getComponent(npc, "combatant");
+    if (!combatant) throw new Error("missing combatant");
+    world.setComponent(npc, "combatant", { ...combatant, lastDamageSourceId: owner });
+
+    processDeathResolution(ctx, 10);
+
+    const raw = deltas.consume(10, 6_000);
+    const manager = new InterestManager();
+    const center = { x: 1, y: 1, plane: 0 as const };
+    expect(manager.filterDelta(owner, center, raw, world).entityAdds).toHaveLength(2);
+    expect(manager.filterDelta(bystander, center, raw, world).entityAdds).toEqual([]);
+
+    processGroundItemLifecycle(ctx, 10 + DROP_PRIVATE_TICKS);
+    const reveal = deltas.consume(70, 42_000);
+    expect(manager.filterDelta(bystander, center, reveal, world).entityAdds).toHaveLength(2);
+  });
+
+  it("picks up visible ground items through the inventory container and prevents duplicates", () => {
+    const { ctx, world, deltas, itemAudit } = setup();
+    const owner = addPlayer(world);
+    const groundItem = spawnGroundItem(
+      ctx,
+      "coin",
+      5,
+      { x: 1, y: 1, plane: 0 },
+      {
+        tick: 10,
+        ownerId: owner,
+      },
+    );
+    if (groundItem === undefined) throw new Error("ground item was not spawned");
+    deltas.consume(10, 6_000);
+
+    expect(
+      handleGroundItemIntent(
+        ctx,
+        owner,
+        { groundItemEntityId: groundItem, actionId: "pickup" },
+        10,
+        6_000,
+      ),
+    ).toBe(true);
+
+    const inventory = world.getComponent(owner, "inventory");
+    if (!inventory) throw new Error("missing inventory");
+    expect(count(inventory, "coin")).toBe(5);
+    expect(world.isAlive(groundItem)).toBe(false);
+    expect(deltas.peek().inventoryDelta?.changes[0]).toMatchObject({
+      itemId: "coin",
+      quantity: 5,
+    });
+    expect(itemAudit.snapshot().map((record) => record.kind)).toEqual([
+      "drop_spawn",
+      "ground_pickup",
+    ]);
+
+    handleGroundItemIntent(
+      ctx,
+      owner,
+      { groundItemEntityId: groundItem, actionId: "pickup" },
+      11,
+      6_600,
+    );
+    expect(count(inventory, "coin")).toBe(5);
+  });
+
+  it("blocks non-owner pickup before public reveal", () => {
+    const { ctx, world, deltas } = setup();
+    const owner = addPlayer(world);
+    const bystander = addPlayer(world);
+    const groundItem = spawnGroundItem(
+      ctx,
+      "coin",
+      1,
+      { x: 1, y: 1, plane: 0 },
+      {
+        tick: 10,
+        ownerId: owner,
+      },
+    );
+    if (groundItem === undefined) throw new Error("ground item was not spawned");
+    deltas.consume(10, 6_000);
+
+    handleGroundItemIntent(
+      ctx,
+      bystander,
+      { groundItemEntityId: groundItem, actionId: "pickup" },
+      10,
+      6_000,
+    );
+
+    expect(world.isAlive(groundItem)).toBe(true);
+    expect(deltas.peek().chat?.[0]?.text).toBe("That item is not yours to take yet.");
+  });
+
+  it("despawns ground items and records an audit entry", () => {
+    const { ctx, world, itemAudit } = setup();
+    const owner = addPlayer(world);
+    const groundItem = spawnGroundItem(
+      ctx,
+      "coin",
+      1,
+      { x: 1, y: 1, plane: 0 },
+      {
+        tick: 10,
+        ownerId: owner,
+      },
+    );
+    if (groundItem === undefined) throw new Error("ground item was not spawned");
+    ctx.deltas.consume(10, 6_000);
+
+    processGroundItemLifecycle(ctx, 10 + GROUND_ITEM_DESPAWN_TICKS);
+
+    expect(world.isAlive(groundItem)).toBe(false);
+    expect(ctx.deltas.peek().entityRemoves).toEqual([groundItem]);
+    expect(itemAudit.snapshot().map((record) => record.kind)).toEqual([
+      "drop_spawn",
+      "ground_despawn",
+    ]);
+  });
+});

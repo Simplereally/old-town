@@ -1,9 +1,16 @@
 import type { ContentRegistries, EntityId, Rng } from "@old-town/shared";
 import type { World } from "../ecs/world";
 import { handleItemIntent, handleUnequipIntent } from "../items/item-actions";
+import type { ItemAuditLog } from "../items/item-audit";
 import type { ChatSystem } from "../systems/chat-system";
+import { handleNpcCombatIntent } from "../systems/combat-system";
 import type { ConsumableSystem } from "../systems/consumable-system";
-import { handleMoveIntent, processMovementPhase } from "../systems/movement-system";
+import { handleGroundItemIntent } from "../systems/ground-item-system";
+import {
+  type FootprintResolver,
+  handleMoveIntent,
+  processMovementPhase,
+} from "../systems/movement-system";
 import { handleObjectSkillingIntent } from "../systems/skilling-system";
 import type { CollisionMap } from "../world/collision";
 import { ActionQueueType } from "./action-queue";
@@ -20,6 +27,7 @@ export interface IntentDispatcherContext {
   readonly rng: Rng;
   readonly chatSystem: ChatSystem;
   readonly consumableSystem: ConsumableSystem;
+  readonly itemAudit?: ItemAuditLog;
 }
 
 function emitSystemMessage(
@@ -52,9 +60,14 @@ function dispatchSingleIntent(
   switch (intent.kind) {
     case IntentKind.Move: {
       ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
-      handleMoveIntent({ world: ctx.world, collision: ctx.collision, deltas: ctx.deltas }, owner, {
-        dest: intent.payload.dest,
-      });
+      handleMoveIntent(
+        { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
+        owner,
+        {
+          dest: intent.payload.dest,
+        },
+        { tick },
+      );
       return;
     }
 
@@ -106,7 +119,7 @@ function dispatchSingleIntent(
 
     case IntentKind.Object: {
       ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
-      if (handleObjectSkillingIntent(ctx, owner, intent.payload, serverTime)) {
+      if (handleObjectSkillingIntent(ctx, owner, intent.payload, serverTime, tick)) {
         return;
       }
       emitSystemMessage(ctx, owner, "Object interaction is not yet implemented.", serverTime);
@@ -115,12 +128,18 @@ function dispatchSingleIntent(
 
     case IntentKind.Npc: {
       ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      if (handleNpcCombatIntent(ctx, owner, intent.payload, serverTime, tick)) {
+        return;
+      }
       emitSystemMessage(ctx, owner, "NPC interaction is not yet implemented.", serverTime);
       return;
     }
 
     case IntentKind.GroundItem: {
       ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      if (handleGroundItemIntent(ctx, owner, intent.payload, tick, serverTime)) {
+        return;
+      }
       emitSystemMessage(ctx, owner, "Ground item interaction is not yet implemented.", serverTime);
       return;
     }
@@ -137,8 +156,16 @@ function dispatchSingleIntent(
   }
 }
 
-export function dispatchMovementPhase(ctx: IntentDispatcherContext, tick: number): void {
-  processMovementPhase({ world: ctx.world, collision: ctx.collision, deltas: ctx.deltas }, tick);
+export function dispatchMovementPhase(
+  ctx: IntentDispatcherContext,
+  tick: number,
+  footprint?: FootprintResolver,
+): void {
+  processMovementPhase(
+    { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
+    tick,
+    footprint,
+  );
 }
 
 export function dispatchConsumablePhase(ctx: IntentDispatcherContext): void {

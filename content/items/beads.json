@@ -99,5 +99,57 @@
     "weight": 0.3,
     "options": [],
     "tags": ["bead", "container"]
+  },
+  {
+    "id": "waxed_bead_pouch",
+    "name": "Waxed Bead Pouch",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A weatherproof pouch sealed with candlewax for apprentice mages.",
+    "icon": "icon_waxed_bead_pouch",
+    "model": "model_waxed_bead_pouch",
+    "value": 45,
+    "weight": 0.4,
+    "options": [],
+    "tags": ["bead", "container"]
+  },
+  {
+    "id": "warden_bead_pouch",
+    "name": "Warden Bead Pouch",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A licensed pouch for proper spellwork and teleport beads.",
+    "icon": "icon_warden_bead_pouch",
+    "model": "model_warden_bead_pouch",
+    "value": 120,
+    "weight": 0.5,
+    "options": [],
+    "tags": ["bead", "container"]
+  },
+  {
+    "id": "grave_bead_pouch",
+    "name": "Grave Bead Pouch",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A crypt-runner pouch with bone toggles and black cord. Stores bone and grave beads efficiently.",
+    "icon": "icon_grave_bead_pouch",
+    "model": "model_grave_bead_pouch",
+    "value": 280,
+    "weight": 0.4,
+    "options": [],
+    "tags": ["bead", "container"]
+  },
+  {
+    "id": "starfall_bead_pouch",
+    "name": "Starfall Bead Pouch",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "An endgame omni-pouch threaded with meteor-dust and silver clasps.",
+    "icon": "icon_starfall_bead_pouch",
+    "model": "model_starfall_bead_pouch",
+    "value": 800,
+    "weight": 0.3,
+    "options": [],
+    "tags": ["bead", "container"]
   }
 ]

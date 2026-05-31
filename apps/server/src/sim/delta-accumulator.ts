@@ -11,6 +11,7 @@ import {
   type InterfaceOpenPacket,
   type InventoryDelta,
   type InventorySlotChange,
+  type ProjectilePacket,
   ServerPacketType,
   type SkillDelta,
   type TickDeltaPacket,
@@ -29,6 +30,7 @@ export interface DirtyState {
   readonly chat?: readonly ChatPacket[];
   readonly hitsplats?: readonly HitsplatPacket[];
   readonly xpDrops?: readonly XpDropPacket[];
+  readonly projectiles?: readonly ProjectilePacket[];
   readonly interfaceOpens?: readonly InterfaceOpenPacket[];
   readonly debug?: DebugTickData;
 }
@@ -56,6 +58,7 @@ export class DeltaAccumulator {
   private chatPackets: ChatPacket[] = [];
   private hitsplatPackets: HitsplatPacket[] = [];
   private xpDropPackets: XpDropPacket[] = [];
+  private projectilePackets: ProjectilePacket[] = [];
   private interfaceOpenPackets: InterfaceOpenPacket[] = [];
   private readonly debugPaths = new Map<EntityId, DebugPathData>();
 
@@ -121,6 +124,10 @@ export class DeltaAccumulator {
     this.xpDropPackets.push(packet);
   }
 
+  markProjectile(packet: ProjectilePacket): void {
+    this.projectilePackets.push(packet);
+  }
+
   markInterfaceOpen(packet: InterfaceOpenPacket): void {
     this.interfaceOpenPackets.push(packet);
   }
@@ -171,6 +178,7 @@ export class DeltaAccumulator {
       ...(this.chatPackets.length > 0 ? { chat: [...this.chatPackets] } : {}),
       ...(this.hitsplatPackets.length > 0 ? { hitsplats: [...this.hitsplatPackets] } : {}),
       ...(this.xpDropPackets.length > 0 ? { xpDrops: [...this.xpDropPackets] } : {}),
+      ...(this.projectilePackets.length > 0 ? { projectiles: [...this.projectilePackets] } : {}),
       ...(this.interfaceOpenPackets.length > 0
         ? { interfaceOpens: [...this.interfaceOpenPackets] }
         : {}),
@@ -226,6 +234,7 @@ export class DeltaAccumulator {
     this.chatPackets = [];
     this.hitsplatPackets = [];
     this.xpDropPackets = [];
+    this.projectilePackets = [];
     this.interfaceOpenPackets = [];
     this.debugPaths.clear();
   }

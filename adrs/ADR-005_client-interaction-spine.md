@@ -68,7 +68,7 @@ The problems were:
 - The durable terms are:
   - **Inventory item** — server-assigned instance ID, command type `ItemOption`
   - **Ground item** — world entity, command type `GroundItemOption`
-  - **Context menu view adapter** — renders options, reports `action` string, no semantic callbacks
+  - **Context menu view adapter** — renders options, reports `actionId` string, no semantic callbacks
   - **Content-driven interaction options** — NPC/object `options` array from content definitions, sorted by `priority`
   - **label** — human-facing text, may contain spaces/hyphens/case, e.g. `Talk-to`, `Pick up`
   - **actionId** — engine/wire token, lowercase snake token, e.g. `talk`, `pickup`, `woodcut`

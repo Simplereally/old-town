@@ -145,14 +145,17 @@ describe("resource node runtime state", () => {
 
   it("respawns through queued tick actions", () => {
     const ctx = setup();
-    const actionExecutor = new ActionExecutor([
-      (execution) => {
-        const payload = execution.entry.payload as { kind?: string; nodeEntityId?: EntityId };
-        return payload.kind === "resource_respawn" && payload.nodeEntityId !== undefined
-          ? respawnResourceNode({ ...ctx, registries: ctx.content }, payload.nodeEntityId)
-          : false;
+    const actionExecutor = new ActionExecutor(
+      {
+        resource_respawn: (payload) => {
+          respawnResourceNode(
+            { ...ctx, registries: ctx.content },
+            (payload as unknown as { nodeEntityId: EntityId }).nodeEntityId,
+          );
+        },
       },
-    ]);
+      () => 0,
+    );
 
     depleteResourceNode({ ...ctx, registries: ctx.content }, ctx.nodeEntity, 5);
     expect(ctx.actionRuntime.getDebugState()[0]?.id).toBe(resourceRespawnActionId(ctx.nodeEntity));

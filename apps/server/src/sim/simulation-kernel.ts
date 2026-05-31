@@ -2,10 +2,10 @@ import {
   type ClientCommand,
   type ContentRegistries,
   createRng,
-  type EntityId,
   type FullStatePacket,
 } from "@old-town/shared";
 import { createWorld, type World } from "../ecs/world";
+import { ItemAuditLog } from "../items/item-audit";
 import type { Logger } from "../logger";
 import { type CommandRouteResult, CommandRouter } from "../net/command-router";
 import type { DeltaTransport } from "../net/delta-broadcaster";
@@ -14,13 +14,21 @@ import { DevSessionManager } from "../net/dev-session";
 import { InterestManager } from "../net/interest-manager";
 import type { TransportSession } from "../net/websocket-transport";
 import { ChatSystem } from "../systems/chat-system";
+import {
+  processCombatStartEvents,
+  processCombatTargetValidation,
+  processDamageResolutionEvents,
+} from "../systems/combat-system";
 import { ConsumableSystem } from "../systems/consumable-system";
-import { respawnResourceNode } from "../systems/resource-node-system";
-import { handleSkillingAction } from "../systems/skilling-system";
+import { processDeathResolution, processGroundItemLifecycle } from "../systems/ground-item-system";
+import { npcFootprintResolver, processNpcAiPhase, syncNpcOccupancy } from "../systems/npc-system";
+import { createResourceNodeActionHandlers } from "../systems/resource-node-system";
+import { createSkillingActionHandlers } from "../systems/skilling-system";
 import { applyObjectCollision, CollisionMap } from "../world/collision";
 import { loadAllRegionMapsIntoWorld } from "../world/region-loader";
 import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
 import { ActionExecutor } from "./action-executor";
+import type { ActionHandlerTable } from "./action-payloads";
 import { ActionRuntime } from "./action-runtime";
 import { CommandBuffer } from "./command-buffer";
 import { DeltaAccumulator } from "./delta-accumulator";
@@ -70,8 +78,9 @@ interface SimulationDeps {
   readonly chatSystem: ChatSystem;
   readonly consumableSystem: ConsumableSystem;
   readonly actionRuntime: ActionRuntime;
-  readonly actionExecutor: ActionExecutor;
+  readonly actionExecutor: ActionExecutor<ActionHandlerTable>;
   readonly interestManager: InterestManager;
+  readonly itemAudit: ItemAuditLog;
   readonly collision: CollisionMap;
   readonly registries: ContentRegistries;
   readonly logger: Logger;
@@ -90,6 +99,7 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
   const commandBuffer = new CommandBuffer();
   const deltas = new DeltaAccumulator();
   const interestManager = new InterestManager();
+  const itemAudit = new ItemAuditLog();
   const tickLoop = new TickLoop({
     logger,
     ...(startTick !== undefined ? { startTick } : {}),
@@ -107,23 +117,23 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
     registries,
     rng,
   };
-  const actionExecutor = new ActionExecutor([
-    (execution, context) => {
-      const payload = execution.entry.payload as { readonly kind?: string };
-      if (payload.kind === "resource_respawn") {
-        return respawnResourceNode(
-          skillingContext,
-          (payload as { readonly nodeEntityId: EntityId }).nodeEntityId,
-        );
-      }
-      return handleSkillingAction(
-        skillingContext,
-        execution,
-        context?.tick ?? 0,
-        context?.serverTime ?? 0,
-      );
-    },
-  ]);
+  syncNpcOccupancy({ world, collision, registries });
+  const skillingHandlers = createSkillingActionHandlers(skillingContext);
+  const resourceNodeHandlers = createResourceNodeActionHandlers(skillingContext);
+  const actionTable: ActionHandlerTable = {
+    ...skillingHandlers,
+    ...resourceNodeHandlers,
+  };
+  const actionExecutor = new ActionExecutor(
+    actionTable,
+    actionRuntime.cancel.bind(actionRuntime),
+    (kind, action) =>
+      logger.error("action", "No handler for action kind", {
+        kind,
+        owner: action.entry.owner,
+        id: action.entry.id,
+      }),
+  );
   const commandRouter = new CommandRouter({
     commandBuffer,
     getEntityId: (session) => devSessions.getEntityId(session),
@@ -150,6 +160,7 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
     actionRuntime,
     actionExecutor,
     interestManager,
+    itemAudit,
     collision,
     registries,
     logger,
@@ -173,6 +184,7 @@ function wireTickPhases(
     tickLoop,
     registries,
     rng,
+    itemAudit,
   } = deps;
 
   const dispatchContext = {
@@ -184,6 +196,23 @@ function wireTickPhases(
     rng,
     chatSystem,
     consumableSystem,
+    itemAudit,
+  };
+  const npcContext = {
+    world,
+    collision,
+    deltas,
+    registries,
+    rng,
+  };
+  const combatContext = {
+    world,
+    collision,
+    deltas,
+    registries,
+    rng,
+    itemAudit,
+    actionRuntime,
   };
 
   tickLoop.registerPhase(TickPhase.InputClose, ({ tick, serverTime }) => {
@@ -199,7 +228,29 @@ function wireTickPhases(
   });
 
   tickLoop.registerPhase(TickPhase.Movement, ({ tick }) => {
-    dispatchMovementPhase(dispatchContext, tick);
+    dispatchMovementPhase(dispatchContext, tick, npcFootprintResolver(npcContext));
+    syncNpcOccupancy(npcContext);
+  });
+
+  tickLoop.registerPhase(TickPhase.TargetValidation, () => {
+    processCombatTargetValidation(combatContext);
+  });
+
+  tickLoop.registerPhase(TickPhase.NpcAi, ({ tick }) => {
+    processNpcAiPhase(npcContext, tick);
+  });
+
+  tickLoop.registerPhase(TickPhase.CombatStartEvents, ({ tick }) => {
+    processCombatStartEvents(combatContext, tick);
+  });
+
+  tickLoop.registerPhase(TickPhase.DamageResolutionEvents, ({ tick }) => {
+    processDamageResolutionEvents(combatContext, tick);
+  });
+
+  tickLoop.registerPhase(TickPhase.DeathResolution, ({ tick }) => {
+    processDeathResolution(combatContext, tick);
+    processGroundItemLifecycle(combatContext, tick);
   });
 
   tickLoop.registerPhase(TickPhase.FoodPotionPrayerStatChanges, () => {

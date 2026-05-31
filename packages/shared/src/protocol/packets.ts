@@ -71,6 +71,18 @@ export interface XpDropPacket {
   readonly amount: number;
 }
 
+/** Presentational projectile travel between authoritative tiles/entities. */
+export interface ProjectilePacket {
+  readonly id: string;
+  readonly projectileId: string;
+  readonly sourceEntityId?: EntityId;
+  readonly targetEntityId?: EntityId;
+  readonly startTile: TileCoord;
+  readonly endTile: TileCoord;
+  readonly startTick: number;
+  readonly hitTick: number;
+}
+
 /** A sound cue to play. */
 export interface SoundPacket {
   readonly soundId: string;
@@ -178,6 +190,7 @@ export interface TickDeltaPacket {
   readonly chat?: readonly ChatPacket[];
   readonly hitsplats?: readonly HitsplatPacket[];
   readonly xpDrops?: readonly XpDropPacket[];
+  readonly projectiles?: readonly ProjectilePacket[];
   readonly sounds?: readonly SoundPacket[];
   readonly regionLoads?: readonly RegionLoadPacket[];
   readonly regionUnloads?: readonly RegionUnloadPacket[];

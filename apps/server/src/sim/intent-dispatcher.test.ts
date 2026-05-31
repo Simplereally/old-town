@@ -80,7 +80,7 @@ describe("IntentDispatcher", () => {
       type: ActionQueueType.Weak,
       delayTicks: 4,
       interruptGroup: InterruptGroup.Skilling,
-      payload: { action: "woodcut" },
+      payload: { kind: "test", action: "woodcut" },
     });
 
     dispatchIntentGroup(
@@ -111,7 +111,7 @@ describe("IntentDispatcher", () => {
       type: ActionQueueType.Weak,
       delayTicks: 4,
       interruptGroup: InterruptGroup.Skilling,
-      payload: { action: "woodcut" },
+      payload: { kind: "test", action: "woodcut" },
     });
 
     dispatchIntentGroup(
@@ -142,7 +142,7 @@ describe("IntentDispatcher", () => {
       type: ActionQueueType.Weak,
       delayTicks: 4,
       interruptGroup: InterruptGroup.Skilling,
-      payload: { action: "woodcut" },
+      payload: { kind: "test", action: "woodcut" },
     });
 
     dispatchIntentGroup(
@@ -173,7 +173,7 @@ describe("IntentDispatcher", () => {
       type: ActionQueueType.Weak,
       delayTicks: 4,
       interruptGroup: InterruptGroup.Skilling,
-      payload: { action: "woodcut" },
+      payload: { kind: "test", action: "woodcut" },
     });
 
     dispatchIntentGroup(
@@ -207,7 +207,7 @@ describe("IntentDispatcher", () => {
       type: ActionQueueType.Weak,
       delayTicks: 4,
       interruptGroup: InterruptGroup.Skilling,
-      payload: { action: "woodcut" },
+      payload: { kind: "test", action: "woodcut" },
     });
 
     dispatchIntentGroup(
@@ -240,7 +240,7 @@ describe("IntentDispatcher", () => {
       type: ActionQueueType.Weak,
       delayTicks: 4,
       interruptGroup: InterruptGroup.Skilling,
-      payload: { action: "woodcut" },
+      payload: { kind: "test", action: "woodcut" },
     });
 
     dispatchIntentGroup(
@@ -262,11 +262,11 @@ describe("IntentDispatcher", () => {
 
     expect(actionRuntime.getDebugState()).toEqual([]);
     const packet = deltas.consume(1, 600);
-    expect(packet.chat?.[0]?.text).toBe("Ground item interaction is not yet implemented.");
+    expect(packet.chat?.[0]?.text).toBe("That item is no longer there.");
     expect(packet.chat?.[0]?.channel).toBe("system");
   });
 
-  it("spell intent emits explicit feedback and cancels weak actions", () => {
+  it("spell intent routes through spell validation and cancels weak actions", () => {
     const { ctx, player, actionRuntime, deltas } = setup();
     actionRuntime.enqueue({
       id: "woodcutting",
@@ -274,7 +274,7 @@ describe("IntentDispatcher", () => {
       type: ActionQueueType.Weak,
       delayTicks: 4,
       interruptGroup: InterruptGroup.Skilling,
-      payload: { action: "woodcut" },
+      payload: { kind: "test", action: "woodcut" },
     });
 
     dispatchIntentGroup(

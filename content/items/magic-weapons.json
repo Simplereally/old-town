@@ -1,0 +1,2657 @@
+[
+  {
+    "id": "cobbled_wand",
+    "name": "Cobbled Wand",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Twig with a bead glued to it",
+    "icon": "icon_cobbled_wand",
+    "model": "model_cobbled_wand",
+    "value": 7,
+    "weight": 0.5,
+    "tier": "cobbled",
+    "tierOrder": 0,
+    "family": "wand",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "rust_grey",
+      "accents": "rough_wood"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {},
+      "requirements": [],
+      "attackSpeedTicks": 4,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic"]
+    }
+  },
+  {
+    "id": "chalkmarked_wand",
+    "name": "Chalkmarked Wand",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "First real wand, chalk-tipped",
+    "icon": "icon_chalkmarked_wand",
+    "model": "model_chalkmarked_wand",
+    "value": 35,
+    "weight": 0.5,
+    "tier": "chalkmarked",
+    "tierOrder": 1,
+    "family": "wand",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 3,
+        "magicDamage": 2
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 1
+        }
+      ],
+      "attackSpeedTicks": 4,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic"]
+    }
+  },
+  {
+    "id": "tallowbound_wand",
+    "name": "Tallowbound Wand",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Wax-sealed wand, smoky",
+    "icon": "icon_tallowbound_wand",
+    "model": "model_tallowbound_wand",
+    "value": 63,
+    "weight": 0.5,
+    "tier": "tallowbound",
+    "tierOrder": 2,
+    "family": "wand",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 6,
+        "magicDamage": 4
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 2
+        }
+      ],
+      "attackSpeedTicks": 4,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic"]
+    }
+  },
+  {
+    "id": "bellwax_wand",
+    "name": "Bellwax Wand",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Brass-clasp wand, golden",
+    "icon": "icon_bellwax_wand",
+    "model": "model_bellwax_wand",
+    "value": 105,
+    "weight": 0.5,
+    "tier": "bellwax",
+    "tierOrder": 3,
+    "family": "wand",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 9,
+        "magicDamage": 6
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 3
+        }
+      ],
+      "attackSpeedTicks": 4,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic"]
+    }
+  },
+  {
+    "id": "blacksalt_wand",
+    "name": "Blacksalt Wand",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Black wand, salt sigils",
+    "icon": "icon_blacksalt_wand",
+    "model": "model_blacksalt_wand",
+    "value": 175,
+    "weight": 0.5,
+    "tier": "blacksalt",
+    "tierOrder": 4,
+    "family": "wand",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 12,
+        "magicDamage": 8
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 4
+        }
+      ],
+      "attackSpeedTicks": 4,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic"]
+    }
+  },
+  {
+    "id": "warden_script_wand",
+    "name": "Warden Script Wand",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue-white wand, licensed",
+    "icon": "icon_warden_script_wand",
+    "model": "model_warden_script_wand",
+    "value": 280,
+    "weight": 0.5,
+    "tier": "warden_script",
+    "tierOrder": 5,
+    "family": "wand",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 15,
+        "magicDamage": 10
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 5
+        }
+      ],
+      "attackSpeedTicks": 4,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic"]
+    }
+  },
+  {
+    "id": "greenwold_wand",
+    "name": "Greenwold Wand",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Moss wand, living wood",
+    "icon": "icon_greenwold_wand",
+    "model": "model_greenwold_wand",
+    "value": 420,
+    "weight": 0.5,
+    "tier": "greenwold",
+    "tierOrder": 6,
+    "family": "wand",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 18,
+        "magicDamage": 12
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 6
+        }
+      ],
+      "attackSpeedTicks": 4,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic"]
+    }
+  },
+  {
+    "id": "gravebound_wand",
+    "name": "Gravebound Wand",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Bone wand, grey cloth",
+    "icon": "icon_gravebound_wand",
+    "model": "model_gravebound_wand",
+    "value": 630,
+    "weight": 0.5,
+    "tier": "gravebound",
+    "tierOrder": 7,
+    "family": "wand",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 21,
+        "magicDamage": 14
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 7
+        }
+      ],
+      "attackSpeedTicks": 4,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic"]
+    }
+  },
+  {
+    "id": "blueglass_wand",
+    "name": "Blueglass Wand",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue crystal wand, polished",
+    "icon": "icon_blueglass_wand",
+    "model": "model_blueglass_wand",
+    "value": 910,
+    "weight": 0.5,
+    "tier": "blueglass",
+    "tierOrder": 8,
+    "family": "wand",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 24,
+        "magicDamage": 16
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 8
+        }
+      ],
+      "attackSpeedTicks": 4,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic"]
+    }
+  },
+  {
+    "id": "carmine_ink_wand",
+    "name": "Carmine Ink Wand",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Red ink wand, vellum",
+    "icon": "icon_carmine_ink_wand",
+    "model": "model_carmine_ink_wand",
+    "value": 1330,
+    "weight": 0.5,
+    "tier": "carmine_ink",
+    "tierOrder": 9,
+    "family": "wand",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 27,
+        "magicDamage": 18
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 9
+        }
+      ],
+      "attackSpeedTicks": 4,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic"]
+    }
+  },
+  {
+    "id": "argent_script_wand",
+    "name": "Argent Script Wand",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Silver wand, pale robes",
+    "icon": "icon_argent_script_wand",
+    "model": "model_argent_script_wand",
+    "value": 1925,
+    "weight": 0.5,
+    "tier": "argent_script",
+    "tierOrder": 10,
+    "family": "wand",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 30,
+        "magicDamage": 20
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 10
+        }
+      ],
+      "attackSpeedTicks": 4,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic"]
+    }
+  },
+  {
+    "id": "crownvellum_wand",
+    "name": "Crownvellum Wand",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Gold wand, royal scrollwork",
+    "icon": "icon_crownvellum_wand",
+    "model": "model_crownvellum_wand",
+    "value": 2800,
+    "weight": 0.5,
+    "tier": "crownvellum",
+    "tierOrder": 11,
+    "family": "wand",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 33,
+        "magicDamage": 22
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 11
+        }
+      ],
+      "attackSpeedTicks": 4,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic"]
+    }
+  },
+  {
+    "id": "starfall_wand",
+    "name": "Starfall Wand",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Meteor wand, star-black",
+    "icon": "icon_starfall_wand",
+    "model": "model_starfall_wand",
+    "value": 4200,
+    "weight": 0.5,
+    "tier": "starfall",
+    "tierOrder": 12,
+    "family": "wand",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 36,
+        "magicDamage": 24
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 12
+        }
+      ],
+      "attackSpeedTicks": 4,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic"]
+    }
+  },
+  {
+    "id": "cobbled_staff",
+    "name": "Cobbled Staff",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Stick with a bead on top",
+    "icon": "icon_cobbled_staff",
+    "model": "model_cobbled_staff",
+    "value": 11,
+    "weight": 1.5,
+    "tier": "cobbled",
+    "tierOrder": 0,
+    "family": "staff",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "rust_grey",
+      "accents": "rough_wood"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {},
+      "requirements": [],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "chalkmarked_staff",
+    "name": "Chalkmarked Staff",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "First real staff, chalk-tipped",
+    "icon": "icon_chalkmarked_staff",
+    "model": "model_chalkmarked_staff",
+    "value": 55,
+    "weight": 1.5,
+    "tier": "chalkmarked",
+    "tierOrder": 1,
+    "family": "staff",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 4,
+        "magicDamage": 3
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 1
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "tallowbound_staff",
+    "name": "Tallowbound Staff",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Wax-sealed staff, smoky",
+    "icon": "icon_tallowbound_staff",
+    "model": "model_tallowbound_staff",
+    "value": 99,
+    "weight": 1.5,
+    "tier": "tallowbound",
+    "tierOrder": 2,
+    "family": "staff",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 8,
+        "magicDamage": 6
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 2
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "bellwax_staff",
+    "name": "Bellwax Staff",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Brass-clasp staff, golden",
+    "icon": "icon_bellwax_staff",
+    "model": "model_bellwax_staff",
+    "value": 165,
+    "weight": 1.5,
+    "tier": "bellwax",
+    "tierOrder": 3,
+    "family": "staff",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 12,
+        "magicDamage": 9
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 3
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "blacksalt_staff",
+    "name": "Blacksalt Staff",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Black staff, salt sigils",
+    "icon": "icon_blacksalt_staff",
+    "model": "model_blacksalt_staff",
+    "value": 275,
+    "weight": 1.5,
+    "tier": "blacksalt",
+    "tierOrder": 4,
+    "family": "staff",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 16,
+        "magicDamage": 12
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 4
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "warden_script_staff",
+    "name": "Warden Script Staff",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue-white staff, licensed",
+    "icon": "icon_warden_script_staff",
+    "model": "model_warden_script_staff",
+    "value": 440,
+    "weight": 1.5,
+    "tier": "warden_script",
+    "tierOrder": 5,
+    "family": "staff",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 20,
+        "magicDamage": 15
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 5
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "greenwold_staff",
+    "name": "Greenwold Staff",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Moss staff, living wood",
+    "icon": "icon_greenwold_staff",
+    "model": "model_greenwold_staff",
+    "value": 660,
+    "weight": 1.5,
+    "tier": "greenwold",
+    "tierOrder": 6,
+    "family": "staff",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 24,
+        "magicDamage": 18
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 6
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "gravebound_staff",
+    "name": "Gravebound Staff",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Bone staff, grey cloth",
+    "icon": "icon_gravebound_staff",
+    "model": "model_gravebound_staff",
+    "value": 990,
+    "weight": 1.5,
+    "tier": "gravebound",
+    "tierOrder": 7,
+    "family": "staff",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 28,
+        "magicDamage": 21
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 7
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "blueglass_staff",
+    "name": "Blueglass Staff",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue crystal staff, polished",
+    "icon": "icon_blueglass_staff",
+    "model": "model_blueglass_staff",
+    "value": 1430,
+    "weight": 1.5,
+    "tier": "blueglass",
+    "tierOrder": 8,
+    "family": "staff",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 32,
+        "magicDamage": 24
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 8
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "carmine_ink_staff",
+    "name": "Carmine Ink Staff",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Red ink staff, vellum",
+    "icon": "icon_carmine_ink_staff",
+    "model": "model_carmine_ink_staff",
+    "value": 2090,
+    "weight": 1.5,
+    "tier": "carmine_ink",
+    "tierOrder": 9,
+    "family": "staff",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 36,
+        "magicDamage": 27
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 9
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "argent_script_staff",
+    "name": "Argent Script Staff",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Silver staff, pale robes",
+    "icon": "icon_argent_script_staff",
+    "model": "model_argent_script_staff",
+    "value": 3025,
+    "weight": 1.5,
+    "tier": "argent_script",
+    "tierOrder": 10,
+    "family": "staff",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 40,
+        "magicDamage": 30
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 10
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "crownvellum_staff",
+    "name": "Crownvellum Staff",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Gold staff, royal scrollwork",
+    "icon": "icon_crownvellum_staff",
+    "model": "model_crownvellum_staff",
+    "value": 4400,
+    "weight": 1.5,
+    "tier": "crownvellum",
+    "tierOrder": 11,
+    "family": "staff",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 44,
+        "magicDamage": 33
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 11
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "starfall_staff",
+    "name": "Starfall Staff",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Meteor staff, star-black",
+    "icon": "icon_starfall_staff",
+    "model": "model_starfall_staff",
+    "value": 6600,
+    "weight": 1.5,
+    "tier": "starfall",
+    "tierOrder": 12,
+    "family": "staff",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 48,
+        "magicDamage": 36
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 12
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "cobbled_rod",
+    "name": "Cobbled Rod",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Heavy stick, barely a weapon",
+    "icon": "icon_cobbled_rod",
+    "model": "model_cobbled_rod",
+    "value": 9,
+    "weight": 2,
+    "tier": "cobbled",
+    "tierOrder": 0,
+    "family": "rod",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "rust_grey",
+      "accents": "rough_wood"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {},
+      "requirements": [],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "chalkmarked_rod",
+    "name": "Chalkmarked Rod",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "First hybrid rod, chalk-tipped",
+    "icon": "icon_chalkmarked_rod",
+    "model": "model_chalkmarked_rod",
+    "value": 45,
+    "weight": 2,
+    "tier": "chalkmarked",
+    "tierOrder": 1,
+    "family": "rod",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 3,
+        "magicDamage": 2,
+        "crushAttack": 3
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 1
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "tallowbound_rod",
+    "name": "Tallowbound Rod",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Wax-sealed rod, smoky",
+    "icon": "icon_tallowbound_rod",
+    "model": "model_tallowbound_rod",
+    "value": 81,
+    "weight": 2,
+    "tier": "tallowbound",
+    "tierOrder": 2,
+    "family": "rod",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 6,
+        "magicDamage": 4,
+        "crushAttack": 6
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 2
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "bellwax_rod",
+    "name": "Bellwax Rod",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Brass-clasp rod, golden",
+    "icon": "icon_bellwax_rod",
+    "model": "model_bellwax_rod",
+    "value": 135,
+    "weight": 2,
+    "tier": "bellwax",
+    "tierOrder": 3,
+    "family": "rod",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 9,
+        "magicDamage": 6,
+        "crushAttack": 9
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 3
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "blacksalt_rod",
+    "name": "Blacksalt Rod",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Black rod, salt sigils",
+    "icon": "icon_blacksalt_rod",
+    "model": "model_blacksalt_rod",
+    "value": 225,
+    "weight": 2,
+    "tier": "blacksalt",
+    "tierOrder": 4,
+    "family": "rod",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 12,
+        "magicDamage": 8,
+        "crushAttack": 12
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 4
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "warden_script_rod",
+    "name": "Warden Script Rod",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue-white rod, licensed",
+    "icon": "icon_warden_script_rod",
+    "model": "model_warden_script_rod",
+    "value": 360,
+    "weight": 2,
+    "tier": "warden_script",
+    "tierOrder": 5,
+    "family": "rod",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 15,
+        "magicDamage": 10,
+        "crushAttack": 15
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 5
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "greenwold_rod",
+    "name": "Greenwold Rod",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Moss rod, living wood",
+    "icon": "icon_greenwold_rod",
+    "model": "model_greenwold_rod",
+    "value": 540,
+    "weight": 2,
+    "tier": "greenwold",
+    "tierOrder": 6,
+    "family": "rod",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 18,
+        "magicDamage": 12,
+        "crushAttack": 18
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 6
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "gravebound_rod",
+    "name": "Gravebound Rod",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Bone rod, grey cloth",
+    "icon": "icon_gravebound_rod",
+    "model": "model_gravebound_rod",
+    "value": 810,
+    "weight": 2,
+    "tier": "gravebound",
+    "tierOrder": 7,
+    "family": "rod",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 21,
+        "magicDamage": 14,
+        "crushAttack": 21
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 7
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "blueglass_rod",
+    "name": "Blueglass Rod",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue crystal rod, polished",
+    "icon": "icon_blueglass_rod",
+    "model": "model_blueglass_rod",
+    "value": 1170,
+    "weight": 2,
+    "tier": "blueglass",
+    "tierOrder": 8,
+    "family": "rod",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 24,
+        "magicDamage": 16,
+        "crushAttack": 24
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 8
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "carmine_ink_rod",
+    "name": "Carmine Ink Rod",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Red ink rod, vellum",
+    "icon": "icon_carmine_ink_rod",
+    "model": "model_carmine_ink_rod",
+    "value": 1710,
+    "weight": 2,
+    "tier": "carmine_ink",
+    "tierOrder": 9,
+    "family": "rod",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 27,
+        "magicDamage": 18,
+        "crushAttack": 27
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 9
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "argent_script_rod",
+    "name": "Argent Script Rod",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Silver rod, pale robes",
+    "icon": "icon_argent_script_rod",
+    "model": "model_argent_script_rod",
+    "value": 2475,
+    "weight": 2,
+    "tier": "argent_script",
+    "tierOrder": 10,
+    "family": "rod",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 30,
+        "magicDamage": 20,
+        "crushAttack": 30
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 10
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "crownvellum_rod",
+    "name": "Crownvellum Rod",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Gold rod, royal scrollwork",
+    "icon": "icon_crownvellum_rod",
+    "model": "model_crownvellum_rod",
+    "value": 3600,
+    "weight": 2,
+    "tier": "crownvellum",
+    "tierOrder": 11,
+    "family": "rod",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 33,
+        "magicDamage": 22,
+        "crushAttack": 33
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 11
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "starfall_rod",
+    "name": "Starfall Rod",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Meteor rod, star-black",
+    "icon": "icon_starfall_rod",
+    "model": "model_starfall_rod",
+    "value": 5400,
+    "weight": 2,
+    "tier": "starfall",
+    "tierOrder": 12,
+    "family": "rod",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "bonuses": {
+        "magicAttack": 36,
+        "magicDamage": 24,
+        "crushAttack": 36
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 12
+        }
+      ],
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["magic", "crush"]
+    }
+  },
+  {
+    "id": "cobbled_focus",
+    "name": "Cobbled Focus",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Pebble, barely magical",
+    "icon": "icon_cobbled_focus",
+    "model": "model_cobbled_focus",
+    "value": 5,
+    "weight": 0.3,
+    "tier": "cobbled",
+    "tierOrder": 0,
+    "family": "focus",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "rust_grey",
+      "accents": "rough_wood"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {},
+      "requirements": []
+    }
+  },
+  {
+    "id": "chalkmarked_focus",
+    "name": "Chalkmarked Focus",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Slate bead, first focus",
+    "icon": "icon_chalkmarked_focus",
+    "model": "model_chalkmarked_focus",
+    "value": 25,
+    "weight": 0.3,
+    "tier": "chalkmarked",
+    "tierOrder": 1,
+    "family": "focus",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 2,
+        "magicDamage": 1
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "tallowbound_focus",
+    "name": "Tallowbound Focus",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Glass bead, smoky",
+    "icon": "icon_tallowbound_focus",
+    "model": "model_tallowbound_focus",
+    "value": 45,
+    "weight": 0.3,
+    "tier": "tallowbound",
+    "tierOrder": 2,
+    "family": "focus",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 4,
+        "magicDamage": 2
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "bellwax_focus",
+    "name": "Bellwax Focus",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Brass bead, golden",
+    "icon": "icon_bellwax_focus",
+    "model": "model_bellwax_focus",
+    "value": 75,
+    "weight": 0.3,
+    "tier": "bellwax",
+    "tierOrder": 3,
+    "family": "focus",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 6,
+        "magicDamage": 3
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "blacksalt_focus",
+    "name": "Blacksalt Focus",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Black bead, salt sigils",
+    "icon": "icon_blacksalt_focus",
+    "model": "model_blacksalt_focus",
+    "value": 125,
+    "weight": 0.3,
+    "tier": "blacksalt",
+    "tierOrder": 4,
+    "family": "focus",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 8,
+        "magicDamage": 4
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 4
+        }
+      ]
+    }
+  },
+  {
+    "id": "warden_script_focus",
+    "name": "Warden Script Focus",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue-white bead, licensed",
+    "icon": "icon_warden_script_focus",
+    "model": "model_warden_script_focus",
+    "value": 200,
+    "weight": 0.3,
+    "tier": "warden_script",
+    "tierOrder": 5,
+    "family": "focus",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 10,
+        "magicDamage": 5
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "greenwold_focus",
+    "name": "Greenwold Focus",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Green bead, moss",
+    "icon": "icon_greenwold_focus",
+    "model": "model_greenwold_focus",
+    "value": 300,
+    "weight": 0.3,
+    "tier": "greenwold",
+    "tierOrder": 6,
+    "family": "focus",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 12,
+        "magicDamage": 6
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 6
+        }
+      ]
+    }
+  },
+  {
+    "id": "gravebound_focus",
+    "name": "Gravebound Focus",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Bone bead, grey",
+    "icon": "icon_gravebound_focus",
+    "model": "model_gravebound_focus",
+    "value": 450,
+    "weight": 0.3,
+    "tier": "gravebound",
+    "tierOrder": 7,
+    "family": "focus",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 14,
+        "magicDamage": 7
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 7
+        }
+      ]
+    }
+  },
+  {
+    "id": "blueglass_focus",
+    "name": "Blueglass Focus",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue crystal bead, polished",
+    "icon": "icon_blueglass_focus",
+    "model": "model_blueglass_focus",
+    "value": 650,
+    "weight": 0.3,
+    "tier": "blueglass",
+    "tierOrder": 8,
+    "family": "focus",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 16,
+        "magicDamage": 8
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 8
+        }
+      ]
+    }
+  },
+  {
+    "id": "carmine_ink_focus",
+    "name": "Carmine Ink Focus",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Red ink bead, vellum",
+    "icon": "icon_carmine_ink_focus",
+    "model": "model_carmine_ink_focus",
+    "value": 950,
+    "weight": 0.3,
+    "tier": "carmine_ink",
+    "tierOrder": 9,
+    "family": "focus",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 18,
+        "magicDamage": 9
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 9
+        }
+      ]
+    }
+  },
+  {
+    "id": "argent_script_focus",
+    "name": "Argent Script Focus",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Silver bead, pale",
+    "icon": "icon_argent_script_focus",
+    "model": "model_argent_script_focus",
+    "value": 1375,
+    "weight": 0.3,
+    "tier": "argent_script",
+    "tierOrder": 10,
+    "family": "focus",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 20,
+        "magicDamage": 10
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 10
+        }
+      ]
+    }
+  },
+  {
+    "id": "crownvellum_focus",
+    "name": "Crownvellum Focus",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Gold bead, royal",
+    "icon": "icon_crownvellum_focus",
+    "model": "model_crownvellum_focus",
+    "value": 2000,
+    "weight": 0.3,
+    "tier": "crownvellum",
+    "tierOrder": 11,
+    "family": "focus",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 22,
+        "magicDamage": 11
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 11
+        }
+      ]
+    }
+  },
+  {
+    "id": "starfall_focus",
+    "name": "Starfall Focus",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Meteor bead, star-black",
+    "icon": "icon_starfall_focus",
+    "model": "model_starfall_focus",
+    "value": 3000,
+    "weight": 0.3,
+    "tier": "starfall",
+    "tierOrder": 12,
+    "family": "focus",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 24,
+        "magicDamage": 12
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 12
+        }
+      ]
+    }
+  },
+  {
+    "id": "cobbled_primer",
+    "name": "Cobbled Primer",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Scrap paper, illegible",
+    "icon": "icon_cobbled_primer",
+    "model": "model_cobbled_primer",
+    "value": 6,
+    "weight": 0.6,
+    "tier": "cobbled",
+    "tierOrder": 0,
+    "family": "primer",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "rust_grey",
+      "accents": "rough_wood"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {},
+      "requirements": []
+    }
+  },
+  {
+    "id": "chalkmarked_primer",
+    "name": "Chalkmarked Primer",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "First real spellbook, chalk",
+    "icon": "icon_chalkmarked_primer",
+    "model": "model_chalkmarked_primer",
+    "value": 30,
+    "weight": 0.6,
+    "tier": "chalkmarked",
+    "tierOrder": 1,
+    "family": "primer",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 2,
+        "magicDamage": 1
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "tallowbound_primer",
+    "name": "Tallowbound Primer",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Wax-sealed pages, smoky",
+    "icon": "icon_tallowbound_primer",
+    "model": "model_tallowbound_primer",
+    "value": 54,
+    "weight": 0.6,
+    "tier": "tallowbound",
+    "tierOrder": 2,
+    "family": "primer",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 4,
+        "magicDamage": 2
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "bellwax_primer",
+    "name": "Bellwax Primer",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Brass-bound, golden",
+    "icon": "icon_bellwax_primer",
+    "model": "model_bellwax_primer",
+    "value": 90,
+    "weight": 0.6,
+    "tier": "bellwax",
+    "tierOrder": 3,
+    "family": "primer",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 6,
+        "magicDamage": 3
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "blacksalt_primer",
+    "name": "Blacksalt Primer",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Black pages, salt sigils",
+    "icon": "icon_blacksalt_primer",
+    "model": "model_blacksalt_primer",
+    "value": 150,
+    "weight": 0.6,
+    "tier": "blacksalt",
+    "tierOrder": 4,
+    "family": "primer",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 8,
+        "magicDamage": 4
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 4
+        }
+      ]
+    }
+  },
+  {
+    "id": "warden_script_primer",
+    "name": "Warden Script Primer",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue-white glyphs, licensed",
+    "icon": "icon_warden_script_primer",
+    "model": "model_warden_script_primer",
+    "value": 240,
+    "weight": 0.6,
+    "tier": "warden_script",
+    "tierOrder": 5,
+    "family": "primer",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 10,
+        "magicDamage": 5
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "greenwold_primer",
+    "name": "Greenwold Primer",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Moss pages, living wood",
+    "icon": "icon_greenwold_primer",
+    "model": "model_greenwold_primer",
+    "value": 360,
+    "weight": 0.6,
+    "tier": "greenwold",
+    "tierOrder": 6,
+    "family": "primer",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 12,
+        "magicDamage": 6
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 6
+        }
+      ]
+    }
+  },
+  {
+    "id": "gravebound_primer",
+    "name": "Gravebound Primer",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Bone pages, grey cloth",
+    "icon": "icon_gravebound_primer",
+    "model": "model_gravebound_primer",
+    "value": 540,
+    "weight": 0.6,
+    "tier": "gravebound",
+    "tierOrder": 7,
+    "family": "primer",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 14,
+        "magicDamage": 7
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 7
+        }
+      ]
+    }
+  },
+  {
+    "id": "blueglass_primer",
+    "name": "Blueglass Primer",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue crystal pages, polished",
+    "icon": "icon_blueglass_primer",
+    "model": "model_blueglass_primer",
+    "value": 780,
+    "weight": 0.6,
+    "tier": "blueglass",
+    "tierOrder": 8,
+    "family": "primer",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 16,
+        "magicDamage": 8
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 8
+        }
+      ]
+    }
+  },
+  {
+    "id": "carmine_ink_primer",
+    "name": "Carmine Ink Primer",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Red ink, black vellum",
+    "icon": "icon_carmine_ink_primer",
+    "model": "model_carmine_ink_primer",
+    "value": 1140,
+    "weight": 0.6,
+    "tier": "carmine_ink",
+    "tierOrder": 9,
+    "family": "primer",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 18,
+        "magicDamage": 9
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 9
+        }
+      ]
+    }
+  },
+  {
+    "id": "argent_script_primer",
+    "name": "Argent Script Primer",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Silver pages, pale robes",
+    "icon": "icon_argent_script_primer",
+    "model": "model_argent_script_primer",
+    "value": 1650,
+    "weight": 0.6,
+    "tier": "argent_script",
+    "tierOrder": 10,
+    "family": "primer",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 20,
+        "magicDamage": 10
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 10
+        }
+      ]
+    }
+  },
+  {
+    "id": "crownvellum_primer",
+    "name": "Crownvellum Primer",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Gold pages, royal scrollwork",
+    "icon": "icon_crownvellum_primer",
+    "model": "model_crownvellum_primer",
+    "value": 2400,
+    "weight": 0.6,
+    "tier": "crownvellum",
+    "tierOrder": 11,
+    "family": "primer",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 22,
+        "magicDamage": 11
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 11
+        }
+      ]
+    }
+  },
+  {
+    "id": "starfall_primer",
+    "name": "Starfall Primer",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Meteor pages, star-black",
+    "icon": "icon_starfall_primer",
+    "model": "model_starfall_primer",
+    "value": 3600,
+    "weight": 0.6,
+    "tier": "starfall",
+    "tierOrder": 12,
+    "family": "primer",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 24,
+        "magicDamage": 12
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 12
+        }
+      ]
+    }
+  },
+  {
+    "id": "cobbled_codex",
+    "name": "Cobbled Codex",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Tattered pages, barely held",
+    "icon": "icon_cobbled_codex",
+    "model": "model_cobbled_codex",
+    "value": 10,
+    "weight": 0.8,
+    "tier": "cobbled",
+    "tierOrder": 0,
+    "family": "codex",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "rust_grey",
+      "accents": "rough_wood"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {},
+      "requirements": []
+    }
+  },
+  {
+    "id": "chalkmarked_codex",
+    "name": "Chalkmarked Codex",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "First real codex, chalk",
+    "icon": "icon_chalkmarked_codex",
+    "model": "model_chalkmarked_codex",
+    "value": 50,
+    "weight": 0.8,
+    "tier": "chalkmarked",
+    "tierOrder": 1,
+    "family": "codex",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 3,
+        "magicDamage": 2
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "tallowbound_codex",
+    "name": "Tallowbound Codex",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Wax-sealed pages, smoky",
+    "icon": "icon_tallowbound_codex",
+    "model": "model_tallowbound_codex",
+    "value": 90,
+    "weight": 0.8,
+    "tier": "tallowbound",
+    "tierOrder": 2,
+    "family": "codex",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 6,
+        "magicDamage": 4
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "bellwax_codex",
+    "name": "Bellwax Codex",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Brass-bound, golden",
+    "icon": "icon_bellwax_codex",
+    "model": "model_bellwax_codex",
+    "value": 150,
+    "weight": 0.8,
+    "tier": "bellwax",
+    "tierOrder": 3,
+    "family": "codex",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 9,
+        "magicDamage": 6
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "blacksalt_codex",
+    "name": "Blacksalt Codex",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Black pages, salt sigils",
+    "icon": "icon_blacksalt_codex",
+    "model": "model_blacksalt_codex",
+    "value": 250,
+    "weight": 0.8,
+    "tier": "blacksalt",
+    "tierOrder": 4,
+    "family": "codex",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 12,
+        "magicDamage": 8
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 4
+        }
+      ]
+    }
+  },
+  {
+    "id": "warden_script_codex",
+    "name": "Warden Script Codex",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue-white glyphs, licensed",
+    "icon": "icon_warden_script_codex",
+    "model": "model_warden_script_codex",
+    "value": 400,
+    "weight": 0.8,
+    "tier": "warden_script",
+    "tierOrder": 5,
+    "family": "codex",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 15,
+        "magicDamage": 10
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "greenwold_codex",
+    "name": "Greenwold Codex",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Moss pages, living wood",
+    "icon": "icon_greenwold_codex",
+    "model": "model_greenwold_codex",
+    "value": 600,
+    "weight": 0.8,
+    "tier": "greenwold",
+    "tierOrder": 6,
+    "family": "codex",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 18,
+        "magicDamage": 12
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 6
+        }
+      ]
+    }
+  },
+  {
+    "id": "gravebound_codex",
+    "name": "Gravebound Codex",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Bone pages, grey cloth",
+    "icon": "icon_gravebound_codex",
+    "model": "model_gravebound_codex",
+    "value": 900,
+    "weight": 0.8,
+    "tier": "gravebound",
+    "tierOrder": 7,
+    "family": "codex",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 21,
+        "magicDamage": 14
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 7
+        }
+      ]
+    }
+  },
+  {
+    "id": "blueglass_codex",
+    "name": "Blueglass Codex",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue crystal pages, polished",
+    "icon": "icon_blueglass_codex",
+    "model": "model_blueglass_codex",
+    "value": 1300,
+    "weight": 0.8,
+    "tier": "blueglass",
+    "tierOrder": 8,
+    "family": "codex",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 24,
+        "magicDamage": 16
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 8
+        }
+      ]
+    }
+  },
+  {
+    "id": "carmine_ink_codex",
+    "name": "Carmine Ink Codex",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Red ink, black vellum",
+    "icon": "icon_carmine_ink_codex",
+    "model": "model_carmine_ink_codex",
+    "value": 1900,
+    "weight": 0.8,
+    "tier": "carmine_ink",
+    "tierOrder": 9,
+    "family": "codex",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 27,
+        "magicDamage": 18
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 9
+        }
+      ]
+    }
+  },
+  {
+    "id": "argent_script_codex",
+    "name": "Argent Script Codex",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Silver pages, pale robes",
+    "icon": "icon_argent_script_codex",
+    "model": "model_argent_script_codex",
+    "value": 2750,
+    "weight": 0.8,
+    "tier": "argent_script",
+    "tierOrder": 10,
+    "family": "codex",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 30,
+        "magicDamage": 20
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 10
+        }
+      ]
+    }
+  },
+  {
+    "id": "crownvellum_codex",
+    "name": "Crownvellum Codex",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Gold pages, royal scrollwork",
+    "icon": "icon_crownvellum_codex",
+    "model": "model_crownvellum_codex",
+    "value": 4000,
+    "weight": 0.8,
+    "tier": "crownvellum",
+    "tierOrder": 11,
+    "family": "codex",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 33,
+        "magicDamage": 22
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 11
+        }
+      ]
+    }
+  },
+  {
+    "id": "starfall_codex",
+    "name": "Starfall Codex",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Meteor pages, star-black",
+    "icon": "icon_starfall_codex",
+    "model": "model_starfall_codex",
+    "value": 6000,
+    "weight": 0.8,
+    "tier": "starfall",
+    "tierOrder": 12,
+    "family": "codex",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 36,
+        "magicDamage": 24
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 12
+        }
+      ]
+    }
+  }
+]

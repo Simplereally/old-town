@@ -1,57 +1,68 @@
-import type { ActionExecution } from "./action-queue";
+import type { EntityId } from "@old-town/shared";
+import type { ActionCancelFilter, ActionExecution, ActionId } from "./action-queue";
 
 export interface ActionExecutionContext {
   readonly tick: number;
   readonly serverTime: number;
 }
 
-export type ActionExecutionHandler = (
-  execution: ActionExecution,
-  context: ActionExecutionContext | undefined,
-) => boolean;
-
-export interface ActionExecutionReport {
-  readonly handled: readonly ActionExecution[];
-  readonly unhandled: readonly ActionExecution[];
+export interface ActionContext {
+  readonly tick: number;
+  readonly serverTime: number;
+  readonly execution: ActionExecution;
+  readonly selfCancel: (id: ActionId) => void;
 }
 
-/**
- * Action execution boundary. Receives the actions that completed their timer in the
- * current tick and produces a report partitioning them into `handled` and `unhandled`.
- *
- * `SimulationKernel` creates one instance and calls {@link execute} with the result of
- * `ActionRuntime.advanceTick()` during the `ActionQueueTimers` phase.
- *
- * This is a closed, explicit boundary — no plugin registry, no generic payload dispatch.
- * Future systems (skilling, combat, spells) will wire their specific handlers here.
- *
- * Only the {@link lastReport} is retained; there is no unbounded accumulation.
- */
-export class ActionExecutor {
-  private report: ActionExecutionReport = { handled: [], unhandled: [] };
+export type ActionHandler<TPayload = unknown> = (payload: TPayload, ctx: ActionContext) => void;
 
-  constructor(private readonly handlers: readonly ActionExecutionHandler[] = []) {}
+export class ActionExecutor<TTable = Record<string, ActionHandler>> {
+  constructor(
+    private readonly table: TTable,
+    private readonly cancelAction: (owner: EntityId, filter: ActionCancelFilter) => number = () =>
+      0,
+    private readonly onMissingHandler: (
+      kind: string | undefined,
+      action: ActionExecution,
+    ) => void = () => {},
+  ) {}
 
   execute(
     actions: readonly ActionExecution[],
-    context?: ActionExecutionContext,
-  ): ActionExecutionReport {
-    const handled: ActionExecution[] = [];
-    const unhandled: ActionExecution[] = [];
+    context: ActionExecutionContext = { tick: 0, serverTime: 0 },
+  ): void {
+    // Deliberate dynamic-dispatch escape hatch: the precise key set is
+    // enforced at the kernel table annotation (ActionHandlerTable), so the
+    // cast is safe. Do not copy this pattern elsewhere.
+    const lookup = this.table as unknown as Record<string, ActionHandler>;
 
     for (const action of actions) {
-      if (this.handlers.some((handler) => handler(action, context))) {
-        handled.push(action);
-      } else {
-        unhandled.push(action);
+      const payload = action.entry.payload;
+      const kind = actionKind(payload);
+      const handler = kind ? lookup[kind] : undefined;
+
+      if (!handler) {
+        this.onMissingHandler(kind, action);
+        continue;
+      }
+
+      try {
+        handler(payload, {
+          tick: context.tick,
+          serverTime: context.serverTime,
+          execution: action,
+          selfCancel: (id) => this.cancelAction(action.entry.owner, { id }),
+        });
+      } catch {
+        this.cancelAction(action.entry.owner, { id: action.entry.id });
       }
     }
-
-    this.report = { handled, unhandled };
-    return this.report;
   }
+}
 
-  get lastReport(): ActionExecutionReport {
-    return this.report;
+function actionKind(payload: unknown): string | undefined {
+  if (typeof payload !== "object" || payload === null || !("kind" in payload)) {
+    return undefined;
   }
+  const kind = (payload as { readonly kind?: unknown }).kind;
+  return typeof kind === "string" ? kind : undefined;
 }

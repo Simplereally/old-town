@@ -18,8 +18,11 @@ import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { applyObjectCollision, CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
 import {
+  type GatherActionPayload,
+  handleGather,
   handleObjectSkillingIntent,
-  handleSkillingAction,
+  handleProcess,
+  type ProcessActionPayload,
   type SkillingContext,
   validateGatherAction,
 } from "./skilling-system";
@@ -413,6 +416,7 @@ describe("skilling gather validation", () => {
 
   it("revalidates repeated actions and cancels after depletion", () => {
     const { ctx, player, node, actionRuntime } = setup({ depleted: true });
+    const payload: GatherActionPayload = { kind: "gather", nodeEntityId: node };
     actionRuntime.enqueue({
       id: `gather:${player}`,
       owner: player,
@@ -420,12 +424,12 @@ describe("skilling gather validation", () => {
       delayTicks: 1,
       repeat: { intervalTicks: 4 },
       interruptGroup: InterruptGroup.Skilling,
-      payload: { kind: "gather", nodeEntityId: node },
+      payload,
     });
     const [execution] = actionRuntime.advanceTick();
     if (!execution) throw new Error("expected gather execution");
 
-    expect(handleSkillingAction(ctx, execution, 1, 600)).toBe(true);
+    handleGather(ctx, execution, payload, 1, 600);
 
     expect(actionRuntime.getDebugState()).toEqual([]);
   });
@@ -451,7 +455,8 @@ describe("woodcutting loop", () => {
     expect(executions).toHaveLength(1);
     const execution = executions[0];
     if (!execution) throw new Error("expected woodcutting execution");
-    expect(handleSkillingAction(ctx, execution, NODE_DEF.actionTicks, 2_400)).toBe(true);
+    const payload: GatherActionPayload = { kind: "gather", nodeEntityId: node };
+    handleGather(ctx, execution, payload, NODE_DEF.actionTicks, 2_400);
 
     expect(inventory.slots.some((slot) => slot?.itemId === "dry_log")).toBe(true);
     expect(ctx.world.getComponent(player, "skills")?.skills.woodcutting?.xp).toBe(10);
@@ -461,6 +466,7 @@ describe("woodcutting loop", () => {
   it("depletes trees, transforms them, and cancels the repeated gather action", () => {
     const nodeDef = { ...NODE_DEF, depletionChance: 1 };
     const { ctx, player, node, actionRuntime } = setup({ node: nodeDef });
+    const payload: GatherActionPayload = { kind: "gather", nodeEntityId: node };
     actionRuntime.enqueue({
       id: `gather:${player}`,
       owner: player,
@@ -468,12 +474,12 @@ describe("woodcutting loop", () => {
       delayTicks: 1,
       repeat: { intervalTicks: nodeDef.actionTicks },
       interruptGroup: InterruptGroup.Skilling,
-      payload: { kind: "gather", nodeEntityId: node },
+      payload,
     });
     const [execution] = actionRuntime.advanceTick();
     if (!execution) throw new Error("expected gather execution");
 
-    handleSkillingAction(ctx, execution, 1, 600);
+    handleGather(ctx, execution, payload, 1, 600);
 
     expect(ctx.world.getComponent(node, "resourceNode")).toMatchObject({
       active: false,
@@ -504,7 +510,8 @@ describe("mining loop", () => {
     }
     const execution = executions[0];
     if (!execution) throw new Error("expected mining execution");
-    handleSkillingAction(ctx, execution, MINE_NODE.actionTicks, 2_400);
+    const payload: GatherActionPayload = { kind: "gather", nodeEntityId: node };
+    handleGather(ctx, execution, payload, MINE_NODE.actionTicks, 2_400);
 
     expect(inventory.slots.some((slot) => slot?.itemId === "copper_ore")).toBe(true);
     expect(ctx.world.getComponent(player, "skills")?.skills.mining?.xp).toBe(15);
@@ -522,12 +529,15 @@ describe("cooking processing loop", () => {
       handleObjectSkillingIntent(ctx, player, { objectEntityId: station, actionId: "use" }, 600),
     ).toBe(true);
 
-    handleSkillingAction(
-      ctx,
-      advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks),
-      COOK_RECIPE.actionTicks,
-      1_800,
-    );
+    {
+      const execution = advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks);
+      const payload: ProcessActionPayload = {
+        kind: "process",
+        stationEntityId: station,
+        recipeId: COOK_RECIPE.id,
+      };
+      handleProcess(ctx, execution, payload, 1_800);
+    }
 
     expect(count(inventory, "raw_fish")).toBe(1);
     expect(count(inventory, "cooked_fish")).toBe(1);
@@ -537,21 +547,27 @@ describe("cooking processing loop", () => {
       { slot: 1, itemId: "cooked_fish", quantity: 1, uid: 2 },
     ]);
 
-    handleSkillingAction(
-      ctx,
-      advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks),
-      COOK_RECIPE.actionTicks * 2,
-      3_600,
-    );
+    {
+      const execution = advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks);
+      const payload: ProcessActionPayload = {
+        kind: "process",
+        stationEntityId: station,
+        recipeId: COOK_RECIPE.id,
+      };
+      handleProcess(ctx, execution, payload, 3_600);
+    }
     expect(count(inventory, "raw_fish")).toBe(0);
     expect(count(inventory, "cooked_fish")).toBe(2);
 
-    handleSkillingAction(
-      ctx,
-      advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks),
-      COOK_RECIPE.actionTicks * 3,
-      5_400,
-    );
+    {
+      const execution = advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks);
+      const payload: ProcessActionPayload = {
+        kind: "process",
+        stationEntityId: station,
+        recipeId: COOK_RECIPE.id,
+      };
+      handleProcess(ctx, execution, payload, 5_400);
+    }
 
     expect(actionRuntime.getDebugState()).toEqual([]);
     expect(deltas.peek().chat?.at(-1)?.text).toBe("You have nothing suitable to cook.");
@@ -563,12 +579,15 @@ describe("cooking processing loop", () => {
     });
 
     handleObjectSkillingIntent(ctx, player, { objectEntityId: station, actionId: "cook" }, 600);
-    handleSkillingAction(
-      ctx,
-      advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks),
-      COOK_RECIPE.actionTicks,
-      1_800,
-    );
+    {
+      const execution = advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks);
+      const payload: ProcessActionPayload = {
+        kind: "process",
+        stationEntityId: station,
+        recipeId: COOK_RECIPE.id,
+      };
+      handleProcess(ctx, execution, payload, 1_800);
+    }
 
     expect(count(inventory, "raw_fish")).toBe(0);
     expect(count(inventory, "burnt_fish")).toBe(1);

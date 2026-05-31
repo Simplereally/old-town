@@ -9,7 +9,9 @@ import {
 
 const owner = entityId(1);
 
-function action(overrides: Partial<ActionQueueEntry> = {}): ActionQueueEntry {
+function action(
+  overrides: Partial<ActionQueueEntry<{ kind: string }>> = {},
+): ActionQueueEntry<{ kind: string }> {
   return {
     id: "action-1",
     owner,

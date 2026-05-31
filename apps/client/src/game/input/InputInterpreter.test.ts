@@ -116,7 +116,7 @@ describe("InputInterpreter content-driven", () => {
       expect(actions).toContain("pickup");
     });
 
-    it("only shows walk-here when no entity", () => {
+    it("only shows walk_here when no entity", () => {
       const options = interpreter.getContextMenuOptions(null, { x: 10, y: 20 });
       expect(options.map((o) => o.actionId)).toEqual(["walk_here"]);
     });

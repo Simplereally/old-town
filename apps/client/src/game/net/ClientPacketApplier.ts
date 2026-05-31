@@ -37,6 +37,7 @@ export interface IActorRenderer {
   clear(): void;
   updateTile(entityId: number, tile: TileCoord): void;
   updateFacing(entityId: number, direction: Direction): void;
+  updateHealthBar(entityId: number, health: number, maxHealth: number): void;
   updateAppearance(
     entityId: number,
     appearance: { name?: string; bodyId?: string; colors?: readonly number[] },
@@ -52,6 +53,11 @@ export interface IGroundItemLayer {
 
 export interface IHitsplatLayer {
   show(entityId: number, amount: number, type?: "damage" | "block" | "heal" | "poison"): void;
+  clear(): void;
+}
+
+export interface IProjectileLayer {
+  spawn(id: string, startTile: TileCoord, endTile: TileCoord, durationTicks?: number): void;
   clear(): void;
 }
 
@@ -93,6 +99,7 @@ export interface PacketApplierContext {
   readonly actors: IActorRenderer;
   readonly groundItems: IGroundItemLayer;
   readonly hitsplats: IHitsplatLayer;
+  readonly projectiles: IProjectileLayer;
   readonly chatOverhead: IChatOverheadLayer;
   readonly debug: IDebugLayer | undefined;
   readonly uiState: IUIState;
@@ -142,6 +149,7 @@ export class ClientPacketApplier {
     ctx.objects.clear();
     ctx.groundItems.clear();
     ctx.hitsplats.clear();
+    ctx.projectiles.clear();
     ctx.chatOverhead.clear();
     ctx.debug?.clear();
 
@@ -225,6 +233,13 @@ export class ClientPacketApplier {
       if (changes.hitsplat) {
         ctx.hitsplats.show(update.entityId, changes.hitsplat.amount, changes.hitsplat.type);
       }
+      if (changes.healthBar) {
+        ctx.actors.updateHealthBar(
+          update.entityId,
+          changes.healthBar.current,
+          changes.healthBar.max,
+        );
+      }
       if (changes.equipment && update.entityId === this._selfEntityId) {
         ctx.uiState.setEquipment(changes.equipment.slots);
       }
@@ -239,6 +254,17 @@ export class ClientPacketApplier {
     if (packet.hitsplats) {
       for (const hitsplat of packet.hitsplats) {
         ctx.hitsplats.show(hitsplat.entityId, hitsplat.hitsplat.amount, hitsplat.hitsplat.type);
+      }
+    }
+
+    if (packet.projectiles) {
+      for (const projectile of packet.projectiles) {
+        ctx.projectiles.spawn(
+          projectile.id,
+          projectile.startTile,
+          projectile.endTile,
+          projectile.hitTick - projectile.startTick,
+        );
       }
     }
 
@@ -290,6 +316,9 @@ export class ClientPacketApplier {
       ctx.objects.spawn(entityId, tile, defId ?? "default");
     } else if (kind === "player" || kind === "npc") {
       ctx.actors.spawn(entityId, tile, defId, entityId === selfEntityId, kind);
+      if (entity.healthBar) {
+        ctx.actors.updateHealthBar(entityId, entity.healthBar.current, entity.healthBar.max);
+      }
       if (kind === "player" && entityId === selfEntityId && entity.appearance) {
         ctx.actors.updateAppearance(entityId, entity.appearance);
       }

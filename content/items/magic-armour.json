@@ -1,0 +1,2528 @@
+[
+  {
+    "id": "cobbled_cowl",
+    "name": "Cobbled Cowl",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Ragged cloth, barely a hood",
+    "icon": "icon_cobbled_cowl",
+    "model": "model_cobbled_cowl",
+    "value": 4,
+    "weight": 0.4,
+    "tier": "cobbled",
+    "tierOrder": 0,
+    "family": "cowl",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "rust_grey",
+      "accents": "ragged_cloth"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "head",
+      "bonuses": {},
+      "requirements": []
+    }
+  },
+  {
+    "id": "chalkmarked_cowl",
+    "name": "Chalkmarked Cowl",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "White chalk marks, apprentice hood",
+    "icon": "icon_chalkmarked_cowl",
+    "model": "model_chalkmarked_cowl",
+    "value": 20,
+    "weight": 0.4,
+    "tier": "chalkmarked",
+    "tierOrder": 1,
+    "family": "cowl",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "head",
+      "bonuses": {
+        "magicAttack": 2,
+        "magicDefence": 1
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "tallowbound_cowl",
+    "name": "Tallowbound Cowl",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Yellowed cloth, wax-sealed",
+    "icon": "icon_tallowbound_cowl",
+    "model": "model_tallowbound_cowl",
+    "value": 36,
+    "weight": 0.4,
+    "tier": "tallowbound",
+    "tierOrder": 2,
+    "family": "cowl",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "head",
+      "bonuses": {
+        "magicAttack": 4,
+        "magicDefence": 2
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "bellwax_cowl",
+    "name": "Bellwax Cowl",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Brass trim, golden wax",
+    "icon": "icon_bellwax_cowl",
+    "model": "model_bellwax_cowl",
+    "value": 60,
+    "weight": 0.4,
+    "tier": "bellwax",
+    "tierOrder": 3,
+    "family": "cowl",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "head",
+      "bonuses": {
+        "magicAttack": 6,
+        "magicDefence": 3
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "blacksalt_cowl",
+    "name": "Blacksalt Cowl",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Black cloth, salt sigils",
+    "icon": "icon_blacksalt_cowl",
+    "model": "model_blacksalt_cowl",
+    "value": 100,
+    "weight": 0.4,
+    "tier": "blacksalt",
+    "tierOrder": 4,
+    "family": "cowl",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "head",
+      "bonuses": {
+        "magicAttack": 8,
+        "magicDefence": 4
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 4
+        }
+      ]
+    }
+  },
+  {
+    "id": "warden_script_cowl",
+    "name": "Warden Script Cowl",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue-white glyphs, licensed hood",
+    "icon": "icon_warden_script_cowl",
+    "model": "model_warden_script_cowl",
+    "value": 160,
+    "weight": 0.4,
+    "tier": "warden_script",
+    "tierOrder": 5,
+    "family": "cowl",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "head",
+      "bonuses": {
+        "magicAttack": 10,
+        "magicDefence": 5
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "greenwold_cowl",
+    "name": "Greenwold Cowl",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Moss thread, living wood trim",
+    "icon": "icon_greenwold_cowl",
+    "model": "model_greenwold_cowl",
+    "value": 240,
+    "weight": 0.4,
+    "tier": "greenwold",
+    "tierOrder": 6,
+    "family": "cowl",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "head",
+      "bonuses": {
+        "magicAttack": 12,
+        "magicDefence": 6
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 6
+        }
+      ]
+    }
+  },
+  {
+    "id": "gravebound_cowl",
+    "name": "Gravebound Cowl",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Bone clasps, grey cloth",
+    "icon": "icon_gravebound_cowl",
+    "model": "model_gravebound_cowl",
+    "value": 360,
+    "weight": 0.4,
+    "tier": "gravebound",
+    "tierOrder": 7,
+    "family": "cowl",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "head",
+      "bonuses": {
+        "magicAttack": 14,
+        "magicDefence": 7
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 7
+        }
+      ]
+    }
+  },
+  {
+    "id": "blueglass_cowl",
+    "name": "Blueglass Cowl",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue crystal lenses, polished",
+    "icon": "icon_blueglass_cowl",
+    "model": "model_blueglass_cowl",
+    "value": 520,
+    "weight": 0.4,
+    "tier": "blueglass",
+    "tierOrder": 8,
+    "family": "cowl",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "head",
+      "bonuses": {
+        "magicAttack": 16,
+        "magicDefence": 8
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 8
+        }
+      ]
+    }
+  },
+  {
+    "id": "carmine_ink_cowl",
+    "name": "Carmine Ink Cowl",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Red ink trim, black vellum",
+    "icon": "icon_carmine_ink_cowl",
+    "model": "model_carmine_ink_cowl",
+    "value": 760,
+    "weight": 0.4,
+    "tier": "carmine_ink",
+    "tierOrder": 9,
+    "family": "cowl",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "head",
+      "bonuses": {
+        "magicAttack": 18,
+        "magicDefence": 9
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 9
+        }
+      ]
+    }
+  },
+  {
+    "id": "argent_script_cowl",
+    "name": "Argent Script Cowl",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Silver thread, pale hood",
+    "icon": "icon_argent_script_cowl",
+    "model": "model_argent_script_cowl",
+    "value": 1100,
+    "weight": 0.4,
+    "tier": "argent_script",
+    "tierOrder": 10,
+    "family": "cowl",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "head",
+      "bonuses": {
+        "magicAttack": 20,
+        "magicDefence": 10
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 10
+        }
+      ]
+    }
+  },
+  {
+    "id": "crownvellum_cowl",
+    "name": "Crownvellum Cowl",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Gold seals, royal scrollwork",
+    "icon": "icon_crownvellum_cowl",
+    "model": "model_crownvellum_cowl",
+    "value": 1600,
+    "weight": 0.4,
+    "tier": "crownvellum",
+    "tierOrder": 11,
+    "family": "cowl",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "head",
+      "bonuses": {
+        "magicAttack": 22,
+        "magicDefence": 11
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 11
+        }
+      ]
+    }
+  },
+  {
+    "id": "starfall_cowl",
+    "name": "Starfall Cowl",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Meteor dust, star-black hood",
+    "icon": "icon_starfall_cowl",
+    "model": "model_starfall_cowl",
+    "value": 2400,
+    "weight": 0.4,
+    "tier": "starfall",
+    "tierOrder": 12,
+    "family": "cowl",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "head",
+      "bonuses": {
+        "magicAttack": 24,
+        "magicDefence": 12
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 12
+        }
+      ]
+    }
+  },
+  {
+    "id": "cobbled_robe",
+    "name": "Cobbled Robe",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Tattered cloth, barely a robe",
+    "icon": "icon_cobbled_robe",
+    "model": "model_cobbled_robe",
+    "value": 8,
+    "weight": 0.8,
+    "tier": "cobbled",
+    "tierOrder": 0,
+    "family": "robe",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "rust_grey",
+      "accents": "ragged_cloth"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "body",
+      "bonuses": {},
+      "requirements": []
+    }
+  },
+  {
+    "id": "chalkmarked_robe",
+    "name": "Chalkmarked Robe",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "White chalk lines, apprentice robe",
+    "icon": "icon_chalkmarked_robe",
+    "model": "model_chalkmarked_robe",
+    "value": 40,
+    "weight": 0.8,
+    "tier": "chalkmarked",
+    "tierOrder": 1,
+    "family": "robe",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "body",
+      "bonuses": {
+        "magicAttack": 3,
+        "magicDefence": 2
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "tallowbound_robe",
+    "name": "Tallowbound Robe",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Yellowed cloth, wax-sealed",
+    "icon": "icon_tallowbound_robe",
+    "model": "model_tallowbound_robe",
+    "value": 72,
+    "weight": 0.8,
+    "tier": "tallowbound",
+    "tierOrder": 2,
+    "family": "robe",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "body",
+      "bonuses": {
+        "magicAttack": 6,
+        "magicDefence": 4
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "bellwax_robe",
+    "name": "Bellwax Robe",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Brass trim, golden wax",
+    "icon": "icon_bellwax_robe",
+    "model": "model_bellwax_robe",
+    "value": 120,
+    "weight": 0.8,
+    "tier": "bellwax",
+    "tierOrder": 3,
+    "family": "robe",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "body",
+      "bonuses": {
+        "magicAttack": 9,
+        "magicDefence": 6
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "blacksalt_robe",
+    "name": "Blacksalt Robe",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Black cloth, salt sigils",
+    "icon": "icon_blacksalt_robe",
+    "model": "model_blacksalt_robe",
+    "value": 200,
+    "weight": 0.8,
+    "tier": "blacksalt",
+    "tierOrder": 4,
+    "family": "robe",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "body",
+      "bonuses": {
+        "magicAttack": 12,
+        "magicDefence": 8
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 4
+        }
+      ]
+    }
+  },
+  {
+    "id": "warden_script_robe",
+    "name": "Warden Script Robe",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue-white glyphs, licensed robe",
+    "icon": "icon_warden_script_robe",
+    "model": "model_warden_script_robe",
+    "value": 320,
+    "weight": 0.8,
+    "tier": "warden_script",
+    "tierOrder": 5,
+    "family": "robe",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "body",
+      "bonuses": {
+        "magicAttack": 15,
+        "magicDefence": 10
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "greenwold_robe",
+    "name": "Greenwold Robe",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Moss thread, living wood trim",
+    "icon": "icon_greenwold_robe",
+    "model": "model_greenwold_robe",
+    "value": 480,
+    "weight": 0.8,
+    "tier": "greenwold",
+    "tierOrder": 6,
+    "family": "robe",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "body",
+      "bonuses": {
+        "magicAttack": 18,
+        "magicDefence": 12
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 6
+        }
+      ]
+    }
+  },
+  {
+    "id": "gravebound_robe",
+    "name": "Gravebound Robe",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Bone clasps, grey cloth",
+    "icon": "icon_gravebound_robe",
+    "model": "model_gravebound_robe",
+    "value": 720,
+    "weight": 0.8,
+    "tier": "gravebound",
+    "tierOrder": 7,
+    "family": "robe",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "body",
+      "bonuses": {
+        "magicAttack": 21,
+        "magicDefence": 14
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 7
+        }
+      ]
+    }
+  },
+  {
+    "id": "blueglass_robe",
+    "name": "Blueglass Robe",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue crystal trim, polished",
+    "icon": "icon_blueglass_robe",
+    "model": "model_blueglass_robe",
+    "value": 1040,
+    "weight": 0.8,
+    "tier": "blueglass",
+    "tierOrder": 8,
+    "family": "robe",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "body",
+      "bonuses": {
+        "magicAttack": 24,
+        "magicDefence": 16
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 8
+        }
+      ]
+    }
+  },
+  {
+    "id": "carmine_ink_robe",
+    "name": "Carmine Ink Robe",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Red ink, black vellum",
+    "icon": "icon_carmine_ink_robe",
+    "model": "model_carmine_ink_robe",
+    "value": 1520,
+    "weight": 0.8,
+    "tier": "carmine_ink",
+    "tierOrder": 9,
+    "family": "robe",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "body",
+      "bonuses": {
+        "magicAttack": 27,
+        "magicDefence": 18
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 9
+        }
+      ]
+    }
+  },
+  {
+    "id": "argent_script_robe",
+    "name": "Argent Script Robe",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Silver thread, pale robe",
+    "icon": "icon_argent_script_robe",
+    "model": "model_argent_script_robe",
+    "value": 2200,
+    "weight": 0.8,
+    "tier": "argent_script",
+    "tierOrder": 10,
+    "family": "robe",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "body",
+      "bonuses": {
+        "magicAttack": 30,
+        "magicDefence": 20
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 10
+        }
+      ]
+    }
+  },
+  {
+    "id": "crownvellum_robe",
+    "name": "Crownvellum Robe",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Gold seals, royal scrollwork",
+    "icon": "icon_crownvellum_robe",
+    "model": "model_crownvellum_robe",
+    "value": 3200,
+    "weight": 0.8,
+    "tier": "crownvellum",
+    "tierOrder": 11,
+    "family": "robe",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "body",
+      "bonuses": {
+        "magicAttack": 33,
+        "magicDefence": 22
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 11
+        }
+      ]
+    }
+  },
+  {
+    "id": "starfall_robe",
+    "name": "Starfall Robe",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Meteor dust, star-black robe",
+    "icon": "icon_starfall_robe",
+    "model": "model_starfall_robe",
+    "value": 4800,
+    "weight": 0.8,
+    "tier": "starfall",
+    "tierOrder": 12,
+    "family": "robe",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "body",
+      "bonuses": {
+        "magicAttack": 36,
+        "magicDefence": 24
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 12
+        }
+      ]
+    }
+  },
+  {
+    "id": "cobbled_wraps",
+    "name": "Cobbled Wraps",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Ragged cloth strips",
+    "icon": "icon_cobbled_wraps",
+    "model": "model_cobbled_wraps",
+    "value": 6,
+    "weight": 0.5,
+    "tier": "cobbled",
+    "tierOrder": 0,
+    "family": "wraps",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "rust_grey",
+      "accents": "ragged_cloth"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "legs",
+      "bonuses": {},
+      "requirements": []
+    }
+  },
+  {
+    "id": "chalkmarked_wraps",
+    "name": "Chalkmarked Wraps",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "White chalk marks",
+    "icon": "icon_chalkmarked_wraps",
+    "model": "model_chalkmarked_wraps",
+    "value": 30,
+    "weight": 0.5,
+    "tier": "chalkmarked",
+    "tierOrder": 1,
+    "family": "wraps",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "legs",
+      "bonuses": {
+        "magicAttack": 2,
+        "magicDefence": 1
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "tallowbound_wraps",
+    "name": "Tallowbound Wraps",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Yellowed cloth, wax-sealed",
+    "icon": "icon_tallowbound_wraps",
+    "model": "model_tallowbound_wraps",
+    "value": 54,
+    "weight": 0.5,
+    "tier": "tallowbound",
+    "tierOrder": 2,
+    "family": "wraps",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "legs",
+      "bonuses": {
+        "magicAttack": 4,
+        "magicDefence": 2
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "bellwax_wraps",
+    "name": "Bellwax Wraps",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Brass trim, golden wax",
+    "icon": "icon_bellwax_wraps",
+    "model": "model_bellwax_wraps",
+    "value": 90,
+    "weight": 0.5,
+    "tier": "bellwax",
+    "tierOrder": 3,
+    "family": "wraps",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "legs",
+      "bonuses": {
+        "magicAttack": 6,
+        "magicDefence": 3
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "blacksalt_wraps",
+    "name": "Blacksalt Wraps",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Black cloth, salt sigils",
+    "icon": "icon_blacksalt_wraps",
+    "model": "model_blacksalt_wraps",
+    "value": 150,
+    "weight": 0.5,
+    "tier": "blacksalt",
+    "tierOrder": 4,
+    "family": "wraps",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "legs",
+      "bonuses": {
+        "magicAttack": 8,
+        "magicDefence": 4
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 4
+        }
+      ]
+    }
+  },
+  {
+    "id": "warden_script_wraps",
+    "name": "Warden Script Wraps",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue-white glyphs, licensed",
+    "icon": "icon_warden_script_wraps",
+    "model": "model_warden_script_wraps",
+    "value": 240,
+    "weight": 0.5,
+    "tier": "warden_script",
+    "tierOrder": 5,
+    "family": "wraps",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "legs",
+      "bonuses": {
+        "magicAttack": 10,
+        "magicDefence": 5
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "greenwold_wraps",
+    "name": "Greenwold Wraps",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Moss thread, living wood",
+    "icon": "icon_greenwold_wraps",
+    "model": "model_greenwold_wraps",
+    "value": 360,
+    "weight": 0.5,
+    "tier": "greenwold",
+    "tierOrder": 6,
+    "family": "wraps",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "legs",
+      "bonuses": {
+        "magicAttack": 12,
+        "magicDefence": 6
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 6
+        }
+      ]
+    }
+  },
+  {
+    "id": "gravebound_wraps",
+    "name": "Gravebound Wraps",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Bone toggles, grey cloth",
+    "icon": "icon_gravebound_wraps",
+    "model": "model_gravebound_wraps",
+    "value": 540,
+    "weight": 0.5,
+    "tier": "gravebound",
+    "tierOrder": 7,
+    "family": "wraps",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "legs",
+      "bonuses": {
+        "magicAttack": 14,
+        "magicDefence": 7
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 7
+        }
+      ]
+    }
+  },
+  {
+    "id": "blueglass_wraps",
+    "name": "Blueglass Wraps",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue crystal trim, polished",
+    "icon": "icon_blueglass_wraps",
+    "model": "model_blueglass_wraps",
+    "value": 780,
+    "weight": 0.5,
+    "tier": "blueglass",
+    "tierOrder": 8,
+    "family": "wraps",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "legs",
+      "bonuses": {
+        "magicAttack": 16,
+        "magicDefence": 8
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 8
+        }
+      ]
+    }
+  },
+  {
+    "id": "carmine_ink_wraps",
+    "name": "Carmine Ink Wraps",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Red ink, black vellum",
+    "icon": "icon_carmine_ink_wraps",
+    "model": "model_carmine_ink_wraps",
+    "value": 1140,
+    "weight": 0.5,
+    "tier": "carmine_ink",
+    "tierOrder": 9,
+    "family": "wraps",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "legs",
+      "bonuses": {
+        "magicAttack": 18,
+        "magicDefence": 9
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 9
+        }
+      ]
+    }
+  },
+  {
+    "id": "argent_script_wraps",
+    "name": "Argent Script Wraps",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Silver thread, pale wraps",
+    "icon": "icon_argent_script_wraps",
+    "model": "model_argent_script_wraps",
+    "value": 1650,
+    "weight": 0.5,
+    "tier": "argent_script",
+    "tierOrder": 10,
+    "family": "wraps",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "legs",
+      "bonuses": {
+        "magicAttack": 20,
+        "magicDefence": 10
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 10
+        }
+      ]
+    }
+  },
+  {
+    "id": "crownvellum_wraps",
+    "name": "Crownvellum Wraps",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Gold seals, royal scrollwork",
+    "icon": "icon_crownvellum_wraps",
+    "model": "model_crownvellum_wraps",
+    "value": 2400,
+    "weight": 0.5,
+    "tier": "crownvellum",
+    "tierOrder": 11,
+    "family": "wraps",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "legs",
+      "bonuses": {
+        "magicAttack": 22,
+        "magicDefence": 11
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 11
+        }
+      ]
+    }
+  },
+  {
+    "id": "starfall_wraps",
+    "name": "Starfall Wraps",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Meteor dust, star-black wraps",
+    "icon": "icon_starfall_wraps",
+    "model": "model_starfall_wraps",
+    "value": 3600,
+    "weight": 0.5,
+    "tier": "starfall",
+    "tierOrder": 12,
+    "family": "wraps",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "legs",
+      "bonuses": {
+        "magicAttack": 24,
+        "magicDefence": 12
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 12
+        }
+      ]
+    }
+  },
+  {
+    "id": "cobbled_cuffs",
+    "name": "Cobbled Cuffs",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Ragged cloth strips",
+    "icon": "icon_cobbled_cuffs",
+    "model": "model_cobbled_cuffs",
+    "value": 3,
+    "weight": 0.2,
+    "tier": "cobbled",
+    "tierOrder": 0,
+    "family": "cuffs",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "rust_grey",
+      "accents": "ragged_cloth"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "hands",
+      "bonuses": {},
+      "requirements": []
+    }
+  },
+  {
+    "id": "chalkmarked_cuffs",
+    "name": "Chalkmarked Cuffs",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "White chalk marks",
+    "icon": "icon_chalkmarked_cuffs",
+    "model": "model_chalkmarked_cuffs",
+    "value": 15,
+    "weight": 0.2,
+    "tier": "chalkmarked",
+    "tierOrder": 1,
+    "family": "cuffs",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "hands",
+      "bonuses": {
+        "magicAttack": 1,
+        "magicDefence": 1
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "tallowbound_cuffs",
+    "name": "Tallowbound Cuffs",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Yellowed cloth, wax-sealed",
+    "icon": "icon_tallowbound_cuffs",
+    "model": "model_tallowbound_cuffs",
+    "value": 27,
+    "weight": 0.2,
+    "tier": "tallowbound",
+    "tierOrder": 2,
+    "family": "cuffs",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "hands",
+      "bonuses": {
+        "magicAttack": 2,
+        "magicDefence": 2
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "bellwax_cuffs",
+    "name": "Bellwax Cuffs",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Brass trim, golden wax",
+    "icon": "icon_bellwax_cuffs",
+    "model": "model_bellwax_cuffs",
+    "value": 45,
+    "weight": 0.2,
+    "tier": "bellwax",
+    "tierOrder": 3,
+    "family": "cuffs",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "hands",
+      "bonuses": {
+        "magicAttack": 3,
+        "magicDefence": 3
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "blacksalt_cuffs",
+    "name": "Blacksalt Cuffs",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Black cloth, salt sigils",
+    "icon": "icon_blacksalt_cuffs",
+    "model": "model_blacksalt_cuffs",
+    "value": 75,
+    "weight": 0.2,
+    "tier": "blacksalt",
+    "tierOrder": 4,
+    "family": "cuffs",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "hands",
+      "bonuses": {
+        "magicAttack": 4,
+        "magicDefence": 4
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 4
+        }
+      ]
+    }
+  },
+  {
+    "id": "warden_script_cuffs",
+    "name": "Warden Script Cuffs",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue-white glyphs, licensed",
+    "icon": "icon_warden_script_cuffs",
+    "model": "model_warden_script_cuffs",
+    "value": 120,
+    "weight": 0.2,
+    "tier": "warden_script",
+    "tierOrder": 5,
+    "family": "cuffs",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "hands",
+      "bonuses": {
+        "magicAttack": 5,
+        "magicDefence": 5
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "greenwold_cuffs",
+    "name": "Greenwold Cuffs",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Moss thread, living wood",
+    "icon": "icon_greenwold_cuffs",
+    "model": "model_greenwold_cuffs",
+    "value": 180,
+    "weight": 0.2,
+    "tier": "greenwold",
+    "tierOrder": 6,
+    "family": "cuffs",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "hands",
+      "bonuses": {
+        "magicAttack": 6,
+        "magicDefence": 6
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 6
+        }
+      ]
+    }
+  },
+  {
+    "id": "gravebound_cuffs",
+    "name": "Gravebound Cuffs",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Bone toggles, grey cloth",
+    "icon": "icon_gravebound_cuffs",
+    "model": "model_gravebound_cuffs",
+    "value": 270,
+    "weight": 0.2,
+    "tier": "gravebound",
+    "tierOrder": 7,
+    "family": "cuffs",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "hands",
+      "bonuses": {
+        "magicAttack": 7,
+        "magicDefence": 7
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 7
+        }
+      ]
+    }
+  },
+  {
+    "id": "blueglass_cuffs",
+    "name": "Blueglass Cuffs",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue crystal trim, polished",
+    "icon": "icon_blueglass_cuffs",
+    "model": "model_blueglass_cuffs",
+    "value": 390,
+    "weight": 0.2,
+    "tier": "blueglass",
+    "tierOrder": 8,
+    "family": "cuffs",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "hands",
+      "bonuses": {
+        "magicAttack": 8,
+        "magicDefence": 8
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 8
+        }
+      ]
+    }
+  },
+  {
+    "id": "carmine_ink_cuffs",
+    "name": "Carmine Ink Cuffs",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Red ink, black vellum",
+    "icon": "icon_carmine_ink_cuffs",
+    "model": "model_carmine_ink_cuffs",
+    "value": 570,
+    "weight": 0.2,
+    "tier": "carmine_ink",
+    "tierOrder": 9,
+    "family": "cuffs",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "hands",
+      "bonuses": {
+        "magicAttack": 9,
+        "magicDefence": 9
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 9
+        }
+      ]
+    }
+  },
+  {
+    "id": "argent_script_cuffs",
+    "name": "Argent Script Cuffs",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Silver thread, pale cuffs",
+    "icon": "icon_argent_script_cuffs",
+    "model": "model_argent_script_cuffs",
+    "value": 825,
+    "weight": 0.2,
+    "tier": "argent_script",
+    "tierOrder": 10,
+    "family": "cuffs",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "hands",
+      "bonuses": {
+        "magicAttack": 10,
+        "magicDefence": 10
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 10
+        }
+      ]
+    }
+  },
+  {
+    "id": "crownvellum_cuffs",
+    "name": "Crownvellum Cuffs",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Gold seals, royal scrollwork",
+    "icon": "icon_crownvellum_cuffs",
+    "model": "model_crownvellum_cuffs",
+    "value": 1200,
+    "weight": 0.2,
+    "tier": "crownvellum",
+    "tierOrder": 11,
+    "family": "cuffs",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "hands",
+      "bonuses": {
+        "magicAttack": 11,
+        "magicDefence": 11
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 11
+        }
+      ]
+    }
+  },
+  {
+    "id": "starfall_cuffs",
+    "name": "Starfall Cuffs",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Meteor dust, star-black cuffs",
+    "icon": "icon_starfall_cuffs",
+    "model": "model_starfall_cuffs",
+    "value": 1800,
+    "weight": 0.2,
+    "tier": "starfall",
+    "tierOrder": 12,
+    "family": "cuffs",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "hands",
+      "bonuses": {
+        "magicAttack": 12,
+        "magicDefence": 12
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 12
+        }
+      ]
+    }
+  },
+  {
+    "id": "cobbled_softshoes",
+    "name": "Cobbled Softshoes",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Ragged cloth wrapped around feet",
+    "icon": "icon_cobbled_softshoes",
+    "model": "model_cobbled_softshoes",
+    "value": 3,
+    "weight": 0.3,
+    "tier": "cobbled",
+    "tierOrder": 0,
+    "family": "softshoes",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "rust_grey",
+      "accents": "ragged_cloth"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "feet",
+      "bonuses": {},
+      "requirements": []
+    }
+  },
+  {
+    "id": "chalkmarked_softshoes",
+    "name": "Chalkmarked Softshoes",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "White chalk marks",
+    "icon": "icon_chalkmarked_softshoes",
+    "model": "model_chalkmarked_softshoes",
+    "value": 18,
+    "weight": 0.3,
+    "tier": "chalkmarked",
+    "tierOrder": 1,
+    "family": "softshoes",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "feet",
+      "bonuses": {
+        "magicAttack": 1,
+        "magicDefence": 1
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "tallowbound_softshoes",
+    "name": "Tallowbound Softshoes",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Yellowed cloth, wax-sealed",
+    "icon": "icon_tallowbound_softshoes",
+    "model": "model_tallowbound_softshoes",
+    "value": 32,
+    "weight": 0.3,
+    "tier": "tallowbound",
+    "tierOrder": 2,
+    "family": "softshoes",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "feet",
+      "bonuses": {
+        "magicAttack": 2,
+        "magicDefence": 2
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "bellwax_softshoes",
+    "name": "Bellwax Softshoes",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Brass trim, golden wax",
+    "icon": "icon_bellwax_softshoes",
+    "model": "model_bellwax_softshoes",
+    "value": 54,
+    "weight": 0.3,
+    "tier": "bellwax",
+    "tierOrder": 3,
+    "family": "softshoes",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "feet",
+      "bonuses": {
+        "magicAttack": 3,
+        "magicDefence": 3
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "blacksalt_softshoes",
+    "name": "Blacksalt Softshoes",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Black cloth, salt sigils",
+    "icon": "icon_blacksalt_softshoes",
+    "model": "model_blacksalt_softshoes",
+    "value": 90,
+    "weight": 0.3,
+    "tier": "blacksalt",
+    "tierOrder": 4,
+    "family": "softshoes",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "feet",
+      "bonuses": {
+        "magicAttack": 4,
+        "magicDefence": 4
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 4
+        }
+      ]
+    }
+  },
+  {
+    "id": "warden_script_softshoes",
+    "name": "Warden Script Softshoes",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue-white glyphs, licensed",
+    "icon": "icon_warden_script_softshoes",
+    "model": "model_warden_script_softshoes",
+    "value": 144,
+    "weight": 0.3,
+    "tier": "warden_script",
+    "tierOrder": 5,
+    "family": "softshoes",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "feet",
+      "bonuses": {
+        "magicAttack": 5,
+        "magicDefence": 5
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "greenwold_softshoes",
+    "name": "Greenwold Softshoes",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Moss thread, living wood",
+    "icon": "icon_greenwold_softshoes",
+    "model": "model_greenwold_softshoes",
+    "value": 216,
+    "weight": 0.3,
+    "tier": "greenwold",
+    "tierOrder": 6,
+    "family": "softshoes",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "feet",
+      "bonuses": {
+        "magicAttack": 6,
+        "magicDefence": 6
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 6
+        }
+      ]
+    }
+  },
+  {
+    "id": "gravebound_softshoes",
+    "name": "Gravebound Softshoes",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Bone toggles, grey cloth",
+    "icon": "icon_gravebound_softshoes",
+    "model": "model_gravebound_softshoes",
+    "value": 324,
+    "weight": 0.3,
+    "tier": "gravebound",
+    "tierOrder": 7,
+    "family": "softshoes",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "feet",
+      "bonuses": {
+        "magicAttack": 7,
+        "magicDefence": 7
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 7
+        }
+      ]
+    }
+  },
+  {
+    "id": "blueglass_softshoes",
+    "name": "Blueglass Softshoes",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue crystal trim, polished",
+    "icon": "icon_blueglass_softshoes",
+    "model": "model_blueglass_softshoes",
+    "value": 468,
+    "weight": 0.3,
+    "tier": "blueglass",
+    "tierOrder": 8,
+    "family": "softshoes",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "feet",
+      "bonuses": {
+        "magicAttack": 8,
+        "magicDefence": 8
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 8
+        }
+      ]
+    }
+  },
+  {
+    "id": "carmine_ink_softshoes",
+    "name": "Carmine Ink Softshoes",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Red ink, black vellum",
+    "icon": "icon_carmine_ink_softshoes",
+    "model": "model_carmine_ink_softshoes",
+    "value": 684,
+    "weight": 0.3,
+    "tier": "carmine_ink",
+    "tierOrder": 9,
+    "family": "softshoes",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "feet",
+      "bonuses": {
+        "magicAttack": 9,
+        "magicDefence": 9
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 9
+        }
+      ]
+    }
+  },
+  {
+    "id": "argent_script_softshoes",
+    "name": "Argent Script Softshoes",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Silver thread, pale shoes",
+    "icon": "icon_argent_script_softshoes",
+    "model": "model_argent_script_softshoes",
+    "value": 990,
+    "weight": 0.3,
+    "tier": "argent_script",
+    "tierOrder": 10,
+    "family": "softshoes",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "feet",
+      "bonuses": {
+        "magicAttack": 10,
+        "magicDefence": 10
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 10
+        }
+      ]
+    }
+  },
+  {
+    "id": "crownvellum_softshoes",
+    "name": "Crownvellum Softshoes",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Gold seals, royal scrollwork",
+    "icon": "icon_crownvellum_softshoes",
+    "model": "model_crownvellum_softshoes",
+    "value": 1440,
+    "weight": 0.3,
+    "tier": "crownvellum",
+    "tierOrder": 11,
+    "family": "softshoes",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "feet",
+      "bonuses": {
+        "magicAttack": 11,
+        "magicDefence": 11
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 11
+        }
+      ]
+    }
+  },
+  {
+    "id": "starfall_softshoes",
+    "name": "Starfall Softshoes",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Meteor dust, star-black shoes",
+    "icon": "icon_starfall_softshoes",
+    "model": "model_starfall_softshoes",
+    "value": 2160,
+    "weight": 0.3,
+    "tier": "starfall",
+    "tierOrder": 12,
+    "family": "softshoes",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "feet",
+      "bonuses": {
+        "magicAttack": 12,
+        "magicDefence": 12
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 12
+        }
+      ]
+    }
+  },
+  {
+    "id": "cobbled_charmward",
+    "name": "Cobbled Charmward",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Scrap wood, mismatched beads",
+    "icon": "icon_cobbled_charmward",
+    "model": "model_cobbled_charmward",
+    "value": 4,
+    "weight": 0.6,
+    "tier": "cobbled",
+    "tierOrder": 0,
+    "family": "charmward",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "rust_grey",
+      "accents": "ragged_cloth"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {},
+      "requirements": []
+    }
+  },
+  {
+    "id": "chalkmarked_charmward",
+    "name": "Chalkmarked Charmward",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Slate beads, chalk marks",
+    "icon": "icon_chalkmarked_charmward",
+    "model": "model_chalkmarked_charmward",
+    "value": 22,
+    "weight": 0.6,
+    "tier": "chalkmarked",
+    "tierOrder": 1,
+    "family": "charmward",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 2,
+        "magicDefence": 1
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "tallowbound_charmward",
+    "name": "Tallowbound Charmward",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Glass beads, wax-sealed",
+    "icon": "icon_tallowbound_charmward",
+    "model": "model_tallowbound_charmward",
+    "value": 39,
+    "weight": 0.6,
+    "tier": "tallowbound",
+    "tierOrder": 2,
+    "family": "charmward",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 4,
+        "magicDefence": 2
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 2
+        }
+      ]
+    }
+  },
+  {
+    "id": "bellwax_charmward",
+    "name": "Bellwax Charmward",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Brass beads, golden wax",
+    "icon": "icon_bellwax_charmward",
+    "model": "model_bellwax_charmward",
+    "value": 66,
+    "weight": 0.6,
+    "tier": "bellwax",
+    "tierOrder": 3,
+    "family": "charmward",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 6,
+        "magicDefence": 3
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 3
+        }
+      ]
+    }
+  },
+  {
+    "id": "blacksalt_charmward",
+    "name": "Blacksalt Charmward",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Black beads, salt sigils",
+    "icon": "icon_blacksalt_charmward",
+    "model": "model_blacksalt_charmward",
+    "value": 110,
+    "weight": 0.6,
+    "tier": "blacksalt",
+    "tierOrder": 4,
+    "family": "charmward",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 8,
+        "magicDefence": 4
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 4
+        }
+      ]
+    }
+  },
+  {
+    "id": "warden_script_charmward",
+    "name": "Warden Script Charmward",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue-white beads, licensed",
+    "icon": "icon_warden_script_charmward",
+    "model": "model_warden_script_charmward",
+    "value": 176,
+    "weight": 0.6,
+    "tier": "warden_script",
+    "tierOrder": 5,
+    "family": "charmward",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 10,
+        "magicDefence": 5
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 5
+        }
+      ]
+    }
+  },
+  {
+    "id": "greenwold_charmward",
+    "name": "Greenwold Charmward",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Green beads, moss",
+    "icon": "icon_greenwold_charmward",
+    "model": "model_greenwold_charmward",
+    "value": 264,
+    "weight": 0.6,
+    "tier": "greenwold",
+    "tierOrder": 6,
+    "family": "charmward",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 12,
+        "magicDefence": 6
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 6
+        }
+      ]
+    }
+  },
+  {
+    "id": "gravebound_charmward",
+    "name": "Gravebound Charmward",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Bone beads, grey cloth",
+    "icon": "icon_gravebound_charmward",
+    "model": "model_gravebound_charmward",
+    "value": 396,
+    "weight": 0.6,
+    "tier": "gravebound",
+    "tierOrder": 7,
+    "family": "charmward",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 14,
+        "magicDefence": 7
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 7
+        }
+      ]
+    }
+  },
+  {
+    "id": "blueglass_charmward",
+    "name": "Blueglass Charmward",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Blue crystal beads, polished",
+    "icon": "icon_blueglass_charmward",
+    "model": "model_blueglass_charmward",
+    "value": 572,
+    "weight": 0.6,
+    "tier": "blueglass",
+    "tierOrder": 8,
+    "family": "charmward",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 16,
+        "magicDefence": 8
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 8
+        }
+      ]
+    }
+  },
+  {
+    "id": "carmine_ink_charmward",
+    "name": "Carmine Ink Charmward",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Red ink beads, black vellum",
+    "icon": "icon_carmine_ink_charmward",
+    "model": "model_carmine_ink_charmward",
+    "value": 836,
+    "weight": 0.6,
+    "tier": "carmine_ink",
+    "tierOrder": 9,
+    "family": "charmward",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 18,
+        "magicDefence": 9
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 9
+        }
+      ]
+    }
+  },
+  {
+    "id": "argent_script_charmward",
+    "name": "Argent Script Charmward",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Silver beads, pale",
+    "icon": "icon_argent_script_charmward",
+    "model": "model_argent_script_charmward",
+    "value": 1210,
+    "weight": 0.6,
+    "tier": "argent_script",
+    "tierOrder": 10,
+    "family": "charmward",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 20,
+        "magicDefence": 10
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 10
+        }
+      ]
+    }
+  },
+  {
+    "id": "crownvellum_charmward",
+    "name": "Crownvellum Charmward",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Gold beads, royal scrollwork",
+    "icon": "icon_crownvellum_charmward",
+    "model": "model_crownvellum_charmward",
+    "value": 1760,
+    "weight": 0.6,
+    "tier": "crownvellum",
+    "tierOrder": 11,
+    "family": "charmward",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 22,
+        "magicDefence": 11
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 11
+        }
+      ]
+    }
+  },
+  {
+    "id": "starfall_charmward",
+    "name": "Starfall Charmward",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "Meteor beads, star-black",
+    "icon": "icon_starfall_charmward",
+    "model": "model_starfall_charmward",
+    "value": 2640,
+    "weight": 0.6,
+    "tier": "starfall",
+    "tierOrder": 12,
+    "family": "charmward",
+    "category": "magic",
+    "visualIdentity": {
+      "baseColor": "chalk_white",
+      "accents": "slate_beads"
+    },
+    "options": ["wear"],
+    "equipment": {
+      "slot": "shield",
+      "bonuses": {
+        "magicAttack": 24,
+        "magicDefence": 12
+      },
+      "requirements": [
+        {
+          "skillId": "magic",
+          "level": 12
+        }
+      ]
+    }
+  }
+]

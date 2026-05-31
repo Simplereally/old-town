@@ -4,7 +4,7 @@ import { createWorld } from "../ecs/world";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { CollisionFlag, CollisionMap } from "../world/collision";
 import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
-import { handleMoveIntent, processMovementPhase } from "./movement-system";
+import { applyMovementBlock, handleMoveIntent, processMovementPhase } from "./movement-system";
 
 function tile(x: number, y: number): TileCoord {
   return { x, y, plane: 0 };
@@ -93,5 +93,33 @@ describe("movement system", () => {
     expect(context.world.getComponent(context.player, "movement")?.path).toEqual([]);
     expect(context.world.getComponent(context.player, "movement")?.blockedUntilTick).toBe(2);
     expect(context.deltas.consume(1, 600).entityUpdates).toEqual([]);
+  });
+
+  it("clears paths and rejects movement commands while a movement block is active", () => {
+    const context = setup();
+    handleMoveIntent(context, context.player, { dest: tile(3, 0) }, { tick: 1 });
+
+    applyMovementBlock(context, context.player, 4, {
+      overheadText: "Bound",
+      graphicId: "bone_bind_bind",
+    });
+
+    const movement = context.world.getComponent(context.player, "movement");
+    expect(movement).toMatchObject({ path: [], blockedUntilTick: 4 });
+    expect(context.deltas.peek().entityUpdates[0]?.changes).toMatchObject({
+      moveSpeed: "stationary",
+      overheadText: "Bound",
+      graphic: { id: "bone_bind_bind" },
+    });
+
+    const blocked = handleMoveIntent(context, context.player, { dest: tile(2, 0) }, { tick: 3 });
+    expect(blocked).toMatchObject({ accepted: false, reason: "blocked" });
+    processMovementPhase(context, 3);
+    expect(context.world.getComponent(context.player, "position")).toMatchObject({ x: 0, y: 0 });
+
+    const accepted = handleMoveIntent(context, context.player, { dest: tile(1, 0) }, { tick: 4 });
+    expect(accepted).toMatchObject({ accepted: true, pathLength: 1 });
+    processMovementPhase(context, 4);
+    expect(context.world.getComponent(context.player, "position")).toMatchObject({ x: 1, y: 0 });
   });
 });

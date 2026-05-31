@@ -16,6 +16,7 @@ import {
   hasSpaceFor,
   removeItem,
 } from "../items/inventory";
+import type { ActionHandler } from "../sim/action-executor";
 import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { addXp, getCurrentLevel } from "../skills/skill-state";
@@ -48,11 +49,17 @@ export interface BeginProcessActionPayload {
   readonly recipeId: string;
 }
 
-type SkillingPayload =
+export type SkillingPayload =
   | GatherActionPayload
   | BeginGatherActionPayload
   | ProcessActionPayload
   | BeginProcessActionPayload;
+
+export type SkillingKind = SkillingPayload["kind"];
+
+export type SkillingHandlerTable = {
+  [K in SkillingKind]: ActionHandler<Extract<SkillingPayload, { kind: K }>>;
+};
 
 export type GatherFailure =
   | "missing_actor"
@@ -230,6 +237,7 @@ function gatherSuccessChance(
 }
 
 function enqueueBeginGather(ctx: SkillingContext, owner: EntityId, nodeEntityId: EntityId): void {
+  const payload: BeginGatherActionPayload = { kind: "begin_gather", nodeEntityId };
   ctx.actionRuntime.enqueue({
     id: actionId("begin-gather", owner),
     owner,
@@ -237,7 +245,7 @@ function enqueueBeginGather(ctx: SkillingContext, owner: EntityId, nodeEntityId:
     delayTicks: 1,
     repeat: { intervalTicks: 1 },
     interruptGroup: InterruptGroup.Skilling,
-    payload: { kind: "begin_gather", nodeEntityId } satisfies BeginGatherActionPayload,
+    payload,
   });
 }
 
@@ -251,6 +259,7 @@ function enqueueGather(
   if (targetTile) {
     ctx.deltas.markEntityUpdate(owner, { facingTile: targetTile });
   }
+  const payload: GatherActionPayload = { kind: "gather", nodeEntityId };
   ctx.actionRuntime.enqueue({
     id: actionId("gather", owner),
     owner,
@@ -258,7 +267,7 @@ function enqueueGather(
     delayTicks: nodeDef.actionTicks,
     repeat: { intervalTicks: nodeDef.actionTicks },
     interruptGroup: InterruptGroup.Skilling,
-    payload: { kind: "gather", nodeEntityId } satisfies GatherActionPayload,
+    payload,
   });
 }
 
@@ -267,6 +276,7 @@ export function handleObjectSkillingIntent(
   owner: EntityId,
   intent: ObjectIntent,
   serverTime: number,
+  tick?: number,
 ): boolean {
   if (GATHER_ACTION_IDS.has(intent.actionId)) {
     if (!ctx.world.hasComponent(intent.objectEntityId, "resourceNode")) {
@@ -286,6 +296,7 @@ export function handleObjectSkillingIntent(
           {
             dest: nodeTile,
           },
+          tick !== undefined ? { tick } : {},
         );
         enqueueBeginGather(ctx, owner, intent.objectEntityId);
         return true;
@@ -301,7 +312,7 @@ export function handleObjectSkillingIntent(
   }
 
   if (PROCESS_ACTION_IDS.has(intent.actionId)) {
-    return handleProcessingIntent(ctx, owner, intent.objectEntityId, serverTime);
+    return handleProcessingIntent(ctx, owner, intent.objectEntityId, serverTime, tick);
   }
 
   return false;
@@ -364,6 +375,7 @@ function enqueueBeginProcess(
   stationEntityId: EntityId,
   recipeId: string,
 ): void {
+  const payload: BeginProcessActionPayload = { kind: "begin_process", stationEntityId, recipeId };
   ctx.actionRuntime.enqueue({
     id: actionId("begin-process", owner),
     owner,
@@ -371,11 +383,7 @@ function enqueueBeginProcess(
     delayTicks: 1,
     repeat: { intervalTicks: 1 },
     interruptGroup: InterruptGroup.Skilling,
-    payload: {
-      kind: "begin_process",
-      stationEntityId,
-      recipeId,
-    } satisfies BeginProcessActionPayload,
+    payload,
   });
 }
 
@@ -385,6 +393,7 @@ function enqueueProcess(
   stationEntityId: EntityId,
   recipe: ProcessingRecipeDef,
 ): void {
+  const payload: ProcessActionPayload = { kind: "process", stationEntityId, recipeId: recipe.id };
   ctx.actionRuntime.enqueue({
     id: actionId("process", owner),
     owner,
@@ -392,11 +401,7 @@ function enqueueProcess(
     delayTicks: recipe.actionTicks,
     repeat: { intervalTicks: recipe.actionTicks },
     interruptGroup: InterruptGroup.Skilling,
-    payload: {
-      kind: "process",
-      stationEntityId,
-      recipeId: recipe.id,
-    } satisfies ProcessActionPayload,
+    payload,
   });
 }
 
@@ -405,6 +410,7 @@ function handleProcessingIntent(
   owner: EntityId,
   stationEntityId: EntityId,
   serverTime: number,
+  tick?: number,
 ): boolean {
   const recipe = matchingRecipe(ctx, owner, stationEntityId);
   if (!recipe) {
@@ -419,9 +425,14 @@ function handleProcessingIntent(
   if (error === "You need to get closer.") {
     const stationTile = tileOf(ctx.world, stationEntityId);
     if (stationTile) {
-      handleMoveIntent({ world: ctx.world, collision: ctx.collision, deltas: ctx.deltas }, owner, {
-        dest: stationTile,
-      });
+      handleMoveIntent(
+        { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
+        owner,
+        {
+          dest: stationTile,
+        },
+        tick !== undefined ? { tick } : {},
+      );
       enqueueBeginProcess(ctx, owner, stationEntityId, recipe.id);
       return true;
     }
@@ -430,20 +441,20 @@ function handleProcessingIntent(
   return true;
 }
 
-function handleBeginGather(
+export function handleBeginGather(
   ctx: SkillingContext,
   action: ActionExecution,
   payload: BeginGatherActionPayload,
   serverTime: number,
-): boolean {
+): void {
   const validation = validateGatherAction(ctx, action.entry.owner, payload.nodeEntityId);
   if (validation.ok && validation.nodeDef) {
     ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
     enqueueGather(ctx, action.entry.owner, payload.nodeEntityId, validation.nodeDef);
-    return true;
+    return;
   }
   if (validation.reason === "out_of_range") {
-    return true;
+    return;
   }
   ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
   systemMessage(
@@ -452,16 +463,15 @@ function handleBeginGather(
     gatherFailureText(validation.reason ?? "missing_node", validation.nodeDef),
     serverTime,
   );
-  return true;
 }
 
-function handleGather(
+export function handleGather(
   ctx: SkillingContext,
   action: ActionExecution,
   payload: GatherActionPayload,
   tick: number,
   serverTime: number,
-): boolean {
+): void {
   const validation = validateGatherAction(ctx, action.entry.owner, payload.nodeEntityId);
   if (!validation.ok || !validation.nodeDef) {
     ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
@@ -471,18 +481,18 @@ function handleGather(
       gatherFailureText(validation.reason ?? "missing_node", validation.nodeDef),
       serverTime,
     );
-    return true;
+    return;
   }
   const inventory = ctx.world.getComponent(action.entry.owner, "inventory");
   if (!inventory) {
-    return true;
+    return;
   }
   const nodeDef = validation.nodeDef;
   ctx.deltas.markEntityUpdate(action.entry.owner, {
     animation: { id: `${nodeDef.skill}_attempt`, startTick: tick },
   });
   if (ctx.rng.nextFloat() >= gatherSuccessChance(ctx, action.entry.owner, inventory, nodeDef)) {
-    return true;
+    return;
   }
 
   const result = addItem(
@@ -504,15 +514,14 @@ function handleGather(
     depleteResourceNode(ctx, payload.nodeEntityId, tick);
     ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
   }
-  return true;
 }
 
-function handleBeginProcess(
+export function handleBeginProcess(
   ctx: SkillingContext,
   action: ActionExecution,
   payload: BeginProcessActionPayload,
   serverTime: number,
-): boolean {
+): void {
   const recipe = ctx.registries.processingRecipe.get(payload.recipeId);
   const error = recipe
     ? validateProcessAction(ctx, action.entry.owner, payload.stationEntityId, recipe)
@@ -520,22 +529,21 @@ function handleBeginProcess(
   if (!error && recipe) {
     ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
     enqueueProcess(ctx, action.entry.owner, payload.stationEntityId, recipe);
-    return true;
+    return;
   }
   if (error === "You need to get closer.") {
-    return true;
+    return;
   }
   ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
   systemMessage(ctx.deltas, action.entry.owner, error ?? "You cannot do that.", serverTime);
-  return true;
 }
 
-function handleProcess(
+export function handleProcess(
   ctx: SkillingContext,
   action: ActionExecution,
   payload: ProcessActionPayload,
   serverTime: number,
-): boolean {
+): void {
   const recipe = ctx.registries.processingRecipe.get(payload.recipeId);
   const error = recipe
     ? validateProcessAction(ctx, action.entry.owner, payload.stationEntityId, recipe)
@@ -543,17 +551,17 @@ function handleProcess(
   if (error || !recipe) {
     ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
     systemMessage(ctx.deltas, action.entry.owner, error ?? "You cannot do that.", serverTime);
-    return true;
+    return;
   }
 
   const inventory = ctx.world.getComponent(action.entry.owner, "inventory");
   if (!inventory) {
-    return true;
+    return;
   }
   const removed = removeItem(inventory, recipe.inputItemId, recipe.inputQuantity);
   if (removed.removed < recipe.inputQuantity) {
     ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
-    return true;
+    return;
   }
   const failed = ctx.rng.nextFloat() < recipe.failureChance;
   const itemId = failed ? (recipe.failureItemId ?? recipe.successItemId) : recipe.successItemId;
@@ -563,26 +571,17 @@ function handleProcess(
   if (!failed) {
     addXp({ world: ctx.world, deltas: ctx.deltas }, action.entry.owner, recipe.skill, recipe.xp);
   }
-  return true;
 }
 
-export function handleSkillingAction(
-  ctx: SkillingContext,
-  action: ActionExecution,
-  tick: number,
-  serverTime: number,
-): boolean {
-  const payload = action.entry.payload as Partial<SkillingPayload>;
-  switch (payload.kind) {
-    case "begin_gather":
-      return handleBeginGather(ctx, action, payload as BeginGatherActionPayload, serverTime);
-    case "gather":
-      return handleGather(ctx, action, payload as GatherActionPayload, tick, serverTime);
-    case "begin_process":
-      return handleBeginProcess(ctx, action, payload as BeginProcessActionPayload, serverTime);
-    case "process":
-      return handleProcess(ctx, action, payload as ProcessActionPayload, serverTime);
-    default:
-      return false;
-  }
+export function createSkillingActionHandlers(ctx: SkillingContext): SkillingHandlerTable {
+  return {
+    begin_gather: (payload, actionCtx) =>
+      handleBeginGather(ctx, actionCtx.execution, payload, actionCtx.serverTime),
+    gather: (payload, actionCtx) =>
+      handleGather(ctx, actionCtx.execution, payload, actionCtx.tick, actionCtx.serverTime),
+    begin_process: (payload, actionCtx) =>
+      handleBeginProcess(ctx, actionCtx.execution, payload, actionCtx.serverTime),
+    process: (payload, actionCtx) =>
+      handleProcess(ctx, actionCtx.execution, payload, actionCtx.serverTime),
+  };
 }

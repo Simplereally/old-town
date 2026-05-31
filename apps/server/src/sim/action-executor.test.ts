@@ -1,14 +1,19 @@
 import { entityId } from "@old-town/shared";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { ActionExecutor } from "./action-executor";
 import { ActionQueue, ActionQueueType, InterruptGroup } from "./action-queue";
 
 const owner = entityId(1);
 
+function mockCancel() {
+  return 0;
+}
+
 describe("ActionExecutor", () => {
-  it("returns all executions as unhandled when no handlers are wired", () => {
+  it("dispatches matching handler by payload kind", () => {
     const queue = new ActionQueue();
-    const executor = new ActionExecutor();
+    const handler = vi.fn();
+    const executor = new ActionExecutor({ test: handler }, mockCancel);
 
     queue.enqueue({
       id: "test-action",
@@ -20,71 +25,73 @@ describe("ActionExecutor", () => {
     });
 
     const executions = queue.advanceTick();
-    const report = executor.execute(executions);
+    executor.execute(executions, { tick: 1, serverTime: 600 });
 
-    expect(report.handled).toEqual([]);
-    expect(report.unhandled).toHaveLength(1);
-    expect(report.unhandled[0]?.entry.id).toBe("test-action");
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: "test" }),
+      expect.objectContaining({ tick: 1, serverTime: 600 }),
+    );
   });
 
-  it("does not silently drop multiple executions", () => {
+  it("silently ignores unhandled kinds without throwing", () => {
     const queue = new ActionQueue();
-    const executor = new ActionExecutor();
+    const executor = new ActionExecutor({}, mockCancel);
 
     queue.enqueue({
-      id: "action-a",
+      id: "unknown-action",
       owner,
       type: ActionQueueType.Weak,
       delayTicks: 1,
       interruptGroup: InterruptGroup.Skilling,
-      payload: { kind: "a" },
-    });
-    queue.enqueue({
-      id: "action-b",
-      owner,
-      type: ActionQueueType.Weak,
-      delayTicks: 1,
-      interruptGroup: InterruptGroup.Combat,
-      payload: { kind: "b" },
+      payload: { kind: "unknown" },
     });
 
     const executions = queue.advanceTick();
-    const report = executor.execute(executions);
-
-    expect(report.unhandled).toHaveLength(2);
-    const ids = report.unhandled.map((e) => e.entry.id);
-    expect(ids).toContain("action-a");
-    expect(ids).toContain("action-b");
+    expect(() => executor.execute(executions, { tick: 1, serverTime: 600 })).not.toThrow();
   });
 
-  it("lastReport is replaced on each execute, not accumulated", () => {
+  it("isolates handler throws per-action, continuing to next", () => {
     const queue = new ActionQueue();
-    const executor = new ActionExecutor();
+    const badHandler = vi.fn().mockImplementation(() => {
+      throw new Error("boom");
+    });
+    const goodHandler = vi.fn();
+    const cancel = vi.fn((owner, filter) => queue.cancel(owner, filter));
+    const executor = new ActionExecutor({ bad: badHandler, good: goodHandler }, cancel);
 
     queue.enqueue({
-      id: "action-a",
+      id: "bad-action",
       owner,
       type: ActionQueueType.Weak,
       delayTicks: 1,
       interruptGroup: InterruptGroup.Skilling,
-      payload: { kind: "a" },
+      payload: { kind: "bad" },
+    });
+    queue.enqueue({
+      id: "good-action",
+      owner,
+      type: ActionQueueType.Weak,
+      delayTicks: 1,
+      interruptGroup: InterruptGroup.Skilling,
+      payload: { kind: "good" },
     });
 
-    const first = queue.advanceTick();
-    executor.execute(first);
-    expect(executor.lastReport.unhandled).toHaveLength(1);
-    expect(executor.lastReport.unhandled[0]?.entry.id).toBe("action-a");
+    const executions = queue.advanceTick();
+    executor.execute(executions, { tick: 1, serverTime: 600 });
 
-    // Second tick with no new queued actions
-    const second = queue.advanceTick();
-    executor.execute(second);
-    expect(executor.lastReport.unhandled).toEqual([]);
-    expect(executor.lastReport.handled).toEqual([]);
+    expect(badHandler).toHaveBeenCalledTimes(1);
+    expect(goodHandler).toHaveBeenCalledTimes(1);
+    expect(cancel).toHaveBeenCalledWith(owner, { id: "bad-action" });
   });
 
-  it("accumulates executions across multiple ticks via repeated queue", () => {
+  it("self-cancels a poisoned repeating action via the injected callback", () => {
     const queue = new ActionQueue();
-    const executor = new ActionExecutor();
+    const handler = vi.fn().mockImplementation(() => {
+      throw new Error("boom");
+    });
+    const cancel = vi.fn((owner, filter) => queue.cancel(owner, filter));
+    const executor = new ActionExecutor({ repeat: handler }, cancel);
 
     queue.enqueue({
       id: "repeat-action",
@@ -98,14 +105,13 @@ describe("ActionExecutor", () => {
 
     // First tick: delay expires, first execution
     const first = queue.advanceTick();
-    executor.execute(first);
-    expect(executor.lastReport.unhandled).toHaveLength(1);
-    expect(executor.lastReport.unhandled[0]?.executionCount).toBe(1);
+    executor.execute(first, { tick: 1, serverTime: 600 });
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(cancel).toHaveBeenCalledWith(owner, { id: "repeat-action" });
 
-    // Second tick: repeat fires
+    // Second tick: repeat would fire, but handler was cancelled
     const second = queue.advanceTick();
-    executor.execute(second);
-    expect(executor.lastReport.unhandled).toHaveLength(1);
-    expect(executor.lastReport.unhandled[0]?.executionCount).toBe(2);
+    executor.execute(second, { tick: 2, serverTime: 1200 });
+    expect(handler).toHaveBeenCalledTimes(1); // Still 1, not called again
   });
 });

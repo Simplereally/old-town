@@ -39,7 +39,7 @@ function action(owner = entityId(1)) {
     type: ActionQueueType.Weak,
     delayTicks: 1,
     interruptGroup: InterruptGroup.Skilling,
-    payload: { action: "chop" },
+    payload: { kind: "test", action: "chop" },
   };
 }
 

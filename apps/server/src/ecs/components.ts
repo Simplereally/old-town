@@ -7,6 +7,7 @@ import type {
   Direction,
   EntityId,
   EquipmentSlotName,
+  SpellDef,
   TileCoord,
 } from "@old-town/shared";
 
@@ -44,6 +45,7 @@ export interface PlayerComponent {
   accountId: string;
   sessionId: string;
   interestRadius: number;
+  spellbook?: SpellDef["spellbook"];
 }
 
 /** NPC-specific data (type, brain state, respawn). */
@@ -65,6 +67,7 @@ export interface NpcComponent {
   wanderRadius: number;
   home?: TileCoord;
   leashDistance?: number;
+  occupiedTile?: TileCoord;
 }
 
 /** World object (tree, rock, door, etc.). */
@@ -134,6 +137,21 @@ export interface SkillsComponent {
   skills: Record<string, SkillState>;
 }
 
+export type CombatHitStyle = "stab" | "slash" | "crush" | "ranged" | "magic";
+
+export interface PendingHit {
+  sourceId: EntityId;
+  targetId: EntityId;
+  applyTick: number;
+  style: CombatHitStyle;
+  attackRoll: number;
+  defenceRoll: number;
+  hitChance: number;
+  maxHit: number;
+  damage: number;
+  hitLanded: boolean;
+}
+
 /** Combat stats and state. */
 export interface CombatantComponent {
   entityId: EntityId;
@@ -151,6 +169,7 @@ export interface CombatantComponent {
   dead?: boolean;
   lastDamageSourceId?: EntityId;
   spellCooldowns?: Record<string, number>;
+  pendingHits?: PendingHit[];
 }
 
 /** Resource node (tree, rock, fishing spot). */

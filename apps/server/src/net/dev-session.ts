@@ -24,6 +24,7 @@ import { createEquipment } from "../items/equipment";
 import { addItem, catalogFromItems, createInventory, toInventoryDelta } from "../items/inventory";
 import { computeCombatLevel } from "../skills/combat-level";
 import { maxHealthForHitpointsLevel } from "../skills/skill-state";
+import { groundItemVisibleToPlayer } from "../systems/ground-item-system";
 import type { RuntimeMap } from "../world/runtime-map";
 import { projectWorldEntities } from "./entity-spawn-projector";
 import type { TransportSession } from "./websocket-transport";
@@ -70,7 +71,9 @@ export class DevSessionManager {
         planes: PLANES,
       },
       selfEntityId: entityId,
-      entities: spawns,
+      entities: spawns.filter((spawn) =>
+        this.entityVisibleToPlayer(entityId, spawn.entityId, tick),
+      ),
       inventory: this.inventoryDelta(entityId),
       skills: this.skillDeltas(entityId),
       regionLoads: this.regionLoads(),
@@ -102,6 +105,7 @@ export class DevSessionManager {
       accountId: "dev",
       sessionId: session.id,
       interestRadius: ACTIVE_SCENE_SIZE / 2,
+      spellbook: "common",
     });
     this.world.setComponent(entityId, "actor", {
       entityId,
@@ -175,6 +179,11 @@ export class DevSessionManager {
         level: state.level,
         xp: state.xp,
       }));
+  }
+
+  private entityVisibleToPlayer(playerId: EntityId, entityId: EntityId, tick: number): boolean {
+    const groundItem = this.world.getComponent(entityId, "groundItem");
+    return groundItem ? groundItemVisibleToPlayer(groundItem, playerId, tick) : true;
   }
 
   private regionLoads(): readonly RegionLoadPacket[] {
