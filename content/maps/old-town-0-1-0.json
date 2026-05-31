@@ -3484,6 +3484,21 @@
       "objectId": "chalkhouse_bead_loom",
       "x": 36,
       "y": 2
+    },
+    {
+      "objectId": "dry_tree",
+      "x": 20,
+      "y": 8
+    },
+    {
+      "objectId": "dry_tree",
+      "x": 23,
+      "y": 10
+    },
+    {
+      "objectId": "oak_tree",
+      "x": 26,
+      "y": 12
     }
   ],
   "npcSpawns": [

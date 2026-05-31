@@ -34,6 +34,9 @@ export const skillRequirementSchema = z
   .object({ skillId: contentIdSchema, level: positiveInt })
   .strict();
 
+/** A typed player var value used by requirements and constrained content effects. */
+export const playerVarValueSchema = z.union([z.number().int(), z.boolean(), z.string()]);
+
 /** The eleven equipment slots (POC_SPEC §16.3). */
 export const equipmentSlotSchema = z.enum([
   "head",
@@ -108,10 +111,11 @@ export const effectSchema = z.discriminatedUnion("kind", [
     .strict(),
   z.object({ kind: z.literal("add_xp"), skillId: contentIdSchema, amount: positiveInt }).strict(),
   z
-    .object({ kind: z.literal("set_var"), key: z.string().min(1), value: z.number().int() })
+    .object({ kind: z.literal("set_var"), key: z.string().min(1), value: playerVarValueSchema })
     .strict(),
   z.object({ kind: z.literal("start_quest"), questId: contentIdSchema }).strict(),
   z.object({ kind: z.literal("complete_quest"), questId: contentIdSchema }).strict(),
+  z.object({ kind: z.literal("send_message"), text: z.string().min(1).max(256) }).strict(),
   z.object({ kind: z.literal("unlock"), unlockId: contentIdSchema }).strict(),
   z.object({ kind: z.literal("teleport"), tile: tileCoordSchema }).strict(),
 ]);
@@ -124,10 +128,18 @@ export const requirementSchema = z.discriminatedUnion("kind", [
     .strict(),
   z
     .object({
+      kind: z.literal("kill_count"),
+      questId: contentIdSchema,
+      npcId: contentIdSchema,
+      count: positiveInt,
+    })
+    .strict(),
+  z
+    .object({
       kind: z.literal("var"),
       key: z.string().min(1),
       op: z.enum(["eq", "neq", "gte", "lte", "gt", "lt"]),
-      value: z.number().int(),
+      value: playerVarValueSchema,
     })
     .strict(),
   z.object({ kind: z.literal("item"), itemId: contentIdSchema, quantity: positiveInt }).strict(),

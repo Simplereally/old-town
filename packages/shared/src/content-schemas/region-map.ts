@@ -4,6 +4,7 @@
  * and editor-authored (E14). Local coordinates are 0..63 within the region.
  */
 import { z } from "zod";
+import { isValidStaticCollisionMask, STATIC_COLLISION_MASK } from "../collision-flags";
 import { REGION_SIZE } from "../constants";
 import { planeSchema } from "../protocol/schema-primitives";
 import { contentIdSchema, nonNegInt } from "./common";
@@ -19,12 +20,19 @@ export const regionCoordSchema = z
   .object({ rx: z.number().int(), ry: z.number().int(), plane: planeSchema })
   .strict();
 
+const collisionMaskSchema = nonNegInt.refine((mask) => isValidStaticCollisionMask(mask), {
+  message: `collision mask can only use static map bits (${STATIC_COLLISION_MASK})`,
+});
+
 /** Default tile applied across the whole region unless overridden. */
 export const defaultTileSchema = z
   .object({
     height: z.number().int().default(0),
     underlayId: contentIdSchema,
-    collision: nonNegInt.default(0),
+    collision: collisionMaskSchema.default(0),
+    water: z.boolean().optional(),
+    bridge: z.boolean().optional(),
+    zoneId: z.string().min(1).optional(),
   })
   .strict();
 
@@ -36,9 +44,10 @@ export const tileOverrideSchema = z
     height: z.number().int().optional(),
     underlayId: contentIdSchema.optional(),
     overlayId: contentIdSchema.optional(),
-    collision: nonNegInt.optional(),
+    collision: collisionMaskSchema.optional(),
     water: z.boolean().optional(),
     bridge: z.boolean().optional(),
+    zoneId: z.string().min(1).optional(),
   })
   .strict();
 
@@ -82,7 +91,15 @@ export const areaTriggerSchema = z
     height: z.number().int().positive().default(1),
     tag: z.string().min(1).optional(),
   })
-  .strict();
+  .strict()
+  .refine((trigger) => trigger.x + trigger.width <= REGION_SIZE, {
+    message: "trigger width must fit within region bounds",
+    path: ["width"],
+  })
+  .refine((trigger) => trigger.y + trigger.height <= REGION_SIZE, {
+    message: "trigger height must fit within region bounds",
+    path: ["height"],
+  });
 
 export const regionMapDefSchema = z
   .object({

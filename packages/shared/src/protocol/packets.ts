@@ -5,13 +5,18 @@
  */
 import type { RegionCoord, TileCoord } from "../types/coords";
 import type { EntityId, RegionId } from "../types/ids";
-import type { EntitySpawnPacket, EntityUpdatePacket, Hitsplat } from "./entity-update";
+import type {
+  EntitySpawnPacket,
+  EntityUpdatePacket,
+  EquipmentUpdate,
+  Hitsplat,
+} from "./entity-update";
 
 /**
  * Wire protocol version. Bump on any breaking change to packet/command shapes. The
  * client compares the version in the bootstrap {@link FullStatePacket} against this.
  */
-export const PROTOCOL_VERSION = 2;
+export const PROTOCOL_VERSION = 3;
 
 /** Discriminators for the two top-level server messages. */
 export const ServerPacketType = {
@@ -44,11 +49,17 @@ export interface SkillDelta {
   readonly xp: number;
 }
 
-/** An updated player/quest variable (integer-valued). */
-export interface VarbitDelta {
+/** A typed player/quest variable value. Gameplay owns these on the server. */
+export type PlayerVarValue = number | boolean | string;
+
+/** An updated player/quest variable. */
+export interface VarDelta {
   readonly varId: string;
-  readonly value: number;
+  readonly value: PlayerVarValue;
 }
+
+/** Legacy name retained for the POC_SPEC varbitDelta packet field. */
+export type VarbitDelta = VarDelta;
 
 /** A chat line. Timestamped with `serverTime` (POC_SPEC §8.4). */
 export interface ChatPacket {
@@ -91,7 +102,27 @@ export interface SoundPacket {
 }
 
 /** A request for the client to open an interface/panel. */
+export interface DialogueOptionPacket {
+  readonly index: number;
+  readonly text: string;
+}
+
+/** Server-filtered dialogue node view. The client renders this, but cannot authorize it. */
+export interface DialogueViewPacket {
+  readonly dialogueId: string;
+  readonly nodeId: string;
+  readonly speakerName: string;
+  readonly npcText?: string;
+  readonly options: readonly DialogueOptionPacket[];
+}
+
 export interface InterfaceOpenPacket {
+  readonly interfaceId: string;
+  readonly dialogue?: DialogueViewPacket;
+}
+
+/** A request for the client to close an interface/panel. */
+export interface InterfaceClosePacket {
   readonly interfaceId: string;
 }
 
@@ -150,6 +181,7 @@ export interface FullStatePacket {
   readonly selfEntityId: EntityId;
   readonly entities: readonly EntitySpawnPacket[];
   readonly inventory?: InventoryDelta;
+  readonly equipment?: EquipmentUpdate;
   readonly skills?: readonly SkillDelta[];
   readonly vars?: readonly VarbitDelta[];
   readonly regionLoads?: readonly RegionLoadPacket[];
@@ -195,6 +227,7 @@ export interface TickDeltaPacket {
   readonly regionLoads?: readonly RegionLoadPacket[];
   readonly regionUnloads?: readonly RegionUnloadPacket[];
   readonly interfaceOpens?: readonly InterfaceOpenPacket[];
+  readonly interfaceCloses?: readonly InterfaceClosePacket[];
   readonly debug?: DebugTickData;
 }
 

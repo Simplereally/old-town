@@ -122,7 +122,7 @@ describe("commands express intent only (server authority)", () => {
       type: ClientCommandType.MoveClick,
       commandId: 1,
       payload: { dest: { x: 1, y: 1, plane: 0 } },
-      grantItem: "rune_sword",
+      grantItem: "penny_sword",
       xp: 99999,
     });
     expect(result.ok).toBe(false);

@@ -5,13 +5,14 @@ import type {
   GroundItemIntent,
   ItemQuantity,
   Rng,
-  TileCoord,
 } from "@old-town/shared";
+import { GAME_TICK_MS, type TileCoord } from "@old-town/shared";
 import type { CombatantComponent, GroundItemComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
-import { addItem, buildDelta, catalogFromItems, hasSpaceFor } from "../items/inventory";
+import { addItem, buildDelta, catalogFromItems, count, hasSpaceFor } from "../items/inventory";
 import type { ItemAuditLog } from "../items/item-audit";
 import { projectEntity } from "../net/entity-spawn-projector";
+import { dispatchQuestEvent } from "../quests/quest-engine";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import type { CollisionMap } from "../world/collision";
 import { syncNpcOccupancy } from "./npc-system";
@@ -22,7 +23,7 @@ export interface GroundItemSystemContext {
   readonly deltas: DeltaAccumulator;
   readonly registries: ContentRegistries;
   readonly rng: Rng;
-  readonly itemAudit?: ItemAuditLog;
+  readonly itemAudit?: ItemAuditLog | undefined;
 }
 
 export const DROP_PRIVATE_TICKS = 60;
@@ -118,14 +119,18 @@ export function spawnGroundItem(
   if (spawn) {
     ctx.deltas.markEntityAdd(spawn);
   }
-  ctx.itemAudit?.record({
-    kind: "drop_spawn",
+  ctx.itemAudit?.recordForEntity(options.ownerId, {
     tick: options.tick,
     itemId,
     quantity,
-    groundItemEntityId: entityId,
-    ...(options.ownerId !== undefined ? { ownerId: options.ownerId } : {}),
-    ...(options.sourceEntityId !== undefined ? { sourceEntityId: options.sourceEntityId } : {}),
+    reason: "ground_drop_spawn",
+    beforeQuantity: 0,
+    afterQuantity: quantity,
+    metadata: {
+      groundItemEntityId: entityId,
+      ...(options.ownerId !== undefined ? { ownerEntityId: options.ownerId } : {}),
+      ...(options.sourceEntityId !== undefined ? { sourceEntityId: options.sourceEntityId } : {}),
+    },
   });
   return entityId;
 }
@@ -141,7 +146,11 @@ function removePendingHits(combatant: CombatantComponent): Omit<CombatantCompone
   return withoutPendingHits;
 }
 
-export function processDeathResolution(ctx: GroundItemSystemContext, tick: number): void {
+export function processDeathResolution(
+  ctx: GroundItemSystemContext,
+  tick: number,
+  serverTime = tick * GAME_TICK_MS,
+): void {
   for (const [entityId, npc] of ctx.world.componentEntries("npc")) {
     if (npc.brainState === "respawning") {
       continue;
@@ -155,6 +164,19 @@ export function processDeathResolution(ctx: GroundItemSystemContext, tick: numbe
 
     const tile = tileFromPosition(position);
     const ownerId = eligibleOwner(ctx, combatant.lastDamageSourceId);
+    if (ownerId !== undefined) {
+      dispatchQuestEvent(
+        {
+          world: ctx.world,
+          registries: ctx.registries,
+          deltas: ctx.deltas,
+          serverTime,
+          itemAudit: ctx.itemAudit,
+        },
+        ownerId,
+        { kind: "npc_killed", npcId: npc.npcId },
+      );
+    }
     const drops = def.drops ? ctx.registries.dropTable.get(def.drops) : undefined;
     if (drops) {
       for (const drop of rollDropTable(drops, ctx.rng)) {
@@ -205,13 +227,17 @@ export function processDeathResolution(ctx: GroundItemSystemContext, tick: numbe
 export function processGroundItemLifecycle(ctx: GroundItemSystemContext, tick: number): void {
   for (const [entityId, groundItem] of ctx.world.componentEntries("groundItem")) {
     if (groundItem.despawnTick !== undefined && tick >= groundItem.despawnTick) {
-      ctx.itemAudit?.record({
-        kind: "ground_despawn",
+      ctx.itemAudit?.recordForEntity(groundItem.ownerId, {
         tick,
         itemId: groundItem.itemId,
         quantity: groundItem.quantity,
-        groundItemEntityId: entityId,
-        ...(groundItem.ownerId !== undefined ? { ownerId: groundItem.ownerId } : {}),
+        reason: "ground_despawn",
+        beforeQuantity: groundItem.quantity,
+        afterQuantity: 0,
+        metadata: {
+          groundItemEntityId: entityId,
+          ...(groundItem.ownerId !== undefined ? { ownerEntityId: groundItem.ownerId } : {}),
+        },
       });
       ctx.world.destroyEntity(entityId);
       ctx.deltas.markEntityRemove(entityId);
@@ -269,6 +295,7 @@ export function handleGroundItemIntent(
     return true;
   }
 
+  const beforeQuantity = count(inventory, groundItem.itemId);
   const result = addItem(inventory, catalog, groundItem.itemId, groundItem.quantity);
   if (result.added !== groundItem.quantity) {
     systemMessage(ctx.deltas, owner, "Your inventory is full.", serverTime);
@@ -276,15 +303,29 @@ export function handleGroundItemIntent(
   }
 
   ctx.deltas.markInventoryDelta(buildDelta(inventory, result.changes));
-  ctx.itemAudit?.record({
-    kind: "ground_pickup",
+  ctx.itemAudit?.recordForEntity(owner, {
     tick,
     itemId: groundItem.itemId,
     quantity: groundItem.quantity,
-    actorId: owner,
-    groundItemEntityId: intent.groundItemEntityId,
-    ...(groundItem.ownerId !== undefined ? { ownerId: groundItem.ownerId } : {}),
+    reason: "ground_pickup",
+    beforeQuantity,
+    afterQuantity: count(inventory, groundItem.itemId),
+    metadata: {
+      groundItemEntityId: intent.groundItemEntityId,
+      ...(groundItem.ownerId !== undefined ? { ownerEntityId: groundItem.ownerId } : {}),
+    },
   });
+  dispatchQuestEvent(
+    {
+      world: ctx.world,
+      registries: ctx.registries,
+      deltas: ctx.deltas,
+      serverTime,
+      itemAudit: ctx.itemAudit,
+    },
+    owner,
+    { kind: "item_gained", itemId: groundItem.itemId, quantity: groundItem.quantity },
+  );
   ctx.world.destroyEntity(intent.groundItemEntityId);
   ctx.deltas.markEntityRemove(intent.groundItemEntityId);
   return true;

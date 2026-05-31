@@ -7,16 +7,16 @@
  * across releases.
  *
  * Naming rule (all categories): `^[a-z][a-z0-9_]*$`, 1–64 characters.
- *   - items:        e.g. "bronze_hatchet", "raw_trout"
+ *   - items:        e.g. "penny_hatchet", "raw_reedfish"
  *   - npcs:         e.g. "town_guard", "river_rat"
  *   - objects:      e.g. "oak_tree", "copper_rock"
  *   - skills:       e.g. "woodcutting", "attack"
- *   - spells:       e.g. "wind_dart", "home_teleport"
+ *   - spells:       e.g. "ember_flick", "homeward_murmur"
  *   - quests:       e.g. "smoke_over_old_town"
  *   - drop tables:  e.g. "river_rat_drops"
  *   - animations:   e.g. "chop_swing", "human_walk"
  *   - materials:    e.g. "grass", "cobblestone"
- *   - assets:       e.g. "tree_oak", "icon_bronze_hatchet"
+ *   - assets:       e.g. "tree_oak", "icon_penny_hatchet"
  *
  * ORIGINALITY (POC_SPEC §23.3): Old Town uses original content only. Do NOT use OSRS /
  * Jagex item/NPC/object/animation ids, cache identifiers, asset names, map layouts,

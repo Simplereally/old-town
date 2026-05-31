@@ -1,3 +1,4 @@
+import type { QuestDef } from "@old-town/shared";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ContentClient } from "./ContentClient";
 import { UIManager, type UIManagerCallbacks } from "./UIManager";
@@ -11,7 +12,8 @@ class TestContentClient extends ContentClient {
   override getAllSpells = vi.fn(() => []);
   override getNpc = vi.fn(() => undefined);
   override getQuest = vi.fn(() => undefined);
-  override getAllQuests = vi.fn(() => []);
+  override getDialogue = vi.fn(() => undefined);
+  override getAllQuests = vi.fn<() => QuestDef[]>(() => []);
   override getObject = vi.fn(() => undefined);
   getAllItems = vi.fn(() => []);
   getAllNpcs = vi.fn(() => []);
@@ -112,7 +114,77 @@ describe("UIManager", () => {
     expect(panel.classList.contains("hidden")).toBe(true);
   });
 
+  it("renders active quest journal text and completed quest state", () => {
+    const quest: QuestDef = {
+      id: "smoke_over_old_town",
+      name: "Smoke Over Old Town",
+      questPoints: 1,
+      requirements: [],
+      varPrefix: "smoke_over_old_town",
+      stages: [
+        { stage: 0, journalText: "Not started.", objectives: [], triggers: [] },
+        { stage: 10, journalText: "Gather three dry logs.", objectives: [], triggers: [] },
+      ],
+      rewards: [],
+    };
+    content.getAllQuests.mockReturnValue([quest]);
+
+    uiState.setVars([{ varId: "quest.smoke_over_old_town.stage", value: 10 }]);
+
+    const body = document.getElementById("quest-body");
+    expect(body?.textContent).toBe("Smoke Over Old Town: Gather three dry logs.");
+    expect(body?.classList.contains("text-dim")).toBe(false);
+
+    uiState.applyVarbitDelta([
+      { varId: "quest.smoke_over_old_town.completed", value: true },
+      { varId: "quest.smoke_over_old_town.stage", value: 41 },
+    ]);
+
+    expect(body?.textContent).toBe("Smoke Over Old Town: Completed.");
+  });
+
   it("disposes without error", () => {
     expect(() => manager.dispose()).not.toThrow();
+  });
+
+  it("renders server-provided dialogue options and sends selected original index", () => {
+    uiState.setDialogue({
+      dialogueId: "baker_dialogue",
+      nodeId: "start",
+      speakerName: "Baker",
+      npcText: "The oven needs help.",
+      options: [
+        { index: 0, text: "What happened?" },
+        { index: 2, text: "Goodbye." },
+      ],
+    });
+
+    expect(document.getElementById("dialogue-box")?.classList.contains("hidden")).toBe(false);
+    expect(document.getElementById("dialogue-npc")?.textContent).toBe("Baker");
+    expect(document.getElementById("dialogue-text")?.textContent).toBe("The oven needs help.");
+
+    const options = document.querySelectorAll<HTMLDivElement>(".dialogue-option");
+    expect(options).toHaveLength(2);
+    options[1]?.click();
+    expect(callbacks.sendUiActionCommand).toHaveBeenCalledWith(
+      "dialogue_option",
+      "baker_dialogue",
+      2,
+    );
+  });
+
+  it("renders a close command for dialogue nodes without options", () => {
+    uiState.setDialogue({
+      dialogueId: "baker_dialogue",
+      nodeId: "end",
+      speakerName: "Baker",
+      npcText: "Mind the smoke.",
+      options: [],
+    });
+
+    const close = document.querySelector<HTMLDivElement>(".dialogue-option");
+    expect(close?.textContent).toBe("Continue");
+    close?.click();
+    expect(callbacks.sendUiActionCommand).toHaveBeenCalledWith("dialogue_close", "baker_dialogue");
   });
 });

@@ -91,14 +91,7 @@ export class ActorRenderer {
     const meshes = this.meshes.get(entityId);
     if (meshes) {
       this.actorGroup.remove(meshes.group);
-      const body = meshes.body;
-      body.geometry.dispose();
-      (body.material as MeshLambertMaterial).dispose();
-      const marker = meshes.marker;
-      if (marker) {
-        marker.geometry.dispose();
-        (marker.material as MeshLambertMaterial).dispose();
-      }
+      meshes.group.clear();
       this.meshes.delete(entityId);
     }
     this.actors.delete(entityId);

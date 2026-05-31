@@ -1,7 +1,9 @@
 import type { ContentRegistries, EntityId, Rng } from "@old-town/shared";
+import { handleDialogueUiIntent, handleNpcDialogueIntent } from "../dialogue/dialogue-engine";
 import type { World } from "../ecs/world";
 import { handleItemIntent, handleUnequipIntent } from "../items/item-actions";
 import type { ItemAuditLog } from "../items/item-audit";
+import { dispatchQuestEvent } from "../quests/quest-engine";
 import type { ChatSystem } from "../systems/chat-system";
 import { handleNpcCombatIntent } from "../systems/combat-system";
 import type { ConsumableSystem } from "../systems/consumable-system";
@@ -28,7 +30,7 @@ export interface IntentDispatcherContext {
   readonly rng: Rng;
   readonly chatSystem: ChatSystem;
   readonly consumableSystem: ConsumableSystem;
-  readonly itemAudit?: ItemAuditLog;
+  readonly itemAudit?: ItemAuditLog | undefined;
 }
 
 function emitSystemMessage(
@@ -91,6 +93,7 @@ function dispatchSingleIntent(
           deltas: ctx.deltas,
           items: ctx.registries.item,
           consumables: ctx.consumableSystem,
+          itemAudit: ctx.itemAudit,
         },
         owner,
         intent.payload,
@@ -101,6 +104,9 @@ function dispatchSingleIntent(
     }
 
     case IntentKind.UiAction: {
+      if (handleDialogueUiIntent(ctx, owner, intent.payload, serverTime)) {
+        return;
+      }
       if (intent.payload.action === "unequip" && intent.payload.value !== undefined) {
         ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
         handleUnequipIntent(
@@ -109,9 +115,11 @@ function dispatchSingleIntent(
             deltas: ctx.deltas,
             items: ctx.registries.item,
             consumables: ctx.consumableSystem,
+            itemAudit: ctx.itemAudit,
           },
           owner,
           intent.payload.value,
+          tick,
           serverTime,
         );
       }
@@ -120,8 +128,48 @@ function dispatchSingleIntent(
 
     case IntentKind.Object: {
       ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      const object = ctx.world.getComponent(intent.payload.objectEntityId, "object");
       if (handleObjectSkillingIntent(ctx, owner, intent.payload, serverTime, tick)) {
+        if (object) {
+          dispatchQuestEvent(
+            {
+              world: ctx.world,
+              registries: ctx.registries,
+              deltas: ctx.deltas,
+              serverTime,
+              tick,
+              itemAudit: ctx.itemAudit,
+            },
+            owner,
+            {
+              kind: "object_interacted",
+              objectId: object.objectId,
+              option: intent.payload.actionId,
+            },
+          );
+        }
         return;
+      }
+      if (object) {
+        const result = dispatchQuestEvent(
+          {
+            world: ctx.world,
+            registries: ctx.registries,
+            deltas: ctx.deltas,
+            serverTime,
+            tick,
+            itemAudit: ctx.itemAudit,
+          },
+          owner,
+          {
+            kind: "object_interacted",
+            objectId: object.objectId,
+            option: intent.payload.actionId,
+          },
+        );
+        if (result.progressedQuestIds.length > 0) {
+          return;
+        }
       }
       emitSystemMessage(ctx, owner, "Object interaction is not yet implemented.", serverTime);
       return;
@@ -129,6 +177,9 @@ function dispatchSingleIntent(
 
     case IntentKind.Npc: {
       ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      if (handleNpcDialogueIntent(ctx, owner, intent.payload, serverTime, tick)) {
+        return;
+      }
       if (handleNpcCombatIntent(ctx, owner, intent.payload, serverTime, tick)) {
         return;
       }

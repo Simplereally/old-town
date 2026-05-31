@@ -2,6 +2,7 @@ import {
   type ContentRegistries,
   chebyshevDistance,
   type EntityId,
+  type InventorySlotChange,
   type Rng,
   type SpellDef,
   type SpellIntent,
@@ -9,7 +10,8 @@ import {
   type TileCoord,
 } from "@old-town/shared";
 import type { World } from "../ecs/world";
-import { buildDelta, hasAll, removeItem } from "../items/inventory";
+import { buildDelta, count, hasAll, removeItem } from "../items/inventory";
+import type { ItemAuditLog } from "../items/item-audit";
 import type { ActionHandler } from "../sim/action-executor";
 import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import type { ActionRuntime } from "../sim/action-runtime";
@@ -43,6 +45,7 @@ export interface SpellSystemContext {
   readonly registries: ContentRegistries;
   readonly actionRuntime: ActionRuntime;
   readonly rng: Rng;
+  readonly itemAudit?: ItemAuditLog | undefined;
 }
 
 interface ResolvedSpellTarget {
@@ -406,9 +409,27 @@ export function handleSpellIntent(
     return true;
   }
 
-  const changes = spell.beadCosts.flatMap(
-    (cost) => removeItem(inventory, cost.itemId, cost.quantity).changes,
-  );
+  const changes: InventorySlotChange[] = [];
+  for (const cost of spell.beadCosts) {
+    const beforeQuantity = count(inventory, cost.itemId);
+    const removed = removeItem(inventory, cost.itemId, cost.quantity);
+    changes.push(...removed.changes);
+    if (removed.removed > 0) {
+      ctx.itemAudit?.recordForEntity(owner, {
+        tick,
+        itemId: cost.itemId,
+        quantity: removed.removed,
+        reason: "spell_bead_cost",
+        beforeQuantity,
+        afterQuantity: count(inventory, cost.itemId),
+        metadata: {
+          spellId: spell.id,
+          spellbook: spell.spellbook,
+          targetKind: intent.target.kind,
+        },
+      });
+    }
+  }
   if (changes.length > 0) {
     ctx.deltas.markInventoryDelta(buildDelta(inventory, changes));
   }

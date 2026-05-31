@@ -13,6 +13,12 @@ export interface RuntimeConfig {
   tickMs: number;
   /** Content directory path relative to project root. */
   contentDir: string;
+  /** Persistence adapter configuration for accountless dev characters. */
+  persistence: {
+    readonly enabled: boolean;
+    readonly filePath: string;
+    readonly lazySaveIntervalTicks: number;
+  };
   /** Whether to emit debug logs and extra runtime checks. */
   debug: boolean;
   /** Whether to log to console as JSON (structured) or plain text (human-readable). */
@@ -74,6 +80,11 @@ export function loadRuntimeConfig(): RuntimeConfig {
     port: parseIntEnv(builtEnv.get("PORT"), 8080),
     tickMs: parseIntEnv(builtEnv.get("TICK_MS"), GAME_TICK_MS),
     contentDir: builtEnv.get("CONTENT_DIR") ?? "content",
+    persistence: {
+      enabled: parseBoolEnv(builtEnv.get("PERSISTENCE_ENABLED"), false),
+      filePath: builtEnv.get("PERSISTENCE_FILE") ?? ".old-town/dev-persistence.json",
+      lazySaveIntervalTicks: parseIntEnv(builtEnv.get("PERSISTENCE_LAZY_SAVE_TICKS"), 10),
+    },
     debug: parseBoolEnv(builtEnv.get("DEBUG"), false),
     logJson: parseBoolEnv(builtEnv.get("LOG_JSON"), false),
   };

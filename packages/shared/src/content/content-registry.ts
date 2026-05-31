@@ -39,6 +39,9 @@ export interface LoadedContentFile {
 export interface ContentIssue {
   readonly path?: string | undefined;
   readonly id?: string | undefined;
+  readonly pointer?: string | undefined;
+  readonly dependency?: readonly string[] | undefined;
+  readonly suggestion?: string | undefined;
   readonly message: string;
 }
 
@@ -63,6 +66,7 @@ export interface ContentValidationResult {
   readonly ok: boolean;
   readonly issues: ContentIssue[];
   readonly registries: ContentRegistries;
+  readonly sources: ReadonlyMap<string, string>;
 }
 
 const CONTENT_KINDS: readonly ContentKind[] = [
@@ -81,13 +85,39 @@ const CONTENT_KINDS: readonly ContentKind[] = [
   "animation",
 ];
 
-function formatZodError(error: ZodError): string {
-  return error.issues
-    .map((issue) => {
-      const where = issue.path.length > 0 ? `${issue.path.join(".")}: ` : "";
-      return `${where}${issue.message}`;
-    })
-    .join("; ");
+function jsonPointer(path: readonly (string | number)[]): string {
+  if (path.length === 0) {
+    return "/";
+  }
+  return `/${path.map((segment) => String(segment).replaceAll("~", "~0").replaceAll("/", "~1")).join("/")}`;
+}
+
+function rawIdOfDef(kind: ContentKind, def: unknown): string | undefined {
+  if (kind === "regionMap") {
+    const region = (def as Partial<RegionMapDef>).region;
+    if (
+      region &&
+      typeof region.rx === "number" &&
+      typeof region.ry === "number" &&
+      typeof region.plane === "number"
+    ) {
+      return `${region.rx}:${region.ry}:${region.plane}`;
+    }
+    return undefined;
+  }
+  const id = (def as { readonly id?: unknown }).id;
+  return typeof id === "string" ? id : undefined;
+}
+
+function schemaIssues(error: ZodError, file: LoadedContentFile, entry: unknown): ContentIssue[] {
+  return error.issues.map((issue) => ({
+    path: file.path,
+    id: rawIdOfDef(file.kind, entry),
+    pointer: jsonPointer(issue.path),
+    dependency: [file.kind],
+    suggestion: "fix_schema",
+    message: issue.message,
+  }));
 }
 
 function idOfDef(kind: ContentKind, def: unknown): string {
@@ -118,7 +148,7 @@ export function validateContent(files: readonly LoadedContentFile[]): ContentVal
     for (const entry of entries) {
       const result = schema.safeParse(entry);
       if (!result.success) {
-        issues.push({ path: file.path, message: formatZodError(result.error) });
+        issues.push(...schemaIssues(result.error, file, entry));
         continue;
       }
       const def = result.data;
@@ -128,6 +158,9 @@ export function validateContent(files: readonly LoadedContentFile[]): ContentVal
         issues.push({
           path: file.path,
           id,
+          pointer: "/id",
+          dependency: [`${file.kind}:${id}`, sources.get(key) ?? "(unknown source)"],
+          suggestion: "rename_or_remove_duplicate_id",
           message: `duplicate ${file.kind} id "${id}" (already defined in ${sources.get(key)})`,
         });
         continue;
@@ -157,5 +190,5 @@ export function validateContent(files: readonly LoadedContentFile[]): ContentVal
   const graphResult = validateContentGraph(registries, sources);
   issues.push(...graphResult.issues);
 
-  return { ok: issues.length === 0, issues, registries };
+  return { ok: issues.length === 0, issues, registries, sources };
 }

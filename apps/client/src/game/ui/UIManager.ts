@@ -319,15 +319,20 @@ export class UIManager {
     const body = document.getElementById("quest-body");
     if (!body) return;
     body.innerHTML = "";
+    body.classList.remove("text-dim");
     const quests = Array.from(this.content.getAllQuests());
     const uiVars = this.uiState.vars;
     for (const quest of quests) {
-      const stage = uiVars.get(`${quest.varPrefix}.stage`);
-      if (stage === undefined || stage === 0) continue;
+      const rawStage = uiVars.get(`quest.${quest.varPrefix}.stage`);
+      const stage = typeof rawStage === "number" ? rawStage : 0;
+      const completed = uiVars.get(`quest.${quest.varPrefix}.completed`) === true;
+      if (stage === 0 && !completed) continue;
       const row = document.createElement("div");
       row.classList.add("ui-row-padded");
       const questStage = quest.stages.find((s) => s.stage === stage);
-      row.textContent = `${quest.name}: ${questStage?.journalText ?? "In progress"}`;
+      row.textContent = completed
+        ? `${quest.name}: Completed.`
+        : `${quest.name}: ${questStage?.journalText ?? "In progress"}`;
       body.appendChild(row);
     }
     if (body.children.length === 0) {
@@ -370,30 +375,27 @@ export class UIManager {
       return;
     }
 
-    const questDef = this.content.getQuest(dialogue.dialogueId);
-    const def = questDef ?? this.content.getNpc(dialogue.dialogueId);
-    npcHeader.textContent = def?.name ?? dialogue.dialogueId;
-    textEl.textContent = "...";
+    npcHeader.textContent = dialogue.speakerName;
+    textEl.textContent = dialogue.npcText ?? "";
     optionsEl.innerHTML = "";
 
-    const uiVars = this.uiState.vars;
-    if (questDef) {
-      const stage = uiVars.get(`${questDef.varPrefix}.stage`);
-      const questStage = this.content.getQuestStage(questDef.id, stage ?? -1);
-      if (questStage) {
-        textEl.textContent = questStage.journalText;
-        for (let i = 0, len = questStage.objectives.length; i < len; i++) {
-          const objective = questStage.objectives[i];
-          if (!objective) continue;
-          const opt = document.createElement("div");
-          opt.classList.add("dialogue-option");
-          opt.textContent =
-            objective.kind === "talk" ? "Continue..." : `Objective: ${objective.kind}`;
-          opt.addEventListener("click", () => {
-            this.callbacks.sendUiActionCommand("dialogue_option", dialogue.nodeId, i);
-          });
-          optionsEl.appendChild(opt);
-        }
+    if (dialogue.options.length === 0) {
+      const close = document.createElement("div");
+      close.classList.add("dialogue-option");
+      close.textContent = "Continue";
+      close.addEventListener("click", () => {
+        this.callbacks.sendUiActionCommand("dialogue_close", dialogue.dialogueId);
+      });
+      optionsEl.appendChild(close);
+    } else {
+      for (const option of dialogue.options) {
+        const opt = document.createElement("div");
+        opt.classList.add("dialogue-option");
+        opt.textContent = option.text;
+        opt.addEventListener("click", () => {
+          this.callbacks.sendUiActionCommand("dialogue_option", dialogue.dialogueId, option.index);
+        });
+        optionsEl.appendChild(opt);
       }
     }
 

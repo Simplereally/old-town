@@ -14,6 +14,9 @@ import type { ContentRegistries } from "./content-registry";
 export interface ContentIssue {
   readonly path?: string | undefined;
   readonly id?: string | undefined;
+  readonly pointer?: string | undefined;
+  readonly dependency?: readonly string[] | undefined;
+  readonly suggestion?: string | undefined;
   readonly message: string;
 }
 
@@ -33,6 +36,14 @@ export function validateContentGraph(
   const sourcePath = (kind: ContentKind, id: string): string | undefined =>
     sources.get(`${kind}:${id}`);
 
+  const pointerFromField = (field: string): string =>
+    `/${field
+      .replaceAll('"', "")
+      .replaceAll(" ", "_")
+      .split(".")
+      .map((part) => part.replaceAll("~", "~0").replaceAll("/", "~1"))
+      .join("/")}`;
+
   const requireRef = (
     refKind: ContentKind,
     refId: string,
@@ -44,24 +55,32 @@ export function validateContentGraph(
       issues.push({
         path: sourcePath(ownerKind, ownerId),
         id: ownerId,
+        pointer: pointerFromField(field),
+        dependency: [`${ownerKind}:${ownerId}`, `${refKind}:${refId}`],
+        suggestion: "create_or_fix_missing_reference",
         message: `${ownerKind} "${ownerId}" references missing ${refKind} "${refId}" (${field})`,
       });
     }
   };
 
-  const checkEffects = (effects: readonly Effect[], ownerId: string, field: string): void => {
+  const checkEffects = (
+    effects: readonly Effect[],
+    ownerKind: ContentKind,
+    ownerId: string,
+    field: string,
+  ): void => {
     for (const effect of effects) {
       switch (effect.kind) {
         case "add_item":
         case "remove_item":
-          requireRef("item", effect.itemId, "quest", ownerId, `${field}.itemId`);
+          requireRef("item", effect.itemId, ownerKind, ownerId, `${field}.itemId`);
           break;
         case "add_xp":
-          requireRef("skill", effect.skillId, "quest", ownerId, `${field}.skillId`);
+          requireRef("skill", effect.skillId, ownerKind, ownerId, `${field}.skillId`);
           break;
         case "start_quest":
         case "complete_quest":
-          requireRef("quest", effect.questId, "quest", ownerId, `${field}.questId`);
+          requireRef("quest", effect.questId, ownerKind, ownerId, `${field}.questId`);
           break;
         default:
           break;
@@ -71,16 +90,20 @@ export function validateContentGraph(
 
   const checkRequirements = (
     requirements: readonly Requirement[],
+    ownerKind: ContentKind,
     ownerId: string,
     field: string,
   ): void => {
     for (const req of requirements) {
       if (req.kind === "skill") {
-        requireRef("skill", req.skillId, "quest", ownerId, `${field}.skillId`);
+        requireRef("skill", req.skillId, ownerKind, ownerId, `${field}.skillId`);
       } else if (req.kind === "item") {
-        requireRef("item", req.itemId, "quest", ownerId, `${field}.itemId`);
+        requireRef("item", req.itemId, ownerKind, ownerId, `${field}.itemId`);
       } else if (req.kind === "quest_stage") {
-        requireRef("quest", req.questId, "quest", ownerId, `${field}.questId`);
+        requireRef("quest", req.questId, ownerKind, ownerId, `${field}.questId`);
+      } else if (req.kind === "kill_count") {
+        requireRef("quest", req.questId, ownerKind, ownerId, `${field}.questId`);
+        requireRef("npc", req.npcId, ownerKind, ownerId, `${field}.npcId`);
       }
     }
   };
@@ -142,8 +165,8 @@ export function validateContentGraph(
   }
 
   for (const [id, def] of registries.quest) {
-    checkRequirements(def.requirements, id, "requirements");
-    checkEffects(def.rewards, id, "rewards");
+    checkRequirements(def.requirements, "quest", id, "requirements");
+    checkEffects(def.rewards, "quest", id, "rewards");
     for (const stage of def.stages) {
       for (const objective of stage.objectives) {
         switch (objective.kind) {
@@ -175,7 +198,7 @@ export function validateContentGraph(
         }
       }
       for (const trigger of stage.triggers) {
-        checkEffects(trigger.effects, id, `stage ${stage.stage}.trigger`);
+        checkEffects(trigger.effects, "quest", id, `stage ${stage.stage}.trigger`);
       }
     }
   }
@@ -188,13 +211,17 @@ export function validateContentGraph(
           issues.push({
             path: sourcePath("dialogue", id),
             id,
+            pointer: `/nodes/${node.id}/playerOptions/next`,
+            dependency: [`dialogue:${id}`, `dialogue-node:${option.next}`],
+            suggestion: "fix_dialogue_next_node",
             message: `dialogue "${id}" option in node "${node.id}" links to missing node "${option.next}"`,
           });
         }
-        checkRequirements(option.requirements, id, `node ${node.id}.option`);
-        checkEffects(option.effects, id, `node ${node.id}.option`);
+        checkRequirements(option.requirements, "dialogue", id, `node ${node.id}.option`);
+        checkEffects(option.effects, "dialogue", id, `node ${node.id}.option`);
       }
-      checkEffects(node.effects, id, `node ${node.id}`);
+      checkRequirements(node.requirements ?? [], "dialogue", id, `node ${node.id}`);
+      checkEffects(node.effects, "dialogue", id, `node ${node.id}`);
     }
   }
 

@@ -2746,6 +2746,21 @@
       "objectId": "old_kiln",
       "x": 4,
       "y": 44
+    },
+    {
+      "objectId": "copper_rock",
+      "x": 16,
+      "y": 20
+    },
+    {
+      "objectId": "copper_rock",
+      "x": 18,
+      "y": 22
+    },
+    {
+      "objectId": "iron_rock",
+      "x": 20,
+      "y": 20
     }
   ],
   "npcSpawns": [

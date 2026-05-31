@@ -14,27 +14,54 @@
       },
       {
         "stage": 10,
-        "journalText": "Pippa Hearth says the old kiln is smoking again. I should inspect it.",
-        "objectives": [{ "kind": "object", "objectId": "old_kiln", "option": "inspect" }],
+        "journalText": "Pippa Hearth needs a clean fire for the bakery oven. I should gather three dry logs.",
+        "objectives": [{ "kind": "gather", "itemId": "dry_log", "quantity": 3 }],
         "triggers": []
       },
       {
         "stage": 20,
-        "journalText": "The kiln is warm but the flue is blocked. I need to find a sooted receipt nearby.",
-        "objectives": [{ "kind": "gather", "itemId": "sooted_receipt", "quantity": 1 }],
+        "journalText": "I have the dry logs. I should clear two cellar rats before the oven can be lit.",
+        "objectives": [{ "kind": "kill", "npcId": "cellar_rat", "count": 2 }],
         "triggers": []
       },
       {
         "stage": 30,
-        "journalText": "I have the receipt. I should bring it back to Pippa Hearth.",
+        "journalText": "The cellar rats are handled. I should light the Smoking Oven with the dry logs and Pippa's key.",
+        "objectives": [
+          { "kind": "have_item", "itemId": "dry_log", "quantity": 3 },
+          { "kind": "have_item", "itemId": "smoke_over_old_town_baker_oven_key", "quantity": 1 },
+          { "kind": "object", "objectId": "quest_oven", "option": "light" }
+        ],
+        "triggers": [
+          {
+            "on": "stage_complete",
+            "effects": [
+              { "kind": "remove_item", "itemId": "dry_log", "quantity": 3 },
+              {
+                "kind": "remove_item",
+                "itemId": "smoke_over_old_town_baker_oven_key",
+                "quantity": 1
+              },
+              {
+                "kind": "send_message",
+                "text": "The Smoking Oven catches with a clean, steady flame."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "stage": 40,
+        "journalText": "The bakery oven is lit. I should return to Pippa Hearth for my reward.",
         "objectives": [{ "kind": "talk", "npcId": "pippa_hearth" }],
         "triggers": []
       }
     ],
     "rewards": [
-      { "kind": "add_item", "itemId": "bellbread", "quantity": 5 },
+      { "kind": "add_item", "itemId": "smoke_over_old_town_old_town_bread", "quantity": 1 },
+      { "kind": "add_item", "itemId": "coin", "quantity": 10 },
       { "kind": "add_xp", "skillId": "cooking", "amount": 50 },
-      { "kind": "add_xp", "skillId": "hearthcraft", "amount": 25 }
+      { "kind": "unlock", "unlockId": "bakery_range" }
     ]
   },
   {

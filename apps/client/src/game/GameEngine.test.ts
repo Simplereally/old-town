@@ -140,7 +140,7 @@ function createEngine(): {
     canvas,
     statusOverlay: overlays.status,
     debugOverlay: overlays.debug,
-    serverUrl: "ws://localhost:8080",
+    serverUrl: "ws://localhost:8080/ws",
   });
 
   // Get the mocked socket

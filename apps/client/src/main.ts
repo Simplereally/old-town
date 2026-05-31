@@ -21,7 +21,7 @@ if (win.__OLD_TOWN_INIT__) {
     canvas,
     statusOverlay,
     debugOverlay,
-    serverUrl: import.meta.env.VITE_SERVER_URL ?? "ws://localhost:8080",
+    serverUrl: import.meta.env.VITE_SERVER_URL ?? "ws://localhost:8080/ws",
   });
 
   engine.start().catch((error) => {

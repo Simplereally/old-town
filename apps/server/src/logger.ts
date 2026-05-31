@@ -24,13 +24,17 @@ function nowIso(): string {
   return new Date().toISOString();
 }
 
-export function createLogger(service: string, logJson: boolean): Logger {
+export function createLogger(service: string, logJson: boolean, debugEnabled = false): Logger {
   const emit = (
     level: LogLevel,
     topic: string,
     message: string,
     metadata?: Record<string, unknown>,
   ): void => {
+    if (level === "debug" && !debugEnabled) {
+      return;
+    }
+
     const entry: LogEntry = {
       level,
       ts: nowIso(),

@@ -8,6 +8,7 @@ import {
   type EntityUpdatePacket,
   type EntityUpdatePayload,
   type HitsplatPacket,
+  type InterfaceClosePacket,
   type InterfaceOpenPacket,
   type InventoryDelta,
   type InventorySlotChange,
@@ -32,12 +33,20 @@ export interface DirtyState {
   readonly xpDrops?: readonly XpDropPacket[];
   readonly projectiles?: readonly ProjectilePacket[];
   readonly interfaceOpens?: readonly InterfaceOpenPacket[];
+  readonly interfaceCloses?: readonly InterfaceClosePacket[];
   readonly debug?: DebugTickData;
 }
 
 interface InventoryDeltaBuilder {
   readonly containerId: string;
   readonly changesBySlot: Map<number, InventorySlotChange>;
+}
+
+export interface DeltaMutationObserver {
+  onEntityUpdate?(entityId: EntityId, changes: EntityUpdatePayload): void;
+  onInventoryDelta?(delta: InventoryDelta): void;
+  onSkillDelta?(delta: SkillDelta): void;
+  onVarbitDelta?(delta: VarbitDelta): void;
 }
 
 function entityOrder(a: EntityId, b: EntityId): number {
@@ -60,7 +69,17 @@ export class DeltaAccumulator {
   private xpDropPackets: XpDropPacket[] = [];
   private projectilePackets: ProjectilePacket[] = [];
   private interfaceOpenPackets: InterfaceOpenPacket[] = [];
+  private interfaceClosePackets: InterfaceClosePacket[] = [];
   private readonly debugPaths = new Map<EntityId, DebugPathData>();
+  private observer: DeltaMutationObserver | undefined;
+
+  constructor(observer?: DeltaMutationObserver) {
+    this.observer = observer;
+  }
+
+  setObserver(observer: DeltaMutationObserver | undefined): void {
+    this.observer = observer;
+  }
 
   markEntityAdd(spawn: EntitySpawnPacket): void {
     this.entityRemoves.delete(spawn.entityId);
@@ -84,6 +103,7 @@ export class DeltaAccumulator {
       ...(this.entityUpdates.get(entityId) ?? {}),
       ...changes,
     });
+    this.observer?.onEntityUpdate?.(entityId, changes);
   }
 
   markInventoryDelta(delta: InventoryDelta): void {
@@ -102,14 +122,17 @@ export class DeltaAccumulator {
     for (const change of delta.changes) {
       changesBySlot.set(change.slot, change);
     }
+    this.observer?.onInventoryDelta?.(delta);
   }
 
   markSkillDelta(delta: SkillDelta): void {
     this.skillDeltas.set(delta.skillId, delta);
+    this.observer?.onSkillDelta?.(delta);
   }
 
   markVarbitDelta(delta: VarbitDelta): void {
     this.varbitDeltas.set(delta.varId, delta);
+    this.observer?.onVarbitDelta?.(delta);
   }
 
   markChat(packet: ChatPacket): void {
@@ -130,6 +153,10 @@ export class DeltaAccumulator {
 
   markInterfaceOpen(packet: InterfaceOpenPacket): void {
     this.interfaceOpenPackets.push(packet);
+  }
+
+  markInterfaceClose(packet: InterfaceClosePacket): void {
+    this.interfaceClosePackets.push(packet);
   }
 
   markDebugPath(entityId: EntityId, path: readonly TileCoord[]): void {
@@ -181,6 +208,9 @@ export class DeltaAccumulator {
       ...(this.projectilePackets.length > 0 ? { projectiles: [...this.projectilePackets] } : {}),
       ...(this.interfaceOpenPackets.length > 0
         ? { interfaceOpens: [...this.interfaceOpenPackets] }
+        : {}),
+      ...(this.interfaceClosePackets.length > 0
+        ? { interfaceCloses: [...this.interfaceClosePackets] }
         : {}),
       ...(this.debugPaths.size > 0
         ? {
@@ -236,6 +266,7 @@ export class DeltaAccumulator {
     this.xpDropPackets = [];
     this.projectilePackets = [];
     this.interfaceOpenPackets = [];
+    this.interfaceClosePackets = [];
     this.debugPaths.clear();
   }
 }

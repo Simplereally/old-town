@@ -18,6 +18,7 @@ export const dialogueNodeSchema = z
   .object({
     id: z.string().min(1),
     npcText: z.string().min(1).optional(),
+    requirements: z.array(requirementSchema).default([]),
     playerOptions: z.array(dialogueOptionSchema).optional(),
     effects: z.array(effectSchema).default([]),
   })

@@ -257,10 +257,17 @@ describe("ground item and drop system", () => {
       itemId: "coin",
       quantity: 5,
     });
-    expect(itemAudit.snapshot().map((record) => record.kind)).toEqual([
-      "drop_spawn",
+    expect(itemAudit.snapshot().map((record) => record.reason)).toEqual([
+      "ground_drop_spawn",
       "ground_pickup",
     ]);
+    expect(itemAudit.snapshot()[1]).toMatchObject({
+      itemId: "coin",
+      quantity: 5,
+      beforeQuantity: 0,
+      afterQuantity: 5,
+      metadata: expect.objectContaining({ groundItemEntityId: groundItem }),
+    });
 
     handleGroundItemIntent(
       ctx,
@@ -321,8 +328,8 @@ describe("ground item and drop system", () => {
 
     expect(world.isAlive(groundItem)).toBe(false);
     expect(ctx.deltas.peek().entityRemoves).toEqual([groundItem]);
-    expect(itemAudit.snapshot().map((record) => record.kind)).toEqual([
-      "drop_spawn",
+    expect(itemAudit.snapshot().map((record) => record.reason)).toEqual([
+      "ground_drop_spawn",
       "ground_despawn",
     ]);
   });

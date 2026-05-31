@@ -1,7 +1,7 @@
 import type { TileCoord } from "@old-town/shared";
 import { entityId } from "@old-town/shared";
 import { Scene } from "three";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ObjectRenderer } from "./ObjectRenderer";
 
 const TILE: TileCoord = { x: 5, y: 5, plane: 0 };
@@ -90,7 +90,14 @@ describe("ObjectRenderer", () => {
     const mesh = group?.children[0] as import("three").Mesh | undefined;
     const geometry = mesh?.geometry;
     const material = mesh?.material;
+    if (!geometry || !material) throw new Error("Expected object mesh");
+    const geometryDispose = vi.spyOn(geometry, "dispose");
+    const materialDispose = vi.spyOn(material as import("three").MeshLambertMaterial, "dispose");
+
     renderer.remove(ID1);
+
+    expect(geometryDispose).not.toHaveBeenCalled();
+    expect(materialDispose).not.toHaveBeenCalled();
     expect(geometry?.uuid).toBeDefined();
     expect((material as import("three").MeshLambertMaterial | undefined)?.uuid).toBeDefined();
   });

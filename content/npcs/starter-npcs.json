@@ -144,7 +144,7 @@
     "size": 1,
     "respawnTicks": 1,
     "wanderRadius": 0,
-    "dialogueId": "pippa_hearth_smoke_over_old_town",
+    "dialogueId": "baker_dialogue",
     "options": [
       { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
       { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }

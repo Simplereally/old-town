@@ -500,9 +500,17 @@ export class GameEngine {
           const cy = Math.floor(selfActor.serverTile.y / 8);
           const rx = Math.floor(selfActor.serverTile.x / 64);
           const ry = Math.floor(selfActor.serverTile.y / 64);
+          const renderStats = this.renderer.debugCounters();
           const lines = [
             `Tick: ${this._currentTick}`,
             `Ping: ${Math.round(this._lastPingRtt)}ms`,
+            `Frame: ${renderStats.frameTimeMs.toFixed(1)}ms`,
+            `Draw calls: ${renderStats.drawCalls}`,
+            `Geometries: ${renderStats.geometries}`,
+            `Textures: ${renderStats.textures}`,
+            `Actors: ${this.actors.actorCount}`,
+            `Objects: ${this.objects.objectCount}`,
+            `Chunks: ${this.terrain.loadedChunkCount}`,
             `True tile: (${selfActor.serverTile.x}, ${selfActor.serverTile.y}, ${selfActor.serverTile.plane})`,
             `Visual: (${selfActor.visualPosition.x.toFixed(1)}, ${selfActor.visualPosition.y.toFixed(1)}, ${selfActor.visualPosition.z.toFixed(1)})`,
             `Region: ${rx}:${ry}:${selfActor.serverTile.plane}`,

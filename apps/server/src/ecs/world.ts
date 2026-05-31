@@ -2,6 +2,7 @@ import type { EntityId } from "@old-town/shared";
 import type {
   ActorComponent,
   CombatantComponent,
+  DialogueComponent,
   EquipmentComponent,
   GroundItemComponent,
   InventoryComponent,
@@ -10,9 +11,9 @@ import type {
   ObjectComponent,
   PlayerComponent,
   PositionComponent,
-  QuestVarsComponent,
   ResourceNodeComponent,
   SkillsComponent,
+  VarComponent,
 } from "./components";
 import { EntityPool } from "./entity";
 
@@ -29,7 +30,8 @@ export type WorldComponentMap = {
   skills: SkillsComponent;
   combatant: CombatantComponent;
   resourceNode: ResourceNodeComponent;
-  questVars: QuestVarsComponent;
+  vars: VarComponent;
+  dialogue: DialogueComponent;
 };
 
 export type WorldComponentKind = keyof WorldComponentMap;
@@ -86,7 +88,8 @@ export function createWorld(): World {
     skills: new Map(),
     combatant: new Map(),
     resourceNode: new Map(),
-    questVars: new Map(),
+    vars: new Map(),
+    dialogue: new Map(),
   };
 
   const createEntity = (): EntityId => {

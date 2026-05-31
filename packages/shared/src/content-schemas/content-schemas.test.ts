@@ -161,6 +161,24 @@ describe("schema strictness and field validation", () => {
     ).toBe(false);
   });
 
+  it("rejects dynamic or unknown collision bits in region maps", () => {
+    expect(
+      validate("regionMap", {
+        ...validRegionMap,
+        tiles: { default: { underlayId: "grass", collision: 1 << 12 }, overrides: [] },
+      }).success,
+    ).toBe(false);
+    expect(
+      validate("regionMap", {
+        ...validRegionMap,
+        tiles: {
+          default: { underlayId: "grass" },
+          overrides: [{ x: 1, y: 1, collision: 1 << 20 }],
+        },
+      }).success,
+    ).toBe(false);
+  });
+
   it("requires a quest stage 0", () => {
     expect(
       validate("quest", {

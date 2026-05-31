@@ -75,14 +75,16 @@ export function loadRegionMapIntoWorld(
     for (let y = 0; y < REGION_SIZE; y += 1) {
       const tile = globalTile(def.region, x, y);
       const override = overrides.get(`${x}:${y}`);
+      const zoneId = override?.zoneId ?? def.tiles.default.zoneId;
       const runtimeTile: RuntimeTile = {
         tile,
         height: override?.height ?? def.tiles.default.height,
         underlayId: override?.underlayId ?? def.tiles.default.underlayId,
         ...(override?.overlayId ? { overlayId: override.overlayId } : {}),
         collision: override?.collision ?? def.tiles.default.collision,
-        water: override?.water ?? false,
-        bridge: override?.bridge ?? false,
+        water: override?.water ?? def.tiles.default.water ?? false,
+        bridge: override?.bridge ?? def.tiles.default.bridge ?? false,
+        ...(zoneId ? { zoneId } : {}),
       };
       const key = tileKey(tile);
       map.tiles.set(key, runtimeTile);

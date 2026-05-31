@@ -111,7 +111,8 @@
     "blocksMovement": true,
     "blocksLineOfSight": false,
     "options": [
-      { "label": "Inspect", "actionId": "inspect", "priority": 10, "requiredDistance": 1 }
+      { "label": "Light", "actionId": "light", "priority": 10, "requiredDistance": 1 },
+      { "label": "Inspect", "actionId": "inspect", "priority": 5, "requiredDistance": 1 }
     ],
     "model": "model_quest_oven"
   },

@@ -19,9 +19,14 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "dev": "bun scripts/dev.ts",
+    "stress:sim": "bun scripts/stress-sim.ts",
     "tasks:status": "bun scripts/tasks-status.ts",
     "client:dev": "bun run --filter @old-town/client dev",
+    "world-editor:dev": "bun run --filter @old-town/world-editor dev",
     "content:validate": "bun tools/content-validator/src/index.ts",
+    "content:list": "bun tools/content-validator/src/index.ts list",
+    "content:graph": "bun tools/content-validator/src/index.ts graph",
     "clean": "bun run --filter '*' clean || true"
   },
   "devDependencies": {

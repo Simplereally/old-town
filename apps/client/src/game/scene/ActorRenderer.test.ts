@@ -1,7 +1,7 @@
 import type { TileCoord } from "@old-town/shared";
 import { Direction, entityId } from "@old-town/shared";
-import { Scene, Vector3 } from "three";
-import { beforeEach, describe, expect, it } from "vitest";
+import { type MeshLambertMaterial, Scene, Vector3 } from "three";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ActorRenderer } from "./ActorRenderer";
 
 const TILE: TileCoord = { x: 5, y: 5, plane: 0 };
@@ -93,6 +93,19 @@ describe("ActorRenderer", () => {
     renderer.spawn(ID1, TILE, "player", true);
     renderer.remove(ID1);
     expect(renderer.actorCount).toBe(0);
+  });
+
+  it("does not dispose shared geometry or materials on remove", () => {
+    renderer.spawn(ID1, TILE, "player", true);
+    const mesh = renderer.getRaycastTargets()[0];
+    if (!mesh) throw new Error("Expected actor mesh");
+    const geometryDispose = vi.spyOn(mesh.geometry, "dispose");
+    const materialDispose = vi.spyOn(mesh.material as MeshLambertMaterial, "dispose");
+
+    renderer.remove(ID1);
+
+    expect(geometryDispose).not.toHaveBeenCalled();
+    expect(materialDispose).not.toHaveBeenCalled();
   });
 
   it("disposes all resources on dispose", () => {

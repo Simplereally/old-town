@@ -12,6 +12,7 @@ import { type BootContentResult, loadContent } from "./content-loader";
 import { loadRuntimeConfig } from "./env";
 import { createLogger } from "./logger";
 import { createWebSocketTransport, type WebSocketTransport } from "./net/websocket-transport";
+import { createPersistenceAdapter } from "./persistence";
 import { createSimulationKernel, type SimulationKernel } from "./sim/simulation-kernel";
 
 export interface GameServer {
@@ -27,7 +28,7 @@ export interface GameServer {
 
 export async function startServer(): Promise<GameServer> {
   const config = loadRuntimeConfig();
-  const logger = createLogger("server", config.logJson);
+  const logger = createLogger("server", config.logJson, config.debug);
 
   logger.info("boot", "Old Town server booting", { port: config.port, tickMs: config.tickMs });
 
@@ -49,10 +50,18 @@ export async function startServer(): Promise<GameServer> {
     .join(", ");
   logger.info("boot", "Content loaded", { registries: registryCounts });
 
+  const persistence = createPersistenceAdapter(config.persistence);
+  logger.info("boot", "Persistence configured", {
+    enabled: persistence.enabled,
+    kind: persistence.kind,
+  });
+
   // --- Create simulation kernel ----------------------------------------------------
   const kernel = createSimulationKernel({
     registries: content.registries,
     logger,
+    persistence,
+    lazySaveIntervalTicks: config.persistence.lazySaveIntervalTicks,
     startServerTime: Date.now(),
   });
 
@@ -60,22 +69,37 @@ export async function startServer(): Promise<GameServer> {
   const serializedContent = JSON.stringify(serializeContentForClient(content.registries));
 
   const httpServer = createServer((req, res) => {
-    if (req.url === "/health" && req.method === "GET") {
+    const url = req.url ? new URL(req.url, "http://old-town.local") : undefined;
+    if (url?.pathname === "/health" && req.method === "GET") {
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ status: "ok", tickMs: config.tickMs }));
       return;
     }
-    if (req.url === "/ready" && req.method === "GET") {
+    if (url?.pathname === "/ready" && req.method === "GET") {
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ status: "ready", content: true }));
       return;
     }
-    if (req.url === "/api/content" && req.method === "GET") {
+    if (url?.pathname === "/api/content" && req.method === "GET") {
       res.writeHead(200, {
         "Content-Type": "application/json",
         "Cache-Control": "max-age=60",
       });
       res.end(serializedContent);
+      return;
+    }
+    if (url?.pathname === "/debug/item-audit" && req.method === "GET") {
+      const requestedLimit = Number(url.searchParams.get("limit") ?? 50);
+      const limit = Number.isFinite(requestedLimit)
+        ? Math.max(1, Math.min(200, Math.floor(requestedLimit)))
+        : 50;
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ events: kernel.recentItemTransactions(limit) }));
+      return;
+    }
+    if (url?.pathname === "/debug/stats" && req.method === "GET") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(kernel.stats()));
       return;
     }
     res.writeHead(404, { "Content-Type": "application/json" });
@@ -106,6 +130,7 @@ export async function startServer(): Promise<GameServer> {
   const shutdown = async (): Promise<void> => {
     logger.info("shutdown", "Graceful shutdown initiated");
     clearInterval(tickTimer);
+    await kernel.flushPersistence();
     await Promise.all([
       transport.close(),
       new Promise<void>((resolve) => httpServer.close(() => resolve())),
@@ -124,5 +149,6 @@ function serializeContentForClient(registries: BootContentResult["registries"]):
     skill: Object.fromEntries(registries.skill),
     spell: Object.fromEntries(registries.spell),
     quest: Object.fromEntries(registries.quest),
+    dialogue: Object.fromEntries(registries.dialogue),
   };
 }

@@ -58,9 +58,15 @@ describe("UIState", () => {
 
   it("sets vars from full snapshot", () => {
     const state = new UIState();
-    state.setVars([{ varId: "quest.smoke.stage", value: 1 }]);
+    state.setVars([
+      { varId: "quest.smoke.stage", value: 1 },
+      { varId: "quest.smoke.started", value: true },
+      { varId: "quest.smoke.lastSpeaker", value: "baker" },
+    ]);
 
     expect(state.vars.get("quest.smoke.stage")).toBe(1);
+    expect(state.vars.get("quest.smoke.started")).toBe(true);
+    expect(state.vars.get("quest.smoke.lastSpeaker")).toBe("baker");
   });
 
   it("applies varbit delta", () => {
@@ -69,6 +75,21 @@ describe("UIState", () => {
     state.applyVarbitDelta([{ varId: "quest.smoke.stage", value: 2 }]);
 
     expect(state.vars.get("quest.smoke.stage")).toBe(2);
+  });
+
+  it("tracks active dialogue from server packets", () => {
+    const state = new UIState();
+    state.setDialogue({
+      dialogueId: "baker_dialogue",
+      nodeId: "start",
+      speakerName: "Baker",
+      npcText: "Hello.",
+      options: [{ index: 0, text: "Continue" }],
+    });
+
+    expect(state.dialogue?.speakerName).toBe("Baker");
+    state.clearDialogue();
+    expect(state.dialogue).toBeUndefined();
   });
 
   it("accumulates chat messages up to a cap", () => {

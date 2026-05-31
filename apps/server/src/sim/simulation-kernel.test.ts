@@ -32,7 +32,7 @@ describe("SimulationKernel", () => {
 
     const baseline = kernel.stats().aliveEntityCount;
     const session = makeSession("session-1", "dev-a");
-    const fullState = kernel.connectSession(session);
+    const fullState = await kernel.connectSession(session);
 
     expect(fullState.selfEntityId).toBeDefined();
     expect(fullState.entities.length).toBeGreaterThan(0);
@@ -49,8 +49,8 @@ describe("SimulationKernel", () => {
     const { kernel } = await setup();
 
     const baseline = kernel.stats().aliveEntityCount;
-    const first = kernel.connectSession(makeSession("session-1", "dev-a"));
-    const second = kernel.connectSession(makeSession("session-2", "dev-b"));
+    const first = await kernel.connectSession(makeSession("session-1", "dev-a"));
+    const second = await kernel.connectSession(makeSession("session-2", "dev-b"));
 
     expect(first.selfEntityId).not.toBe(second.selfEntityId);
     expect(kernel.stats().connectedSessionCount).toBe(2);
@@ -62,12 +62,12 @@ describe("SimulationKernel", () => {
 
     const baseline = kernel.stats().aliveEntityCount;
     const session = makeSession("session-1", "dev-a");
-    kernel.connectSession(session);
+    await kernel.connectSession(session);
 
     expect(kernel.stats().connectedSessionCount).toBe(1);
     expect(kernel.stats().aliveEntityCount).toBe(baseline + 1);
 
-    kernel.disconnectSession(session);
+    await kernel.disconnectSession(session);
 
     expect(kernel.stats().connectedSessionCount).toBe(0);
     expect(kernel.stats().aliveEntityCount).toBe(baseline);
@@ -77,7 +77,7 @@ describe("SimulationKernel", () => {
     const { kernel } = await setup();
 
     const session = makeSession("session-1", "dev-a");
-    kernel.connectSession(session);
+    await kernel.connectSession(session);
 
     const result = kernel.routeCommand(session, {
       type: ClientCommandType.MoveClick,
@@ -91,8 +91,11 @@ describe("SimulationKernel", () => {
 
     const beforeTick = kernel.stats().currentTick;
     kernel.runOneTick();
-    expect(kernel.stats().currentTick).toBe(beforeTick + 1);
-    expect(kernel.stats().pendingCommandCount).toBe(0);
+    const stats = kernel.stats();
+    expect(stats.currentTick).toBe(beforeTick + 1);
+    expect(stats.pendingCommandCount).toBe(0);
+    expect(stats.lastCommandsProcessed).toBe(1);
+    expect(stats.lastTickDurationMs).toBeGreaterThanOrEqual(0);
   });
 
   it("rejects a command from an unknown session", async () => {
@@ -120,6 +123,7 @@ describe("SimulationKernel", () => {
     const stats = kernel.stats();
     expect(stats.currentTick).toBe(beforeTick + 1);
     expect(stats.currentServerTime).toBe(beforeTime + 600);
+    expect(stats.lastTickDurationMs).toBeGreaterThanOrEqual(0);
   });
 
   it("runs multiple due ticks with runDueTicks", async () => {
@@ -136,7 +140,7 @@ describe("SimulationKernel", () => {
     const { kernel } = await setup();
 
     const session = makeSession("session-1", "dev-a");
-    kernel.connectSession(session);
+    await kernel.connectSession(session);
 
     const sendSpy = vi.fn(() => true);
     const transport: DeltaTransport = {
@@ -148,6 +152,7 @@ describe("SimulationKernel", () => {
     kernel.runOneTick();
 
     expect(sendSpy).toHaveBeenCalled();
+    expect(kernel.stats().lastDeltaSizeBytes).toBeGreaterThan(0);
     const calls = sendSpy.mock.calls as unknown[][];
     const packet = calls[0]?.[1];
     expect(packet).toBeDefined();
@@ -158,7 +163,7 @@ describe("SimulationKernel", () => {
     const { kernel } = await setup();
 
     const session = makeSession("session-1", "dev-a");
-    kernel.connectSession(session);
+    await kernel.connectSession(session);
 
     const sendSpy = vi.fn(() => true);
     const transport: DeltaTransport = {
@@ -179,7 +184,7 @@ describe("SimulationKernel", () => {
     const { kernel } = await setup();
 
     const session = makeSession("session-1", "dev-a");
-    const fullState = kernel.connectSession(session);
+    const fullState = await kernel.connectSession(session);
     const selfEntityId = fullState.selfEntityId;
 
     const sendSpy = vi.fn(() => true);
@@ -206,16 +211,21 @@ describe("SimulationKernel", () => {
     const stats = kernel.stats();
     expect(stats.currentTick).toBe(0);
     expect(stats.currentServerTime).toBe(0);
+    expect(stats.lastTickDurationMs).toBe(0);
     expect(stats.pendingCommandCount).toBe(0);
+    expect(stats.lastCommandsProcessed).toBe(0);
     expect(stats.connectedSessionCount).toBe(0);
     expect(stats.regionCount).toBeGreaterThan(0);
     expect(stats.tileCount).toBeGreaterThan(0);
+    expect(stats.lastDeltaSizeBytes).toBe(0);
+    expect(stats.saveQueuePendingCount).toBe(0);
+    expect(stats.saveQueueInFlightCount).toBe(0);
 
     const baseline = stats.aliveEntityCount;
     expect(baseline).toBeGreaterThan(0);
 
     const session = makeSession("session-1", "dev-a");
-    kernel.connectSession(session);
+    await kernel.connectSession(session);
     expect(kernel.stats().aliveEntityCount).toBe(baseline + 1);
   });
 });

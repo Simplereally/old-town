@@ -1,7 +1,9 @@
 import type {
   ChatPacket,
+  DialogueViewPacket,
   InventoryDelta,
   InventorySlotChange,
+  PlayerVarValue,
   SkillDelta,
   VarbitDelta,
 } from "@old-town/shared";
@@ -15,9 +17,9 @@ export class UIState {
   private _inventory = new Map<number, InventorySlotChange>();
   private _equipment = new Map<number, string>();
   private _skills = new Map<string, SkillDelta>();
-  private _vars = new Map<string, number>();
+  private _vars = new Map<string, PlayerVarValue>();
   private _chat: ChatPacket[] = [];
-  private _dialogue: { dialogueId: string; nodeId: string } | undefined;
+  private _dialogue: DialogueViewPacket | undefined;
   private _listeners = new Set<() => void>();
 
   get inventory(): ReadonlyMap<number, InventorySlotChange> {
@@ -32,7 +34,7 @@ export class UIState {
     return this._skills;
   }
 
-  get vars(): ReadonlyMap<string, number> {
+  get vars(): ReadonlyMap<string, PlayerVarValue> {
     return this._vars;
   }
 
@@ -106,12 +108,12 @@ export class UIState {
     this._notify();
   }
 
-  get dialogue(): { dialogueId: string; nodeId: string } | undefined {
+  get dialogue(): DialogueViewPacket | undefined {
     return this._dialogue;
   }
 
-  setDialogue(dialogueId: string, nodeId: string): void {
-    this._dialogue = { dialogueId, nodeId };
+  setDialogue(dialogue: DialogueViewPacket): void {
+    this._dialogue = dialogue;
     this._notify();
   }
 

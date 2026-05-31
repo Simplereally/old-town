@@ -12,6 +12,7 @@ import { describe, expect, it } from "vitest";
 import type { InventoryComponent, SkillsComponent } from "../ecs/components";
 import { createWorld, type World } from "../ecs/world";
 import { addItem, catalogFromItems, count, createInventory } from "../items/inventory";
+import { ItemAuditLog } from "../items/item-audit";
 import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import { ActionRuntime } from "../sim/action-runtime";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
@@ -201,6 +202,7 @@ function setup(
   readonly inventory: InventoryComponent;
   readonly actionRuntime: ActionRuntime;
   readonly deltas: DeltaAccumulator;
+  readonly itemAudit: ItemAuditLog;
 } {
   const world = createWorld();
   const map = createRuntimeMap();
@@ -253,6 +255,7 @@ function setup(
   applyObjectCollision(world, content, collision);
   const actionRuntime = new ActionRuntime();
   const deltas = new DeltaAccumulator();
+  const itemAudit = new ItemAuditLog();
   return {
     ctx: {
       world,
@@ -261,6 +264,7 @@ function setup(
       actionRuntime,
       registries: content,
       rng: createRng(1),
+      itemAudit,
     },
     world,
     player,
@@ -268,6 +272,7 @@ function setup(
     inventory,
     actionRuntime,
     deltas,
+    itemAudit,
   };
 }
 
@@ -286,6 +291,7 @@ function setupProcessing(
   readonly inventory: InventoryComponent;
   readonly actionRuntime: ActionRuntime;
   readonly deltas: DeltaAccumulator;
+  readonly itemAudit: ItemAuditLog;
 } {
   const world = createWorld();
   const map = createRuntimeMap();
@@ -328,6 +334,7 @@ function setupProcessing(
   applyObjectCollision(world, content, collision);
   const actionRuntime = new ActionRuntime();
   const deltas = new DeltaAccumulator();
+  const itemAudit = new ItemAuditLog();
   return {
     ctx: {
       world,
@@ -336,6 +343,7 @@ function setupProcessing(
       actionRuntime,
       registries: content,
       rng: createRng(1),
+      itemAudit,
     },
     world,
     player,
@@ -343,6 +351,7 @@ function setupProcessing(
     inventory,
     actionRuntime,
     deltas,
+    itemAudit,
   };
 }
 
@@ -437,7 +446,7 @@ describe("skilling gather validation", () => {
 
 describe("woodcutting loop", () => {
   it("queues from a Chop object option and awards logs plus XP on success", () => {
-    const { ctx, player, node, actionRuntime, inventory, deltas } = setup();
+    const { ctx, player, node, actionRuntime, inventory, deltas, itemAudit } = setup();
 
     expect(
       handleObjectSkillingIntent(ctx, player, { objectEntityId: node, actionId: "woodcut" }, 600),
@@ -461,6 +470,14 @@ describe("woodcutting loop", () => {
     expect(inventory.slots.some((slot) => slot?.itemId === "dry_log")).toBe(true);
     expect(ctx.world.getComponent(player, "skills")?.skills.woodcutting?.xp).toBe(10);
     expect(deltas.peek().skillDelta).toEqual([{ skillId: "woodcutting", level: 1, xp: 10 }]);
+    expect(itemAudit.snapshot()[0]).toMatchObject({
+      reason: "skilling_gather",
+      itemId: "dry_log",
+      quantity: 1,
+      beforeQuantity: 0,
+      afterQuantity: 1,
+      metadata: expect.objectContaining({ nodeId: "dry_tree_node" }),
+    });
   });
 
   it("depletes trees, transforms them, and cancels the repeated gather action", () => {
@@ -521,7 +538,7 @@ describe("mining loop", () => {
 
 describe("cooking processing loop", () => {
   it("routes object Use/Cook through the tick queue and repeats until input is missing", () => {
-    const { ctx, player, station, actionRuntime, inventory, deltas } = setupProcessing({
+    const { ctx, player, station, actionRuntime, inventory, deltas, itemAudit } = setupProcessing({
       rawQuantity: 2,
     });
 
@@ -536,7 +553,7 @@ describe("cooking processing loop", () => {
         stationEntityId: station,
         recipeId: COOK_RECIPE.id,
       };
-      handleProcess(ctx, execution, payload, 1_800);
+      handleProcess(ctx, execution, payload, 3, 1_800);
     }
 
     expect(count(inventory, "raw_fish")).toBe(1);
@@ -546,6 +563,10 @@ describe("cooking processing loop", () => {
       { slot: 0, itemId: "raw_fish", quantity: 1, uid: 1 },
       { slot: 1, itemId: "cooked_fish", quantity: 1, uid: 2 },
     ]);
+    expect(itemAudit.snapshot().map((record) => record.reason)).toEqual([
+      "skilling_process_input",
+      "skilling_process_output",
+    ]);
 
     {
       const execution = advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks);
@@ -554,7 +575,7 @@ describe("cooking processing loop", () => {
         stationEntityId: station,
         recipeId: COOK_RECIPE.id,
       };
-      handleProcess(ctx, execution, payload, 3_600);
+      handleProcess(ctx, execution, payload, 6, 3_600);
     }
     expect(count(inventory, "raw_fish")).toBe(0);
     expect(count(inventory, "cooked_fish")).toBe(2);
@@ -566,7 +587,7 @@ describe("cooking processing loop", () => {
         stationEntityId: station,
         recipeId: COOK_RECIPE.id,
       };
-      handleProcess(ctx, execution, payload, 5_400);
+      handleProcess(ctx, execution, payload, 9, 5_400);
     }
 
     expect(actionRuntime.getDebugState()).toEqual([]);
@@ -586,7 +607,7 @@ describe("cooking processing loop", () => {
         stationEntityId: station,
         recipeId: COOK_RECIPE.id,
       };
-      handleProcess(ctx, execution, payload, 1_800);
+      handleProcess(ctx, execution, payload, 3, 1_800);
     }
 
     expect(count(inventory, "raw_fish")).toBe(0);

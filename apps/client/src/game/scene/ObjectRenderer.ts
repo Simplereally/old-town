@@ -186,12 +186,9 @@ export class ObjectRenderer {
 
   dispose(): void {
     this.clear();
-    // Dispose pooled meshes
-    for (const [, meshes] of this.meshPool) {
+    for (const meshes of this.meshPool.values()) {
       for (const mesh of meshes) {
-        mesh.geometry.dispose();
-        const material = mesh.material as MeshLambertMaterial;
-        material.dispose();
+        mesh.clear();
       }
     }
     this.meshPool.clear();

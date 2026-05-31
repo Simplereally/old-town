@@ -37,9 +37,49 @@ tools/
 
 ```sh
 bun install            # install all workspace dependencies
+bun run dev            # start the server and client for the playable POC
 ```
 
-Additional scripts are wired up as the foundation epics land:
+`bun run dev` starts both halves of the POC:
+
+- authoritative server: `http://localhost:8080`, WebSocket `ws://localhost:8080/ws`
+- Vite client: `http://127.0.0.1:5173`
+- server content: loaded from `content/`, validated on boot
+- dev character flow: accountless `DevAuth` sessions spawn at the seed region with starter items
+
+Open `http://127.0.0.1:5173` after the command is running. Opening the same URL in two browser
+tabs creates two dev sessions, and each tab should see both players once the second tab connects.
+Server performance counters are available at `http://localhost:8080/debug/stats`; client render
+counters are shown in the dev debug overlay.
+
+Default environment values are checked into `apps/server/.env.example` and
+`apps/client/.env.example`. For the root launcher, override these only when needed:
+
+| Variable              | Default                    | Purpose                                      |
+| --------------------- | -------------------------- | -------------------------------------------- |
+| `PORT`                | `8080`                     | Server HTTP/WebSocket port                   |
+| `CLIENT_PORT`         | `5173`                     | Vite client port                             |
+| `CLIENT_HOST`         | `127.0.0.1`                | Vite client host                             |
+| `VITE_SERVER_URL`     | `ws://localhost:8080/ws`   | Client WebSocket target                      |
+| `CONTENT_DIR`         | `content`                  | Runtime content directory                    |
+| `TICK_MS`             | `600`                      | Server simulation tick length                |
+| `PERSISTENCE_ENABLED` | `false`                    | Accountless dev-character persistence toggle |
+| `DEBUG`               | `false`                    | Server debug log toggle                      |
+| `LOG_JSON`            | `false`                    | Emit server logs as JSON lines               |
+
+Common startup failures:
+
+- If the client reports connection failure, confirm the server log says it is listening on port
+  `8080` and that `VITE_SERVER_URL` ends with `/ws`.
+- If a port is already in use, set `PORT=8081` or `CLIENT_PORT=5174` before running `bun run dev`.
+  When changing `PORT`, also set `VITE_SERVER_URL=ws://localhost:<PORT>/ws` if you are not using
+  the root launcher default.
+- If startup aborts during content loading, run `bun run content:validate` and fix the listed JSON
+  issue before launching again.
+- If persistence should survive refreshes, set `PERSISTENCE_ENABLED=true`; the default keeps local
+  runs free of save-file churn.
+
+Additional scripts:
 
 | Command                 | Purpose                                            |
 | ----------------------- | -------------------------------------------------- |
@@ -50,6 +90,8 @@ Additional scripts are wired up as the foundation epics land:
 | `bun run lint`          | Lint the repo (Biome)                              |
 | `bun run check`         | Format check + lint + import organize in one pass  |
 | `bun run fix`           | Apply safe Biome fixes, formatting, and imports    |
+| `bun run dev`           | Start the local server and client together         |
+| `bun run stress:sim`    | Run the simulation stress harness                  |
 | `bun run test`          | Run the test suites                                |
 | `bun run test:coverage` | Run tests with coverage (E00-S04)                  |
 

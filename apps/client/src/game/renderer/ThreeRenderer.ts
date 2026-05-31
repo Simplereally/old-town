@@ -11,6 +11,14 @@ export interface ThreeRendererOptions {
   readonly initialHeight?: number;
 }
 
+export interface RendererDebugCounters {
+  readonly fps: number;
+  readonly frameTimeMs: number;
+  readonly drawCalls: number;
+  readonly geometries: number;
+  readonly textures: number;
+}
+
 /**
  * Three.js renderer shell. Owns the WebGL context, render loop, and camera.
  * No gameplay truth lives here — only presentation.
@@ -26,6 +34,7 @@ export class ThreeRenderer {
   private _running = false;
   private _animationFrameId: number | null = null;
   private _lastFrameTime = 0;
+  private _lastFrameDurationMs = 0;
   private _frameCount = 0;
   private _fps = 0;
   private _fpsUpdateTime = 0;
@@ -137,6 +146,16 @@ export class ThreeRenderer {
     return this._fps;
   }
 
+  debugCounters(): RendererDebugCounters {
+    return {
+      fps: this._fps,
+      frameTimeMs: this._lastFrameDurationMs,
+      drawCalls: this.renderer.info.render.calls,
+      geometries: this.renderer.info.memory.geometries,
+      textures: this.renderer.info.memory.textures,
+    };
+  }
+
   get running(): boolean {
     return this._running;
   }
@@ -159,6 +178,7 @@ export class ThreeRenderer {
   private _renderLoop = (time: number): void => {
     if (!this._running) return;
 
+    const frameStart = performance.now();
     const deltaTime = Math.min((time - this._lastFrameTime) / 1000, 0.1);
     this._lastFrameTime = time;
 
@@ -173,6 +193,7 @@ export class ThreeRenderer {
     this.cameraController.controls.update();
     this.onFrame?.(deltaTime, time / 1000);
     this.renderer.render(this.scene, this.camera);
+    this._lastFrameDurationMs = performance.now() - frameStart;
 
     this._animationFrameId = requestAnimationFrame(this._renderLoop);
   };

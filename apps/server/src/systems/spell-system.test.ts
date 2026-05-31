@@ -11,6 +11,7 @@ import {
 import { describe, expect, it } from "vitest";
 import { createWorld, type World } from "../ecs/world";
 import { addItem, catalogFromItems, count, createInventory } from "../items/inventory";
+import { ItemAuditLog } from "../items/item-audit";
 import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import { ActionRuntime } from "../sim/action-runtime";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
@@ -237,6 +238,7 @@ function setup(
   readonly target: EntityId;
   readonly actionRuntime: ActionRuntime;
   readonly deltas: DeltaAccumulator;
+  readonly itemAudit: ItemAuditLog;
 } {
   const world = createWorld();
   const map = createRuntimeMap();
@@ -245,6 +247,7 @@ function setup(
   const target = addTarget(world);
   const actionRuntime = new ActionRuntime();
   const deltas = new DeltaAccumulator();
+  const itemAudit = new ItemAuditLog();
   const ctx: SpellSystemContext = {
     world,
     collision: new CollisionMap(map),
@@ -252,8 +255,9 @@ function setup(
     registries: registries(spells),
     actionRuntime,
     rng: roll,
+    itemAudit,
   };
-  return { ctx, world, map, player, target, actionRuntime, deltas };
+  return { ctx, world, map, player, target, actionRuntime, deltas, itemAudit };
 }
 
 function cast(
@@ -298,13 +302,23 @@ function executeQueuedTeleport(ctx: SpellSystemContext, actionRuntime: ActionRun
 
 describe("SpellSystem", () => {
   it("consumes bead costs, sets cooldown, and emits projectile deltas on a valid combat spell", () => {
-    const { ctx, world, player, target, deltas } = setup();
+    const { ctx, world, player, target, deltas, itemAudit } = setup();
 
     expect(cast(ctx, player, "ember_flick", target)).toBe(true);
 
     const inventory = world.getComponent(player, "inventory");
     expect(inventory && count(inventory, "ember_bead")).toBe(9);
     expect(inventory && count(inventory, "wit_bead")).toBe(9);
+    expect(itemAudit.snapshot().map((record) => record.reason)).toEqual([
+      "spell_bead_cost",
+      "spell_bead_cost",
+    ]);
+    expect(itemAudit.snapshot()[0]).toMatchObject({
+      itemId: "ember_bead",
+      beforeQuantity: 10,
+      afterQuantity: 9,
+      metadata: expect.objectContaining({ spellId: "ember_flick" }),
+    });
     expect(world.getComponent(player, "combatant")?.spellCooldowns?.ember_flick).toBe(14);
     expect(deltas.peek().chat).toBeUndefined();
     expect(deltas.peek().projectiles).toEqual([

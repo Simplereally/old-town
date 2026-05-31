@@ -9,6 +9,7 @@
 ```
 docs/
   00-index.md          ← You are here
+  performance.md       ← POC debug counters, stress harness, and bottlenecks
   combat/
     00-index.md        ← Combat design entry point
     signature-mechanics.md ← Weapon family identities and mechanics
@@ -320,6 +321,7 @@ docs/
 | What you want | Go to |
 |--------------|-------|
 | Understand the game engine | `POC_SPEC.md` (in root) |
+| Check POC performance counters and stress baseline | [`performance.md`](performance.md) |
 | See what tasks to do next | `tasks/README.md` (in root) |
 | See the UI visual target | [`ui-inspiration.md`](ui-inspiration.md) |
 | Understand agent conventions | `AGENTS.md` (in root) |

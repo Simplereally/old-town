@@ -98,7 +98,7 @@ describe("EntitySpawnProjector", () => {
     world.setComponent(entityId, "position", { entityId, x: 7, y: 7, plane: 0 });
     world.setComponent(entityId, "groundItem", {
       entityId,
-      itemId: "bronze_sword",
+      itemId: "penny_sword",
       quantity: 1,
     });
 
@@ -107,7 +107,7 @@ describe("EntitySpawnProjector", () => {
       entityId,
       kind: "ground_item",
       tile: { x: 7, y: 7, plane: 0 },
-      defId: "bronze_sword",
+      defId: "penny_sword",
       quantity: 1,
     });
   });

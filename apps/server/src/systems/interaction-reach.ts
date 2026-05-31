@@ -112,7 +112,7 @@ export function isWithinInteractionRange(
     : true;
 }
 
-function candidateTiles(
+export function interactionCandidateTiles(
   target: InteractionTarget,
   actorFootprint: Footprint,
 ): readonly TileCoord[] {
@@ -148,7 +148,7 @@ export function findNearestInteractionTile(
   let best: { tile: TileCoord; pathLength: number } | undefined;
 
   const requiresLineOfSight = target.requiresLineOfSight === true;
-  for (const candidate of candidateTiles(target, actorFootprint)) {
+  for (const candidate of interactionCandidateTiles(target, actorFootprint)) {
     if (!collision.canOccupy(candidate, actorFootprint)) {
       continue;
     }

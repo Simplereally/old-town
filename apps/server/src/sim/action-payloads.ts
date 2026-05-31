@@ -1,3 +1,4 @@
+import type { BeginDialogueActionPayload, DialogueHandlerTable } from "../dialogue/dialogue-engine";
 import type {
   ResourceNodeHandlerTable,
   ResourceNodeRespawnPayload,
@@ -12,6 +13,7 @@ import type {
 import type { SpellHandlerTable, TeleportActionPayload } from "../systems/spell-system";
 
 export type ActionPayload =
+  | BeginDialogueActionPayload
   | BeginGatherActionPayload
   | GatherActionPayload
   | BeginProcessActionPayload
@@ -23,4 +25,5 @@ export type ActionKind = ActionPayload["kind"];
 
 export type ActionHandlerTable = SkillingHandlerTable &
   ResourceNodeHandlerTable &
-  SpellHandlerTable;
+  SpellHandlerTable &
+  DialogueHandlerTable;

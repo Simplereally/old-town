@@ -7,6 +7,7 @@ import type {
   Direction,
   EntityId,
   EquipmentSlotName,
+  PlayerVarValue,
   SpellDef,
   TileCoord,
 } from "@old-town/shared";
@@ -181,8 +182,17 @@ export interface ResourceNodeComponent {
   respawnTick: number;
 }
 
-/** Quest progress variables. */
-export interface QuestVarsComponent {
+/** Generic player vars for quest progress, unlocks, and persistent world state. */
+export interface VarComponent {
   entityId: EntityId;
-  vars: Record<string, number | string | boolean>;
+  values: Record<string, PlayerVarValue>;
+}
+
+/** Transient active dialogue state for a player. Persistent quest state stays in vars. */
+export interface DialogueComponent {
+  entityId: EntityId;
+  dialogueId: string;
+  nodeId: string;
+  speakerName: string;
+  speakerEntityId?: EntityId;
 }

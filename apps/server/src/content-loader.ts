@@ -3,7 +3,7 @@
  * every definition, and returns typed registries. If validation fails the server must
  * fail fast — no gameplay starts with invalid content.
  */
-import { resolve } from "node:path";
+import { isAbsolute, resolve } from "node:path";
 import { loadContentDir } from "@old-town/content-validator";
 import { type ContentIssue, type ContentRegistries, validateContent } from "@old-town/shared";
 
@@ -14,7 +14,8 @@ export interface BootContentResult {
 }
 
 export async function loadContent(contentDir: string): Promise<BootContentResult> {
-  const absoluteDir = resolve(process.cwd(), contentDir);
+  const projectRoot = resolve(import.meta.dirname, "../../..");
+  const absoluteDir = isAbsolute(contentDir) ? contentDir : resolve(projectRoot, contentDir);
   const { files, issues: loadIssues } = await loadContentDir(absoluteDir);
   const { ok, issues, registries } = validateContent(files);
   const allIssues = [...loadIssues, ...issues];

@@ -70,6 +70,7 @@ describe("DeltaAccumulator", () => {
     deltas.markSkillDelta({ skillId: "woodcutting", level: 1, xp: 10 });
     deltas.markSkillDelta({ skillId: "woodcutting", level: 2, xp: 100 });
     deltas.markVarbitDelta({ varId: "quest.stage", value: 1 });
+    deltas.markVarbitDelta({ varId: "quest.started", value: true });
     deltas.markChat({
       entityId: player,
       name: "Tester",
@@ -80,6 +81,7 @@ describe("DeltaAccumulator", () => {
     deltas.markHitsplat({ entityId: npc, hitsplat: { amount: 3, type: "damage" } });
     deltas.markXpDrop({ skillId: "woodcutting", amount: 25 });
     deltas.markInterfaceOpen({ interfaceId: "bank" });
+    deltas.markInterfaceClose({ interfaceId: "dialogue" });
 
     const packet = deltas.consume(3, 1_800);
 
@@ -88,11 +90,15 @@ describe("DeltaAccumulator", () => {
       changes: [{ slot: 1, itemId: "logs", quantity: 2 }],
     });
     expect(packet.skillDelta).toEqual([{ skillId: "woodcutting", level: 2, xp: 100 }]);
-    expect(packet.varbitDelta).toEqual([{ varId: "quest.stage", value: 1 }]);
+    expect(packet.varbitDelta).toEqual([
+      { varId: "quest.stage", value: 1 },
+      { varId: "quest.started", value: true },
+    ]);
     expect(packet.chat).toHaveLength(1);
     expect(packet.hitsplats).toHaveLength(1);
     expect(packet.xpDrops).toEqual([{ skillId: "woodcutting", amount: 25 }]);
     expect(packet.interfaceOpens).toEqual([{ interfaceId: "bank" }]);
+    expect(packet.interfaceCloses).toEqual([{ interfaceId: "dialogue" }]);
   });
 
   it("does not reset on peek, only on consume", () => {

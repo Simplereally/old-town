@@ -1,4 +1,5 @@
 import type {
+  DialogueDef,
   ItemDef,
   NpcDef,
   ObjectDef,
@@ -15,6 +16,7 @@ export interface ContentClientRegistries {
   readonly skill: Record<string, SkillDef>;
   readonly spell: Record<string, SpellDef>;
   readonly quest: Record<string, QuestDef>;
+  readonly dialogue: Record<string, DialogueDef>;
 }
 
 /**
@@ -66,6 +68,10 @@ export class ContentClient {
 
   getQuest(id: string): QuestDef | undefined {
     return this._registries?.quest[id];
+  }
+
+  getDialogue(id: string): DialogueDef | undefined {
+    return this._registries?.dialogue[id];
   }
 
   getQuestStage(questId: string, stage: number): QuestStage | undefined {

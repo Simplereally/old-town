@@ -12,10 +12,13 @@ import {
   addItem,
   buildDelta,
   catalogFromItems,
+  count,
   hasItem,
   hasSpaceFor,
   removeItem,
 } from "../items/inventory";
+import type { ItemAuditLog } from "../items/item-audit";
+import { dispatchQuestEvent } from "../quests/quest-engine";
 import type { ActionHandler } from "../sim/action-executor";
 import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
@@ -25,6 +28,7 @@ import { depleteResourceNode, type ResourceNodeContext } from "./resource-node-s
 
 export interface SkillingContext extends ResourceNodeContext {
   readonly rng: Rng;
+  readonly itemAudit?: ItemAuditLog | undefined;
 }
 
 export interface GatherActionPayload {
@@ -495,6 +499,7 @@ export function handleGather(
     return;
   }
 
+  const beforeQuantity = count(inventory, nodeDef.outputItemId);
   const result = addItem(
     inventory,
     catalogFromItems(ctx.registries.item),
@@ -503,11 +508,48 @@ export function handleGather(
   );
   if (result.added > 0) {
     ctx.deltas.markInventoryDelta(buildDelta(inventory, result.changes));
+    ctx.itemAudit?.recordForEntity(action.entry.owner, {
+      tick,
+      itemId: nodeDef.outputItemId,
+      quantity: result.added,
+      reason: "skilling_gather",
+      beforeQuantity,
+      afterQuantity: count(inventory, nodeDef.outputItemId),
+      metadata: {
+        nodeEntityId: payload.nodeEntityId,
+        nodeId: nodeDef.id,
+        skillId: nodeDef.skill,
+      },
+    });
     addXp(
       { world: ctx.world, deltas: ctx.deltas },
       action.entry.owner,
       nodeDef.skill,
       nodeDef.baseXp,
+    );
+    dispatchQuestEvent(
+      {
+        world: ctx.world,
+        registries: ctx.registries,
+        deltas: ctx.deltas,
+        serverTime,
+        tick,
+        itemAudit: ctx.itemAudit,
+      },
+      action.entry.owner,
+      { kind: "item_gained", itemId: nodeDef.outputItemId, quantity: nodeDef.outputQuantity },
+    );
+    dispatchQuestEvent(
+      {
+        world: ctx.world,
+        registries: ctx.registries,
+        deltas: ctx.deltas,
+        serverTime,
+        tick,
+        itemAudit: ctx.itemAudit,
+      },
+      action.entry.owner,
+      { kind: "skill_xp_gained", skillId: nodeDef.skill, amount: nodeDef.baseXp },
     );
   }
   if (ctx.rng.nextFloat() < nodeDef.depletionChance) {
@@ -542,6 +584,7 @@ export function handleProcess(
   ctx: SkillingContext,
   action: ActionExecution,
   payload: ProcessActionPayload,
+  tick: number,
   serverTime: number,
 ): void {
   const recipe = ctx.registries.processingRecipe.get(payload.recipeId);
@@ -558,18 +601,88 @@ export function handleProcess(
   if (!inventory) {
     return;
   }
+  const beforeInputQuantity = count(inventory, recipe.inputItemId);
   const removed = removeItem(inventory, recipe.inputItemId, recipe.inputQuantity);
   if (removed.removed < recipe.inputQuantity) {
     ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
     return;
   }
+  const afterInputQuantity = count(inventory, recipe.inputItemId);
   const failed = ctx.rng.nextFloat() < recipe.failureChance;
   const itemId = failed ? (recipe.failureItemId ?? recipe.successItemId) : recipe.successItemId;
   const quantity = failed ? recipe.failureQuantity : recipe.successQuantity;
+  const beforeOutputQuantity = count(inventory, itemId);
   const added = addItem(inventory, catalogFromItems(ctx.registries.item), itemId, quantity);
   ctx.deltas.markInventoryDelta(buildDelta(inventory, [...removed.changes, ...added.changes]));
+  if (removed.removed > 0) {
+    ctx.itemAudit?.recordForEntity(action.entry.owner, {
+      tick,
+      itemId: recipe.inputItemId,
+      quantity: removed.removed,
+      reason: "skilling_process_input",
+      beforeQuantity: beforeInputQuantity,
+      afterQuantity: afterInputQuantity,
+      metadata: {
+        recipeId: recipe.id,
+        stationEntityId: payload.stationEntityId,
+        skillId: recipe.skill,
+      },
+    });
+  }
+  if (added.added > 0) {
+    ctx.itemAudit?.recordForEntity(action.entry.owner, {
+      tick,
+      itemId,
+      quantity: added.added,
+      reason: "skilling_process_output",
+      beforeQuantity: beforeOutputQuantity,
+      afterQuantity: count(inventory, itemId),
+      metadata: {
+        recipeId: recipe.id,
+        stationEntityId: payload.stationEntityId,
+        skillId: recipe.skill,
+        failed,
+      },
+    });
+  }
+  dispatchQuestEvent(
+    {
+      world: ctx.world,
+      registries: ctx.registries,
+      deltas: ctx.deltas,
+      serverTime,
+      tick,
+      itemAudit: ctx.itemAudit,
+    },
+    action.entry.owner,
+    { kind: "item_removed", itemId: recipe.inputItemId, quantity: recipe.inputQuantity },
+  );
+  dispatchQuestEvent(
+    {
+      world: ctx.world,
+      registries: ctx.registries,
+      deltas: ctx.deltas,
+      serverTime,
+      tick,
+      itemAudit: ctx.itemAudit,
+    },
+    action.entry.owner,
+    { kind: "item_gained", itemId, quantity },
+  );
   if (!failed) {
     addXp({ world: ctx.world, deltas: ctx.deltas }, action.entry.owner, recipe.skill, recipe.xp);
+    dispatchQuestEvent(
+      {
+        world: ctx.world,
+        registries: ctx.registries,
+        deltas: ctx.deltas,
+        serverTime,
+        tick,
+        itemAudit: ctx.itemAudit,
+      },
+      action.entry.owner,
+      { kind: "skill_xp_gained", skillId: recipe.skill, amount: recipe.xp },
+    );
   }
 }
 
@@ -582,6 +695,6 @@ export function createSkillingActionHandlers(ctx: SkillingContext): SkillingHand
     begin_process: (payload, actionCtx) =>
       handleBeginProcess(ctx, actionCtx.execution, payload, actionCtx.serverTime),
     process: (payload, actionCtx) =>
-      handleProcess(ctx, actionCtx.execution, payload, actionCtx.serverTime),
+      handleProcess(ctx, actionCtx.execution, payload, actionCtx.tick, actionCtx.serverTime),
   };
 }

@@ -10,30 +10,6 @@ import {
   PlaneGeometry,
 } from "three";
 
-/** Simple material cache for terrain tiles by underlay ID. */
-const materialCache = new Map<string, MeshLambertMaterial>();
-
-/** Shared water material to avoid creating identical materials per tile. */
-const waterMaterial = new MeshBasicMaterial({
-  color: 0x4a90d9,
-  side: DoubleSide,
-  transparent: true,
-  opacity: 0.7,
-});
-
-function getMaterial(materialId: string): MeshLambertMaterial {
-  if (!materialCache.has(materialId)) {
-    const color = materialIdToColor(materialId);
-    const mat = new MeshLambertMaterial({ color });
-    materialCache.set(materialId, mat);
-  }
-  const cached = materialCache.get(materialId);
-  if (cached === undefined) {
-    throw new Error(`Material ${materialId} not found in cache after insertion`);
-  }
-  return cached;
-}
-
 function materialIdToColor(id: string): number {
   const palette: Record<string, number | undefined> = {
     grass: 0x4a8c4a,
@@ -71,6 +47,13 @@ export class TerrainLayer {
   private readonly chunks = new Map<string, ChunkMesh>();
   private readonly chunkGeometry = new BoxGeometry(1, 0.2, 1);
   private readonly waterGeometry = new PlaneGeometry(1, 1);
+  private readonly materialCache = new Map<string, MeshLambertMaterial>();
+  private readonly waterMaterial = new MeshBasicMaterial({
+    color: 0x4a90d9,
+    side: DoubleSide,
+    transparent: true,
+    opacity: 0.7,
+  });
 
   constructor(options: TerrainLayerOptions) {
     this.scene = options.scene;
@@ -103,11 +86,7 @@ export class TerrainLayer {
     if (!chunk) return;
     const group = chunk.group;
     this.scene.remove(group);
-    for (const child of group.children) {
-      if (child instanceof Mesh) {
-        child.geometry.dispose();
-      }
-    }
+    group.clear();
     this.chunks.delete(key);
   }
 
@@ -122,7 +101,7 @@ export class TerrainLayer {
 
   /** Unload all chunks. */
   clear(): void {
-    for (const key of this.chunks.keys()) {
+    for (const key of Array.from(this.chunks.keys())) {
       this.unloadChunk(key);
     }
   }
@@ -134,15 +113,25 @@ export class TerrainLayer {
     const underlayId = tile.underlayId ?? "grass";
 
     if (isWater) {
-      const mesh = new Mesh(this.waterGeometry, waterMaterial);
+      const mesh = new Mesh(this.waterGeometry, this.waterMaterial);
       mesh.rotation.x = -Math.PI / 2;
       mesh.position.set(tile.x, 0.05, -tile.y);
       return mesh;
     }
 
-    const mesh = new Mesh(this.chunkGeometry, getMaterial(underlayId));
+    const mesh = new Mesh(this.chunkGeometry, this.getMaterial(underlayId));
     mesh.position.set(tile.x, height * 0.1, -tile.y);
     return mesh;
+  }
+
+  private getMaterial(materialId: string): MeshLambertMaterial {
+    const existing = this.materialCache.get(materialId);
+    if (existing) {
+      return existing;
+    }
+    const mat = new MeshLambertMaterial({ color: materialIdToColor(materialId) });
+    this.materialCache.set(materialId, mat);
+    return mat;
   }
 
   /** Number of currently loaded chunks. */
@@ -152,5 +141,12 @@ export class TerrainLayer {
 
   dispose(): void {
     this.clear();
+    this.chunkGeometry.dispose();
+    this.waterGeometry.dispose();
+    this.waterMaterial.dispose();
+    for (const material of this.materialCache.values()) {
+      material.dispose();
+    }
+    this.materialCache.clear();
   }
 }

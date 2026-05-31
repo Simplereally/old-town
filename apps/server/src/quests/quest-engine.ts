@@ -1,0 +1,172 @@
+import type { ContentRegistries, EntityId, QuestDef, QuestStage } from "@old-town/shared";
+import type { World } from "../ecs/world";
+import type { ItemAuditLog, ItemAuditMetadata } from "../items/item-audit";
+import type { DeltaAccumulator } from "../sim/delta-accumulator";
+import {
+  getBooleanVar,
+  getQuestStage,
+  incrementVar,
+  questAreaVarKey,
+  questCompletedVarKey,
+  questKillCountVarKey,
+  questObjectVarKey,
+  questTalkVarKey,
+  setQuestStage,
+  setVar,
+} from "../vars/player-vars";
+import { applyEffects, completeQuest } from "./effects";
+import { areObjectivesComplete } from "./objectives";
+
+export type QuestEvent =
+  | { readonly kind: "dialogue"; readonly npcId: string }
+  | { readonly kind: "item_gained"; readonly itemId: string; readonly quantity: number }
+  | { readonly kind: "item_removed"; readonly itemId: string; readonly quantity: number }
+  | { readonly kind: "npc_killed"; readonly npcId: string }
+  | { readonly kind: "object_interacted"; readonly objectId: string; readonly option: string }
+  | { readonly kind: "skill_xp_gained"; readonly skillId: string; readonly amount: number }
+  | { readonly kind: "area_entered"; readonly areaId: string; readonly tag?: string };
+
+export interface QuestEngineContext {
+  readonly world: World;
+  readonly registries: ContentRegistries;
+  readonly deltas: DeltaAccumulator;
+  readonly serverTime: number;
+  readonly tick?: number | undefined;
+  readonly itemAudit?: ItemAuditLog | undefined;
+  readonly itemAuditMetadata?: ItemAuditMetadata | undefined;
+}
+
+export interface QuestDispatchResult {
+  readonly progressedQuestIds: readonly string[];
+}
+
+export function dispatchQuestEvent(
+  ctx: QuestEngineContext,
+  playerId: EntityId,
+  event: QuestEvent,
+): QuestDispatchResult {
+  recordEventProgress(ctx, playerId, event);
+  const progressedQuestIds: string[] = [];
+
+  for (const quest of ctx.registries.quest.values()) {
+    if (isQuestCompleted(ctx, playerId, quest)) {
+      continue;
+    }
+    const stage = currentQuestStage(ctx, playerId, quest);
+    if (!stage || stage.stage === 0) {
+      continue;
+    }
+    if (!areObjectivesComplete(ctx.world, playerId, quest, stage)) {
+      continue;
+    }
+    if (completeStage(ctx, playerId, quest, stage)) {
+      progressedQuestIds.push(quest.id);
+    }
+  }
+
+  return { progressedQuestIds };
+}
+
+function recordEventProgress(ctx: QuestEngineContext, playerId: EntityId, event: QuestEvent): void {
+  for (const quest of ctx.registries.quest.values()) {
+    if (isQuestCompleted(ctx, playerId, quest)) {
+      continue;
+    }
+    const stage = currentQuestStage(ctx, playerId, quest);
+    if (!stage || stage.stage === 0) {
+      continue;
+    }
+
+    for (const objective of stage.objectives) {
+      switch (event.kind) {
+        case "dialogue":
+          if (objective.kind === "talk" && objective.npcId === event.npcId) {
+            setVar(ctx, playerId, questTalkVarKey(quest, event.npcId), true);
+          }
+          break;
+        case "npc_killed":
+          if (objective.kind === "kill" && objective.npcId === event.npcId) {
+            incrementVar(ctx, playerId, questKillCountVarKey(quest, event.npcId));
+          }
+          break;
+        case "object_interacted":
+          if (
+            objective.kind === "object" &&
+            objective.objectId === event.objectId &&
+            objective.option === event.option
+          ) {
+            setVar(ctx, playerId, questObjectVarKey(quest, event.objectId, event.option), true);
+          }
+          break;
+        case "area_entered":
+          setVar(ctx, playerId, questAreaVarKey(quest, event.areaId), true);
+          break;
+        case "item_gained":
+        case "item_removed":
+        case "skill_xp_gained":
+          break;
+      }
+    }
+  }
+}
+
+function completeStage(
+  ctx: QuestEngineContext,
+  playerId: EntityId,
+  quest: QuestDef,
+  stage: QuestStage,
+): boolean {
+  const nextStage = quest.stages
+    .filter((candidate) => candidate.stage > stage.stage)
+    .toSorted((a, b) => a.stage - b.stage)[0];
+  if (!nextStage) {
+    const result = completeQuest(ctx, playerId, quest.id);
+    if (result.applied) {
+      runStageTriggers(ctx, playerId, quest, stage, "stage_complete");
+    }
+    return result.applied;
+  }
+  runStageTriggers(ctx, playerId, quest, stage, "stage_complete");
+  setQuestStage(ctx, playerId, quest, nextStage.stage);
+  runStageTriggers(ctx, playerId, quest, nextStage, "stage_enter");
+  return true;
+}
+
+function runStageTriggers(
+  ctx: QuestEngineContext,
+  playerId: EntityId,
+  quest: QuestDef,
+  stage: QuestStage,
+  triggerType: "stage_enter" | "stage_complete",
+): void {
+  for (const trigger of stage.triggers) {
+    if (trigger.on === triggerType) {
+      applyEffects(
+        {
+          ...ctx,
+          itemAuditMetadata: {
+            ...(ctx.itemAuditMetadata ?? {}),
+            questId: quest.id,
+            stage: stage.stage,
+            triggerType,
+          },
+        },
+        playerId,
+        trigger.effects,
+      );
+    }
+  }
+}
+
+function currentQuestStage(
+  ctx: Pick<QuestEngineContext, "world">,
+  playerId: EntityId,
+  quest: QuestDef,
+): QuestStage | undefined {
+  const stage = getQuestStage(ctx.world, playerId, quest);
+  return quest.stages.find((candidate) => candidate.stage === stage);
+}
+
+function isQuestCompleted(ctx: QuestEngineContext, playerId: EntityId, quest: QuestDef): boolean {
+  return getBooleanVar(ctx.world, playerId, questCompletedVarKey(quest));
+}

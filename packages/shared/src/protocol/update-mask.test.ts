@@ -22,7 +22,7 @@ const fullPayload: Required<EntityUpdatePayload> = {
   hitsplat: { amount: 5, type: "damage" },
   overheadText: "grr",
   appearance: { name: "Guard" },
-  equipment: { slots: [null, "bronze_sword"] },
+  equipment: { slots: [null, "penny_sword"] },
   healthBar: { current: 10, max: 30 },
   transform: "guard_angry",
   moveSpeed: "walk",

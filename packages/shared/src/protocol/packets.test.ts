@@ -38,7 +38,7 @@ const fullState: FullStatePacket = {
   entities: [spawn],
   inventory: {
     containerId: "inventory",
-    changes: [{ slot: 0, itemId: "bronze_hatchet", quantity: 1 }],
+    changes: [{ slot: 0, itemId: "penny_hatchet", quantity: 1 }],
   },
   skills: [{ skillId: "woodcutting", level: 1, xp: 0 }],
   vars: [{ varId: "quest_smoke", value: 0 }],
@@ -57,6 +57,19 @@ const tickDelta: TickDeltaPacket = {
   chat: [{ text: "hello", channel: "public", serverTime: 1700000000600, entityId: entityId(42) }],
   hitsplats: [{ entityId: entityId(1), hitsplat: { amount: 4, type: "damage" } }],
   xpDrops: [{ skillId: "attack", amount: 16 }],
+  interfaceOpens: [
+    {
+      interfaceId: "dialogue",
+      dialogue: {
+        dialogueId: "baker_dialogue",
+        nodeId: "start",
+        speakerName: "Baker",
+        npcText: "Hello.",
+        options: [{ index: 0, text: "Continue" }],
+      },
+    },
+  ],
+  interfaceCloses: [{ interfaceId: "bank" }],
 };
 
 describe("server packet serialization", () => {

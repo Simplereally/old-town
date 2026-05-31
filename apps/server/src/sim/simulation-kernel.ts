@@ -1,9 +1,13 @@
+import { performance } from "node:perf_hooks";
 import {
   type ClientCommand,
   type ContentRegistries,
   createRng,
   type FullStatePacket,
+  GAME_TICK_MS,
+  type ItemTransactionAuditRecord,
 } from "@old-town/shared";
+import { createDialogueActionHandlers } from "../dialogue/dialogue-engine";
 import { createWorld, type World } from "../ecs/world";
 import { ItemAuditLog } from "../items/item-audit";
 import type { Logger } from "../logger";
@@ -13,6 +17,12 @@ import { DeltaBroadcaster } from "../net/delta-broadcaster";
 import { DevSessionManager } from "../net/dev-session";
 import { InterestManager } from "../net/interest-manager";
 import type { TransportSession } from "../net/websocket-transport";
+import {
+  CharacterSaveQueue,
+  createPersistenceDirtyObserver,
+  DisabledPersistenceAdapter,
+  type PersistenceAdapter,
+} from "../persistence";
 import { ChatSystem } from "../systems/chat-system";
 import {
   processCombatStartEvents,
@@ -41,29 +51,38 @@ import {
 import { TickLoop, TickPhase } from "./tick-loop";
 
 export interface SimulationKernel {
-  connectSession(session: TransportSession): FullStatePacket;
-  disconnectSession(session: TransportSession): void;
+  connectSession(session: TransportSession): Promise<FullStatePacket>;
+  disconnectSession(session: TransportSession): Promise<void>;
+  flushPersistence(): Promise<void>;
   routeCommand(session: TransportSession, command: ClientCommand): CommandRouteResult;
   runOneTick(): number;
   runDueTicks(nowMs: number): number;
   attachDeltaTransport(transport: DeltaTransport): void;
   detachDeltaTransport(): void;
+  recentItemTransactions(limit?: number): readonly ItemTransactionAuditRecord[];
   stats(): KernelStats;
 }
 
 export interface KernelStats {
   readonly currentTick: number;
   readonly currentServerTime: number;
+  readonly lastTickDurationMs: number;
   readonly aliveEntityCount: number;
   readonly pendingCommandCount: number;
+  readonly lastCommandsProcessed: number;
   readonly connectedSessionCount: number;
   readonly regionCount: number;
   readonly tileCount: number;
+  readonly lastDeltaSizeBytes: number;
+  readonly saveQueuePendingCount: number;
+  readonly saveQueueInFlightCount: number;
 }
 
 export interface SimulationKernelOptions {
   readonly registries: ContentRegistries;
   readonly logger: Logger;
+  readonly persistence?: PersistenceAdapter;
+  readonly lazySaveIntervalTicks?: number;
   readonly startServerTime?: number;
   readonly startTick?: number;
 }
@@ -82,10 +101,18 @@ interface SimulationDeps {
   readonly actionExecutor: ActionExecutor<ActionHandlerTable>;
   readonly interestManager: InterestManager;
   readonly itemAudit: ItemAuditLog;
+  readonly persistence: PersistenceAdapter;
+  readonly saveQueue: CharacterSaveQueue;
   readonly collision: CollisionMap;
   readonly registries: ContentRegistries;
   readonly logger: Logger;
   readonly rng: ReturnType<typeof createRng>;
+}
+
+interface KernelMetrics {
+  lastTickDurationMs: number;
+  lastCommandsProcessed: number;
+  lastDeltaSizeBytes: number;
 }
 
 function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps {
@@ -94,18 +121,38 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
   const world = createWorld();
   const map = createRuntimeMap();
   loadAllRegionMapsIntoWorld(world, map, registries);
-  const devSessions = new DevSessionManager(world, map, registries);
+  const persistence = options.persistence ?? new DisabledPersistenceAdapter();
+  const itemAudit = new ItemAuditLog({ persistence, logger });
+  const devSessions = new DevSessionManager(world, map, registries, persistence, itemAudit);
+  itemAudit.setCharacterResolver((entityId) => devSessions.characterIdForEntity(entityId));
   const collision = new CollisionMap(map);
   applyObjectCollision(world, registries, collision);
   const commandBuffer = new CommandBuffer();
   const deltas = new DeltaAccumulator();
   const interestManager = new InterestManager();
-  const itemAudit = new ItemAuditLog();
   const tickLoop = new TickLoop({
     logger,
     ...(startTick !== undefined ? { startTick } : {}),
     ...(startServerTime !== undefined ? { startServerTime } : {}),
   });
+  const saveQueue = new CharacterSaveQueue({
+    world,
+    registries,
+    persistence,
+    resolveCharacterId: (entityId) => devSessions.characterIdForEntity(entityId),
+    lazySaveIntervalTicks: options.lazySaveIntervalTicks ?? 10,
+    logger,
+  });
+  deltas.setObserver(
+    createPersistenceDirtyObserver({
+      saveQueue,
+      players: devSessions,
+      clock: () => ({
+        tick: tickLoop.currentTick,
+        serverTime: tickLoop.currentServerTime,
+      }),
+    }),
+  );
   const chatSystem = new ChatSystem();
   const consumableSystem = new ConsumableSystem();
   const actionRuntime = new ActionRuntime();
@@ -117,15 +164,25 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
     actionRuntime,
     registries,
     rng,
+    itemAudit,
   };
   syncNpcOccupancy({ world, collision, registries });
   const skillingHandlers = createSkillingActionHandlers(skillingContext);
   const resourceNodeHandlers = createResourceNodeActionHandlers(skillingContext);
   const spellHandlers = createSpellActionHandlers(skillingContext);
+  const dialogueHandlers = createDialogueActionHandlers({
+    world,
+    collision,
+    deltas,
+    actionRuntime,
+    registries,
+    itemAudit,
+  });
   const actionTable: ActionHandlerTable = {
     ...skillingHandlers,
     ...resourceNodeHandlers,
     ...spellHandlers,
+    ...dialogueHandlers,
   };
   const actionExecutor = new ActionExecutor(
     actionTable,
@@ -164,6 +221,8 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
     actionExecutor,
     interestManager,
     itemAudit,
+    persistence,
+    saveQueue,
     collision,
     registries,
     logger,
@@ -174,6 +233,7 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
 function wireTickPhases(
   deps: SimulationDeps,
   deltaBroadcasterRef: { current: DeltaBroadcaster | undefined },
+  metrics: KernelMetrics,
 ): void {
   const {
     world,
@@ -188,6 +248,7 @@ function wireTickPhases(
     registries,
     rng,
     itemAudit,
+    saveQueue,
   } = deps;
 
   const dispatchContext = {
@@ -220,6 +281,10 @@ function wireTickPhases(
 
   tickLoop.registerPhase(TickPhase.InputClose, ({ tick, serverTime }) => {
     const commands = commandRouter.consumeTick(tick);
+    metrics.lastCommandsProcessed = commands.groups.reduce(
+      (count, group) => count + group.intents.length,
+      0,
+    );
     for (const group of commands.groups) {
       dispatchIntentGroup(dispatchContext, group, tick, serverTime);
     }
@@ -251,8 +316,8 @@ function wireTickPhases(
     processDamageResolutionEvents(combatContext, tick);
   });
 
-  tickLoop.registerPhase(TickPhase.DeathResolution, ({ tick }) => {
-    processDeathResolution(combatContext, tick);
+  tickLoop.registerPhase(TickPhase.DeathResolution, ({ tick, serverTime }) => {
+    processDeathResolution(combatContext, tick, serverTime);
     processGroundItemLifecycle(combatContext, tick);
   });
 
@@ -260,14 +325,20 @@ function wireTickPhases(
     dispatchConsumablePhase(dispatchContext);
   });
 
+  tickLoop.registerPhase(TickPhase.QuestTriggersVarbits, ({ tick, serverTime }) => {
+    saveQueue.flushDue(tick, serverTime);
+  });
+
   tickLoop.registerPhase(TickPhase.SnapshotDeltaBuild, ({ tick, serverTime }) => {
-    deltaBroadcasterRef.current?.broadcastTick(tick, serverTime);
+    const delta = deltaBroadcasterRef.current?.broadcastTick(tick, serverTime);
+    metrics.lastDeltaSizeBytes = delta === undefined ? 0 : JSON.stringify(delta).length;
   });
 }
 
 function createKernelInterface(
   deps: SimulationDeps,
   deltaBroadcasterRef: { current: DeltaBroadcaster | undefined },
+  metrics: KernelMetrics,
 ): SimulationKernel {
   const {
     world,
@@ -279,26 +350,30 @@ function createKernelInterface(
     devSessions,
     interestManager,
     logger,
+    saveQueue,
+    itemAudit,
   } = deps;
   const connectedSessions = new Set<string>();
 
   function primeSessionOnAttach(session: TransportSession): void {
-    const fullState = devSessions.bootstrap(
+    const fullState = devSessions.fullStateForSession(
       session,
       tickLoop.currentTick,
       tickLoop.currentServerTime,
     );
-    deltaBroadcasterRef.current?.primeSession(session, fullState.entities);
+    if (fullState) {
+      deltaBroadcasterRef.current?.primeSession(session, fullState.entities);
+    }
   }
 
   return {
-    connectSession(session) {
-      connectedSessions.add(session.id);
-      const fullState = devSessions.bootstrap(
+    async connectSession(session) {
+      const fullState = await devSessions.bootstrap(
         session,
         tickLoop.currentTick,
         tickLoop.currentServerTime,
       );
+      connectedSessions.add(session.id);
       deltaBroadcasterRef.current?.primeSession(session, fullState.entities);
       const entityById = new Map(fullState.entities.map((e) => [e.entityId, e]));
       const selfSpawn = entityById.get(fullState.selfEntityId);
@@ -308,13 +383,25 @@ function createKernelInterface(
       return fullState;
     },
 
-    disconnectSession(session) {
+    async disconnectSession(session) {
       const entityId = devSessions.getEntityId(session);
       if (entityId !== undefined) {
         deltas.markEntityRemove(entityId);
       }
-      devSessions.remove(session);
-      connectedSessions.delete(session.id);
+      try {
+        await devSessions.remove(session, tickLoop.currentServerTime);
+      } catch (error) {
+        logger.error("kernel", "Session persistence failed during disconnect", {
+          sessionId: session.id,
+          message: error instanceof Error ? error.message : String(error),
+        });
+        throw error;
+      } finally {
+        if (entityId !== undefined) {
+          saveQueue.discard(entityId);
+        }
+        connectedSessions.delete(session.id);
+      }
     },
 
     routeCommand(session, command) {
@@ -326,11 +413,21 @@ function createKernelInterface(
     },
 
     runOneTick() {
-      return tickLoop.runOneTick();
+      const startedAt = performance.now();
+      try {
+        return tickLoop.runOneTick();
+      } finally {
+        metrics.lastTickDurationMs = performance.now() - startedAt;
+      }
     },
 
     runDueTicks(nowMs) {
-      return tickLoop.runDueTicks(nowMs);
+      let ran = 0;
+      while (tickLoop.currentServerTime + GAME_TICK_MS <= nowMs) {
+        this.runOneTick();
+        ran += 1;
+      }
+      return ran;
     },
 
     attachDeltaTransport(transport) {
@@ -357,15 +454,29 @@ function createKernelInterface(
       deltaBroadcasterRef.current = undefined;
     },
 
+    async flushPersistence() {
+      await saveQueue.flushAll(tickLoop.currentTick, tickLoop.currentServerTime);
+      await itemAudit.flush();
+    },
+
+    recentItemTransactions(limit = 50) {
+      return itemAudit.recent(limit);
+    },
+
     stats() {
       return {
         currentTick: tickLoop.currentTick,
         currentServerTime: tickLoop.currentServerTime,
+        lastTickDurationMs: metrics.lastTickDurationMs,
         aliveEntityCount: world.aliveEntityCount(),
         pendingCommandCount: commandBuffer.pendingCount,
+        lastCommandsProcessed: metrics.lastCommandsProcessed,
         connectedSessionCount: connectedSessions.size,
         regionCount: map.regions.size,
         tileCount: map.tiles.size,
+        lastDeltaSizeBytes: metrics.lastDeltaSizeBytes,
+        saveQueuePendingCount: saveQueue.pendingCount,
+        saveQueueInFlightCount: saveQueue.inFlightCount,
       };
     },
   };
@@ -374,6 +485,11 @@ function createKernelInterface(
 export function createSimulationKernel(options: SimulationKernelOptions): SimulationKernel {
   const deps = createSimulationDeps(options);
   const deltaBroadcasterRef: { current: DeltaBroadcaster | undefined } = { current: undefined };
-  wireTickPhases(deps, deltaBroadcasterRef);
-  return createKernelInterface(deps, deltaBroadcasterRef);
+  const metrics: KernelMetrics = {
+    lastTickDurationMs: 0,
+    lastCommandsProcessed: 0,
+    lastDeltaSizeBytes: 0,
+  };
+  wireTickPhases(deps, deltaBroadcasterRef, metrics);
+  return createKernelInterface(deps, deltaBroadcasterRef, metrics);
 }

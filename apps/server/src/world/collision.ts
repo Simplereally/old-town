@@ -1,26 +1,9 @@
 import type { ContentRegistries, ObjectDef, TileCoord } from "@old-town/shared";
-import { tileKey } from "@old-town/shared";
+import { CollisionFlag, tileKey } from "@old-town/shared";
 import type { World } from "../ecs/world";
 import type { RuntimeMap } from "./runtime-map";
 
-export enum CollisionFlag {
-  BLOCK_NORTH = 1 << 0,
-  BLOCK_EAST = 1 << 1,
-  BLOCK_SOUTH = 1 << 2,
-  BLOCK_WEST = 1 << 3,
-  BLOCK_FULL = 1 << 4,
-  BLOCK_FLOOR = 1 << 5,
-  BLOCK_DECORATION = 1 << 6,
-  BLOCK_LOS_NORTH = 1 << 7,
-  BLOCK_LOS_EAST = 1 << 8,
-  BLOCK_LOS_SOUTH = 1 << 9,
-  BLOCK_LOS_WEST = 1 << 10,
-  BLOCK_LOS_FULL = 1 << 11,
-  OCCUPIED_PLAYER = 1 << 12,
-  OCCUPIED_NPC = 1 << 13,
-  OCCUPIED_OBJECT = 1 << 14,
-  PROJECTILE_BLOCK = 1 << 15,
-}
+export { CollisionFlag } from "@old-town/shared";
 
 export interface Footprint {
   readonly width: number;

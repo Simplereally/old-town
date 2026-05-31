@@ -3,6 +3,7 @@ import {
   CHUNK_SIZE,
   type ContentRegistries,
   type EntityId,
+  type EquipmentUpdate,
   type FullStatePacket,
   GAME_TICK_MS,
   INVENTORY_SIZE,
@@ -17,14 +18,19 @@ import {
   type SkillDelta,
   TILE_SIZE_WORLD_UNITS,
   type TileCoord,
+  type VarDelta,
 } from "@old-town/shared";
 import type { InventoryComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
-import { createEquipment } from "../items/equipment";
+import { createEquipment, equipmentUpdate } from "../items/equipment";
 import { addItem, catalogFromItems, createInventory, toInventoryDelta } from "../items/inventory";
+import type { ItemAuditLog } from "../items/item-audit";
+import { DisabledPersistenceAdapter, type PersistenceAdapter } from "../persistence";
+import { applyCharacterSnapshot, snapshotCharacter } from "../persistence/character-state";
 import { computeCombatLevel } from "../skills/combat-level";
 import { maxHealthForHitpointsLevel } from "../skills/skill-state";
 import { groundItemVisibleToPlayer } from "../systems/ground-item-system";
+import { createVarComponent, toVarDeltas } from "../vars/player-vars";
 import type { RuntimeMap } from "../world/runtime-map";
 import { projectWorldEntities } from "./entity-spawn-projector";
 import type { TransportSession } from "./websocket-transport";
@@ -44,17 +50,76 @@ const STARTER_ITEMS: readonly { itemId: string; quantity: number }[] = [
 
 export class DevSessionManager {
   private readonly entityBySession = new Map<string, EntityId>();
+  private readonly characterIdByEntity = new Map<EntityId, string>();
 
   constructor(
     private readonly world: World,
     private readonly map: RuntimeMap,
     private readonly registries: ContentRegistries,
+    private readonly persistence: PersistenceAdapter = new DisabledPersistenceAdapter(),
+    private readonly itemAudit?: ItemAuditLog,
   ) {}
 
-  bootstrap(session: TransportSession, tick = 0, serverTime = Date.now()): FullStatePacket {
-    const entityId = this.entityBySession.get(session.id) ?? this.createPlayer(session);
+  async bootstrap(
+    session: TransportSession,
+    tick = 0,
+    serverTime = Date.now(),
+  ): Promise<FullStatePacket> {
+    const entityId =
+      this.entityBySession.get(session.id) ?? (await this.createPlayer(session, tick, serverTime));
     this.entityBySession.set(session.id, entityId);
+    this.characterIdByEntity.set(entityId, session.characterId);
+    return this.fullState(entityId, tick, serverTime);
+  }
 
+  async remove(session: TransportSession, serverTime = Date.now()): Promise<void> {
+    const entityId = this.entityBySession.get(session.id);
+    try {
+      if (entityId !== undefined && this.world.isAlive(entityId)) {
+        await this.persistence.saveCharacter(
+          snapshotCharacter(
+            { world: this.world, registries: this.registries },
+            entityId,
+            session.characterId,
+            serverTime,
+          ),
+        );
+      }
+    } finally {
+      if (entityId !== undefined && this.world.isAlive(entityId)) {
+        this.world.destroyEntity(entityId);
+      }
+      if (entityId !== undefined) {
+        this.characterIdByEntity.delete(entityId);
+      }
+      this.entityBySession.delete(session.id);
+    }
+  }
+
+  getEntityId(session: TransportSession): EntityId | undefined {
+    return this.entityBySession.get(session.id);
+  }
+
+  entityIds(): readonly EntityId[] {
+    return Array.from(this.entityBySession.values()).toSorted(
+      (a, b) => (a as number) - (b as number),
+    );
+  }
+
+  characterIdForEntity(entityId: EntityId): string | undefined {
+    return this.characterIdByEntity.get(entityId);
+  }
+
+  fullStateForSession(
+    session: TransportSession,
+    tick = 0,
+    serverTime = Date.now(),
+  ): FullStatePacket | undefined {
+    const entityId = this.entityBySession.get(session.id);
+    return entityId === undefined ? undefined : this.fullState(entityId, tick, serverTime);
+  }
+
+  private fullState(entityId: EntityId, tick: number, serverTime: number): FullStatePacket {
     const { spawns } = projectWorldEntities(this.world);
 
     return {
@@ -75,25 +140,49 @@ export class DevSessionManager {
         this.entityVisibleToPlayer(entityId, spawn.entityId, tick),
       ),
       inventory: this.inventoryDelta(entityId),
+      equipment: this.equipmentUpdate(entityId),
       skills: this.skillDeltas(entityId),
+      vars: this.varDeltas(entityId),
       regionLoads: this.regionLoads(),
     };
   }
 
-  remove(session: TransportSession): void {
-    const entityId = this.entityBySession.get(session.id);
-    if (entityId !== undefined && this.world.isAlive(entityId)) {
-      this.world.destroyEntity(entityId);
-    }
-    this.entityBySession.delete(session.id);
-  }
-
-  getEntityId(session: TransportSession): EntityId | undefined {
-    return this.entityBySession.get(session.id);
-  }
-
-  private createPlayer(session: TransportSession): EntityId {
+  private async createPlayer(
+    session: TransportSession,
+    tick: number,
+    serverTime: number,
+  ): Promise<EntityId> {
+    const snapshot = await this.persistence.loadCharacter(session.characterId);
     const entityId = this.world.createEntity();
+    try {
+      this.applyDefaultPlayerComponents(entityId, session, {
+        auditStarterItems: snapshot === undefined,
+        tick,
+        serverTime,
+      });
+      if (snapshot) {
+        applyCharacterSnapshot(
+          { world: this.world, registries: this.registries },
+          entityId,
+          snapshot,
+        );
+      }
+    } catch (error) {
+      this.world.destroyEntity(entityId);
+      throw error;
+    }
+    return entityId;
+  }
+
+  private applyDefaultPlayerComponents(
+    entityId: EntityId,
+    session: TransportSession,
+    options: {
+      readonly auditStarterItems: boolean;
+      readonly tick: number;
+      readonly serverTime: number;
+    },
+  ): void {
     this.world.setComponent(entityId, "position", {
       entityId,
       x: DEV_SPAWN_TILE.x,
@@ -118,8 +207,13 @@ export class DevSessionManager {
       mode: "walk",
       path: [],
     });
-    this.world.setComponent(entityId, "inventory", this.createStarterInventory(entityId));
+    this.world.setComponent(
+      entityId,
+      "inventory",
+      this.createStarterInventory(entityId, session.characterId, options),
+    );
     this.world.setComponent(entityId, "equipment", createEquipment(entityId));
+    this.world.setComponent(entityId, "vars", createVarComponent(entityId));
     this.world.setComponent(entityId, "skills", {
       entityId,
       skills: Object.fromEntries(
@@ -147,14 +241,37 @@ export class DevSessionManager {
       dead: false,
       spellCooldowns: {},
     });
-    return entityId;
   }
 
-  private createStarterInventory(entityId: EntityId): InventoryComponent {
+  private createStarterInventory(
+    entityId: EntityId,
+    characterId: string,
+    options: {
+      readonly auditStarterItems: boolean;
+      readonly tick: number;
+      readonly serverTime: number;
+    },
+  ): InventoryComponent {
     const inventory = createInventory(entityId, `inventory:${entityId}`, INVENTORY_SIZE);
     const catalog = catalogFromItems(this.registries.item);
     for (const { itemId, quantity } of STARTER_ITEMS) {
-      addItem(inventory, catalog, itemId, quantity);
+      const result = addItem(inventory, catalog, itemId, quantity);
+      if (options.auditStarterItems && result.added > 0) {
+        this.itemAudit?.record({
+          tick: options.tick,
+          characterId,
+          itemId,
+          quantity: result.added,
+          reason: "starter_item",
+          beforeQuantity: 0,
+          afterQuantity: result.added,
+          metadata: {
+            entityId,
+            source: "dev_session_bootstrap",
+            serverTime: options.serverTime,
+          },
+        });
+      }
     }
     return inventory;
   }
@@ -165,6 +282,11 @@ export class DevSessionManager {
       return { containerId: `inventory:${entityId}`, changes: [] };
     }
     return toInventoryDelta(inventory);
+  }
+
+  private equipmentUpdate(entityId: EntityId): EquipmentUpdate {
+    const equipment = this.world.getComponent(entityId, "equipment");
+    return equipment ? equipmentUpdate(equipment) : { slots: [] };
   }
 
   private skillDeltas(entityId: EntityId): readonly SkillDelta[] {
@@ -179,6 +301,10 @@ export class DevSessionManager {
         level: state.level,
         xp: state.xp,
       }));
+  }
+
+  private varDeltas(entityId: EntityId): readonly VarDelta[] {
+    return toVarDeltas(this.world, entityId);
   }
 
   private entityVisibleToPlayer(playerId: EntityId, entityId: EntityId, tick: number): boolean {

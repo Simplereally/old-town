@@ -6,6 +6,7 @@ import { ConsumableSystem } from "../systems/consumable-system";
 import { createEquipment } from "./equipment";
 import { addItem, catalogFromItems, count, createInventory } from "./inventory";
 import { handleItemIntent, handleUnequipIntent, type ItemActionContext } from "./item-actions";
+import { ItemAuditLog } from "./item-audit";
 
 function defItem(over: Partial<ItemDef> & { id: string }): ItemDef {
   return {
@@ -77,8 +78,9 @@ function setup(
   }
   const deltas = new DeltaAccumulator();
   const consumables = new ConsumableSystem();
-  const ctx: ItemActionContext = { world, deltas, items: ITEMS, consumables };
-  return { world, owner, inventory, deltas, consumables, ctx };
+  const itemAudit = new ItemAuditLog();
+  const ctx: ItemActionContext = { world, deltas, items: ITEMS, consumables, itemAudit };
+  return { world, owner, inventory, deltas, consumables, itemAudit, ctx };
 }
 
 const TICK = 100;
@@ -137,7 +139,9 @@ describe("handleItemIntent — examine", () => {
 
 describe("handleItemIntent — drop", () => {
   it("removes the whole slot and emits an inventory delta", () => {
-    const { ctx, owner, inventory, deltas } = setup([{ itemId: "test_axe", quantity: 1 }]);
+    const { ctx, owner, inventory, deltas, itemAudit } = setup([
+      { itemId: "test_axe", quantity: 1 },
+    ]);
     const result = handleItemIntent(
       ctx,
       owner,
@@ -149,12 +153,23 @@ describe("handleItemIntent — drop", () => {
     expect(result.outcome).toBe("dropped");
     expect(count(inventory, "test_axe")).toBe(0);
     expect(deltas.peek().inventoryDelta?.changes).toEqual([{ slot: 0, itemId: null, quantity: 0 }]);
+    expect(itemAudit.snapshot()[0]).toMatchObject({
+      tick: TICK,
+      characterId: `entity:${owner}`,
+      itemId: "test_axe",
+      quantity: 1,
+      reason: "inventory_drop",
+      beforeQuantity: 1,
+      afterQuantity: 0,
+    });
   });
 });
 
 describe("handleItemIntent — equip", () => {
   it("moves an equippable item into its slot and out of the inventory", () => {
-    const { ctx, owner, world, inventory } = setup([{ itemId: "test_blade", quantity: 1 }]);
+    const { ctx, owner, world, inventory, itemAudit } = setup([
+      { itemId: "test_blade", quantity: 1 },
+    ]);
     const result = handleItemIntent(
       ctx,
       owner,
@@ -166,10 +181,19 @@ describe("handleItemIntent — equip", () => {
     expect(result.outcome).toBe("equipped");
     expect(count(inventory, "test_blade")).toBe(0);
     expect(world.getComponent(owner, "equipment")?.slots.weapon).toBe("test_blade");
+    expect(itemAudit.snapshot()[0]).toMatchObject({
+      reason: "equipment_equip",
+      itemId: "test_blade",
+      beforeQuantity: 1,
+      afterQuantity: 0,
+      metadata: expect.objectContaining({ equipmentSlot: "weapon" }),
+    });
   });
 
   it("swaps the previously-equipped item back into the inventory", () => {
-    const { ctx, owner, world, inventory } = setup([{ itemId: "test_blade", quantity: 1 }]);
+    const { ctx, owner, world, inventory, itemAudit } = setup([
+      { itemId: "test_blade", quantity: 1 },
+    ]);
     const equipment = world.getComponent(owner, "equipment");
     if (equipment) {
       equipment.slots.weapon = "test_axe"; // pretend an axe is already wielded
@@ -185,6 +209,10 @@ describe("handleItemIntent — equip", () => {
     expect(world.getComponent(owner, "equipment")?.slots.weapon).toBe("test_blade");
     expect(count(inventory, "test_axe")).toBe(1);
     expect(count(inventory, "test_blade")).toBe(0);
+    expect(itemAudit.snapshot().map((record) => record.reason)).toEqual([
+      "equipment_equip",
+      "equipment_swap_out",
+    ]);
   });
 
   it("equips into the correct content-defined slot", () => {
@@ -232,7 +260,7 @@ describe("handleItemIntent — equip", () => {
 
 describe("handleItemIntent — eat", () => {
   it("consumes one unit, queues the heal, and applies the eat delay", () => {
-    const { ctx, owner, world, inventory, deltas, consumables } = setup(
+    const { ctx, owner, world, inventory, deltas, consumables, itemAudit } = setup(
       [{ itemId: "test_bread", quantity: 3 }],
       { health: 4, maxHealth: 10 },
     );
@@ -255,6 +283,14 @@ describe("handleItemIntent — eat", () => {
     expect(consumables.pendingCount).toBe(1);
     expect(world.getComponent(owner, "combatant")?.health).toBe(4);
     expect(world.getComponent(owner, "combatant")?.eatBlockedUntilTick).toBe(TICK + 3);
+    expect(itemAudit.snapshot()[0]).toMatchObject({
+      reason: "consume",
+      itemId: "test_bread",
+      quantity: 1,
+      beforeQuantity: 3,
+      afterQuantity: 2,
+      metadata: expect.objectContaining({ heal: 5, consumeTicks: 3 }),
+    });
   });
 
   it("silently ignores a second eat while still inside the eat delay", () => {
@@ -333,7 +369,7 @@ describe("handleItemIntent — eat", () => {
 });
 
 describe("handleItemIntent — use / unknown", () => {
-  it("acknowledges use as a placeholder without mutating", () => {
+  it("acknowledges use without mutating until a target is selected", () => {
     const { ctx, owner, inventory, deltas } = setup([{ itemId: "test_axe", quantity: 1 }]);
     const result = handleItemIntent(
       ctx,
@@ -364,7 +400,9 @@ describe("handleItemIntent — use / unknown", () => {
 
 describe("handleUnequipIntent", () => {
   it("returns an equipped item to the inventory and emits an equipment update", () => {
-    const { ctx, owner, world, inventory, deltas } = setup([{ itemId: "test_blade", quantity: 1 }]);
+    const { ctx, owner, world, inventory, deltas, itemAudit } = setup([
+      { itemId: "test_blade", quantity: 1 },
+    ]);
     handleItemIntent(
       ctx,
       owner,
@@ -373,12 +411,16 @@ describe("handleUnequipIntent", () => {
       SERVER_TIME,
     );
 
-    const result = handleUnequipIntent(ctx, owner, 3, SERVER_TIME); // weapon index
+    const result = handleUnequipIntent(ctx, owner, 3, TICK + 1, SERVER_TIME); // weapon index
     expect(result.outcome).toBe("unequipped");
     expect(count(inventory, "test_blade")).toBe(1);
     expect(world.getComponent(owner, "equipment")?.slots.weapon).toBeUndefined();
     const update = deltas.peek().entityUpdates.find((u) => u.entityId === owner);
     expect(update?.changes.equipment?.slots[3]).toBeNull();
+    expect(itemAudit.snapshot().map((record) => record.reason)).toEqual([
+      "equipment_equip",
+      "equipment_unequip",
+    ]);
   });
 
   it("fails to unequip into a full inventory without mutating", () => {
@@ -396,7 +438,7 @@ describe("handleUnequipIntent", () => {
         inventory.slots[i] = { itemId: "test_axe", quantity: 1, uid: 1000 + i };
       }
     }
-    const result = handleUnequipIntent(ctx, owner, 3, SERVER_TIME);
+    const result = handleUnequipIntent(ctx, owner, 3, TICK + 1, SERVER_TIME);
     expect(result.outcome).toBe("invalid");
     expect(world.getComponent(owner, "equipment")?.slots.weapon).toBe("test_blade");
   });

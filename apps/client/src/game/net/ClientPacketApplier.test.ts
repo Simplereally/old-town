@@ -85,6 +85,7 @@ function createMockContext(): PacketApplierContext {
       applyVarbitDelta: vi.fn(),
       addChat: vi.fn(),
       setDialogue: vi.fn(),
+      clearDialogue: vi.fn(),
     },
     selfEntityId: 0,
     logDebug: vi.fn(),
@@ -248,7 +249,7 @@ describe("ClientPacketApplier", () => {
     );
   });
 
-  it("applyFullState sets inventory, skills, and vars", () => {
+  it("applyFullState sets inventory, equipment, skills, and vars", () => {
     const ctx = createMockContext();
     const applier = new ClientPacketApplier(ctx);
     const inventory = {
@@ -257,10 +258,12 @@ describe("ClientPacketApplier", () => {
     };
     const skills = [{ skillId: "attack", level: 1, xp: 0 }];
     const vars = [{ varId: "quest", value: 1 }];
+    const equipment = { slots: ["helm", null, "amulet"] };
 
-    applier.applyFullState(fullStatePacket({ inventory, skills, vars }));
+    applier.applyFullState(fullStatePacket({ inventory, equipment, skills, vars }));
 
     expect(ctx.uiState.setInventory).toHaveBeenCalledWith(inventory);
+    expect(ctx.uiState.setEquipment).toHaveBeenCalledWith(equipment.slots);
     expect(ctx.uiState.setSkills).toHaveBeenCalledWith(skills);
     expect(ctx.uiState.setVars).toHaveBeenCalledWith(vars);
   });
@@ -501,7 +504,19 @@ describe("ClientPacketApplier", () => {
         skillDelta: [{ skillId: "attack", level: 2, xp: 100 }],
         varbitDelta: [{ varId: "flag", value: 1 }],
         chat,
-        interfaceOpens: [{ interfaceId: "dialogue_1" }],
+        interfaceOpens: [
+          {
+            interfaceId: "dialogue",
+            dialogue: {
+              dialogueId: "dialogue_1",
+              nodeId: "start",
+              speakerName: "Baker",
+              npcText: "Hello.",
+              options: [{ index: 0, text: "Continue" }],
+            },
+          },
+        ],
+        interfaceCloses: [{ interfaceId: "dialogue" }],
       }),
       1,
     );
@@ -513,7 +528,14 @@ describe("ClientPacketApplier", () => {
     expect(ctx.uiState.applyVarbitDelta).toHaveBeenCalledWith([{ varId: "flag", value: 1 }]);
     expect(ctx.uiState.addChat).toHaveBeenCalledWith(chat);
     expect(ctx.chatOverhead.show).toHaveBeenCalledWith(eid(5), "Hello", new Vector3(0, 0, 0));
-    expect(ctx.uiState.setDialogue).toHaveBeenCalledWith("dialogue_1", "start");
+    expect(ctx.uiState.setDialogue).toHaveBeenCalledWith({
+      dialogueId: "dialogue_1",
+      nodeId: "start",
+      speakerName: "Baker",
+      npcText: "Hello.",
+      options: [{ index: 0, text: "Continue" }],
+    });
+    expect(ctx.uiState.clearDialogue).toHaveBeenCalled();
   });
 
   it("does not show chat overhead for system messages", () => {

@@ -18,7 +18,8 @@ import type { World } from "../ecs/world";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import type { ConsumableSystem } from "../systems/consumable-system";
 import { equipItem, equipmentUpdate, unequipSlot } from "./equipment";
-import { buildDelta, findSlotByUid, removeFromSlot } from "./inventory";
+import { buildDelta, count, findSlotByUid, removeFromSlot } from "./inventory";
+import type { ItemAuditLog } from "./item-audit";
 
 export interface ItemActionContext {
   readonly world: World;
@@ -27,6 +28,7 @@ export interface ItemActionContext {
   readonly items: ReadonlyMap<string, ItemDef>;
   /** Defers eat/drink heals to the stat-change tick phase (POC_SPEC §13.9, §9.1). */
   readonly consumables: ConsumableSystem;
+  readonly itemAudit?: ItemAuditLog | undefined;
 }
 
 /** What the dispatcher did, for callers/tests. `invalid` means no state changed. */
@@ -98,8 +100,23 @@ export function handleItemIntent(
   }
 
   if (actionId === "drop") {
+    const beforeQuantity = count(inventory, occupant.itemId);
     const { changes } = removeFromSlot(inventory, slot, occupant.quantity);
+    const afterQuantity = count(inventory, occupant.itemId);
     ctx.deltas.markInventoryDelta(buildDelta(inventory, changes));
+    ctx.itemAudit?.recordForEntity(owner, {
+      tick,
+      itemId: occupant.itemId,
+      quantity: occupant.quantity,
+      reason: "inventory_drop",
+      beforeQuantity,
+      afterQuantity,
+      metadata: {
+        actionId,
+        slot,
+        uid: occupant.uid,
+      },
+    });
     const message = `You drop the ${def.name}.`;
     emitMessage(ctx, owner, message, serverTime);
     return { outcome: "dropped", message };
@@ -109,12 +126,49 @@ export function handleItemIntent(
     if (!def.equipment) {
       return invalid("You can't equip that.");
     }
+    const equipmentSlot = def.equipment.slot;
+    const equipment = ctx.world.getComponent(owner, "equipment");
+    const previousItemId = equipment?.slots[equipmentSlot];
+    const beforeEquippedItemQuantity = count(inventory, occupant.itemId);
+    const beforePreviousItemQuantity = previousItemId
+      ? count(inventory, previousItemId)
+      : undefined;
     const result = equipItem({ world: ctx.world, items: ctx.items }, owner, inventory, slot, def);
     if (!result.ok) {
       return invalid("You aren't a high enough level to equip that.");
     }
     ctx.deltas.markInventoryDelta(buildDelta(inventory, result.changes));
     ctx.deltas.markEntityUpdate(owner, { equipment: equipmentUpdate(result.equipment) });
+    ctx.itemAudit?.recordForEntity(owner, {
+      tick,
+      itemId: occupant.itemId,
+      quantity: occupant.quantity,
+      reason: "equipment_equip",
+      beforeQuantity: beforeEquippedItemQuantity,
+      afterQuantity: count(inventory, occupant.itemId),
+      metadata: {
+        actionId,
+        inventorySlot: slot,
+        equipmentSlot,
+        uid: occupant.uid,
+      },
+    });
+    if (previousItemId && beforePreviousItemQuantity !== undefined) {
+      ctx.itemAudit?.recordForEntity(owner, {
+        tick,
+        itemId: previousItemId,
+        quantity: 1,
+        reason: "equipment_swap_out",
+        beforeQuantity: beforePreviousItemQuantity,
+        afterQuantity: count(inventory, previousItemId),
+        metadata: {
+          actionId,
+          inventorySlot: slot,
+          equipmentSlot,
+          replacedByItemId: occupant.itemId,
+        },
+      });
+    }
     const message = `You equip the ${def.name}.`;
     emitMessage(ctx, owner, message, serverTime);
     return { outcome: "equipped", message };
@@ -138,10 +192,27 @@ export function handleItemIntent(
     // Consume one unit now (the food leaves the inventory on the eat tick) and apply the eat
     // delay. The HP restore is deferred to the stat-change phase so a same-tick incoming hit
     // resolves first (POC_SPEC §13.9, §9.1 phase 9 > phase 8).
+    const beforeQuantity = count(inventory, occupant.itemId);
     const { changes } = removeFromSlot(inventory, slot, 1);
+    const afterQuantity = count(inventory, occupant.itemId);
     ctx.deltas.markInventoryDelta(buildDelta(inventory, changes));
     ctx.consumables.enqueueHeal(owner, def.consumable.heal);
     combatant.eatBlockedUntilTick = tick + def.consumable.consumeTicks;
+    ctx.itemAudit?.recordForEntity(owner, {
+      tick,
+      itemId: occupant.itemId,
+      quantity: 1,
+      reason: "consume",
+      beforeQuantity,
+      afterQuantity,
+      metadata: {
+        actionId,
+        slot,
+        uid: occupant.uid,
+        heal: def.consumable.heal,
+        consumeTicks: def.consumable.consumeTicks,
+      },
+    });
     const verb = actionId === "drink" ? "drink" : "eat";
     const message = `You ${verb} the ${def.name}.`;
     emitMessage(ctx, owner, message, serverTime);
@@ -167,6 +238,7 @@ export function handleUnequipIntent(
   ctx: ItemActionContext,
   owner: EntityId,
   slotIndex: number,
+  tick: number,
   serverTime: number,
 ): ItemActionResult {
   const inventory = ctx.world.getComponent(owner, "inventory");
@@ -175,6 +247,9 @@ export function handleUnequipIntent(
     return { outcome: "invalid", message: "" };
   }
 
+  const equipment = ctx.world.getComponent(owner, "equipment");
+  const itemId = equipment?.slots[slotName];
+  const beforeQuantity = itemId ? count(inventory, itemId) : undefined;
   const result = unequipSlot({ world: ctx.world, items: ctx.items }, owner, inventory, slotName);
   if (!result.ok) {
     if (result.reason === "inventory_full") {
@@ -187,6 +262,18 @@ export function handleUnequipIntent(
 
   ctx.deltas.markInventoryDelta(buildDelta(inventory, result.changes));
   ctx.deltas.markEntityUpdate(owner, { equipment: equipmentUpdate(result.equipment) });
+  ctx.itemAudit?.recordForEntity(owner, {
+    tick,
+    itemId: result.itemId,
+    quantity: 1,
+    reason: "equipment_unequip",
+    beforeQuantity: beforeQuantity ?? 0,
+    afterQuantity: count(inventory, result.itemId),
+    metadata: {
+      equipmentSlot: slotName,
+      slotIndex,
+    },
+  });
   const name = ctx.items.get(result.itemId)?.name ?? result.itemId;
   const message = `You unequip the ${name}.`;
   emitMessage(ctx, owner, message, serverTime);

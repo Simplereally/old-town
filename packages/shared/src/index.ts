@@ -4,16 +4,17 @@
 /** Package marker used by smoke tests to verify cross-package imports resolve. */
 export const SHARED_PACKAGE = "@old-town/shared" as const;
 
+export * from "./collision-flags";
 export * from "./constants";
 export * from "./content/action-id";
 export * from "./content/content-ids";
 export * from "./content/content-layout";
 export * from "./content/content-registry";
 export * from "./content-schemas";
-export * from "./content-schemas";
 export * from "./math/direction";
 export * from "./math/numeric";
 export * from "./math/rng";
+export * from "./persistence";
 export * from "./progression/xp-table";
 export * from "./protocol/command-schemas";
 export * from "./protocol/commands";

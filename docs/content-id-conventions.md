@@ -16,16 +16,16 @@ All content ids must match:
 
 | Category    | Brand type    | Constructor      | Examples                          |
 | ----------- | ------------- | ---------------- | --------------------------------- |
-| Item        | `ItemId`      | `itemId()`       | `bronze_hatchet`, `raw_trout`     |
+| Item        | `ItemId`      | `itemId()`       | `penny_hatchet`, `raw_reedfish`   |
 | NPC         | `NpcId`       | `npcId()`        | `town_guard`, `river_rat`         |
 | Object      | `ObjectId`    | `objectId()`     | `oak_tree`, `copper_rock`         |
 | Skill       | `SkillId`     | `skillId()`      | `woodcutting`, `attack`           |
-| Spell       | `SpellId`     | `spellId()`      | `wind_dart`, `home_teleport`      |
+| Spell       | `SpellId`     | `spellId()`      | `ember_flick`, `homeward_murmur`  |
 | Quest       | `QuestId`     | `questId()`      | `smoke_over_old_town`             |
 | Drop table  | `DropTableId` | `dropTableId()`  | `river_rat_drops`                 |
 | Animation   | `AnimationId` | `animationId()`  | `chop_swing`, `human_walk`        |
 | Material    | `MaterialId`  | `materialId()`   | `grass`, `cobblestone`            |
-| Asset       | `AssetId`     | `assetId()`      | `tree_oak`, `icon_bronze_hatchet` |
+| Asset       | `AssetId`     | `assetId()`      | `tree_oak`, `icon_penny_hatchet`  |
 
 Each constructor validates the string and brands it as an opaque type so ids of different
 categories cannot be accidentally interchanged. `isContentId(value)` is the raw predicate.

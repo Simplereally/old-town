@@ -19,27 +19,19 @@ describe("isContentId", () => {
   it("accepts lowercase snake_case ids", () => {
     for (const id of [
       "a",
-      "bronze_hatchet",
+      "penny_hatchet",
       "oak_tree",
-      "wind_dart",
+      "ember_flick",
       "skill_1",
       "river_rat_drops",
     ]) {
       expect(isContentId(id)).toBe(true);
     }
-    expect(CONTENT_ID_PATTERN.test("bronze_hatchet")).toBe(true);
+    expect(CONTENT_ID_PATTERN.test("penny_hatchet")).toBe(true);
   });
 
   it("rejects empty, uppercase, spaced, dashed, and bad-leading ids", () => {
-    for (const id of [
-      "",
-      "Bronze",
-      "bronze hatchet",
-      "bronze-hatchet",
-      "1tree",
-      "_tree",
-      "tree!",
-    ]) {
+    for (const id of ["", "Penny", "penny hatchet", "penny-hatchet", "1tree", "_tree", "tree!"]) {
       expect(isContentId(id)).toBe(false);
     }
   });
@@ -52,20 +44,20 @@ describe("isContentId", () => {
 
 describe("content-id constructors", () => {
   it("brand valid ids as stable strings (not numeric)", () => {
-    expect(itemId("bronze_hatchet")).toBe("bronze_hatchet");
+    expect(itemId("penny_hatchet")).toBe("penny_hatchet");
     expect(typeof npcId("town_guard")).toBe("string");
     expect(objectId("oak_tree")).toBe("oak_tree");
     expect(skillId("woodcutting")).toBe("woodcutting");
-    expect(spellId("wind_dart")).toBe("wind_dart");
+    expect(spellId("ember_flick")).toBe("ember_flick");
     expect(questId("smoke_over_old_town")).toBe("smoke_over_old_town");
     expect(dropTableId("river_rat_drops")).toBe("river_rat_drops");
     expect(animationId("chop_swing")).toBe("chop_swing");
     expect(materialId("cobblestone")).toBe("cobblestone");
-    expect(assetId("icon_bronze_hatchet")).toBe("icon_bronze_hatchet");
+    expect(assetId("icon_penny_hatchet")).toBe("icon_penny_hatchet");
   });
 
   it("throw on illegal names", () => {
-    expect(() => itemId("Bronze Hatchet")).toThrow();
+    expect(() => itemId("Penny Hatchet")).toThrow();
     expect(() => npcId("")).toThrow();
     expect(() => objectId("oak-tree")).toThrow();
     expect(() => skillId("Woodcutting")).toThrow();

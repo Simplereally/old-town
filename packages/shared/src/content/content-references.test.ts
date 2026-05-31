@@ -99,6 +99,7 @@ describe("validateContentGraph", () => {
               {
                 id: "start",
                 npcText: "Hi",
+                requirements: [],
                 playerOptions: [{ text: "Bye", next: "nowhere", requirements: [], effects: [] }],
                 effects: [],
               },
@@ -126,7 +127,7 @@ describe("validateContentGraph", () => {
             name: "Teleport",
             spellbook: "common" as const,
             requiredMagic: 1,
-            beadCosts: [{ itemId: "missing_rune", quantity: 1 }],
+            beadCosts: [{ itemId: "missing_bead", quantity: 1 }],
             castXp: 0,
             rangeTiles: 0,
             targetType: "self" as const,
@@ -139,7 +140,7 @@ describe("validateContentGraph", () => {
 
     const result = validateContentGraph(registries, sources([]));
     expect(result.issues).toHaveLength(1);
-    expect(result.issues[0]?.message).toContain("missing_rune");
+    expect(result.issues[0]?.message).toContain("missing_bead");
   });
 
   it("flags a quest objective referencing a missing NPC", () => {

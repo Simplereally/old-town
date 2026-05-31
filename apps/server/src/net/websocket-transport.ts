@@ -23,12 +23,12 @@ export interface TransportSession {
 export interface WebSocketTransportOptions {
   readonly httpServer: Server;
   readonly logger: Pick<Logger, "debug" | "warn">;
-  readonly getFullState: (session: TransportSession) => FullStatePacket;
+  readonly getFullState: (session: TransportSession) => FullStatePacket | Promise<FullStatePacket>;
   readonly onCommand?: (
     session: TransportSession,
     command: ClientCommand,
   ) => { readonly ok: boolean; readonly reason?: string } | undefined;
-  readonly onClose?: (session: TransportSession) => void;
+  readonly onClose?: (session: TransportSession) => void | Promise<void>;
 }
 
 export interface WebSocketTransport {
@@ -81,7 +81,7 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
     socketStates.set(socket, {});
     options.logger.debug("ws", "Socket opened");
 
-    socket.on("message", (data) => {
+    socket.on("message", async (data) => {
       let message: unknown;
       try {
         message = decodeTransportMessage(data.toString());
@@ -112,7 +112,15 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
         sessions.set(session.id, session);
         socketsBySession.set(session.id, socket);
         socketStates.set(socket, { session });
-        send(socket, options.getFullState(session));
+        try {
+          send(socket, await options.getFullState(session));
+        } catch (error) {
+          options.logger.warn("ws", "Full-state bootstrap failed", {
+            message: error instanceof Error ? error.message : String(error),
+          });
+          send(socket, { type: TransportServerMessageType.Error, reason: "bootstrap_failed" });
+          socket.close(1011, "bootstrap_failed");
+        }
         return;
       }
 
@@ -149,7 +157,12 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
       if (session) {
         sessions.delete(session.id);
         socketsBySession.delete(session.id);
-        options.onClose?.(session);
+        void Promise.resolve(options.onClose?.(session)).catch((error: unknown) => {
+          options.logger.warn("ws", "Session close handler failed", {
+            sessionId: session.id,
+            message: error instanceof Error ? error.message : String(error),
+          });
+        });
       }
       options.logger.debug("ws", "Socket closed", session ? { sessionId: session.id } : undefined);
     });

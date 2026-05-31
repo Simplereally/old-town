@@ -1,6 +1,7 @@
 import {
   type ChatPacket,
   type ChunkData,
+  type DialogueViewPacket,
   Direction,
   type EntitySpawnPacket,
   type FullStatePacket,
@@ -90,7 +91,8 @@ export interface IUIState {
   applySkillDelta(delta: readonly SkillDelta[]): void;
   applyVarbitDelta(delta: readonly VarbitDelta[]): void;
   addChat(chat: readonly ChatPacket[]): void;
-  setDialogue(interfaceId: string, nodeId: string): void;
+  setDialogue(dialogue: DialogueViewPacket): void;
+  clearDialogue(): void;
 }
 
 export interface PacketApplierContext {
@@ -169,6 +171,9 @@ export class ClientPacketApplier {
 
     if (packet.inventory) {
       ctx.uiState.setInventory(packet.inventory);
+    }
+    if (packet.equipment) {
+      ctx.uiState.setEquipment(packet.equipment.slots);
     }
     if (packet.skills) {
       ctx.uiState.setSkills(packet.skills);
@@ -291,7 +296,16 @@ export class ClientPacketApplier {
 
     if (packet.interfaceOpens) {
       for (const open of packet.interfaceOpens) {
-        ctx.uiState.setDialogue(open.interfaceId, "start");
+        if (open.dialogue) {
+          ctx.uiState.setDialogue(open.dialogue);
+        }
+      }
+    }
+    if (packet.interfaceCloses) {
+      for (const close of packet.interfaceCloses) {
+        if (close.interfaceId === "dialogue") {
+          ctx.uiState.clearDialogue();
+        }
       }
     }
 

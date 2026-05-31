@@ -1,6 +1,6 @@
 import type { ChunkData } from "@old-town/shared";
-import { Scene } from "three";
-import { beforeEach, describe, expect, it } from "vitest";
+import { Mesh, Scene } from "three";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { TerrainLayer } from "./TerrainLayer";
 
 function createChunk(cx: number, cy: number, tiles: ChunkData["tiles"]): ChunkData {
@@ -33,6 +33,20 @@ describe("TerrainLayer", () => {
     const chunk = createChunk(0, 0, [{ x: 0, y: 0, height: 0, underlayId: "grass", collision: 0 }]);
     terrain.loadChunk("0:0:0", chunk);
     terrain.unloadChunk("0:0:0:0:0");
+    expect(terrain.loadedChunkCount).toBe(0);
+  });
+
+  it("unloads chunks without disposing shared tile geometry", () => {
+    const chunk = createChunk(0, 0, [{ x: 0, y: 0, height: 0, underlayId: "grass", collision: 0 }]);
+    terrain.loadChunk("0:0:0", chunk);
+    const group = scene.children[0];
+    const mesh = group?.children[0];
+    if (!(mesh instanceof Mesh)) throw new Error("Expected terrain mesh");
+    const geometryDispose = vi.spyOn(mesh.geometry, "dispose");
+
+    terrain.unloadChunk("0:0:0:0:0");
+
+    expect(geometryDispose).not.toHaveBeenCalled();
     expect(terrain.loadedChunkCount).toBe(0);
   });
 
