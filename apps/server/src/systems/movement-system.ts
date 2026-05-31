@@ -149,5 +149,6 @@ export function processMovementPhase(
       moveSpeed: moveSpeed(movement.mode),
       ...(facingTile ? { facingTile } : {}),
     });
+    context.deltas.markDebugPath(entityId, remainingPath);
   }
 }

@@ -15,6 +15,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "tasks:status": "bun scripts/tasks-status.ts",
+    "client:dev": "bun run --filter @old-town/client dev",
     "content:validate": "bun tools/content-validator/src/index.ts",
     "clean": "bun run --filter '*' clean || true"
   },

@@ -1,5 +1,7 @@
 import {
   type ChatPacket,
+  type DebugPathData,
+  type DebugTickData,
   type EntityId,
   type EntitySpawnPacket,
   type EntityUpdatePacket,
@@ -11,6 +13,7 @@ import {
   ServerPacketType,
   type SkillDelta,
   type TickDeltaPacket,
+  type TileCoord,
   type VarbitDelta,
   type XpDropPacket,
   buildEntityUpdate,
@@ -27,6 +30,7 @@ export interface DirtyState {
   readonly hitsplats?: readonly HitsplatPacket[];
   readonly xpDrops?: readonly XpDropPacket[];
   readonly interfaceOpens?: readonly InterfaceOpenPacket[];
+  readonly debug?: DebugTickData;
 }
 
 interface InventoryDeltaBuilder {
@@ -53,6 +57,7 @@ export class DeltaAccumulator {
   private hitsplatPackets: HitsplatPacket[] = [];
   private xpDropPackets: XpDropPacket[] = [];
   private interfaceOpenPackets: InterfaceOpenPacket[] = [];
+  private readonly debugPaths = new Map<EntityId, DebugPathData>();
 
   markEntityAdd(spawn: EntitySpawnPacket): void {
     this.entityRemoves.delete(spawn.entityId);
@@ -117,6 +122,10 @@ export class DeltaAccumulator {
     this.interfaceOpenPackets.push(packet);
   }
 
+  markDebugPath(entityId: EntityId, path: readonly TileCoord[]): void {
+    this.debugPaths.set(entityId, { entityId, path });
+  }
+
   peek(): DirtyState {
     const inventoryDelta = this.buildInventoryDelta();
 
@@ -148,6 +157,15 @@ export class DeltaAccumulator {
       ...(this.xpDropPackets.length > 0 ? { xpDrops: [...this.xpDropPackets] } : {}),
       ...(this.interfaceOpenPackets.length > 0
         ? { interfaceOpens: [...this.interfaceOpenPackets] }
+        : {}),
+      ...(this.debugPaths.size > 0
+        ? {
+            debug: {
+              paths: Array.from(this.debugPaths.values()).sort((a, b) =>
+                entityOrder(a.entityId, b.entityId),
+              ),
+            },
+          }
         : {}),
     };
   }
@@ -190,5 +208,6 @@ export class DeltaAccumulator {
     this.hitsplatPackets = [];
     this.xpDropPackets = [];
     this.interfaceOpenPackets = [];
+    this.debugPaths.clear();
   }
 }

@@ -12,7 +12,9 @@ import {
   PLANES,
   PROTOCOL_VERSION,
   REGION_SIZE,
+  type RegionId,
   type RegionLoadPacket,
+  type RegionTileData,
   ServerPacketType,
   type SkillDelta,
   TILE_SIZE_WORLD_UNITS,
@@ -195,6 +197,37 @@ export class DevSessionManager {
       .map((region) => ({
         region: region.region,
         regionId: region.id,
+        chunks: this.buildChunksForRegion(region.id),
       }));
+  }
+
+  private buildChunksForRegion(regionId: RegionId): NonNullable<RegionLoadPacket["chunks"]> {
+    const region = this.map.regions.get(regionId);
+    if (!region) return [];
+
+    const chunkMap = new Map<string, { cx: number; cy: number; tiles: RegionTileData[] }>();
+    for (const tileKey of region.tileKeys) {
+      const tile = this.map.tiles.get(tileKey);
+      if (!tile) continue;
+      const cx = Math.floor(tile.tile.x / CHUNK_SIZE);
+      const cy = Math.floor(tile.tile.y / CHUNK_SIZE);
+      const chunkKey = `${cx}:${cy}`;
+      if (!chunkMap.has(chunkKey)) {
+        chunkMap.set(chunkKey, { cx, cy, tiles: [] });
+      }
+      const chunk = chunkMap.get(chunkKey);
+      if (!chunk) continue;
+      chunk.tiles.push({
+        x: tile.tile.x,
+        y: tile.tile.y,
+        height: tile.height,
+        underlayId: tile.underlayId,
+        ...(tile.overlayId ? { overlayId: tile.overlayId } : {}),
+        collision: tile.collision,
+        ...(tile.water ? { water: true } : {}),
+        ...(tile.bridge ? { bridge: true } : {}),
+      });
+    }
+    return Array.from(chunkMap.values());
   }
 }

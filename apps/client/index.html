@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Old Town</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #1a1a2e;
+    }
+    #game-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    #status-overlay {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      padding: 8px 12px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.4;
+      pointer-events: none;
+      user-select: none;
+      border-radius: 4px;
+      z-index: 10;
+    }
+    #status-overlay .disconnected {
+      color: #ff4444;
+    }
+    #status-overlay .connected {
+      color: #44ff44;
+    }
+    #debug-overlay {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 8px 12px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #0f0;
+      font-family: "Courier New", monospace;
+      font-size: 11px;
+      line-height: 1.4;
+      pointer-events: none;
+      user-select: none;
+      border-radius: 4px;
+      z-index: 10;
+      display: none;
+    }
+    #debug-overlay.visible {
+      display: block;
+    }
+    #ui-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 20;
+    }
+    #ui-container > * {
+      pointer-events: auto;
+    }
+    .ui-panel {
+      background: rgba(20, 20, 30, 0.92);
+      border: 1px solid #555;
+      border-radius: 4px;
+      color: #fff;
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      overflow: hidden;
+    }
+    .ui-panel-header {
+      padding: 6px 10px;
+      background: rgba(40, 40, 50, 0.95);
+      border-bottom: 1px solid #444;
+      font-weight: bold;
+      user-select: none;
+    }
+    .ui-panel-body {
+      padding: 8px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .ui-panel.hidden {
+      display: none;
+    }
+    #ui-left {
+      position: absolute;
+      top: 80px;
+      left: 8px;
+      width: 200px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    #ui-right {
+      position: absolute;
+      top: 80px;
+      right: 8px;
+      width: 200px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    #ui-bottom {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      right: 8px;
+      display: flex;
+      justify-content: center;
+    }
+    #ui-bar {
+      position: absolute;
+      bottom: 180px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 4px;
+      background: rgba(20, 20, 30, 0.85);
+      padding: 4px 8px;
+      border-radius: 4px;
+      z-index: 30;
+    }
+    .ui-bar-btn {
+      background: rgba(60, 60, 80, 0.8);
+      border: 1px solid #444;
+      color: #ccc;
+      padding: 4px 10px;
+      font-family: "Courier New", monospace;
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 3px;
+      user-select: none;
+    }
+    .ui-bar-btn:hover {
+      background: rgba(80, 80, 100, 0.9);
+      color: #fff;
+    }
+    .ui-bar-btn.active {
+      background: rgba(100, 100, 130, 0.9);
+      color: #fff;
+      border-color: #666;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="game-canvas"></canvas>
+  <div id="status-overlay">
+    <div id="connection-status" class="disconnected">Disconnected</div>
+    <div id="tick-status">Tick: -</div>
+    <div id="fps-status">FPS: -</div>
+  </div>
+  <div id="debug-overlay">
+    <div id="debug-stats">Debug info</div>
+    <div id="debug-log" style="margin-top: 8px; border-top: 1px solid #333; padding-top: 4px; max-height: 200px; overflow-y: auto;"></div>
+  </div>
+  <div id="ui-container">
+    <div id="ui-left">
+      <div id="inventory-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Inventory</div>
+        <div class="ui-panel-body" id="inventory-body"></div>
+      </div>
+      <div id="equipment-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Equipment</div>
+        <div class="ui-panel-body" id="equipment-body"></div>
+      </div>
+    </div>
+    <div id="ui-right">
+      <div id="skills-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Skills</div>
+        <div class="ui-panel-body" id="skills-body"></div>
+      </div>
+      <div id="spellbook-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Spellbook</div>
+        <div class="ui-panel-body" id="spellbook-body"></div>
+      </div>
+      <div id="quest-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Quest Journal</div>
+        <div class="ui-panel-body" id="quest-body"></div>
+      </div>
+    </div>
+    <div id="ui-bottom">
+      <div id="chat-box" class="ui-panel hidden" style="width: 600px;">
+        <div class="ui-panel-header">Chat</div>
+        <div class="ui-panel-body" id="chat-body" style="max-height: 120px;"></div>
+        <div style="display: flex; padding: 4px; border-top: 1px solid #444;">
+          <input type="text" id="chat-input" placeholder="Type message..." style="flex: 1; background: rgba(30,30,40,0.9); border: 1px solid #444; color: #fff; padding: 4px 8px; font-family: 'Courier New', monospace; font-size: 11px; border-radius: 2px;" />
+          <button id="chat-send" style="margin-left: 4px; background: rgba(60,60,80,0.8); border: 1px solid #444; color: #ccc; padding: 4px 8px; font-family: 'Courier New', monospace; font-size: 11px; cursor: pointer; border-radius: 2px;">Send</button>
+        </div>
+      </div>
+      <div id="dialogue-box" class="ui-panel hidden" style="width: 400px; margin-bottom: 8px;">
+        <div class="ui-panel-header" id="dialogue-npc">Dialogue</div>
+        <div class="ui-panel-body" id="dialogue-body" style="max-height: 150px;">
+          <div id="dialogue-text" style="margin-bottom: 8px;"></div>
+          <div id="dialogue-options"></div>
+        </div>
+      </div>
+    </div>
+    <div id="ui-bar">
+      <button class="ui-bar-btn" id="btn-inventory" data-panel="inventory-panel">Inv</button>
+      <button class="ui-bar-btn" id="btn-equipment" data-panel="equipment-panel">Eq</button>
+      <button class="ui-bar-btn" id="btn-skills" data-panel="skills-panel">Skill</button>
+      <button class="ui-bar-btn" id="btn-spellbook" data-panel="spellbook-panel">Spell</button>
+      <button class="ui-bar-btn" id="btn-quest" data-panel="quest-panel">Quest</button>
+      <button class="ui-bar-btn" id="btn-chat" data-panel="chat-box">Chat</button>
+      <button class="ui-bar-btn" id="btn-debug" data-panel="debug-overlay">Debug</button>
+    </div>
+    <div id="spell-target-overlay" style="display: none; position: absolute; bottom: 220px; left: 50%; transform: translateX(-50%); background: rgba(80, 0, 0, 0.85); border: 1px solid #ff4444; color: #ff4444; padding: 6px 12px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 12px; z-index: 30; pointer-events: none;">Select target for spell (Esc to cancel)</div>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

@@ -131,6 +131,14 @@ export async function startServer(): Promise<GameServer> {
       res.end(JSON.stringify({ status: "ready", content: true }));
       return;
     }
+    if (req.url === "/api/content" && req.method === "GET") {
+      res.writeHead(200, {
+        "Content-Type": "application/json",
+        "Cache-Control": "max-age=60",
+      });
+      res.end(JSON.stringify(serializeContentForClient(content.registries)));
+      return;
+    }
     res.writeHead(404, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ error: "not found" }));
   });
@@ -188,4 +196,21 @@ export async function startServer(): Promise<GameServer> {
   };
 
   return { shutdown, httpServer, world, map, transport, tickLoop };
+}
+
+function serializeContentForClient(registries: BootContentResult["registries"]): unknown {
+  return {
+    item: Object.fromEntries(registries.item),
+    npc: Object.fromEntries(registries.npc),
+    object: Object.fromEntries(registries.object),
+    skill: Object.fromEntries(registries.skill),
+    resourceNode: Object.fromEntries(registries.resourceNode),
+    spell: Object.fromEntries(registries.spell),
+    dropTable: Object.fromEntries(registries.dropTable),
+    quest: Object.fromEntries(registries.quest),
+    dialogue: Object.fromEntries(registries.dialogue),
+    regionMap: Object.fromEntries(registries.regionMap),
+    material: Object.fromEntries(registries.material),
+    animation: Object.fromEntries(registries.animation),
+  };
 }

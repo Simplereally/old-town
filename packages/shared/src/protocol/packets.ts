@@ -83,11 +83,32 @@ export interface InterfaceOpenPacket {
   readonly interfaceId: string;
 }
 
+/** A single tile within a region load payload (compact form). */
+export interface RegionTileData {
+  readonly x: number;
+  readonly y: number;
+  readonly height: number;
+  readonly underlayId: string;
+  readonly overlayId?: string;
+  readonly collision: number;
+  readonly water?: boolean;
+  readonly bridge?: boolean;
+}
+
+/** A chunk (8x8 tiles) within a region. */
+export interface ChunkData {
+  readonly cx: number;
+  readonly cy: number;
+  readonly tiles: readonly RegionTileData[];
+}
+
 /** A region entering the player's loaded set. Terrain/object payloads are attached by
  *  later epics (E04/E06) once the map content schema exists. */
 export interface RegionLoadPacket {
   readonly region: RegionCoord;
   readonly regionId: RegionId;
+  /** Chunked tile data for this region. */
+  readonly chunks?: readonly ChunkData[];
 }
 
 /** A region leaving the player's loaded set. */
@@ -122,6 +143,27 @@ export interface FullStatePacket {
   readonly regionLoads?: readonly RegionLoadPacket[];
 }
 
+/** Debug path data for an entity's queued movement path. */
+export interface DebugPathData {
+  readonly entityId: EntityId;
+  readonly path: readonly TileCoord[];
+}
+
+/** Optional debug-only data attached to tick deltas for client visualization. */
+export interface DebugTickData {
+  readonly paths?: readonly DebugPathData[];
+  readonly trueTiles?: readonly { entityId: EntityId; tile: TileCoord }[];
+  readonly collisionTiles?: readonly TileCoord[];
+  readonly footprints?: readonly TileCoord[];
+  readonly reachTiles?: readonly { center: TileCoord; radius: number }[];
+  readonly loSRays?: readonly { start: TileCoord; end: TileCoord }[];
+  readonly actionQueue?: readonly string[];
+  readonly combatCooldown?: number;
+  readonly pendingHits?: readonly { targetId: EntityId; amount: number }[];
+  readonly npcLeash?: TileCoord;
+  readonly varbits?: readonly { varId: string; value: number }[];
+}
+
 /** Per-tick authoritative delta (POC_SPEC §8.3). */
 export interface TickDeltaPacket {
   readonly type: typeof ServerPacketType.TickDelta;
@@ -140,6 +182,7 @@ export interface TickDeltaPacket {
   readonly regionLoads?: readonly RegionLoadPacket[];
   readonly regionUnloads?: readonly RegionUnloadPacket[];
   readonly interfaceOpens?: readonly InterfaceOpenPacket[];
+  readonly debug?: DebugTickData;
 }
 
 /** Any top-level server → client message. */
