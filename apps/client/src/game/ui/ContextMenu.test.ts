@@ -55,7 +55,7 @@ describe("ContextMenu", () => {
 
   it("sends npc option on Talk-to click", () => {
     menu.show(100, 100, npcEntity("goblin"), null);
-    const items = document.querySelectorAll("div[style*='position: absolute'] > div");
+    const items = document.querySelectorAll(".context-menu > .context-menu-item");
     const talkTo = Array.from(items).find((el) => el.textContent?.includes("Talk-to"));
     expect(talkTo).toBeDefined();
     (talkTo as HTMLDivElement)?.click();
@@ -67,7 +67,7 @@ describe("ContextMenu", () => {
 
   it("sends npc option on Attack click", () => {
     menu.show(100, 100, npcEntity("goblin"), null);
-    const items = document.querySelectorAll("div[style*='position: absolute'] > div");
+    const items = document.querySelectorAll(".context-menu > .context-menu-item");
     const attack = Array.from(items).find((el) => el.textContent?.includes("Attack"));
     expect(attack).toBeDefined();
     (attack as HTMLDivElement)?.click();
@@ -79,7 +79,7 @@ describe("ContextMenu", () => {
 
   it("sends npc option on Cast click", () => {
     menu.show(100, 100, npcEntity("goblin"), null);
-    const items = document.querySelectorAll("div[style*='position: absolute'] > div");
+    const items = document.querySelectorAll(".context-menu > .context-menu-item");
     const cast = Array.from(items).find((el) => el.textContent?.includes("Cast"));
     expect(cast).toBeDefined();
     (cast as HTMLDivElement)?.click();

@@ -41,7 +41,7 @@ function createPlayer(world: World, session: TransportSession, at: TileCoord) {
 
 function playerSpawns(world: World) {
   return Array.from(world.stores.player.keys())
-    .sort((a, b) => (a as number) - (b as number))
+    .toSorted((a, b) => (a as number) - (b as number))
     .map((entityId) => {
       const position = world.stores.position.get(entityId);
       if (!position) {
@@ -86,7 +86,8 @@ async function startSocketHarness() {
       entityBySession.set(session.id, entityId);
       const entities = playerSpawns(world);
       refs.broadcaster?.primeSession(session, entities);
-      const selfSpawn = entities.find((entity) => entity.entityId === entityId);
+      const entityById = new Map(entities.map((e) => [e.entityId, e]));
+      const selfSpawn = entityById.get(entityId);
       if (selfSpawn) {
         deltas.markEntityAdd(selfSpawn);
       }
@@ -113,8 +114,10 @@ async function startSocketHarness() {
     throw new Error("Expected TCP address");
   }
   cleanup = async () => {
-    await transport.close();
-    await new Promise<void>((resolve) => httpServer.close(() => resolve()));
+    await Promise.all([
+      transport.close(),
+      new Promise<void>((resolve) => httpServer.close(() => resolve())),
+    ]);
   };
   const broadcaster = refs.broadcaster;
   if (!broadcaster) {
@@ -199,10 +202,10 @@ describe("DeltaBroadcaster", () => {
     const secondJoinPacket = nextMessage(secondSocket);
     harness.broadcaster.broadcastTick(1, 600);
 
-    expect((await firstJoinPacket).entityAdds.map((entity) => entity.entityId)).toEqual([
+    const [firstJoin] = await Promise.all([firstJoinPacket, secondJoinPacket]);
+    expect(firstJoin.entityAdds.map((entity) => entity.entityId)).toEqual([
       secondFullState.selfEntityId,
     ]);
-    await secondJoinPacket;
 
     harness.world.stores.position.set(secondFullState.selfEntityId, {
       entityId: secondFullState.selfEntityId,

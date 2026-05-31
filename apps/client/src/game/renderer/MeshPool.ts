@@ -20,6 +20,8 @@ export class MeshPool {
   private readonly geometry: BufferGeometry;
   private readonly material: Material;
   private readonly pool: PooledMesh[] = [];
+  private readonly meshToEntry = new Map<Mesh, PooledMesh>();
+  private readonly freeList: PooledMesh[] = [];
   private _activeCount = 0;
 
   constructor(options: MeshPoolOptions) {
@@ -33,7 +35,7 @@ export class MeshPool {
 
   /** Acquire a mesh from the pool. */
   acquire(): Mesh {
-    const entry = this.pool.find((p) => !p.inUse) ?? this._createMesh();
+    const entry = this.freeList.pop() ?? this._createMesh();
     entry.inUse = true;
     this._activeCount++;
     entry.mesh.visible = true;
@@ -42,7 +44,7 @@ export class MeshPool {
 
   /** Release a mesh back to the pool. */
   release(mesh: Mesh): void {
-    const entry = this.pool.find((p) => p.mesh === mesh);
+    const entry = this.meshToEntry.get(mesh);
     if (!entry || !entry.inUse) return;
     entry.inUse = false;
     this._activeCount--;
@@ -53,6 +55,7 @@ export class MeshPool {
     if (entry.mesh.parent) {
       entry.mesh.parent.remove(entry.mesh);
     }
+    this.freeList.push(entry);
   }
 
   /** Number of currently active (acquired) meshes. */
@@ -68,11 +71,12 @@ export class MeshPool {
   /** Dispose all meshes and resources. */
   dispose(): void {
     for (const entry of this.pool) {
-      entry.mesh.geometry.dispose();
-      if (Array.isArray(entry.mesh.material)) {
-        for (const m of entry.mesh.material) m.dispose();
+      const mesh = entry.mesh;
+      mesh.geometry.dispose();
+      if (Array.isArray(mesh.material)) {
+        for (const m of mesh.material) m.dispose();
       } else {
-        entry.mesh.material.dispose();
+        mesh.material.dispose();
       }
     }
     this.pool.length = 0;
@@ -86,6 +90,8 @@ export class MeshPool {
     mesh.visible = false;
     const entry: PooledMesh = { mesh, inUse: false };
     this.pool.push(entry);
+    this.meshToEntry.set(mesh, entry);
+    this.freeList.push(entry);
     return entry;
   }
 }

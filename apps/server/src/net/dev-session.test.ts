@@ -6,8 +6,8 @@ import { loadAllRegionMapsIntoWorld } from "../world/region-loader";
 import { createRuntimeMap } from "../world/runtime-map";
 import { DEV_SPAWN_TILE, DevSessionManager } from "./dev-session";
 
-function setup() {
-  const content = loadContent("content");
+async function setup() {
+  const content = await loadContent("content");
   if (!content.ok) {
     throw new Error(content.issues.map((issue) => issue.message).join("; "));
   }
@@ -18,8 +18,8 @@ function setup() {
 }
 
 describe("DevSessionManager", () => {
-  it("creates two independent dev player sessions with full-state bootstraps", () => {
-    const { world, manager } = setup();
+  it("creates two independent dev player sessions with full-state bootstraps", async () => {
+    const { world, manager } = await setup();
 
     const first = manager.bootstrap({ id: "session-1", characterId: "dev-a" }, 7, 4_200);
     const second = manager.bootstrap({ id: "session-2", characterId: "dev-b" }, 8, 4_800);
@@ -36,8 +36,8 @@ describe("DevSessionManager", () => {
     expect(world.stores.player.get(first.selfEntityId)?.sessionId).toBe("session-1");
   });
 
-  it("seeds inventory, equipment, skills, and visible region loads", () => {
-    const { world, manager } = setup();
+  it("seeds inventory, equipment, skills, and visible region loads", async () => {
+    const { world, manager } = await setup();
 
     const fullState = manager.bootstrap({ id: "session-1", characterId: "dev-a" }, 0, 0);
 
@@ -64,8 +64,8 @@ describe("DevSessionManager", () => {
     ]);
   });
 
-  it("destroys dev entities on disconnect", () => {
-    const { world, manager } = setup();
+  it("destroys dev entities on disconnect", async () => {
+    const { world, manager } = await setup();
     const session = { id: "session-1", characterId: "dev-a" };
     const fullState = manager.bootstrap(session, 0, 0);
 

@@ -48,7 +48,7 @@ export async function startServer(): Promise<GameServer> {
   logger.info("boot", "Old Town server booting", { port: config.port, tickMs: config.tickMs });
 
   // --- Load and validate content ----------------------------------------------------
-  const content: BootContentResult = loadContent(config.contentDir);
+  const content: BootContentResult = await loadContent(config.contentDir);
   if (!content.ok || content.issues.length > 0) {
     for (const issue of content.issues) {
       const where = issue.path ?? "(unknown)";
@@ -120,6 +120,8 @@ export async function startServer(): Promise<GameServer> {
   });
 
   // --- HTTP server (health + readiness) --------------------------------------------
+  const serializedContent = JSON.stringify(serializeContentForClient(content.registries));
+
   const httpServer = createServer((req, res) => {
     if (req.url === "/health" && req.method === "GET") {
       res.writeHead(200, { "Content-Type": "application/json" });
@@ -136,7 +138,7 @@ export async function startServer(): Promise<GameServer> {
         "Content-Type": "application/json",
         "Cache-Control": "max-age=60",
       });
-      res.end(JSON.stringify(serializeContentForClient(content.registries)));
+      res.end(serializedContent);
       return;
     }
     res.writeHead(404, { "Content-Type": "application/json" });
@@ -153,9 +155,8 @@ export async function startServer(): Promise<GameServer> {
         tickLoop.currentServerTime,
       );
       netRuntime.deltaBroadcaster?.primeSession(session, fullState.entities);
-      const selfSpawn = fullState.entities.find(
-        (entity) => entity.entityId === fullState.selfEntityId,
-      );
+      const entityById = new Map(fullState.entities.map((e) => [e.entityId, e]));
+      const selfSpawn = entityById.get(fullState.selfEntityId);
       if (selfSpawn) {
         deltas.markEntityAdd(selfSpawn);
       }
@@ -190,8 +191,10 @@ export async function startServer(): Promise<GameServer> {
   const shutdown = async (): Promise<void> => {
     logger.info("shutdown", "Graceful shutdown initiated");
     clearInterval(tickTimer);
-    await transport.close();
-    await new Promise<void>((resolve) => httpServer.close(() => resolve()));
+    await Promise.all([
+      transport.close(),
+      new Promise<void>((resolve) => httpServer.close(() => resolve())),
+    ]);
     logger.info("shutdown", "HTTP server closed");
   };
 

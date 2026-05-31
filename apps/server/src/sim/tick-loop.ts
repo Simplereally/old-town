@@ -101,22 +101,26 @@ export class TickLoop {
     this.tick += 1;
     this.serverTime += GAME_TICK_MS;
 
+    const tick = this.tick;
+    const serverTime = this.serverTime;
+    const handlersMap = this.handlers;
+    const logger = this.logger;
     for (const phase of TICK_PHASE_ORDER) {
       const context: TickContext = {
-        tick: this.tick,
-        serverTime: this.serverTime,
+        tick,
+        serverTime,
         phase,
       };
-      const handlers = this.handlers.get(phase) ?? [];
+      const handlers = handlersMap.get(phase) ?? [];
       for (const handler of handlers) {
         try {
           handler(context);
         } catch (cause) {
-          this.logger?.error("tick", "Tick phase failed", {
+          logger?.error("tick", "Tick phase failed", {
             phase,
-            tick: this.tick,
+            tick,
           });
-          throw new TickLoopError(phase, this.tick, cause);
+          throw new TickLoopError(phase, tick, cause);
         }
       }
     }

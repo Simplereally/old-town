@@ -41,8 +41,10 @@ async function startHarness(onCommand = () => undefined) {
     throw new Error("Expected TCP address");
   }
   cleanup = async () => {
-    await transport.close();
-    await new Promise<void>((resolve) => httpServer.close(() => resolve()));
+    await Promise.all([
+      transport.close(),
+      new Promise<void>((resolve) => httpServer.close(() => resolve())),
+    ]);
   };
   return { url: `ws://127.0.0.1:${address.port}${transport.path}`, transport };
 }

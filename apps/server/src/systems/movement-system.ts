@@ -44,7 +44,9 @@ function moveSpeed(mode: MovementMode): MoveSpeed {
 }
 
 function sortedMovementEntityIds(world: World): EntityId[] {
-  return Array.from(world.stores.movement.keys()).sort((a, b) => (a as number) - (b as number));
+  const keys = Array.from(world.stores.movement.keys());
+  if (keys.length <= 1) return keys;
+  return keys.toSorted((a, b) => (a as number) - (b as number));
 }
 
 export function handleMoveIntent(
@@ -82,9 +84,10 @@ export function processMovementPhase(
   tick: number,
   footprint: Footprint = { width: 1, length: 1 },
 ): void {
+  const stores = context.world.stores;
   for (const entityId of sortedMovementEntityIds(context.world)) {
-    const movement = context.world.stores.movement.get(entityId);
-    const position = context.world.stores.position.get(entityId);
+    const movement = stores.movement.get(entityId);
+    const position = stores.position.get(entityId);
     if (!movement || !position || movement.path.length === 0) {
       continue;
     }

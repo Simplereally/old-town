@@ -22,6 +22,8 @@ apps/
 packages/
   shared/   — protocol, types, math, content schemas
 content/    — JSON definitions (items, NPCs, objects, skills, spells, quests, maps, drops, dialogue)
+scripts/
+  — task helpers and CI scripts
 tools/
   world-editor/      — tile/object/NPC placement, export
   content-validator/ — CLI to validate JSON content against schemas
@@ -47,7 +49,7 @@ Additional scripts are wired up as the foundation epics land:
 | `bun run format:check`  | Verify formatting without writing                  |
 | `bun run lint`          | Lint the repo (Biome)                              |
 | `bun run check`         | Format check + lint + import organize in one pass  |
-| `bun run test`          | Run the test suites (E00-S04)                      |
+| `bun run test`          | Run the test suites                                |
 | `bun run test:coverage` | Run tests with coverage (E00-S04)                  |
 
 ### Formatting & linting

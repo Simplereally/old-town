@@ -3,7 +3,15 @@
  */
 import { startServer } from "./server";
 
+let _initStarted = false;
+
 async function main(): Promise<void> {
+  if (_initStarted) {
+    console.warn("[Old Town] Server init already started, skipping duplicate call");
+    return;
+  }
+  _initStarted = true;
+
   const server = await startServer();
 
   const gracefulShutdown = async (): Promise<void> => {

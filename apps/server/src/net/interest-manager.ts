@@ -40,24 +40,37 @@ interface InterestState {
 }
 
 function sortedIds<T extends string>(values: Iterable<T>): T[] {
-  return Array.from(values).sort((a, b) => a.localeCompare(b));
+  const arr = Array.from(values);
+  if (arr.length <= 1) return arr;
+  return arr.toSorted((a, b) => a.localeCompare(b));
 }
 
 function diffSets<T extends string>(next: ReadonlySet<T>, previous: ReadonlySet<T>): readonly T[] {
+  if (next.size === 0) return [];
+  if (previous.size === 0) return sortedIds(next);
   return sortedIds(next).filter((value) => !previous.has(value));
 }
 
+const regionCoordCache = new Map<RegionId, RegionCoord>();
+
 function regionCoordFromId(id: RegionId): RegionCoord {
+  const cached = regionCoordCache.get(id);
+  if (cached) {
+    return cached;
+  }
   const [rxRaw, ryRaw, planeRaw] = String(id)
     .split(":")
     .map((part) => Number.parseInt(part, 10));
   if (rxRaw === undefined || ryRaw === undefined || planeRaw === undefined) {
     throw new Error(`Invalid region id ${id}`);
   }
-  const rx = rxRaw;
-  const ry = ryRaw;
-  const plane = planeRaw;
-  return { rx, ry, plane: plane as RegionCoord["plane"] };
+  const coord: RegionCoord = {
+    rx: rxRaw,
+    ry: ryRaw,
+    plane: planeRaw as RegionCoord["plane"],
+  };
+  regionCoordCache.set(id, coord);
+  return coord;
 }
 
 function entityOrder(a: EntityId, b: EntityId): number {
@@ -112,9 +125,10 @@ export function intersectingChunks(scene: InterestScene): ReadonlySet<ChunkId> {
   const maxCx = Math.floor(scene.maxX / CHUNK_SIZE);
   const minCy = Math.floor(scene.minY / CHUNK_SIZE);
   const maxCy = Math.floor(scene.maxY / CHUNK_SIZE);
+  const plane = scene.plane as TileCoord["plane"];
   for (let cx = minCx; cx <= maxCx; cx += 1) {
     for (let cy = minCy; cy <= maxCy; cy += 1) {
-      chunks.add(chunkId({ cx, cy, plane: scene.plane as TileCoord["plane"] }));
+      chunks.add(chunkId({ cx, cy, plane }));
     }
   }
   return chunks;
@@ -123,9 +137,8 @@ export function intersectingChunks(scene: InterestScene): ReadonlySet<ChunkId> {
 export function intersectingRegions(scene: InterestScene): ReadonlyMap<RegionId, RegionCoord> {
   const regions = new Map<RegionId, RegionCoord>();
   for (const chunk of intersectingChunks(scene)) {
-    const [cxRaw, cyRaw, planeRaw] = String(chunk)
-      .split(":")
-      .map((part) => Number.parseInt(part, 10));
+    const chunkStr = String(chunk);
+    const [cxRaw, cyRaw, planeRaw] = chunkStr.split(":").map((part) => Number.parseInt(part, 10));
     if (cxRaw === undefined || cyRaw === undefined || planeRaw === undefined) {
       throw new Error(`Invalid chunk id ${chunk}`);
     }
@@ -143,8 +156,9 @@ export class InterestManager {
   private readonly stateByPlayer = new Map<EntityId, InterestState>();
 
   updateInterest(player: EntityId, center: TileCoord): InterestTransition {
-    const nextChunks = intersectingChunks(computeInterestScene(center));
-    const nextRegions = intersectingRegions(computeInterestScene(center));
+    const scene = computeInterestScene(center);
+    const nextChunks = intersectingChunks(scene);
+    const nextRegions = intersectingRegions(scene);
     const previous = this.stateByPlayer.get(player);
     if (!previous) {
       this.stateByPlayer.set(player, {
@@ -201,17 +215,18 @@ export class InterestManager {
     }
 
     const transition = this.updateInterest(player, center);
+    const knownEntities = state.knownEntities;
     const entityAdds: EntitySpawnPacket[] = [];
     for (const add of delta.entityAdds) {
-      if (!state.knownEntities.has(add.entityId) && sceneContainsTile(scene, add.tile)) {
-        state.knownEntities.add(add.entityId);
+      if (!knownEntities.has(add.entityId) && sceneContainsTile(scene, add.tile)) {
+        knownEntities.add(add.entityId);
         entityAdds.push(add);
       }
     }
 
     const entityRemoves = new Set<EntityId>();
     for (const removed of delta.entityRemoves) {
-      if (state.knownEntities.delete(removed)) {
+      if (knownEntities.delete(removed)) {
         entityRemoves.add(removed);
       }
     }
@@ -219,13 +234,12 @@ export class InterestManager {
     const entityUpdates: EntityUpdatePacket[] = [];
     for (const update of delta.entityUpdates) {
       const tile = update.changes.position ?? this.positionTile(world, update.entityId);
-      const visible = tile
-        ? sceneContainsTile(scene, tile)
-        : state.knownEntities.has(update.entityId);
-      if (state.knownEntities.has(update.entityId) && !visible) {
-        state.knownEntities.delete(update.entityId);
+      const visible = tile ? sceneContainsTile(scene, tile) : knownEntities.has(update.entityId);
+      const known = knownEntities.has(update.entityId);
+      if (known && !visible) {
+        knownEntities.delete(update.entityId);
         entityRemoves.add(update.entityId);
-      } else if (state.knownEntities.has(update.entityId) && visible) {
+      } else if (known && visible) {
         entityUpdates.push(update);
       }
     }
@@ -234,7 +248,7 @@ export class InterestManager {
 
     return packetWith(delta, {
       entityAdds,
-      entityRemoves: Array.from(entityRemoves).sort(entityOrder),
+      entityRemoves: Array.from(entityRemoves).toSorted(entityOrder),
       entityUpdates,
       ...(delta.chat ? { chat } : {}),
       regionLoads: transition.regionLoads,

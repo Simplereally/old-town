@@ -114,7 +114,7 @@ export class DevSessionManager {
       entityId,
       skills: Object.fromEntries(
         Array.from(this.registries.skill.keys())
-          .sort()
+          .toSorted()
           .map((skillId) => [skillId, { level: 1, xp: 0 }]),
       ),
     });
@@ -145,7 +145,7 @@ export class DevSessionManager {
 
   private visibleEntitySpawns(): readonly EntitySpawnPacket[] {
     return Array.from(this.world.stores.player.keys())
-      .sort((a, b) => (a as number) - (b as number))
+      .toSorted((a, b) => (a as number) - (b as number))
       .map((entityId) => {
         const position = this.world.stores.position.get(entityId);
         const actor = this.world.stores.actor.get(entityId);
@@ -183,7 +183,7 @@ export class DevSessionManager {
       return [];
     }
     return Object.entries(skills.skills)
-      .sort(([a], [b]) => a.localeCompare(b))
+      .toSorted(([a], [b]) => a.localeCompare(b))
       .map(([skillId, state]) => ({
         skillId,
         level: state.level,
@@ -193,7 +193,7 @@ export class DevSessionManager {
 
   private regionLoads(): readonly RegionLoadPacket[] {
     return Array.from(this.map.regions.values())
-      .sort((a, b) => a.id.localeCompare(b.id))
+      .toSorted((a, b) => a.id.localeCompare(b.id))
       .map((region) => ({
         region: region.region,
         regionId: region.id,

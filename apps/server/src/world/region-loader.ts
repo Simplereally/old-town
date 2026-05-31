@@ -63,8 +63,9 @@ export function loadRegionMapIntoWorld(
   const id = regionId(def.region);
   const tileKeys: string[] = [];
   const overrides = new Map<string, (typeof def.tiles.overrides)[number]>();
+  const tilesOverrides = def.tiles.overrides;
 
-  for (const override of def.tiles.overrides) {
+  for (const override of tilesOverrides) {
     overrides.set(`${override.x}:${override.y}`, override);
   }
 
@@ -89,15 +90,19 @@ export function loadRegionMapIntoWorld(
 
   const objectEntityIds: EntityId[] = [];
   const resourceNodeEntityIds: EntityId[] = [];
+  const positionStore = world.stores.position;
+  const objectStore = world.stores.object;
+  const resourceNodeStore = world.stores.resourceNode;
+  const objectRegistry = registries.object;
   for (const placed of def.objects) {
-    const objectDef = registries.object.get(placed.objectId);
+    const objectDef = objectRegistry.get(placed.objectId);
     if (!objectDef) {
       throw new Error(`Region ${id} references missing object ${placed.objectId}`);
     }
     const entityId = world.createEntity();
     const tile = globalTile(def.region, placed.x, placed.y);
-    world.stores.position.set(entityId, { entityId, x: tile.x, y: tile.y, plane: tile.plane });
-    world.stores.object.set(entityId, {
+    positionStore.set(entityId, { entityId, x: tile.x, y: tile.y, plane: tile.plane });
+    objectStore.set(entityId, {
       entityId,
       objectId: placed.objectId,
       facing: placed.rotation,
@@ -106,7 +111,7 @@ export function loadRegionMapIntoWorld(
     objectEntityIds.push(entityId);
 
     if (objectDef.resourceNodeId) {
-      world.stores.resourceNode.set(entityId, {
+      resourceNodeStore.set(entityId, {
         entityId,
         nodeId: objectDef.resourceNodeId,
         depleted: false,
@@ -117,29 +122,33 @@ export function loadRegionMapIntoWorld(
   }
 
   const npcEntityIds: EntityId[] = [];
+  const npcRegistry = registries.npc;
+  const npcStore = world.stores.npc;
+  const actorStore = world.stores.actor;
+  const combatantStore = world.stores.combatant;
   for (const spawn of def.npcSpawns) {
-    const npcDef = registries.npc.get(spawn.npcId);
+    const npcDef = npcRegistry.get(spawn.npcId);
     if (!npcDef) {
       throw new Error(`Region ${id} references missing NPC ${spawn.npcId}`);
     }
     const entityId = world.createEntity();
     const tile = globalTile(def.region, spawn.x, spawn.y);
-    world.stores.position.set(entityId, { entityId, x: tile.x, y: tile.y, plane: tile.plane });
-    world.stores.npc.set(entityId, {
+    positionStore.set(entityId, { entityId, x: tile.x, y: tile.y, plane: tile.plane });
+    npcStore.set(entityId, {
       entityId,
       npcId: spawn.npcId,
       brainState: "idle",
       respawnTick: 0,
       wanderRadius: spawn.wanderRadius ?? npcDef.wanderRadius,
     });
-    world.stores.actor.set(entityId, {
+    actorStore.set(entityId, {
       entityId,
       name: npcDef.name,
       level: npcDef.combatLevel ?? 0,
       appearanceId: spawn.npcId,
     });
     if (npcDef.maxHp) {
-      world.stores.combatant.set(entityId, {
+      combatantStore.set(entityId, {
         entityId,
         health: npcDef.maxHp,
         maxHealth: npcDef.maxHp,
@@ -154,11 +163,12 @@ export function loadRegionMapIntoWorld(
   }
 
   const groundItemEntityIds: EntityId[] = [];
+  const groundItemStore = world.stores.groundItem;
   for (const spawn of def.groundItemSpawns) {
     const entityId = world.createEntity();
     const tile = globalTile(def.region, spawn.x, spawn.y);
-    world.stores.position.set(entityId, { entityId, x: tile.x, y: tile.y, plane: tile.plane });
-    world.stores.groundItem.set(entityId, {
+    positionStore.set(entityId, { entityId, x: tile.x, y: tile.y, plane: tile.plane });
+    groundItemStore.set(entityId, {
       entityId,
       itemId: spawn.itemId,
       quantity: spawn.quantity,
@@ -211,6 +221,6 @@ export function loadAllRegionMapsIntoWorld(
   registries: ContentRegistries,
 ): readonly LoadedRegionSummary[] {
   return Array.from(registries.regionMap.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
+    .toSorted(([a], [b]) => a.localeCompare(b))
     .map(([, def]) => loadRegionMapIntoWorld(world, map, registries, def));
 }

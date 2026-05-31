@@ -84,17 +84,20 @@ export class DeltaAccumulator {
   }
 
   markInventoryDelta(delta: InventoryDelta): void {
-    if (!this.inventoryDelta) {
-      this.inventoryDelta = {
+    let inventoryDelta = this.inventoryDelta;
+    if (!inventoryDelta) {
+      inventoryDelta = {
         containerId: delta.containerId,
         changesBySlot: new Map(),
       };
+      this.inventoryDelta = inventoryDelta;
     }
-    if (this.inventoryDelta.containerId !== delta.containerId) {
+    if (inventoryDelta.containerId !== delta.containerId) {
       throw new Error("A tick delta packet can only carry one inventory container delta");
     }
+    const changesBySlot = inventoryDelta.changesBySlot;
     for (const change of delta.changes) {
-      this.inventoryDelta.changesBySlot.set(change.slot, change);
+      changesBySlot.set(change.slot, change);
     }
   }
 
@@ -129,25 +132,38 @@ export class DeltaAccumulator {
   peek(): DirtyState {
     const inventoryDelta = this.buildInventoryDelta();
 
+    const entityAdds =
+      this.entityAdds.size === 0
+        ? []
+        : Array.from(this.entityAdds.values()).toSorted((a, b) =>
+            entityOrder(a.entityId, b.entityId),
+          );
+
+    const entityRemoves =
+      this.entityRemoves.size === 0 ? [] : Array.from(this.entityRemoves).toSorted(entityOrder);
+
+    const entityUpdates =
+      this.entityUpdates.size === 0
+        ? []
+        : Array.from(this.entityUpdates.entries())
+            .toSorted(([a], [b]) => entityOrder(a, b))
+            .map(([entityId, changes]) => buildEntityUpdate(entityId, changes));
+
     return {
-      entityAdds: Array.from(this.entityAdds.values()).sort((a, b) =>
-        entityOrder(a.entityId, b.entityId),
-      ),
-      entityRemoves: Array.from(this.entityRemoves).sort(entityOrder),
-      entityUpdates: Array.from(this.entityUpdates.entries())
-        .sort(([a], [b]) => entityOrder(a, b))
-        .map(([entityId, changes]) => buildEntityUpdate(entityId, changes)),
+      entityAdds,
+      entityRemoves,
+      entityUpdates,
       ...(inventoryDelta ? { inventoryDelta } : {}),
       ...(this.skillDeltas.size > 0
         ? {
-            skillDelta: Array.from(this.skillDeltas.values()).sort((a, b) =>
+            skillDelta: Array.from(this.skillDeltas.values()).toSorted((a, b) =>
               a.skillId.localeCompare(b.skillId),
             ),
           }
         : {}),
       ...(this.varbitDeltas.size > 0
         ? {
-            varbitDelta: Array.from(this.varbitDeltas.values()).sort((a, b) =>
+            varbitDelta: Array.from(this.varbitDeltas.values()).toSorted((a, b) =>
               a.varId.localeCompare(b.varId),
             ),
           }
@@ -161,7 +177,7 @@ export class DeltaAccumulator {
       ...(this.debugPaths.size > 0
         ? {
             debug: {
-              paths: Array.from(this.debugPaths.values()).sort((a, b) =>
+              paths: Array.from(this.debugPaths.values()).toSorted((a, b) =>
                 entityOrder(a.entityId, b.entityId),
               ),
             },
@@ -186,14 +202,17 @@ export class DeltaAccumulator {
   }
 
   private buildInventoryDelta(): InventoryDelta | undefined {
-    if (!this.inventoryDelta) {
+    const inventoryDelta = this.inventoryDelta;
+    if (!inventoryDelta) {
       return undefined;
     }
+    let changes = Array.from(inventoryDelta.changesBySlot.values());
+    if (changes.length > 1) {
+      changes = changes.toSorted((a, b) => a.slot - b.slot);
+    }
     return {
-      containerId: this.inventoryDelta.containerId,
-      changes: Array.from(this.inventoryDelta.changesBySlot.values()).sort(
-        (a, b) => a.slot - b.slot,
-      ),
+      containerId: inventoryDelta.containerId,
+      changes,
     };
   }
 

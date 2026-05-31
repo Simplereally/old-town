@@ -43,12 +43,13 @@ export class GridOverlay {
   }
 
   dispose(): void {
-    this.scene.remove(this.grid);
-    this.grid.geometry.dispose();
-    if (Array.isArray(this.grid.material)) {
-      for (const m of this.grid.material) m.dispose();
+    const grid = this.grid;
+    this.scene.remove(grid);
+    grid.geometry.dispose();
+    if (Array.isArray(grid.material)) {
+      for (const m of grid.material) m.dispose();
     } else {
-      this.grid.material.dispose();
+      grid.material.dispose();
     }
   }
 }

@@ -9,9 +9,11 @@ import { resolve } from "node:path";
 import { validateContent } from "@old-town/shared";
 import { loadContentDir } from "./loader";
 
-function main(): void {
+export { loadContentDir } from "./loader";
+
+async function main(): Promise<void> {
   const contentDir = resolve(process.cwd(), process.argv[2] ?? "content");
-  const { files, issues: loadIssues } = loadContentDir(contentDir);
+  const { files, issues: loadIssues } = await loadContentDir(contentDir);
   const { ok, issues, registries } = validateContent(files);
   const allIssues = [...loadIssues, ...issues];
 
@@ -35,4 +37,6 @@ function main(): void {
   process.exit(0);
 }
 
-main();
+if (import.meta.main) {
+  main();
+}

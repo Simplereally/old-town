@@ -34,10 +34,12 @@ export class HoverHighlighter {
   highlight(position: Vector3, yOffset = 0.05): void {
     this._targetPosition = position.clone();
     this._targetY = yOffset;
-    if (!this._highlightMesh) {
-      this._highlightMesh = new Mesh(this._ringGeometry, this._highlightMaterial);
-      this._highlightMesh.rotation.x = -Math.PI / 2;
-      this.scene.add(this._highlightMesh);
+    let mesh = this._highlightMesh;
+    if (!mesh) {
+      mesh = new Mesh(this._ringGeometry, this._highlightMaterial);
+      mesh.rotation.x = -Math.PI / 2;
+      this.scene.add(mesh);
+      this._highlightMesh = mesh;
     }
     this._updatePosition();
   }

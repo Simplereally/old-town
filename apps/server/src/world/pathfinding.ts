@@ -95,7 +95,9 @@ export function findPath(
   let nextOrder = 1;
 
   while (open.length > 0 && closed.size < maxVisited) {
-    open.sort(compareNodes);
+    if (open.length > 1) {
+      open.sort(compareNodes);
+    }
     const current = open.shift();
     if (!current || closed.has(current.key)) {
       continue;
@@ -121,14 +123,15 @@ export function findPath(
       };
     }
 
+    const currentTile = current.tile;
     for (const [dx, dy] of NEIGHBORS) {
       const next: TileCoord = {
-        x: current.tile.x + dx,
-        y: current.tile.y + dy,
-        plane: current.tile.plane,
+        x: currentTile.x + dx,
+        y: currentTile.y + dy,
+        plane: currentTile.plane,
       };
       const nextKey = key(next);
-      if (closed.has(nextKey) || !collision.canStep(current.tile, next, footprint)) {
+      if (closed.has(nextKey) || !collision.canStep(currentTile, next, footprint)) {
         continue;
       }
 

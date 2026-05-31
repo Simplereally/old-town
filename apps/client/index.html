@@ -155,6 +155,167 @@
       color: #fff;
       border-color: #666;
     }
+
+    /* Inventory */
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+    }
+    .inventory-cell {
+      width: 40px;
+      height: 40px;
+      background: rgba(40, 40, 50, 0.8);
+      border: 1px solid #444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      cursor: pointer;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 2px;
+      text-align: center;
+    }
+
+    /* Rows */
+    .ui-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .ui-row-padded {
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .ui-row-thin {
+      padding: 2px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Text colors */
+    .text-muted { color: #aaa; }
+    .text-dim { color: #555; }
+    .text-bright { color: #fff; }
+    .text-system { color: #ffcc00; }
+
+    /* Spellbook */
+    .spell-row {
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+    }
+    .spell-can-cast { color: #fff; }
+    .spell-cannot-cast { color: #555; }
+
+    /* Dialogue */
+    .dialogue-option {
+      padding: 4px;
+      margin-top: 4px;
+      background: rgba(60, 60, 80, 0.8);
+      cursor: pointer;
+      border-radius: 2px;
+    }
+    .dialogue-option:hover {
+      background: rgba(80, 80, 100, 0.9);
+    }
+
+    /* Context menu */
+    .context-menu {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid #666;
+      border-radius: 4px;
+      padding: 4px 0;
+      z-index: 1000;
+      min-width: 140px;
+      font-family: monospace;
+      font-size: 12px;
+      color: #fff;
+      user-select: none;
+      cursor: pointer;
+    }
+    .context-menu-item {
+      padding: 4px 12px;
+      white-space: nowrap;
+    }
+    .context-menu-item:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Debug log */
+    .debug-log {
+      margin-top: 8px;
+      border-top: 1px solid #333;
+      padding-top: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .debug-log-entry {
+      font-size: 11px;
+      color: #aaa;
+    }
+
+    /* Chat */
+    .chat-box { width: 600px; }
+    .chat-body { max-height: 120px; }
+    .chat-input-row {
+      display: flex;
+      padding: 4px;
+      border-top: 1px solid #444;
+    }
+    .chat-input {
+      flex: 1;
+      background: rgba(30, 30, 40, 0.9);
+      border: 1px solid #444;
+      color: #fff;
+      padding: 4px 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      border-radius: 2px;
+    }
+    .chat-send-btn {
+      margin-left: 4px;
+      background: rgba(60, 60, 80, 0.8);
+      border: 1px solid #444;
+      color: #ccc;
+      padding: 4px 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+    .chat-send-btn:hover {
+      background: rgba(80, 80, 100, 0.9);
+      color: #fff;
+    }
+
+    /* Dialogue box */
+    .dialogue-box { width: 400px; margin-bottom: 8px; }
+    .dialogue-body { max-height: 150px; }
+    .dialogue-text { margin-bottom: 8px; }
+
+    /* Spell target overlay */
+    #spell-target-overlay {
+      display: none;
+      position: absolute;
+      bottom: 220px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(80, 0, 0, 0.85);
+      border: 1px solid #ff4444;
+      color: #ff4444;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      z-index: 30;
+      pointer-events: none;
+    }
+    #spell-target-overlay.visible {
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -164,9 +325,9 @@
     <div id="tick-status">Tick: -</div>
     <div id="fps-status">FPS: -</div>
   </div>
-  <div id="debug-overlay">
+    <div id="debug-overlay">
     <div id="debug-stats">Debug info</div>
-    <div id="debug-log" style="margin-top: 8px; border-top: 1px solid #333; padding-top: 4px; max-height: 200px; overflow-y: auto;"></div>
+    <div id="debug-log" class="debug-log"></div>
   </div>
   <div id="ui-container">
     <div id="ui-left">
@@ -194,18 +355,18 @@
       </div>
     </div>
     <div id="ui-bottom">
-      <div id="chat-box" class="ui-panel hidden" style="width: 600px;">
+      <div id="chat-box" class="ui-panel hidden chat-box">
         <div class="ui-panel-header">Chat</div>
-        <div class="ui-panel-body" id="chat-body" style="max-height: 120px;"></div>
-        <div style="display: flex; padding: 4px; border-top: 1px solid #444;">
-          <input type="text" id="chat-input" placeholder="Type message..." style="flex: 1; background: rgba(30,30,40,0.9); border: 1px solid #444; color: #fff; padding: 4px 8px; font-family: 'Courier New', monospace; font-size: 11px; border-radius: 2px;" />
-          <button id="chat-send" style="margin-left: 4px; background: rgba(60,60,80,0.8); border: 1px solid #444; color: #ccc; padding: 4px 8px; font-family: 'Courier New', monospace; font-size: 11px; cursor: pointer; border-radius: 2px;">Send</button>
+        <div class="ui-panel-body chat-body" id="chat-body"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" class="chat-input" placeholder="Type message..." />
+          <button id="chat-send" class="chat-send-btn">Send</button>
         </div>
       </div>
-      <div id="dialogue-box" class="ui-panel hidden" style="width: 400px; margin-bottom: 8px;">
+      <div id="dialogue-box" class="ui-panel hidden dialogue-box">
         <div class="ui-panel-header" id="dialogue-npc">Dialogue</div>
-        <div class="ui-panel-body" id="dialogue-body" style="max-height: 150px;">
-          <div id="dialogue-text" style="margin-bottom: 8px;"></div>
+        <div class="ui-panel-body dialogue-body" id="dialogue-body">
+          <div id="dialogue-text" class="dialogue-text"></div>
           <div id="dialogue-options"></div>
         </div>
       </div>
@@ -219,7 +380,7 @@
       <button class="ui-bar-btn" id="btn-chat" data-panel="chat-box">Chat</button>
       <button class="ui-bar-btn" id="btn-debug" data-panel="debug-overlay">Debug</button>
     </div>
-    <div id="spell-target-overlay" style="display: none; position: absolute; bottom: 220px; left: 50%; transform: translateX(-50%); background: rgba(80, 0, 0, 0.85); border: 1px solid #ff4444; color: #ff4444; padding: 6px 12px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 12px; z-index: 30; pointer-events: none;">Select target for spell (Esc to cancel)</div>
+    <div id="spell-target-overlay">Select target for spell (Esc to cancel)</div>
   </div>
   <script type="module" src="/src/main.ts"></script>
 </body>

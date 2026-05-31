@@ -91,11 +91,13 @@ export class ActorRenderer {
     const meshes = this.meshes.get(entityId);
     if (meshes) {
       this.actorGroup.remove(meshes.group);
-      meshes.body.geometry.dispose();
-      (meshes.body.material as MeshLambertMaterial).dispose();
-      if (meshes.marker) {
-        meshes.marker.geometry.dispose();
-        (meshes.marker.material as MeshLambertMaterial).dispose();
+      const body = meshes.body;
+      body.geometry.dispose();
+      (body.material as MeshLambertMaterial).dispose();
+      const marker = meshes.marker;
+      if (marker) {
+        marker.geometry.dispose();
+        (marker.material as MeshLambertMaterial).dispose();
       }
       this.meshes.delete(entityId);
     }
@@ -149,16 +151,23 @@ export class ActorRenderer {
     const now = performance.now();
 
     for (const actor of this.actors.values()) {
-      const tickProgress = Math.min((now - actor.tickStartTime) / GAME_TICK_MS, 1);
-      const prevWorld = this._tileToWorld(actor.previousServerTile);
-      const currWorld = this._tileToWorld(actor.serverTile);
-      actor.visualPosition.lerpVectors(prevWorld, currWorld, tickProgress);
+      const tickStartTime = actor.tickStartTime;
+      const previousServerTile = actor.previousServerTile;
+      const serverTile = actor.serverTile;
+      const entityId = actor.entityId;
+      const facingDirection = actor.facingDirection;
+      const visualPosition = actor.visualPosition;
 
-      const meshes = this.meshes.get(actor.entityId);
+      const tickProgress = Math.min((now - tickStartTime) / GAME_TICK_MS, 1);
+      const prevWorld = this._tileToWorld(previousServerTile);
+      const currWorld = this._tileToWorld(serverTile);
+      visualPosition.lerpVectors(prevWorld, currWorld, tickProgress);
+
+      const meshes = this.meshes.get(entityId);
       if (meshes) {
-        meshes.group.position.copy(actor.visualPosition);
+        meshes.group.position.copy(visualPosition);
         meshes.group.position.y += 0.4;
-        meshes.group.rotation.y = this._directionToRotation(actor.facingDirection);
+        meshes.group.rotation.y = this._directionToRotation(facingDirection);
       }
     }
   }
@@ -205,15 +214,19 @@ export class ActorRenderer {
   }
 
   private _createMeshes(state: ActorState): void {
-    const group = new Group();
-    group.name = `actor_${state.entityId}`;
+    const entityId = state.entityId;
+    const kind = state.kind;
+    const isLocalPlayer = state.isLocalPlayer;
 
-    const material = state.isLocalPlayer ? this.localPlayerMaterial : this.playerMaterial;
+    const group = new Group();
+    group.name = `actor_${entityId}`;
+
+    const material = isLocalPlayer ? this.localPlayerMaterial : this.playerMaterial;
 
     const body = new Mesh(this.bodyGeometry, material);
     body.castShadow = false;
     body.receiveShadow = false;
-    body.userData = { entityId: state.entityId, kind: state.kind };
+    body.userData = { entityId, kind };
     group.add(body);
 
     let marker: Mesh | undefined;

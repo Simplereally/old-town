@@ -1,4 +1,5 @@
 import type { ContentClient } from "./ContentClient";
+import { GlobalKeydownBus } from "./GlobalKeydownBus";
 import type { UIState } from "./UIState";
 
 export interface UIManagerCallbacks {
@@ -56,7 +57,7 @@ export class UIManager {
 
   dispose(): void {
     this._unsubscribe?.();
-    document.removeEventListener("keydown", this._handleKeyDown);
+    GlobalKeydownBus.unregister("ui-manager");
     for (const [panelId, listener] of this._barButtonListeners) {
       const btn = this.buttons.get(panelId);
       if (btn) {
@@ -104,7 +105,7 @@ export class UIManager {
   }
 
   private _bindKeyboardShortcuts(): void {
-    document.addEventListener("keydown", this._handleKeyDown);
+    GlobalKeydownBus.register("ui-manager", this._handleKeyDown);
   }
 
   private _bindChatInput(): void {
@@ -190,42 +191,29 @@ export class UIManager {
     if (!body) return;
     body.innerHTML = "";
     const grid = document.createElement("div");
-    grid.style.display = "grid";
-    grid.style.gridTemplateColumns = "repeat(4, 1fr)";
-    grid.style.gap = "4px";
+    grid.classList.add("inventory-grid");
 
     for (let slot = 0; slot < 28; slot++) {
       const cell = document.createElement("div");
-      cell.style.width = "40px";
-      cell.style.height = "40px";
-      cell.style.background = "rgba(40, 40, 50, 0.8)";
-      cell.style.border = "1px solid #444";
-      cell.style.display = "flex";
-      cell.style.alignItems = "center";
-      cell.style.justifyContent = "center";
-      cell.style.fontSize = "10px";
-      cell.style.cursor = "pointer";
-      cell.style.overflow = "hidden";
-      cell.style.textOverflow = "ellipsis";
-      cell.style.padding = "2px";
-      cell.style.textAlign = "center";
+      cell.classList.add("inventory-cell");
       cell.title = `Slot ${slot}`;
 
       const item = this.uiState.inventory.get(slot);
       if (item) {
-        const def = this.content.getItem(item.itemId ?? "");
-        const name = def?.name ?? item.itemId ?? "";
+        const itemId = item.itemId ?? "";
+        const quantity = item.quantity;
+        const def = this.content.getItem(itemId);
+        const name = def?.name ?? itemId ?? "";
         cell.textContent = name.length > 8 ? `${name.slice(0, 7)}…` : name;
-        cell.title = `${name}${item.quantity > 1 ? ` x${item.quantity}` : ""}`;
+        cell.title = `${name}${quantity > 1 ? ` x${quantity}` : ""}`;
         const uid = item.uid;
         if (uid !== undefined) {
           cell.addEventListener("click", () => {
             this.callbacks.sendItemCommand(uid, "use");
           });
-          const itemDef = this.content.getItem(item.itemId ?? "");
-          const extraOptions = itemDef?.options?.filter((o) =>
-            ["drop", "equip", "eat", "drink"].includes(o),
-          );
+          const itemDef = this.content.getItem(itemId);
+          const allowedOptions = new Set(["drop", "equip", "eat", "drink"]);
+          const extraOptions = itemDef?.options?.filter((o) => allowedOptions.has(o));
           if (extraOptions && extraOptions.length > 0) {
             cell.addEventListener("contextmenu", (e) => {
               e.preventDefault();
@@ -261,22 +249,19 @@ export class UIManager {
     ];
     for (let i = 0; i < slots.length; i++) {
       const row = document.createElement("div");
-      row.style.display = "flex";
-      row.style.justifyContent = "space-between";
-      row.style.padding = "3px 0";
-      row.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+      row.classList.add("ui-row");
       const label = document.createElement("span");
       label.textContent = slots[i] ?? "";
-      label.style.color = "#aaa";
+      label.classList.add("text-muted");
       const value = document.createElement("span");
       const itemId = this.uiState.equipment.get(i);
       if (itemId) {
         const def = this.content.getItem(itemId);
         value.textContent = def?.name ?? itemId;
-        value.style.color = "#fff";
+        value.classList.add("text-bright");
       } else {
         value.textContent = "—";
-        value.style.color = "#555";
+        value.classList.add("text-dim");
       }
       row.appendChild(label);
       row.appendChild(value);
@@ -288,20 +273,19 @@ export class UIManager {
     const body = document.getElementById("skills-body");
     if (!body) return;
     body.innerHTML = "";
-    const skills = Array.from(this.content.getAllSkills());
-    skills.sort((a, b) => a.name.localeCompare(b.name));
+    const skills = Array.from(this.content.getAllSkills()).toSorted((a, b) =>
+      a.name.localeCompare(b.name),
+    );
+    const uiSkills = this.uiState.skills;
     for (const skillDef of skills) {
-      const state = this.uiState.skills.get(skillDef.id);
+      const state = uiSkills.get(skillDef.id);
       const row = document.createElement("div");
-      row.style.display = "flex";
-      row.style.justifyContent = "space-between";
-      row.style.padding = "3px 0";
-      row.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+      row.classList.add("ui-row");
       const name = document.createElement("span");
       name.textContent = skillDef.name;
       const level = document.createElement("span");
       level.textContent = state ? `${state.level} / ${state.xp} XP` : "1 / 0 XP";
-      level.style.color = "#aaa";
+      level.classList.add("text-muted");
       row.appendChild(name);
       row.appendChild(level);
       body.appendChild(row);
@@ -312,17 +296,16 @@ export class UIManager {
     const body = document.getElementById("spellbook-body");
     if (!body) return;
     body.innerHTML = "";
-    const spells = Array.from(this.content.getAllSpells());
-    spells.sort((a, b) => a.requiredMagic - b.requiredMagic);
+    const spells = Array.from(this.content.getAllSpells()).toSorted(
+      (a, b) => a.requiredMagic - b.requiredMagic,
+    );
     const magic = this.uiState.skills.get("magic");
     const magicLevel = magic?.level ?? 1;
     for (const spell of spells) {
       const row = document.createElement("div");
-      row.style.padding = "4px 0";
-      row.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
-      row.style.cursor = "pointer";
+      row.classList.add("spell-row");
       const canCast = magicLevel >= spell.requiredMagic;
-      row.style.color = canCast ? "#fff" : "#555";
+      row.classList.add(canCast ? "spell-can-cast" : "spell-cannot-cast");
       row.title = `${spell.name} (Magic ${spell.requiredMagic})`;
       row.textContent = `${spell.name} (Magic ${spell.requiredMagic})`;
       if (canCast) {
@@ -339,15 +322,19 @@ export class UIManager {
     if (!body) return;
     body.innerHTML = "";
     const quests = Array.from(this.content.getAllQuests());
+    const uiVars = this.uiState.vars;
     for (const quest of quests) {
-      const stage = this.uiState.vars.get(`${quest.varPrefix}.stage`);
+      const stage = uiVars.get(`${quest.varPrefix}.stage`);
       if (stage === undefined || stage === 0) continue;
       const row = document.createElement("div");
-      row.style.padding = "4px 0";
-      row.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+      row.classList.add("ui-row-padded");
       const questStage = quest.stages.find((s) => s.stage === stage);
       row.textContent = `${quest.name}: ${questStage?.journalText ?? "In progress"}`;
       body.appendChild(row);
+    }
+    if (body.children.length === 0) {
+      body.textContent = "No active quests.";
+      body.classList.add("text-dim");
     }
     if (body.children.length === 0) {
       body.textContent = "No active quests.";
@@ -359,17 +346,18 @@ export class UIManager {
     const body = document.getElementById("chat-body");
     if (!body) return;
     body.innerHTML = "";
-    for (const msg of this.uiState.chat) {
-      const row = document.createElement("div");
-      row.style.padding = "2px 0";
-      row.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
+    const chat = this.uiState.chat;
+    for (const msg of chat) {
       const name = msg.name ?? "System";
-      const channelColor = msg.channel === "system" ? "#ffcc00" : "#aaa";
+      const channel = msg.channel;
+      const text = msg.text;
+      const row = document.createElement("div");
+      row.classList.add("ui-row-thin");
       const nameSpan = document.createElement("span");
-      nameSpan.style.color = channelColor;
+      nameSpan.classList.add(channel === "system" ? "text-system" : "text-muted");
       nameSpan.textContent = `[${name}]`;
       row.appendChild(nameSpan);
-      row.appendChild(document.createTextNode(` ${msg.text}`));
+      row.appendChild(document.createTextNode(` ${text}`));
       body.appendChild(row);
     }
     body.scrollTop = body.scrollHeight;
@@ -395,20 +383,17 @@ export class UIManager {
     optionsEl.innerHTML = "";
 
     const questDef = this.content.getQuest(dialogue.dialogueId);
+    const uiVars = this.uiState.vars;
     if (questDef) {
-      const stage = this.uiState.vars.get(`${questDef.varPrefix}.stage`);
-      const questStage = questDef.stages.find((s) => s.stage === stage);
+      const stage = uiVars.get(`${questDef.varPrefix}.stage`);
+      const questStage = this.content.getQuestStage(questDef.id, stage ?? -1);
       if (questStage) {
         textEl.textContent = questStage.journalText;
         for (let i = 0; i < questStage.objectives.length; i++) {
           const objective = questStage.objectives[i];
           if (!objective) continue;
           const opt = document.createElement("div");
-          opt.style.padding = "4px";
-          opt.style.marginTop = "4px";
-          opt.style.background = "rgba(60, 60, 80, 0.8)";
-          opt.style.cursor = "pointer";
-          opt.style.borderRadius = "2px";
+          opt.classList.add("dialogue-option");
           opt.textContent =
             objective.kind === "talk" ? "Continue..." : `Objective: ${objective.kind}`;
           opt.addEventListener("click", () => {

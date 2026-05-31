@@ -70,19 +70,22 @@ export class ChatOverheadLayer {
   update(actorPositions: Map<number, Vector3>): void {
     const now = performance.now();
     for (const [entityId, bubble] of this.bubbles) {
+      const sprite = bubble.sprite;
+      const startTime = bubble.startTime;
+
       const pos = actorPositions.get(entityId);
       if (pos) {
-        bubble.sprite.position.x = pos.x;
-        bubble.sprite.position.z = pos.z;
-        bubble.sprite.position.y = pos.y + 1.5;
+        sprite.position.x = pos.x;
+        sprite.position.z = pos.z;
+        sprite.position.y = pos.y + 1.5;
       }
 
-      const elapsed = now - bubble.startTime;
+      const elapsed = now - startTime;
       if (elapsed > this.duration) {
         this.remove(entityId);
       } else if (elapsed > this.duration - this.fadeDuration) {
         const fadeProgress = (elapsed - (this.duration - this.fadeDuration)) / this.fadeDuration;
-        bubble.sprite.material.opacity = Math.max(0, 1 - fadeProgress);
+        sprite.material.opacity = Math.max(0, 1 - fadeProgress);
       }
     }
   }

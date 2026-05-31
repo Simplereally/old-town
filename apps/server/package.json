@@ -9,6 +9,7 @@
     "server:dev": "bun --watch src/index.ts"
   },
   "dependencies": {
+    "@old-town/content-validator": "workspace:*",
     "ws": "^8.21.0"
   },
   "devDependencies": {

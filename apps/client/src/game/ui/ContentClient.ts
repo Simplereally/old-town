@@ -1,4 +1,12 @@
-import type { ItemDef, NpcDef, ObjectDef, QuestDef, SkillDef, SpellDef } from "@old-town/shared";
+import type {
+  ItemDef,
+  NpcDef,
+  ObjectDef,
+  QuestDef,
+  QuestStage,
+  SkillDef,
+  SpellDef,
+} from "@old-town/shared";
 
 export interface ContentClientRegistries {
   readonly item: Record<string, ItemDef>;
@@ -16,6 +24,7 @@ export interface ContentClientRegistries {
 export class ContentClient {
   private _registries: ContentClientRegistries | undefined;
   private _ready = false;
+  private readonly _questStageCache = new Map<string, Map<number, QuestStage>>();
 
   get ready(): boolean {
     return this._ready;
@@ -57,6 +66,18 @@ export class ContentClient {
 
   getQuest(id: string): QuestDef | undefined {
     return this._registries?.quest[id];
+  }
+
+  getQuestStage(questId: string, stage: number): QuestStage | undefined {
+    const cached = this._questStageCache.get(questId);
+    if (cached) {
+      return cached.get(stage);
+    }
+    const quest = this.getQuest(questId);
+    if (!quest) return undefined;
+    const stageMap = new Map<number, QuestStage>(quest.stages.map((s) => [s.stage, s]));
+    this._questStageCache.set(questId, stageMap);
+    return stageMap.get(stage);
   }
 
   getAllSkills(): SkillDef[] {

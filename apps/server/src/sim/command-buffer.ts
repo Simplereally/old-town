@@ -175,12 +175,15 @@ export class CommandBuffer {
     this.intentsByTick.delete(tick);
     this.lastClosedTick = tick;
 
-    const groups = Array.from(owners.entries())
-      .sort(([a], [b]) => (a as number) - (b as number))
-      .map(([ownerEntityId, intents]) => ({
-        ownerEntityId,
-        intents: [...intents],
-      }));
+    const groups =
+      owners.size === 0
+        ? []
+        : Array.from(owners.entries())
+            .toSorted(([a], [b]) => (a as number) - (b as number))
+            .map(([ownerEntityId, intents]) => ({
+              ownerEntityId,
+              intents: [...intents],
+            }));
 
     return { tick, groups };
   }

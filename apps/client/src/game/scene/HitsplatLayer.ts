@@ -85,16 +85,20 @@ export class HitsplatLayer {
     const lifetime = 1200;
 
     for (const [id, hitsplat] of this.hitsplats) {
-      const pos = entityPositions.get(hitsplat.entityId);
+      const entityId = hitsplat.entityId;
+      const mesh = hitsplat.mesh;
+      const startTime = hitsplat.startTime;
+
+      const pos = entityPositions.get(entityId);
       if (pos) {
-        hitsplat.mesh.position.copy(pos);
-        hitsplat.mesh.position.y += 1.5;
-        const progress = (now - hitsplat.startTime) / lifetime;
+        mesh.position.copy(pos);
+        mesh.position.y += 1.5;
+        const progress = (now - startTime) / lifetime;
         if (progress >= 1) {
           this._remove(id);
         } else {
-          hitsplat.mesh.position.y += progress * 0.5;
-          const mat = hitsplat.mesh.material as MeshBasicMaterial;
+          mesh.position.y += progress * 0.5;
+          const mat = mesh.material as MeshBasicMaterial;
           mat.opacity = 1 - progress;
           mat.transparent = true;
         }

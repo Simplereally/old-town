@@ -5,8 +5,8 @@ import { createWorld } from "../ecs/world";
 import { loadAllRegionMapsIntoWorld } from "./region-loader";
 import { createRuntimeMap } from "./runtime-map";
 
-function loadSeedRegion() {
-  const content = loadContent("content");
+async function loadSeedRegion() {
+  const content = await loadContent("content");
   if (!content.ok) {
     throw new Error(content.issues.map((issue) => issue.message).join("; "));
   }
@@ -17,8 +17,8 @@ function loadSeedRegion() {
 }
 
 describe("region loader", () => {
-  it("loads the seed 64x64 region terrain", () => {
-    const { map, summaries } = loadSeedRegion();
+  it("loads the seed 64x64 region terrain", async () => {
+    const { map, summaries } = await loadSeedRegion();
 
     expect(summaries).toEqual([
       {
@@ -37,8 +37,8 @@ describe("region loader", () => {
     expect(map.tiles.get(tileKey({ x: 27, y: 27, plane: 0 }))?.zoneId).toBe("village");
   });
 
-  it("instantiates runtime entities while preserving content ids", () => {
-    const { world } = loadSeedRegion();
+  it("instantiates runtime entities while preserving content ids", async () => {
+    const { world } = await loadSeedRegion();
 
     expect(world.stores.object.size).toBe(13);
     expect(world.stores.npc.size).toBe(7);
@@ -58,9 +58,9 @@ describe("region loader", () => {
     expect(firstGroundItem).toMatchObject({ itemId: "pennywrought_axe", quantity: 1 });
   });
 
-  it("loads maps deterministically", () => {
-    const first = loadSeedRegion();
-    const second = loadSeedRegion();
+  it("loads maps deterministically", async () => {
+    const first = await loadSeedRegion();
+    const second = await loadSeedRegion();
 
     expect(Array.from(first.world.stores.object.entries())).toEqual(
       Array.from(second.world.stores.object.entries()),

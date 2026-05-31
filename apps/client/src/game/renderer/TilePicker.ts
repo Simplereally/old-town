@@ -51,9 +51,11 @@ export class TilePicker {
    */
   private _screenToNDC(screenX: number, screenY: number): Vector2 {
     const rect = this.canvas.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
     return new Vector2(
-      ((screenX - rect.left) / rect.width) * 2 - 1,
-      -((screenY - rect.top) / rect.height) * 2 + 1,
+      ((screenX - rect.left) / width) * 2 - 1,
+      -((screenY - rect.top) / height) * 2 + 1,
     );
   }
 }

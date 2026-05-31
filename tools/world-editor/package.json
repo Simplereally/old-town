@@ -6,5 +6,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist .vite"
+  },
+  "devDependencies": {
+    "rimraf": "^6.1.3"
   }
 }

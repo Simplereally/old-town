@@ -1,5 +1,17 @@
 import type { PickedEntity } from "../picking/EntityPicker";
 
+const _objectActionCache = new Map<string, string>();
+function inferObjectActionCache(defId: string): string {
+  const cached = _objectActionCache.get(defId);
+  if (cached !== undefined) return cached;
+  let result = "Use";
+  if (defId.includes("tree")) result = "Chop";
+  else if (defId.includes("rock") || defId.includes("ore")) result = "Mine";
+  else if (defId.includes("door")) result = "Open";
+  _objectActionCache.set(defId, result);
+  return result;
+}
+
 export interface ContextMenuOption {
   readonly label: string;
   readonly action: () => void;
@@ -55,6 +67,7 @@ export class ContextMenu {
     if (options.length === 0) return;
 
     this._menuElement = document.createElement("div");
+    this._menuElement.className = "context-menu";
     this._menuElement.style.position = "absolute";
     this._menuElement.style.left = `${screenX}px`;
     this._menuElement.style.top = `${screenY}px`;
@@ -72,15 +85,8 @@ export class ContextMenu {
 
     for (const option of options) {
       const item = document.createElement("div");
+      item.className = "context-menu-item";
       item.textContent = option.label;
-      item.style.padding = "4px 12px";
-      item.style.whiteSpace = "nowrap";
-      item.addEventListener("mouseenter", () => {
-        item.style.background = "rgba(255, 255, 255, 0.2)";
-      });
-      item.addEventListener("mouseleave", () => {
-        item.style.background = "transparent";
-      });
       item.addEventListener("click", (e) => {
         e.stopPropagation();
         option.action();
@@ -215,14 +221,11 @@ export class ContextMenu {
       }
     }
 
-    return options.sort((a, b) => a.priority - b.priority);
+    return options.toSorted((a, b) => a.priority - b.priority);
   }
 
   private _inferObjectAction(defId: string): string {
-    if (defId.includes("tree")) return "Chop";
-    if (defId.includes("rock") || defId.includes("ore")) return "Mine";
-    if (defId.includes("door")) return "Open";
-    return "Use";
+    return inferObjectActionCache(defId);
   }
 
   private _onWalkHere(tile: { x: number; y: number }): void {

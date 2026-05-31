@@ -10,18 +10,26 @@ if (!canvas) {
   throw new Error("Game canvas not found");
 }
 
-const engine = new GameEngine({
-  canvas,
-  statusOverlay,
-  debugOverlay,
-  serverUrl: import.meta.env.VITE_SERVER_URL ?? "ws://localhost:8080",
-});
+// Guard against duplicate initialization on HMR or script re-injection.
+const win = window as unknown as Record<string, unknown>;
+if (win.__OLD_TOWN_INIT__) {
+  console.warn("[Old Town] Init already running, skipping duplicate initialization");
+} else {
+  win.__OLD_TOWN_INIT__ = true;
 
-engine.start().catch((error) => {
-  console.error("Fatal error during engine startup:", error);
-});
+  const engine = new GameEngine({
+    canvas,
+    statusOverlay,
+    debugOverlay,
+    serverUrl: import.meta.env.VITE_SERVER_URL ?? "ws://localhost:8080",
+  });
 
-// Cleanup on page unload
-window.addEventListener("beforeunload", () => {
-  engine.shutdown();
-});
+  engine.start().catch((error) => {
+    console.error("Fatal error during engine startup:", error);
+  });
+
+  // Cleanup on page unload
+  window.addEventListener("beforeunload", () => {
+    engine.shutdown();
+  });
+}

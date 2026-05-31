@@ -91,13 +91,18 @@ function buildTemplate(defId: string): ObjectTemplate {
   }
 }
 
+const _typeCache = new Map<string, string>();
 function defIdToType(defId: string): string {
-  if (defId.includes("tree")) return "tree";
-  if (defId.includes("rock")) return "rock";
-  if (defId.includes("building")) return "building";
-  if (defId.includes("door")) return "door";
-  if (defId.includes("ore") || defId.includes("node")) return "resource";
-  return "default";
+  const cached = _typeCache.get(defId);
+  if (cached !== undefined) return cached;
+  let result = "default";
+  if (defId.includes("tree")) result = "tree";
+  else if (defId.includes("rock")) result = "rock";
+  else if (defId.includes("building")) result = "building";
+  else if (defId.includes("door")) result = "door";
+  else if (defId.includes("ore") || defId.includes("node")) result = "resource";
+  _typeCache.set(defId, result);
+  return result;
 }
 
 export interface ObjectRendererOptions {
@@ -128,9 +133,11 @@ export class ObjectRenderer {
     }
 
     const template = getTemplate(defId);
+    const yOffset = template.yOffset;
+    const scale = template.scale;
     const mesh = this._acquireMesh(defId, template);
-    mesh.position.set(tile.x, template.yOffset, -tile.y);
-    mesh.scale.copy(template.scale);
+    mesh.position.set(tile.x, yOffset, -tile.y);
+    mesh.scale.copy(scale);
     mesh.castShadow = false;
     mesh.receiveShadow = false;
     mesh.visible = true;
@@ -175,7 +182,8 @@ export class ObjectRenderer {
     for (const [, meshes] of this.meshPool) {
       for (const mesh of meshes) {
         mesh.geometry.dispose();
-        (mesh.material as MeshLambertMaterial).dispose();
+        const material = mesh.material as MeshLambertMaterial;
+        material.dispose();
       }
     }
     this.meshPool.clear();
@@ -205,16 +213,18 @@ export class ObjectRenderer {
 
   private _acquireMesh(defId: string, template: ObjectTemplate): Mesh {
     const pool = this.meshPool.get(defId);
+    const material = template.material;
+    const geometry = template.geometry;
     if (pool && pool.length > 0) {
       const mesh = pool.pop();
       if (mesh) {
-        mesh.material = template.material;
-        mesh.geometry = template.geometry;
+        mesh.material = material;
+        mesh.geometry = geometry;
         mesh.rotation.set(0, 0, 0);
         return mesh;
       }
     }
-    return new Mesh(template.geometry, template.material);
+    return new Mesh(geometry, material);
   }
 
   private _releaseMesh(defId: string, mesh: Mesh): void {

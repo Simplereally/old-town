@@ -48,7 +48,7 @@ function loadEnvFile(path: string): Map<string, string> {
   return map;
 }
 
-function buildEnv(): Map<string, string> {
+const builtEnv = ((): Map<string, string> => {
   const env = new Map<string, string>();
   // Load .env.example first as defaults.
   const example = loadEnvFile(resolve(import.meta.dirname, "../.env.example"));
@@ -67,15 +67,14 @@ function buildEnv(): Map<string, string> {
     }
   }
   return env;
-}
+})();
 
 export function loadRuntimeConfig(): RuntimeConfig {
-  const env = buildEnv();
   return {
-    port: parseIntEnv(env.get("PORT"), 8080),
-    tickMs: parseIntEnv(env.get("TICK_MS"), GAME_TICK_MS),
-    contentDir: env.get("CONTENT_DIR") ?? "content",
-    debug: parseBoolEnv(env.get("DEBUG"), false),
-    logJson: parseBoolEnv(env.get("LOG_JSON"), false),
+    port: parseIntEnv(builtEnv.get("PORT"), 8080),
+    tickMs: parseIntEnv(builtEnv.get("TICK_MS"), GAME_TICK_MS),
+    contentDir: builtEnv.get("CONTENT_DIR") ?? "content",
+    debug: parseBoolEnv(builtEnv.get("DEBUG"), false),
+    logJson: parseBoolEnv(builtEnv.get("LOG_JSON"), false),
   };
 }

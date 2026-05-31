@@ -23,8 +23,21 @@ import { ProjectileLayer } from "./scene/ProjectileLayer";
 import { TerrainLayer } from "./scene/TerrainLayer";
 import { ContentClient } from "./ui/ContentClient";
 import { ContextMenu } from "./ui/ContextMenu";
+import { GlobalKeydownBus } from "./ui/GlobalKeydownBus";
 import { UIManager, type UIManagerCallbacks } from "./ui/UIManager";
 import { UIState } from "./ui/UIState";
+
+const _objectActionCache = new Map<string, string>();
+function inferObjectActionCached(defId: string): string {
+  const cached = _objectActionCache.get(defId);
+  if (cached !== undefined) return cached;
+  let result = "use";
+  if (defId.includes("tree")) result = "chop";
+  else if (defId.includes("rock") || defId.includes("ore")) result = "mine";
+  else if (defId.includes("door")) result = "open";
+  _objectActionCache.set(defId, result);
+  return result;
+}
 
 export interface GameEngineOptions {
   readonly canvas: HTMLCanvasElement;
@@ -75,6 +88,7 @@ export class GameEngine {
   private _lastServerTime = 0;
   private _hoveredEntity: import("./picking/EntityPicker").PickedEntity | null = null;
   private _spellTargetMode: { spellId: string } | undefined;
+  private _debugOverlayUpdatePending = false;
 
   constructor(options: GameEngineOptions) {
     const { canvas, statusOverlay, serverUrl } = options;
@@ -173,7 +187,7 @@ export class GameEngine {
     this.canvas.removeEventListener("click", this._handleCanvasClick);
     this.canvas.removeEventListener("mousemove", this._handleMouseMove);
     this.canvas.removeEventListener("contextmenu", this._handleContextMenu);
-    document.removeEventListener("keydown", this._handleKeyDown);
+    GlobalKeydownBus.unregister("game-engine");
     this.contextMenu.hide();
     this.hoverHighlighter.dispose();
     this._removeClickMarker();
@@ -193,7 +207,7 @@ export class GameEngine {
     canvas.addEventListener("click", this._handleCanvasClick);
     canvas.addEventListener("mousemove", this._handleMouseMove);
     canvas.addEventListener("contextmenu", this._handleContextMenu);
-    document.addEventListener("keydown", this._handleKeyDown);
+    GlobalKeydownBus.register("game-engine", this._handleKeyDown);
   }
 
   private _handleKeyDown = (event: KeyboardEvent): void => {
@@ -209,7 +223,7 @@ export class GameEngine {
   private _updateSpellTargetOverlay(): void {
     const overlay = document.getElementById("spell-target-overlay");
     if (overlay) {
-      overlay.style.display = this._spellTargetMode ? "block" : "none";
+      overlay.classList.toggle("visible", !!this._spellTargetMode);
     }
   }
 
@@ -276,11 +290,10 @@ export class GameEngine {
     screenX: number,
     screenY: number,
   ): import("./picking/EntityPicker").PickedEntity | null {
-    const meshes = [
-      ...this.actors.getRaycastTargets(),
-      ...this.objects.getRaycastTargets(),
-      ...this.groundItems.getRaycastTargets(),
-    ];
+    const actorTargets = this.actors.getRaycastTargets();
+    const objectTargets = this.objects.getRaycastTargets();
+    const groundItemTargets = this.groundItems.getRaycastTargets();
+    const meshes = [...actorTargets, ...objectTargets, ...groundItemTargets];
     return this.entityPicker.pick(screenX, screenY, meshes);
   }
 
@@ -331,10 +344,7 @@ export class GameEngine {
   }
 
   private _inferObjectAction(defId: string): string {
-    if (defId.includes("tree")) return "chop";
-    if (defId.includes("rock") || defId.includes("ore")) return "mine";
-    if (defId.includes("door")) return "open";
-    return "use";
+    return inferObjectActionCached(defId);
   }
 
   private _onWalkHere(tile: { x: number; y: number }): void {
@@ -512,8 +522,7 @@ export class GameEngine {
     if (!log) return;
     const entry = document.createElement("div");
     entry.textContent = `[T${this._currentTick}] ${message}`;
-    entry.style.fontSize = "11px";
-    entry.style.color = "#aaa";
+    entry.classList.add("debug-log-entry");
     log.appendChild(entry);
     while (log.children.length > 50) {
       log.removeChild(log.firstChild as Node);
@@ -538,20 +547,18 @@ export class GameEngine {
     }
 
     for (const entity of state.entities) {
-      if (entity.kind === "object") {
-        this.objects.spawn(entity.entityId, entity.tile, entity.defId ?? "default");
-      } else if (entity.kind === "player" || entity.kind === "npc") {
-        this.actors.spawn(
-          entity.entityId,
-          entity.tile,
-          entity.defId,
-          entity.entityId === this._selfEntityId,
-          entity.kind,
-        );
+      const entityId = entity.entityId;
+      const kind = entity.kind;
+      const tile = entity.tile;
+      const defId = entity.defId;
+      if (kind === "object") {
+        this.objects.spawn(entityId, tile, defId ?? "default");
+      } else if (kind === "player" || kind === "npc") {
+        this.actors.spawn(entityId, tile, defId, entityId === this._selfEntityId, kind);
       }
-      if (entity.kind === "player" && entity.entityId === this._selfEntityId) {
+      if (kind === "player" && entityId === this._selfEntityId) {
         if (entity.appearance) {
-          this.actors.updateAppearance(entity.entityId, entity.appearance);
+          this.actors.updateAppearance(entityId, entity.appearance);
         }
       }
     }
@@ -607,32 +614,29 @@ export class GameEngine {
     }
 
     for (const update of delta.entityUpdates) {
-      if (update.changes.position) {
-        this.actors.updateTile(update.entityId, update.changes.position);
+      const changes = update.changes;
+      if (changes.position) {
+        this.actors.updateTile(update.entityId, changes.position);
       }
-      if (update.changes.facingTile) {
+      if (changes.facingTile) {
         const actor = this.actors.getActorState(update.entityId);
         if (actor) {
-          const dx = update.changes.facingTile.x - actor.serverTile.x;
-          const dy = update.changes.facingTile.y - actor.serverTile.y;
+          const dx = changes.facingTile.x - actor.serverTile.x;
+          const dy = changes.facingTile.y - actor.serverTile.y;
           if (dx !== 0 || dy !== 0) {
             const direction = this._getDirectionFromDelta(dx, dy);
             this.actors.updateFacing(update.entityId, direction);
           }
         }
       }
-      if (update.changes.hitsplat) {
-        this.hitsplats.show(
-          update.entityId,
-          update.changes.hitsplat.amount,
-          update.changes.hitsplat.type,
-        );
+      if (changes.hitsplat) {
+        this.hitsplats.show(update.entityId, changes.hitsplat.amount, changes.hitsplat.type);
       }
-      if (update.changes.equipment && update.entityId === this._selfEntityId) {
-        this._syncEquipment(update.changes.equipment.slots);
+      if (changes.equipment && update.entityId === this._selfEntityId) {
+        this._syncEquipment(changes.equipment.slots);
       }
-      if (update.changes.appearance) {
-        this.actors.updateAppearance(update.entityId, update.changes.appearance);
+      if (changes.appearance) {
+        this.actors.updateAppearance(update.entityId, changes.appearance);
       }
     }
 
@@ -669,31 +673,32 @@ export class GameEngine {
       }
     }
 
-    if (delta.debug?.paths) {
-      this._handleDebugPaths(delta.debug.paths);
+    const debugData = delta.debug;
+    if (debugData?.paths) {
+      this._handleDebugPaths(debugData.paths);
     }
-    if (delta.debug?.trueTiles) {
-      for (const tt of delta.debug.trueTiles) {
+    if (debugData?.trueTiles) {
+      for (const tt of debugData.trueTiles) {
         this.debug?.markTrueTile(tt.tile, tt.entityId);
       }
     }
-    if (delta.debug?.collisionTiles) {
-      for (const tile of delta.debug.collisionTiles) {
+    if (debugData?.collisionTiles) {
+      for (const tile of debugData.collisionTiles) {
         this.debug?.markCollisionTile(tile);
       }
     }
-    if (delta.debug?.footprints) {
-      for (const tile of delta.debug.footprints) {
+    if (debugData?.footprints) {
+      for (const tile of debugData.footprints) {
         this.debug?.markFootprint(tile);
       }
     }
-    if (delta.debug?.reachTiles) {
-      for (const rt of delta.debug.reachTiles) {
+    if (debugData?.reachTiles) {
+      for (const rt of debugData.reachTiles) {
         this.debug?.markReachTiles(rt.center, rt.radius);
       }
     }
-    if (delta.debug?.loSRays) {
-      for (const ray of delta.debug.loSRays) {
+    if (debugData?.loSRays) {
+      for (const ray of debugData.loSRays) {
         const start = new Vector3(
           ray.start.x * TILE_SIZE_WORLD_UNITS,
           0.5,
@@ -707,25 +712,25 @@ export class GameEngine {
         this.debug?.markLoSRay(start, end);
       }
     }
-    if (delta.debug?.actionQueue) {
-      this.debug?.setActionQueue(delta.debug.actionQueue as string[]);
+    if (debugData?.actionQueue) {
+      this.debug?.setActionQueue(debugData.actionQueue as string[]);
     }
-    if (delta.debug?.combatCooldown !== undefined) {
-      this.debug?.setCombatCooldown(delta.debug.combatCooldown);
+    if (debugData?.combatCooldown !== undefined) {
+      this.debug?.setCombatCooldown(debugData.combatCooldown);
     }
-    if (delta.debug?.pendingHits) {
+    if (debugData?.pendingHits) {
       const hits = new Map<string, number>();
-      for (const h of delta.debug.pendingHits) {
+      for (const h of debugData.pendingHits) {
         hits.set(h.targetId.toString(), h.amount);
       }
       this.debug?.setPendingHits(hits);
     }
-    if (delta.debug?.npcLeash) {
-      this.debug?.setNpcLeash(delta.debug.npcLeash);
+    if (debugData?.npcLeash) {
+      this.debug?.setNpcLeash(debugData.npcLeash);
     }
-    if (delta.debug?.varbits) {
+    if (debugData?.varbits) {
       const vars = new Map<string, number>();
-      for (const v of delta.debug.varbits) {
+      for (const v of debugData.varbits) {
         vars.set(v.varId, v.value);
       }
       this.debug?.setVarbits(vars);
@@ -741,10 +746,12 @@ export class GameEngine {
   ): void {
     let foundSelfPath = false;
     for (const pathData of paths) {
-      if (pathData.entityId === this._selfEntityId) {
+      const entityId = pathData.entityId;
+      const path = pathData.path;
+      if (entityId === this._selfEntityId) {
         foundSelfPath = true;
         if (
-          pathData.path.length === 0 &&
+          path.length === 0 &&
           this._lastClickTile &&
           this._lastClickTick > this._currentTick - 2
         ) {
@@ -752,7 +759,7 @@ export class GameEngine {
             `Move rejected: no path to (${this._lastClickTile.x}, ${this._lastClickTile.y})`,
           );
         } else {
-          for (const tile of pathData.path) {
+          for (const tile of path) {
             this.debug?.markPathTile(tile);
           }
         }
@@ -777,7 +784,8 @@ export class GameEngine {
     this.actors.interpolate();
     this.projectiles.update();
     const actorPositions = new Map<number, Vector3>();
-    for (const [id, actor] of this.actors.getActorStates()) {
+    const actorStates = this.actors.getActorStates();
+    for (const [id, actor] of actorStates) {
       actorPositions.set(id, actor.visualPosition);
     }
     this.hitsplats.update(actorPositions);
@@ -800,52 +808,61 @@ export class GameEngine {
     const selfActor = this.actors.getActorState(this._selfEntityId);
     if (selfActor) {
       const debug = document.getElementById("debug-overlay");
-      if (debug?.classList.contains("visible")) {
-        const cx = Math.floor(selfActor.serverTile.x / 8);
-        const cy = Math.floor(selfActor.serverTile.y / 8);
-        const rx = Math.floor(selfActor.serverTile.x / 64);
-        const ry = Math.floor(selfActor.serverTile.y / 64);
-        const lines = [
-          `Tick: ${this._currentTick}`,
-          `Ping: ${Math.round(this._lastPingRtt)}ms`,
-          `True tile: (${selfActor.serverTile.x}, ${selfActor.serverTile.y}, ${selfActor.serverTile.plane})`,
-          `Visual: (${selfActor.visualPosition.x.toFixed(1)}, ${selfActor.visualPosition.y.toFixed(1)}, ${selfActor.visualPosition.z.toFixed(1)})`,
-          `Region: ${rx}:${ry}:${selfActor.serverTile.plane}`,
-          `Chunk: ${cx}:${cy}:${selfActor.serverTile.plane}`,
-          `Facing: ${selfActor.facingDirection}`,
-          `Anim: ${selfActor.animationState}`,
-        ];
-        if (this.debug) {
-          const queue = this.debug.getActionQueue();
-          if (queue.length > 0) {
-            lines.push(`Action queue: ${queue.join(", ")}`);
+      if (debug?.classList.contains("visible") && !this._debugOverlayUpdatePending) {
+        this._debugOverlayUpdatePending = true;
+        const doUpdate = () => {
+          this._debugOverlayUpdatePending = false;
+          const cx = Math.floor(selfActor.serverTile.x / 8);
+          const cy = Math.floor(selfActor.serverTile.y / 8);
+          const rx = Math.floor(selfActor.serverTile.x / 64);
+          const ry = Math.floor(selfActor.serverTile.y / 64);
+          const lines = [
+            `Tick: ${this._currentTick}`,
+            `Ping: ${Math.round(this._lastPingRtt)}ms`,
+            `True tile: (${selfActor.serverTile.x}, ${selfActor.serverTile.y}, ${selfActor.serverTile.plane})`,
+            `Visual: (${selfActor.visualPosition.x.toFixed(1)}, ${selfActor.visualPosition.y.toFixed(1)}, ${selfActor.visualPosition.z.toFixed(1)})`,
+            `Region: ${rx}:${ry}:${selfActor.serverTile.plane}`,
+            `Chunk: ${cx}:${cy}:${selfActor.serverTile.plane}`,
+            `Facing: ${selfActor.facingDirection}`,
+            `Anim: ${selfActor.animationState}`,
+          ];
+          if (this.debug) {
+            const queue = this.debug.getActionQueue();
+            if (queue.length > 0) {
+              lines.push(`Action queue: ${queue.join(", ")}`);
+            }
+            const cooldown = this.debug.getCombatCooldown();
+            if (cooldown > 0) {
+              lines.push(`Combat cooldown: ${cooldown}`);
+            }
+            const hits = this.debug.getPendingHits();
+            if (hits.size > 0) {
+              const hitLines = Array.from(hits.entries()).map(
+                ([target, amount]) => `Pending hit ${target}: ${amount}`,
+              );
+              lines.push(...hitLines);
+            }
+            const leash = this.debug.getNpcLeash();
+            if (leash) {
+              lines.push(`NPC leash: (${leash.x}, ${leash.y})`);
+            }
+            const vars = this.debug.getVarbits();
+            if (vars.size > 0) {
+              const varLines = Array.from(vars.entries()).map(
+                ([varId, value]) => `Var ${varId}: ${value}`,
+              );
+              lines.push(...varLines);
+            }
           }
-          const cooldown = this.debug.getCombatCooldown();
-          if (cooldown > 0) {
-            lines.push(`Combat cooldown: ${cooldown}`);
+          const stats = document.getElementById("debug-stats");
+          if (stats) {
+            stats.innerHTML = lines.map((line) => `<div>${line}</div>`).join("");
           }
-          const hits = this.debug.getPendingHits();
-          if (hits.size > 0) {
-            const hitLines = Array.from(hits.entries()).map(
-              ([target, amount]) => `Pending hit ${target}: ${amount}`,
-            );
-            lines.push(...hitLines);
-          }
-          const leash = this.debug.getNpcLeash();
-          if (leash) {
-            lines.push(`NPC leash: (${leash.x}, ${leash.y})`);
-          }
-          const vars = this.debug.getVarbits();
-          if (vars.size > 0) {
-            const varLines = Array.from(vars.entries()).map(
-              ([varId, value]) => `Var ${varId}: ${value}`,
-            );
-            lines.push(...varLines);
-          }
-        }
-        const stats = document.getElementById("debug-stats");
-        if (stats) {
-          stats.innerHTML = lines.map((line) => `<div>${line}</div>`).join("");
+        };
+        if (typeof requestIdleCallback !== "undefined") {
+          requestIdleCallback(doUpdate);
+        } else {
+          setTimeout(doUpdate, 0);
         }
       }
     }

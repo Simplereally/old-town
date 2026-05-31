@@ -49,10 +49,11 @@ export class CameraController {
   /** Update frustum size when window resizes. */
   updateAspect(width: number, height: number): void {
     const aspect = width / height;
-    this.camera.left = -this._baseFrustumSize * aspect;
-    this.camera.right = this._baseFrustumSize * aspect;
-    this.camera.top = this._baseFrustumSize;
-    this.camera.bottom = -this._baseFrustumSize;
+    const baseFrustumSize = this._baseFrustumSize;
+    this.camera.left = -baseFrustumSize * aspect;
+    this.camera.right = baseFrustumSize * aspect;
+    this.camera.top = baseFrustumSize;
+    this.camera.bottom = -baseFrustumSize;
     this.camera.updateProjectionMatrix();
   }
 

@@ -78,7 +78,9 @@ export class TerrainLayer {
 
   /** Load a chunk into the scene. */
   loadChunk(regionId: string, chunk: ChunkData): void {
-    const key = `${regionId}:${chunk.cx}:${chunk.cy}`;
+    const cx = chunk.cx;
+    const cy = chunk.cy;
+    const key = `${regionId}:${cx}:${cy}`;
     if (this.chunks.has(key)) {
       this.unloadChunk(key);
     }
@@ -92,15 +94,16 @@ export class TerrainLayer {
     }
 
     this.scene.add(group);
-    this.chunks.set(key, { group, regionId, cx: chunk.cx, cy: chunk.cy });
+    this.chunks.set(key, { group, regionId, cx, cy });
   }
 
   /** Unload a chunk by its key. */
   unloadChunk(key: string): void {
     const chunk = this.chunks.get(key);
     if (!chunk) return;
-    this.scene.remove(chunk.group);
-    for (const child of chunk.group.children) {
+    const group = chunk.group;
+    this.scene.remove(group);
+    for (const child of group.children) {
       if (child instanceof Mesh) {
         child.geometry.dispose();
       }

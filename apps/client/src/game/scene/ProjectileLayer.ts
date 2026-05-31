@@ -66,14 +66,20 @@ export class ProjectileLayer {
   update(): void {
     const now = performance.now();
     for (const proj of this.projectiles.values()) {
+      const startTile = proj.startTile;
+      const endTile = proj.endTile;
+      const startTime = proj.startTime;
+      const mesh = proj.mesh;
+      const id = proj.id;
+
       const duration = GAME_TICK_MS;
-      const progress = Math.min((now - proj.startTime) / duration, 1);
-      const startWorld = this._tileToWorld(proj.startTile);
-      const endWorld = this._tileToWorld(proj.endTile);
-      proj.mesh.position.lerpVectors(startWorld, endWorld, progress);
-      proj.mesh.position.y = 1.5 + Math.sin(progress * Math.PI) * 2;
+      const progress = Math.min((now - startTime) / duration, 1);
+      const startWorld = this._tileToWorld(startTile);
+      const endWorld = this._tileToWorld(endTile);
+      mesh.position.lerpVectors(startWorld, endWorld, progress);
+      mesh.position.y = 1.5 + Math.sin(progress * Math.PI) * 2;
       if (progress >= 1) {
-        this.remove(proj.id);
+        this.remove(id);
       }
     }
   }

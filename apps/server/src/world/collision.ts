@@ -92,8 +92,10 @@ export class CollisionMap {
 
   applyFootprint(origin: TileCoord, footprint: Footprint, flags: number): () => void {
     assertFootprint(footprint);
-    for (let x = 0; x < footprint.width; x += 1) {
-      for (let y = 0; y < footprint.length; y += 1) {
+    const width = footprint.width;
+    const length = footprint.length;
+    for (let x = 0; x < width; x += 1) {
+      for (let y = 0; y < length; y += 1) {
         this.addDynamic(tileAt(origin, x, y), flags);
       }
     }
@@ -102,8 +104,10 @@ export class CollisionMap {
 
   clearFootprint(origin: TileCoord, footprint: Footprint, flags?: number): void {
     assertFootprint(footprint);
-    for (let x = 0; x < footprint.width; x += 1) {
-      for (let y = 0; y < footprint.length; y += 1) {
+    const width = footprint.width;
+    const length = footprint.length;
+    for (let x = 0; x < width; x += 1) {
+      for (let y = 0; y < length; y += 1) {
         this.clearDynamic(tileAt(origin, x, y), flags);
       }
     }
@@ -111,8 +115,10 @@ export class CollisionMap {
 
   canOccupy(origin: TileCoord, footprint: Footprint = ONE_TILE): boolean {
     assertFootprint(footprint);
-    for (let x = 0; x < footprint.width; x += 1) {
-      for (let y = 0; y < footprint.length; y += 1) {
+    const width = footprint.width;
+    const length = footprint.length;
+    for (let x = 0; x < width; x += 1) {
+      for (let y = 0; y < length; y += 1) {
         if ((this.getMask(tileAt(origin, x, y)) & OCCUPANCY_BLOCKERS) !== 0) {
           return false;
         }
@@ -177,36 +183,29 @@ export class CollisionMap {
       return false;
     }
 
+    const width = footprint.width;
+    const length = footprint.length;
+
     if (dx > 0) {
-      for (let y = 0; y < footprint.length; y += 1) {
-        if (
-          this.movementEdgeBlocked(
-            tileAt(from, footprint.width - 1, y),
-            tileAt(from, footprint.width, y),
-          )
-        ) {
+      for (let y = 0; y < length; y += 1) {
+        if (this.movementEdgeBlocked(tileAt(from, width - 1, y), tileAt(from, width, y))) {
           return false;
         }
       }
     } else if (dx < 0) {
-      for (let y = 0; y < footprint.length; y += 1) {
+      for (let y = 0; y < length; y += 1) {
         if (this.movementEdgeBlocked(tileAt(from, 0, y), tileAt(from, -1, y))) {
           return false;
         }
       }
     } else if (dy > 0) {
-      for (let x = 0; x < footprint.width; x += 1) {
-        if (
-          this.movementEdgeBlocked(
-            tileAt(from, x, footprint.length - 1),
-            tileAt(from, x, footprint.length),
-          )
-        ) {
+      for (let x = 0; x < width; x += 1) {
+        if (this.movementEdgeBlocked(tileAt(from, x, length - 1), tileAt(from, x, length))) {
           return false;
         }
       }
     } else if (dy < 0) {
-      for (let x = 0; x < footprint.width; x += 1) {
+      for (let x = 0; x < width; x += 1) {
         if (this.movementEdgeBlocked(tileAt(from, x, 0), tileAt(from, x, -1))) {
           return false;
         }
@@ -292,9 +291,12 @@ export function applyObjectCollision(
   registries: ContentRegistries,
   collision: CollisionMap,
 ): void {
-  for (const [entityId, object] of world.stores.object) {
-    const position = world.stores.position.get(entityId);
-    const def = registries.object.get(object.objectId);
+  const positionStore = world.stores.position;
+  const objectStore = world.stores.object;
+  const objectRegistry = registries.object;
+  for (const [entityId, object] of objectStore) {
+    const position = positionStore.get(entityId);
+    const def = objectRegistry.get(object.objectId);
     if (!position || !def) {
       continue;
     }

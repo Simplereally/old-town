@@ -115,8 +115,9 @@ export class ActionQueue {
   }
 
   cancel(owner: EntityId, filter: ActionCancelFilter = {}): number {
-    const before = this.actions.length;
-    this.actions = this.actions.filter((action) => {
+    const actions = this.actions;
+    const before = actions.length;
+    this.actions = actions.filter((action) => {
       return action.entry.owner !== owner || !matchesFilter(action.entry, filter);
     });
     return before - this.actions.length;
@@ -132,11 +133,12 @@ export class ActionQueue {
   advanceTick(options: ActionQueueAdvanceOptions = {}): readonly ActionExecution[] {
     const executed: ActionExecution[] = [];
     const next: QueuedAction[] = [];
+    const blockedOwners = options.blockedOwners;
 
     for (const action of this.actions) {
       if (
         action.entry.type === ActionQueueType.Normal &&
-        options.blockedOwners?.has(action.entry.owner) === true
+        blockedOwners?.has(action.entry.owner) === true
       ) {
         next.push(action);
         continue;

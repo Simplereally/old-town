@@ -48,8 +48,8 @@ function nextMessage(socket: WebSocket): Promise<unknown> {
   });
 }
 
-async function openSocket(url: string): Promise<WebSocket> {
-  return await new Promise((resolve) => {
+function openSocket(url: string): Promise<WebSocket> {
+  return new Promise((resolve) => {
     const socket = new WebSocket(url);
     socket.once("open", () => resolve(socket));
   });
@@ -97,8 +97,10 @@ async function startHarness() {
     throw new Error("Expected TCP address");
   }
   cleanup = async () => {
-    await transport.close();
-    await new Promise<void>((resolve) => httpServer.close(() => resolve()));
+    await Promise.all([
+      transport.close(),
+      new Promise<void>((resolve) => httpServer.close(() => resolve())),
+    ]);
   };
   return {
     url: `ws://127.0.0.1:${address.port}${transport.path}`,

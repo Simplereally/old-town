@@ -4,7 +4,7 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "lib": ["ES2022"],
+    "lib": ["ES2022", "ES2023"],
     "types": [],
 
     "strict": true,
@@ -32,7 +32,9 @@
     "baseUrl": ".",
     "paths": {
       "@old-town/shared": ["packages/shared/src/index.ts"],
-      "@old-town/shared/*": ["packages/shared/src/*"]
+      "@old-town/shared/*": ["packages/shared/src/*"],
+      "@old-town/content-validator": ["tools/content-validator/src/index.ts"],
+      "@old-town/content-validator/*": ["tools/content-validator/src/*"]
     }
   },
   "exclude": ["node_modules", "dist", "build", "coverage"]

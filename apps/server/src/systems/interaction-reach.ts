@@ -117,27 +117,26 @@ function candidateTiles(
   actorFootprint: Footprint,
 ): readonly TileCoord[] {
   const candidates: TileCoord[] = [];
-  const minX = target.origin.x - target.requiredDistance - actorFootprint.width + 1;
-  const maxX = rectangleMaxX(target.origin, target.footprint) + target.requiredDistance;
-  const minY = target.origin.y - target.requiredDistance - actorFootprint.length + 1;
-  const maxY = rectangleMaxY(target.origin, target.footprint) + target.requiredDistance;
+  const targetOrigin = target.origin;
+  const targetFootprint = target.footprint;
+  const requiredDistance = target.requiredDistance;
+  const minX = targetOrigin.x - requiredDistance - actorFootprint.width + 1;
+  const maxX = rectangleMaxX(targetOrigin, targetFootprint) + requiredDistance;
+  const minY = targetOrigin.y - requiredDistance - actorFootprint.length + 1;
+  const maxY = rectangleMaxY(targetOrigin, targetFootprint) + requiredDistance;
+  const targetPlane = targetOrigin.plane;
 
   for (let x = minX; x <= maxX; x += 1) {
     for (let y = minY; y <= maxY; y += 1) {
-      const candidate = { x, y, plane: target.origin.plane };
-      const distance = footprintDistance(
-        candidate,
-        actorFootprint,
-        target.origin,
-        target.footprint,
-      );
-      if (distance <= target.requiredDistance && (target.requiredDistance === 0 || distance > 0)) {
+      const candidate = { x, y, plane: targetPlane };
+      const distance = footprintDistance(candidate, actorFootprint, targetOrigin, targetFootprint);
+      if (distance <= requiredDistance && (requiredDistance === 0 || distance > 0)) {
         candidates.push(candidate);
       }
     }
   }
 
-  return candidates.sort((a, b) => a.x - b.x || a.y - b.y);
+  return candidates;
 }
 
 export function findNearestInteractionTile(
@@ -148,14 +147,12 @@ export function findNearestInteractionTile(
 ): TileCoord | undefined {
   let best: { tile: TileCoord; pathLength: number } | undefined;
 
+  const requiresLineOfSight = target.requiresLineOfSight === true;
   for (const candidate of candidateTiles(target, actorFootprint)) {
     if (!collision.canOccupy(candidate, actorFootprint)) {
       continue;
     }
-    if (
-      target.requiresLineOfSight === true &&
-      !hasTargetLineOfSight(collision, candidate, target)
-    ) {
+    if (requiresLineOfSight && !hasTargetLineOfSight(collision, candidate, target)) {
       continue;
     }
     const result = findPath(collision, actorTile, candidate, { footprint: actorFootprint });

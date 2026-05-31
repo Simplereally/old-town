@@ -149,12 +149,10 @@ export class DebugLayer {
   }
 
   markReachTiles(center: TileCoord, radius: number): void {
-    const existing = new Set<string>();
     for (const key of this.tiles.keys()) {
-      if (key.startsWith("reach:")) existing.add(key);
-    }
-    for (const key of existing) {
-      this._removeTile(key);
+      if (key.startsWith("reach:")) {
+        this._removeTile(key);
+      }
     }
     if (!this._showReach) return;
     for (let dx = -radius; dx <= radius; dx++) {

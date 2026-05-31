@@ -38,18 +38,19 @@ export class DeltaBroadcaster {
   }
 
   broadcastTick(tick: number, serverTime: number): TickDeltaPacket {
-    const delta = this.options.deltas.consume(tick, serverTime);
-    for (const session of this.options.transport.sessions.values()) {
-      const entityId = this.options.getEntityId(session);
-      const center =
-        entityId === undefined ? undefined : positionTile(this.options.world, entityId);
+    const options = this.options;
+    const delta = options.deltas.consume(tick, serverTime);
+    const world = options.world;
+    const getEntityId = options.getEntityId;
+    const interestManager = options.interestManager;
+    const transport = options.transport;
+    for (const session of transport.sessions.values()) {
+      const entityId = getEntityId(session);
+      const center = entityId === undefined ? undefined : positionTile(world, entityId);
       if (!center || entityId === undefined) {
         continue;
       }
-      this.options.transport.send(
-        session.id,
-        this.options.interestManager.filterDelta(entityId, center, delta, this.options.world),
-      );
+      transport.send(session.id, interestManager.filterDelta(entityId, center, delta, world));
     }
     return delta;
   }

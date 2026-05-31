@@ -3,7 +3,8 @@
  * tags it with the content kind implied by its top-level directory, and returns the
  * parsed JSON for the pure validator in `@old-town/shared`.
  */
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
 import { type ContentIssue, type LoadedContentFile, kindForContentDir } from "@old-town/shared";
 
@@ -12,9 +13,15 @@ export interface LoadResult {
   readonly issues: ContentIssue[];
 }
 
+interface PendingFile {
+  readonly rel: string;
+  readonly kind: NonNullable<ReturnType<typeof kindForContentDir>>;
+  readonly full: string;
+}
+
 /** Recursively load and parse content JSON from `contentDir`. */
-export function loadContentDir(contentDir: string): LoadResult {
-  const files: LoadedContentFile[] = [];
+export async function loadContentDir(contentDir: string): Promise<LoadResult> {
+  const pending: PendingFile[] = [];
   const issues: ContentIssue[] = [];
 
   const walk = (dir: string): void => {
@@ -42,17 +49,24 @@ export function loadContentDir(contentDir: string): LoadResult {
         });
         continue;
       }
-      let data: unknown;
-      try {
-        data = JSON.parse(readFileSync(full, "utf8"));
-      } catch (error) {
-        issues.push({ path: rel, message: `invalid JSON: ${(error as Error).message}` });
-        continue;
-      }
-      files.push({ path: rel, kind, data });
+      pending.push({ rel, kind, full });
     }
   };
 
   walk(contentDir);
-  return { files, issues };
+
+  const files = await Promise.all(
+    pending.map(async ({ rel, kind, full }): Promise<LoadedContentFile[]> => {
+      try {
+        const text = await readFile(full, "utf8");
+        const data = JSON.parse(text) as unknown;
+        return [{ path: rel, kind, data }];
+      } catch (error) {
+        issues.push({ path: rel, message: `invalid JSON: ${(error as Error).message}` });
+        return [];
+      }
+    }),
+  );
+
+  return { files: files.flat(), issues };
 }

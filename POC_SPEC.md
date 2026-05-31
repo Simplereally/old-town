@@ -1681,7 +1681,7 @@ apps/
       systems/
       content/
       persistence/
-      scripts/
+packages/
   shared/
     src/
       protocol/
@@ -1689,6 +1689,7 @@ apps/
       math/
       content-schemas/
 content/
+scripts/
 tools/
   world-editor/
   content-validator/

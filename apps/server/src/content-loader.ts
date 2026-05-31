@@ -4,8 +4,8 @@
  * fail fast — no gameplay starts with invalid content.
  */
 import { resolve } from "node:path";
+import { loadContentDir } from "@old-town/content-validator";
 import { type ContentIssue, type ContentRegistries, validateContent } from "@old-town/shared";
-import { loadContentDir } from "../../../tools/content-validator/src/loader";
 
 export interface BootContentResult {
   readonly ok: boolean;
@@ -13,9 +13,9 @@ export interface BootContentResult {
   readonly registries: ContentRegistries;
 }
 
-export function loadContent(contentDir: string): BootContentResult {
+export async function loadContent(contentDir: string): Promise<BootContentResult> {
   const absoluteDir = resolve(process.cwd(), contentDir);
-  const { files, issues: loadIssues } = loadContentDir(absoluteDir);
+  const { files, issues: loadIssues } = await loadContentDir(absoluteDir);
   const { ok, issues, registries } = validateContent(files);
   const allIssues = [...loadIssues, ...issues];
   return { ok, issues: allIssues, registries };

@@ -59,10 +59,11 @@ export class CommandRouter {
   }
 
   consumeTick(tick: number): ConsumedCommands {
-    for (const key of this.countsBySessionTick.keys()) {
+    const counts = this.countsBySessionTick;
+    for (const key of counts.keys()) {
       const tickPart = Number.parseInt(key.slice(key.lastIndexOf(":") + 1), 10);
       if (tickPart <= tick) {
-        this.countsBySessionTick.delete(key);
+        counts.delete(key);
       }
     }
     return this.commandBuffer.consumeTick(tick);
