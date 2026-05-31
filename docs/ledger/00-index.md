@@ -17,9 +17,9 @@ The Civic Ledger is Old Town's long-term account of player deeds. It combines ac
 |----------|--------|---------|
 | [`civic-ledger-system.md`](civic-ledger-system.md) | Complete | Core authority. Deed tiers, NPC keepers, design rules |
 | [`district-deeds.md`](district-deeds.md) | Complete | 10 starter deed cards, one per district, with tasks and rewards |
-| [`oldroad-trails.md`](oldroad-trails.md) | Complete | 6 trail tiers, the clue-scroll equivalent, with sources and identities |
-| [`clue-step-types.md`](clue-step-types.md) | Complete | 12 step types that use existing world systems |
-| [`nooks-and-stash-spots.md`](nooks-and-stash-spots.md) | Complete | 6 buildable local storage spot types |
+| [`oldroad-trails.md`](oldroad-trails.md) | Redirect | Legacy summary; canonical authority moved to [`docs/trails/00-index.md`](../trails/00-index.md) |
+| [`clue-step-types.md`](clue-step-types.md) | Legacy | Retained for reference; canonical step types at [`docs/trails/step-types.md`](../trails/step-types.md) |
+| [`nooks-and-stash-spots.md`](nooks-and-stash-spots.md) | Legacy | Retained for reference; canonical Nook authority at [`docs/trails/nooks-and-trail-storage.md`](../trails/nooks-and-trail-storage.md) |
 | [`charters-and-permits.md`](charters-and-permits.md) | Complete | 8 charters and 8 starter permits for guild-style access |
 | [`public-works.md`](public-works.md) | Complete | 8 repeatable town jobs with modest rewards |
 | [`rewards-and-stamps.md`](rewards-and-stamps.md) | Complete | Reward philosophy, 10 reward types, district stamp names |
@@ -30,7 +30,7 @@ The Civic Ledger is Old Town's long-term account of player deeds. It combines ac
 | NPC | Location | Ledger Role |
 |-----|----------|-------------|
 | Tomas Tally | Counting House | Keeps the formal record, issues stamps |
-| Finch Quill | Oldroad Gate | Maps trail routes, sketches clue steps |
+| Finch Quill | Oldroad Gate | Maps Trail routes, sketches Trail steps for Cartography |
 | Warden Holt | Warden Steps | Stamps dangerous work, signs contracts |
 | Sister Writ | Shrine Hearth | Records shrine rites and ledger blessings |
 | Marn Lock | Sootcellar | Can "adjust" records, knows blacksealed trails |
@@ -41,9 +41,9 @@ The Civic Ledger is Old Town's long-term account of player deeds. It combines ac
 |---------------|-------|
 | Understand the ledger philosophy | [`civic-ledger-system.md`](civic-ledger-system.md) |
 | See deed tasks for a district | [`district-deeds.md`](district-deeds.md) |
-| Understand clue-scroll trails | [`oldroad-trails.md`](oldroad-trails.md) |
-| See step types for trails | [`clue-step-types.md`](clue-step-types.md) |
-| Understand buildable storage | [`nooks-and-stash-spots.md`](nooks-and-stash-spots.md) |
+| Understand clue-scroll trails | [`docs/trails/00-index.md`](../trails/00-index.md) |
+| See step types for trails | [`docs/trails/step-types.md`](../trails/step-types.md) |
+| Understand buildable storage | [`docs/trails/nooks-and-trail-storage.md`](../trails/nooks-and-trail-storage.md) |
 | See guild-style access rules | [`charters-and-permits.md`](charters-and-permits.md) |
 | Find repeatable town jobs | [`public-works.md`](public-works.md) |
 | Understand reward types | [`rewards-and-stamps.md`](rewards-and-stamps.md) |

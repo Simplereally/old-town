@@ -8,11 +8,15 @@ root_index: docs/00-index.md
 Parent: [`Ledger Index`](00-index.md)
 
 Authority references:
+- `docs/trails/00-index.md`
+- `docs/trails/nooks-and-trail-storage.md`
 - `docs/ledger/district-deeds.md`
 - `docs/ledger/charters-and-permits.md`
 - `docs/skills/utility-skills.md`
 - `docs/tools-and-intermediates/stations.md`
 - `docs/world/districts-and-routes.md`
+
+> **Legacy document.** The canonical Nook authority is now [`docs/trails/nooks-and-trail-storage.md`](../trails/nooks-and-trail-storage.md). This document is retained for historical reference but the new naming conventions and expanded location tables take precedence.
 
 # Nooks and Stash Spots
 

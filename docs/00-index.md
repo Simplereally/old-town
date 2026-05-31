@@ -101,13 +101,13 @@ docs/
     repair-and-degradation.md ← Repair and degradation rules
     item-sinks-and-inflation-control.md ← Economy sinks
     reward-calibration.md ← Reward profiles
-  ledger/
-    00-index.md        ← Civic Ledger entry point
-    civic-ledger-system.md ← Core ledger authority and deed tiers
-    district-deeds.md  ← Area diary tasks and rewards
-    oldroad-trails.md  ← Clue-scroll equivalent
-    clue-step-types.md ← Trail step types
-    nooks-and-stash-spots.md ← Buildable local storage
+   ledger/
+     00-index.md        ← Civic Ledger entry point
+     civic-ledger-system.md ← Core ledger authority and deed tiers
+     district-deeds.md  ← Area diary tasks and rewards
+     oldroad-trails.md  ← Legacy redirect: canonical authority at trails/00-index.md
+     clue-step-types.md ← Legacy: canonical step types at trails/step-types.md
+     nooks-and-stash-spots.md ← Legacy: canonical Nook authority at trails/nooks-and-trail-storage.md
     charters-and-permits.md ← Guild-style access and permits
     public-works.md   ← Repeatable town jobs
     rewards-and-stamps.md ← Reward philosophy and types
@@ -172,8 +172,24 @@ docs/
       unique-drops-and-trophies.md ← Unique drop rules and boss-specific rewards
       boss-quest-hooks.md ← Quest hooks that introduce and deepen bosses
       boss-balance-rules.md ← Effort bands, combat calibration, and anti-power-creep
-   wardenry/
-      00-index.md        ← Wardenry and contract system entry point
+    trails/
+       00-index.md        ← Trails and Oldroad system entry point
+       trail-system.md     ← Core Trail authority: terms, rules, banned patterns
+       trail-tiers.md      ← Six Trail tiers: Scrap through Starfall
+       trail-sources.md    ← Where Trails come from: combat, skilling, Wardenry, Cartography
+       step-types.md       ← 16 canonical step types
+       riddle-and-phrase-steps.md ← 40 riddle/phrase examples
+       sketch-survey-and-map-steps.md ← Sketch, Survey, Dig steps and Cartography rules
+       gesture-dress-and-item-steps.md ← Gesture, Dress, Item steps and Nook rules
+       skill-and-station-steps.md ← Skill and Station challenge steps
+       ambush-and-danger-steps.md ← Trail enemies by tier and ambush rules
+       caches-and-rewards.md ← Cache tiers, reward categories, examples
+       nooks-and-trail-storage.md ← Nook types, build rules, 30+ locations
+       trail-collection-log.md ← Trail log tracking, titles, no-power-rewards
+       trail-quest-hooks.md ← Quest hooks that introduce and deepen Trails
+       trail-balance-rules.md ← Effort bands, anti-power-creep, and banned patterns
+    wardenry/
+       00-index.md        ← Wardenry and contract system entry point
       wardenry-system.md  ← Core Wardenry authority: terms, rules, banned patterns
       wardens-and-boards.md ← 8 Wardens by level band and area
       contracts-and-task-generation.md ← 10 contract types and generation rules
@@ -320,6 +336,7 @@ docs/
 | Understand Favour and shrine economy | [`favour/00-index.md`](favour/00-index.md) |
 | Understand quests and dialogue | [`quests/00-index.md`](quests/00-index.md) |
 | Understand the Civic Ledger, deeds, and trails | [`ledger/00-index.md`](ledger/00-index.md) |
+| Understand Oldroad Trails, clues, and Caches | [`trails/00-index.md`](trails/00-index.md) |
 | Understand content translation from docs to JSON | [`content/00-index.md`](content/00-index.md) → [`content-translation-system.md`](content/content-translation-system.md) |
 | Check ID naming rules | [`content/canonical-id-registry.md`](content/canonical-id-registry.md) |
 | See minimum POC content set | [`content/starter-content-manifest.md`](content/starter-content-manifest.md) |

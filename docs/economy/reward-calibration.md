@@ -9,6 +9,8 @@ Parent: [`Economy Index`](00-index.md)
 
 Authority references:
 - `docs/creatures/starter-drop-tables.md`
+- `docs/trails/caches-and-rewards.md`
+- `docs/trails/trail-balance-rules.md`
 - `docs/quests/quest-rewards-and-reclaim.md`
 
 # Reward Calibration

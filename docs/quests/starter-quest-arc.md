@@ -11,6 +11,8 @@ Authority references:
 - `docs/world/starter-economy-loops.md`
 - `docs/quests/quest-system.md`
 - `docs/ledger/civic-ledger-system.md`
+- `docs/trails/00-index.md` — Trails and Oldroad system entry point
+- `docs/trails/trail-quest-hooks.md` — Quest hooks that introduce and deepen Trails
 - `docs/map/quest-object-placement.md`
 - `docs/spatial/safe-danger-gradient.md`
 - `docs/spatial/traversal-and-chokepoints.md`
@@ -61,5 +63,5 @@ Quests in this phase introduce the Civic Ledger. Quest completion counts as a Ch
 - **Gravegate Flowers** completion → Shrine Hearth deed tier credit
 - Any starter quest completion → Errand or Stamped tier credit in the quest's district
 
-See [`../ledger/civic-ledger-system.md`](../ledger/civic-ledger-system.md) for deed tiers and [`../ledger/oldroad-trails.md`](../ledger/oldroad-trails.md) for trail sources.
+See [`../ledger/civic-ledger-system.md`](../ledger/civic-ledger-system.md) for deed tiers and [`../trails/trail-sources.md`](../trails/trail-sources.md) for trail sources.
 

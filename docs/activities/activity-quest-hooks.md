@@ -15,6 +15,8 @@ Authority references:
 - `docs/activities/skilling-bosses.md`
 - `docs/activities/activity-rewards.md`
 - `docs/activities/activity-currencies.md`
+- `docs/trails/00-index.md`
+- `docs/trails/trail-quest-hooks.md`
 - `docs/quests/quest-system.md`
 - `docs/quests/starter-quest-arc.md`
 - `docs/guilds/guild-quest-hooks.md`

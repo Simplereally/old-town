@@ -12,6 +12,8 @@ Authority references:
 - `docs/skills/skill-system.md`
 - `docs/skills/skill-interlocks.md`
 - `docs/wardenry/wardenry-system.md`
+- `docs/trails/trail-system.md`
+- `docs/trails/trail-tiers.md`
 - `docs/ledger/civic-ledger-system.md`
 - `POC_SPEC.md`
 

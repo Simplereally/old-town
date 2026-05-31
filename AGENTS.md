@@ -76,4 +76,5 @@ tools/
 - `docs/content/00-index.md` is the bridge between design docs and runtime content JSON. Start there when a story requires content generation.
 - `docs/00-index.md` is the master documentation index. Use it to find design authority for any system, area, or content slice.
 - `docs/wardenry/00-index.md` is the entry point for Wardenry contracts, Wardens, and the Warden Locker.
+- `docs/trails/00-index.md` is the entry point for Oldroad Trails, Caches, and Nooks.
 - `content/` holds runtime JSON definitions. Validate with `bun run content:validate` before claiming content work is complete.

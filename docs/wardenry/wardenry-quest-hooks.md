@@ -7,7 +7,7 @@ root_index: docs/00-index.md
 
 Parent: [Wardenry Index](00-index.md)
 
-Authority refs: [Wardenry System](wardenry-system.md), [Wardens and Boards](wardens-and-boards.md), [Notorious Variants](notorious-variants.md), [Named Warrants and Boss Tasks](named-warrants-and-boss-tasks.md), [Warden Locker Rewards](warden-locker-rewards.md), [Quest System](../quests/quest-system.md), [Starter Quest Arc](../quests/starter-quest-arc.md), [Area Quest Hooks](../areas/area-quest-hooks.md)
+Authority refs: [Wardenry System](wardenry-system.md), [Wardens and Boards](wardens-and-boards.md), [Notorious Variants](notorious-variants.md), [Named Warrants and Boss Tasks](named-warrants-and-boss-tasks.md), [Warden Locker Rewards](warden-locker-rewards.md), [Trails Index](../trails/00-index.md), [Trail Quest Hooks](../trails/trail-quest-hooks.md), [Quest System](../quests/quest-system.md), [Starter Quest Arc](../quests/starter-quest-arc.md), [Area Quest Hooks](../areas/area-quest-hooks.md)
 
 # Wardenry Quest Hooks
 

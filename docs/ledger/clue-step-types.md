@@ -8,11 +8,15 @@ root_index: docs/00-index.md
 Parent: [`Ledger Index`](00-index.md)
 
 Authority references:
-- `docs/ledger/oldroad-trails.md`
+- `docs/trails/00-index.md`
+- `docs/trails/step-types.md`
+- `docs/trails/trail-system.md`
 - `docs/skills/utility-skills.md`
 - `docs/world/districts-and-routes.md`
 - `docs/world/npc-cast.md`
 - `docs/favour/shrines-and-rites.md`
+
+> **Legacy document.** The canonical step type authority is now [`docs/trails/step-types.md`](../trails/step-types.md). This document is retained for historical reference but the new naming conventions (e.g., "Phrase Step" instead of "Bell Phrase") take precedence.
 
 # Clue Step Types
 

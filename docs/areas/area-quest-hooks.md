@@ -11,7 +11,8 @@ Authority references:
 - `docs/quests/quest-system.md`
 - `docs/quests/starter-quest-arc.md`
 - `docs/quests/dialogue-style-guide.md`
-- `docs/ledger/oldroad-trails.md`
+- `docs/trails/00-index.md`
+- `docs/trails/trail-quest-hooks.md`
 - `docs/areas/first-ring-areas.md`
 - `docs/areas/second-ring-areas.md`
 - `docs/areas/route-unlocks-and-gates.md`
@@ -418,7 +419,9 @@ The following work is explicitly deferred. This document defines quest hook iden
 - `docs/quests/quest-system.md` — Quest rules, tone, and dialogue node fields
 - `docs/quests/starter-quest-arc.md` — Seven starter quests that lead into these hooks
 - `docs/quests/dialogue-style-guide.md` — NPC voice rules and example tone
-- `docs/ledger/oldroad-trails.md` — Trail tiers, sources, and step types
+- `docs/trails/00-index.md` — Trails and Oldroad system entry point
+- `docs/trails/trail-quest-hooks.md` — Quest hooks that introduce and deepen Trails
+- `docs/trails/trail-system.md` — Core Trail authority: terms, rules, banned patterns
 - `docs/areas/first-ring-areas.md` — Full area definitions for all eight first-ring spaces
 - `docs/areas/second-ring-areas.md` — Future area definitions and seeding techniques
 - `docs/areas/route-unlocks-and-gates.md` — Route network, gate types, and traversal mechanics
