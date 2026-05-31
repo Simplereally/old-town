@@ -150,19 +150,19 @@ Every activity with a token has a reward shop. The shop is located at the activi
 | Shop | NPC | Location | Token | Primary Stock |
 |------|-----|----------|-------|---------------|
 | Bell Shop | Mara Bellkeeper | Market Bell | Bell Token | route hints, district maps, Bell Runner ribbon |
-| Soot Shop | Marn Lock | Sootcellar | Soot Mark | Sleight tools, Soot Sweeper apron |
+| Soot Shop | Marn Lock | Sootcellar | Soot Mark | Sleight tools, broom upgrades, Soot Sweeper apron |
 | Ledger Shop | Clerk Penn | Counting House | Ledger Sort discount | civic discounts, Counting House Clerk trim |
 | Market Shop | Pell Hookline | Market Bell | Market Token | cooking ingredients, Market Runner ribbon |
 | Grave Shop | Sister Writ | Shrine Hearth | Grave Token | grave flower seeds, Gravekeeper ribbon |
 | Foundry Shop | Osric Penny | Foundry Row | Foundry Token | smithing tools, Foundry Shift apron |
-| Kiln Shop | Pippa Hearth | Chalkhouse Court | Kiln Token | bead supplies, Kilnwatch ribbon |
+| Kiln Shop | Pippa Hearth | Chalkhouse Court | Kiln Token | bead supplies, kiln materials, Kilnwatch ribbon |
 | River Shop | Pell Hookline | River Stoop | River Token | bait, fishing hints, River Basket ribbon |
-| Crowmile Shop | Orven Roadcap | Crowmile Road Camp | Road Token | route cosmetics, Crowmile Road Ribbon |
+| Crowmile Shop | Orven Roadcap | Crowmile Road Camp | Road Token | route cosmetics, shortcut unlocks, Crowmile Road Ribbon |
 | Replant Shop | Aunt Bracken | Bellwood Yard | Replant Token | bowcraft materials, Bellwood Axe Mark |
 | Quarry Shop | Sella Coalhand | Foundry Hall | Quarry Token | mining tools, Quarry Worker apron |
 | Drive Shop | Rowen Hidepeg | Patchfield Tannery | Drive Token | tailoring materials, Patchfield Hide Stamp |
-| Tide Shop | Pell Hookline | Wardenbrook Fishery | Tide Token | fish hamper upgrade, Wardenbrook Angler Pin |
-| Vigil Shop | Cress Lowgrave | Lowgrave Chapel | Vigil Token | candle trims, Lowgrave Candle Trim |
+| Tide Shop | Pell Hookline | Wardenbrook Fishery | Tide Token | river bait, fish hamper upgrade, Wardenbrook Angler Pin, Argent Ray clue |
+| Vigil Shop | Cress Lowgrave | Lowgrave Chapel | Vigil Token | grave flower seeds, candle trims, Lowgrave Candle Trim, Gravekeeper's Tooth fragment |
 | Watch Shop | Noll Kilnwatch | Old Kiln House | Kiln Token | ashproof gloves, Kilnwatch Oath mark |
 | Lockroom Shop | Vey Falsewick | Sootstairs Rooms | Lockroom Token | lockpick upgrades, Blacksealed Cloak |
 

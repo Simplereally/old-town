@@ -49,7 +49,7 @@ This document defines the eight activity categories used in Old Town. Every acti
 - Must have a processing time or stage requirement.
 - Must not be instant. The player must wait or take actions during processing.
 - Must not be a pure crafting recipe. The activity is a loop, not a single craft.
-- Examples: Foundry Shift, Kilnwatch Primer, Quarry Shift.
+- Examples: Foundry Shift, Kilnwatch Primer.
 
 ### Skilling Boss
 
@@ -86,7 +86,7 @@ This document defines the eight activity categories used in Old Town. Every acti
 - Must be low-risk. Creatures are weak or avoidable.
 - Must not be a combat training ground. Combat yards are separate.
 - Must not drop combat gear. Rewards are skill-related.
-- Examples: Soot Sweep.
+- Examples: Soot Sweep (secondary; primary category is Public Work).
 
 ### Risk Activity
 
