@@ -14,6 +14,7 @@ import { EntityPicker } from "./picking/EntityPicker";
 import { HoverHighlighter } from "./picking/HoverHighlighter";
 import { ThreeRenderer } from "./renderer/ThreeRenderer";
 import { ActorRenderer } from "./scene/ActorRenderer";
+import { ChatOverheadLayer } from "./scene/ChatOverheadLayer";
 import { DebugLayer } from "./scene/DebugLayer";
 import { GroundItemLayer } from "./scene/GroundItemLayer";
 import { HitsplatLayer } from "./scene/HitsplatLayer";
@@ -50,6 +51,7 @@ export class GameEngine {
   readonly projectiles: ProjectileLayer;
   readonly hitsplats: HitsplatLayer;
   readonly groundItems: GroundItemLayer;
+  readonly chatOverhead: ChatOverheadLayer;
   readonly debug: DebugLayer | undefined;
   readonly uiState = new UIState();
   readonly content = new ContentClient();
@@ -85,6 +87,7 @@ export class GameEngine {
     this.projectiles = new ProjectileLayer({ scene: this.renderer.scene });
     this.hitsplats = new HitsplatLayer({ scene: this.renderer.scene });
     this.groundItems = new GroundItemLayer({ scene: this.renderer.scene });
+    this.chatOverhead = new ChatOverheadLayer({ scene: this.renderer.scene });
     this.debug = import.meta.env.DEV ? new DebugLayer({ scene: this.renderer.scene }) : undefined;
     this.socket = new GameSocket(serverUrl);
     this.overlays = {
@@ -181,6 +184,7 @@ export class GameEngine {
     this.projectiles.dispose();
     this.hitsplats.dispose();
     this.groundItems.dispose();
+    this.chatOverhead.dispose();
     this.debug?.dispose();
     this.renderer.dispose();
   }
@@ -649,6 +653,14 @@ export class GameEngine {
     }
     if (delta.chat) {
       this.uiState.addChat(delta.chat);
+      for (const msg of delta.chat) {
+        if (msg.channel !== "system" && msg.entityId !== undefined) {
+          const actor = this.actors.getActorState(msg.entityId);
+          if (actor) {
+            this.chatOverhead.show(msg.entityId, msg.text, actor.visualPosition);
+          }
+        }
+      }
     }
 
     if (delta.interfaceOpens) {
@@ -769,6 +781,7 @@ export class GameEngine {
       actorPositions.set(id, actor.visualPosition);
     }
     this.hitsplats.update(actorPositions);
+    this.chatOverhead.update(actorPositions);
     this.hoverHighlighter.update();
     this._updateOverlay();
   }

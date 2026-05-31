@@ -106,13 +106,14 @@ export interface ObjectRendererOptions {
 
 /**
  * Object renderer for static and dynamic world objects (trees, rocks, buildings, doors).
- * Uses object pooling with individual meshes. InstancedMesh can be added later for
- * repeated objects (e.g., trees of the same type).
+ * Uses shared geometry/materials and a mesh pool to avoid creating unique meshes/materials
+ * for every object instance.
  */
 export class ObjectRenderer {
   private readonly scene: Scene;
   private readonly objects = new Map<number, ObjectInstance>();
   private readonly objectGroup = new Group();
+  private readonly meshPool = new Map<string, Mesh[]>();
 
   constructor(options: ObjectRendererOptions) {
     this.scene = options.scene;
@@ -120,18 +121,19 @@ export class ObjectRenderer {
     this.scene.add(this.objectGroup);
   }
 
-  /** Spawn an object at a tile. */
+  /** Spawn an object at a tile. Reuses pooled meshes when available. */
   spawn(entityId: number, tile: TileCoord, defId: string): void {
     if (this.objects.has(entityId)) {
       this.remove(entityId);
     }
 
     const template = getTemplate(defId);
-    const mesh = new Mesh(template.geometry.clone(), template.material.clone());
+    const mesh = this._acquireMesh(defId, template);
     mesh.position.set(tile.x, template.yOffset, -tile.y);
     mesh.scale.copy(template.scale);
     mesh.castShadow = false;
     mesh.receiveShadow = false;
+    mesh.visible = true;
     mesh.name = `object_${entityId}`;
     mesh.userData = { entityId, kind: "object", defId };
 
@@ -144,13 +146,12 @@ export class ObjectRenderer {
     });
   }
 
-  /** Remove an object by entity ID. */
+  /** Remove an object by entity ID. Returns mesh to pool for reuse. */
   remove(entityId: number): void {
     const obj = this.objects.get(entityId);
     if (!obj) return;
     this.objectGroup.remove(obj.mesh);
-    obj.mesh.geometry.dispose();
-    (obj.mesh.material as MeshLambertMaterial).dispose();
+    this._releaseMesh(obj.defId, obj.mesh);
     this.objects.delete(entityId);
   }
 
@@ -163,13 +164,27 @@ export class ObjectRenderer {
 
   /** Clear all objects. */
   clear(): void {
-    for (const id of this.objects.keys()) {
+    for (const id of Array.from(this.objects.keys())) {
       this.remove(id);
     }
   }
 
   dispose(): void {
     this.clear();
+    // Dispose pooled meshes
+    for (const [, meshes] of this.meshPool) {
+      for (const mesh of meshes) {
+        mesh.geometry.dispose();
+        (mesh.material as MeshLambertMaterial).dispose();
+      }
+    }
+    this.meshPool.clear();
+    // Dispose templates
+    for (const template of objectTemplates.values()) {
+      template.geometry.dispose();
+      template.material.dispose();
+    }
+    objectTemplates.clear();
     this.objectGroup.clear();
     this.scene.remove(this.objectGroup);
   }
@@ -186,5 +201,30 @@ export class ObjectRenderer {
       targets.push(obj.mesh);
     }
     return targets;
+  }
+
+  private _acquireMesh(defId: string, template: ObjectTemplate): Mesh {
+    const pool = this.meshPool.get(defId);
+    if (pool && pool.length > 0) {
+      const mesh = pool.pop();
+      if (mesh) {
+        mesh.material = template.material;
+        mesh.geometry = template.geometry;
+        mesh.rotation.set(0, 0, 0);
+        return mesh;
+      }
+    }
+    return new Mesh(template.geometry, template.material);
+  }
+
+  private _releaseMesh(defId: string, mesh: Mesh): void {
+    let pool = this.meshPool.get(defId);
+    if (!pool) {
+      pool = [];
+      this.meshPool.set(defId, pool);
+    }
+    mesh.visible = false;
+    mesh.userData = {};
+    pool.push(mesh);
   }
 }

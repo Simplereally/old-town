@@ -64,4 +64,35 @@ describe("ObjectRenderer", () => {
     expect(renderer.objectCount).toBe(0);
     expect(scene.children.length).toBe(0);
   });
+
+  it("reuses meshes from pool when spawning same defId", () => {
+    renderer.spawn(ID1, TILE, "tree_oak");
+    const group = scene.children[0];
+    const meshBefore = group?.children[0];
+    renderer.remove(ID1);
+    renderer.spawn(ID2, TILE, "tree_oak");
+    const meshAfter = group?.children[0];
+    expect(meshAfter).toBe(meshBefore);
+  });
+
+  it("does not dispose shared geometry/material on remove", () => {
+    renderer.spawn(ID1, TILE, "tree_oak");
+    const group = scene.children[0];
+    const mesh = group?.children[0] as import("three").Mesh | undefined;
+    const geometry = mesh?.geometry;
+    const material = mesh?.material;
+    renderer.remove(ID1);
+    expect(geometry?.uuid).toBeDefined();
+    expect((material as import("three").MeshLambertMaterial | undefined)?.uuid).toBeDefined();
+  });
+
+  it("spawns multiple objects with shared geometry", () => {
+    renderer.spawn(ID1, TILE, "tree_oak");
+    renderer.spawn(ID2, TILE, "tree_oak");
+    const group = scene.children[0];
+    const mesh1 = group?.children[0] as import("three").Mesh | undefined;
+    const mesh2 = group?.children[1] as import("three").Mesh | undefined;
+    expect(mesh1?.geometry).toBe(mesh2?.geometry);
+    expect(mesh1?.material).toBe(mesh2?.material);
+  });
 });

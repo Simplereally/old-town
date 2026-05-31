@@ -84,6 +84,30 @@ global.cancelAnimationFrame = vi.fn((id: number) => {
 // Mock performance.now
 global.performance.now = vi.fn(() => Date.now());
 
+function mockCanvasContext(): void {
+  const mockCtx = {
+    font: "",
+    fillStyle: "",
+    textBaseline: "",
+    textAlign: "",
+    measureText: vi.fn(() => ({ width: 80 })),
+    fillRect: vi.fn(),
+    fillText: vi.fn(),
+  };
+  const originalCreateElement = document.createElement.bind(document);
+  document.createElement = vi.fn((tagName: string) => {
+    if (tagName === "canvas") {
+      const canvas = originalCreateElement(tagName);
+      canvas.getContext = vi.fn((type: string) => {
+        if (type === "2d") return mockCtx as unknown as CanvasRenderingContext2D;
+        return null;
+      }) as unknown as typeof canvas.getContext;
+      return canvas;
+    }
+    return originalCreateElement(tagName);
+  }) as typeof document.createElement;
+}
+
 // Now import GameEngine
 const { GameEngine } = await import("./GameEngine");
 
@@ -359,6 +383,7 @@ describe("GameEngine click-to-move", () => {
   let socket: { sendCommand: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
+    mockCanvasContext();
     const created = createEngine();
     engine = created.engine;
     canvas = created.canvas;
@@ -536,5 +561,46 @@ describe("GameEngine click-to-move", () => {
         payload: expect.objectContaining({ spellId: "wind_strike" }),
       }),
     );
+  });
+
+  it("shows chat overhead bubble for public chat messages", () => {
+    (asEngine(engine)._handleFullState as (s: FullStatePacket) => void)(createFullStatePacket());
+    engine.actors.spawn(entityId(42), { x: 30, y: 32, plane: 0 }, "hero", true, "player");
+
+    const tickDelta: TickDeltaPacket = {
+      ...createTickDeltaPacket(2),
+      chat: [
+        {
+          entityId: entityId(42),
+          name: "hero",
+          text: "Hello world!",
+          channel: "public",
+          serverTime: 1200,
+        },
+      ],
+    };
+
+    (asEngine(engine)._handleTickDelta as (d: TickDeltaPacket) => void)(tickDelta);
+
+    expect(engine.chatOverhead.bubbleCount).toBe(1);
+  });
+
+  it("does not show chat overhead for system messages", () => {
+    (asEngine(engine)._handleFullState as (s: FullStatePacket) => void)(createFullStatePacket());
+
+    const tickDelta: TickDeltaPacket = {
+      ...createTickDeltaPacket(2),
+      chat: [
+        {
+          text: "Server restart in 5 minutes",
+          channel: "system",
+          serverTime: 1200,
+        },
+      ],
+    };
+
+    (asEngine(engine)._handleTickDelta as (d: TickDeltaPacket) => void)(tickDelta);
+
+    expect(engine.chatOverhead.bubbleCount).toBe(0);
   });
 });
