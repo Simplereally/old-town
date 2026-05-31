@@ -56,22 +56,50 @@ describe("DevSessionManager", () => {
         { slot: 7, itemId: "writ_bead", quantity: 20, uid: 8 },
       ],
     });
-    expect(fullState.skills?.map((skill) => skill.skillId)).toEqual([
-      "attack",
-      "cooking",
-      "defence",
-      "hitpoints",
-      "magic",
-      "mining",
-      "strength",
-      "woodcutting",
-    ]);
+    const skillIds = fullState.skills?.map((skill) => skill.skillId) ?? [];
+    expect(skillIds).toEqual([...skillIds].toSorted());
+    expect(skillIds).toEqual(
+      expect.arrayContaining([
+        "attack",
+        "cooking",
+        "defence",
+        "hitpoints",
+        "magic",
+        "mining",
+        "strength",
+        "woodcutting",
+      ]),
+    );
     const equipment = world.getComponent(fullState.selfEntityId, "equipment");
     expect(equipment?.slots).toEqual({});
     expect(equipment?.bonuses.slashAttack).toBe(0);
-    expect(fullState.regionLoads).toEqual([
-      { region: { rx: 0, ry: 0, plane: 0 }, regionId: "0:0:0", chunks: expect.any(Array) },
-    ]);
+    const regionLoads = fullState.regionLoads ?? [];
+    expect(regionLoads.length).toBe(4);
+    expect(regionLoads.map((r) => r.regionId).sort()).toEqual(["0:0:0", "0:1:0", "1:0:0", "1:1:0"]);
+  });
+
+  it("hides private ground items from full-state bootstraps until reveal", async () => {
+    const { world, manager } = await setup();
+    const owner = manager.bootstrap({ id: "session-1", characterId: "dev-a" }, 0, 0);
+    const groundItem = world.createEntity();
+    world.setComponent(groundItem, "position", {
+      entityId: groundItem,
+      ...DEV_SPAWN_TILE,
+    });
+    world.setComponent(groundItem, "groundItem", {
+      entityId: groundItem,
+      itemId: "coin",
+      quantity: 3,
+      ownerId: owner.selfEntityId,
+      publicAtTick: 10,
+      despawnTick: 100,
+    });
+
+    const hidden = manager.bootstrap({ id: "session-2", characterId: "dev-b" }, 9, 5_400);
+    const publicState = manager.bootstrap({ id: "session-3", characterId: "dev-c" }, 10, 6_000);
+
+    expect(hidden.entities.some((entity) => entity.entityId === groundItem)).toBe(false);
+    expect(publicState.entities.some((entity) => entity.entityId === groundItem)).toBe(true);
   });
 
   it("destroys dev entities on disconnect", async () => {

@@ -1,0 +1,2826 @@
+{
+  "region": {
+    "rx": 1,
+    "ry": 0,
+    "plane": 0
+  },
+  "tiles": {
+    "default": {
+      "height": 0,
+      "underlayId": "grass",
+      "collision": 0
+    },
+    "overrides": [
+      {
+        "x": 0,
+        "y": 8,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 9,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 10,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 11,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 12,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 13,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 14,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 15,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 16,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 17,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 18,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 19,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 20,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 21,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 22,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 23,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 24,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 25,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 26,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 27,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 28,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 29,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 30,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 31,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 32,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 33,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 34,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 35,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 36,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 37,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 38,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 39,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 40,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 41,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 42,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 43,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 44,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 45,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 46,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 47,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 48,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 49,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 50,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 51,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 52,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 53,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 54,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 55,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 56,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 57,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 58,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 59,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 60,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 61,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 62,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 63,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 8,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 9,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 10,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 11,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 12,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 13,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 14,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 15,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 16,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 17,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 18,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 19,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 20,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 21,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 22,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 23,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 24,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 25,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 26,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 27,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 28,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 29,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 30,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 31,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 32,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 33,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 34,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 35,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 36,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 37,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 38,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 39,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 40,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 41,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 42,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 43,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 44,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 45,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 46,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 47,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 48,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 49,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 50,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 51,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 52,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 53,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 54,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 55,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 56,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 57,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 58,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 59,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 60,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 61,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 62,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 63,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 8,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 9,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 10,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 11,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 12,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 13,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 14,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 15,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 16,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 17,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 18,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 19,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 20,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 21,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 22,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 23,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 24,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 25,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 26,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 27,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 28,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 29,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 30,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 31,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 32,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 33,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 34,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 35,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 36,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 37,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 38,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 39,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 40,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 41,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 42,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 43,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 44,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 45,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 46,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 47,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 48,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 49,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 50,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 51,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 52,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 53,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 54,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 55,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 56,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 57,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 58,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 59,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 60,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 61,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 62,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 63,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 8,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 9,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 10,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 11,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 12,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 13,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 14,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 15,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 16,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 17,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 18,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 19,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 20,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 21,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 22,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 23,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 24,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 25,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 26,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 27,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 28,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 29,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 30,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 31,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 32,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 33,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 34,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 35,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 36,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 37,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 38,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 39,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 40,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 41,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 42,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 43,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 44,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 45,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 46,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 47,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 48,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 49,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 50,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 51,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 52,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 53,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 54,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 55,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 56,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 57,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 58,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 59,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 60,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 61,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 62,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 63,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 8,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 9,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 10,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 11,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 12,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 13,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 14,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 15,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 16,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 17,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 18,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 19,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 20,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 21,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 22,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 23,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 24,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 25,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 26,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 27,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 28,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 29,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 30,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 31,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 32,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 33,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 34,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 35,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 36,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 37,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 38,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 39,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 40,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 41,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 42,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 43,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 44,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 45,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 46,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 47,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 48,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 49,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 50,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 51,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 52,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 53,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 54,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 55,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 56,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 57,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 58,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 59,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 60,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 61,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 62,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 63,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 8,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 9,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 10,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 11,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 12,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 13,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 14,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 15,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 16,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 17,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 18,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 19,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 20,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 21,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 22,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 23,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 24,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 25,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 26,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 27,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 28,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 29,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 30,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 31,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 32,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 33,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 34,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 35,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 36,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 37,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 38,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 39,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 40,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 41,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 42,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 43,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 44,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 45,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 46,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 47,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 48,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 49,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 50,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 51,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 52,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 53,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 54,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 55,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 56,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 57,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 58,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 59,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 60,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 61,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 62,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 63,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 8,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 9,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 10,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 11,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 12,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 13,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 14,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 15,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 16,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 17,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 18,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 19,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 20,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 21,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 22,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 23,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 24,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 25,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 26,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 27,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 28,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 29,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 30,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 31,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 32,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 33,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 34,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 35,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 36,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 37,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 38,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 39,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 40,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 41,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 42,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 43,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 44,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 45,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 46,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 47,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 48,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 49,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 50,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 51,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 52,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 53,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 54,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 55,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 56,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 57,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 58,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 59,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 60,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 61,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 62,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 63,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 8,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 9,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 10,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 11,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 12,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 13,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 14,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 15,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 16,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 17,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 18,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 19,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 20,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 21,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 22,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 23,
+        "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 24,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 25,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 26,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 27,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 28,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 29,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 30,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 31,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 32,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 33,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 34,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 35,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 36,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 37,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 38,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 39,
+        "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 40,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 41,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 42,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 43,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 44,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 45,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 46,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 47,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 48,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 49,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 50,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 51,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 52,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 53,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 54,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 55,
+        "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 56,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 57,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 58,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 59,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 60,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 61,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 62,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 63,
+        "underlayId": "packed_road",
+        "collision": 0
+      }
+    ]
+  },
+  "objects": [
+    {
+      "objectId": "wrongly_planted_flower",
+      "x": 0,
+      "y": 14
+    },
+    {
+      "objectId": "gravegate_arch",
+      "x": 0,
+      "y": 16
+    },
+    {
+      "objectId": "listening_clay_node",
+      "x": 0,
+      "y": 26
+    },
+    {
+      "objectId": "market_kitchen_hearth",
+      "x": 0,
+      "y": 30
+    },
+    {
+      "objectId": "river_stoop_counter",
+      "x": 0,
+      "y": 32
+    },
+    {
+      "objectId": "apothecary_bench",
+      "x": 0,
+      "y": 44
+    },
+    {
+      "objectId": "smoke_vent",
+      "x": 2,
+      "y": 46
+    },
+    {
+      "objectId": "foundry_furnace",
+      "x": 2,
+      "y": 48
+    },
+    {
+      "objectId": "old_kiln",
+      "x": 4,
+      "y": 44
+    }
+  ],
+  "npcSpawns": [
+    {
+      "npcId": "grave_mite",
+      "x": 0,
+      "y": 14
+    },
+    {
+      "npcId": "gravekeeper_soll",
+      "x": 0,
+      "y": 16,
+      "wanderRadius": 0
+    },
+    {
+      "npcId": "edda_tinfin",
+      "x": 0,
+      "y": 32,
+      "wanderRadius": 0
+    },
+    {
+      "npcId": "river_snapper",
+      "x": 2,
+      "y": 28
+    },
+    {
+      "npcId": "bramble_hook",
+      "x": 2,
+      "y": 30,
+      "wanderRadius": 0
+    },
+    {
+      "npcId": "grave_mite",
+      "x": 4,
+      "y": 12
+    },
+    {
+      "npcId": "ash_drake_whelp",
+      "x": 4,
+      "y": 42
+    }
+  ],
+  "groundItemSpawns": [],
+  "triggers": [
+    {
+      "id": "gravegate_part_b",
+      "x": 0,
+      "y": 8,
+      "width": 8,
+      "height": 16,
+      "tag": "gravegate"
+    },
+    {
+      "id": "river_stoop_part_b",
+      "x": 0,
+      "y": 24,
+      "width": 8,
+      "height": 16,
+      "tag": "river_stoop"
+    },
+    {
+      "id": "foundry_row_part_b",
+      "x": 0,
+      "y": 40,
+      "width": 8,
+      "height": 16,
+      "tag": "foundry_row"
+    },
+    {
+      "id": "warden_steps_part_b",
+      "x": 0,
+      "y": 56,
+      "width": 8,
+      "height": 8,
+      "tag": "warden_steps"
+    }
+  ]
+}

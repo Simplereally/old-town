@@ -193,15 +193,43 @@ Authority references:
 - Shop/service stock schemas do not exist yet. Service NPCs use `trade` and `bank` action IDs on existing object counters; no dedicated shop JSON created.
 - `chalk_compass` item referenced in design docs does not exist in item definitions; substituted with `chalkmarked_wand` in the Missing Bell-Clapper quest rewards.
 
+## Batch 2B Validation Results
+
+**Date:** 2026-05-31
+**Status:** All 14 checks passed for Batch 2B (runtime map JSON)
+
+| Check | Result | Notes |
+|-------|--------|-------|
+| 1. Canonical ID registry | Pass | All 32 objects, 42 NPC spawns, 1 ground item, 23 triggers use snake_case |
+| 2. Starter NPC role | Pass | All 14 service NPCs placed; 28 creature spawns in appropriate danger zones |
+| 3. Starter object placement | Pass | All 32 placed objects have valid object IDs and local coordinates |
+| 4. Resource node output | Pass | All 20 node output items exist in item definitions |
+| 5. Recipe input/output | Pass | All 17 recipe input/output items exist in item definitions |
+| 6. Drop table output | Pass | All 13 drop tables reference existing items only |
+| 7. Quest reward item | Pass | All 7 quest rewards reference existing items/skills |
+| 8. Map placement reference | Pass | All 32 objects, 42 NPCs, 1 ground item, 23 triggers reference existing content IDs |
+| 9. Banned name check | Pass | No banned fantasy names found in Batch 2B content |
+| 10. Unsupported directory | Pass | No new directories created; only `maps/` and `materials/` touched |
+| 11. JSON validation | Pass | `bun run content:validate` — 0 errors, 30 files |
+| 12. Cross-reference paths | Pass | All docs use canonical paths |
+| 13. Starter loop completeness | Pass | All 6 loops now have required placements in the runtime map |
+| 14. Manifest source doc | Pass | All seed manifests reference source docs |
+
+**Schema gaps discovered during Batch 2B:**
+- Resource node placement: no `resourceNodeSpawns` array in region-map schema. Objects with `resourceNodeId` serve as runtime representation. Full resource node positions remain in `docs/map/resource-node-placement.md`.
+- Player spawn / death respawn: no dedicated `spawnTile` field. Represented as area triggers (`player_spawn_market_bell`, `death_respawn_counting_house`).
+- Collision: minimal collision for Batch 2B. Full directional bitmask collision deferred to E14 world-editor pass.
+- Shop/service stock: no dedicated shop JSON. Service NPCs use `trade`/`bank` action IDs on existing counters.
+
 ## Validation Commands
 
 Run these commands in order before marking any content story complete:
 
 ```sh
-bun run test          # All test suites must pass
+bun run test          # All test suites must pass (551 tests)
 bun run lint          # No lint errors
 bun run typecheck     # No type errors
-bun run content:validate  # All JSON passes schema validation
+bun run content:validate  # All JSON passes schema validation (30 files)
 ```
 
 **Rule:** A story is not complete until all four commands pass with zero errors.

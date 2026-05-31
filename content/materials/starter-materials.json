@@ -21,5 +21,15 @@
   { "id": "ditch_shrimp", "name": "Ditch Shrimp", "color": 16737095 },
   { "id": "tinfin", "name": "Tinfin", "color": 4620980 },
   { "id": "small_bone", "name": "Small Bone", "color": 16119260 },
-  { "id": "grave_dust", "name": "Grave Dust", "color": 6908265 }
+  { "id": "grave_dust", "name": "Grave Dust", "color": 6908265 },
+  { "id": "packed_road", "name": "Packed Road", "color": 7768698 },
+  { "id": "bellstone_plaza", "name": "Bellstone Plaza", "color": 10197915 },
+  { "id": "soot_cobble", "name": "Soot Cobble", "color": 4934475 },
+  { "id": "chalk_flagstone", "name": "Chalk Flagstone", "color": 14079702 },
+  { "id": "river_mud", "name": "River Mud", "color": 6908265 },
+  { "id": "patch_grass", "name": "Patch Grass", "color": 7094158 },
+  { "id": "quarry_grit", "name": "Quarry Grit", "color": 9211020 },
+  { "id": "grave_soil", "name": "Grave Soil", "color": 3684408 },
+  { "id": "oldroad_slabs", "name": "Oldroad Slabs", "color": 8224125 },
+  { "id": "water", "name": "Water", "color": 2838188 }
 ]

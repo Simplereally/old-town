@@ -21,11 +21,23 @@ Authority references:
 
 | Field | Value |
 |-------|-------|
-| **region_id** | `old-town-core` |
-| **size** | 96 x 96 tiles |
+| **region_id** | `old-town` (four-region runtime envelope) |
+| **runtime_size** | 128 x 128 tiles (four 64×64 regions) |
+| **design_space_size** | 96 x 96 tiles |
 | **plane** | 0 |
-| **spawn_tile** | (48, 48) — Market Bell |
-| **death_respawn_tile** | (36, 48) — Counting House |
+| **spawn_tile** | (48, 50) — Market Bell |
+| **death_respawn_tile** | (48, 37) — Counting House |
+
+## Runtime Region Files
+
+| Region File | rx | ry | Global x Range | Global y Range | Contents |
+|-------------|----|----|----------------|----------------|----------|
+| `old-town-0-0-0.json` | 0 | 0 | 0–63 | 0–63 | Oldroad Gate, Shrine Hearth, Counting House, Market Bell, Sootcellar, Patch Lane, Chalkhouse Court |
+| `old-town-1-0-0.json` | 1 | 0 | 64–127 | 0–63 | Foundry Row, Lath Yard, Warden Steps, River Stoop, Gravegate |
+| `old-town-0-1-0.json` | 0 | 1 | 0–63 | 64–127 | North Quarry Road |
+| `old-town-1-1-0.json` | 1 | 1 | 64–127 | 64–127 | Buffer / future expansion |
+
+**Coordinate conversion:** `rx = floor(x / 64)`, `ry = floor(y / 64)`, `local_x = x % 64`, `local_y = y % 64`.
 
 ## District Bounds
 
@@ -75,17 +87,18 @@ All bounding boxes use half-open intervals: [x_min, x_max) and [y_min, y_max).
 | Station adjacency | Station objects | 2+ adjacent interactable tiles |
 | Quest object clear | Quest objects | 1 tile clear in all directions |
 
-## Placement Categories
+## Placement Categories (Runtime Map)
 
 | Category | Count | Source Manifest |
 |----------|-------|-----------------|
-| Object placements | 34 | [`seed-objects-and-stations-manifest.md`](seed-objects-and-stations-manifest.md) |
-| NPC placements | 14 | [`seed-npcs-and-creatures-manifest.md`](seed-npcs-and-creatures-manifest.md) |
-| Resource node placements | 16 | [`seed-resource-nodes-manifest.md`](seed-resource-nodes-manifest.md) |
-| Creature spawn zones | 12 | [`seed-npcs-and-creatures-manifest.md`](seed-npcs-and-creatures-manifest.md) |
+| Object placements | 32 | [`seed-objects-and-stations-manifest.md`](seed-objects-and-stations-manifest.md) |
+| Service NPC placements | 14 | [`seed-npcs-and-creatures-manifest.md`](seed-npcs-and-creatures-manifest.md) |
+| Creature spawn placements | 28 | [`seed-npcs-and-creatures-manifest.md`](seed-npcs-and-creatures-manifest.md) |
+| Ground item placements | 1 | [`seed-items-manifest.md`](seed-items-manifest.md) |
+| District triggers | 23 | `docs/map/district-boundaries.md` |
 | Quest object placements | 9 | [`seed-objects-and-stations-manifest.md`](seed-objects-and-stations-manifest.md) |
-| Ledger anchor placements | 5 | [`docs/map/ledger-placement.md`](../map/ledger-placement.md) |
-| Route objects | 6 | [`docs/map/first-30-minute-paths.md`](../map/first-30-minute-paths.md) |
+
+**Note:** Resource node placements (16) are not directly placed in map JSON because the region-map schema lacks a `resourceNodeSpawns` array. They are represented as objects with `resourceNodeId` where supported. Authoritative positions remain in `docs/map/resource-node-placement.md`.
 
 ## Art Note
 

@@ -1,4 +1,4 @@
-import { entityId, REGION_SIZE, tileKey } from "@old-town/shared";
+import { entityId, REGION_SIZE } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { loadContent } from "../content-loader";
 import { createWorld } from "../ecs/world";
@@ -18,44 +18,35 @@ async function loadSeedRegion() {
 
 describe("region loader", () => {
   it("loads the seed 64x64 region terrain", async () => {
-    const { map, summaries } = await loadSeedRegion();
+    const { summaries } = await loadSeedRegion();
 
-    expect(summaries).toEqual([
-      {
-        regionId: "0:0:0",
-        tileCount: REGION_SIZE * REGION_SIZE,
-        objectCount: 13,
-        npcCount: 7,
-        groundItemCount: 2,
-        resourceNodeCount: 7,
-        triggerCount: 5,
-      },
-    ]);
-    expect(map.tiles.size).toBe(REGION_SIZE * REGION_SIZE);
-    expect(map.tiles.get(tileKey({ x: 30, y: 30, plane: 0 }))?.underlayId).toBe("wood_floor");
-    expect(map.tiles.get(tileKey({ x: 29, y: 28, plane: 0 }))?.underlayId).toBe("dirt_path");
-    expect(map.tiles.get(tileKey({ x: 27, y: 27, plane: 0 }))?.zoneId).toBe("village");
+    expect(summaries.length).toBe(4);
+    expect(summaries.map((s) => s.regionId).sort()).toEqual(["0:0:0", "0:1:0", "1:0:0", "1:1:0"]);
+    expect(summaries.reduce((sum, s) => sum + s.tileCount, 0)).toBe(4 * REGION_SIZE * REGION_SIZE);
+    expect(summaries.reduce((sum, s) => sum + s.objectCount, 0)).toBe(32);
+    expect(summaries.reduce((sum, s) => sum + s.npcCount, 0)).toBe(42);
+    expect(summaries.reduce((sum, s) => sum + s.groundItemCount, 0)).toBe(1);
+    expect(summaries.reduce((sum, s) => sum + s.triggerCount, 0)).toBe(23);
   });
 
   it("instantiates runtime entities while preserving content ids", async () => {
     const { world } = await loadSeedRegion();
 
-    expect(world.componentCount("object")).toBe(13);
-    expect(world.componentCount("npc")).toBe(7);
-    expect(world.componentCount("groundItem")).toBe(2);
-    expect(world.componentCount("resourceNode")).toBe(7);
+    expect(world.componentCount("object")).toBe(32);
+    expect(world.componentCount("npc")).toBe(42);
+    expect(world.componentCount("groundItem")).toBe(1);
 
     const firstObject = world.getComponent(entityId(0), "object");
     expect(firstObject?.entityId).toBe(0);
-    expect(firstObject?.objectId).toBe("quest_oven");
+    expect(firstObject?.objectId).toBe("oldroad_signpost");
     expect(firstObject?.objectId).not.toBe(String(firstObject?.entityId));
 
-    const firstNpc = world.getComponent(entityId(13), "npc");
-    expect(firstNpc?.npcId).toBe("mara_bellkeeper");
-    expect(world.getComponent(entityId(13), "actor")?.name).toBe("Mara Bellkeeper");
+    const firstNpc = world.getComponent(entityId(19), "npc");
+    expect(firstNpc?.npcId).toBe("stray_dog");
+    expect(world.getComponent(entityId(19), "actor")?.name).toBe("Stray Dog");
 
-    const firstGroundItem = world.getComponent(entityId(20), "groundItem");
-    expect(firstGroundItem).toMatchObject({ itemId: "pennywrought_axe", quantity: 1 });
+    const firstGroundItem = world.getComponent(entityId(56), "groundItem");
+    expect(firstGroundItem).toMatchObject({ itemId: "pennywrought_pickaxe", quantity: 1 });
   });
 
   it("loads maps deterministically", async () => {

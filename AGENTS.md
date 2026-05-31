@@ -75,4 +75,5 @@ tools/
 - `adrs/` has ADRs for specific architectural areas. Consult the relevant one when making changes in that area. Create ADRs only when a story explicitly requires it.
 - `docs/content/00-index.md` is the authoritative bridge between design docs and runtime content JSON. When a story requires content generation, start there.
 - **Batch 1 content JSON is complete.** Foundational definitions (skills, materials, items, objects, resource nodes, processing recipes) exist in `content/` and pass `bun run content:validate`.
-- **Batch 2A content JSON is complete.** NPCs (26: 14 service + 12 creatures), drop tables (13), quests (7), and dialogue (15 graphs) exist in `content/` and pass `bun run content:validate`. Batch 2B (full 96×96 region map JSON) is pending.
+- **Batch 2A content JSON is complete.** NPCs (26: 14 service + 12 creatures), drop tables (13), quests (7), and dialogue (15 graphs) exist in `content/` and pass `bun run content:validate`.
+- **Batch 2B content JSON is complete.** Four 64×64 runtime region files (`old-town-0-0-0.json`, `old-town-1-0-0.json`, `old-town-0-1-0.json`, `old-town-1-1-0.json`) replace the old placeholder. 32 objects, 42 NPC spawns (14 service + 28 creatures), 1 ground item, 23 district triggers, and 11 terrain materials. All pass `bun run content:validate`.

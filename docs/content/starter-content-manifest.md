@@ -112,22 +112,32 @@ All 13 starter districts need content entries for objects, NPCs, and resource no
 - [x] `bun run typecheck` passes — all 5 workspaces clean
 - [x] `bun run format:check` passes — all files formatted
 
-### Batch 2B: Map JSON (Pending)
+### Batch 2B: Map JSON (Completed)
 
-- [ ] The starter region map has `content/maps/old-town-core.json`
+- [x] Four 64×64 runtime region files replace the old placeholder:
+  - `content/maps/old-town-0-0-0.json` — region (0,0): global x 0-63, y 0-63
+  - `content/maps/old-town-1-0-0.json` — region (1,0): global x 64-127, y 0-63
+  - `content/maps/old-town-0-1-0.json` — region (0,1): global x 0-63, y 64-127
+  - `content/maps/old-town-1-1-0.json` — region (1,1): global x 64-127, y 64-127 (buffer)
+- [x] 96×96 design-space Old Town occupies global x 0-95, y 0-95 inside the 128×128 envelope
+- [x] 14 service NPCs placed with `wanderRadius: 0`
+- [x] 28 creature spawns placed conservatively (no hostile spawns in safe zones)
+- [x] 32 objects placed (landmarks, service counters, stations, quest objects)
+- [x] 1 ground item spawn (`pennywrought_pickaxe` at 48,76)
+- [x] 23 district triggers covering all 13 core districts + player spawn + death respawn
+- [x] 11 terrain underlay materials added to `content/materials/starter-materials.json`
+- [x] `bun run content:validate` passes — 30 files, 0 errors
+- [x] `bun run test` passes — 551 tests green
+- [x] `bun run typecheck` passes — all 5 workspaces clean
+- [x] `bun run format:check` passes — all files formatted
 
-**Deferral note:** Batch 2A intentionally excludes full map JSON. The design docs use a 96×96 starter-region concept, while the runtime region-map schema is 64×64 local-coordinate based. Batch 2B must decide how to translate the 96×96 design-space map into the 64×64 runtime region schema.
+**Implementation:** Generator script `scripts/generate-old-town-map.ts` converts design-space global coordinates to runtime region/local coordinates, splits placements across four region files, validates IDs, and emits sorted stable JSON.
 
-**Recommended Batch 2B direction:**
-- Use four 64×64 runtime regions covering a 128×128 envelope.
-- Place the 96×96 Old Town design space inside that envelope.
-- Convert design-space global tile `(x, y)` into runtime region coordinates:
-  - `rx = floor(x / 64)`
-  - `ry = floor(y / 64)`
-  - `local_x = x % 64`
-  - `local_y = y % 64`
-- Generate sparse region maps only after Batch 2A IDs exist.
-- A minimal `content/maps/old-town-0-0-0.json` placeholder exists for test compatibility (13 objects, 7 NPCs, 2 ground items, 5 triggers) but will be replaced by the world editor in E14.
+**Schema gaps documented:**
+- Resource node placement: the region-map schema has no `resourceNodeSpawns` array. Resource nodes are represented as objects with `resourceNodeId` where the object schema supports it. Authoritative resource node positions remain in `docs/map/resource-node-placement.md`.
+- Player spawn / death respawn: represented as area triggers (`player_spawn_market_bell`, `death_respawn_counting_house`) since the schema has no dedicated `spawnTile` field.
+- Collision: minimal collision authored for Batch 2B. A future E14 collision-authoring pass will add full directional bitmask collision.
+- Shop/service stock: no dedicated shop JSON yet. Service NPCs use `trade` and `bank` action IDs on existing object counters.
 
 ## See also
 
