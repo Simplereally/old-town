@@ -131,8 +131,8 @@ These are the Biome lint rules most frequently mentioned across community source
 | `noUndeclaredVariables` | correctness | **4** | AI references variables that don't exist. |
 | `noUndeclaredDependencies` | correctness | **4** | AI imports packages not declared in `package.json`. |
 | `noUnresolvedImports` | correctness | **4** | AI imports modules that don't resolve. |
-| `noProcessEnv` | style | **4** | AI accesses `process.env` directly. (Error in app code; off in env/config modules.) |
-| `noDefaultExport` | style | **4** | AI overuses `export default`. (Warn with framework/config overrides.) |
+| `noProcessEnv` | style | **4** | AI accesses `process.env` directly. (Error by default; disabled in env/config modules via overrides.) |
+| `noDefaultExport` | style | **4** | AI overuses `export default`. (Warn by default; disabled in config files via overrides.) |
 | `useNamingConvention` | style | **4** | AI generates generic names like `data`, `result`. |
 
 ### Tier 3: Recommended (2-3 mentions)
@@ -335,18 +335,14 @@ These are the specific anti-patterns most prevalent in AI-generated code, as rep
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "allowUnreachableCode": false,
-    "allowUnusedLabels": false
+    "allowUnusedLabels": false,
+    "noEmit": true
   },
   "include": ["src/**/*", "tests/**/*", "**/*.test.ts", "**/*.spec.ts"],
   "exclude": ["node_modules", "dist"]
@@ -358,6 +354,15 @@ These are the specific anti-patterns most prevalent in AI-generated code, as rep
 ```jsonc
 {
   "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts", "tests"]
 }
 ```
@@ -429,12 +434,7 @@ These are the specific anti-patterns most prevalent in AI-generated code, as rep
           }
         },
         "noProcessEnv": "error",
-        "noDefaultExport": {
-          "level": "warn",
-          "options": {
-            "exceptModules": ["next.config", "vite.config", "vitest.config"]
-          }
-        }
+        "noDefaultExport": "warn"
       },
       "complexity": {
         "noStaticOnlyClass": "warn",
@@ -489,11 +489,19 @@ These are the specific anti-patterns most prevalent in AI-generated code, as rep
   },
   "overrides": [
     {
-      "includes": ["**/env/**/*", "**/config/**/*", "**/*.config.*"],
+      "includes": [
+        "**/env/**/*",
+        "**/config/**/*",
+        "**/*.config.*",
+        "next.config.*",
+        "vite.config.*",
+        "vitest.config.*"
+      ],
       "linter": {
         "rules": {
           "style": {
-            "noProcessEnv": "off"
+            "noProcessEnv": "off",
+            "noDefaultExport": "off"
           }
         }
       }
@@ -515,13 +523,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: oven-sh/setup-bun@v1
       - run: bun install
-      - run: bun run biome ci --reporter=github
-      - run: bun run tsc --noEmit
-      - run: bun run knip
-      - run: bun run jscpd .
-      - run: gitleaks detect --source .
+      - run: bun run check
+      - run: bun run check:deps
+      - run: bun run check:dupes
+      - uses: gitleaks/gitleaks-action@v2
       - run: bun audit
 ```
 
@@ -685,4 +694,4 @@ pre-commit:
 
 4. **All claims** are sourced. Every statistic, rule, and anti-pattern has at least one URL reference.
 
-5. **No personal opinions** were added. This report combines source synthesis with opinionated configuration recommendations. Mention counts are useful prioritization signals, not proof of rule correctness.
+5. This report combines source synthesis with opinionated configuration recommendations. Mention counts are useful prioritization signals, not proof of rule correctness.
