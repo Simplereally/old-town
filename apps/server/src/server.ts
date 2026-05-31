@@ -11,6 +11,7 @@ import { GAME_TICK_MS } from "@old-town/shared";
 import { type BootContentResult, loadContent } from "./content-loader";
 import { type World, createWorld } from "./ecs/world";
 import { loadRuntimeConfig } from "./env";
+import { handleItemIntent } from "./items/item-actions";
 import { createLogger } from "./logger";
 import { CommandRouter } from "./net/command-router";
 import { DeltaBroadcaster } from "./net/delta-broadcaster";
@@ -98,6 +99,13 @@ export async function startServer(): Promise<GameServer> {
             group.ownerEntityId,
             { text: intent.payload.text },
             tick,
+            serverTime,
+          );
+        } else if (intent.kind === IntentKind.Item) {
+          handleItemIntent(
+            { world, deltas, items: content.registries.item },
+            group.ownerEntityId,
+            intent.payload,
             serverTime,
           );
         }

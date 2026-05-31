@@ -244,7 +244,8 @@ export class InterestManager {
       }
     }
 
-    const chat = delta.chat?.filter((packet) => this.chatVisible(scene, packet, world)) ?? [];
+    const chat =
+      delta.chat?.filter((packet) => this.chatVisible(scene, packet, world, player)) ?? [];
 
     return packetWith(delta, {
       entityAdds,
@@ -275,8 +276,18 @@ export class InterestManager {
       : undefined;
   }
 
-  private chatVisible(scene: InterestScene, packet: ChatPacket, world: World): boolean {
-    if (packet.channel === "system" || packet.entityId === undefined) {
+  private chatVisible(
+    scene: InterestScene,
+    packet: ChatPacket,
+    world: World,
+    recipient: EntityId,
+  ): boolean {
+    if (packet.channel === "system") {
+      // A system line addressed to a specific player (e.g. an item-action result) is private
+      // to them; an unaddressed system line is a global broadcast.
+      return packet.entityId === undefined || packet.entityId === recipient;
+    }
+    if (packet.entityId === undefined) {
       return true;
     }
     const tile = this.positionTile(world, packet.entityId);

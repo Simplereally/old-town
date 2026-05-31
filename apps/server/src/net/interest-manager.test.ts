@@ -2,6 +2,7 @@ import {
   ACTIVE_SCENE_SIZE,
   CHUNK_SIZE,
   ServerPacketType,
+  type TileCoord,
   buildEntityUpdate,
   entityId,
 } from "@old-town/shared";
@@ -81,6 +82,27 @@ describe("InterestManager", () => {
 
     expect(filtered.entityUpdates).toEqual([]);
     expect(filtered.entityRemoves).toEqual([npc]);
+  });
+
+  it("delivers an addressed system message only to its recipient, but global ones to all", () => {
+    const manager = new InterestManager();
+    const world = createWorld();
+    const actor = entityId(1);
+    const bystander = entityId(2);
+    const delta = {
+      ...emptyDelta(),
+      chat: [
+        { entityId: actor, text: "You eat the bread.", channel: "system" as const, serverTime: 1 },
+        { text: "The world trembles.", channel: "system" as const, serverTime: 1 },
+      ],
+    };
+    const center: TileCoord = { x: 0, y: 0, plane: 0 };
+
+    const toActor = manager.filterDelta(actor, center, delta, world);
+    const toBystander = manager.filterDelta(bystander, center, delta, world);
+
+    expect(toActor.chat?.map((c) => c.text)).toEqual(["You eat the bread.", "The world trembles."]);
+    expect(toBystander.chat?.map((c) => c.text)).toEqual(["The world trembles."]);
   });
 
   it("emits chunk and region load/unload transitions when scene boundaries move", () => {
