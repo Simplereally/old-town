@@ -12,6 +12,8 @@ Authority references:
 - `docs/ledger/civic-ledger-system.md`
 - `docs/skills/utility-skills.md`
 - `docs/creatures/wardenry-contracts.md`
+- `docs/spatial/outer-area-seeds.md`
+- `docs/spatial/naming-atlas.md`
 
 # Oldroad Trails
 

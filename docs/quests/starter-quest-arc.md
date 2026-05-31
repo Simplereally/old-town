@@ -12,6 +12,8 @@ Authority references:
 - `docs/quests/quest-system.md`
 - `docs/ledger/civic-ledger-system.md`
 - `docs/map/quest-object-placement.md`
+- `docs/spatial/safe-danger-gradient.md`
+- `docs/spatial/traversal-and-chokepoints.md`
 
 # Starter Quest Arc
 

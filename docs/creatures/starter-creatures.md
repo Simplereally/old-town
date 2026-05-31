@@ -11,6 +11,8 @@ Authority references:
 - `docs/world/starter-economy-loops.md`
 - `docs/creatures/combat-roles.md`
 - `docs/creatures/starter-drop-tables.md`
+- `docs/spatial/monster-movement-and-leashing.md`
+- `docs/spatial/movement-ecology.md`
 
 # Starter Creatures
 

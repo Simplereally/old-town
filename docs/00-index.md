@@ -126,6 +126,19 @@ docs/
     ledger-placement.md ← Ledger physical anchors
     collision-and-route-rules.md ← Collision and path rules
     first-30-minute-paths.md ← Starter walkable loops
+  spatial/
+    00-index.md        ← Spatial simulation entry point
+    spatial-system.md  ← Core spatial authority, layers, and design rules
+    terrain-grammar.md ← Ground types, object density, and visual storytelling
+    movement-ecology.md ← 10 movement types for NPCs and creatures
+    monster-movement-and-leashing.md ← Aggression, leashing, and creature behaviour
+    spawn-density-and-pressure.md ← Spawn density bands and starter area rules
+    safe-danger-gradient.md ← Emotional danger gradient and readable markers
+    traversal-and-chokepoints.md ← Road widths, chokepoint design, and flow rules
+    landmarks-and-silhouettes.md ← District silhouettes and recognition rules
+    naming-atlas.md    ← Cultural naming grammar, patterns, and banned list
+    outer-area-seeds.md ← First and second ring expansion areas
+    placement-validation-checklist.md ← 15 validation rules for all placement
   consumables/
     00-index.md        ← Consumables system entry point
     consumable-system.md ← Core consumable authority
@@ -222,6 +235,7 @@ docs/
 | Understand recipes and production actions | [`recipes/00-index.md`](recipes/00-index.md) |
 | Understand Old Town starter topology | [`world/00-index.md`](world/00-index.md) |
 | See map placement, districts, and coordinates | [`map/00-index.md`](map/00-index.md) |
+| See spatial behaviour, terrain, and danger | [`spatial/00-index.md`](spatial/00-index.md) |
 | Understand creatures, drops, and Wardenry | [`creatures/00-index.md`](creatures/00-index.md) |
 | Understand Favour and shrine economy | [`favour/00-index.md`](favour/00-index.md) |
 | Understand quests and dialogue | [`quests/00-index.md`](quests/00-index.md) |
@@ -268,4 +282,4 @@ docs/
 
 ---
 
-*Last updated: 2026-05-30*
+*Last updated: 2026-05-31*

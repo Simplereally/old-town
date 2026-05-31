@@ -15,6 +15,8 @@ Authority references:
 - `docs/favour/00-index.md`
 - `docs/ledger/00-index.md`
 - `docs/map/00-index.md`
+- `docs/spatial/00-index.md`
+- `docs/spatial/naming-atlas.md`
 
 # Starter Town
 

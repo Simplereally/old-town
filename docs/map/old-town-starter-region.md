@@ -13,6 +13,9 @@ Authority references:
 - `docs/world/districts-and-routes.md`
 - `docs/world/starter-town.md`
 - `docs/world/npc-cast.md`
+- `docs/spatial/spatial-system.md`
+- `docs/spatial/landmarks-and-silhouettes.md`
+- `docs/spatial/safe-danger-gradient.md`
 
 # Old Town Starter Region
 

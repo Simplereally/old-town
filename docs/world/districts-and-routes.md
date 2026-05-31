@@ -13,6 +13,9 @@ Authority references:
 - `docs/ledger/district-deeds.md`
 - `docs/map/district-boundaries.md`
 - `docs/map/collision-and-route-rules.md`
+- `docs/spatial/spatial-system.md`
+- `docs/spatial/naming-atlas.md`
+- `docs/spatial/traversal-and-chokepoints.md`
 
 # Districts and Routes
 

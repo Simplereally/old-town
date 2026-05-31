@@ -12,6 +12,9 @@ Authority references:
 - `docs/creatures/creature-ecology.md`
 - `docs/map/district-boundaries.md`
 - `docs/map/collision-and-route-rules.md`
+- `docs/spatial/monster-movement-and-leashing.md`
+- `docs/spatial/spawn-density-and-pressure.md`
+- `docs/spatial/safe-danger-gradient.md`
 
 # Creature Spawn Placement
 

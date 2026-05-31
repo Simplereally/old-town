@@ -10,6 +10,8 @@ Parent: [`Creatures Index`](00-index.md)
 Authority references:
 - `docs/combat/mechanics-implementation.md`
 - `docs/creatures/starter-creatures.md`
+- `docs/spatial/monster-movement-and-leashing.md`
+- `docs/spatial/movement-ecology.md`
 
 # Combat Roles
 

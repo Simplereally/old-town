@@ -12,6 +12,8 @@ Authority references:
 - `docs/map/creature-spawn-placement.md`
 - `docs/map/npc-placement.md`
 - `docs/world/districts-and-routes.md`
+- `docs/spatial/traversal-and-chokepoints.md`
+- `docs/spatial/safe-danger-gradient.md`
 
 # Collision and Route Rules
 
