@@ -112,7 +112,7 @@ An activity can have secondary elements from other categories, but its primary c
 
 - **Soot Sweep** is primarily a Public Work (shared town cleaning) with Combat-lite elements (Grave Mites). Primary category: Public Work.
 - **Ledger Sort** is primarily a Puzzle Activity (matching ledgers) with Skilling elements (Sleight, Cartography). Primary category: Puzzle Activity.
-- **Quarry Shift** is primarily a Production Activity (ore cart delivery and smelting) with Risk elements (cave-ins). Primary category: Risk Activity.
+- **Quarry Shift** is a Risk Activity that uses production actions (ore cart delivery and smelting) under cave-in risk. Primary category: Risk Activity.
 - **Sootstairs Lockroom** is primarily a Puzzle Activity (lockpicking) with Course elements (hidden routes). Primary category: Puzzle Activity.
 
 ## Category by Area

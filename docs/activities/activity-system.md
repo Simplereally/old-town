@@ -64,7 +64,7 @@ Every activity in Old Town must answer these questions before it is written:
 1. **What skill or combat loop does it train?** If the answer is "none," it is not an activity.
 2. **Where is it located?** Every activity needs a place. The place gives the activity its personality.
 3. **Is it solo, groupable, or public?** Solo means one player at a time. Groupable means multiple players can participate. Public means anyone can join without invitation.
-4. **Is it safe, risky, or dangerous?** Safe means no failure cost. Risky means failure costs time or inputs. Dangerous means failure can damage gear or consume resources.
+4. **Is it safe, risky, or dangerous?** Safe means no failure cost beyond lost time or basic materials. Risky means failure costs time or inputs that require effort to replace. Dangerous means failure can damage gear or consume resources.
 5. **What does the player actually do moment-to-moment?** The loop must be describable in three sentences. If it takes a paragraph, the activity is too complex.
 6. **What inputs does it consume?** Tools, materials, or consumables that the player must bring or gather.
 7. **What outputs or rewards does it produce?** XP, resources, tokens, or items.

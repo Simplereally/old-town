@@ -54,6 +54,7 @@ This narrowness prevents inflation, preserves the identity of each activity, and
 | `vigil_token` | Vigil Token | Lowgrave Vigil | Skilling Boss | Grave supplies, candle trims, Favour tools |
 | `lockroom_token` | Lockroom Token | Sootstairs Lockroom | Puzzle Activity | Lockpick upgrades, lockroom cosmetics |
 | `soot_mark` | Soot Mark | Soot Sweep | Public Work | Sleight tools, broom upgrades, undercity cosmetics |
+| `ledger_discount` | Ledger Sort Discount | Ledger Sort | Puzzle Activity | Civic discounts, counting house cosmetics |
 
 ## Currency Notes
 
@@ -96,13 +97,13 @@ The Road Token is earned by completing the Crowmile Relay. It is the currency of
 - **Sink:** Route cosmetics (10 tokens), shortcut unlocks (50 tokens), Crowmile Road Ribbon (75 tokens).
 - **Related:** Crowmile Relay earns Road Tokens as its primary currency. It also earns a small number of Bell Tokens (1-2 per run) as a secondary reward.
 
-### Soot Mark
+### Ledger Sort Discount
 
-The Soot Mark is earned by completing the Soot Sweep. It is the currency of the undercity family. Players spend Soot Marks at the Soot Shop for Sleight tools, brooms, and soot-related cosmetics.
+The Ledger Sort Discount is earned by completing the Ledger Sort. It is not a traditional token but a discount voucher that reduces civic service fees. Players spend Ledger Sort Discounts at the Ledger Shop for civic discounts and the Counting House Clerk trim.
 
-- **Earn rate:** 1-2 marks per sweep.
-- **Sink:** Sleight tools (5 marks), broom upgrades (15 marks), Soot Sweeper apron (50 marks).
-- **Related:** Sootstairs Lockroom uses Lockroom Tokens, not Soot Marks.
+- **Earn rate:** 0-1 discount per sort, depending on accuracy.
+- **Sink:** Civic discounts (5 discounts), Counting House Clerk trim (50 discounts).
+- **Related:** Ledger Sort Discounts are bound to the player and cannot be traded.
 
 ## Currency Exchange Rates
 
