@@ -1,6 +1,6 @@
 # Old Town — Agent Context
 
-> Browser-first, lo-fi 3D MMO inspired by 2006/2007 OSRS-era primitives. Built in Three.js + Bun/Node. Currently at empty-codebase stage.
+> Browser-first, lo-fi 3D MMO inspired by 2006/2007 OSRS-era primitives. Built in Three.js + Bun/Node.
 
 **Maintenance rule:** Keep this file tight as the repo evolves. Delete noise, add signal, and never let it drift from reality. When a section goes stale, rewrite it in place rather than tacking on corrections.
 
@@ -15,7 +15,7 @@
 - The repo contains a linear epic/story task tree in `tasks/`.
 - `TASK_MANIFEST.json` is the machine-readable index.
 - `tasks/README.md` defines execution rules: work by epic number, then by story number.
-- Start at `E00`, then `E01`, etc. Do not skip ahead.
+- Start at the lowest-numbered remaining epic (run `bun run tasks:status` to identify it). Do not skip ahead.
 - Within an epic, complete stories in numeric order.
 - When a story is complete, mark its checkboxes `[X]`, move it to `tasks/completed/stories/E##/`, and update the parent epic checklist.
 - When an epic is complete, move it to `tasks/completed/epics/`.
@@ -31,8 +31,8 @@
 
 ## Default stack
 
-- **Client:** Vite + TypeScript + raw Three.js (no R3F unless explicitly chosen). React optional for UI shell only.
-- **Server:** Bun or Node + TypeScript + WebSocket. Colyseus recommended for POC room/state sync.
+- **Client:** Vite + TypeScript + raw Three.js (no R3F unless explicitly chosen).
+- **Server:** Bun or Node + TypeScript + raw `ws` WebSocket.
 - **Shared:** `packages/shared` for protocol types, math, content schemas.
 - **Tests:** Vitest.
 - **Package manager:** Bun workspace (`bun install`, `bun run test`).
@@ -62,6 +62,8 @@ apps/
 packages/
   shared/   — protocol, types, math, content schemas
 content/    — JSON definitions (items, NPCs, objects, skills, spells, quests, maps, drops, dialogue)
+scripts/
+  — task helpers and CI scripts
 tools/
   world-editor/      — tile/object/NPC placement, export
   content-validator/ — CLI to validate JSON against schemas
@@ -69,6 +71,5 @@ tools/
 
 ## Important notes
 
-- The repo is currently empty code-wise. The first stories (E00) create the monorepo structure, TS config, linting, tests, and task conventions.
 - `POC_SPEC.md` is a large engine spec. Use the § references in epic/story files to read the relevant sections, not the whole document each time.
-- `docs/` and `adrs/` are empty. Create ADRs only if a story explicitly requires architectural decisions that need documenting.
+- `adrs/` is empty. Create ADRs only if a story explicitly requires architectural decisions that need documenting.
