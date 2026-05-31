@@ -1,4 +1,4 @@
-import { createRng, type ContentRegistries } from "@old-town/shared";
+import { type ContentRegistries, createRng } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { createWorld } from "../ecs/world";
 import { ChatSystem } from "../systems/chat-system";

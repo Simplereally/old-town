@@ -20,22 +20,22 @@ Implement repeatable tick-based gathering/processing loops for woodcutting, mini
 ## Completion checklist
 
 - [X] Read `POC_SPEC.md` sections referenced above.
-- [ ] Complete the stories below in exact order.
+- [X] Complete the stories below in exact order.
 - [X] Run all validation commands listed by completed stories.
-- [ ] Confirm no unchecked acceptance criteria remain in this epic's stories.
-- [ ] Move completed story files into `tasks/completed/stories/E09/`.
-- [ ] Move this epic file into `tasks/completed/epics/` after all stories are complete.
+- [X] Confirm no unchecked acceptance criteria remain in this epic's stories.
+- [X] Move completed story files into `tasks/completed/stories/E09/`.
+- [X] Move this epic file into `tasks/completed/epics/` after all stories are complete.
 
 ## Ordered stories
 
 - [X] `E09-S01` — [Implement resource node runtime state](../completed/stories/E09/E09-S01_implement-resource-node-runtime-state.md)
 - [X] `E09-S02` — [Implement gathering action validator](../completed/stories/E09/E09-S02_implement-gathering-action-validator.md)
 - [X] `E09-S03` — [Implement woodcutting loop](../completed/stories/E09/E09-S03_implement-woodcutting-loop.md)
-- [ ] `E09-S04` — [Implement mining loop](../stories/E09/E09-S04_implement-mining-loop.md)
-- [ ] `E09-S05` — [Implement cooking processing loop](../stories/E09/E09-S05_implement-cooking-processing-loop.md)
+- [X] `E09-S04` — [Implement mining loop](../completed/stories/E09/E09-S04_implement-mining-loop.md)
+- [X] `E09-S05` — [Implement cooking processing loop](../completed/stories/E09/E09-S05_implement-cooking-processing-loop.md)
 
 ## Epic acceptance criteria
 
-- [ ] All listed story files are complete and moved to the completed folder.
-- [ ] The implementation still preserves server authority, integer tile truth, 600ms tick semantics, content-driven definitions, and client-only presentation.
-- [ ] No later epic has been implemented in a way that bypasses this epic's contracts.
+- [X] All listed story files are complete and moved to the completed folder.
+- [X] The implementation still preserves server authority, integer tile truth, 600ms tick semantics, content-driven definitions, and client-only presentation.
+- [X] No later epic has been implemented in a way that bypasses this epic's contracts.

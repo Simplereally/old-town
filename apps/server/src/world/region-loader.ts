@@ -138,7 +138,8 @@ export function loadRegionMapIntoWorld(
       respawnTick: 0,
       wanderRadius: spawn.wanderRadius ?? npcDef.wanderRadius,
       home: tile,
-      leashDistance: (spawn.wanderRadius ?? npcDef.wanderRadius) + (npcDef.aggressiveRadius ?? 0) + 4,
+      leashDistance:
+        (spawn.wanderRadius ?? npcDef.wanderRadius) + (npcDef.aggressiveRadius ?? 0) + 4,
     });
     world.setComponent(entityId, "actor", {
       entityId,

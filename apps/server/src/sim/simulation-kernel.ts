@@ -1,9 +1,9 @@
 import {
   type ClientCommand,
   type ContentRegistries,
+  createRng,
   type EntityId,
   type FullStatePacket,
-  createRng,
 } from "@old-town/shared";
 import { createWorld, type World } from "../ecs/world";
 import type { Logger } from "../logger";

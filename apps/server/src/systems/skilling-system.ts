@@ -2,8 +2,8 @@ import type {
   EntityId,
   ObjectIntent,
   ProcessingRecipeDef,
-  Rng,
   ResourceNodeDef,
+  Rng,
   TileCoord,
 } from "@old-town/shared";
 import type { InventoryComponent } from "../ecs/components";
@@ -16,9 +16,9 @@ import {
   hasSpaceFor,
   removeItem,
 } from "../items/inventory";
-import { addXp, getCurrentLevel } from "../skills/skill-state";
-import { ActionQueueType, type ActionExecution, InterruptGroup } from "../sim/action-queue";
+import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
+import { addXp, getCurrentLevel } from "../skills/skill-state";
 import { handleMoveIntent } from "./movement-system";
 import { depleteResourceNode, type ResourceNodeContext } from "./resource-node-system";
 
@@ -70,7 +70,7 @@ export interface GatherValidationResult {
 }
 
 const GATHER_ACTION_IDS = new Set(["chop", "woodcut", "mine"]);
-const PROCESS_ACTION_IDS = new Set(["cook"]);
+const PROCESS_ACTION_IDS = new Set(["cook", "use"]);
 
 function actionId(prefix: string, owner: EntityId): string {
   return `${prefix}:${owner}`;
@@ -113,7 +113,11 @@ function gatherFailureText(reason: GatherFailure, nodeDef?: ResourceNodeDef): st
   }
 }
 
-function hasTool(ctx: SkillingContext, inventory: InventoryComponent, tags: readonly string[]): boolean {
+function hasTool(
+  ctx: SkillingContext,
+  inventory: InventoryComponent,
+  tags: readonly string[],
+): boolean {
   for (const slot of inventory.slots) {
     if (!slot) {
       continue;
@@ -137,7 +141,11 @@ function hasTool(ctx: SkillingContext, inventory: InventoryComponent, tags: read
   return false;
 }
 
-function bestToolPower(ctx: SkillingContext, inventory: InventoryComponent, tags: readonly string[]): number {
+function bestToolPower(
+  ctx: SkillingContext,
+  inventory: InventoryComponent,
+  tags: readonly string[],
+): number {
   let best = 0;
   for (const slot of inventory.slots) {
     if (!slot) {
@@ -193,7 +201,14 @@ export function validateGatherAction(
   if (!hasTool(ctx, inventory, nodeDef.toolTags)) {
     return { ok: false, reason: "missing_tool", nodeDef };
   }
-  if (!hasSpaceFor(inventory, catalogFromItems(ctx.registries.item), nodeDef.outputItemId, nodeDef.outputQuantity)) {
+  if (
+    !hasSpaceFor(
+      inventory,
+      catalogFromItems(ctx.registries.item),
+      nodeDef.outputItemId,
+      nodeDef.outputQuantity,
+    )
+  ) {
     return { ok: false, reason: "inventory_full", nodeDef };
   }
   return { ok: true, nodeDef };
@@ -208,7 +223,10 @@ function gatherSuccessChance(
   const skills = ctx.world.getComponent(owner, "skills");
   const level = skills ? getCurrentLevel(skills, nodeDef.skill) : 1;
   const toolPower = bestToolPower(ctx, inventory, nodeDef.toolTags);
-  return Math.min(0.95, Math.max(0.05, nodeDef.baseChance + level * nodeDef.levelScale + toolPower * 0.02));
+  return Math.min(
+    0.95,
+    Math.max(0.05, nodeDef.baseChance + level * nodeDef.levelScale + toolPower * 0.02),
+  );
 }
 
 function enqueueBeginGather(ctx: SkillingContext, owner: EntityId, nodeEntityId: EntityId): void {
@@ -262,14 +280,23 @@ export function handleObjectSkillingIntent(
     if (validation.reason === "out_of_range") {
       const nodeTile = tileOf(ctx.world, intent.objectEntityId);
       if (nodeTile) {
-        handleMoveIntent({ world: ctx.world, collision: ctx.collision, deltas: ctx.deltas }, owner, {
-          dest: nodeTile,
-        });
+        handleMoveIntent(
+          { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
+          owner,
+          {
+            dest: nodeTile,
+          },
+        );
         enqueueBeginGather(ctx, owner, intent.objectEntityId);
         return true;
       }
     }
-    systemMessage(ctx.deltas, owner, gatherFailureText(validation.reason ?? "missing_node", validation.nodeDef), serverTime);
+    systemMessage(
+      ctx.deltas,
+      owner,
+      gatherFailureText(validation.reason ?? "missing_node", validation.nodeDef),
+      serverTime,
+    );
     return true;
   }
 
@@ -290,9 +317,10 @@ function matchingRecipe(
   if (!station || !inventory) {
     return undefined;
   }
-  return Array.from(ctx.registries.processingRecipe.values()).find((recipe) => {
-    return recipe.stationObjectIds.includes(station.objectId) && hasItem(inventory, recipe.inputItemId, recipe.inputQuantity);
-  });
+  const recipes = Array.from(ctx.registries.processingRecipe.values()).filter((recipe) =>
+    hasItem(inventory, recipe.inputItemId, recipe.inputQuantity),
+  );
+  return recipes.find((recipe) => recipe.stationObjectIds.includes(station.objectId)) ?? recipes[0];
 }
 
 function validateProcessAction(
@@ -343,7 +371,11 @@ function enqueueBeginProcess(
     delayTicks: 1,
     repeat: { intervalTicks: 1 },
     interruptGroup: InterruptGroup.Skilling,
-    payload: { kind: "begin_process", stationEntityId, recipeId } satisfies BeginProcessActionPayload,
+    payload: {
+      kind: "begin_process",
+      stationEntityId,
+      recipeId,
+    } satisfies BeginProcessActionPayload,
   });
 }
 
@@ -360,7 +392,11 @@ function enqueueProcess(
     delayTicks: recipe.actionTicks,
     repeat: { intervalTicks: recipe.actionTicks },
     interruptGroup: InterruptGroup.Skilling,
-    payload: { kind: "process", stationEntityId, recipeId: recipe.id } satisfies ProcessActionPayload,
+    payload: {
+      kind: "process",
+      stationEntityId,
+      recipeId: recipe.id,
+    } satisfies ProcessActionPayload,
   });
 }
 
@@ -394,7 +430,12 @@ function handleProcessingIntent(
   return true;
 }
 
-function handleBeginGather(ctx: SkillingContext, action: ActionExecution, payload: BeginGatherActionPayload, serverTime: number): boolean {
+function handleBeginGather(
+  ctx: SkillingContext,
+  action: ActionExecution,
+  payload: BeginGatherActionPayload,
+  serverTime: number,
+): boolean {
   const validation = validateGatherAction(ctx, action.entry.owner, payload.nodeEntityId);
   if (validation.ok && validation.nodeDef) {
     ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
@@ -405,15 +446,31 @@ function handleBeginGather(ctx: SkillingContext, action: ActionExecution, payloa
     return true;
   }
   ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
-  systemMessage(ctx.deltas, action.entry.owner, gatherFailureText(validation.reason ?? "missing_node", validation.nodeDef), serverTime);
+  systemMessage(
+    ctx.deltas,
+    action.entry.owner,
+    gatherFailureText(validation.reason ?? "missing_node", validation.nodeDef),
+    serverTime,
+  );
   return true;
 }
 
-function handleGather(ctx: SkillingContext, action: ActionExecution, payload: GatherActionPayload, tick: number, serverTime: number): boolean {
+function handleGather(
+  ctx: SkillingContext,
+  action: ActionExecution,
+  payload: GatherActionPayload,
+  tick: number,
+  serverTime: number,
+): boolean {
   const validation = validateGatherAction(ctx, action.entry.owner, payload.nodeEntityId);
   if (!validation.ok || !validation.nodeDef) {
     ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
-    systemMessage(ctx.deltas, action.entry.owner, gatherFailureText(validation.reason ?? "missing_node", validation.nodeDef), serverTime);
+    systemMessage(
+      ctx.deltas,
+      action.entry.owner,
+      gatherFailureText(validation.reason ?? "missing_node", validation.nodeDef),
+      serverTime,
+    );
     return true;
   }
   const inventory = ctx.world.getComponent(action.entry.owner, "inventory");
@@ -428,10 +485,20 @@ function handleGather(ctx: SkillingContext, action: ActionExecution, payload: Ga
     return true;
   }
 
-  const result = addItem(inventory, catalogFromItems(ctx.registries.item), nodeDef.outputItemId, nodeDef.outputQuantity);
+  const result = addItem(
+    inventory,
+    catalogFromItems(ctx.registries.item),
+    nodeDef.outputItemId,
+    nodeDef.outputQuantity,
+  );
   if (result.added > 0) {
     ctx.deltas.markInventoryDelta(buildDelta(inventory, result.changes));
-    addXp({ world: ctx.world, deltas: ctx.deltas }, action.entry.owner, nodeDef.skill, nodeDef.baseXp);
+    addXp(
+      { world: ctx.world, deltas: ctx.deltas },
+      action.entry.owner,
+      nodeDef.skill,
+      nodeDef.baseXp,
+    );
   }
   if (ctx.rng.nextFloat() < nodeDef.depletionChance) {
     depleteResourceNode(ctx, payload.nodeEntityId, tick);
@@ -440,7 +507,12 @@ function handleGather(ctx: SkillingContext, action: ActionExecution, payload: Ga
   return true;
 }
 
-function handleBeginProcess(ctx: SkillingContext, action: ActionExecution, payload: BeginProcessActionPayload, serverTime: number): boolean {
+function handleBeginProcess(
+  ctx: SkillingContext,
+  action: ActionExecution,
+  payload: BeginProcessActionPayload,
+  serverTime: number,
+): boolean {
   const recipe = ctx.registries.processingRecipe.get(payload.recipeId);
   const error = recipe
     ? validateProcessAction(ctx, action.entry.owner, payload.stationEntityId, recipe)
@@ -458,7 +530,12 @@ function handleBeginProcess(ctx: SkillingContext, action: ActionExecution, paylo
   return true;
 }
 
-function handleProcess(ctx: SkillingContext, action: ActionExecution, payload: ProcessActionPayload, serverTime: number): boolean {
+function handleProcess(
+  ctx: SkillingContext,
+  action: ActionExecution,
+  payload: ProcessActionPayload,
+  serverTime: number,
+): boolean {
   const recipe = ctx.registries.processingRecipe.get(payload.recipeId);
   const error = recipe
     ? validateProcessAction(ctx, action.entry.owner, payload.stationEntityId, recipe)

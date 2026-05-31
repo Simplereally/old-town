@@ -1,9 +1,4 @@
-import type {
-  EntityId,
-  EntityKind,
-  EntitySpawnPacket,
-  TileCoord,
-} from "@old-town/shared";
+import type { EntityId, EntityKind, EntitySpawnPacket, TileCoord } from "@old-town/shared";
 import type { World } from "../ecs/world";
 
 export interface EntitySpawnProjectorResult {
@@ -95,7 +90,6 @@ export function projectWorldEntities(world: World): EntitySpawnProjectorResult {
         defId: groundItem.itemId,
         quantity: groundItem.quantity,
       });
-      continue;
     }
 
     // Entity has position but no recognised spawn kind — skip silently.
@@ -132,9 +126,7 @@ export function projectEntity(world: World, entityId: EntityId): EntitySpawnPack
       tile,
       moveSpeed: "stationary",
       ...(actor ? { appearance: { name: actor.name, bodyId: actor.appearanceId } } : {}),
-      ...(combatant
-        ? { healthBar: { current: combatant.health, max: combatant.maxHealth } }
-        : {}),
+      ...(combatant ? { healthBar: { current: combatant.health, max: combatant.maxHealth } } : {}),
     };
   }
 
@@ -149,9 +141,7 @@ export function projectEntity(world: World, entityId: EntityId): EntitySpawnPack
       defId: npc.npcId,
       moveSpeed: "stationary",
       ...(actor ? { appearance: { name: actor.name, bodyId: actor.appearanceId } } : {}),
-      ...(combatant
-        ? { healthBar: { current: combatant.health, max: combatant.maxHealth } }
-        : {}),
+      ...(combatant ? { healthBar: { current: combatant.health, max: combatant.maxHealth } } : {}),
     };
   }
 

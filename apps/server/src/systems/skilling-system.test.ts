@@ -1,26 +1,27 @@
 import {
   type ContentRegistries,
+  createRng,
   type EntityId,
   type ItemDef,
   type ObjectDef,
+  type ProcessingRecipeDef,
   type ResourceNodeDef,
-  createRng,
   tileKey,
 } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import type { InventoryComponent, SkillsComponent } from "../ecs/components";
 import { createWorld, type World } from "../ecs/world";
-import { addItem, catalogFromItems, createInventory } from "../items/inventory";
-import { ActionQueueType, type ActionExecution, InterruptGroup } from "../sim/action-queue";
+import { addItem, catalogFromItems, count, createInventory } from "../items/inventory";
+import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import { ActionRuntime } from "../sim/action-runtime";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
-import { CollisionMap, applyObjectCollision } from "../world/collision";
+import { applyObjectCollision, CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
 import {
   handleObjectSkillingIntent,
   handleSkillingAction,
-  validateGatherAction,
   type SkillingContext,
+  validateGatherAction,
 } from "./skilling-system";
 
 const ITEM_BASE = {
@@ -38,6 +39,9 @@ const ITEMS: readonly ItemDef[] = [
   { ...ITEM_BASE, id: "pennywrought_pickaxe", name: "Pickaxe", tags: ["pickaxe"], tierOrder: 1 },
   { ...ITEM_BASE, id: "dry_log", name: "Dry Log", stackable: true },
   { ...ITEM_BASE, id: "copper_ore", name: "Copper Ore", stackable: true },
+  { ...ITEM_BASE, id: "raw_fish", name: "Raw Fish", stackable: true },
+  { ...ITEM_BASE, id: "cooked_fish", name: "Cooked Fish", stackable: true },
+  { ...ITEM_BASE, id: "burnt_fish", name: "Burnt Fish", stackable: true },
   { ...ITEM_BASE, id: "junk", name: "Junk" },
 ];
 
@@ -97,7 +101,53 @@ const MINE_NODE: ResourceNodeDef = {
   outputQuantity: 1,
 };
 
-function registries(node: ResourceNodeDef = NODE_DEF, object: ObjectDef = TREE_DEF): ContentRegistries {
+const RANGE_DEF: ObjectDef = {
+  id: "cooking_range",
+  name: "Cooking Range",
+  width: 1,
+  length: 1,
+  blocksMovement: true,
+  blocksLineOfSight: false,
+  options: [
+    { label: "Cook", actionId: "cook", priority: 10, requiredDistance: 1 },
+    { label: "Use", actionId: "use", priority: 5, requiredDistance: 1 },
+  ],
+  defaultRotation: 0,
+};
+
+const WRONG_STATION_DEF: ObjectDef = {
+  id: "cold_table",
+  name: "Cold Table",
+  width: 1,
+  length: 1,
+  blocksMovement: true,
+  blocksLineOfSight: false,
+  options: [{ label: "Cook", actionId: "cook", priority: 10, requiredDistance: 1 }],
+  defaultRotation: 0,
+};
+
+const COOK_RECIPE: ProcessingRecipeDef = {
+  id: "cook_raw_fish",
+  name: "Cook Raw Fish",
+  skill: "cooking",
+  requiredLevel: 1,
+  actionTicks: 3,
+  stationObjectIds: ["cooking_range", "quest_oven"],
+  inputItemId: "raw_fish",
+  inputQuantity: 1,
+  successItemId: "cooked_fish",
+  successQuantity: 1,
+  failureItemId: "burnt_fish",
+  failureQuantity: 1,
+  xp: 15,
+  failureChance: 0,
+};
+
+function registries(
+  node: ResourceNodeDef = NODE_DEF,
+  object: ObjectDef = TREE_DEF,
+  recipes: readonly ProcessingRecipeDef[] = [],
+): ContentRegistries {
   return {
     item: new Map(ITEMS.map((item) => [item.id, item])),
     npc: new Map(),
@@ -106,7 +156,7 @@ function registries(node: ResourceNodeDef = NODE_DEF, object: ObjectDef = TREE_D
       [ROCK_DEF.id, ROCK_DEF],
       [object.id, object],
     ]),
-    processingRecipe: new Map(),
+    processingRecipe: new Map(recipes.map((recipe) => [recipe.id, recipe])),
     skill: new Map(),
     resourceNode: new Map([[node.id, node]]),
     spell: new Map(),
@@ -125,19 +175,22 @@ function skills(entityId: EntityId, level: number): SkillsComponent {
     skills: {
       woodcutting: { level, xp: 0, boost: 0, drain: 0 },
       mining: { level, xp: 0, boost: 0, drain: 0 },
+      cooking: { level, xp: 0, boost: 0, drain: 0 },
     },
   };
 }
 
-function setup(options: {
-  readonly tool?: boolean;
-  readonly level?: number;
-  readonly fullInventory?: boolean;
-  readonly depleted?: boolean;
-  readonly node?: ResourceNodeDef;
-  readonly object?: ObjectDef;
-  readonly toolItemId?: string;
-} = {}): {
+function setup(
+  options: {
+    readonly tool?: boolean;
+    readonly level?: number;
+    readonly fullInventory?: boolean;
+    readonly depleted?: boolean;
+    readonly node?: ResourceNodeDef;
+    readonly object?: ObjectDef;
+    readonly toolItemId?: string;
+  } = {},
+): {
   readonly ctx: SkillingContext;
   readonly world: World;
   readonly player: EntityId;
@@ -179,7 +232,12 @@ function setup(options: {
 
   const node = world.createEntity();
   world.setComponent(node, "position", { entityId: node, x: 4, y: 4, plane: 0 });
-  world.setComponent(node, "object", { entityId: node, objectId: objectDef.id, facing: 0, variant: 0 });
+  world.setComponent(node, "object", {
+    entityId: node,
+    objectId: objectDef.id,
+    facing: 0,
+    variant: 0,
+  });
   world.setComponent(node, "resourceNode", {
     entityId: node,
     nodeId: nodeDef.id,
@@ -210,18 +268,100 @@ function setup(options: {
   };
 }
 
+function setupProcessing(
+  options: {
+    readonly rawQuantity?: number;
+    readonly level?: number;
+    readonly object?: ObjectDef;
+    readonly recipe?: ProcessingRecipeDef;
+  } = {},
+): {
+  readonly ctx: SkillingContext;
+  readonly world: World;
+  readonly player: EntityId;
+  readonly station: EntityId;
+  readonly inventory: InventoryComponent;
+  readonly actionRuntime: ActionRuntime;
+  readonly deltas: DeltaAccumulator;
+} {
+  const world = createWorld();
+  const map = createRuntimeMap();
+  for (const tile of [
+    { x: 4, y: 4, plane: 0 as const },
+    { x: 4, y: 5, plane: 0 as const },
+  ]) {
+    map.tiles.set(tileKey(tile), {
+      tile,
+      height: 0,
+      underlayId: "grass",
+      collision: 0,
+      water: false,
+      bridge: false,
+    });
+  }
+
+  const objectDef = options.object ?? RANGE_DEF;
+  const recipe = options.recipe ?? COOK_RECIPE;
+  const content = registries(NODE_DEF, objectDef, [recipe]);
+  const player = world.createEntity();
+  world.setComponent(player, "position", { entityId: player, x: 4, y: 5, plane: 0 });
+  world.setComponent(player, "skills", skills(player, options.level ?? 1));
+  const inventory = createInventory(player, `inventory:${player}`, 3);
+  if ((options.rawQuantity ?? 1) > 0) {
+    addItem(inventory, catalogFromItems(content.item), "raw_fish", options.rawQuantity ?? 1);
+  }
+  world.setComponent(player, "inventory", inventory);
+
+  const station = world.createEntity();
+  world.setComponent(station, "position", { entityId: station, x: 4, y: 4, plane: 0 });
+  world.setComponent(station, "object", {
+    entityId: station,
+    objectId: objectDef.id,
+    facing: 0,
+    variant: 0,
+  });
+
+  const collision = new CollisionMap(map);
+  applyObjectCollision(world, content, collision);
+  const actionRuntime = new ActionRuntime();
+  const deltas = new DeltaAccumulator();
+  return {
+    ctx: {
+      world,
+      collision,
+      deltas,
+      actionRuntime,
+      registries: content,
+      rng: createRng(1),
+    },
+    world,
+    player,
+    station,
+    inventory,
+    actionRuntime,
+    deltas,
+  };
+}
+
+function advanceToExecution(actionRuntime: ActionRuntime, delayTicks: number): ActionExecution {
+  let executions: readonly ActionExecution[] = [];
+  for (let tick = 1; tick <= delayTicks; tick += 1) {
+    executions = actionRuntime.advanceTick();
+  }
+  const execution = executions[0];
+  if (!execution) {
+    throw new Error("expected action execution");
+  }
+  return execution;
+}
+
 describe("skilling gather validation", () => {
   it("rejects a missing tool and emits server feedback", () => {
     const { ctx, player, node, deltas } = setup({ tool: false });
 
     expect(validateGatherAction(ctx, player, node).reason).toBe("missing_tool");
     expect(
-      handleObjectSkillingIntent(
-        ctx,
-        player,
-        { objectEntityId: node, actionId: "woodcut" },
-        600,
-      ),
+      handleObjectSkillingIntent(ctx, player, { objectEntityId: node, actionId: "woodcut" }, 600),
     ).toBe(true);
     expect(deltas.peek().chat?.[0]?.text).toBe("You need the right tool for Dry Tree.");
   });
@@ -296,12 +436,7 @@ describe("woodcutting loop", () => {
     const { ctx, player, node, actionRuntime, inventory, deltas } = setup();
 
     expect(
-      handleObjectSkillingIntent(
-        ctx,
-        player,
-        { objectEntityId: node, actionId: "woodcut" },
-        600,
-      ),
+      handleObjectSkillingIntent(ctx, player, { objectEntityId: node, actionId: "woodcut" }, 600),
     ).toBe(true);
     expect(deltas.peek().entityUpdates[0]?.changes.facingTile).toEqual({
       x: 4,
@@ -374,5 +509,97 @@ describe("mining loop", () => {
     expect(inventory.slots.some((slot) => slot?.itemId === "copper_ore")).toBe(true);
     expect(ctx.world.getComponent(player, "skills")?.skills.mining?.xp).toBe(15);
     expect(deltas.peek().skillDelta).toEqual([{ skillId: "mining", level: 1, xp: 15 }]);
+  });
+});
+
+describe("cooking processing loop", () => {
+  it("routes object Use/Cook through the tick queue and repeats until input is missing", () => {
+    const { ctx, player, station, actionRuntime, inventory, deltas } = setupProcessing({
+      rawQuantity: 2,
+    });
+
+    expect(
+      handleObjectSkillingIntent(ctx, player, { objectEntityId: station, actionId: "use" }, 600),
+    ).toBe(true);
+
+    handleSkillingAction(
+      ctx,
+      advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks),
+      COOK_RECIPE.actionTicks,
+      1_800,
+    );
+
+    expect(count(inventory, "raw_fish")).toBe(1);
+    expect(count(inventory, "cooked_fish")).toBe(1);
+    expect(ctx.world.getComponent(player, "skills")?.skills.cooking?.xp).toBe(15);
+    expect(deltas.peek().inventoryDelta?.changes).toEqual([
+      { slot: 0, itemId: "raw_fish", quantity: 1, uid: 1 },
+      { slot: 1, itemId: "cooked_fish", quantity: 1, uid: 2 },
+    ]);
+
+    handleSkillingAction(
+      ctx,
+      advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks),
+      COOK_RECIPE.actionTicks * 2,
+      3_600,
+    );
+    expect(count(inventory, "raw_fish")).toBe(0);
+    expect(count(inventory, "cooked_fish")).toBe(2);
+
+    handleSkillingAction(
+      ctx,
+      advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks),
+      COOK_RECIPE.actionTicks * 3,
+      5_400,
+    );
+
+    expect(actionRuntime.getDebugState()).toEqual([]);
+    expect(deltas.peek().chat?.at(-1)?.text).toBe("You have nothing suitable to cook.");
+  });
+
+  it("can burn food without awarding cooking XP", () => {
+    const { ctx, player, station, actionRuntime, inventory } = setupProcessing({
+      recipe: { ...COOK_RECIPE, failureChance: 1 },
+    });
+
+    handleObjectSkillingIntent(ctx, player, { objectEntityId: station, actionId: "cook" }, 600);
+    handleSkillingAction(
+      ctx,
+      advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks),
+      COOK_RECIPE.actionTicks,
+      1_800,
+    );
+
+    expect(count(inventory, "raw_fish")).toBe(0);
+    expect(count(inventory, "burnt_fish")).toBe(1);
+    expect(ctx.world.getComponent(player, "skills")?.skills.cooking?.xp).toBe(0);
+  });
+
+  it("rejects cooking when the player has no matching raw input", () => {
+    const { ctx, player, station, actionRuntime, inventory, deltas } = setupProcessing({
+      rawQuantity: 0,
+    });
+
+    expect(
+      handleObjectSkillingIntent(ctx, player, { objectEntityId: station, actionId: "cook" }, 600),
+    ).toBe(true);
+
+    expect(count(inventory, "cooked_fish")).toBe(0);
+    expect(actionRuntime.getDebugState()).toEqual([]);
+    expect(deltas.peek().chat?.[0]?.text).toBe("You have nothing suitable to cook.");
+  });
+
+  it("rejects cooking at the wrong station without consuming input", () => {
+    const { ctx, player, station, actionRuntime, inventory, deltas } = setupProcessing({
+      object: WRONG_STATION_DEF,
+    });
+
+    expect(
+      handleObjectSkillingIntent(ctx, player, { objectEntityId: station, actionId: "cook" }, 600),
+    ).toBe(true);
+
+    expect(count(inventory, "raw_fish")).toBe(1);
+    expect(actionRuntime.getDebugState()).toEqual([]);
+    expect(deltas.peek().chat?.[0]?.text).toBe("You need a different cooking station.");
   });
 });

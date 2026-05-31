@@ -2,11 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createWorld } from "../ecs/world";
 import { createEquipment } from "../items/equipment";
 import { createInventory } from "../items/inventory";
-import {
-  projectEntity,
-  projectWorldEntities,
-  spawnKind,
-} from "./entity-spawn-projector";
+import { projectEntity, projectWorldEntities, spawnKind } from "./entity-spawn-projector";
 
 function setup() {
   const world = createWorld();

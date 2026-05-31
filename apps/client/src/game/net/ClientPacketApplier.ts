@@ -1,30 +1,101 @@
 import {
+  type ChatPacket,
+  type ChunkData,
   Direction,
-  type EntityId,
   type EntitySpawnPacket,
   type FullStatePacket,
+  type InventoryDelta,
+  type RegionId,
+  type SkillDelta,
   type TickDeltaPacket,
   type TileCoord,
+  type VarbitDelta,
 } from "@old-town/shared";
 import { Vector3 } from "three";
-import type { ActorRenderer } from "../scene/ActorRenderer";
-import type { ChatOverheadLayer } from "../scene/ChatOverheadLayer";
-import type { DebugLayer } from "../scene/DebugLayer";
-import type { GroundItemLayer } from "../scene/GroundItemLayer";
-import type { HitsplatLayer } from "../scene/HitsplatLayer";
-import type { ObjectRenderer } from "../scene/ObjectRenderer";
-import type { TerrainLayer } from "../scene/TerrainLayer";
-import type { UIState } from "../ui/UIState";
+
+export interface ITerrainLayer {
+  loadChunk(regionId: RegionId, chunk: ChunkData): void;
+  unloadRegion(regionId: RegionId): void;
+}
+
+export interface IObjectRenderer {
+  spawn(entityId: number, tile: TileCoord, defId: string): void;
+  remove(entityId: number): void;
+  clear(): void;
+  transform(entityId: number, defId: string): void;
+}
+
+export interface IActorRenderer {
+  spawn(
+    entityId: number,
+    tile: TileCoord,
+    defId: string | undefined,
+    isLocalPlayer: boolean,
+    kind: "player" | "npc",
+  ): void;
+  remove(entityId: number): void;
+  clear(): void;
+  updateTile(entityId: number, tile: TileCoord): void;
+  updateFacing(entityId: number, direction: Direction): void;
+  updateAppearance(
+    entityId: number,
+    appearance: { name?: string; bodyId?: string; colors?: readonly number[] },
+  ): void;
+  getActorState(entityId: number): { serverTile: TileCoord; visualPosition: Vector3 } | undefined;
+}
+
+export interface IGroundItemLayer {
+  spawn(entityId: number, tile: TileCoord, defId: string, quantity: number): void;
+  remove(entityId: number): void;
+  clear(): void;
+}
+
+export interface IHitsplatLayer {
+  show(entityId: number, amount: number, type?: "damage" | "block" | "heal" | "poison"): void;
+  clear(): void;
+}
+
+export interface IChatOverheadLayer {
+  show(entityId: number, text: string, position: Vector3): void;
+  clear(): void;
+}
+
+export interface IDebugLayer {
+  clear(): void;
+  markPathTile(tile: TileCoord): void;
+  markTrueTile(tile: TileCoord, entityId: number): void;
+  markCollisionTile(tile: TileCoord): void;
+  markFootprint(tile: TileCoord): void;
+  markReachTiles(center: TileCoord, radius: number): void;
+  markLoSRay(start: Vector3, end: Vector3): void;
+  setActionQueue(queue: string[]): void;
+  setCombatCooldown(ticks: number): void;
+  setPendingHits(hits: Map<string, number>): void;
+  setNpcLeash(tile: TileCoord): void;
+  setVarbits(vars: Map<string, number>): void;
+}
+
+export interface IUIState {
+  setInventory(delta: InventoryDelta): void;
+  setSkills(skills: readonly SkillDelta[]): void;
+  setVars(vars: readonly VarbitDelta[]): void;
+  setEquipment(slots: readonly (string | null)[]): void;
+  applyInventoryDelta(delta: InventoryDelta): void;
+  applySkillDelta(delta: readonly SkillDelta[]): void;
+  applyVarbitDelta(delta: readonly VarbitDelta[]): void;
+  addChat(chat: readonly ChatPacket[]): void;
+  setDialogue(interfaceId: string, nodeId: string): void;
+}
 
 export interface PacketApplierContext {
-  readonly terrain: TerrainLayer;
-  readonly objects: ObjectRenderer;
-  readonly actors: ActorRenderer;
-  readonly groundItems: GroundItemLayer;
-  readonly hitsplats: HitsplatLayer;
-  readonly chatOverhead: ChatOverheadLayer;
-  readonly debug: DebugLayer | undefined;
-  readonly uiState: UIState;
+  readonly terrain: ITerrainLayer;
+  readonly objects: IObjectRenderer;
+  readonly actors: IActorRenderer;
+  readonly groundItems: IGroundItemLayer;
+  readonly hitsplats: IHitsplatLayer;
+  readonly chatOverhead: IChatOverheadLayer;
+  readonly debug: IDebugLayer | undefined;
+  readonly uiState: IUIState;
   readonly selfEntityId: number;
   readonly logDebug: (message: string) => void;
   readonly tileSizeWorldUnits: number;
@@ -245,11 +316,7 @@ export class ClientPacketApplier {
         const path = pathData.path;
         if (entityId === this._selfEntityId) {
           foundSelfPath = true;
-          if (
-            path.length === 0 &&
-            this._lastClickTile &&
-            this._lastClickTick > currentTick - 2
-          ) {
+          if (path.length === 0 && this._lastClickTile && this._lastClickTick > currentTick - 2) {
             rejected.push({ tile: this._lastClickTile, tick: this._lastClickTick });
             ctx.logDebug(
               `Move rejected: no path to (${this._lastClickTile.x}, ${this._lastClickTile.y})`,

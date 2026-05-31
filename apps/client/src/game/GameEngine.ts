@@ -1,12 +1,11 @@
 import {
-  Direction,
   type FullStatePacket,
   type SpellTarget,
   TILE_SIZE_WORLD_UNITS,
   type TickDeltaPacket,
   type TileCoord,
 } from "@old-town/shared";
-import { Mesh, MeshBasicMaterial, RingGeometry, Vector3 } from "three";
+import { Mesh, MeshBasicMaterial, RingGeometry, type Vector3 } from "three";
 import { type ClientDecision, InputInterpreter } from "./input/InputInterpreter";
 import { ClientCommandDispatcher } from "./net/ClientCommandDispatcher";
 import { ClientPacketApplier } from "./net/ClientPacketApplier";
@@ -462,15 +461,6 @@ export class GameEngine {
       log.removeChild(log.firstChild as Node);
     }
     log.scrollTop = log.scrollHeight;
-  }
-
-
-  private _getDirectionFromDelta(dx: number, dy: number): Direction {
-    if (dy > 0)
-      return dx > 0 ? Direction.NorthEast : dx < 0 ? Direction.NorthWest : Direction.North;
-    if (dy < 0)
-      return dx > 0 ? Direction.SouthEast : dx < 0 ? Direction.SouthWest : Direction.South;
-    return dx > 0 ? Direction.East : Direction.West;
   }
 
   private _onFrame(_deltaTime: number, _elapsedTime: number): void {

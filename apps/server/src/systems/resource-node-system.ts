@@ -99,7 +99,10 @@ export function depleteResourceNode(
     type: ActionQueueType.Soft,
     delayTicks: def.respawnTicks,
     interruptGroup: InterruptGroup.Skilling,
-    payload: { kind: "resource_respawn", nodeEntityId: entityId } satisfies ResourceNodeRespawnPayload,
+    payload: {
+      kind: "resource_respawn",
+      nodeEntityId: entityId,
+    } satisfies ResourceNodeRespawnPayload,
   });
   return true;
 }

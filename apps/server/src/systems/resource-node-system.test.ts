@@ -11,16 +11,16 @@ import { ActionExecutor } from "../sim/action-executor";
 import { ActionRuntime } from "../sim/action-runtime";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import {
+  applyObjectCollision,
   CollisionFlag,
   CollisionMap,
-  applyObjectCollision,
   objectCollisionFlags,
 } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
 import {
   depleteResourceNode,
-  respawnResourceNode,
   resourceRespawnActionId,
+  respawnResourceNode,
 } from "./resource-node-system";
 
 const TREE_DEF: ObjectDef = {
