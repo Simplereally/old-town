@@ -2,13 +2,18 @@ import type { TileCoord } from "@old-town/shared";
 import type { Scene } from "three";
 import {
   BoxGeometry,
+  BufferAttribute,
+  type BufferGeometry,
+  Color,
   ConeGeometry,
   CylinderGeometry,
   Group,
+  IcosahedronGeometry,
   Mesh,
   MeshLambertMaterial,
   Vector3,
 } from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 interface ObjectInstance {
   readonly entityId: number;
@@ -18,10 +23,56 @@ interface ObjectInstance {
 }
 
 interface ObjectTemplate {
-  readonly geometry: BoxGeometry | ConeGeometry | CylinderGeometry;
+  readonly geometry: BufferGeometry;
   readonly material: MeshLambertMaterial;
   readonly scale: Vector3;
   readonly yOffset: number;
+}
+
+/** A single coloured chunk of a composite low-poly prop, in local space. */
+interface Part {
+  readonly geometry: BufferGeometry;
+  readonly color: number;
+  readonly x?: number;
+  readonly y?: number;
+  readonly z?: number;
+  readonly rotY?: number;
+}
+
+/** Bake a flat vertex colour onto every vertex of a geometry, in place. */
+function paint(geometry: BufferGeometry, color: number): void {
+  const c = new Color(color);
+  const count = geometry.getAttribute("position").count;
+  const colors = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    colors[i * 3] = c.r;
+    colors[i * 3 + 1] = c.g;
+    colors[i * 3 + 2] = c.b;
+  }
+  geometry.setAttribute("color", new BufferAttribute(colors, 3));
+}
+
+/**
+ * Merge several coloured primitives into one vertex-coloured BufferGeometry.
+ * Each object is a single Mesh sharing one geometry + one material, which keeps
+ * pooling cheap and matches the renderer's one-mesh-per-object contract.
+ */
+function compose(parts: Part[]): BufferGeometry {
+  const geometries = parts.map((part) => {
+    // Non-indexed so flat shading and the colour attribute stay consistent.
+    const geometry = part.geometry.index ? part.geometry.toNonIndexed() : part.geometry;
+    paint(geometry, part.color);
+    if (part.rotY) {
+      geometry.rotateY(part.rotY);
+    }
+    geometry.translate(part.x ?? 0, part.y ?? 0, part.z ?? 0);
+    return geometry;
+  });
+  const merged = mergeGeometries(geometries, false);
+  if (!merged) {
+    throw new Error("Failed to merge object geometry");
+  }
+  return merged;
 }
 
 const objectTemplates = new Map<string, ObjectTemplate>();
@@ -37,56 +88,69 @@ function getTemplate(defId: string): ObjectTemplate {
   return template;
 }
 
+function vertexColorMaterial(): MeshLambertMaterial {
+  return new MeshLambertMaterial({ vertexColors: true, flatShading: true });
+}
+
 function buildTemplate(defId: string): ObjectTemplate {
   const type = defIdToType(defId);
+  const geometry = buildGeometry(type);
+  return {
+    geometry,
+    material: vertexColorMaterial(),
+    scale: new Vector3(1, 1, 1),
+    // Rest props on top of the ~0.1-tall terrain tile surface.
+    yOffset: 0.1,
+  };
+}
+
+function buildGeometry(type: string): BufferGeometry {
   switch (type) {
     case "tree": {
-      return {
-        geometry: new ConeGeometry(0.5, 2, 6),
-        material: new MeshLambertMaterial({ color: 0x2d5a27 }),
-        scale: new Vector3(1, 1, 1),
-        yOffset: 1,
-      };
+      // Stubby trunk topped with three tapering foliage cones.
+      return compose([
+        { geometry: new CylinderGeometry(0.13, 0.17, 0.85, 6), color: 0x6b4a2b, y: 0.42 },
+        { geometry: new ConeGeometry(0.75, 0.95, 7), color: 0x2f6b30, y: 1.05 },
+        { geometry: new ConeGeometry(0.58, 0.85, 7), color: 0x3c7d3a, y: 1.55 },
+        { geometry: new ConeGeometry(0.4, 0.75, 7), color: 0x4c9a48, y: 2.0 },
+      ]);
     }
     case "rock": {
-      return {
-        geometry: new BoxGeometry(0.8, 0.6, 0.8),
-        material: new MeshLambertMaterial({ color: 0x808080 }),
-        scale: new Vector3(1, 1, 1),
-        yOffset: 0.3,
-      };
+      const base = new IcosahedronGeometry(0.55, 0);
+      base.scale(1.1, 0.7, 1.0);
+      return compose([
+        { geometry: base, color: 0x8a8d8f, y: 0.38 },
+        { geometry: new IcosahedronGeometry(0.3, 0), color: 0x73767a, x: 0.26, y: 0.32, z: -0.16 },
+      ]);
     }
     case "building": {
-      return {
-        geometry: new BoxGeometry(1, 2, 1),
-        material: new MeshLambertMaterial({ color: 0x8b6f47 }),
-        scale: new Vector3(1, 1, 1),
-        yOffset: 1,
-      };
+      // Walls plus a four-sided pyramid roof aligned to the footprint.
+      return compose([
+        { geometry: new BoxGeometry(1.0, 1.3, 1.0), color: 0xb59264, y: 0.65 },
+        { geometry: new ConeGeometry(0.85, 0.7, 4), color: 0x6e3a2c, rotY: Math.PI / 4, y: 1.62 },
+      ]);
     }
     case "door": {
-      return {
-        geometry: new BoxGeometry(0.8, 1.5, 0.2),
-        material: new MeshLambertMaterial({ color: 0x654321 }),
-        scale: new Vector3(1, 1, 1),
-        yOffset: 0.75,
-      };
+      return compose([
+        { geometry: new BoxGeometry(0.85, 1.5, 0.16), color: 0x6b4a2b, y: 0.75 },
+        { geometry: new BoxGeometry(0.1, 0.1, 0.12), color: 0xcaa64a, x: 0.28, y: 0.75, z: 0.1 },
+      ]);
     }
     case "resource": {
-      return {
-        geometry: new CylinderGeometry(0.4, 0.4, 0.8, 8),
-        material: new MeshLambertMaterial({ color: 0x8b7355 }),
-        scale: new Vector3(1, 1, 1),
-        yOffset: 0.4,
-      };
+      // A rocky node shot through with bright ore veins.
+      const stone = new IcosahedronGeometry(0.5, 0);
+      stone.scale(1.1, 0.85, 1.0);
+      return compose([
+        { geometry: stone, color: 0x77797b, y: 0.42 },
+        { geometry: new IcosahedronGeometry(0.17, 0), color: 0xc8772e, x: -0.2, y: 0.52, z: 0.2 },
+        { geometry: new IcosahedronGeometry(0.13, 0), color: 0x8fb0c0, x: 0.22, y: 0.36, z: -0.12 },
+      ]);
     }
     default: {
-      return {
-        geometry: new BoxGeometry(0.8, 0.8, 0.8),
-        material: new MeshLambertMaterial({ color: 0xaaaaaa }),
-        scale: new Vector3(1, 1, 1),
-        yOffset: 0.4,
-      };
+      return compose([
+        { geometry: new BoxGeometry(0.7, 0.6, 0.7), color: 0x9aa0a6, y: 0.4 },
+        { geometry: new BoxGeometry(0.74, 0.12, 0.74), color: 0x7c8288, y: 0.74 },
+      ]);
     }
   }
 }

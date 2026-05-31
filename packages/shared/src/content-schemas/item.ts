@@ -31,11 +31,34 @@ export type EquipmentDef = z.infer<typeof equipmentDefSchema>;
 export const consumableDefSchema = z
   .object({
     /** Hitpoints restored when consumed. */
-    heal: nonNegInt,
+    heal: nonNegInt.optional(),
     /** Ticks the eat/drink action occupies (default 1). */
     consumeTicks: positiveInt.default(1),
+    /** Expanded effect types (E19-S01). */
+    effectType: z.enum(["heal", "restore", "boost", "cure", "apply_status", "remove_status"]).optional(),
+    effectValue: nonNegInt.optional(),
+    durationTicks: nonNegInt.optional(),
+    statusEffectId: contentIdSchema.optional(),
+    curesStatus: contentIdSchema.optional(),
+    boostsSkill: z
+      .object({
+        skillId: contentIdSchema,
+        boostAmount: nonNegInt,
+      })
+      .strict()
+      .optional(),
   })
-  .strict();
+  .strict()
+  .refine(
+    (c) => {
+      // At least one effect must be present: heal or effectType
+      if (c.heal === undefined && c.effectType === undefined) {
+        return false;
+      }
+      return true;
+    },
+    { message: "consumable must have either heal or effectType" },
+  );
 
 export type ConsumableDef = z.infer<typeof consumableDefSchema>;
 

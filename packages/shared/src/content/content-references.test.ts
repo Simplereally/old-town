@@ -17,6 +17,11 @@ function buildRegistries(overrides: Partial<ContentRegistries> = {}): ContentReg
     regionMap: new Map(),
     material: new Map(),
     animation: new Map(),
+    shop: new Map(),
+    bank: new Map(),
+    serviceFee: new Map(),
+    statusEffect: new Map(),
+    contract: new Map(),
     ...overrides,
   };
 }

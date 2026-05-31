@@ -13,6 +13,7 @@ import { count, createInventory } from "../items/inventory";
 import { ItemAuditLog } from "../items/item-audit";
 import { InterestManager } from "../net/interest-manager";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
+import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
 import {
@@ -97,24 +98,14 @@ function fixedRng(values: readonly number[]): Rng {
 }
 
 function registries(): ContentRegistries {
-  return {
+  return makeRegistries({
     item: new Map([
       [COIN.id, COIN],
       [BONES.id, BONES],
     ]),
     npc: new Map([[NPC_DEF.id, NPC_DEF]]),
-    object: new Map(),
-    processingRecipe: new Map(),
-    skill: new Map(),
-    resourceNode: new Map(),
-    spell: new Map(),
     dropTable: new Map([[DROP_TABLE.id, DROP_TABLE]]),
-    quest: new Map(),
-    dialogue: new Map(),
-    regionMap: new Map(),
-    material: new Map(),
-    animation: new Map(),
-  };
+  });
 }
 
 function addOpenTiles(map: RuntimeMap): void {

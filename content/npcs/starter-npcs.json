@@ -182,6 +182,9 @@
     "wanderRadius": 3,
     "respawnTicks": 5,
     "drops": "cellar_rat_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
     "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
   },
   {
@@ -206,6 +209,9 @@
     "wanderRadius": 3,
     "respawnTicks": 5,
     "drops": "soot_rat_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
     "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
   },
   {
@@ -229,6 +235,9 @@
     "aggressiveRadius": 0,
     "wanderRadius": 5,
     "respawnTicks": 10,
+    "movementType": "wander",
+    "aggressionMode": "retaliate",
+    "creatureKind": "retaliating",
     "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
   },
   {
@@ -253,6 +262,9 @@
     "wanderRadius": 5,
     "respawnTicks": 15,
     "drops": "mud_goblin_drops",
+    "movementType": "wander",
+    "aggressionMode": "aggressive",
+    "creatureKind": "aggressive",
     "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
   },
   {
@@ -277,6 +289,9 @@
     "wanderRadius": 4,
     "respawnTicks": 10,
     "drops": "bell_bat_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
     "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
   },
   {
@@ -301,6 +316,9 @@
     "wanderRadius": 6,
     "respawnTicks": 15,
     "drops": "bog_fox_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
     "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
   },
   {
@@ -325,6 +343,9 @@
     "wanderRadius": 3,
     "respawnTicks": 10,
     "drops": "grave_mite_drops",
+    "movementType": "wander",
+    "aggressionMode": "aggressive",
+    "creatureKind": "aggressive",
     "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
   },
   {
@@ -349,6 +370,9 @@
     "wanderRadius": 4,
     "respawnTicks": 20,
     "drops": "grave_wisp_drops",
+    "movementType": "wander",
+    "aggressionMode": "aggressive",
+    "creatureKind": "aggressive",
     "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
   },
   {
@@ -373,6 +397,9 @@
     "wanderRadius": 3,
     "respawnTicks": 30,
     "drops": "ash_drake_whelp_drops",
+    "movementType": "wander",
+    "aggressionMode": "aggressive",
+    "creatureKind": "aggressive",
     "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
   },
   {
@@ -397,6 +424,9 @@
     "wanderRadius": 4,
     "respawnTicks": 20,
     "drops": "blacksealed_cutpurse_drops",
+    "movementType": "wander",
+    "aggressionMode": "aggressive",
+    "creatureKind": "aggressive",
     "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
   },
   {
@@ -421,6 +451,9 @@
     "wanderRadius": 4,
     "respawnTicks": 5,
     "drops": "road_crow_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
     "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
   },
   {
@@ -445,6 +478,9 @@
     "wanderRadius": 2,
     "respawnTicks": 15,
     "drops": "river_snapper_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
     "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
   }
 ]

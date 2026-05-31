@@ -34,8 +34,6 @@ export interface EffectContext {
   readonly world: World;
   readonly registries: ContentRegistries;
   readonly deltas: DeltaAccumulator;
-  readonly serverTime: number;
-  readonly tick?: number | undefined;
   readonly itemAudit?: ItemAuditLog | undefined;
   readonly itemAuditReason?: string | undefined;
   readonly itemAuditMetadata?: ItemAuditMetadata | undefined;
@@ -50,16 +48,24 @@ export function applyEffects(
   ctx: EffectContext,
   entityId: EntityId,
   effects: readonly Effect[],
+  serverTime: number,
+  tick?: number,
 ): readonly EffectResult[] {
-  return effects.map((effect) => applyEffect(ctx, entityId, effect));
+  return effects.map((effect) => applyEffect(ctx, entityId, effect, serverTime, tick));
 }
 
-export function applyEffect(ctx: EffectContext, entityId: EntityId, effect: Effect): EffectResult {
+export function applyEffect(
+  ctx: EffectContext,
+  entityId: EntityId,
+  effect: Effect,
+  serverTime: number,
+  tick?: number,
+): EffectResult {
   switch (effect.kind) {
     case "add_item":
-      return applyAddItem(ctx, entityId, effect.itemId, effect.quantity);
+      return applyAddItem(ctx, entityId, effect.itemId, effect.quantity, serverTime, tick);
     case "remove_item":
-      return applyRemoveItem(ctx, entityId, effect.itemId, effect.quantity);
+      return applyRemoveItem(ctx, entityId, effect.itemId, effect.quantity, serverTime, tick);
     case "add_xp":
       return { applied: addXp(ctx, entityId, effect.skillId, effect.amount) !== undefined };
     case "set_var":
@@ -67,13 +73,13 @@ export function applyEffect(ctx: EffectContext, entityId: EntityId, effect: Effe
     case "start_quest":
       return applyStartQuest(ctx, entityId, effect.questId);
     case "complete_quest":
-      return completeQuest(ctx, entityId, effect.questId);
+      return completeQuest(ctx, entityId, effect.questId, serverTime, tick);
     case "send_message":
       ctx.deltas.markChat({
         entityId,
         channel: "system",
         text: effect.text,
-        serverTime: ctx.serverTime,
+        serverTime,
       });
       return { applied: true };
     case "unlock":
@@ -88,6 +94,8 @@ function applyAddItem(
   entityId: EntityId,
   itemId: string,
   quantity: number,
+  serverTime: number,
+  tick?: number,
 ): EffectResult {
   const inventory = ctx.world.getComponent(entityId, "inventory");
   if (!inventory) {
@@ -100,7 +108,7 @@ function applyAddItem(
   }
   if (result.added > 0) {
     ctx.itemAudit?.recordForEntity(entityId, {
-      tick: effectTick(ctx),
+      tick: tick ?? Math.floor(serverTime / GAME_TICK_MS),
       itemId,
       quantity: result.added,
       reason: ctx.itemAuditReason ?? "quest_effect",
@@ -109,7 +117,7 @@ function applyAddItem(
       metadata: effectMetadata(ctx, {
         effectKind: "add_item",
         requestedQuantity: quantity,
-        serverTime: ctx.serverTime,
+        serverTime,
       }),
     });
   }
@@ -124,6 +132,8 @@ function applyRemoveItem(
   entityId: EntityId,
   itemId: string,
   quantity: number,
+  serverTime: number,
+  tick?: number,
 ): EffectResult {
   const inventory = ctx.world.getComponent(entityId, "inventory");
   if (!inventory) {
@@ -139,7 +149,7 @@ function applyRemoveItem(
   }
   if (result.removed > 0) {
     ctx.itemAudit?.recordForEntity(entityId, {
-      tick: effectTick(ctx),
+      tick: tick ?? Math.floor(serverTime / GAME_TICK_MS),
       itemId,
       quantity: result.removed,
       reason: "quest_consume",
@@ -148,7 +158,7 @@ function applyRemoveItem(
       metadata: effectMetadata(ctx, {
         effectKind: "remove_item",
         requestedQuantity: quantity,
-        serverTime: ctx.serverTime,
+        serverTime,
       }),
     });
   }
@@ -174,6 +184,8 @@ export function completeQuest(
   ctx: EffectContext,
   entityId: EntityId,
   questId: string,
+  serverTime: number,
+  tick?: number,
 ): EffectResult {
   const quest = ctx.registries.quest.get(questId);
   if (!quest) {
@@ -184,7 +196,7 @@ export function completeQuest(
       entityId,
       channel: "system",
       text: `You have already completed ${quest.name}.`,
-      serverTime: ctx.serverTime,
+      serverTime,
     });
     return { applied: false, reason: "already_completed" };
   }
@@ -200,7 +212,7 @@ export function completeQuest(
       entityId,
       channel: "system",
       text: "You need more inventory space for the quest rewards.",
-      serverTime: ctx.serverTime,
+      serverTime,
     });
     return { applied: false, reason: "inventory_full" };
   }
@@ -210,7 +222,7 @@ export function completeQuest(
     ctx,
     entityId,
     questCompletionTickVarKey(quest),
-    ctx.tick ?? Math.floor(ctx.serverTime / GAME_TICK_MS),
+    tick ?? Math.floor(serverTime / GAME_TICK_MS),
   );
   const finalStage = Math.max(...quest.stages.map((stage) => stage.stage)) + 1;
   setQuestStage(ctx, entityId, quest, finalStage);
@@ -223,12 +235,14 @@ export function completeQuest(
     },
     entityId,
     quest.rewards.filter((effect) => effect.kind !== "complete_quest"),
+    serverTime,
+    tick,
   );
   ctx.deltas.markChat({
     entityId,
     channel: "system",
     text: `Quest complete: ${quest.name}.`,
-    serverTime: ctx.serverTime,
+    serverTime,
   });
   return { applied: true };
 }
@@ -263,10 +277,6 @@ function cloneInventory(inventory: InventoryComponent): InventoryComponent {
     ...inventory,
     slots: inventory.slots.map((slot) => (slot ? { ...slot } : undefined)),
   };
-}
-
-function effectTick(ctx: EffectContext): number {
-  return ctx.tick ?? Math.floor(ctx.serverTime / GAME_TICK_MS);
 }
 
 function effectMetadata(ctx: EffectContext, metadata: ItemAuditMetadata): ItemAuditMetadata {

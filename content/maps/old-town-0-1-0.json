@@ -3570,5 +3570,15 @@
       "height": 8,
       "tag": "warden_steps"
     }
+  ],
+  "resourceNodeSpawns": [
+    { "resourceNodeId": "oak_tree_node", "x": 10, "y": 10, "respawnTicks": 100, "initialDepletion": false },
+    { "resourceNodeId": "willow_tree_node", "x": 20, "y": 20, "respawnTicks": 100, "initialDepletion": false }
+  ],
+  "playerSpawnPoints": [
+    { "x": 32, "y": 32, "plane": 0, "spawnType": "default" }
+  ],
+  "deathRespawnPoints": [
+    { "x": 32, "y": 32, "plane": 0, "respawnType": "nearest" }
   ]
 }

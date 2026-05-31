@@ -27,7 +27,7 @@ export interface ActionRepeat {
   readonly maxRepeats?: number;
 }
 
-export interface ActionQueueEntry<TPayload = unknown> {
+export interface ActionQueueEntry<TPayload extends { kind: string } = { kind: string }> {
   readonly id: ActionId;
   readonly owner: EntityId;
   readonly type: ActionQueueType;

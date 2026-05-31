@@ -32,6 +32,7 @@ vi.mock("./renderer/ThreeRenderer", () => {
     gridOverlay: { dispose: vi.fn(), toggle: vi.fn(), visible: false },
     cameraController: {
       controls: { update: vi.fn(), dispose: vi.fn(), target: { copy: vi.fn() } },
+      followTarget: vi.fn(),
       dispose: vi.fn(),
     },
     fps: 60,

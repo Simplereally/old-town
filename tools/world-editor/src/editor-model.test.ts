@@ -28,6 +28,9 @@ const region: RegionMapDef = {
   npcSpawns: [{ npcId: "stray_dog", x: 5, y: 6, wanderRadius: 2 }],
   groundItemSpawns: [{ itemId: "coin", quantity: 3, x: 7, y: 8 }],
   triggers: [{ id: "market", x: 1, y: 1, width: 4, height: 5 }],
+  resourceNodeSpawns: [],
+  playerSpawnPoints: [],
+  deathRespawnPoints: [],
 };
 
 describe("world editor model helpers", () => {

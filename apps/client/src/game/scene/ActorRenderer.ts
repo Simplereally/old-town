@@ -1,6 +1,6 @@
 import { Direction, GAME_TICK_MS, TILE_SIZE_WORLD_UNITS, type TileCoord } from "@old-town/shared";
 import type { Scene } from "three";
-import { CylinderGeometry, Group, Mesh, MeshLambertMaterial, SphereGeometry, Vector3 } from "three";
+import { BoxGeometry, Group, Mesh, MeshLambertMaterial, SphereGeometry, Vector3 } from "three";
 
 export type AnimationState = "idle" | "walk" | "run" | "attack" | "cast" | "hit" | "die";
 
@@ -21,8 +21,20 @@ interface ActorState {
 interface ActorMeshes {
   readonly group: Group;
   readonly body: Mesh;
+  readonly parts: Mesh[];
   readonly marker: Mesh | undefined;
 }
+
+// Local-space layout for the blocky low-poly humanoid (feet at y = 0).
+const LEG_H = 0.5;
+const TORSO_H = 0.55;
+const HEAD_S = 0.36;
+const LEG_Y = LEG_H / 2;
+const TORSO_Y = LEG_H + TORSO_H / 2;
+const ARM_Y = LEG_H + TORSO_H * 0.55;
+const HEAD_Y = LEG_H + TORSO_H + HEAD_S / 2;
+// Lift the whole figure so its feet rest on top of the terrain tile surface.
+const GROUND_OFFSET = 0.1;
 
 export interface ActorRendererOptions {
   readonly scene: Scene;
@@ -39,12 +51,24 @@ export class ActorRenderer {
   private readonly actors = new Map<number, ActorState>();
   private readonly meshes = new Map<number, ActorMeshes>();
   private readonly actorGroup = new Group();
-  private readonly bodyGeometry = new CylinderGeometry(0.3, 0.3, 0.8, 8);
-  private readonly playerMaterial = new MeshLambertMaterial({ color: 0x3a6ea5 });
-  private readonly npcMaterial = new MeshLambertMaterial({ color: 0x8b4513 });
-  private readonly localPlayerMaterial = new MeshLambertMaterial({ color: 0x4caf50 });
-  private readonly markerGeometry = new SphereGeometry(0.15, 8, 8);
-  private readonly markerMaterial = new MeshLambertMaterial({ color: 0xffff00 });
+  // Shared low-poly humanoid parts (flat-shaded for crisp faceted edges).
+  private readonly bodyGeometry = new BoxGeometry(0.52, TORSO_H, 0.34);
+  private readonly headGeometry = new BoxGeometry(HEAD_S, HEAD_S, HEAD_S);
+  private readonly legGeometry = new BoxGeometry(0.2, LEG_H, 0.24);
+  private readonly armGeometry = new BoxGeometry(0.16, LEG_H, 0.22);
+  private readonly playerMaterial = new MeshLambertMaterial({
+    color: 0x3a6ea5,
+    flatShading: true,
+  });
+  private readonly npcMaterial = new MeshLambertMaterial({ color: 0x8b4513, flatShading: true });
+  private readonly localPlayerMaterial = new MeshLambertMaterial({
+    color: 0x4caf50,
+    flatShading: true,
+  });
+  private readonly skinMaterial = new MeshLambertMaterial({ color: 0xe0ac69, flatShading: true });
+  private readonly legMaterial = new MeshLambertMaterial({ color: 0x394a63, flatShading: true });
+  private readonly markerGeometry = new SphereGeometry(0.14, 8, 6);
+  private readonly markerMaterial = new MeshLambertMaterial({ color: 0xffd23f, flatShading: true });
 
   constructor(options: ActorRendererOptions) {
     this.scene = options.scene;
@@ -159,7 +183,7 @@ export class ActorRenderer {
       const meshes = this.meshes.get(entityId);
       if (meshes) {
         meshes.group.position.copy(visualPosition);
-        meshes.group.position.y += 0.4;
+        meshes.group.position.y += GROUND_OFFSET;
         meshes.group.rotation.y = this._directionToRotation(facingDirection);
       }
     }
@@ -177,9 +201,14 @@ export class ActorRenderer {
     this.actorGroup.clear();
     this.scene.remove(this.actorGroup);
     this.bodyGeometry.dispose();
+    this.headGeometry.dispose();
+    this.legGeometry.dispose();
+    this.armGeometry.dispose();
     this.playerMaterial.dispose();
     this.npcMaterial.dispose();
     this.localPlayerMaterial.dispose();
+    this.skinMaterial.dispose();
+    this.legMaterial.dispose();
     this.markerGeometry.dispose();
     this.markerMaterial.dispose();
   }
@@ -214,25 +243,51 @@ export class ActorRenderer {
     const group = new Group();
     group.name = `actor_${entityId}`;
 
-    const material = isLocalPlayer ? this.localPlayerMaterial : this.playerMaterial;
+    // Local player reads green, NPCs brown, remote players blue.
+    const tunicMaterial = isLocalPlayer
+      ? this.localPlayerMaterial
+      : kind === "npc"
+        ? this.npcMaterial
+        : this.playerMaterial;
 
-    const body = new Mesh(this.bodyGeometry, material);
+    // The torso doubles as the click/raycast target, so it keeps the per-kind
+    // shared material that the picker and tests depend on.
+    const body = new Mesh(this.bodyGeometry, tunicMaterial);
+    body.position.y = TORSO_Y;
     body.castShadow = false;
     body.receiveShadow = false;
     body.userData = { entityId, kind };
     group.add(body);
 
+    const head = new Mesh(this.headGeometry, this.skinMaterial);
+    head.position.y = HEAD_Y;
+
+    const leftLeg = new Mesh(this.legGeometry, this.legMaterial);
+    leftLeg.position.set(-0.13, LEG_Y, 0);
+    const rightLeg = new Mesh(this.legGeometry, this.legMaterial);
+    rightLeg.position.set(0.13, LEG_Y, 0);
+
+    const leftArm = new Mesh(this.armGeometry, tunicMaterial);
+    leftArm.position.set(-0.34, ARM_Y, 0);
+    const rightArm = new Mesh(this.armGeometry, tunicMaterial);
+    rightArm.position.set(0.34, ARM_Y, 0);
+
+    const parts = [head, leftLeg, rightLeg, leftArm, rightArm];
+    for (const part of parts) {
+      group.add(part);
+    }
+
     let marker: Mesh | undefined;
-    if (state.isLocalPlayer) {
+    if (isLocalPlayer) {
       marker = new Mesh(this.markerGeometry, this.markerMaterial);
-      marker.position.y = 0.6;
+      marker.position.y = HEAD_Y + 0.45;
       group.add(marker);
     }
 
     group.position.copy(state.visualPosition);
-    group.position.y += 0.4;
+    group.position.y += GROUND_OFFSET;
     this.actorGroup.add(group);
-    this.meshes.set(state.entityId, { group, body, marker });
+    this.meshes.set(state.entityId, { group, body, parts, marker });
   }
 
   private _tileToWorld(tile: TileCoord): Vector3 {

@@ -472,6 +472,12 @@ export class GameEngine {
     for (const [id, actor] of actorStates) {
       actorPositions.set(id, actor.visualPosition);
     }
+    // Keep the camera centred on the local player. The interpolated visual
+    // position is presentational only and never feeds gameplay truth.
+    const selfActor = actorStates.get(this._selfEntityId);
+    if (selfActor) {
+      this.renderer.cameraController.followTarget(selfActor.visualPosition);
+    }
     this.hitsplats.update(actorPositions);
     this.chatOverhead.update(actorPositions);
     this.hoverHighlighter.update();

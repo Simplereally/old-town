@@ -1,6 +1,6 @@
 import { TILE_SIZE_WORLD_UNITS, type TileCoord } from "@old-town/shared";
 import type { Scene } from "three";
-import { BoxGeometry, Group, type Mesh, MeshLambertMaterial, Vector3 } from "three";
+import { Group, type Mesh, MeshLambertMaterial, OctahedronGeometry, Vector3 } from "three";
 import { MeshPool } from "../renderer/MeshPool";
 
 interface GroundItem {
@@ -25,9 +25,10 @@ export class GroundItemLayer {
     this.scene = options.scene;
     this.group.name = "groundItems";
     this.scene.add(this.group);
+    // Loot reads as a small faceted gold gem floating just above the tile.
     this.meshPool = new MeshPool({
-      geometry: new BoxGeometry(0.3, 0.15, 0.3),
-      material: new MeshLambertMaterial({ color: 0xd4a017 }),
+      geometry: new OctahedronGeometry(0.22, 0),
+      material: new MeshLambertMaterial({ color: 0xf0c33c, flatShading: true }),
       initialSize: 8,
     });
   }
@@ -40,7 +41,7 @@ export class GroundItemLayer {
     const mesh = this.meshPool.acquire();
     const world = this._tileToWorld(tile);
     mesh.position.copy(world);
-    mesh.position.y = 0.1;
+    mesh.position.y = 0.28;
     mesh.name = `item_${entityId}`;
     mesh.userData = { entityId, kind: "groundItem", itemId, quantity };
     this.group.add(mesh);

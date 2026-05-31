@@ -45,7 +45,7 @@ interface GameplayHarness {
   readonly itemAudit: ItemAuditLog;
   readonly rng: Rng;
   readonly ctx: GameplayContext;
-  readonly executor: ActionExecutor<Record<string, unknown>>;
+  readonly executor: ActionExecutor;
 }
 
 interface GameplayContext {

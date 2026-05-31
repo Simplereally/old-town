@@ -109,6 +109,62 @@ const validRegionMap = {
   tiles: { default: { underlayId: "grass" }, overrides: [{ x: 5, y: 5, collision: 256 }] },
   objects: [{ objectId: "oak_tree", x: 10, y: 12 }],
   npcSpawns: [{ npcId: "river_rat", x: 20, y: 20 }],
+  resourceNodeSpawns: [{ resourceNodeId: "oak_tree_node", x: 15, y: 15 }],
+  playerSpawnPoints: [{ x: 30, y: 30, spawnType: "default" }],
+  deathRespawnPoints: [{ x: 25, y: 25, respawnType: "nearest" }],
+};
+
+const validShop = {
+  id: "general_store",
+  name: "General Store",
+  stock: [{ itemId: "dry_log", quantity: 10, maxQuantity: 10, price: 5 }],
+  currency: "coin",
+  sellMultiplier: 0.6,
+  buyMultiplier: 1.0,
+  restockTicks: 100,
+};
+
+const validBank = {
+  id: "old_town_bank",
+  name: "Old Town Bank",
+  location: { plane: 0, tileX: 20, tileY: 20 },
+  capacity: 400,
+  tabs: true,
+  feePerItem: 0,
+};
+
+const validServiceFee = {
+  id: "repair_armour",
+  name: "Repair Armour",
+  serviceType: "repair",
+  baseFee: 10,
+  levelMultiplier: 1.0,
+  materialCost: [],
+  currency: "coin",
+};
+
+const validStatusEffect = {
+  id: "poison",
+  name: "Poison",
+  description: "Lose health over time.",
+  durationTicks: 10,
+  maxStacks: 1,
+  effectType: "dot",
+  statModifiers: [],
+  cureItems: [],
+};
+
+const validContract = {
+  id: "slay_goblins",
+  name: "Slay Goblins",
+  contractType: "bounty",
+  targetCreatureIds: ["goblin"],
+  targetCount: 10,
+  rewardItems: [],
+  rewardXp: [],
+  requiredLevel: 1,
+  maxConcurrent: 1,
+  completionTrigger: "kill",
 };
 
 describe("contentSchemas — one entry point validates every kind", () => {
@@ -131,6 +187,11 @@ describe("contentSchemas — one entry point validates every kind", () => {
     expect(validate("dropTable", { id: "river_rat_drops", entries: [] }).success).toBe(true);
     expect(validate("object", { id: "oak_tree", name: "Oak Tree" }).success).toBe(true);
     expect(validate("animation", { id: "chop_swing", name: "Chop" }).success).toBe(true);
+    expect(validate("shop", validShop).success).toBe(true);
+    expect(validate("bank", validBank).success).toBe(true);
+    expect(validate("serviceFee", validServiceFee).success).toBe(true);
+    expect(validate("statusEffect", validStatusEffect).success).toBe(true);
+    expect(validate("contract", validContract).success).toBe(true);
   });
 });
 

@@ -17,7 +17,7 @@ export class CameraController {
 
   private _baseFrustumSize = 40;
   private _minZoom = 0.2;
-  private _maxZoom = 4;
+  private _maxZoom = 6;
   private _isometricAngle = true;
 
   constructor(options: CameraControllerOptions) {

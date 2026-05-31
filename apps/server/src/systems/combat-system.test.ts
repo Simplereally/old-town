@@ -11,6 +11,7 @@ import { describe, expect, it } from "vitest";
 import type { CombatHitStyle, PendingHit } from "../ecs/components";
 import { createWorld, type World } from "../ecs/world";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
+import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
 import {
@@ -50,20 +51,9 @@ const NPC_DEF: NpcDef = {
 };
 
 function registries(npcDef = NPC_DEF, items: readonly ItemDef[] = []): ContentRegistries {
-  return {
+  return makeRegistries({
     item: new Map(items.map((item) => [item.id, item])),
     npc: new Map([[npcDef.id, npcDef]]),
-    object: new Map(),
-    processingRecipe: new Map(),
-    skill: new Map(),
-    resourceNode: new Map(),
-    spell: new Map(),
-    dropTable: new Map(),
-    quest: new Map(),
-    dialogue: new Map(),
-    regionMap: new Map(),
-    material: new Map(),
-    animation: new Map(),
   };
 }
 

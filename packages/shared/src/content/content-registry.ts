@@ -11,6 +11,7 @@
 import type { ZodError } from "zod";
 import {
   type AnimationDef,
+  type BankDef,
   type ContentKind,
   contentSchemas,
   type DialogueDef,
@@ -23,8 +24,12 @@ import {
   type QuestDef,
   type RegionMapDef,
   type ResourceNodeDef,
+  type ShopDef,
+  type ServiceFeeDef,
+  type ContractDef,
   type SkillDef,
   type SpellDef,
+  type StatusEffectDef,
 } from "../content-schemas";
 import { validateContentGraph } from "./content-references";
 
@@ -60,6 +65,11 @@ export interface ContentRegistries {
   readonly regionMap: ReadonlyMap<string, RegionMapDef>;
   readonly material: ReadonlyMap<string, MaterialDef>;
   readonly animation: ReadonlyMap<string, AnimationDef>;
+  readonly shop: ReadonlyMap<string, ShopDef>;
+  readonly bank: ReadonlyMap<string, BankDef>;
+  readonly serviceFee: ReadonlyMap<string, ServiceFeeDef>;
+  readonly statusEffect: ReadonlyMap<string, StatusEffectDef>;
+  readonly contract: ReadonlyMap<string, ContractDef>;
 }
 
 export interface ContentValidationResult {
@@ -83,6 +93,11 @@ const CONTENT_KINDS: readonly ContentKind[] = [
   "regionMap",
   "material",
   "animation",
+  "shop",
+  "bank",
+  "serviceFee",
+  "statusEffect",
+  "contract",
 ];
 
 function jsonPointer(path: readonly (string | number)[]): string {
@@ -185,6 +200,11 @@ export function validateContent(files: readonly LoadedContentFile[]): ContentVal
     regionMap: maps.get("regionMap") as Map<string, RegionMapDef>,
     material: maps.get("material") as Map<string, MaterialDef>,
     animation: maps.get("animation") as Map<string, AnimationDef>,
+    shop: maps.get("shop") as Map<string, ShopDef>,
+    bank: maps.get("bank") as Map<string, BankDef>,
+    serviceFee: maps.get("serviceFee") as Map<string, ServiceFeeDef>,
+    statusEffect: maps.get("statusEffect") as Map<string, StatusEffectDef>,
+    contract: maps.get("contract") as Map<string, ContractDef>,
   };
 
   const graphResult = validateContentGraph(registries, sources);

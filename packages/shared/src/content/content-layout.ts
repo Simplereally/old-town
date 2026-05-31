@@ -19,6 +19,11 @@ export const CONTENT_DIR_KINDS: Readonly<Record<string, ContentKind>> = {
   maps: "regionMap",
   materials: "material",
   animations: "animation",
+  shops: "shop",
+  banks: "bank",
+  "service-fees": "serviceFee",
+  "status-effects": "statusEffect",
+  contracts: "contract",
 };
 
 /** Resolve the content kind for a top-level content directory name, if known. */

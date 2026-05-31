@@ -1,0 +1,20 @@
+[
+  {
+    "id": "repair_gear",
+    "name": "Repair Gear",
+    "serviceType": "repair",
+    "baseFee": 10,
+    "levelMultiplier": 1.0,
+    "materialCost": [],
+    "currency": "coin"
+  },
+  {
+    "id": "teleport_home",
+    "name": "Teleport Home",
+    "serviceType": "teleport",
+    "baseFee": 50,
+    "levelMultiplier": 0.5,
+    "materialCost": [{ "itemId": "gust_bead", "quantity": 1 }],
+    "currency": "coin"
+  }
+]

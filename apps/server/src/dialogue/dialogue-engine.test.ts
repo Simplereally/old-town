@@ -12,6 +12,7 @@ import { createWorld, type World } from "../ecs/world";
 import { createInventory } from "../items/inventory";
 import { ActionRuntime } from "../sim/action-runtime";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
+import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
 import {
@@ -113,21 +114,13 @@ const BAKER_DIALOGUE: DialogueDef = {
 };
 
 function registries(): ContentRegistries {
-  return {
+  return makeRegistries({
     item: new Map([[BREAD.id, BREAD]]),
     npc: new Map([[BAKER_NPC.id, BAKER_NPC]]),
-    object: new Map(),
-    processingRecipe: new Map(),
     skill: new Map([[COOKING.id, COOKING]]),
-    resourceNode: new Map(),
-    spell: new Map(),
-    dropTable: new Map(),
     quest: new Map([[SMOKE_QUEST.id, SMOKE_QUEST]]),
     dialogue: new Map([[BAKER_DIALOGUE.id, BAKER_DIALOGUE]]),
-    regionMap: new Map(),
-    material: new Map(),
-    animation: new Map(),
-  };
+  });
 }
 
 function setup(): {

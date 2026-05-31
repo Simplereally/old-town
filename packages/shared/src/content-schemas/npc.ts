@@ -24,6 +24,17 @@ export const interactionOptionDefSchema = z
 
 export type InteractionOptionDef = z.infer<typeof interactionOptionDefSchema>;
 
+export const movementTypeSchema = z.enum(["static", "wander", "patrol", "chase"]);
+export const aggressionModeSchema = z.enum(["peaceful", "aggressive", "retaliate"]);
+export const creatureKindSchema = z.enum(["passive", "aggressive", "retaliating", "fleeing"]);
+
+export const weaknessSchema = z
+  .object({
+    element: z.enum(["fire", "water", "earth", "air", "none"]).default("none"),
+    multiplier: z.number().min(0).default(1.0),
+  })
+  .strict();
+
 export const npcDefSchema = z
   .object({
     id: contentIdSchema,
@@ -45,6 +56,13 @@ export const npcDefSchema = z
     /** Dialogue graph opened by a "talk" option. */
     dialogueId: contentIdSchema.optional(),
     options: z.array(interactionOptionDefSchema).default([]),
+    /** Creature movement and aggression fields (E18-S01). */
+    movementType: movementTypeSchema.default("static"),
+    aggressionMode: aggressionModeSchema.default("peaceful"),
+    creatureKind: creatureKindSchema.optional(),
+    weakness: weaknessSchema.optional(),
+    trophyId: contentIdSchema.optional(),
+    contractEligible: z.boolean().default(false),
   })
   .strict();
 

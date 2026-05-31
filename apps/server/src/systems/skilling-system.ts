@@ -528,28 +528,18 @@ export function handleGather(
       nodeDef.baseXp,
     );
     dispatchQuestEvent(
-      {
-        world: ctx.world,
-        registries: ctx.registries,
-        deltas: ctx.deltas,
-        serverTime,
-        tick,
-        itemAudit: ctx.itemAudit,
-      },
+      ctx,
       action.entry.owner,
       { kind: "item_gained", itemId: nodeDef.outputItemId, quantity: nodeDef.outputQuantity },
+      serverTime,
+      tick,
     );
     dispatchQuestEvent(
-      {
-        world: ctx.world,
-        registries: ctx.registries,
-        deltas: ctx.deltas,
-        serverTime,
-        tick,
-        itemAudit: ctx.itemAudit,
-      },
+      ctx,
       action.entry.owner,
       { kind: "skill_xp_gained", skillId: nodeDef.skill, amount: nodeDef.baseXp },
+      serverTime,
+      tick,
     );
   }
   if (ctx.rng.nextFloat() < nodeDef.depletionChance) {
@@ -646,42 +636,27 @@ export function handleProcess(
     });
   }
   dispatchQuestEvent(
-    {
-      world: ctx.world,
-      registries: ctx.registries,
-      deltas: ctx.deltas,
-      serverTime,
-      tick,
-      itemAudit: ctx.itemAudit,
-    },
+    ctx,
     action.entry.owner,
     { kind: "item_removed", itemId: recipe.inputItemId, quantity: recipe.inputQuantity },
+    serverTime,
+    tick,
   );
   dispatchQuestEvent(
-    {
-      world: ctx.world,
-      registries: ctx.registries,
-      deltas: ctx.deltas,
-      serverTime,
-      tick,
-      itemAudit: ctx.itemAudit,
-    },
+    ctx,
     action.entry.owner,
     { kind: "item_gained", itemId, quantity },
+    serverTime,
+    tick,
   );
   if (!failed) {
     addXp({ world: ctx.world, deltas: ctx.deltas }, action.entry.owner, recipe.skill, recipe.xp);
     dispatchQuestEvent(
-      {
-        world: ctx.world,
-        registries: ctx.registries,
-        deltas: ctx.deltas,
-        serverTime,
-        tick,
-        itemAudit: ctx.itemAudit,
-      },
+      ctx,
       action.entry.owner,
       { kind: "skill_xp_gained", skillId: recipe.skill, amount: recipe.xp },
+      serverTime,
+      tick,
     );
   }
 }

@@ -16,11 +16,18 @@ export * from "./processing-recipe";
 export * from "./quest";
 export * from "./region-map";
 export * from "./resource-node";
+export * from "./bank";
+export * from "./contract";
+export * from "./service-fee";
+export * from "./shop";
 export * from "./skill";
 export * from "./spell";
+export * from "./status-effect";
 
 import type { z } from "zod";
 import { animationDefSchema } from "./animation";
+import { bankDefSchema } from "./bank";
+import { contractDefSchema } from "./contract";
 import { dialogueDefSchema } from "./dialogue";
 import { dropTableDefSchema } from "./drop-table";
 import { itemDefSchema } from "./item";
@@ -31,8 +38,11 @@ import { processingRecipeDefSchema } from "./processing-recipe";
 import { questDefSchema } from "./quest";
 import { regionMapDefSchema } from "./region-map";
 import { resourceNodeDefSchema } from "./resource-node";
+import { serviceFeeDefSchema } from "./service-fee";
+import { shopDefSchema } from "./shop";
 import { skillDefSchema } from "./skill";
 import { spellDefSchema } from "./spell";
+import { statusEffectDefSchema } from "./status-effect";
 
 /**
  * The single content-schema entry point: every content definition kind mapped to the
@@ -52,6 +62,11 @@ export const contentSchemas = {
   regionMap: regionMapDefSchema,
   material: materialDefSchema,
   animation: animationDefSchema,
+  shop: shopDefSchema,
+  bank: bankDefSchema,
+  serviceFee: serviceFeeDefSchema,
+  statusEffect: statusEffectDefSchema,
+  contract: contractDefSchema,
 } as const;
 
 /** Discriminator for a content definition kind. */

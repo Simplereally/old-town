@@ -1,4 +1,18 @@
 [
+    {
+    "id": "tin_rock_node",
+    "name": "Tin Rock",
+    "skill": "mining",
+    "requiredLevel": 1,
+    "baseXp": 12,
+    "actionTicks": 4,
+    "depletionChance": 0.2,
+    "respawnTicks": 12,
+    "toolTags": ["pickaxe"],
+    "outputItemId": "tinstone",
+    "baseChance": 0.42,
+    "levelScale": 0.01
+  },
   {
     "id": "dry_tree_node",
     "name": "Dry Tree",
@@ -12,6 +26,20 @@
     "outputItemId": "dry_log",
     "baseChance": 0.45,
     "levelScale": 0.01
+  },
+    {
+    "id": "willow_tree_node",
+    "name": "Willow Tree",
+    "skill": "woodcutting",
+    "requiredLevel": 15,
+    "baseXp": 25,
+    "actionTicks": 5,
+    "depletionChance": 0.125,
+    "respawnTicks": 20,
+    "toolTags": ["axe"],
+    "outputItemId": "riverwillow_log",
+    "baseChance": 0.35,
+    "levelScale": 0.008
   },
   {
     "id": "oak_tree_node",

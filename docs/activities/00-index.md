@@ -45,6 +45,7 @@ Old Town's activities are repeatable gameplay loops that give players something 
 | Starter activities (Old Town) | [`starter-activities`](starter-activities.md) |
 | First-ring activities | [`first-ring-activities`](first-ring-activities.md) |
 | Skilling bosses | [`skilling-bosses`](skilling-bosses.md) |
+| Combat bosses | [`docs/bosses/00-index.md`](../bosses/00-index.md) |
 | Rewards | [`activity-rewards`](activity-rewards.md) |
 | Currencies | [`activity-currencies`](activity-currencies.md) |
 | Quest hooks | [`activity-quest-hooks`](activity-quest-hooks.md) |

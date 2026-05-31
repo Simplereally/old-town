@@ -10,6 +10,7 @@ Parent: [`Creatures Index`](00-index.md)
 Authority references:
 - `docs/creatures/wardenry-contracts.md`
 - `docs/world/starter-economy-loops.md`
+- `docs/bosses/00-index.md`
 
 # Minibosses
 

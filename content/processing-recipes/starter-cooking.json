@@ -10,7 +10,8 @@
     "successItemId": "cooked_fish",
     "failureItemId": "burnt_fish",
     "xp": 15,
-    "failureChance": 0.25
+    "failureChance": 0.25,
+    "recipeGroupId": "cooking"
   },
   {
     "id": "cook_ditch_shrimp_skewer",
@@ -22,7 +23,8 @@
     "inputItemId": "ditch_shrimp",
     "successItemId": "ditch_shrimp_skewer",
     "xp": 15,
-    "failureChance": 0.2
+    "failureChance": 0.2,
+    "recipeGroupId": "cooking"
   },
   {
     "id": "bake_bellbread",
@@ -34,7 +36,8 @@
     "inputItemId": "bread",
     "successItemId": "bellbread",
     "xp": 10,
-    "failureChance": 0.1
+    "failureChance": 0.1,
+    "recipeGroupId": "cooking"
   },
   {
     "id": "make_tinfin_pie",
@@ -46,7 +49,8 @@
     "inputItemId": "raw_tinfin",
     "successItemId": "tinfin_pie",
     "xp": 25,
-    "failureChance": 0.15
+    "failureChance": 0.15,
+    "recipeGroupId": "cooking"
   },
   {
     "id": "make_warden_ration",
@@ -58,6 +62,7 @@
     "inputItemId": "cooked_fish",
     "successItemId": "warden_ration",
     "xp": 20,
-    "failureChance": 0.1
+    "failureChance": 0.1,
+    "recipeGroupId": "cooking"
   }
 ]

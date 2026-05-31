@@ -1,0 +1,10 @@
+[
+  {
+    "id": "old_town_bank",
+    "name": "Old Town Bank",
+    "location": { "plane": 0, "tileX": 30, "tileY": 30 },
+    "capacity": 400,
+    "tabs": true,
+    "feePerItem": 0
+  }
+]

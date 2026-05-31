@@ -1,0 +1,81 @@
+[
+  {
+    "id": "slay_goblins",
+    "name": "Slay Goblins",
+    "description": "The Warden needs goblin numbers reduced.",
+    "contractType": "bounty",
+    "targetCreatureIds": ["mud_goblin"],
+    "targetCount": 10,
+    "rewardItems": [{ "itemId": "coin", "quantity": 100 }],
+    "rewardXp": [{ "skillId": "attack", "amount": 50 }],
+    "rewardReputation": { "factionId": "wardenry", "amount": 10 },
+    "requiredLevel": 1,
+    "maxConcurrent": 1,
+    "completionTrigger": "kill"
+  },
+  {
+    "id": "clear_wolves",
+    "name": "Clear Wolf Pack",
+    "description": "Wolves are threatening the eastern road.",
+    "contractType": "extermination",
+    "targetCreatureIds": ["stray_dog"],
+    "targetCount": 5,
+    "rewardItems": [{ "itemId": "coin", "quantity": 200 }],
+    "rewardXp": [{ "skillId": "attack", "amount": 100 }],
+    "requiredLevel": 5,
+    "maxConcurrent": 1,
+    "completionTrigger": "kill"
+  },
+  {
+    "id": "collect_herbs",
+    "name": "Collect Herbs",
+    "description": "The healer needs medicinal herbs.",
+    "contractType": "collection",
+    "targetCreatureIds": [],
+    "targetCount": 20,
+    "rewardItems": [{ "itemId": "coin", "quantity": 50 }],
+    "rewardXp": [{ "skillId": "gardening", "amount": 25 }],
+    "requiredLevel": 1,
+    "maxConcurrent": 1,
+    "completionTrigger": "collect"
+  },
+  {
+    "id": "hunt_bears",
+    "name": "Hunt Bears",
+    "description": "A large bear has been spotted near the river.",
+    "contractType": "bounty",
+    "targetCreatureIds": ["ash_drake_whelp"],
+    "targetCount": 3,
+    "rewardItems": [{ "itemId": "coin", "quantity": 500 }],
+    "rewardXp": [{ "skillId": "attack", "amount": 200 }],
+    "requiredLevel": 20,
+    "maxConcurrent": 1,
+    "completionTrigger": "kill"
+  },
+  {
+    "id": "defend_caravan",
+    "name": "Defend Caravan",
+    "description": "Escort the merchant caravan safely through.",
+    "contractType": "escort",
+    "targetCreatureIds": [],
+    "targetCount": 1,
+    "rewardItems": [{ "itemId": "coin", "quantity": 300 }],
+    "rewardXp": [{ "skillId": "defence", "amount": 150 }],
+    "requiredLevel": 10,
+    "maxConcurrent": 1,
+    "completionTrigger": "deliver"
+  },
+  {
+    "id": "exterminate_rats",
+    "name": "Exterminate Rats",
+    "description": "The cellar is infested with rats.",
+    "contractType": "extermination",
+    "targetCreatureIds": ["cellar_rat"],
+    "targetCount": 15,
+    "rewardItems": [{ "itemId": "coin", "quantity": 50 }],
+    "rewardXp": [{ "skillId": "attack", "amount": 30 }],
+    "requiredLevel": 1,
+    "maxConcurrent": 1,
+    "completionTrigger": "kill"
+  }
+]

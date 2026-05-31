@@ -1,0 +1,38 @@
+[
+  {
+    "id": "general_store",
+    "name": "General Store",
+    "stock": [
+      { "itemId": "dry_log", "quantity": 20, "maxQuantity": 20, "price": 5 },
+      { "itemId": "crusty_loaf", "quantity": 10, "maxQuantity": 10, "price": 3 },
+      { "itemId": "raw_fish", "quantity": 5, "maxQuantity": 5, "price": 8 }
+    ],
+    "currency": "coin",
+    "sellMultiplier": 0.6,
+    "buyMultiplier": 1.0,
+    "restockTicks": 100
+  },
+  {
+    "id": "weapon_shop",
+    "name": "Old Town Arms",
+    "stock": [
+      { "itemId": "pennywrought_shortblade", "quantity": 5, "maxQuantity": 5, "price": 50 }
+    ],
+    "currency": "coin",
+    "sellMultiplier": 0.5,
+    "buyMultiplier": 1.0,
+    "restockTicks": 200
+  },
+  {
+    "id": "magic_shop",
+    "name": "Arcane Trinkets",
+    "stock": [
+      { "itemId": "ember_bead", "quantity": 50, "maxQuantity": 50, "price": 2 },
+      { "itemId": "gust_bead", "quantity": 50, "maxQuantity": 50, "price": 2 }
+    ],
+    "currency": "coin",
+    "sellMultiplier": 0.7,
+    "buyMultiplier": 1.0,
+    "restockTicks": 150
+  }
+]

@@ -127,16 +127,18 @@ function questEvent(
   harness: SmokeQuestHarness,
   event: Parameters<typeof dispatchQuestEvent>[2],
   serverTime: number,
+  tick?: number,
 ): readonly string[] {
   return dispatchQuestEvent(
     {
       world: harness.world,
       registries: harness.registries,
       deltas: harness.deltas,
-      serverTime,
     },
     PLAYER,
     event,
+    serverTime,
+    tick,
   ).progressedQuestIds;
 }
 

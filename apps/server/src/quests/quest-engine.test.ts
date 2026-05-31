@@ -12,6 +12,7 @@ import { addItem, catalogFromItems, createInventory } from "../items/inventory";
 import { ItemAuditLog } from "../items/item-audit";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { setQuestStage } from "../vars/player-vars";
+import { makeRegistries } from "../test-support/registries";
 import { completeQuest } from "./effects";
 import { dispatchQuestEvent } from "./quest-engine";
 import { meetsRequirement } from "./requirements";
@@ -166,7 +167,7 @@ const RAT: NpcDef = {
 };
 
 function registries(): ContentRegistries {
-  return {
+  return makeRegistries({
     item: new Map([
       [DRY_LOGS.id, DRY_LOGS],
       [COINS.id, COINS],
@@ -176,22 +177,13 @@ function registries(): ContentRegistries {
       [BAKER.id, BAKER],
       [RAT.id, RAT],
     ]),
-    object: new Map(),
-    processingRecipe: new Map(),
     skill: new Map([[COOKING.id, COOKING]]),
-    resourceNode: new Map(),
-    spell: new Map(),
-    dropTable: new Map(),
     quest: new Map([
       [QUEST.id, QUEST],
       [REWARD_QUEST.id, REWARD_QUEST],
       [FULL_INVENTORY_QUEST.id, FULL_INVENTORY_QUEST],
     ]),
-    dialogue: new Map(),
-    regionMap: new Map(),
-    material: new Map(),
-    animation: new Map(),
-  };
+  });
 }
 
 function setup() {
@@ -206,7 +198,7 @@ function setup() {
   const deltas = new DeltaAccumulator();
   const content = registries();
   const itemAudit = new ItemAuditLog();
-  const ctx = { world, registries: content, deltas, serverTime: 600, tick: 1, itemAudit };
+  const ctx = { world, registries: content, deltas, itemAudit };
   setQuestStage(ctx, PLAYER, QUEST, 1);
   deltas.consume(1, 600);
   return { world, deltas, ctx, registries: content, itemAudit };
@@ -216,7 +208,7 @@ describe("quest engine", () => {
   it("advances stages from dialogue events and runs stage triggers", () => {
     const { world, deltas, ctx } = setup();
 
-    const result = dispatchQuestEvent(ctx, PLAYER, { kind: "dialogue", npcId: "baker" });
+    const result = dispatchQuestEvent(ctx, PLAYER, { kind: "dialogue", npcId: "baker" }, 600, 1);
 
     expect(result.progressedQuestIds).toEqual(["smoke_over_old_town"]);
     expect(world.getComponent(PLAYER, "vars")?.values).toMatchObject({
@@ -233,24 +225,24 @@ describe("quest engine", () => {
 
   it("does not advance a quest stage until every objective is complete", () => {
     const { world, ctx, registries } = setup();
-    dispatchQuestEvent(ctx, PLAYER, { kind: "dialogue", npcId: "baker" });
+    dispatchQuestEvent(ctx, PLAYER, { kind: "dialogue", npcId: "baker" }, 600, 1);
 
-    dispatchQuestEvent(ctx, PLAYER, { kind: "npc_killed", npcId: "cellar_rat" });
-    dispatchQuestEvent(ctx, PLAYER, { kind: "npc_killed", npcId: "cellar_rat" });
+    dispatchQuestEvent(ctx, PLAYER, { kind: "npc_killed", npcId: "cellar_rat" }, 600, 1);
+    dispatchQuestEvent(ctx, PLAYER, { kind: "npc_killed", npcId: "cellar_rat" }, 600, 1);
     expect(world.getComponent(PLAYER, "vars")?.values["quest.smoke_over_old_town.stage"]).toBe(2);
 
     const inventory = world.getComponent(PLAYER, "inventory");
     expect(inventory).toBeDefined();
     if (!inventory) return;
     addItem(inventory, catalogFromItems(registries.item), "dry_logs", 3);
-    dispatchQuestEvent(ctx, PLAYER, { kind: "item_gained", itemId: "dry_logs", quantity: 3 });
+    dispatchQuestEvent(ctx, PLAYER, { kind: "item_gained", itemId: "dry_logs", quantity: 3 }, 600, 1);
     expect(world.getComponent(PLAYER, "vars")?.values["quest.smoke_over_old_town.stage"]).toBe(2);
 
     const result = dispatchQuestEvent(ctx, PLAYER, {
       kind: "object_interacted",
       objectId: "bakery_oven",
       option: "light",
-    });
+    }, 600, 1);
     expect(result.progressedQuestIds).toEqual(["smoke_over_old_town"]);
     expect(world.getComponent(PLAYER, "vars")?.values).toMatchObject({
       "quest.smoke_over_old_town.stage": 3,
@@ -261,7 +253,7 @@ describe("quest engine", () => {
 
   it("dispatches item removed, skill XP, and area entered event classes", () => {
     const { world, ctx, registries } = setup();
-    dispatchQuestEvent(ctx, PLAYER, { kind: "dialogue", npcId: "baker" });
+    dispatchQuestEvent(ctx, PLAYER, { kind: "dialogue", npcId: "baker" }, 600, 1);
     const inventory = world.getComponent(PLAYER, "inventory");
     expect(inventory).toBeDefined();
     if (!inventory) return;
@@ -272,16 +264,16 @@ describe("quest engine", () => {
         kind: "item_removed",
         itemId: "dry_logs",
         quantity: 1,
-      }).progressedQuestIds,
+      }, 600, 1).progressedQuestIds,
     ).toEqual([]);
     expect(
       dispatchQuestEvent(ctx, PLAYER, {
         kind: "skill_xp_gained",
         skillId: "cooking",
         amount: 5,
-      }).progressedQuestIds,
+      }, 600, 1).progressedQuestIds,
     ).toEqual([]);
-    dispatchQuestEvent(ctx, PLAYER, { kind: "area_entered", areaId: "bakery_cellar" });
+    dispatchQuestEvent(ctx, PLAYER, { kind: "area_entered", areaId: "bakery_cellar" }, 600, 1);
 
     expect(
       world.getComponent(PLAYER, "vars")?.values["quest.smoke_over_old_town.area.bakery_cellar"],
@@ -290,9 +282,9 @@ describe("quest engine", () => {
 
   it("evaluates kill-count requirements from quest vars", () => {
     const { ctx } = setup();
-    dispatchQuestEvent(ctx, PLAYER, { kind: "dialogue", npcId: "baker" });
-    dispatchQuestEvent(ctx, PLAYER, { kind: "npc_killed", npcId: "cellar_rat" });
-    dispatchQuestEvent(ctx, PLAYER, { kind: "npc_killed", npcId: "cellar_rat" });
+    dispatchQuestEvent(ctx, PLAYER, { kind: "dialogue", npcId: "baker" }, 600, 1);
+    dispatchQuestEvent(ctx, PLAYER, { kind: "npc_killed", npcId: "cellar_rat" }, 600, 1);
+    dispatchQuestEvent(ctx, PLAYER, { kind: "npc_killed", npcId: "cellar_rat" }, 600, 1);
 
     expect(
       meetsRequirement(ctx, PLAYER, {
@@ -309,7 +301,7 @@ describe("quest engine", () => {
     setQuestStage(ctx, PLAYER, REWARD_QUEST, 1);
     deltas.consume(1, 600);
 
-    const result = dispatchQuestEvent(ctx, PLAYER, { kind: "dialogue", npcId: "baker" });
+    const result = dispatchQuestEvent(ctx, PLAYER, { kind: "dialogue", npcId: "baker" }, 600, 1);
 
     expect(result.progressedQuestIds).toContain("reward_test");
     expect(world.getComponent(PLAYER, "inventory")?.slots[0]).toMatchObject({
@@ -336,7 +328,7 @@ describe("quest engine", () => {
     });
 
     deltas.consume(2, 1_200);
-    expect(completeQuest(ctx, PLAYER, REWARD_QUEST.id)).toEqual({
+    expect(completeQuest(ctx, PLAYER, REWARD_QUEST.id, 600, 1)).toEqual({
       applied: false,
       reason: "already_completed",
     });
@@ -356,7 +348,7 @@ describe("quest engine", () => {
     setQuestStage(ctx, PLAYER, FULL_INVENTORY_QUEST, 1);
     deltas.consume(1, 600);
 
-    const result = dispatchQuestEvent(ctx, PLAYER, { kind: "dialogue", npcId: "baker" });
+    const result = dispatchQuestEvent(ctx, PLAYER, { kind: "dialogue", npcId: "baker" }, 600, 1);
 
     expect(result.progressedQuestIds).not.toContain("full_inventory_test");
     expect(world.getComponent(PLAYER, "vars")?.values).not.toMatchObject({

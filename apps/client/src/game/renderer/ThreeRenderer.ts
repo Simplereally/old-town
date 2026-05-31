@@ -1,5 +1,14 @@
 import { TILE_SIZE_WORLD_UNITS } from "@old-town/shared";
-import { Color, OrthographicCamera, Scene, Vector3, WebGLRenderer } from "three";
+import {
+  Color,
+  DirectionalLight,
+  Fog,
+  HemisphereLight,
+  OrthographicCamera,
+  Scene,
+  Vector3,
+  WebGLRenderer,
+} from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { CameraController } from "./CameraController";
 import { GridOverlay } from "./GridOverlay";
@@ -64,6 +73,22 @@ export class ThreeRenderer {
     this.scene = new Scene();
     this.scene.background = new Color(0x87ceeb);
 
+    // Lighting — without this every MeshLambertMaterial in the scene renders
+    // pure black. The hemisphere light fills shadows with a sky/ground tint
+    // while the directional "sun" defines the facet edges that give the
+    // low-poly world its readable shape.
+    const skyLight = new HemisphereLight(0xdcefff, 0x4a6b3a, 2.1);
+    skyLight.position.set(0, 60, 0);
+    this.scene.add(skyLight);
+
+    const sunLight = new DirectionalLight(0xfff3df, 2.6);
+    sunLight.position.set(45, 90, 30);
+    this.scene.add(sunLight);
+
+    // Distance haze: the streamed chunk edge dissolves into the sky colour
+    // instead of revealing a hard horizon line.
+    this.scene.fog = new Fog(0x87ceeb, 75, 150);
+
     // Orthographic camera
     const aspect = 1;
     const frustumSize = 40;
@@ -75,6 +100,10 @@ export class ThreeRenderer {
       0.1,
       1000,
     );
+    // Default to an OSRS-like viewing distance (~20 tiles tall) instead of the
+    // zoom=1 fully-zoomed-out frustum, which renders the player as a speck.
+    this.camera.zoom = 4;
+    this.camera.updateProjectionMatrix();
 
     // Controls
     const controls = new OrbitControls(this.camera, canvas);
@@ -83,7 +112,7 @@ export class ThreeRenderer {
     controls.minPolarAngle = Math.PI / 6;
     controls.maxPolarAngle = Math.PI / 2.5;
     controls.minZoom = 0.2;
-    controls.maxZoom = 4;
+    controls.maxZoom = 6;
     controls.target.set(0, 0, 0);
 
     // Camera controller

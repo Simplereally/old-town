@@ -9,7 +9,8 @@
     "inputItemId": "bead_clay",
     "successItemId": "ember_bead",
     "xp": 12,
-    "failureChance": 0.2
+    "failureChance": 0.2,
+    "recipeGroupId": "beadwork"
   },
   {
     "id": "drill_basic_bead",
@@ -21,7 +22,8 @@
     "inputItemId": "ember_bead",
     "successItemId": "wit_bead",
     "xp": 18,
-    "failureChance": 0.15
+    "failureChance": 0.15,
+    "recipeGroupId": "beadwork"
   },
   {
     "id": "fire_chalkmarked_bead",
@@ -33,7 +35,8 @@
     "inputItemId": "wit_bead",
     "successItemId": "writ_bead",
     "xp": 25,
-    "failureChance": 0.1
+    "failureChance": 0.1,
+    "recipeGroupId": "beadwork"
   },
   {
     "id": "string_basic_bead_strand",
@@ -45,7 +48,8 @@
     "inputItemId": "wit_bead",
     "successItemId": "gust_bead",
     "xp": 18,
-    "failureChance": 0.15
+    "failureChance": 0.15,
+    "recipeGroupId": "beadwork"
   },
   {
     "id": "make_threadbare_bead_pouch",
@@ -57,6 +61,7 @@
     "inputItemId": "wit_bead",
     "successItemId": "threadbare_bead_pouch",
     "xp": 30,
-    "failureChance": 0.1
+    "failureChance": 0.1,
+    "recipeGroupId": "beadwork"
   }
 ]

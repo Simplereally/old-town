@@ -129,7 +129,10 @@ export class TerrainLayer {
     if (existing) {
       return existing;
     }
-    const mat = new MeshLambertMaterial({ color: materialIdToColor(materialId) });
+    const mat = new MeshLambertMaterial({
+      color: materialIdToColor(materialId),
+      flatShading: true,
+    });
     this.materialCache.set(materialId, mat);
     return mat;
   }

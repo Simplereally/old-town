@@ -7,44 +7,21 @@ root_index: docs/00-index.md
 
 Parent: [`Creatures Index`](00-index.md)
 
-Authority references:
-- `docs/skills/utility-skills.md`
-- `docs/world/npc-cast.md`
-- `docs/creatures/starter-drop-tables.md`
-- `docs/quests/rats-under-tallys.md`
-
 # Wardenry Contracts
 
-Wardenry is civic monster work: posted bounties, signed contracts, proof items, dangerous permits, and trophy claims.
+Wardenry documentation has moved to the dedicated [`docs/wardenry/`](../wardenry/00-index.md) directory.
 
-## Contract Types
+## New Authority
 
-| Type | Example | Purpose |
-|------|---------|---------|
-| Cull | Kill 8 Cellar Rats | Starter combat |
-| Proof | Bring 5 Rat Tails | Teaches drops |
-| Clearance | Clear Sootcellar room | Area objective |
-| Survey | Kill and map creature spawn | Cartography link |
-| Permit | Unlock Gravegate access | Route gating |
-| Named Bounty | Kill named goblin or drake | Miniboss |
-| Trophy Claim | Bring rare part | Handicraft / trophy loop |
+- [`Wardenry System`](../wardenry/wardenry-system.md) — Core concepts and definitions
+- [`Wardens and Boards`](../wardenry/wardens-and-boards.md) — Task-giving NPCs
+- [`Contracts and Task Generation`](../wardenry/contracts-and-task-generation.md) — Contract types and rules
+- [`Starter Task Table`](../wardenry/task-tables-starter.md) — Starter contracts
+- [`Named Warrants and Boss Tasks`](../wardenry/named-warrants-and-boss-tasks.md) — Boss tasks
+- [`Warden Locker Rewards`](../wardenry/warden-locker-rewards.md) — Reward shop
 
-## Starter Contracts
+This file is preserved as a backlink for existing references. All new Wardenry content should be authored in `docs/wardenry/`.
 
-| Contract | Giver | Objective | Reward |
-|----------|-------|-----------|--------|
-| Rats Under Tally's | Warden Holt | Kill 8 Cellar Rats | Coins, Favour, Ratcatcher Tail chance |
-| Mud on the North Road | Warden Holt | Kill 6 Mud Goblins | Pig Iron Scrap, Wardenry XP |
-| Bats in the Bell Rafters | Mara Bellkeeper / Warden Holt | Kill 5 Bell Bats | Bellfeathers, Bellfang |
-| Foxes in Patch Lane | Nell Patch | Trap or kill 4 Bog Foxes | Fox Hide, sinew |
-| Mites at Gravegate | Gravekeeper Soll | Bring 6 Bone Chips | Grave Dust, Favour |
-| Smoke in the Old Kiln | Pippa Hearth | Investigate Ash Drake Whelp | Warm Scale, quest hook |
+---
 
-Starter Wardenry quest hook: [`Rats Under Tally's`](../quests/rats-under-tallys.md).
-
-## Design Rules
-
-1. Contracts should specify target, place, proof, and reward.
-2. Contract proof drops may be assignment-only.
-3. Early contracts should teach drops before complex objectives.
-4. Named bounties are miniboss hooks, not ordinary grind tasks.
+*Last updated: 2026-06-01*

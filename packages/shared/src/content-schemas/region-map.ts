@@ -81,6 +81,44 @@ export const groundItemSpawnSchema = z
   })
   .strict();
 
+/** A resource node placed in the region. */
+export const resourceNodeSpawnSchema = z
+  .object({
+    resourceNodeId: contentIdSchema,
+    x: localAxis,
+    y: localAxis,
+    respawnTicks: nonNegInt.default(100),
+    initialDepletion: z.boolean().default(false),
+  })
+  .strict();
+
+/** A player spawn point in the region. */
+export const playerSpawnSchema = z
+  .object({
+    x: localAxis,
+    y: localAxis,
+    plane: planeSchema.default(0),
+    spawnType: z.enum(["new_player", "returning_player", "default"]).default("default"),
+    requiresQuest: contentIdSchema.optional(),
+  })
+  .strict();
+
+export type PlayerSpawnDef = z.infer<typeof playerSpawnSchema>;
+
+/** A death respawn point in the region. */
+export const deathRespawnSchema = z
+  .object({
+    x: localAxis,
+    y: localAxis,
+    plane: planeSchema.default(0),
+    respawnType: z.enum(["nearest", "fixed", "home"]).default("nearest"),
+    requiresQuest: contentIdSchema.optional(),
+    priority: nonNegInt.default(0),
+  })
+  .strict();
+
+export type DeathRespawnDef = z.infer<typeof deathRespawnSchema>;
+
 /** A named area trigger (quest hooks, zone markers). */
 export const areaTriggerSchema = z
   .object({
@@ -114,6 +152,9 @@ export const regionMapDefSchema = z
     objects: z.array(placedObjectSchema).default([]),
     npcSpawns: z.array(npcSpawnSchema).default([]),
     groundItemSpawns: z.array(groundItemSpawnSchema).default([]),
+    resourceNodeSpawns: z.array(resourceNodeSpawnSchema).default([]),
+    playerSpawnPoints: z.array(playerSpawnSchema).default([]),
+    deathRespawnPoints: z.array(deathRespawnSchema).default([]),
     triggers: z.array(areaTriggerSchema).default([]),
   })
   .strict();
@@ -122,6 +163,7 @@ export type RegionMapDef = z.infer<typeof regionMapDefSchema>;
 export type PlacedObjectDef = z.infer<typeof placedObjectSchema>;
 export type NpcSpawnDef = z.infer<typeof npcSpawnSchema>;
 export type GroundItemSpawnDef = z.infer<typeof groundItemSpawnSchema>;
+export type ResourceNodeSpawnDef = z.infer<typeof resourceNodeSpawnSchema>;
 export type AreaTriggerDef = z.infer<typeof areaTriggerSchema>;
 export type TileOverride = z.infer<typeof tileOverrideSchema>;
 export type DefaultTile = z.infer<typeof defaultTileSchema>;

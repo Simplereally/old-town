@@ -18,6 +18,7 @@ export const processingRecipeDefSchema = z
     failureQuantity: positiveInt.default(1),
     xp: z.number().nonnegative(),
     failureChance: z.number().min(0).max(1).default(0),
+    recipeGroupId: contentIdSchema.optional(),
   })
   .strict();
 

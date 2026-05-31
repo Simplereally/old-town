@@ -149,7 +149,7 @@ docs/
     guild-resource-access.md ← Resource clusters and station quality
     guild-quest-hooks.md ← Quest hooks that introduce and deepen guilds
      guild-rewards.md    ← Reward identity: what guilds offer and what they do not
-  activities/
+   activities/
      00-index.md        ← Activities and minigames entry point
      activity-system.md  ← Core activity authority: categories, rules, banned patterns
      activity-categories.md ← 8 activity categories and their design rules
@@ -160,7 +160,34 @@ docs/
      activity-currencies.md ← Local activity currencies and their sinks
      activity-quest-hooks.md ← Quest hooks that introduce and deepen activities
      activity-balance-rules.md ← Effort bands, XP calibration, and anti-power-creep
-  content/
+    bosses/
+      00-index.md        ← Bosses and named encounters entry point
+      boss-system.md      ← Core boss authority: categories, rules, banned patterns
+      boss-categories.md  ← 8 boss categories and their design rules
+      starter-bosses.md   ← 6 starter bosses inside Old Town and nearby
+      first-ring-bosses.md ← 8 first-ring area bosses beyond Old Town
+      second-ring-boss-seeds.md ← 7 second-ring boss concepts for later expansion
+      lair-and-access-rules.md ← How bosses are found, entered, and unlocked
+      boss-mechanics.md   ← OSRS-style mechanic primitives for boss design
+      unique-drops-and-trophies.md ← Unique drop rules and boss-specific rewards
+      boss-quest-hooks.md ← Quest hooks that introduce and deepen bosses
+      boss-balance-rules.md ← Effort bands, combat calibration, and anti-power-creep
+   wardenry/
+      00-index.md        ← Wardenry and contract system entry point
+      wardenry-system.md  ← Core Wardenry authority: terms, rules, banned patterns
+      wardens-and-boards.md ← 8 Wardens by level band and area
+      contracts-and-task-generation.md ← 10 contract types and generation rules
+      contract-chains-and-marks.md ← Chain milestones and mark rewards
+      cancel-skip-block-extend.md ← Tear Up, Repost, Refuse, Widen, Pin rules
+      task-tables-starter.md ← Warden Holt's starter task table
+      task-tables-first-ring.md ← 5 first-ring Warden task tables
+      task-tables-second-ring.md ← 7 second-ring task seeds
+      notorious-variants.md ← Notorious Variant definitions and spawn rules
+      named-warrants-and-boss-tasks.md ← Named Warrant and boss task rules
+      warden-locker-rewards.md ← Warden Locker reward categories and examples
+      wardenry-quest-hooks.md ← Quest hooks that introduce and deepen Wardenry
+      wardenry-balance-rules.md ← Effort bands, mark calibration, and anti-power-creep
+   content/
     00-index.md        ← Content translation entry point
     content-translation-system.md ← Core translation authority and workflow
     content-kind-contracts.md ← Runtime content kinds mapped to source docs
@@ -315,6 +342,26 @@ docs/
 | See guild entry requirements | [`guilds/00-index.md`](guilds/00-index.md) → [`entry-requirements.md`](guilds/entry-requirements.md) |
 | See guild services and shops | [`guilds/00-index.md`](guilds/00-index.md) → [`guild-services-and-shops.md`](guilds/guild-services-and-shops.md) |
 | See guild rewards | [`guilds/00-index.md`](guilds/00-index.md) → [`guild-rewards.md`](guilds/guild-rewards.md) |
+| Understand bosses and named encounters | [`bosses/00-index.md`](bosses/00-index.md) |
+| See starter boss designs | [`bosses/00-index.md`](bosses/00-index.md) → [`starter-bosses.md`](bosses/starter-bosses.md) |
+| See first-ring boss designs | [`bosses/00-index.md`](bosses/00-index.md) → [`first-ring-bosses.md`](bosses/first-ring-bosses.md) |
+| See second-ring boss seeds | [`bosses/00-index.md`](bosses/00-index.md) → [`second-ring-boss-seeds.md`](bosses/second-ring-boss-seeds.md) |
+| Understand boss mechanics | [`bosses/00-index.md`](bosses/00-index.md) → [`boss-mechanics.md`](bosses/boss-mechanics.md) |
+| Understand boss drops and trophies | [`bosses/00-index.md`](bosses/00-index.md) → [`unique-drops-and-trophies.md`](bosses/unique-drops-and-trophies.md) |
+| Understand boss quest hooks | [`bosses/00-index.md`](bosses/00-index.md) → [`boss-quest-hooks.md`](bosses/boss-quest-hooks.md) |
+| Understand boss balance | [`bosses/00-index.md`](bosses/00-index.md) → [`boss-balance-rules.md`](bosses/boss-balance-rules.md) |
+| Understand Wardenry and contracts | [`wardenry/00-index.md`](wardenry/00-index.md) |
+| See Wardens and task boards | [`wardenry/00-index.md`](wardenry/00-index.md) → [`wardens-and-boards.md`](wardenry/wardens-and-boards.md) |
+| See contract types and generation | [`wardenry/00-index.md`](wardenry/00-index.md) → [`contracts-and-task-generation.md`](wardenry/contracts-and-task-generation.md) |
+| See contract chains and marks | [`wardenry/00-index.md`](wardenry/00-index.md) → [`contract-chains-and-marks.md`](wardenry/contract-chains-and-marks.md) |
+| See starter task table | [`wardenry/00-index.md`](wardenry/00-index.md) → [`task-tables-starter.md`](wardenry/task-tables-starter.md) |
+| See first-ring task tables | [`wardenry/00-index.md`](wardenry/00-index.md) → [`task-tables-first-ring.md`](wardenry/task-tables-first-ring.md) |
+| See second-ring task seeds | [`wardenry/00-index.md`](wardenry/00-index.md) → [`task-tables-second-ring.md`](wardenry/task-tables-second-ring.md) |
+| See Notorious Variants | [`wardenry/00-index.md`](wardenry/00-index.md) → [`notorious-variants.md`](wardenry/notorious-variants.md) |
+| See Named Warrants and boss tasks | [`wardenry/00-index.md`](wardenry/00-index.md) → [`named-warrants-and-boss-tasks.md`](wardenry/named-warrants-and-boss-tasks.md) |
+| See Warden Locker rewards | [`wardenry/00-index.md`](wardenry/00-index.md) → [`warden-locker-rewards.md`](wardenry/warden-locker-rewards.md) |
+| See Wardenry quest hooks | [`wardenry/00-index.md`](wardenry/00-index.md) → [`wardenry-quest-hooks.md`](wardenry/wardenry-quest-hooks.md) |
+| See Wardenry balance rules | [`wardenry/00-index.md`](wardenry/00-index.md) → [`wardenry-balance-rules.md`](wardenry/wardenry-balance-rules.md) |
 
 ### Non-Item Documentation
 

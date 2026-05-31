@@ -15,8 +15,9 @@ Authority references:
 - `docs/activities/activity-currencies.md`
 - `docs/activities/activity-balance-rules.md`
 - `docs/activities/activity-quest-hooks.md`
-- `docs/creatures/creature-taxonomy.md`
-- `docs/skills/skill-system.md`
+  - `docs/creatures/creature-taxonomy.md`
+  - `docs/bosses/00-index.md`
+  - `docs/skills/skill-system.md`
 
 # Skilling Bosses
 

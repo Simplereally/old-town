@@ -2,6 +2,7 @@ import { type ContentRegistries, createRng, type NpcDef, tileKey } from "@old-to
 import { describe, expect, it } from "vitest";
 import { createWorld, type World } from "../ecs/world";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
+import { makeRegistries } from "../test-support/registries";
 import { CollisionFlag, CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
 import { processMovementPhase } from "./movement-system";
@@ -34,21 +35,9 @@ const NPC_DEF: NpcDef = {
 };
 
 function registries(npcDef: NpcDef): ContentRegistries {
-  return {
-    item: new Map(),
+  return makeRegistries({
     npc: new Map([[npcDef.id, npcDef]]),
-    object: new Map(),
-    processingRecipe: new Map(),
-    skill: new Map(),
-    resourceNode: new Map(),
-    spell: new Map(),
-    dropTable: new Map(),
-    quest: new Map(),
-    dialogue: new Map(),
-    regionMap: new Map(),
-    material: new Map(),
-    animation: new Map(),
-  };
+  });
 }
 
 function addOpenTiles(ctx: ReturnType<typeof createRuntimeMap>, size = 12): void {

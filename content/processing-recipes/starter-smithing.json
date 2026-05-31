@@ -9,7 +9,8 @@
     "inputItemId": "penny_copper_ore",
     "successItemId": "pennywrought_ingot",
     "xp": 15,
-    "failureChance": 0.1
+    "failureChance": 0.1,
+    "recipeGroupId": "smithing"
   },
   {
     "id": "forge_pennywrought_shortblade",
@@ -21,7 +22,8 @@
     "inputItemId": "pennywrought_ingot",
     "successItemId": "pennywrought_shortblade",
     "xp": 30,
-    "failureChance": 0.1
+    "failureChance": 0.1,
+    "recipeGroupId": "smithing"
   },
   {
     "id": "forge_pennywrought_helm",
@@ -33,7 +35,8 @@
     "inputItemId": "pennywrought_ingot",
     "successItemId": "pennywrought_helm",
     "xp": 30,
-    "failureChance": 0.1
+    "failureChance": 0.1,
+    "recipeGroupId": "smithing"
   },
   {
     "id": "forge_pennywrought_ward",
@@ -45,6 +48,7 @@
     "inputItemId": "pennywrought_ingot",
     "successItemId": "pennywrought_ward",
     "xp": 30,
-    "failureChance": 0.1
+    "failureChance": 0.1,
+    "recipeGroupId": "smithing"
   }
 ]

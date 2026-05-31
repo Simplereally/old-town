@@ -11,6 +11,7 @@ Authority references:
 - `POC_SPEC.md`
 - `docs/world/00-index.md`
 - `docs/skills/utility-skills.md`
+- `docs/bosses/00-index.md`
 - `docs/items/accessories/trophies.md`
 
 # Creatures Index
@@ -27,7 +28,7 @@ Authority references:
 | Combat Roles | [`combat-roles.md`](combat-roles.md) | Draft | Teaching roles for early enemies |
 | Drop Table System | [`drop-table-system.md`](drop-table-system.md) | Draft | Drop table format and rules |
 | Starter Drop Tables | [`starter-drop-tables.md`](starter-drop-tables.md) | Draft | Drops for first combat targets |
-| Wardenry Contracts | [`wardenry-contracts.md`](wardenry-contracts.md) | Draft | Contract types and starter contracts |
+| Wardenry Contracts | [`wardenry-contracts.md`](wardenry-contracts.md) | Redirect | Backlink to [`docs/wardenry/00-index.md`](../wardenry/00-index.md) |
 | Rare Drops and Trophies | [`rare-drops-and-trophies.md`](rare-drops-and-trophies.md) | Draft | Trophy identity and rare reward rules |
 | Minibosses | [`minibosses.md`](minibosses.md) | Draft | First named encounter targets |
 

@@ -2837,5 +2837,15 @@
       "height": 8,
       "tag": "warden_steps"
     }
+  ],
+  "resourceNodeSpawns": [
+    { "resourceNodeId": "copper_rock_node", "x": 15, "y": 15, "respawnTicks": 100, "initialDepletion": false },
+    { "resourceNodeId": "tin_rock_node", "x": 25, "y": 25, "respawnTicks": 100, "initialDepletion": false }
+  ],
+  "playerSpawnPoints": [
+    { "x": 32, "y": 32, "plane": 0, "spawnType": "default" }
+  ],
+  "deathRespawnPoints": [
+    { "x": 32, "y": 32, "plane": 0, "respawnType": "nearest" }
   ]
 }

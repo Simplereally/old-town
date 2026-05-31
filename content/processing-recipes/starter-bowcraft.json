@@ -9,7 +9,8 @@
     "inputItemId": "oldroad_oak_log",
     "successItemId": "lathwood_arrows",
     "xp": 15,
-    "failureChance": 0.1
+    "failureChance": 0.1,
+    "recipeGroupId": "bowcraft"
   },
   {
     "id": "make_lathwood_darts",
@@ -21,7 +22,8 @@
     "inputItemId": "oldroad_oak_log",
     "successItemId": "lathwood_dart",
     "xp": 20,
-    "failureChance": 0.1
+    "failureChance": 0.1,
+    "recipeGroupId": "bowcraft"
   },
   {
     "id": "make_lathwood_bow_stave",
@@ -33,6 +35,7 @@
     "inputItemId": "oldroad_oak_log",
     "successItemId": "lathwood_shortbow",
     "xp": 25,
-    "failureChance": 0.15
+    "failureChance": 0.15,
+    "recipeGroupId": "bowcraft"
   }
 ]

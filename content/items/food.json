@@ -1,4 +1,28 @@
 [
+    {
+    "id": "crusty_loaf",
+    "name": "Crusty Loaf",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A stale crusty loaf. Still edible if you are hungry enough.",
+    "icon": "icon_crusty_loaf",
+    "value": 2,
+    "weight": 0.2,
+    "options": ["eat"],
+    "consumable": { "heal": 3, "consumeTicks": 3 }
+  },
+  {
+    "id": "antidote",
+    "name": "Antidote",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A small vial of antidote that cures poison.",
+    "icon": "icon_antidote",
+    "value": 15,
+    "weight": 0.1,
+    "options": ["drink"],
+    "consumable": { "heal": 0, "consumeTicks": 1, "curesStatus": "poison" }
+  },
   {
     "id": "raw_fish",
     "name": "Raw Fish",

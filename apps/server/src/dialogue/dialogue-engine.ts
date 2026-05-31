@@ -122,6 +122,7 @@ function openDialogueNode(
   nodeId: string,
   speakerName: string,
   serverTime: number,
+  tick?: number,
   speakerEntityId?: EntityId,
 ): boolean {
   const node = dialogueNode(dialogue, nodeId);
@@ -141,13 +142,14 @@ function openDialogueNode(
       world: ctx.world,
       registries: ctx.registries,
       deltas: ctx.deltas,
-      serverTime,
       itemAudit: ctx.itemAudit,
       itemAuditReason: "quest_effect",
       itemAuditMetadata: { dialogueId: dialogue.id, nodeId: node.id, source: "dialogue_node" },
     },
     owner,
     node.effects,
+    serverTime,
+    tick,
   );
   ctx.world.setComponent(owner, "dialogue", {
     entityId: owner,
@@ -226,16 +228,11 @@ function handleNpcDialogue(
   );
   if (resolution.kind === "ready") {
     dispatchQuestEvent(
-      {
-        world: ctx.world,
-        registries: ctx.registries,
-        deltas: ctx.deltas,
-        serverTime,
-        tick,
-        itemAudit: ctx.itemAudit,
-      },
+      ctx,
       owner,
       { kind: "dialogue", npcId: npcDef.id },
+      serverTime,
+      tick,
     );
     openDialogueNode(
       ctx,
@@ -244,6 +241,7 @@ function handleNpcDialogue(
       dialogue.root,
       npcDef.name,
       serverTime,
+      tick,
       intent.npcEntityId,
     );
     return true;
@@ -270,6 +268,7 @@ export function handleDialogueUiIntent(
   owner: EntityId,
   intent: UiActionIntent,
   serverTime: number,
+  tick?: number,
 ): boolean {
   if (intent.action === "dialogue_close") {
     closeDialogue(ctx, owner);
@@ -303,7 +302,6 @@ export function handleDialogueUiIntent(
       world: ctx.world,
       registries: ctx.registries,
       deltas: ctx.deltas,
-      serverTime,
       itemAudit: ctx.itemAudit,
       itemAuditReason: "quest_effect",
       itemAuditMetadata: {
@@ -315,6 +313,8 @@ export function handleDialogueUiIntent(
     },
     owner,
     option.effects,
+    serverTime,
+    tick,
   );
   openDialogueNode(
     ctx,
@@ -323,6 +323,7 @@ export function handleDialogueUiIntent(
     option.next,
     active.speakerName,
     serverTime,
+    tick,
     active.speakerEntityId,
   );
   return true;

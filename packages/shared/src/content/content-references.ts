@@ -132,6 +132,9 @@ export function validateContentGraph(
     if (def.dialogueId !== undefined) {
       requireRef("dialogue", def.dialogueId, "npc", id, "dialogueId");
     }
+    if (def.trophyId !== undefined) {
+      requireRef("item", def.trophyId, "npc", id, "trophyId");
+    }
   }
 
   for (const [id, def] of registries.object) {
@@ -153,11 +156,14 @@ export function validateContentGraph(
     for (const objectId of def.stationObjectIds) {
       requireRef("object", objectId, "processingRecipe", id, "stationObjectIds");
     }
+    // recipeGroupId is a soft grouping identifier, not a cross-reference to a content definition
+    // skip cross-reference validation for recipeGroupId
   }
 
   for (const [id, def] of registries.dropTable) {
     for (const entry of def.entries) {
       requireRef("item", entry.itemId, "dropTable", id, "entries.itemId");
+      checkRequirements(entry.requirements, "dropTable", id, "entries.requirements");
     }
     for (const always of def.alwaysDrops) {
       requireRef("item", always.itemId, "dropTable", id, "alwaysDrops.itemId");
@@ -250,6 +256,68 @@ export function validateContentGraph(
     for (const spawn of def.groundItemSpawns) {
       requireRef("item", spawn.itemId, "regionMap", id, "groundItemSpawns.itemId");
     }
+    for (const spawn of def.resourceNodeSpawns) {
+      requireRef("resourceNode", spawn.resourceNodeId, "regionMap", id, "resourceNodeSpawns.resourceNodeId");
+    }
+    for (const spawn of def.playerSpawnPoints) {
+      if (spawn.requiresQuest !== undefined) {
+        requireRef("quest", spawn.requiresQuest, "regionMap", id, "playerSpawnPoints.requiresQuest");
+      }
+    }
+    for (const spawn of def.deathRespawnPoints) {
+      if (spawn.requiresQuest !== undefined) {
+        requireRef("quest", spawn.requiresQuest, "regionMap", id, "deathRespawnPoints.requiresQuest");
+      }
+    }
+  }
+
+  for (const [id, def] of registries.shop) {
+    for (const stock of def.stock) {
+      requireRef("item", stock.itemId, "shop", id, "stock.itemId");
+    }
+  }
+
+  for (const [id, def] of registries.serviceFee) {
+    for (const cost of def.materialCost) {
+      requireRef("item", cost.itemId, "serviceFee", id, "materialCost.itemId");
+    }
+    if (def.requiresQuest !== undefined) {
+      requireRef("quest", def.requiresQuest, "serviceFee", id, "requiresQuest");
+    }
+  }
+
+  for (const [id, def] of registries.statusEffect) {
+    for (const cureItem of def.cureItems) {
+      requireRef("item", cureItem, "statusEffect", id, "cureItems");
+    }
+  }
+
+  for (const [id, def] of registries.item) {
+    if (def.consumable?.statusEffectId !== undefined) {
+      requireRef("statusEffect", def.consumable.statusEffectId, "item", id, "consumable.statusEffectId");
+    }
+    if (def.consumable?.curesStatus !== undefined) {
+      requireRef("statusEffect", def.consumable.curesStatus, "item", id, "consumable.curesStatus");
+    }
+    if (def.consumable?.boostsSkill !== undefined) {
+      requireRef("skill", def.consumable.boostsSkill.skillId, "item", id, "consumable.boostsSkill.skillId");
+    }
+  }
+
+  for (const [id, def] of registries.contract) {
+    for (const creatureId of def.targetCreatureIds) {
+      requireRef("npc", creatureId, "contract", id, "targetCreatureIds");
+    }
+    for (const reward of def.rewardItems) {
+      requireRef("item", reward.itemId, "contract", id, "rewardItems.itemId");
+    }
+    for (const xp of def.rewardXp) {
+      requireRef("skill", xp.skillId, "contract", id, "rewardXp.skillId");
+    }
+    if (def.requiredQuest !== undefined) {
+      requireRef("quest", def.requiredQuest, "contract", id, "requiredQuest");
+    }
+    // rewardReputation.factionId intentionally not validated here — factions are not a registered ContentKind
   }
 
   return { issues };

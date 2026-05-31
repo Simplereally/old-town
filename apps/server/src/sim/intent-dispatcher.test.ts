@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { createWorld } from "../ecs/world";
 import { ChatSystem } from "../systems/chat-system";
 import { ConsumableSystem } from "../systems/consumable-system";
+import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
 import { ActionQueueType, InterruptGroup } from "./action-queue";
@@ -27,21 +28,7 @@ function setup() {
   const actionRuntime = new ActionRuntime();
   const chatSystem = new ChatSystem();
   const consumableSystem = new ConsumableSystem();
-  const registries: ContentRegistries = {
-    item: new Map(),
-    npc: new Map(),
-    object: new Map(),
-    processingRecipe: new Map(),
-    skill: new Map(),
-    resourceNode: new Map(),
-    spell: new Map(),
-    dropTable: new Map(),
-    quest: new Map(),
-    dialogue: new Map(),
-    regionMap: new Map(),
-    material: new Map(),
-    animation: new Map(),
-  };
+  const registries: ContentRegistries = makeRegistries();
 
   const ctx = {
     world,
@@ -80,7 +67,7 @@ describe("IntentDispatcher", () => {
       type: ActionQueueType.Weak,
       delayTicks: 4,
       interruptGroup: InterruptGroup.Skilling,
-      payload: { kind: "test", action: "woodcut" },
+      payload: { kind: "test" },
     });
 
     dispatchIntentGroup(
@@ -111,7 +98,7 @@ describe("IntentDispatcher", () => {
       type: ActionQueueType.Weak,
       delayTicks: 4,
       interruptGroup: InterruptGroup.Skilling,
-      payload: { kind: "test", action: "woodcut" },
+      payload: { kind: "test" },
     });
 
     dispatchIntentGroup(
@@ -142,7 +129,7 @@ describe("IntentDispatcher", () => {
       type: ActionQueueType.Weak,
       delayTicks: 4,
       interruptGroup: InterruptGroup.Skilling,
-      payload: { kind: "test", action: "woodcut" },
+      payload: { kind: "test" },
     });
 
     dispatchIntentGroup(
@@ -173,7 +160,7 @@ describe("IntentDispatcher", () => {
       type: ActionQueueType.Weak,
       delayTicks: 4,
       interruptGroup: InterruptGroup.Skilling,
-      payload: { kind: "test", action: "woodcut" },
+      payload: { kind: "test" },
     });
 
     dispatchIntentGroup(
@@ -207,7 +194,7 @@ describe("IntentDispatcher", () => {
       type: ActionQueueType.Weak,
       delayTicks: 4,
       interruptGroup: InterruptGroup.Skilling,
-      payload: { kind: "test", action: "woodcut" },
+      payload: { kind: "test" },
     });
 
     dispatchIntentGroup(
@@ -240,7 +227,7 @@ describe("IntentDispatcher", () => {
       type: ActionQueueType.Weak,
       delayTicks: 4,
       interruptGroup: InterruptGroup.Skilling,
-      payload: { kind: "test", action: "woodcut" },
+      payload: { kind: "test" },
     });
 
     dispatchIntentGroup(
@@ -274,7 +261,7 @@ describe("IntentDispatcher", () => {
       type: ActionQueueType.Weak,
       delayTicks: 4,
       interruptGroup: InterruptGroup.Skilling,
-      payload: { kind: "test", action: "woodcut" },
+      payload: { kind: "test" },
     });
 
     dispatchIntentGroup(

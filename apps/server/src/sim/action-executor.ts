@@ -13,7 +13,10 @@ export interface ActionContext {
   readonly selfCancel: (id: ActionId) => void;
 }
 
-export type ActionHandler<TPayload = unknown> = (payload: TPayload, ctx: ActionContext) => void;
+export type ActionHandler<TPayload extends { kind: string } = { kind: string }> = (
+  payload: TPayload,
+  ctx: ActionContext,
+) => void;
 
 export class ActionExecutor<TTable = Record<string, ActionHandler>> {
   constructor(
@@ -31,9 +34,13 @@ export class ActionExecutor<TTable = Record<string, ActionHandler>> {
     context: ActionExecutionContext = { tick: 0, serverTime: 0 },
   ): void {
     // Deliberate dynamic-dispatch escape hatch: the precise key set is
-    // enforced at the kernel table annotation (ActionHandlerTable), so the
-    // cast is safe. Do not copy this pattern elsewhere.
-    const lookup = this.table as unknown as Record<string, ActionHandler>;
+    // enforced at the kernel table annotation (ActionHandlerTable), and
+    // payloads are runtime-unknown here, so the type-erased cast is safe.
+    // Do not copy this pattern elsewhere.
+    const lookup = this.table as unknown as Record<
+      string,
+      (payload: unknown, ctx: ActionContext) => void
+    >;
 
     for (const action of actions) {
       const payload = action.entry.payload;

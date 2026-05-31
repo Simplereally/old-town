@@ -16,6 +16,7 @@ import { ItemAuditLog } from "../items/item-audit";
 import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import { ActionRuntime } from "../sim/action-runtime";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
+import { makeRegistries } from "../test-support/registries";
 import { applyObjectCollision, CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
 import {
@@ -152,25 +153,16 @@ function registries(
   object: ObjectDef = TREE_DEF,
   recipes: readonly ProcessingRecipeDef[] = [],
 ): ContentRegistries {
-  return {
+  return makeRegistries({
     item: new Map(ITEMS.map((item) => [item.id, item])),
-    npc: new Map(),
     object: new Map([
       [TREE_DEF.id, TREE_DEF],
       [ROCK_DEF.id, ROCK_DEF],
       [object.id, object],
     ]),
     processingRecipe: new Map(recipes.map((recipe) => [recipe.id, recipe])),
-    skill: new Map(),
     resourceNode: new Map([[node.id, node]]),
-    spell: new Map(),
-    dropTable: new Map(),
-    quest: new Map(),
-    dialogue: new Map(),
-    regionMap: new Map(),
-    material: new Map(),
-    animation: new Map(),
-  };
+  });
 }
 
 function skills(entityId: EntityId, level: number): SkillsComponent {

@@ -531,6 +531,361 @@
           "file": "stories/E15/E15-S05_run-final-spec-compliance-pass.md"
         }
       ]
+    },
+    {
+      "id": "E16",
+      "title": "Economy Schema Gaps",
+      "file": "epics/E16_economy-schema-gaps.md",
+      "stories": [
+        {
+          "id": "E16-S01",
+          "title": "Define Shop Schema",
+          "file": "stories/E16/E16-S01_define-shop-schema.md"
+        },
+        {
+          "id": "E16-S02",
+          "title": "Define Bank Schema",
+          "file": "stories/E16/E16-S02_define-bank-schema.md"
+        },
+        {
+          "id": "E16-S03",
+          "title": "Define Service Fee Schema",
+          "file": "stories/E16/E16-S03_define-service-fee-schema.md"
+        },
+        {
+          "id": "E16-S04",
+          "title": "Validate Economy Content and Cross-References",
+          "file": "stories/E16/E16-S04_validate-economy-content-and-cross-references.md"
+        }
+      ]
+    },
+    {
+      "id": "E17",
+      "title": "Map Environment Schema Gaps",
+      "file": "epics/E17_map-environment-schema-gaps.md",
+      "stories": [
+        {
+          "id": "E17-S01",
+          "title": "Add Resource Node Placement to Region Map",
+          "file": "stories/E17/E17-S01_add-resource-node-placement-to-region-map.md"
+        },
+        {
+          "id": "E17-S02",
+          "title": "Add Player Spawn and Respawn to Region Map",
+          "file": "stories/E17/E17-S02_add-player-spawn-and-respawn-to-region-map.md"
+        },
+        {
+          "id": "E17-S03",
+          "title": "Validate Map Environment Content",
+          "file": "stories/E17/E17-S03_validate-map-environment-content.md"
+        }
+      ]
+    },
+    {
+      "id": "E18",
+      "title": "Combat and Status Schema Gaps",
+      "file": "epics/E18_combat-and-status-schema-gaps.md",
+      "stories": [
+        {
+          "id": "E18-S01",
+          "title": "Extend Creature Movement and Aggression",
+          "file": "stories/E18/E18-S01_extend-creature-movement-and-aggression.md"
+        },
+        {
+          "id": "E18-S02",
+          "title": "Add Drop Table Conditionals",
+          "file": "stories/E18/E18-S02_add-drop-table-conditionals.md"
+        },
+        {
+          "id": "E18-S03",
+          "title": "Define Status Effects System",
+          "file": "stories/E18/E18-S03_define-status-effects-system.md"
+        },
+        {
+          "id": "E18-S04",
+          "title": "Validate Combat Content",
+          "file": "stories/E18/E18-S04_validate-combat-content.md"
+        }
+      ]
+    },
+    {
+      "id": "E19",
+      "title": "Consumable and Recipe Schema Gaps",
+      "file": "epics/E19_consumable-and-recipe-schema-gaps.md",
+      "stories": [
+        {
+          "id": "E19-S01",
+          "title": "Expand Consumable Effects Beyond Heal",
+          "file": "stories/E19/E19-S01_expand-consumable-effects-beyond-heal.md"
+        },
+        {
+          "id": "E19-S02",
+          "title": "Define Recipe Selection Protocol",
+          "file": "stories/E19/E19-S02_define-recipe-selection-protocol.md"
+        },
+        {
+          "id": "E19-S03",
+          "title": "Validate Consumable and Recipe Content",
+          "file": "stories/E19/E19-S03_validate-consumable-and-recipe-content.md"
+        }
+      ]
+    },
+    {
+      "id": "E20",
+      "title": "Identity and Contract Schema Gaps",
+      "file": "epics/E20_identity-and-contract-schema-gaps.md",
+      "stories": [
+        {
+          "id": "E20-S01",
+          "title": "Define Wardenry Contract Schema",
+          "file": "stories/E20/E20-S01_define-wardenry-contract-schema.md"
+        },
+        {
+          "id": "E20-S02",
+          "title": "Create Contract Content and Validation",
+          "file": "stories/E20/E20-S02_create-contract-content-and-validation.md"
+        }
+      ]
+    },
+    {
+      "id": "E21",
+      "title": "NPC Dialogue and Quest Engine",
+      "file": "completed/epics/E21_npc-dialogue-and-quest-engine.md",
+      "stories": [
+        {
+          "id": "E21-S01",
+          "title": "NPC Dialogue Runtime Routing",
+          "file": "completed/stories/E21/E21-S01_npc-dialogue-runtime-routing.md"
+        },
+        {
+          "id": "E21-S02",
+          "title": "Quest State Machine and Progress Tracking",
+          "file": "completed/stories/E21/E21-S02_quest-state-machine-and-progress-tracking.md"
+        },
+        {
+          "id": "E21-S03",
+          "title": "Quest Completion and Reward Application",
+          "file": "completed/stories/E21/E21-S03_quest-completion-and-reward-application.md"
+        },
+        {
+          "id": "E21-S04",
+          "title": "Dialogue UI Protocol and Client Rendering",
+          "file": "completed/stories/E21/E21-S04_dialogue-ui-protocol-and-client-rendering.md"
+        }
+      ]
+    },
+    {
+      "id": "E22",
+      "title": "Economy Runtime",
+      "file": "epics/E22_economy-runtime.md",
+      "stories": [
+        {
+          "id": "E22-S01",
+          "title": "Bank Storage System Runtime",
+          "file": "stories/E22/E22-S01_bank-storage-system-runtime.md"
+        },
+        {
+          "id": "E22-S02",
+          "title": "Shop Trade Transaction System",
+          "file": "stories/E22/E22-S02_shop-trade-transaction-system.md"
+        },
+        {
+          "id": "E22-S03",
+          "title": "Economy UI Protocol and Client Rendering",
+          "file": "stories/E22/E22-S03_economy-ui-protocol-and-client-rendering.md"
+        }
+      ]
+    },
+    {
+      "id": "E23",
+      "title": "Spell Effects and Magic Combat",
+      "file": "completed/epics/E23_spell-effects-and-magic-combat.md",
+      "stories": [
+        {
+          "id": "E23-S01",
+          "title": "Apply Combat Spell Damage",
+          "file": "completed/stories/E23/E23-S01_apply-combat-spell-damage.md"
+        },
+        {
+          "id": "E23-S02",
+          "title": "Apply Bind and Teleport Effects",
+          "file": "completed/stories/E23/E23-S02_apply-bind-and-teleport-effects.md"
+        },
+        {
+          "id": "E23-S03",
+          "title": "Magic Combat System and XP",
+          "file": "completed/stories/E23/E23-S03_magic-combat-system-and-xp.md"
+        }
+      ]
+    },
+    {
+      "id": "E24",
+      "title": "Player Death and Respawn",
+      "file": "epics/E24_player-death-and-respawn.md",
+      "stories": [
+        {
+          "id": "E24-S01",
+          "title": "Player Death State and Respawn Logic",
+          "file": "stories/E24/E24-S01_player-death-state-and-respawn-logic.md"
+        },
+        {
+          "id": "E24-S02",
+          "title": "Death Penalty and Grave System",
+          "file": "stories/E24/E24-S02_death-penalty-and-grave-system.md"
+        }
+      ]
+    },
+    {
+      "id": "E25",
+      "title": "Object Interaction and Content Routing",
+      "file": "epics/E25_object-interaction-and-content-routing.md",
+      "stories": [
+        {
+          "id": "E25-S01",
+          "title": "Object Non-Skilling Interaction Router",
+          "file": "stories/E25/E25-S01_object-non-skilling-interaction-router.md"
+        },
+        {
+          "id": "E25-S02",
+          "title": "Favour Offering Action",
+          "file": "stories/E25/E25-S02_favour-offering-action.md"
+        },
+        {
+          "id": "E25-S03",
+          "title": "Fishing Action Support",
+          "file": "stories/E25/E25-S03_fishing-action-support.md"
+        },
+        {
+          "id": "E25-S04",
+          "title": "Trapping Action Runtime",
+          "file": "stories/E25/E25-S04_trapping-action-runtime.md"
+        },
+        {
+          "id": "E25-S05",
+          "title": "Map Table Survey Action",
+          "file": "stories/E25/E25-S05_map-table-survey-action.md"
+        }
+      ]
+    },
+    {
+      "id": "E26",
+      "title": "Wardenry Contracts",
+      "file": "epics/E26_wardenry-contracts.md",
+      "stories": [
+        {
+          "id": "E26-S01",
+          "title": "Contract Runtime State Machine",
+          "file": "stories/E26/E26-S01_contract-runtime-state-machine.md"
+        },
+        {
+          "id": "E26-S02",
+          "title": "Contract Objective Tracking and Completion",
+          "file": "stories/E26/E26-S02_contract-objective-tracking-and-completion.md"
+        },
+        {
+          "id": "E26-S03",
+          "title": "Contract Reward Distribution",
+          "file": "stories/E26/E26-S03_contract-reward-distribution.md"
+        }
+      ]
+    },
+    {
+      "id": "E27",
+      "title": "Recipe Selection and Crafting",
+      "file": "epics/E27_recipe-selection-and-crafting.md",
+      "stories": [
+        {
+          "id": "E27-S01",
+          "title": "Recipe Selection UI Protocol",
+          "file": "stories/E27/E27-S01_recipe-selection-ui-protocol.md"
+        },
+        {
+          "id": "E27-S02",
+          "title": "Server-Side Recipe Selection Handler",
+          "file": "stories/E27/E27-S02_server-side-recipe-selection-handler.md"
+        },
+        {
+          "id": "E27-S03",
+          "title": "Recipe UI Client Rendering",
+          "file": "stories/E27/E27-S03_recipe-ui-client-rendering.md"
+        }
+      ]
+    },
+    {
+      "id": "E28",
+      "title": "Client UI and Visual Polish",
+      "file": "epics/E28_client-ui-and-visual-polish.md",
+      "stories": [
+        {
+          "id": "E28-S01",
+          "title": "Equipment Appearance System",
+          "file": "stories/E28/E28-S01_equipment-appearance-system.md"
+        },
+        {
+          "id": "E28-S02",
+          "title": "Minimap Rendering",
+          "file": "stories/E28/E28-S02_minimap-rendering.md"
+        },
+        {
+          "id": "E28-S03",
+          "title": "XP Drop Visualization",
+          "file": "stories/E28/E28-S03_xp-drop-visualization.md"
+        }
+      ]
+    },
+    {
+      "id": "E29",
+      "title": "Advanced Status Effects and Combat",
+      "file": "epics/E29_advanced-status-effects-and-combat.md",
+      "stories": [
+        {
+          "id": "E29-S01",
+          "title": "Advanced Status Effect System",
+          "file": "stories/E29/E29-S01_advanced-status-effect-system.md"
+        },
+        {
+          "id": "E29-S02",
+          "title": "Drop Table Rarity and Conditionals",
+          "file": "stories/E29/E29-S02_drop-table-rarity-and-conditionals.md"
+        }
+      ]
+    },
+    {
+      "id": "E30",
+      "title": "World Expansion Systems",
+      "file": "epics/E30_world-expansion-systems.md",
+      "stories": [
+        {
+          "id": "E30-S01",
+          "title": "Ledger Deed System",
+          "file": "stories/E30/E30-S01_ledger-deed-system.md"
+        },
+        {
+          "id": "E30-S02",
+          "title": "Oldroad Trails and Discovery",
+          "file": "stories/E30/E30-S02_oldroad-trails-and-discovery.md"
+        },
+        {
+          "id": "E30-S03",
+          "title": "Nooks and Hidden Areas",
+          "file": "stories/E30/E30-S03_nooks-and-hidden-areas.md"
+        },
+        {
+          "id": "E30-S04",
+          "title": "Charters and Permits",
+          "file": "stories/E30/E30-S04_charters-and-permits.md"
+        },
+        {
+          "id": "E30-S05",
+          "title": "Public Works System",
+          "file": "stories/E30/E30-S05_public-works-system.md"
+        },
+        {
+          "id": "E30-S06",
+          "title": "Full Favour Boons, Oaths, and Rites",
+          "file": "stories/E30/E30-S06_full-favour-boons-oaths-and-rites.md"
+        }
+      ]
     }
   ]
 }

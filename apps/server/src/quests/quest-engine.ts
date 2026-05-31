@@ -30,8 +30,6 @@ export interface QuestEngineContext {
   readonly world: World;
   readonly registries: ContentRegistries;
   readonly deltas: DeltaAccumulator;
-  readonly serverTime: number;
-  readonly tick?: number | undefined;
   readonly itemAudit?: ItemAuditLog | undefined;
   readonly itemAuditMetadata?: ItemAuditMetadata | undefined;
 }
@@ -44,6 +42,8 @@ export function dispatchQuestEvent(
   ctx: QuestEngineContext,
   playerId: EntityId,
   event: QuestEvent,
+  serverTime: number,
+  tick?: number,
 ): QuestDispatchResult {
   recordEventProgress(ctx, playerId, event);
   const progressedQuestIds: string[] = [];
@@ -59,7 +59,7 @@ export function dispatchQuestEvent(
     if (!areObjectivesComplete(ctx.world, playerId, quest, stage)) {
       continue;
     }
-    if (completeStage(ctx, playerId, quest, stage)) {
+    if (completeStage(ctx, playerId, quest, stage, serverTime, tick)) {
       progressedQuestIds.push(quest.id);
     }
   }
@@ -115,20 +115,22 @@ function completeStage(
   playerId: EntityId,
   quest: QuestDef,
   stage: QuestStage,
+  serverTime: number,
+  tick?: number,
 ): boolean {
   const nextStage = quest.stages
     .filter((candidate) => candidate.stage > stage.stage)
     .toSorted((a, b) => a.stage - b.stage)[0];
   if (!nextStage) {
-    const result = completeQuest(ctx, playerId, quest.id);
+    const result = completeQuest(ctx, playerId, quest.id, serverTime, tick);
     if (result.applied) {
-      runStageTriggers(ctx, playerId, quest, stage, "stage_complete");
+      runStageTriggers(ctx, playerId, quest, stage, "stage_complete", serverTime, tick);
     }
     return result.applied;
   }
-  runStageTriggers(ctx, playerId, quest, stage, "stage_complete");
+  runStageTriggers(ctx, playerId, quest, stage, "stage_complete", serverTime, tick);
   setQuestStage(ctx, playerId, quest, nextStage.stage);
-  runStageTriggers(ctx, playerId, quest, nextStage, "stage_enter");
+  runStageTriggers(ctx, playerId, quest, nextStage, "stage_enter", serverTime, tick);
   return true;
 }
 
@@ -138,6 +140,8 @@ function runStageTriggers(
   quest: QuestDef,
   stage: QuestStage,
   triggerType: "stage_enter" | "stage_complete",
+  serverTime: number,
+  tick?: number,
 ): void {
   for (const trigger of stage.triggers) {
     if (trigger.on === triggerType) {
@@ -153,6 +157,8 @@ function runStageTriggers(
         },
         playerId,
         trigger.effects,
+        serverTime,
+        tick,
       );
     }
   }

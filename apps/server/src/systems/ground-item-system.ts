@@ -166,15 +166,10 @@ export function processDeathResolution(
     const ownerId = eligibleOwner(ctx, combatant.lastDamageSourceId);
     if (ownerId !== undefined) {
       dispatchQuestEvent(
-        {
-          world: ctx.world,
-          registries: ctx.registries,
-          deltas: ctx.deltas,
-          serverTime,
-          itemAudit: ctx.itemAudit,
-        },
+        ctx,
         ownerId,
         { kind: "npc_killed", npcId: npc.npcId },
+        serverTime,
       );
     }
     const drops = def.drops ? ctx.registries.dropTable.get(def.drops) : undefined;
@@ -316,15 +311,10 @@ export function handleGroundItemIntent(
     },
   });
   dispatchQuestEvent(
-    {
-      world: ctx.world,
-      registries: ctx.registries,
-      deltas: ctx.deltas,
-      serverTime,
-      itemAudit: ctx.itemAudit,
-    },
+    ctx,
     owner,
     { kind: "item_gained", itemId: groundItem.itemId, quantity: groundItem.quantity },
+    serverTime,
   );
   ctx.world.destroyEntity(intent.groundItemEntityId);
   ctx.deltas.markEntityRemove(intent.groundItemEntityId);

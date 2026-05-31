@@ -104,7 +104,7 @@ function dispatchSingleIntent(
     }
 
     case IntentKind.UiAction: {
-      if (handleDialogueUiIntent(ctx, owner, intent.payload, serverTime)) {
+      if (handleDialogueUiIntent(ctx, owner, intent.payload, serverTime, tick)) {
         return;
       }
       if (intent.payload.action === "unequip" && intent.payload.value !== undefined) {
@@ -132,40 +132,30 @@ function dispatchSingleIntent(
       if (handleObjectSkillingIntent(ctx, owner, intent.payload, serverTime, tick)) {
         if (object) {
           dispatchQuestEvent(
-            {
-              world: ctx.world,
-              registries: ctx.registries,
-              deltas: ctx.deltas,
-              serverTime,
-              tick,
-              itemAudit: ctx.itemAudit,
-            },
+            ctx,
             owner,
             {
               kind: "object_interacted",
               objectId: object.objectId,
               option: intent.payload.actionId,
             },
+            serverTime,
+            tick,
           );
         }
         return;
       }
       if (object) {
         const result = dispatchQuestEvent(
-          {
-            world: ctx.world,
-            registries: ctx.registries,
-            deltas: ctx.deltas,
-            serverTime,
-            tick,
-            itemAudit: ctx.itemAudit,
-          },
+          ctx,
           owner,
           {
             kind: "object_interacted",
             objectId: object.objectId,
             option: intent.payload.actionId,
           },
+          serverTime,
+          tick,
         );
         if (result.progressedQuestIds.length > 0) {
           return;

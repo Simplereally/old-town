@@ -196,7 +196,13 @@ export function handleItemIntent(
     const { changes } = removeFromSlot(inventory, slot, 1);
     const afterQuantity = count(inventory, occupant.itemId);
     ctx.deltas.markInventoryDelta(buildDelta(inventory, changes));
-    ctx.consumables.enqueueHeal(owner, def.consumable.heal);
+    // `heal` is optional now that consumables can carry non-healing effects
+    // (restore/boost/cure). Only enqueue restoration when a heal is defined;
+    // other effect types are resolved by their own systems.
+    const heal = def.consumable.heal;
+    if (heal !== undefined) {
+      ctx.consumables.enqueueHeal(owner, heal);
+    }
     combatant.eatBlockedUntilTick = tick + def.consumable.consumeTicks;
     ctx.itemAudit?.recordForEntity(owner, {
       tick,
@@ -209,7 +215,7 @@ export function handleItemIntent(
         actionId,
         slot,
         uid: occupant.uid,
-        heal: def.consumable.heal,
+        heal: heal ?? null,
         consumeTicks: def.consumable.consumeTicks,
       },
     });
