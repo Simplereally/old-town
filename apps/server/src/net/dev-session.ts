@@ -2,7 +2,6 @@ import {
   ACTIVE_SCENE_SIZE,
   CHUNK_SIZE,
   type ContentRegistries,
-  EQUIPMENT_SLOT_COUNT,
   type EntityId,
   type EntitySpawnPacket,
   type FullStatePacket,
@@ -22,6 +21,7 @@ import {
 } from "@old-town/shared";
 import type { InventoryComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
+import { createEquipment } from "../items/equipment";
 import { addItem, catalogFromItems, createInventory, toInventoryDelta } from "../items/inventory";
 import type { RuntimeMap } from "../world/runtime-map";
 import type { TransportSession } from "./websocket-transport";
@@ -102,12 +102,7 @@ export class DevSessionManager {
       path: [],
     });
     this.world.stores.inventory.set(entityId, this.createStarterInventory(entityId));
-    this.world.stores.equipment.set(entityId, {
-      entityId,
-      slots: Object.fromEntries(
-        Array.from({ length: EQUIPMENT_SLOT_COUNT }, (_, slot) => [`slot_${slot}`, undefined]),
-      ),
-    });
+    this.world.stores.equipment.set(entityId, createEquipment(entityId));
     this.world.stores.skills.set(entityId, {
       entityId,
       skills: Object.fromEntries(

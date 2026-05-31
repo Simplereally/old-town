@@ -2,7 +2,7 @@
  * Component definitions for the ECS world. Every component is a plain data object with
  * no methods. The world stores these in dense arrays indexed by entity slot.
  */
-import type { EntityId } from "@old-town/shared";
+import type { CombatBonuses, EntityId, EquipmentSlotName } from "@old-town/shared";
 import type { Direction, TileCoord } from "@old-town/shared";
 
 /** Position in tile coordinates (integer world truth). */
@@ -89,10 +89,15 @@ export interface InventoryComponent {
   nextUid: number;
 }
 
-/** Equipment slots. */
+/**
+ * Worn equipment. `slots` maps a canonical slot name (POC_SPEC §16.3) to the equipped item id;
+ * `bonuses` is the aggregated combat bonus sum, recomputed only on equip/unequip (§16.4) so the
+ * combat loop never re-sums per tick. Mutation logic lives in `items/equipment.ts`.
+ */
 export interface EquipmentComponent {
   entityId: EntityId;
-  slots: Record<string, string | undefined>;
+  slots: Partial<Record<EquipmentSlotName, string>>;
+  bonuses: CombatBonuses;
 }
 
 export interface SkillState {

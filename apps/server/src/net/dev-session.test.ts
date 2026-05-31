@@ -58,7 +58,9 @@ describe("DevSessionManager", () => {
       "strength",
       "woodcutting",
     ]);
-    expect(world.stores.equipment.get(fullState.selfEntityId)?.slots).toHaveProperty("slot_0");
+    const equipment = world.stores.equipment.get(fullState.selfEntityId);
+    expect(equipment?.slots).toEqual({});
+    expect(equipment?.bonuses.slashAttack).toBe(0);
     expect(fullState.regionLoads).toEqual([
       { region: { rx: 0, ry: 0, plane: 0 }, regionId: "0:0:0", chunks: expect.any(Array) },
     ]);

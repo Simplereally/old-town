@@ -13,11 +13,11 @@
  *   - S03 layers combat-bonus/appearance derivation onto equip changes.
  *   - S04 layers HP healing + eat-delay/tick-phase priority onto the eat script.
  */
-import type { EntityId, ItemDef, ItemIntent } from "@old-town/shared";
-import type { EquipmentComponent, InventoryComponent } from "../ecs/components";
+import { EQUIPMENT_SLOTS, type EntityId, type ItemDef, type ItemIntent } from "@old-town/shared";
 import type { World } from "../ecs/world";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
-import { addItem, buildDelta, catalogFromItems, findSlotByUid, removeFromSlot } from "./inventory";
+import { equipItem, equipmentUpdate, unequipSlot } from "./equipment";
+import { buildDelta, findSlotByUid, removeFromSlot } from "./inventory";
 
 export interface ItemActionContext {
   readonly world: World;
@@ -27,7 +27,14 @@ export interface ItemActionContext {
 }
 
 /** What the dispatcher did, for callers/tests. `invalid` means no state changed. */
-export type ItemActionOutcome = "examined" | "dropped" | "equipped" | "eaten" | "used" | "invalid";
+export type ItemActionOutcome =
+  | "examined"
+  | "dropped"
+  | "equipped"
+  | "unequipped"
+  | "eaten"
+  | "used"
+  | "invalid";
 
 export interface ItemActionResult {
   readonly outcome: ItemActionOutcome;
@@ -98,8 +105,12 @@ export function handleItemIntent(
     if (!def.equipment) {
       return invalid("You can't equip that.");
     }
-    const changes = equipFromInventory(ctx, owner, inventory, slot, def);
-    ctx.deltas.markInventoryDelta(buildDelta(inventory, changes));
+    const result = equipItem({ world: ctx.world, items: ctx.items }, owner, inventory, slot, def);
+    if (!result.ok) {
+      return invalid("You aren't a high enough level to equip that.");
+    }
+    ctx.deltas.markInventoryDelta(buildDelta(inventory, result.changes));
+    ctx.deltas.markEntityUpdate(owner, { equipment: equipmentUpdate(result.equipment) });
     const message = `You equip the ${def.name}.`;
     emitMessage(ctx, owner, message, serverTime);
     return { outcome: "equipped", message };
@@ -129,44 +140,36 @@ export function handleItemIntent(
 }
 
 /**
- * Move an inventory item into its equipment slot, returning the previously-equipped item (if
- * any) to the inventory. Non-lossy: the equipping item frees its slot first, guaranteeing room
- * for the swap-out. Combat-bonus recompute and equipment update masks are added in S03.
+ * Unequip the item in the equipment slot at `slotIndex` (canonical {@link EQUIPMENT_SLOTS}
+ * order) back into the inventory. Triggered by an equipment-panel UI action. Fails without
+ * mutation when the slot is empty or the inventory is full.
  */
-function equipFromInventory(
+export function handleUnequipIntent(
   ctx: ItemActionContext,
   owner: EntityId,
-  inventory: InventoryComponent,
-  slot: number,
-  def: ItemDef,
-) {
-  const equipment = getOrCreateEquipment(ctx.world, owner);
-  const targetSlot = def.equipment?.slot;
-  const equippingItemId = inventory.slots[slot]?.itemId;
-  if (!targetSlot || !equippingItemId) {
-    return [];
+  slotIndex: number,
+  serverTime: number,
+): ItemActionResult {
+  const inventory = ctx.world.stores.inventory.get(owner);
+  const slotName = EQUIPMENT_SLOTS[slotIndex];
+  if (!inventory || slotName === undefined) {
+    return { outcome: "invalid", message: "" };
   }
 
-  const previousItemId = equipment.slots[targetSlot];
-
-  // Free the equipping item's slot, then settle the swapped-out item into the freed space.
-  const { changes } = removeFromSlot(inventory, slot, inventory.slots[slot]?.quantity ?? 0);
-  equipment.slots[targetSlot] = equippingItemId;
-
-  if (previousItemId) {
-    const catalog = catalogFromItems(ctx.items);
-    const { changes: addBack } = addItem(inventory, catalog, previousItemId, 1);
-    return [...changes, ...addBack];
+  const result = unequipSlot({ world: ctx.world, items: ctx.items }, owner, inventory, slotName);
+  if (!result.ok) {
+    if (result.reason === "inventory_full") {
+      const message = "You don't have enough inventory space to do that.";
+      emitMessage(ctx, owner, message, serverTime);
+      return { outcome: "invalid", message };
+    }
+    return { outcome: "invalid", message: "" };
   }
-  return changes;
-}
 
-function getOrCreateEquipment(world: World, owner: EntityId): EquipmentComponent {
-  const existing = world.stores.equipment.get(owner);
-  if (existing) {
-    return existing;
-  }
-  const created: EquipmentComponent = { entityId: owner, slots: {} };
-  world.stores.equipment.set(owner, created);
-  return created;
+  ctx.deltas.markInventoryDelta(buildDelta(inventory, result.changes));
+  ctx.deltas.markEntityUpdate(owner, { equipment: equipmentUpdate(result.equipment) });
+  const name = ctx.items.get(result.itemId)?.name ?? result.itemId;
+  const message = `You unequip the ${name}.`;
+  emitMessage(ctx, owner, message, serverTime);
+  return { outcome: "unequipped", message };
 }

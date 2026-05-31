@@ -11,7 +11,7 @@ import { GAME_TICK_MS } from "@old-town/shared";
 import { type BootContentResult, loadContent } from "./content-loader";
 import { type World, createWorld } from "./ecs/world";
 import { loadRuntimeConfig } from "./env";
-import { handleItemIntent } from "./items/item-actions";
+import { handleItemIntent, handleUnequipIntent } from "./items/item-actions";
 import { createLogger } from "./logger";
 import { CommandRouter } from "./net/command-router";
 import { DeltaBroadcaster } from "./net/delta-broadcaster";
@@ -106,6 +106,17 @@ export async function startServer(): Promise<GameServer> {
             { world, deltas, items: content.registries.item },
             group.ownerEntityId,
             intent.payload,
+            serverTime,
+          );
+        } else if (
+          intent.kind === IntentKind.UiAction &&
+          intent.payload.action === "unequip" &&
+          intent.payload.value !== undefined
+        ) {
+          handleUnequipIntent(
+            { world, deltas, items: content.registries.item },
+            group.ownerEntityId,
+            intent.payload.value,
             serverTime,
           );
         }

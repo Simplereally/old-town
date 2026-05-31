@@ -30,3 +30,24 @@ export const INVENTORY_SIZE = 28;
 
 /** Number of equipment slots a character can wear at once (POC_SPEC §16.3). */
 export const EQUIPMENT_SLOT_COUNT = 11;
+
+/**
+ * Canonical equipment slot order (POC_SPEC §16.3). The array index is the wire index used by
+ * `EquipmentUpdate.slots`, so server aggregation and client rendering cannot drift.
+ */
+export const EQUIPMENT_SLOTS = [
+  "head",
+  "cape",
+  "neck",
+  "weapon",
+  "body",
+  "shield",
+  "legs",
+  "hands",
+  "feet",
+  "ring",
+  "ammo",
+] as const;
+
+/** A canonical equipment slot name (POC_SPEC §16.3). */
+export type EquipmentSlotName = (typeof EQUIPMENT_SLOTS)[number];

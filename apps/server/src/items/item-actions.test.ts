@@ -2,8 +2,9 @@ import type { ItemDef } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { createWorld } from "../ecs/world";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
+import { createEquipment } from "./equipment";
 import { addItem, catalogFromItems, count, createInventory } from "./inventory";
-import { type ItemActionContext, handleItemIntent } from "./item-actions";
+import { type ItemActionContext, handleItemIntent, handleUnequipIntent } from "./item-actions";
 
 function defItem(over: Partial<ItemDef> & { id: string }): ItemDef {
   return {
@@ -51,7 +52,7 @@ function setup(seed: readonly { itemId: string; quantity: number }[]) {
   const owner = world.createEntity();
   const inventory = createInventory(owner, `inventory:${owner}`, 28);
   world.stores.inventory.set(owner, inventory);
-  world.stores.equipment.set(owner, { entityId: owner, slots: {} });
+  world.stores.equipment.set(owner, createEquipment(owner));
   const catalog = catalogFromItems(ITEMS);
   for (const { itemId, quantity } of seed) {
     addItem(inventory, catalog, itemId, quantity);
@@ -138,6 +139,15 @@ describe("handleItemIntent — equip", () => {
     expect(world.stores.equipment.get(owner)?.slots.head).toBe("test_helm");
   });
 
+  it("emits an EQUIPMENT entity update so the client can render the change", () => {
+    const { ctx, owner, inventory, deltas } = setup([{ itemId: "test_blade", quantity: 1 }]);
+    const uid = inventory.slots[0]?.uid ?? 0;
+    handleItemIntent(ctx, owner, { itemUid: uid, option: "wield" }, SERVER_TIME);
+
+    const update = deltas.peek().entityUpdates.find((u) => u.entityId === owner);
+    expect(update?.changes.equipment?.slots[3]).toBe("test_blade"); // weapon index
+  });
+
   it("refuses to equip a non-equippable item without mutating", () => {
     const { ctx, owner, world, inventory, deltas } = setup([{ itemId: "test_axe", quantity: 1 }]);
     const uid = inventory.slots[0]?.uid ?? 0;
@@ -193,5 +203,35 @@ describe("handleItemIntent — use / unknown", () => {
 
     expect(result.outcome).toBe("invalid");
     expect(deltas.peek().inventoryDelta).toBeUndefined();
+  });
+});
+
+describe("handleUnequipIntent", () => {
+  it("returns an equipped item to the inventory and emits an equipment update", () => {
+    const { ctx, owner, world, inventory, deltas } = setup([{ itemId: "test_blade", quantity: 1 }]);
+    const uid = inventory.slots[0]?.uid ?? 0;
+    handleItemIntent(ctx, owner, { itemUid: uid, option: "wield" }, SERVER_TIME);
+
+    const result = handleUnequipIntent(ctx, owner, 3, SERVER_TIME); // weapon index
+    expect(result.outcome).toBe("unequipped");
+    expect(count(inventory, "test_blade")).toBe(1);
+    expect(world.stores.equipment.get(owner)?.slots.weapon).toBeUndefined();
+    const update = deltas.peek().entityUpdates.find((u) => u.entityId === owner);
+    expect(update?.changes.equipment?.slots[3]).toBeNull();
+  });
+
+  it("fails to unequip into a full inventory without mutating", () => {
+    const { ctx, owner, world, inventory } = setup([{ itemId: "test_blade", quantity: 1 }]);
+    const uid = inventory.slots[0]?.uid ?? 0;
+    handleItemIntent(ctx, owner, { itemUid: uid, option: "wield" }, SERVER_TIME);
+    // Fill every inventory slot so the unequip has nowhere to land.
+    for (let i = 0; i < inventory.capacity; i += 1) {
+      if (!inventory.slots[i]) {
+        inventory.slots[i] = { itemId: "test_axe", quantity: 1, uid: 1000 + i };
+      }
+    }
+    const result = handleUnequipIntent(ctx, owner, 3, SERVER_TIME);
+    expect(result.outcome).toBe("invalid");
+    expect(world.stores.equipment.get(owner)?.slots.weapon).toBe("test_blade");
   });
 });
