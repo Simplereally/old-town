@@ -16,6 +16,7 @@
 import { EQUIPMENT_SLOTS, type EntityId, type ItemDef, type ItemIntent } from "@old-town/shared";
 import type { World } from "../ecs/world";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
+import type { ConsumableSystem } from "../systems/consumable-system";
 import { equipItem, equipmentUpdate, unequipSlot } from "./equipment";
 import { buildDelta, findSlotByUid, removeFromSlot } from "./inventory";
 
@@ -24,6 +25,8 @@ export interface ItemActionContext {
   readonly deltas: DeltaAccumulator;
   /** Item registry for definition lookups (examine text, equip slot, consumable, stackable). */
   readonly items: ReadonlyMap<string, ItemDef>;
+  /** Defers eat/drink heals to the stat-change tick phase (POC_SPEC §13.9, §9.1). */
+  readonly consumables: ConsumableSystem;
 }
 
 /** What the dispatcher did, for callers/tests. `invalid` means no state changed. */
@@ -63,6 +66,7 @@ export function handleItemIntent(
   ctx: ItemActionContext,
   owner: EntityId,
   intent: ItemIntent,
+  tick: number,
   serverTime: number,
 ): ItemActionResult {
   const invalid = (message: string): ItemActionResult => {
@@ -120,9 +124,24 @@ export function handleItemIntent(
     if (!def.consumable) {
       return invalid(GENERIC_NOTHING);
     }
-    // S02 only consumes the item; S04 adds HP healing, eat delay, and tick-phase priority.
+    const combatant = ctx.world.stores.combatant.get(owner);
+    if (!combatant) {
+      // No hitpoints to restore — leave the food untouched rather than wasting it.
+      return invalid(GENERIC_NOTHING);
+    }
+    if (tick < combatant.eatBlockedUntilTick) {
+      // Still inside the content-defined eat delay from a recent consume — silently ignore,
+      // matching the OSRS feel where over-fast eat clicks are dropped, not punished.
+      return { outcome: "invalid", message: "" };
+    }
+
+    // Consume one unit now (the food leaves the inventory on the eat tick) and apply the eat
+    // delay. The HP restore is deferred to the stat-change phase so a same-tick incoming hit
+    // resolves first (POC_SPEC §13.9, §9.1 phase 9 > phase 8).
     const { changes } = removeFromSlot(inventory, slot, 1);
     ctx.deltas.markInventoryDelta(buildDelta(inventory, changes));
+    ctx.consumables.enqueueHeal(owner, def.consumable.heal);
+    combatant.eatBlockedUntilTick = tick + def.consumable.consumeTicks;
     const verb = option === "drink" ? "drink" : "eat";
     const message = `You ${verb} the ${def.name}.`;
     emitMessage(ctx, owner, message, serverTime);

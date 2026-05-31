@@ -28,7 +28,11 @@ import type { TransportSession } from "./websocket-transport";
 
 export const DEV_SPAWN_TILE: TileCoord = { x: 30, y: 32, plane: 0 };
 
-const STARTER_ITEMS = ["pennywrought_axe", "pennywrought_pickaxe"] as const;
+const STARTER_ITEMS: readonly { itemId: string; quantity: number }[] = [
+  { itemId: "pennywrought_axe", quantity: 1 },
+  { itemId: "pennywrought_pickaxe", quantity: 1 },
+  { itemId: "bread", quantity: 5 },
+];
 
 export class DevSessionManager {
   private readonly entityBySession = new Map<string, EntityId>();
@@ -120,6 +124,7 @@ export class DevSessionManager {
       defenceLevel: 1,
       targetId: undefined,
       attackCooldown: 0,
+      eatBlockedUntilTick: 0,
     });
     return entityId;
   }
@@ -127,8 +132,8 @@ export class DevSessionManager {
   private createStarterInventory(entityId: EntityId): InventoryComponent {
     const inventory = createInventory(entityId, `inventory:${entityId}`, INVENTORY_SIZE);
     const catalog = catalogFromItems(this.registries.item);
-    for (const itemId of STARTER_ITEMS) {
-      addItem(inventory, catalog, itemId, 1);
+    for (const { itemId, quantity } of STARTER_ITEMS) {
+      addItem(inventory, catalog, itemId, quantity);
     }
     return inventory;
   }

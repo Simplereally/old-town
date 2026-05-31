@@ -159,6 +159,7 @@ export function loadRegionMapIntoWorld(
         defenceLevel: npcDef.stats?.defence ?? 1,
         targetId: undefined,
         attackCooldown: 0,
+        eatBlockedUntilTick: 0,
       });
     }
     npcEntityIds.push(entityId);

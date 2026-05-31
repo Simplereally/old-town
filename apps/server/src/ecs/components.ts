@@ -120,6 +120,12 @@ export interface CombatantComponent {
   defenceLevel: number;
   targetId: EntityId | undefined;
   attackCooldown: number;
+  /**
+   * Tick (exclusive) until which eating/drinking is blocked, implementing the content-defined
+   * eat delay (`consumeTicks`). `0` means free to eat. Lives here because the eat delay is a
+   * combat-timing mechanic (POC_SPEC §13.9) that interacts with the same tick as damage.
+   */
+  eatBlockedUntilTick: number;
 }
 
 /** Resource node (tree, rock, fishing spot). */

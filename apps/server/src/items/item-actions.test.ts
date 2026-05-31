@@ -2,6 +2,7 @@ import type { ItemDef } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { createWorld } from "../ecs/world";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
+import { ConsumableSystem } from "../systems/consumable-system";
 import { createEquipment } from "./equipment";
 import { addItem, catalogFromItems, count, createInventory } from "./inventory";
 import { type ItemActionContext, handleItemIntent, handleUnequipIntent } from "./item-actions";
@@ -41,33 +42,61 @@ const BREAD = defItem({
   stackable: true,
   examine: "Fresh bread.",
   options: ["eat", "drop"],
-  consumable: { heal: 5, consumeTicks: 1 },
+  consumable: { heal: 5, consumeTicks: 3 },
 });
 const AXE = defItem({ id: "test_axe", name: "Test Axe", options: ["drop"], tags: ["axe"] });
 
 const ITEMS = new Map([BLADE, HELM, BREAD, AXE].map((d) => [d.id, d]));
 
-function setup(seed: readonly { itemId: string; quantity: number }[]) {
+function setup(
+  seed: readonly { itemId: string; quantity: number }[],
+  combat?: { health: number; maxHealth: number },
+) {
   const world = createWorld();
   const owner = world.createEntity();
   const inventory = createInventory(owner, `inventory:${owner}`, 28);
   world.stores.inventory.set(owner, inventory);
   world.stores.equipment.set(owner, createEquipment(owner));
+  if (combat) {
+    world.stores.combatant.set(owner, {
+      entityId: owner,
+      health: combat.health,
+      maxHealth: combat.maxHealth,
+      attackLevel: 1,
+      strengthLevel: 1,
+      defenceLevel: 1,
+      targetId: undefined,
+      attackCooldown: 0,
+      eatBlockedUntilTick: 0,
+    });
+  }
   const catalog = catalogFromItems(ITEMS);
   for (const { itemId, quantity } of seed) {
     addItem(inventory, catalog, itemId, quantity);
   }
   const deltas = new DeltaAccumulator();
-  const ctx: ItemActionContext = { world, deltas, items: ITEMS };
-  return { world, owner, inventory, deltas, ctx };
+  const consumables = new ConsumableSystem();
+  const ctx: ItemActionContext = { world, deltas, items: ITEMS, consumables };
+  return { world, owner, inventory, deltas, consumables, ctx };
 }
 
+const TICK = 100;
 const SERVER_TIME = 1_000;
+
+function uidOf(inventory: ReturnType<typeof setup>["inventory"], slot = 0): number {
+  return inventory.slots[slot]?.uid ?? 0;
+}
 
 describe("handleItemIntent — validation", () => {
   it("rejects a uid that is not in the inventory without mutating", () => {
     const { ctx, owner, deltas } = setup([{ itemId: "test_axe", quantity: 1 }]);
-    const result = handleItemIntent(ctx, owner, { itemUid: 999, option: "drop" }, SERVER_TIME);
+    const result = handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: 999, option: "drop" },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result.outcome).toBe("invalid");
     expect(deltas.peek().inventoryDelta).toBeUndefined();
@@ -76,8 +105,13 @@ describe("handleItemIntent — validation", () => {
 
   it("addresses every action message privately to the actor", () => {
     const { ctx, owner, inventory, deltas } = setup([{ itemId: "test_axe", quantity: 1 }]);
-    const uid = inventory.slots[0]?.uid ?? 0;
-    handleItemIntent(ctx, owner, { itemUid: uid, option: "examine" }, SERVER_TIME);
+    handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), option: "examine" },
+      TICK,
+      SERVER_TIME,
+    );
     const chat = deltas.peek().chat?.[0];
     expect(chat).toMatchObject({ channel: "system", entityId: owner, serverTime: SERVER_TIME });
   });
@@ -86,8 +120,13 @@ describe("handleItemIntent — validation", () => {
 describe("handleItemIntent — examine", () => {
   it("returns the examine text and mutates nothing", () => {
     const { ctx, owner, inventory, deltas } = setup([{ itemId: "test_blade", quantity: 1 }]);
-    const uid = inventory.slots[0]?.uid ?? 0;
-    const result = handleItemIntent(ctx, owner, { itemUid: uid, option: "examine" }, SERVER_TIME);
+    const result = handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), option: "examine" },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result).toEqual({ outcome: "examined", message: "A sharp blade." });
     expect(count(inventory, "test_blade")).toBe(1);
@@ -98,8 +137,13 @@ describe("handleItemIntent — examine", () => {
 describe("handleItemIntent — drop", () => {
   it("removes the whole slot and emits an inventory delta", () => {
     const { ctx, owner, inventory, deltas } = setup([{ itemId: "test_axe", quantity: 1 }]);
-    const uid = inventory.slots[0]?.uid ?? 0;
-    const result = handleItemIntent(ctx, owner, { itemUid: uid, option: "drop" }, SERVER_TIME);
+    const result = handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), option: "drop" },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result.outcome).toBe("dropped");
     expect(count(inventory, "test_axe")).toBe(0);
@@ -110,8 +154,13 @@ describe("handleItemIntent — drop", () => {
 describe("handleItemIntent — equip", () => {
   it("moves an equippable item into its slot and out of the inventory", () => {
     const { ctx, owner, world, inventory } = setup([{ itemId: "test_blade", quantity: 1 }]);
-    const uid = inventory.slots[0]?.uid ?? 0;
-    const result = handleItemIntent(ctx, owner, { itemUid: uid, option: "wield" }, SERVER_TIME);
+    const result = handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), option: "wield" },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result.outcome).toBe("equipped");
     expect(count(inventory, "test_blade")).toBe(0);
@@ -124,8 +173,7 @@ describe("handleItemIntent — equip", () => {
     if (equipment) {
       equipment.slots.weapon = "test_axe"; // pretend an axe is already wielded
     }
-    const uid = inventory.slots[0]?.uid ?? 0;
-    handleItemIntent(ctx, owner, { itemUid: uid, option: "wield" }, SERVER_TIME);
+    handleItemIntent(ctx, owner, { itemUid: uidOf(inventory), option: "wield" }, TICK, SERVER_TIME);
 
     expect(world.stores.equipment.get(owner)?.slots.weapon).toBe("test_blade");
     expect(count(inventory, "test_axe")).toBe(1);
@@ -134,15 +182,13 @@ describe("handleItemIntent — equip", () => {
 
   it("equips into the correct content-defined slot", () => {
     const { ctx, owner, world, inventory } = setup([{ itemId: "test_helm", quantity: 1 }]);
-    const uid = inventory.slots[0]?.uid ?? 0;
-    handleItemIntent(ctx, owner, { itemUid: uid, option: "wear" }, SERVER_TIME);
+    handleItemIntent(ctx, owner, { itemUid: uidOf(inventory), option: "wear" }, TICK, SERVER_TIME);
     expect(world.stores.equipment.get(owner)?.slots.head).toBe("test_helm");
   });
 
   it("emits an EQUIPMENT entity update so the client can render the change", () => {
     const { ctx, owner, inventory, deltas } = setup([{ itemId: "test_blade", quantity: 1 }]);
-    const uid = inventory.slots[0]?.uid ?? 0;
-    handleItemIntent(ctx, owner, { itemUid: uid, option: "wield" }, SERVER_TIME);
+    handleItemIntent(ctx, owner, { itemUid: uidOf(inventory), option: "wield" }, TICK, SERVER_TIME);
 
     const update = deltas.peek().entityUpdates.find((u) => u.entityId === owner);
     expect(update?.changes.equipment?.slots[3]).toBe("test_blade"); // weapon index
@@ -150,8 +196,13 @@ describe("handleItemIntent — equip", () => {
 
   it("refuses to equip a non-equippable item without mutating", () => {
     const { ctx, owner, world, inventory, deltas } = setup([{ itemId: "test_axe", quantity: 1 }]);
-    const uid = inventory.slots[0]?.uid ?? 0;
-    const result = handleItemIntent(ctx, owner, { itemUid: uid, option: "equip" }, SERVER_TIME);
+    const result = handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), option: "equip" },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result).toEqual({ outcome: "invalid", message: "You can't equip that." });
     expect(count(inventory, "test_axe")).toBe(1);
@@ -161,10 +212,18 @@ describe("handleItemIntent — equip", () => {
 });
 
 describe("handleItemIntent — eat", () => {
-  it("consumes one unit of a stackable food on success", () => {
-    const { ctx, owner, inventory, deltas } = setup([{ itemId: "test_bread", quantity: 3 }]);
-    const uid = inventory.slots[0]?.uid ?? 0;
-    const result = handleItemIntent(ctx, owner, { itemUid: uid, option: "eat" }, SERVER_TIME);
+  it("consumes one unit, queues the heal, and applies the eat delay", () => {
+    const { ctx, owner, world, inventory, deltas, consumables } = setup(
+      [{ itemId: "test_bread", quantity: 3 }],
+      { health: 4, maxHealth: 10 },
+    );
+    const result = handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), option: "eat" },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result.outcome).toBe("eaten");
     expect(count(inventory, "test_bread")).toBe(2);
@@ -173,12 +232,80 @@ describe("handleItemIntent — eat", () => {
       itemId: "test_bread",
       quantity: 2,
     });
+    // The heal is deferred to the stat-change phase — health is untouched at input close.
+    expect(consumables.pendingCount).toBe(1);
+    expect(world.stores.combatant.get(owner)?.health).toBe(4);
+    expect(world.stores.combatant.get(owner)?.eatBlockedUntilTick).toBe(TICK + 3);
+  });
+
+  it("silently ignores a second eat while still inside the eat delay", () => {
+    const { ctx, owner, inventory, consumables } = setup([{ itemId: "test_bread", quantity: 3 }], {
+      health: 4,
+      maxHealth: 10,
+    });
+    handleItemIntent(ctx, owner, { itemUid: uidOf(inventory), option: "eat" }, TICK, SERVER_TIME);
+    const second = handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), option: "eat" },
+      TICK + 1, // still < TICK + 3
+      SERVER_TIME,
+    );
+
+    expect(second).toEqual({ outcome: "invalid", message: "" });
+    expect(count(inventory, "test_bread")).toBe(2); // only the first eat consumed a unit
+    expect(consumables.pendingCount).toBe(1);
+  });
+
+  it("eats again once the eat delay has elapsed", () => {
+    const { ctx, owner, inventory, consumables } = setup([{ itemId: "test_bread", quantity: 3 }], {
+      health: 4,
+      maxHealth: 10,
+    });
+    handleItemIntent(ctx, owner, { itemUid: uidOf(inventory), option: "eat" }, TICK, SERVER_TIME);
+    const later = handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), option: "eat" },
+      TICK + 3,
+      SERVER_TIME,
+    );
+
+    expect(later.outcome).toBe("eaten");
+    expect(count(inventory, "test_bread")).toBe(1);
+    expect(consumables.pendingCount).toBe(2);
+  });
+
+  it("fails to eat without a combatant (nothing to heal) and keeps the food", () => {
+    const { ctx, owner, inventory, deltas, consumables } = setup([
+      { itemId: "test_bread", quantity: 1 },
+    ]);
+    const result = handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), option: "eat" },
+      TICK,
+      SERVER_TIME,
+    );
+
+    expect(result.outcome).toBe("invalid");
+    expect(count(inventory, "test_bread")).toBe(1);
+    expect(consumables.pendingCount).toBe(0);
+    expect(deltas.peek().inventoryDelta).toBeUndefined();
   });
 
   it("fails to eat a non-consumable item without mutating", () => {
-    const { ctx, owner, inventory, deltas } = setup([{ itemId: "test_axe", quantity: 1 }]);
-    const uid = inventory.slots[0]?.uid ?? 0;
-    const result = handleItemIntent(ctx, owner, { itemUid: uid, option: "eat" }, SERVER_TIME);
+    const { ctx, owner, inventory, deltas } = setup([{ itemId: "test_axe", quantity: 1 }], {
+      health: 4,
+      maxHealth: 10,
+    });
+    const result = handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), option: "eat" },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result.outcome).toBe("invalid");
     expect(count(inventory, "test_axe")).toBe(1);
@@ -189,8 +316,13 @@ describe("handleItemIntent — eat", () => {
 describe("handleItemIntent — use / unknown", () => {
   it("acknowledges use as a placeholder without mutating", () => {
     const { ctx, owner, inventory, deltas } = setup([{ itemId: "test_axe", quantity: 1 }]);
-    const uid = inventory.slots[0]?.uid ?? 0;
-    const result = handleItemIntent(ctx, owner, { itemUid: uid, option: "use" }, SERVER_TIME);
+    const result = handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), option: "use" },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result.outcome).toBe("used");
     expect(deltas.peek().inventoryDelta).toBeUndefined();
@@ -198,8 +330,13 @@ describe("handleItemIntent — use / unknown", () => {
 
   it("treats an unknown option as a no-op", () => {
     const { ctx, owner, inventory, deltas } = setup([{ itemId: "test_axe", quantity: 1 }]);
-    const uid = inventory.slots[0]?.uid ?? 0;
-    const result = handleItemIntent(ctx, owner, { itemUid: uid, option: "smell" }, SERVER_TIME);
+    const result = handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), option: "smell" },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result.outcome).toBe("invalid");
     expect(deltas.peek().inventoryDelta).toBeUndefined();
@@ -209,8 +346,7 @@ describe("handleItemIntent — use / unknown", () => {
 describe("handleUnequipIntent", () => {
   it("returns an equipped item to the inventory and emits an equipment update", () => {
     const { ctx, owner, world, inventory, deltas } = setup([{ itemId: "test_blade", quantity: 1 }]);
-    const uid = inventory.slots[0]?.uid ?? 0;
-    handleItemIntent(ctx, owner, { itemUid: uid, option: "wield" }, SERVER_TIME);
+    handleItemIntent(ctx, owner, { itemUid: uidOf(inventory), option: "wield" }, TICK, SERVER_TIME);
 
     const result = handleUnequipIntent(ctx, owner, 3, SERVER_TIME); // weapon index
     expect(result.outcome).toBe("unequipped");
@@ -222,8 +358,7 @@ describe("handleUnequipIntent", () => {
 
   it("fails to unequip into a full inventory without mutating", () => {
     const { ctx, owner, world, inventory } = setup([{ itemId: "test_blade", quantity: 1 }]);
-    const uid = inventory.slots[0]?.uid ?? 0;
-    handleItemIntent(ctx, owner, { itemUid: uid, option: "wield" }, SERVER_TIME);
+    handleItemIntent(ctx, owner, { itemUid: uidOf(inventory), option: "wield" }, TICK, SERVER_TIME);
     // Fill every inventory slot so the unequip has nowhere to land.
     for (let i = 0; i < inventory.capacity; i += 1) {
       if (!inventory.slots[i]) {

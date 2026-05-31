@@ -31,7 +31,7 @@ Implement authoritative item containers, item actions, equipment stat aggregatio
 - [X] `E08-S01` — [Implement inventory container system](../completed/stories/E08/E08-S01_implement-inventory-container-system.md)
 - [X] `E08-S02` — [Implement item action handling](../completed/stories/E08/E08-S02_implement-item-action-handling.md)
 - [X] `E08-S03` — [Implement equipment system](../completed/stories/E08/E08-S03_implement-equipment-system.md)
-- [ ] `E08-S04` — [Implement consumables and healing](../stories/E08/E08-S04_implement-consumables-and-healing.md)
+- [X] `E08-S04` — [Implement consumables and healing](../completed/stories/E08/E08-S04_implement-consumables-and-healing.md)
 - [ ] `E08-S05` — [Implement character skills and derived stats](../stories/E08/E08-S05_implement-character-skills-and-derived-stats.md)
 
 ## Epic acceptance criteria

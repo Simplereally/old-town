@@ -22,6 +22,7 @@ import { CommandBuffer, IntentKind } from "./sim/command-buffer";
 import { DeltaAccumulator } from "./sim/delta-accumulator";
 import { TickLoop, TickPhase } from "./sim/tick-loop";
 import { ChatSystem } from "./systems/chat-system";
+import { ConsumableSystem } from "./systems/consumable-system";
 import { handleMoveIntent, processMovementPhase } from "./systems/movement-system";
 import { CollisionMap } from "./world/collision";
 import { loadAllRegionMapsIntoWorld } from "./world/region-loader";
@@ -76,6 +77,7 @@ export async function startServer(): Promise<GameServer> {
   const interestManager = new InterestManager();
   const tickLoop = new TickLoop({ logger, startServerTime: Date.now() });
   const chatSystem = new ChatSystem();
+  const consumableSystem = new ConsumableSystem();
   const commandRouter = new CommandRouter({
     commandBuffer,
     getEntityId: (session) => devSessions.getEntityId(session),
@@ -103,9 +105,10 @@ export async function startServer(): Promise<GameServer> {
           );
         } else if (intent.kind === IntentKind.Item) {
           handleItemIntent(
-            { world, deltas, items: content.registries.item },
+            { world, deltas, items: content.registries.item, consumables: consumableSystem },
             group.ownerEntityId,
             intent.payload,
+            tick,
             serverTime,
           );
         } else if (
@@ -114,7 +117,7 @@ export async function startServer(): Promise<GameServer> {
           intent.payload.value !== undefined
         ) {
           handleUnequipIntent(
-            { world, deltas, items: content.registries.item },
+            { world, deltas, items: content.registries.item, consumables: consumableSystem },
             group.ownerEntityId,
             intent.payload.value,
             serverTime,
@@ -125,6 +128,11 @@ export async function startServer(): Promise<GameServer> {
   });
   tickLoop.registerPhase(TickPhase.Movement, ({ tick }) => {
     processMovementPhase({ world, collision, deltas }, tick);
+  });
+  // Food/potion stat changes (§9.1 phase 9) run strictly after damage resolution (phase 8),
+  // so a same-tick incoming hit always lands before food heals (POC_SPEC §13.9).
+  tickLoop.registerPhase(TickPhase.FoodPotionPrayerStatChanges, () => {
+    consumableSystem.processConsumablePhase({ world, deltas });
   });
   tickLoop.registerPhase(TickPhase.SnapshotDeltaBuild, ({ tick, serverTime }) => {
     netRuntime.deltaBroadcaster?.broadcastTick(tick, serverTime);
