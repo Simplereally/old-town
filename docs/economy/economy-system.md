@@ -11,6 +11,7 @@ Authority references:
 - `docs/world/shops-and-services.md`
 - `docs/economy/shop-system.md`
 - `docs/economy/reward-calibration.md`
+- `docs/ledger/civic-ledger-system.md`
 
 # Economy System
 
@@ -45,4 +46,19 @@ Players should say:
 3. Wardenry is the best early structured coin source.
 4. Production skills create trade value more than direct coin.
 5. Quests reward unlocks more than raw money.
+
+## Ledger Economy
+
+The Civic Ledger is not a separate currency system. It is an overlay on existing economy. See [`../ledger/civic-ledger-system.md`](../ledger/civic-ledger-system.md).
+
+| Ledger Activity | Economic Impact |
+|-----------------|-----------------|
+| Deed tier rewards | Service discounts, shop stock unlocks, not direct coin |
+| Oldroad Trails | Material rewards that feed skilling or selling |
+| Public Works | Small Bell Token and coin rewards, modest XP |
+| Charter fees | One-time coin or material sink for permanent access |
+| Nook building | Plank and fitting sink, no coin |
+| Permit forging | Coin sink for Marn Lock's blacksealed services |
+
+Ledger rewards should not replace shop economy. They should complement it.
 

@@ -12,6 +12,7 @@ Authority references:
 - `docs/skills/skill-system.md`
 - `docs/skills/skill-interlocks.md`
 - `docs/creatures/wardenry-contracts.md`
+- `docs/ledger/civic-ledger-system.md`
 - `POC_SPEC.md`
 
 # Utility Skills
@@ -87,6 +88,8 @@ Train Sleight by pickpocketing NPCs, stealing from market stalls, and disarming 
 ### Output and Benefit
 
 Sleight produces coins, loot, quest items, and access to restricted areas that are locked or guarded. No tool is required; the player uses their hands and wits alone. The risk of getting caught increases with target level. Guards will chase, fine, or place a bounty on repeat offenders.
+
+Sleight connects to the Civic Ledger through Marn Lock at the Sootcellar. He can "adjust" ledger records, forge permits, and knows blacksealed Oldroad Trails. Forgery unlocks at level 50 allow counterfeit permits that bypass charter requirements for a fee. See [`../ledger/charters-and-permits.md`](../ledger/charters-and-permits.md).
 
 ### Skill Verbs
 
@@ -205,7 +208,9 @@ Train Cartography by surveying landmarks, completing map sections, and discoveri
 
 ### Output and Benefit
 
-Cartography unlocks fast travel points between surveyed locations, route optimization that reduces travel time, clue scrolls that lead to rare rewards, and survey posts that act as waypoints for other players. A survey kit is required, and the kit itself requires a minimum Cartography level to use. Cartography unlocks routes on the map; Wayfaring then allows the player to actually traverse those routes through shortcuts and ferries.
+Cartography unlocks fast travel points between surveyed locations, route optimization that reduces travel time, Oldroad Trails that lead to rare rewards, and survey posts that act as waypoints for other players. A survey kit is required, and the kit itself requires a minimum Cartography level to use. Cartography unlocks routes on the map; Wayfaring then allows the player to actually traverse those routes through shortcuts and ferries.
+
+Cartography and Wayfaring are central to the Civic Ledger. Finch Quill at Oldroad Gate uses Cartography to sketch trail steps and survey landmarks. Wayfaring route unlocks are ledger rewards for district deed tiers. See [`../ledger/civic-ledger-system.md`](../ledger/civic-ledger-system.md).
 
 ### Skill Verbs
 

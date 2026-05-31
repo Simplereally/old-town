@@ -66,6 +66,51 @@ docs/
     wardenry-contracts.md ← Contract ladder and starter contracts
     rare-drops-and-trophies.md ← Rare reward identity
     minibosses.md      ← First named encounters
+  favour/
+    00-index.md        ← Favour, shrine, and boon entry point
+    favour-system.md   ← Core Favour terms and rules
+    shrines-and-rites.md ← Shrine types and rites
+    offerings-and-training.md ← Offerings and XP methods
+    boons-and-oaths.md ← Boons, wards, and oaths
+    favour-items.md    ← Favour item families
+    shrine-economy.md  ← Shrine sinks and demand loops
+    starter-favour-progression.md ← First Favour path
+  quests/
+    00-index.md        ← Quest and dialogue bible entry point
+    quest-system.md    ← Quest rules and dialogue graph fields
+    dialogue-style-guide.md ← Dialogue tone rules
+    npc-voice-bible.md ← Starter NPC voice profiles
+    starter-quest-arc.md ← First quest arc
+    smoke-over-old-town.md ← POC quest structure
+    rats-under-tallys.md ← Combat and Wardenry intro quest
+    a-penny-for-the-forge.md ← Mining and Smithing intro quest
+    string-enough-to-sing.md ← Bowcraft and Trapping intro quest
+    the-beadwifes-errand.md ← Beadwork and Magic intro quest
+    gravegate-flowers.md ← Favour and Gravegate intro quest
+    the-missing-bell-clapper.md ← Sleight and Cartography intro quest
+    quest-rewards-and-reclaim.md ← Quest rewards and item reclaim
+  economy/
+    00-index.md        ← Shops, services, prices, and economy entry point
+    economy-system.md  ← Core economy rules
+    currency-and-value-bands.md ← Currencies and price bands
+    shop-system.md     ← Shop stock and policy fields
+    starter-shop-stocks.md ← Starter shop stock tables
+    services-and-fees.md ← Service fee bands
+    banks-storage-and-reclaim.md ← Counting House rules
+    repair-and-degradation.md ← Repair and degradation rules
+    item-sinks-and-inflation-control.md ← Economy sinks
+    reward-calibration.md ← Reward profiles
+  ledger/
+    00-index.md        ← Civic Ledger entry point
+    civic-ledger-system.md ← Core ledger authority and deed tiers
+    district-deeds.md  ← Area diary tasks and rewards
+    oldroad-trails.md  ← Clue-scroll equivalent
+    clue-step-types.md ← Trail step types
+    nooks-and-stash-spots.md ← Buildable local storage
+    charters-and-permits.md ← Guild-style access and permits
+    public-works.md   ← Repeatable town jobs
+    rewards-and-stamps.md ← Reward philosophy and types
+    starter-ledger-content.md ← Quick-reference summary
   consumables/
     00-index.md        ← Consumables system entry point
     consumable-system.md ← Core consumable authority
@@ -162,6 +207,10 @@ docs/
 | Understand recipes and production actions | [`recipes/00-index.md`](recipes/00-index.md) |
 | Understand Old Town starter topology | [`world/00-index.md`](world/00-index.md) |
 | Understand creatures, drops, and Wardenry | [`creatures/00-index.md`](creatures/00-index.md) |
+| Understand Favour and shrine economy | [`favour/00-index.md`](favour/00-index.md) |
+| Understand quests and dialogue | [`quests/00-index.md`](quests/00-index.md) |
+| Understand the Civic Ledger, deeds, and trails | [`ledger/00-index.md`](ledger/00-index.md) |
+| Understand shops, services, and prices | [`economy/00-index.md`](economy/00-index.md) |
 | Understand consumables | [`consumables/00-index.md`](consumables/00-index.md) → [`consumable-system.md`](consumables/consumable-system.md) |
 | Find an axe or pickaxe | [`items/tools/00-index.md`](items/tools/00-index.md) |
 | Find a quest item | [`items/quest/00-index.md`](items/quest/00-index.md) |

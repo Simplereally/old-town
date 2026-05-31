@@ -10,10 +10,13 @@ Parent: [`World Index`](00-index.md)
 Authority references:
 - `docs/world/starter-town.md`
 - `docs/tools-and-intermediates/stations.md`
+- `docs/ledger/district-deeds.md`
 
 # Districts and Routes
 
 Old Town uses a compact hub-and-spoke layout. The Market Bell is the central shorthand. Routes should be easy to say and easy to remember.
+
+Every district has a deed card in the Civic Ledger. See [`../ledger/district-deeds.md`](../ledger/district-deeds.md).
 
 ## Districts
 

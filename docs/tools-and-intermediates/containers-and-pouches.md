@@ -10,6 +10,8 @@ Parent: [`Skill Utility Substrate Index`](00-index.md)
 Authority references:
 - `docs/items/misc/bead-pouches.md`
 - `docs/items/00-index.md`
+- `docs/economy/banks-storage-and-reclaim.md`
+- `docs/ledger/nooks-and-stash-spots.md`
 - `POC_SPEC.md`
 
 # Containers and Pouches
@@ -44,6 +46,11 @@ Containers are progression items for a 28-slot inventory economy. They should im
 5. Container contents remain server-authoritative.
 6. Tradeability, drop behavior, and destroy/reclaim behavior must be explicit.
 7. Bead Pouch remains the pattern for future specialized pouches.
+8. Container storage fees and reclaim rules are governed by [`../economy/banks-storage-and-reclaim.md`](../economy/banks-storage-and-reclaim.md).
+
+## Nooks
+
+Nooks are buildable local storage spots that are part of the Civic Ledger. They are not containers in the inventory sense; they are world objects a player builds at a fixed location. See [`../ledger/nooks-and-stash-spots.md`](../ledger/nooks-and-stash-spots.md).
 
 ## Sticky Names
 
@@ -54,4 +61,3 @@ Containers are progression items for a 28-slot inventory economy. They should im
 - Map Tube
 - Contract Book
 - False-Bottom Pouch
-

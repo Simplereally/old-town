@@ -13,14 +13,22 @@ Authority references:
 - `docs/recipes/recipe-system.md`
 - `docs/world/starter-economy-loops.md`
 - `docs/creatures/starter-drop-tables.md`
+- `docs/favour/starter-favour-progression.md`
+- `docs/quests/starter-quest-arc.md`
+- `docs/economy/00-index.md`
+- `docs/ledger/civic-ledger-system.md`
 
 # Recipe Chains
 
 Starter chains teach the economy. They should be short, readable, and achievable without hidden dependencies.
 
+Shop prices and service fees for starter chains live in [`../economy/00-index.md`](../economy/00-index.md).
+
 ## Full Penny Chain
 
 Town anchor: Foundry Row, Osric Penny, north quarry, Bellows Furnace, Anvil.
+
+Quest hook: [`A Penny for the Forge`](../quests/a-penny-for-the-forge.md).
 
 | Step | Skill | Inputs | Tool / Station | Output |
 |------|-------|--------|----------------|--------|
@@ -33,6 +41,8 @@ Player language: "Mine copper and tinstone, smelt penny ingots, hammer out full 
 ## Full Lath Chain
 
 Town anchor: Lath Yard, Letha Lath, Oldroad Gate, Bow Bench.
+
+Quest hook: [`String Enough to Sing`](../quests/string-enough-to-sing.md).
 
 | Step | Skill | Inputs | Tool / Station | Output |
 |------|-------|--------|----------------|--------|
@@ -49,6 +59,8 @@ Monster-fed inputs: Bellfeathers from Bell Bats or Road Crows, Sinew Cord from B
 
 Town anchor: Patch Lane, Nell Patch, south fields, Tanning Frame.
 
+Quest hook: Nell's Good Hide, planned Full Patch quest.
+
 | Step | Skill | Inputs | Tool / Station | Output |
 |------|-------|--------|----------------|--------|
 | Trap animals | Trapping | Rabbit Hide or Fox Hide | Twine Snare | Raw Hide |
@@ -63,6 +75,8 @@ Monster-fed inputs: Wing Hide from Bell Bats, Fox Hide from Bog Foxes, torn clot
 
 Town anchor: Chalkhouse Court, Mother Tallow, Bead Kiln, Bead Loom.
 
+Quest hook: [`The Beadwife's Errand`](../quests/the-beadwifes-errand.md).
+
 | Step | Skill | Inputs | Tool / Station | Output |
 |------|-------|--------|----------------|--------|
 | Gather material | Mining | Bead Clay or Glass Sand | Pickaxe or pan | Bead material |
@@ -75,3 +89,18 @@ Town anchor: Chalkhouse Court, Mother Tallow, Bead Kiln, Bead Loom.
 Player language: "Dig clay, drill beads, fire them, string them, cast with them."
 
 Monster-fed inputs: Bone Chips and Grave Dust from Grave Mites, Echo Dust from Bell Bats, Blackcoal Ash from Ash Drake Whelps.
+
+Favour crossover: bless beads at Shrine Hearth, dedicate Bone Chips and Grave Dust at Gravegate Shrine, and use Votive Beads for Favour/Magic recipes.
+
+## Ledger Connections
+
+Completing a recipe chain counts toward district deed tiers. See [`../ledger/district-deeds.md`](../ledger/district-deeds.md).
+
+| Chain | District | Deed Tier Credit |
+|-------|----------|------------------|
+| Full Penny | Foundry Row | Stamped |
+| Full Lath | Lath Yard | Stamped |
+| Full Patch | Patch Lane | Stamped |
+| Full Chalk | Chalkhouse Court | Stamped |
+
+District deed rewards for production chains include service discounts and station access, not direct coin.

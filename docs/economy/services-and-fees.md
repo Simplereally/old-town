@@ -56,3 +56,16 @@ All service fees are provisional tuning values.
 | River Stoop | Use kitchen range | Free / low fee |
 | River Stoop | Ferry route | Later, 10-100 |
 
+## Ledger Services
+
+| Service | Fee | Provider |
+|---------|----:|----------|
+| Deed stamp (Errand tier) | Free | Tomas Tally |
+| Deed stamp (Stamped tier) | 5 | Tomas Tally |
+| Deed stamp (Chartered tier) | 15 | Tomas Tally |
+| Deed stamp (Mastered tier) | 50 | Tomas Tally |
+| Trail appraisal | 2 | Finch Quill |
+| Permit adjustment | 10-50 | Marn Lock |
+| Nook audit | 5 | Tomas Tally |
+| Public work payout | 5-25 + Bell Tokens | Varies by work |
+

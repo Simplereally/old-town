@@ -12,6 +12,8 @@ Authority references:
 - `docs/world/districts-and-routes.md`
 - `docs/world/npc-cast.md`
 - `docs/creatures/00-index.md`
+- `docs/favour/00-index.md`
+- `docs/ledger/00-index.md`
 
 # Starter Town
 
@@ -33,6 +35,7 @@ Old Town is a compact hub-and-spoke town where the Market Bell anchors first arr
 | Take first contract | Warden Steps |
 | See Favour as a civic system | Shrine Hearth |
 | Notice danger beyond comfort | Gravegate and Sootcellar |
+| Start the Civic Ledger | Counting House (Tomas Tally) |
 
 ## Acceptance Rules
 
@@ -46,3 +49,5 @@ Old Town is a compact hub-and-spoke town where the Market Bell anchors first arr
 ## Creature and Reward Authority
 
 Starter creature details, drop tables, Wardenry contracts, trophies, and minibosses live in [`../creatures/00-index.md`](../creatures/00-index.md).
+
+Favour, shrine rites, offerings, and starter boons live in [`../favour/00-index.md`](../favour/00-index.md).
