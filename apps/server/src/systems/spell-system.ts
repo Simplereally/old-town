@@ -10,7 +10,7 @@ import {
   type TileCoord,
 } from "@old-town/shared";
 import type { World } from "../ecs/world";
-import { buildDelta, count, hasAll, removeItem } from "../items/inventory";
+import { addItem, buildDelta, catalogFromItems, count, hasAll, removeFromSlot, removeItem } from "../items/inventory";
 import type { ItemAuditLog } from "../items/item-audit";
 import type { ActionHandler } from "../sim/action-executor";
 import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
@@ -285,8 +285,125 @@ function validateSpellEffect(spell: SpellDef): string | undefined {
       return spell.effect.destination ? undefined : "You cannot teleport from here.";
     case "alchemy":
     case "enchant":
-      return "That spell is not yet implemented.";
+      return undefined;
   }
+}
+
+function applyAlchemyEffect(
+  ctx: SpellSystemContext,
+  owner: EntityId,
+  spell: SpellDef,
+  tick: number,
+  serverTime: number,
+): boolean {
+  if (spell.effect.kind !== "alchemy") return true;
+
+  const inventory = ctx.world.getComponent(owner, "inventory");
+  if (!inventory) {
+    systemMessage(ctx.deltas, owner, "You have no inventory.", serverTime);
+    return true;
+  }
+
+  let slot: number | undefined;
+  let item: import("../ecs/components").InventorySlot | undefined;
+  for (let i = 0; i < inventory.capacity; i++) {
+    const s = inventory.slots[i];
+    if (s) {
+      slot = i;
+      item = s;
+      break;
+    }
+  }
+
+  if (!item || slot === undefined) {
+    systemMessage(ctx.deltas, owner, "You have nothing to alchemize.", serverTime);
+    return true;
+  }
+
+  const itemDef = ctx.registries.item.get(item.itemId);
+  const value = itemDef?.value ?? 0;
+  const coins = Math.floor(value * spell.effect.valueMultiplier);
+
+  const fromChanges = removeFromSlot(inventory, slot, 1);
+  const catalog = catalogFromItems(ctx.registries.item);
+  const toChanges = addItem(inventory, catalog, spell.effect.coinItemId, coins);
+
+  const allChanges = [...fromChanges.changes, ...toChanges.changes];
+  if (allChanges.length > 0) {
+    ctx.deltas.markInventoryDelta(buildDelta(inventory, allChanges));
+  }
+  ctx.deltas.markEntityUpdate(owner, {
+    animation: { id: SPELL_CAST_ANIMATION_ID, startTick: tick },
+    graphic: { id: `${spell.id}_cast` },
+  });
+  systemMessage(
+    ctx.deltas,
+    owner,
+    `You alchemize the ${itemDef?.name ?? item.itemId} into ${coins} coins.`,
+    serverTime,
+  );
+  return true;
+}
+
+function applyEnchantEffect(
+  ctx: SpellSystemContext,
+  owner: EntityId,
+  spell: SpellDef,
+  tick: number,
+  serverTime: number,
+): boolean {
+  if (spell.effect.kind !== "enchant") return true;
+
+  const inventory = ctx.world.getComponent(owner, "inventory");
+  if (!inventory) {
+    systemMessage(ctx.deltas, owner, "You have no inventory.", serverTime);
+    return true;
+  }
+
+  const fromItemId = spell.effect.fromItemId;
+  let slot: number | undefined;
+  let item: import("../ecs/components").InventorySlot | undefined;
+  for (let i = 0; i < inventory.capacity; i++) {
+    const s = inventory.slots[i];
+    if (s?.itemId === fromItemId) {
+      slot = i;
+      item = s;
+      break;
+    }
+  }
+
+  if (!item || slot === undefined) {
+    const fromDef = ctx.registries.item.get(fromItemId);
+    systemMessage(
+      ctx.deltas,
+      owner,
+      `You need a ${fromDef?.name ?? fromItemId} to enchant.`,
+      serverTime,
+    );
+    return true;
+  }
+
+  const fromDef = ctx.registries.item.get(item.itemId);
+  const toDef = ctx.registries.item.get(spell.effect.toItemId);
+  const fromChanges = removeFromSlot(inventory, slot, 1);
+  const catalog = catalogFromItems(ctx.registries.item);
+  const toChanges = addItem(inventory, catalog, spell.effect.toItemId, 1);
+
+  const allChanges = [...fromChanges.changes, ...toChanges.changes];
+  if (allChanges.length > 0) {
+    ctx.deltas.markInventoryDelta(buildDelta(inventory, allChanges));
+  }
+  ctx.deltas.markEntityUpdate(owner, {
+    animation: { id: SPELL_CAST_ANIMATION_ID, startTick: tick },
+    graphic: { id: `${spell.id}_cast` },
+  });
+  systemMessage(
+    ctx.deltas,
+    owner,
+    `You enchant the ${fromDef?.name ?? item.itemId} into a ${toDef?.name ?? spell.effect.toItemId}.`,
+    serverTime,
+  );
+  return true;
 }
 
 export function completeTeleportAction(
@@ -409,6 +526,22 @@ export function handleSpellIntent(
     return true;
   }
 
+  if (spell.effect.kind === "alchemy") {
+    if (inventory.slots.every((s) => !s)) {
+      systemMessage(ctx.deltas, owner, "You have nothing to alchemize.", serverTime);
+      return true;
+    }
+  }
+
+  if (spell.effect.kind === "enchant") {
+    const fromItemId = spell.effect.fromItemId;
+    if (!inventory.slots.some((s) => s?.itemId === fromItemId)) {
+      const fromDef = ctx.registries.item.get(fromItemId);
+      systemMessage(ctx.deltas, owner, `You need a ${fromDef?.name ?? fromItemId} to enchant.`, serverTime);
+      return true;
+    }
+  }
+
   const changes: InventorySlotChange[] = [];
   for (const cost of spell.beadCosts) {
     const beforeQuantity = count(inventory, cost.itemId);
@@ -438,5 +571,7 @@ export function handleSpellIntent(
   startDamageSpell(ctx, owner, spell, target, casterTile, tick);
   startBindSpell(ctx, owner, spell, target, tick);
   startTeleportSpell(ctx, owner, spell, tick);
+  applyAlchemyEffect(ctx, owner, spell, tick, serverTime);
+  applyEnchantEffect(ctx, owner, spell, tick, serverTime);
   return true;
 }

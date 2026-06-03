@@ -4,8 +4,10 @@ import type {
   BankComponent,
   CombatantComponent,
   ContractComponent,
+  DeedComponent,
   DialogueComponent,
   EquipmentComponent,
+  GraveComponent,
   GroundItemComponent,
   InventoryComponent,
   MovementComponent,
@@ -29,6 +31,7 @@ export type WorldComponentMap = {
   npc: NpcComponent;
   object: ObjectComponent;
   groundItem: GroundItemComponent;
+  grave: GraveComponent;
   inventory: InventoryComponent;
   bank: BankComponent;
   equipment: EquipmentComponent;
@@ -39,6 +42,7 @@ export type WorldComponentMap = {
   dialogue: DialogueComponent;
   shop: ShopComponent;
   contract: ContractComponent;
+  deed: DeedComponent;
   statusEffects: StatusEffectsComponent;
 };
 
@@ -91,6 +95,7 @@ export function createWorld(): World {
     npc: new Map(),
     object: new Map(),
     groundItem: new Map(),
+    grave: new Map(),
     inventory: new Map(),
     bank: new Map(),
     equipment: new Map(),
@@ -101,6 +106,7 @@ export function createWorld(): World {
     dialogue: new Map(),
     shop: new Map(),
     contract: new Map(),
+    deed: new Map(),
     statusEffects: new Map(),
   };
 

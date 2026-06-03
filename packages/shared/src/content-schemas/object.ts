@@ -24,6 +24,8 @@ export const objectDefSchema = z
     text: z.string().optional(),
     /** Destination tile for enter actions (e.g. doors, ladders). */
     transitionDestination: tileCoordSchema.optional(),
+    /** Nook entrance id, when this object is a hidden or gated area entrance. */
+    nookId: z.string().optional(),
     options: z.array(interactionOptionDefSchema).default([]),
     /** Optional model asset reference. */
     model: contentIdSchema.optional(),

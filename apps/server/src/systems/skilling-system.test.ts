@@ -654,6 +654,6 @@ describe("cooking processing loop", () => {
     expect(count(inventory, "raw_fish")).toBe(1);
     expect(actionRuntime.getDebugState()).toEqual([]);
     expect(deltas.peek().recipeLists).toBeUndefined();
-    expect(deltas.peek().chat?.[0]?.text).toBe("You have nothing suitable to cook.");
+    expect(deltas.peek().chat?.[0]?.text).toBe("You need a different cooking station.");
   });
 });

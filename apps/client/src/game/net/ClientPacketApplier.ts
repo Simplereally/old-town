@@ -7,6 +7,8 @@ import {
   type FullStatePacket,
   type HitsplatType,
   type InventoryDelta,
+  type RecipeListPacket,
+  type RecipeResultPacket,
   type RegionId,
   type SkillDelta,
   type TickDeltaPacket,
@@ -107,6 +109,10 @@ export interface IUIState {
   clearBank(): void;
   setShop(shop: import("@old-town/shared").ShopViewPacket): void;
   clearShop(): void;
+  setRecipeList(packet: RecipeListPacket): void;
+  clearRecipeList(): void;
+  setRecipeResult(packet: RecipeResultPacket): void;
+  clearRecipeResult(): void;
 }
 
 export interface PacketApplierContext {
@@ -347,6 +353,27 @@ export class ClientPacketApplier {
         if (close.interfaceId === "shop") {
           ctx.uiState.clearShop();
         }
+        if (close.interfaceId === "recipe") {
+          ctx.uiState.clearRecipeList();
+        }
+      }
+    }
+
+    if (packet.recipeLists && packet.recipeLists.length > 0) {
+      const first = packet.recipeLists[0];
+      if (first) ctx.uiState.setRecipeList(first);
+    }
+
+    if (packet.recipeResults && packet.recipeResults.length > 0) {
+      const last = packet.recipeResults[packet.recipeResults.length - 1];
+      if (last) ctx.uiState.setRecipeResult(last);
+    }
+
+    if (packet.interfaceOpens) {
+      for (const open of packet.interfaceOpens) {
+        if (open.recipe) {
+          ctx.uiState.setRecipeList(open.recipe);
+        }
       }
     }
 
@@ -385,6 +412,8 @@ export class ClientPacketApplier {
       }
     } else if (kind === "ground_item") {
       ctx.groundItems.spawn(entityId, tile, defId ?? "unknown", entity.quantity ?? 1);
+    } else if (kind === "grave") {
+      ctx.objects.spawn(entityId, tile, defId ?? "grave");
     } else {
       ctx.logDebug(`Unknown entity kind in spawn: ${kind}`);
     }

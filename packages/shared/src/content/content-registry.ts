@@ -27,6 +27,7 @@ import {
   type ShopDef,
   type ServiceFeeDef,
   type ContractDef,
+  type PropertyDef,
   type SkillDef,
   type SpellDef,
   type StatusEffectDef,
@@ -70,6 +71,7 @@ export interface ContentRegistries {
   readonly serviceFee: ReadonlyMap<string, ServiceFeeDef>;
   readonly statusEffect: ReadonlyMap<string, StatusEffectDef>;
   readonly contract: ReadonlyMap<string, ContractDef>;
+  readonly property: ReadonlyMap<string, PropertyDef>;
 }
 
 export interface ContentValidationResult {
@@ -98,6 +100,7 @@ const CONTENT_KINDS: readonly ContentKind[] = [
   "serviceFee",
   "statusEffect",
   "contract",
+  "property",
 ];
 
 function jsonPointer(path: readonly (string | number)[]): string {
@@ -205,6 +208,7 @@ export function validateContent(files: readonly LoadedContentFile[]): ContentVal
     serviceFee: maps.get("serviceFee") as Map<string, ServiceFeeDef>,
     statusEffect: maps.get("statusEffect") as Map<string, StatusEffectDef>,
     contract: maps.get("contract") as Map<string, ContractDef>,
+    property: maps.get("property") as Map<string, PropertyDef>,
   };
 
   const graphResult = validateContentGraph(registries, sources);

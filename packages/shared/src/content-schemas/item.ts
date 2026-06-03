@@ -86,6 +86,7 @@ export const itemDefSchema = z
     tags: z.array(z.string().min(1)).default([]),
     equipment: equipmentDefSchema.optional(),
     consumable: consumableDefSchema.optional(),
+    maxDurability: nonNegInt.optional(),
   })
   .strict();
 

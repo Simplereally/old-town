@@ -13,6 +13,7 @@ export * from "./material";
 export * from "./npc";
 export * from "./object";
 export * from "./processing-recipe";
+export * from "./property";
 export * from "./quest";
 export * from "./region-map";
 export * from "./resource-node";
@@ -35,6 +36,7 @@ import { materialDefSchema } from "./material";
 import { npcDefSchema } from "./npc";
 import { objectDefSchema } from "./object";
 import { processingRecipeDefSchema } from "./processing-recipe";
+import { propertyDefSchema } from "./property";
 import { questDefSchema } from "./quest";
 import { regionMapDefSchema } from "./region-map";
 import { resourceNodeDefSchema } from "./resource-node";
@@ -67,6 +69,7 @@ export const contentSchemas = {
   serviceFee: serviceFeeDefSchema,
   statusEffect: statusEffectDefSchema,
   contract: contractDefSchema,
+  property: propertyDefSchema,
 } as const;
 
 /** Discriminator for a content definition kind. */

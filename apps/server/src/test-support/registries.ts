@@ -28,6 +28,7 @@ export function makeRegistries(overrides: Partial<ContentRegistries> = {}): Cont
     serviceFee: new Map(),
     statusEffect: new Map(),
     contract: new Map(),
+    property: new Map(),
     ...overrides,
   };
 }

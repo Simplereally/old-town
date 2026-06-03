@@ -30,7 +30,7 @@ Implement deep Old Town world systems: Ledger deeds, Oldroad Trails, Nooks, Char
 
 ## Ordered stories
 
-- [ ] `E30-S01` — [Ledger Deed System](stories/E30/E30-S01_ledger-deed-system.md)
+- [X] `E30-S01` — [Ledger Deed System](stories/E30/E30-S01_ledger-deed-system.md) ✅
 - [ ] `E30-S02` — [Oldroad Trails and Discovery](stories/E30/E30-S02_oldroad-trails-and-discovery.md)
 - [ ] `E30-S03` — [Nooks and Hidden Areas](stories/E30/E30-S03_nooks-and-hidden-areas.md)
 - [ ] `E30-S04` — [Charters and Permits](stories/E30/E30-S04_charters-and-permits.md)

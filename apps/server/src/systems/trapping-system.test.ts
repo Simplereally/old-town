@@ -7,7 +7,7 @@ import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
 import { handleObjectIntent } from "./object-interaction-router";
-import { handleProcess, type ProcessActionPayload } from "./skilling-system";
+import { handleProcess, handleRecipeSelect, type ProcessActionPayload } from "./skilling-system";
 import { type ActionExecution } from "../sim/action-queue";
 import { tileKey } from "@old-town/shared";
 
@@ -388,6 +388,7 @@ describe("trapping action runtime", () => {
     const result = handleObjectIntent(ctx, player, { actionId: "tan", objectEntityId: frame }, 0);
     expect(result).toBe(true);
 
+    expect(handleRecipeSelect(ctx, player, frame, TAN_RECIPE.id, 0)).toBe(true);
     const execution = advanceToExecution(actionRuntime, TAN_RECIPE.actionTicks);
     const payload: ProcessActionPayload = { kind: "process", stationEntityId: frame, recipeId: TAN_RECIPE.id };
     handleProcess(ctx, execution, payload, TAN_RECIPE.actionTicks, 0);
@@ -430,6 +431,7 @@ describe("trapping action runtime", () => {
     const result = handleObjectIntent(ctx, player, { actionId: "dye", objectEntityId: vat }, 0);
     expect(result).toBe(true);
 
+    expect(handleRecipeSelect(ctx, player, vat, DYE_RECIPE.id, 0)).toBe(true);
     const execution = advanceToExecution(actionRuntime, DYE_RECIPE.actionTicks);
     const payload: ProcessActionPayload = { kind: "process", stationEntityId: vat, recipeId: DYE_RECIPE.id };
     handleProcess(ctx, execution, payload, DYE_RECIPE.actionTicks, 0);
@@ -483,6 +485,7 @@ describe("trapping action runtime", () => {
     const result = handleObjectIntent(ctx, player, { actionId: "weave", objectEntityId: loom }, 0);
     expect(result).toBe(true);
 
+    expect(handleRecipeSelect(ctx, player, loom, WEAVE_RECIPE.id, 0)).toBe(true);
     const execution = advanceToExecution(actionRuntime, WEAVE_RECIPE.actionTicks);
     const payload: ProcessActionPayload = { kind: "process", stationEntityId: loom, recipeId: WEAVE_RECIPE.id };
     handleProcess(ctx, execution, payload, WEAVE_RECIPE.actionTicks, 0);
@@ -512,6 +515,7 @@ describe("trapping action runtime", () => {
     const result = handleObjectIntent(ctx, player, { actionId: "mix", objectEntityId: bench }, 0);
     expect(result).toBe(true);
 
+    expect(handleRecipeSelect(ctx, player, bench, MIX_RECIPE.id, 0)).toBe(true);
     const execution = advanceToExecution(actionRuntime, MIX_RECIPE.actionTicks);
     const payload: ProcessActionPayload = { kind: "process", stationEntityId: bench, recipeId: MIX_RECIPE.id };
     handleProcess(ctx, execution, payload, MIX_RECIPE.actionTicks, 0);

@@ -76,6 +76,7 @@ describe("ItemAuditLog", () => {
       "systems/contract-system.ts",
       "systems/favour-system.ts",
       "systems/ground-item-system.ts",
+      "systems/ledger-system.ts",
       "systems/shop-system.ts",
       "systems/skilling-system.ts",
       "systems/spell-system.ts",

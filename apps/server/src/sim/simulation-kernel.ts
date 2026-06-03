@@ -32,10 +32,11 @@ import {
 import { ConsumableSystem } from "../systems/consumable-system";
 import { processPlayerRespawn } from "../systems/death-system";
 import { processContractLifecycle } from "../systems/contract-system";
-import { processDeathResolution, processGroundItemLifecycle } from "../systems/ground-item-system";
+import { processDeathResolution, processGraveLifecycle, processGroundItemLifecycle } from "../systems/ground-item-system";
 import { npcFootprintResolver, processNpcAiPhase, syncNpcOccupancy } from "../systems/npc-system";
 import { createResourceNodeActionHandlers } from "../systems/resource-node-system";
 import { createSkillingActionHandlers } from "../systems/skilling-system";
+import type { NookDef } from "../systems/nook-system";
 import { handleBeginInteract } from "../systems/object-interaction-router";
 import { processAppearanceUpdates } from "../systems/appearance-system";
 import { processShopRestockPhase } from "../systems/shop-system";
@@ -92,6 +93,7 @@ export interface SimulationKernelOptions {
   readonly lazySaveIntervalTicks?: number;
   readonly startServerTime?: number;
   readonly startTick?: number;
+  readonly nooks?: readonly NookDef[];
 }
 
 interface SimulationDeps {
@@ -114,6 +116,7 @@ interface SimulationDeps {
   readonly registries: ContentRegistries;
   readonly logger: Logger;
   readonly rng: ReturnType<typeof createRng>;
+  readonly nooks?: readonly NookDef[];
 }
 
 interface KernelMetrics {
@@ -242,6 +245,7 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
     registries,
     logger,
     rng,
+    nooks: options.nooks,
   };
 }
 
@@ -277,6 +281,7 @@ function wireTickPhases(
     chatSystem,
     consumableSystem,
     itemAudit,
+    nooks: deps.nooks,
   };
   const npcContext = {
     world,
@@ -347,6 +352,7 @@ function wireTickPhases(
     processDeathResolution(combatContext, tick, serverTime);
     processPlayerRespawn(combatContext, tick, serverTime);
     processGroundItemLifecycle(combatContext, tick);
+    processGraveLifecycle(combatContext, tick, serverTime);
   });
 
   tickLoop.registerPhase(TickPhase.FoodPotionPrayerStatChanges, () => {

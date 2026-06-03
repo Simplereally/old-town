@@ -115,6 +115,17 @@ export function projectWorldEntities(
         defId: groundItem.itemId,
         quantity: groundItem.quantity,
       });
+      continue;
+    }
+
+    const grave = world.getComponent(entityId, "grave");
+    if (grave) {
+      spawns.push({
+        entityId,
+        kind: "grave",
+        tile,
+        defId: "grave",
+      });
     }
 
     // Entity has position but no recognised spawn kind — skip silently.
@@ -195,6 +206,16 @@ export function projectEntity(
     };
   }
 
+  const grave = world.getComponent(entityId, "grave");
+  if (grave) {
+    return {
+      entityId,
+      kind: "grave",
+      tile,
+      defId: "grave",
+    };
+  }
+
   return undefined;
 }
 
@@ -205,5 +226,6 @@ export function spawnKind(world: World, entityId: EntityId): EntityKind | undefi
   if (world.getComponent(entityId, "npc")) return "npc";
   if (world.getComponent(entityId, "object")) return "object";
   if (world.getComponent(entityId, "groundItem")) return "ground_item";
+  if (world.getComponent(entityId, "grave")) return "grave";
   return undefined;
 }

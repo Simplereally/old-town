@@ -179,6 +179,7 @@ export class GameEngine {
         this.sendUiActionCommand(action, targetId, value),
       sendBankCommand: (action, itemUid, quantity) => this.sendBankCommand(action, itemUid, quantity),
       sendShopCommand: (action, itemId, quantity) => this.sendShopCommand(action, itemId, quantity),
+      sendRecipeCommand: (recipeId, stationEntityId) => this.sendRecipeCommand(recipeId, stationEntityId),
     };
     this.uiManager = new UIManager(this.uiState, this.content, uiCallbacks);
 
@@ -467,6 +468,11 @@ export class GameEngine {
   sendShopCommand(action: "buy" | "sell" | "open" | "close", itemId?: string, quantity?: number): void {
     this._dispatcher.shopAction(action, itemId, quantity);
     this._logDebug(`UI: shop ${action}${itemId ? ` ${itemId}` : ""}`);
+  }
+
+  sendRecipeCommand(recipeId: string, stationEntityId: number): void {
+    this._dispatcher.recipeSelect(recipeId, stationEntityId);
+    this._logDebug(`UI: recipeSelect ${recipeId} @ ${stationEntityId}`);
   }
 
   private _logDebug(message: string): void {

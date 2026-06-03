@@ -10,11 +10,13 @@ import { handlePrayIntent } from "./favour-system";
 import { handleTrappingIntent, isTrappingAction } from "./trapping-system";
 import { handleSurveyIntent } from "./cartography-system";
 import { handleContractAcceptIntent } from "./contract-system";
+import { enterNook, type NookDef } from "./nook-system";
 import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 
 export interface ObjectInteractionContext extends ResourceNodeContext {
   readonly rng: Rng;
   readonly itemAudit?: ItemAuditLog | undefined;
+  readonly nooks?: readonly NookDef[] | undefined;
 }
 
 export interface BeginInteractPayload {
@@ -83,6 +85,7 @@ function handleObjectInteract(
   objectTile: TileCoord,
   serverTime: number,
   tick?: number,
+  nooks?: readonly NookDef[],
 ): boolean {
   switch (intent.actionId) {
     case "inspect": {
@@ -115,6 +118,17 @@ function handleObjectInteract(
       return true;
     }
     case "enter": {
+      if (objectDef.nookId && nooks) {
+        const nook = nooks.find((n) => n.id === objectDef.nookId);
+        if (nook) {
+          const result = enterNook({ world: ctx.world, deltas: ctx.deltas }, owner, nook, serverTime);
+          if (result.ok) {
+            return true;
+          }
+          systemMessage(ctx.deltas, owner, result.reason ?? "You cannot enter.", serverTime);
+          return true;
+        }
+      }
       if (objectDef.transitionDestination) {
         const movement = ctx.world.getComponent(owner, "movement");
         ctx.world.setComponent(owner, "position", {
@@ -203,6 +217,7 @@ export function handleBeginInteract(
     objectTile,
     serverTime,
     tick,
+    ctx.nooks,
   );
   if (!result) {
     systemMessage(ctx.deltas, owner, "You cannot do that.", serverTime);
@@ -215,6 +230,7 @@ export function handleObjectIntent(
   intent: ObjectIntent,
   serverTime: number,
   tick?: number,
+  nooks?: readonly NookDef[],
 ): boolean {
   if (GATHER_ACTION_IDS.has(intent.actionId) || PROCESS_ACTION_IDS.has(intent.actionId)) {
     return handleObjectSkillingIntent(ctx, owner, intent, serverTime, tick);
@@ -247,5 +263,5 @@ export function handleObjectIntent(
     return true;
   }
 
-  return handleObjectInteract(ctx, owner, intent, object, objectDef, objectTile, serverTime, tick);
+  return handleObjectInteract(ctx, owner, intent, object, objectDef, objectTile, serverTime, tick, nooks);
 }

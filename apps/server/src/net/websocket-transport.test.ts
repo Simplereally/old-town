@@ -50,7 +50,11 @@ async function startHarness(onCommand = () => undefined) {
 
 function nextMessage(socket: WebSocket): Promise<unknown> {
   return new Promise((resolve) => {
-    socket.once("message", (data) => resolve(JSON.parse(data.toString())));
+    const handler = (data: WebSocket.RawData) => {
+      resolve(JSON.parse(data.toString()));
+      socket.removeListener("message", handler);
+    };
+    socket.on("message", handler);
   });
 }
 
@@ -67,19 +71,6 @@ describe("WebSocket transport", () => {
     await cleanup?.();
     cleanup = undefined;
   });
-
-  it("test harness works", async () => {
-    const { url } = await startHarness();
-    console.log("url", url);
-  }, 10_000);
-
-  it("open socket works", async () => {
-    const { url } = await startHarness();
-    console.log("open url", url);
-    const socket = await openSocket(url);
-    console.log("socket open");
-    socket.close();
-  }, 10_000);
 
   it("authenticates dev clients and sends a full-state protocol bootstrap", async () => {
     const { url, transport } = await startHarness();
@@ -159,16 +150,9 @@ describe("WebSocket transport", () => {
       clientTimeMs: 123,
     });
 
-    console.log("sending malformed command");
     socket.send(JSON.stringify({ type: ClientCommandType.MoveClick, commandId: 2, payload: {} }));
-    console.log("waiting for message");
-    const msg = await Promise.race([
-      nextMessage(socket),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout waiting for CommandRejected")), 3000)),
-    ]);
-    console.log("got message", msg);
-    expect(msg).toMatchObject({
+    expect(await nextMessage(socket)).toMatchObject({
       type: TransportServerMessageType.CommandRejected,
     });
-  }, 10_000);
+  });
 });

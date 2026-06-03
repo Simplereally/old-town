@@ -44,7 +44,11 @@ function testMap(): RuntimeMap {
 
 function nextMessage(socket: WebSocket): Promise<unknown> {
   return new Promise((resolve) => {
-    socket.once("message", (data) => resolve(JSON.parse(data.toString())));
+    const handler = (data: WebSocket.RawData) => {
+      resolve(JSON.parse(data.toString()));
+      socket.removeListener("message", handler);
+    };
+    socket.on("message", handler);
   });
 }
 
@@ -97,10 +101,9 @@ async function startHarness() {
     throw new Error("Expected TCP address");
   }
   cleanup = async () => {
-    await Promise.all([
-      transport.close(),
-      new Promise<void>((resolve) => httpServer.close(() => resolve())),
-    ]);
+    await transport.close();
+    (httpServer as any).closeAllConnections?.();
+    await new Promise<void>((resolve) => httpServer.close(() => resolve()));
   };
   return {
     url: `ws://127.0.0.1:${address.port}${transport.path}`,

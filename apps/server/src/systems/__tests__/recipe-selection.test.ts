@@ -248,7 +248,7 @@ describe("recipe selection", () => {
     expect(state.recipeLists?.length).toBe(1);
     const list = state.recipeLists?.[0];
     expect(list).toBeDefined();
-    expect(list?.recipes.length).toBe(1);
+    expect(list?.recipes.length).toBe(2);
     expect(list?.recipes[0]?.recipeId).toBe("cook_fish");
   });
 
@@ -292,7 +292,7 @@ describe("recipe selection", () => {
 
     const state = ctx.deltas.peek();
     const list = state.recipeLists?.[0];
-    expect(list?.recipes.length).toBe(1);
+    expect(list?.recipes.length).toBe(2);
     expect(list?.recipes[0]?.recipeId).toBe("cook_fish");
     expect(list?.recipes[0]?.levelRequired).toBe(1);
   });

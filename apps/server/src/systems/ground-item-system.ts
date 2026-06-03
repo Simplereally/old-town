@@ -7,7 +7,7 @@ import type {
   Rng,
 } from "@old-town/shared";
 import { GAME_TICK_MS, RARITY_MULTIPLIERS, type TileCoord } from "@old-town/shared";
-import type { CombatantComponent, GroundItemComponent } from "../ecs/components";
+import type { CombatantComponent, GraveComponent, GroundItemComponent, InventorySlot } from "../ecs/components";
 import type { World } from "../ecs/world";
 import { addItem, buildDelta, catalogFromItems, count, hasSpaceFor } from "../items/inventory";
 import type { ItemAuditLog } from "../items/item-audit";
@@ -34,6 +34,7 @@ export interface GroundItemSystemContext {
 
 export const DROP_PRIVATE_TICKS = 60;
 export const GROUND_ITEM_DESPAWN_TICKS = 300;
+export const GRAVE_DESPAWN_TICKS = 1000; // 10 minutes at 600ms/tick
 
 const PICKUP_ACTIONS = new Set(["pickup", "take"]);
 
@@ -268,7 +269,7 @@ export function processDeathResolution(
     ctx.deltas.markEntityUpdate(entityId, {
       healthBar: { current: 0, max: combatant.maxHealth },
     });
-    dropInventoryOnDeath(ctx, entityId, tick);
+    createGraveOnDeath(ctx, entityId, tick);
     systemMessage(ctx.deltas, entityId, "You have died. You will respawn shortly.", serverTime);
   }
 
@@ -310,6 +311,142 @@ export function dropInventoryOnDeath(
       containerId: inventory.containerId,
       changes,
     });
+  }
+}
+
+export function createGraveOnDeath(
+  ctx: GroundItemSystemContext,
+  playerId: EntityId,
+  tick: number,
+): void {
+  const inventory = ctx.world.getComponent(playerId, "inventory");
+  const position = ctx.world.getComponent(playerId, "position");
+  if (!inventory || !position) {
+    return;
+  }
+
+  const tile = tileFromPosition(position);
+
+  // Collect occupied slots with their value
+  const occupiedSlots = inventory.slots
+    .map((item, slot) => ({
+      item,
+      slot,
+      value: item ? (ctx.registries.item.get(item.itemId)?.value ?? 0) : 0,
+    }))
+    .filter((entry): entry is { item: InventorySlot; slot: number; value: number } => entry.item !== undefined);
+
+  // Sort by value descending, keep top 3
+  occupiedSlots.sort((a, b) => b.value - a.value);
+  const keepCount = 3;
+  const toKeep = occupiedSlots.slice(0, keepCount);
+  const toDrop = occupiedSlots.slice(keepCount);
+
+  const changes: import("@old-town/shared").InventorySlotChange[] = [];
+
+  // Clear dropped slots
+  for (const entry of toDrop) {
+    inventory.slots[entry.slot] = undefined;
+    changes.push({ slot: entry.slot, itemId: null, quantity: 0 });
+  }
+
+  if (changes.length > 0) {
+    ctx.deltas.markInventoryDelta({
+      containerId: inventory.containerId,
+      changes,
+    });
+  }
+
+  if (toDrop.length === 0) {
+    return;
+  }
+
+  // Create grave entity
+  const graveEntityId = ctx.world.createEntity();
+  const graveItems = toDrop.map((entry) => ({ ...entry.item }));
+
+  ctx.world.setComponent(graveEntityId, "position", {
+    entityId: graveEntityId,
+    x: tile.x,
+    y: tile.y,
+    plane: tile.plane,
+  });
+  ctx.world.setComponent(graveEntityId, "grave", {
+    entityId: graveEntityId,
+    playerId,
+    items: graveItems,
+    despawnTick: tick + GRAVE_DESPAWN_TICKS,
+  });
+
+  const spawn = projectEntity(ctx.world, graveEntityId);
+  if (spawn) {
+    ctx.deltas.markEntityAdd(spawn);
+  }
+}
+
+export function processGraveLifecycle(
+  ctx: GroundItemSystemContext,
+  tick: number,
+  serverTime: number,
+): void {
+  const catalog = catalogFromItems(ctx.registries.item);
+
+  for (const [entityId, grave] of ctx.world.componentEntries("grave")) {
+    if (tick >= grave.despawnTick) {
+      ctx.world.destroyEntity(entityId);
+      ctx.deltas.markEntityRemove(entityId);
+      continue;
+    }
+
+    const ownerPosition = ctx.world.getComponent(grave.playerId, "position");
+    const gravePosition = ctx.world.getComponent(entityId, "position");
+    if (!ownerPosition || !gravePosition) {
+      continue;
+    }
+
+    if (!sameTile(tileFromPosition(ownerPosition), tileFromPosition(gravePosition))) {
+      continue;
+    }
+
+    const ownerInventory = ctx.world.getComponent(grave.playerId, "inventory");
+    if (!ownerInventory) {
+      continue;
+    }
+
+    const changes: import("@old-town/shared").InventorySlotChange[] = [];
+    const remainingItems: InventorySlot[] = [];
+    let reclaimedAny = false;
+
+    for (const item of grave.items) {
+      const result = addItem(ownerInventory, catalog, item.itemId, item.quantity);
+      if (result.added > 0) {
+        changes.push(...result.changes);
+        reclaimedAny = true;
+      }
+      if (result.added < item.quantity) {
+        remainingItems.push({ ...item, quantity: item.quantity - result.added });
+      }
+    }
+
+    if (changes.length > 0) {
+      ctx.deltas.markInventoryDelta(buildDelta(ownerInventory, changes));
+    }
+
+    if (remainingItems.length === 0) {
+      ctx.world.destroyEntity(entityId);
+      ctx.deltas.markEntityRemove(entityId);
+      if (reclaimedAny) {
+        systemMessage(ctx.deltas, grave.playerId, "You reclaim all your items from the grave.", serverTime);
+      }
+    } else {
+      ctx.world.setComponent(entityId, "grave", {
+        ...grave,
+        items: remainingItems,
+      });
+      if (reclaimedAny) {
+        systemMessage(ctx.deltas, grave.playerId, "You reclaim some items from the grave.", serverTime);
+      }
+    }
   }
 }
 

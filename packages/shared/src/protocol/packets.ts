@@ -172,7 +172,9 @@ export interface InterfaceClosePacket {
 export interface RecipeListEntry {
   readonly recipeId: string;
   readonly name: string;
+  readonly skillId: string;
   readonly levelRequired: number;
+  readonly xp: number;
   readonly ingredients: readonly { readonly itemId: string; readonly quantity: number }[];
   readonly productId: string;
   readonly productQuantity: number;

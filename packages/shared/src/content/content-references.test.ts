@@ -22,6 +22,7 @@ function buildRegistries(overrides: Partial<ContentRegistries> = {}): ContentReg
     serviceFee: new Map(),
     statusEffect: new Map(),
     contract: new Map(),
+    property: new Map(),
     ...overrides,
   };
 }

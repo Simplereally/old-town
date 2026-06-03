@@ -2,7 +2,22 @@
 import { z } from "zod";
 import { contentIdSchema, itemQuantitySchema, nonNegInt } from "./common";
 
-export const serviceTypeSchema = z.enum(["repair", "teleport", "identify", "enchant", "craft"]);
+export const serviceTypeSchema = z.enum([
+  "repair",
+  "teleport",
+  "identify",
+  "enchant",
+  "craft",
+  "tanning",
+  "smelting",
+  "bead_firing",
+  "blessing",
+  "reclaim",
+  "contract_reroll",
+  "ferry",
+  "map_copy",
+  "cleanse",
+]);
 
 export type ServiceType = z.infer<typeof serviceTypeSchema>;
 
@@ -17,6 +32,17 @@ export const serviceFeeDefSchema = z
     materialCost: z.array(itemQuantitySchema).default([]),
     currency: contentIdSchema.default("coin"),
     requiresQuest: contentIdSchema.optional(),
+    destination: z
+      .object({
+        x: z.number().int(),
+        y: z.number().int(),
+        plane: z.number().int(),
+      })
+      .strict()
+      .optional(),
+    outputItemId: contentIdSchema.optional(),
+    outputQuantity: nonNegInt.default(1),
+    skillId: contentIdSchema.optional(),
   })
   .strict();
 

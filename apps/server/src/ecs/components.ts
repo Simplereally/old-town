@@ -98,6 +98,8 @@ export interface InventorySlot {
   itemId: string;
   quantity: number;
   uid: number;
+  /** Current durability, only present for items that can degrade. */
+  durability?: number;
 }
 
 /**
@@ -258,4 +260,27 @@ export interface ContractComponent {
   objectives: ContractObjective[];
   startTick: number;
   expiryTick: number;
+}
+
+export interface Deed {
+  id: string;
+  propertyId: string;
+  ownerId: EntityId;
+  issuedTick: number;
+  expiryTick: number;
+  transferable: boolean;
+}
+
+/** Ledger deed state on a player entity. */
+export interface DeedComponent {
+  entityId: EntityId;
+  deeds: Deed[];
+}
+
+/** A grave that stores a dead player's dropped items. */
+export interface GraveComponent {
+  entityId: EntityId;
+  playerId: EntityId;
+  items: InventorySlot[];
+  despawnTick: number;
 }

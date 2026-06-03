@@ -22,7 +22,12 @@ export type ItemTransactionReason =
   | "skilling_gather"
   | "skilling_process_input"
   | "skilling_process_output"
-  | "spell_bead_cost";
+  | "spell_bead_cost"
+  | "deed_create"
+  | "deed_transfer_out"
+  | "deed_transfer_in"
+  | "deed_redeem"
+  | "deed_expiry";
 
 export type ItemAuditMetadata = NonNullable<ItemTransactionAuditEvent["metadata"]>;
 

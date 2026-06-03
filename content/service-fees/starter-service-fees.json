@@ -15,6 +15,126 @@
     "baseFee": 50,
     "levelMultiplier": 0.5,
     "materialCost": [{ "itemId": "gust_bead", "quantity": 1 }],
+    "currency": "coin",
+    "destination": { "x": 0, "y": 0, "plane": 0 }
+  },
+  {
+    "id": "identify_item",
+    "name": "Identify Item",
+    "serviceType": "identify",
+    "baseFee": 25,
+    "levelMultiplier": 0.5,
+    "materialCost": [],
+    "currency": "coin"
+  },
+  {
+    "id": "enchant_weapon",
+    "name": "Enchant Weapon",
+    "serviceType": "enchant",
+    "baseFee": 100,
+    "levelMultiplier": 2.0,
+    "materialCost": [{ "itemId": "ember_bead", "quantity": 2 }],
+    "currency": "coin"
+  },
+  {
+    "id": "public_craft",
+    "name": "Public Crafting",
+    "serviceType": "craft",
+    "baseFee": 5,
+    "levelMultiplier": 0.2,
+    "materialCost": [],
+    "currency": "coin",
+    "outputItemId": "crusty_loaf",
+    "outputQuantity": 1
+  },
+  {
+    "id": "tan_hide",
+    "name": "Tan Hide",
+    "serviceType": "tanning",
+    "baseFee": 3,
+    "levelMultiplier": 0.1,
+    "materialCost": [{ "itemId": "cow_hide", "quantity": 1 }],
+    "currency": "coin",
+    "outputItemId": "leather",
+    "outputQuantity": 1
+  },
+  {
+    "id": "smelt_ore",
+    "name": "Smelt Ore",
+    "serviceType": "smelting",
+    "baseFee": 5,
+    "levelMultiplier": 0.2,
+    "materialCost": [{ "itemId": "copper_ore", "quantity": 1 }, { "itemId": "tin_ore", "quantity": 1 }],
+    "currency": "coin",
+    "outputItemId": "bronze_bar",
+    "outputQuantity": 1
+  },
+  {
+    "id": "fire_bead",
+    "name": "Fire Bead",
+    "serviceType": "bead_firing",
+    "baseFee": 15,
+    "levelMultiplier": 0.5,
+    "materialCost": [{ "itemId": "raw_bead", "quantity": 1 }],
+    "currency": "coin",
+    "outputItemId": "fired_bead",
+    "outputQuantity": 1
+  },
+  {
+    "id": "blessing",
+    "name": "Blessing",
+    "serviceType": "blessing",
+    "baseFee": 30,
+    "levelMultiplier": 1.0,
+    "materialCost": [{ "itemId": "prayer_bead", "quantity": 1 }],
+    "currency": "coin"
+  },
+  {
+    "id": "reclaim",
+    "name": "Reclaim",
+    "serviceType": "reclaim",
+    "baseFee": 20,
+    "levelMultiplier": 0.5,
+    "materialCost": [],
+    "currency": "coin"
+  },
+  {
+    "id": "contract_reroll",
+    "name": "Reroll Contract",
+    "serviceType": "contract_reroll",
+    "baseFee": 50,
+    "levelMultiplier": 1.0,
+    "materialCost": [],
+    "currency": "coin"
+  },
+  {
+    "id": "ferry",
+    "name": "Ferry",
+    "serviceType": "ferry",
+    "baseFee": 10,
+    "levelMultiplier": 0.2,
+    "materialCost": [],
+    "currency": "coin",
+    "destination": { "x": 20, "y": 20, "plane": 0 }
+  },
+  {
+    "id": "map_copy",
+    "name": "Copy Map",
+    "serviceType": "map_copy",
+    "baseFee": 5,
+    "levelMultiplier": 0.1,
+    "materialCost": [{ "itemId": "blank_parchment", "quantity": 1 }],
+    "currency": "coin",
+    "outputItemId": "old_town_map",
+    "outputQuantity": 1
+  },
+  {
+    "id": "cleanse",
+    "name": "Cleanse",
+    "serviceType": "cleanse",
+    "baseFee": 20,
+    "levelMultiplier": 0.5,
+    "materialCost": [],
     "currency": "coin"
   }
 ]

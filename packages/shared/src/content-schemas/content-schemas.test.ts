@@ -206,6 +206,15 @@ describe("contentSchemas — one entry point validates every kind", () => {
     expect(validate("serviceFee", validServiceFee).success).toBe(true);
     expect(validate("statusEffect", validStatusEffect).success).toBe(true);
     expect(validate("contract", validContract).success).toBe(true);
+    expect(
+      validate("property", {
+        id: "old_town_market_stall",
+        name: "Old Town Market Stall",
+        maxOwners: 1,
+        transferable: true,
+        expiryTicks: 0,
+      }).success,
+    ).toBe(true);
   });
 });
 

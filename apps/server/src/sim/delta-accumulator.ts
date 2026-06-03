@@ -51,24 +51,6 @@ export interface DirtyState {
   readonly debug?: DebugTickData;
 }
 
-export interface DirtyState {
-  readonly entityAdds: readonly EntitySpawnPacket[];
-  readonly entityRemoves: readonly EntityId[];
-  readonly entityUpdates: readonly EntityUpdatePacket[];
-  readonly inventoryDeltas?: readonly InventoryDelta[];
-  readonly skillDelta?: readonly SkillDelta[];
-  readonly varbitDelta?: readonly VarbitDelta[];
-  readonly chat?: readonly ChatPacket[];
-  readonly hitsplats?: readonly HitsplatPacket[];
-  readonly xpDrops?: readonly XpDropPacket[];
-  readonly projectiles?: readonly ProjectilePacket[];
-  readonly interfaceOpens?: readonly InterfaceOpenPacket[];
-  readonly interfaceCloses?: readonly InterfaceClosePacket[];
-  readonly contractProgress?: readonly ContractProgressPacket[];
-  readonly sounds?: readonly SoundPacket[];
-  readonly debug?: DebugTickData;
-}
-
 interface InventoryDeltaBuilder {
   readonly containerId: string;
   readonly changesBySlot: Map<number, InventorySlotChange>;

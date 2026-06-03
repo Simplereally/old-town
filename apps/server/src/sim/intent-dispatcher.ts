@@ -14,8 +14,10 @@ import {
   handleMoveIntent,
   processMovementPhase,
 } from "../systems/movement-system";
+import type { NookDef } from "../systems/nook-system";
 import { handleObjectIntent } from "../systems/object-interaction-router";
 import { handleRecipeSelect } from "../systems/skilling-system";
+import { handleServiceFeeIntent } from "../systems/service-fee-system";
 import { handleShopIntent } from "../systems/shop-system";
 import { handleSpellIntent } from "../systems/spell-system";
 import type { CollisionMap } from "../world/collision";
@@ -34,6 +36,7 @@ export interface IntentDispatcherContext {
   readonly chatSystem: ChatSystem;
   readonly consumableSystem: ConsumableSystem;
   readonly itemAudit?: ItemAuditLog | undefined;
+  readonly nooks?: readonly NookDef[] | undefined;
 }
 
 function emitSystemMessage(
@@ -136,7 +139,7 @@ function dispatchSingleIntent(
       ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
       ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
       const object = ctx.world.getComponent(intent.payload.objectEntityId, "object");
-      if (handleObjectIntent(ctx, owner, intent.payload, serverTime, tick)) {
+      if (handleObjectIntent(ctx, owner, intent.payload, serverTime, tick, ctx.nooks)) {
         if (object) {
           dispatchQuestEvent(
             ctx,
@@ -193,6 +196,15 @@ function dispatchSingleIntent(
           tick,
           serverTime,
         );
+        return;
+      }
+      if (handleServiceFeeIntent(
+        { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, registries: ctx.registries, itemAudit: ctx.itemAudit },
+        owner,
+        intent.payload,
+        tick,
+        serverTime,
+      )) {
         return;
       }
       if (handleNpcDialogueIntent(ctx, owner, intent.payload, serverTime, tick)) {

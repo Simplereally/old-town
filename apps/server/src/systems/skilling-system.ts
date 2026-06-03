@@ -378,6 +378,9 @@ function validateProcessAction(
   if (chebyshev(actorTile, stationTile) > 1) {
     return "You need to get closer.";
   }
+  if (!ctx.collision.hasLineOfSight(actorTile, stationTile, { projectile: true })) {
+    return "You cannot see the station.";
+  }
   if (getCurrentLevel(skills, recipe.skill) < recipe.requiredLevel) {
     return `You need level ${recipe.requiredLevel} ${recipe.skill}.`;
   }
@@ -471,31 +474,7 @@ function handleProcessingIntent(
     systemMessage(ctx.deltas, owner, error, serverTime);
     return true;
   }
-  if (recipes.length === 1) {
-    const recipe = recipes[0]!;
-    const error = validateProcessAction(ctx, owner, stationEntityId, recipe);
-    if (!error) {
-      enqueueProcess(ctx, owner, stationEntityId, recipe);
-      return true;
-    }
-    if (error === "You need to get closer.") {
-      const stationTile = tileOf(ctx.world, stationEntityId);
-      if (stationTile) {
-        handleMoveIntent(
-          { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
-          owner,
-          {
-            dest: stationTile,
-          },
-          tick !== undefined ? { tick } : {},
-        );
-        enqueueBeginProcess(ctx, owner, stationEntityId, recipe.id);
-        return true;
-      }
-    }
-    systemMessage(ctx.deltas, owner, error, serverTime);
-    return true;
-  }
+
   const inventory = ctx.world.getComponent(owner, "inventory");
   const actorTile = tileOf(ctx.world, owner);
   const stationTile = tileOf(ctx.world, stationEntityId);
@@ -503,17 +482,7 @@ function handleProcessingIntent(
     systemMessage(ctx.deltas, owner, "You cannot do that.", serverTime);
     return true;
   }
-  if (chebyshev(actorTile, stationTile) > 1) {
-    handleMoveIntent(
-      { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
-      owner,
-      {
-        dest: stationTile,
-      },
-      tick !== undefined ? { tick } : {},
-    );
-    return true;
-  }
+
   ctx.deltas.markRecipeList({
     interfaceId: "recipe",
     recipes: recipes.map((recipe) => ({
@@ -525,6 +494,17 @@ function handleProcessingIntent(
       productQuantity: recipe.successQuantity,
     })),
   });
+
+  if (chebyshev(actorTile, stationTile) > 1) {
+    handleMoveIntent(
+      { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
+      owner,
+      {
+        dest: stationTile,
+      },
+      tick !== undefined ? { tick } : {},
+    );
+  }
   return true;
 }
 
@@ -781,6 +761,17 @@ export function handleProcess(
       tick,
     );
   }
+
+  ctx.deltas.markRecipeResult({
+    recipeId: recipe.id,
+    success: !failed,
+    productItemId: itemId,
+    productQuantity: quantity,
+    ...(failed ? {} : { xpReward: recipe.xp }),
+    message: failed
+      ? "You fail to produce anything useful."
+      : `You successfully create ${recipe.name}.`,
+  });
 }
 
 export function createSkillingActionHandlers(ctx: SkillingContext): SkillingHandlerTable {

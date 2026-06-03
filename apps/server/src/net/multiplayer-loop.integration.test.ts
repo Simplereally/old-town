@@ -170,10 +170,9 @@ async function startHarness(): Promise<Harness> {
     transport,
     httpServer,
     cleanup: async () => {
-      await Promise.all([
-        transport.close(),
-        new Promise<void>((resolve) => httpServer.close(() => resolve())),
-      ]);
+      await transport.close();
+      (httpServer as any).closeAllConnections?.();
+      await new Promise<void>((resolve) => httpServer.close(() => resolve()));
     },
   };
 }

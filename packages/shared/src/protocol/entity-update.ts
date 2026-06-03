@@ -11,7 +11,7 @@ import type { TileCoord } from "../types/coords";
 import type { EntityId } from "../types/ids";
 
 /** Category of a spawned entity. */
-export type EntityKind = "player" | "npc" | "object" | "ground_item" | "projectile";
+export type EntityKind = "player" | "npc" | "object" | "ground_item" | "grave" | "projectile";
 
 /** Kind of damage/effect number shown above an entity. */
 export type HitsplatType = "damage" | "block" | "heal" | "poison";
