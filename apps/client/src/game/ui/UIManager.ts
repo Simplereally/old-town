@@ -11,10 +11,6 @@ export interface UIManagerCallbacks {
   sendShopCommand(action: "buy" | "sell" | "open" | "close", itemId?: string, quantity?: number): void;
 }
 
-/**
- * Orchestrates all UI panels: manages visibility, keyboard shortcuts, and renders
- * each panel's content from the authoritative UIState.
- */
 export class UIManager {
   private readonly uiState: UIState;
   private readonly content: ContentClient;
@@ -54,6 +50,7 @@ export class UIManager {
     this._bindKeyboardShortcuts();
     this._bindChatInput();
     this._unsubscribe = uiState.onChange(() => this._renderAll());
+    this._renderAll();
   }
 
   private _barButtonListeners: Map<string, () => void> = new Map();

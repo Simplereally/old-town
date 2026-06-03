@@ -797,7 +797,7 @@
         {
           "id": "E27-S01",
           "title": "Recipe Selection UI Protocol",
-          "file": "stories/E27/E27-S01_recipe-selection-ui-protocol.md"
+          "file": "completed/stories/E27/E27-S01_recipe-selection-ui-protocol.md"
         },
         {
           "id": "E27-S02",
@@ -819,7 +819,7 @@
         {
           "id": "E28-S01",
           "title": "Equipment Appearance System",
-          "file": "stories/E28/E28-S01_equipment-appearance-system.md"
+          "file": "completed/stories/E28/E28-S01_equipment-appearance-system.md"
         },
         {
           "id": "E28-S02",

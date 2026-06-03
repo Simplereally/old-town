@@ -163,6 +163,7 @@ function normalize(raw: unknown, source: CommandSource): CommandBufferAcceptResu
         intent: { ...base, kind: IntentKind.Ping, payload: parsed.value.payload },
       };
   }
+  /* unreachable -- all command types are handled above */
 }
 
 export class CommandBuffer {

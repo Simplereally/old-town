@@ -10,12 +10,14 @@ export const TickPhase = {
   NpcAi: "npcAi",
   CombatStartEvents: "combatStartEvents",
   DamageResolutionEvents: "damageResolutionEvents",
+  StatusEffects: "statusEffects",
   FoodPotionPrayerStatChanges: "foodPotionPrayerStatChanges",
   DeathResolution: "deathResolution",
   SkillingProgress: "skillingProgress",
   ShopRestock: "shopRestock",
   QuestTriggersVarbits: "questTriggersVarbits",
   ContractLifecycle: "contractLifecycle",
+  AppearanceUpdate: "appearanceUpdate",
   SnapshotDeltaBuild: "snapshotDeltaBuild",
 } as const;
 
@@ -30,12 +32,14 @@ export const TICK_PHASE_ORDER = [
   TickPhase.NpcAi,
   TickPhase.CombatStartEvents,
   TickPhase.DamageResolutionEvents,
+  TickPhase.StatusEffects,
   TickPhase.FoodPotionPrayerStatChanges,
   TickPhase.DeathResolution,
   TickPhase.SkillingProgress,
   TickPhase.ShopRestock,
   TickPhase.QuestTriggersVarbits,
   TickPhase.ContractLifecycle,
+  TickPhase.AppearanceUpdate,
   TickPhase.SnapshotDeltaBuild,
 ] as const satisfies readonly TickPhase[];
 

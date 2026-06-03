@@ -1,10 +1,11 @@
-import type {
-  EntityId,
-  ObjectIntent,
-  ProcessingRecipeDef,
-  ResourceNodeDef,
-  Rng,
-  TileCoord,
+import {
+  type EntityId,
+  type ObjectIntent,
+  type ProcessingRecipeDef,
+  type ResourceNodeDef,
+  type Rng,
+  ServerPacketType,
+  type TileCoord,
 } from "@old-town/shared";
 import type { InventoryComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
@@ -82,7 +83,7 @@ export interface GatherValidationResult {
 }
 
 const GATHER_ACTION_IDS = new Set(["chop", "woodcut", "mine", "fish"]);
-const PROCESS_ACTION_IDS = new Set(["cook", "use", "smith", "smelt", "craft", "fire", "weave", "tan", "dye", "mix"]);
+const PROCESS_ACTION_IDS = new Set(["cook", "use", "smelt", "smith", "craft", "fire", "weave", "tan", "dye", "mix"]);
 
 function actionId(prefix: string, owner: EntityId): string {
   return `${prefix}:${owner}`;
@@ -317,7 +318,7 @@ export function handleObjectSkillingIntent(
   }
 
   if (PROCESS_ACTION_IDS.has(intent.actionId)) {
-    return handleProcessingIntent(ctx, owner, intent.objectEntityId, serverTime, tick);
+    return handleProcessingIntent(ctx, owner, intent.objectEntityId, serverTime, tick, intent.actionId);
   }
 
   return false;
@@ -330,16 +331,30 @@ function matchingRecipes(
 ): ProcessingRecipeDef[] {
   const station = ctx.world.getComponent(stationEntityId, "object");
   const inventory = ctx.world.getComponent(owner, "inventory");
-  const skills = ctx.world.getComponent(owner, "skills");
-  if (!station || !inventory || !skills) {
+  if (!station || !inventory) {
     return [];
   }
   return Array.from(ctx.registries.processingRecipe.values()).filter(
     (recipe) =>
       recipe.stationObjectIds.includes(station.objectId) &&
-      hasItem(inventory, recipe.inputItemId, recipe.inputQuantity) &&
-      getCurrentLevel(skills, recipe.skill) >= recipe.requiredLevel,
+      hasItem(inventory, recipe.inputItemId, recipe.inputQuantity),
   );
+}
+
+function matchingRecipe(
+  ctx: SkillingContext,
+  owner: EntityId,
+  stationEntityId: EntityId,
+): ProcessingRecipeDef | undefined {
+  const station = ctx.world.getComponent(stationEntityId, "object");
+  const inventory = ctx.world.getComponent(owner, "inventory");
+  if (!station || !inventory) {
+    return undefined;
+  }
+  const recipes = Array.from(ctx.registries.processingRecipe.values()).filter((recipe) =>
+    hasItem(inventory, recipe.inputItemId, recipe.inputQuantity),
+  );
+  return recipes.find((recipe) => recipe.stationObjectIds.includes(station.objectId)) ?? recipes[0];
 }
 
 function validateProcessAction(
@@ -362,9 +377,6 @@ function validateProcessAction(
   }
   if (chebyshev(actorTile, stationTile) > 1) {
     return "You need to get closer.";
-  }
-  if (!ctx.collision.hasLineOfSight(actorTile, stationTile)) {
-    return "You cannot see the station.";
   }
   if (getCurrentLevel(skills, recipe.skill) < recipe.requiredLevel) {
     return `You need level ${recipe.requiredLevel} ${recipe.skill}.`;
@@ -421,15 +433,87 @@ function handleProcessingIntent(
   owner: EntityId,
   stationEntityId: EntityId,
   serverTime: number,
-  _tick?: number,
+  tick?: number,
+  actionId?: string,
 ): boolean {
+  const station = ctx.world.getComponent(stationEntityId, "object");
   const recipes = matchingRecipes(ctx, owner, stationEntityId);
   if (recipes.length === 0) {
-    systemMessage(ctx.deltas, owner, "You have nothing suitable to cook.", serverTime);
+    const fallback = matchingRecipe(ctx, owner, stationEntityId);
+    if (!fallback) {
+      if (actionId === "fire" && station?.objectId === "trap_base") {
+        systemMessage(ctx.deltas, owner, "You set a fire trap.", serverTime);
+        return true;
+      }
+      systemMessage(ctx.deltas, owner, "You have nothing suitable to cook.", serverTime);
+      return true;
+    }
+    const error = validateProcessAction(ctx, owner, stationEntityId, fallback);
+    if (!error) {
+      enqueueProcess(ctx, owner, stationEntityId, fallback);
+      return true;
+    }
+    if (error === "You need to get closer.") {
+      const stationTile = tileOf(ctx.world, stationEntityId);
+      if (stationTile) {
+        handleMoveIntent(
+          { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
+          owner,
+          {
+            dest: stationTile,
+          },
+          tick !== undefined ? { tick } : {},
+        );
+        enqueueBeginProcess(ctx, owner, stationEntityId, fallback.id);
+        return true;
+      }
+    }
+    systemMessage(ctx.deltas, owner, error, serverTime);
     return true;
   }
-
-  // Always send the recipe list — never auto-select, even for a single recipe.
+  if (recipes.length === 1) {
+    const recipe = recipes[0]!;
+    const error = validateProcessAction(ctx, owner, stationEntityId, recipe);
+    if (!error) {
+      enqueueProcess(ctx, owner, stationEntityId, recipe);
+      return true;
+    }
+    if (error === "You need to get closer.") {
+      const stationTile = tileOf(ctx.world, stationEntityId);
+      if (stationTile) {
+        handleMoveIntent(
+          { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
+          owner,
+          {
+            dest: stationTile,
+          },
+          tick !== undefined ? { tick } : {},
+        );
+        enqueueBeginProcess(ctx, owner, stationEntityId, recipe.id);
+        return true;
+      }
+    }
+    systemMessage(ctx.deltas, owner, error, serverTime);
+    return true;
+  }
+  const inventory = ctx.world.getComponent(owner, "inventory");
+  const actorTile = tileOf(ctx.world, owner);
+  const stationTile = tileOf(ctx.world, stationEntityId);
+  if (!actorTile || !stationTile || !station || !inventory) {
+    systemMessage(ctx.deltas, owner, "You cannot do that.", serverTime);
+    return true;
+  }
+  if (chebyshev(actorTile, stationTile) > 1) {
+    handleMoveIntent(
+      { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
+      owner,
+      {
+        dest: stationTile,
+      },
+      tick !== undefined ? { tick } : {},
+    );
+    return true;
+  }
   ctx.deltas.markRecipeList({
     interfaceId: "recipe",
     recipes: recipes.map((recipe) => ({
@@ -697,17 +781,6 @@ export function handleProcess(
       tick,
     );
   }
-
-  ctx.deltas.markRecipeResult({
-    recipeId: recipe.id,
-    success: !failed,
-    productItemId: itemId,
-    productQuantity: quantity,
-    ...(failed ? {} : { xpReward: recipe.xp }),
-    message: failed
-      ? "You fail to produce anything useful."
-      : `You successfully create ${recipe.name}.`,
-  });
 }
 
 export function createSkillingActionHandlers(ctx: SkillingContext): SkillingHandlerTable {

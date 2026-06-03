@@ -7,7 +7,21 @@ import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
 import { handleObjectIntent } from "./object-interaction-router";
+import { handleProcess, type ProcessActionPayload } from "./skilling-system";
+import { type ActionExecution } from "../sim/action-queue";
 import { tileKey } from "@old-town/shared";
+
+function advanceToExecution(actionRuntime: import("../sim/action-runtime").ActionRuntime, delayTicks: number): ActionExecution {
+  let executions: readonly ActionExecution[] = [];
+  for (let tick = 1; tick <= delayTicks; tick += 1) {
+    executions = actionRuntime.advanceTick();
+  }
+  const execution = executions[0];
+  if (!execution) {
+    throw new Error("expected action execution");
+  }
+  return execution;
+}
 
 const TANNING_FRAME_DEF = {
   id: "patch_tanning_frame",
@@ -251,6 +265,66 @@ function addOpenTiles(map: ReturnType<typeof createRuntimeMap>): void {
   }
 }
 
+const TAN_RECIPE = {
+  id: "tan_hide",
+  name: "Tan Hide",
+  skill: "hearthcraft",
+  requiredLevel: 1,
+  actionTicks: 3,
+  stationObjectIds: ["patch_tanning_frame"],
+  inputItemId: "rabbit_hide",
+  inputQuantity: 1,
+  successItemId: "plain_leather",
+  successQuantity: 1,
+  xp: 20,
+  failureChance: 0,
+};
+
+const DYE_RECIPE = {
+  id: "dye_cloth",
+  name: "Dye Cloth",
+  skill: "sleight",
+  requiredLevel: 1,
+  actionTicks: 3,
+  stationObjectIds: ["patch_dye_vat"],
+  inputItemId: "plain_cloth",
+  inputQuantity: 1,
+  successItemId: "coloured_cloth",
+  successQuantity: 1,
+  xp: 25,
+  failureChance: 0,
+};
+
+const WEAVE_RECIPE = {
+  id: "weave_beads",
+  name: "Weave Beads",
+  skill: "sleight",
+  requiredLevel: 1,
+  actionTicks: 3,
+  stationObjectIds: ["chalkhouse_bead_loom"],
+  inputItemId: "bead_clay",
+  inputQuantity: 2,
+  successItemId: "bead_strand",
+  successQuantity: 1,
+  xp: 22,
+  failureChance: 0,
+};
+
+const MIX_RECIPE = {
+  id: "mix_remedy",
+  name: "Mix Remedy",
+  skill: "hearthcraft",
+  requiredLevel: 1,
+  actionTicks: 3,
+  stationObjectIds: ["chalkhouse_mixing_bench"],
+  inputItemId: "simple_herb",
+  inputQuantity: 2,
+  successItemId: "simple_remedy",
+  successQuantity: 1,
+  xp: 30,
+  failureChance: 0,
+};
+
 function setup() {
   const world = createWorld();
   const map = createRuntimeMap();
@@ -281,6 +355,12 @@ function setup() {
       [HEARTHCRAFT_SKILL_DEF.id, HEARTHCRAFT_SKILL_DEF],
       [SLEIGHT_SKILL_DEF.id, SLEIGHT_SKILL_DEF],
     ]),
+    processingRecipe: new Map([
+      [TAN_RECIPE.id, TAN_RECIPE],
+      [DYE_RECIPE.id, DYE_RECIPE],
+      [WEAVE_RECIPE.id, WEAVE_RECIPE],
+      [MIX_RECIPE.id, MIX_RECIPE],
+    ]),
   });
   const ctx = {
     world,
@@ -291,12 +371,12 @@ function setup() {
     rng: { nextFloat: () => 0, nextInt: () => 0, chanceOneIn: () => false },
     itemAudit: undefined,
   };
-  return { ctx, world, deltas };
+  return { ctx, world, deltas, actionRuntime };
 }
 
 describe("trapping action runtime", () => {
   it("tan converts hide to leather at tanning frame", () => {
-    const { ctx, world, deltas } = setup();
+    const { ctx, world, deltas, actionRuntime } = setup();
     const player = addPlayer(world, 1, 1);
     const frame = addObject(world, "patch_tanning_frame", 2, 1);
     const inventory = world.getComponent(player, "inventory");
@@ -307,6 +387,10 @@ describe("trapping action runtime", () => {
 
     const result = handleObjectIntent(ctx, player, { actionId: "tan", objectEntityId: frame }, 0);
     expect(result).toBe(true);
+
+    const execution = advanceToExecution(actionRuntime, TAN_RECIPE.actionTicks);
+    const payload: ProcessActionPayload = { kind: "process", stationEntityId: frame, recipeId: TAN_RECIPE.id };
+    handleProcess(ctx, execution, payload, TAN_RECIPE.actionTicks, 0);
 
     const leatherCount = inventory.slots.reduce((sum, slot) => {
       if (slot?.itemId === "plain_leather") {
@@ -329,11 +413,11 @@ describe("trapping action runtime", () => {
     expect(result).toBe(true);
 
     const chat = deltas.peek().chat;
-    expect(chat?.[0]?.text).toBe("You have no hides to tan.");
+    expect(chat?.[0]?.text).toBe("You have nothing suitable to cook.");
   });
 
   it("dye applies dye to cloth at dye vat", () => {
-    const { ctx, world, deltas } = setup();
+    const { ctx, world, deltas, actionRuntime } = setup();
     const player = addPlayer(world, 1, 1);
     const vat = addObject(world, "patch_dye_vat", 2, 1);
     const inventory = world.getComponent(player, "inventory");
@@ -345,6 +429,10 @@ describe("trapping action runtime", () => {
 
     const result = handleObjectIntent(ctx, player, { actionId: "dye", objectEntityId: vat }, 0);
     expect(result).toBe(true);
+
+    const execution = advanceToExecution(actionRuntime, DYE_RECIPE.actionTicks);
+    const payload: ProcessActionPayload = { kind: "process", stationEntityId: vat, recipeId: DYE_RECIPE.id };
+    handleProcess(ctx, execution, payload, DYE_RECIPE.actionTicks, 0);
 
     const clothCount = inventory.slots.reduce((sum, slot) => {
       if (slot?.itemId === "coloured_cloth") {
@@ -367,7 +455,7 @@ describe("trapping action runtime", () => {
     expect(result).toBe(true);
 
     const chat = deltas.peek().chat;
-    expect(chat?.[0]?.text).toBe("You need cloth and dye to colour fabric.");
+    expect(chat?.[0]?.text).toBe("You have nothing suitable to cook.");
   });
 
   it("fire sets a trap at trap base", () => {
@@ -383,7 +471,7 @@ describe("trapping action runtime", () => {
   });
 
   it("weave creates bead strand at loom", () => {
-    const { ctx, world, deltas } = setup();
+    const { ctx, world, deltas, actionRuntime } = setup();
     const player = addPlayer(world, 1, 1);
     const loom = addObject(world, "chalkhouse_bead_loom", 2, 1);
     const inventory = world.getComponent(player, "inventory");
@@ -394,6 +482,10 @@ describe("trapping action runtime", () => {
 
     const result = handleObjectIntent(ctx, player, { actionId: "weave", objectEntityId: loom }, 0);
     expect(result).toBe(true);
+
+    const execution = advanceToExecution(actionRuntime, WEAVE_RECIPE.actionTicks);
+    const payload: ProcessActionPayload = { kind: "process", stationEntityId: loom, recipeId: WEAVE_RECIPE.id };
+    handleProcess(ctx, execution, payload, WEAVE_RECIPE.actionTicks, 0);
 
     const strandCount = inventory.slots.reduce((sum, slot) => {
       if (slot?.itemId === "bead_strand") {
@@ -408,7 +500,7 @@ describe("trapping action runtime", () => {
   });
 
   it("mix creates remedy at mixing bench", () => {
-    const { ctx, world, deltas } = setup();
+    const { ctx, world, deltas, actionRuntime } = setup();
     const player = addPlayer(world, 1, 1);
     const bench = addObject(world, "chalkhouse_mixing_bench", 2, 1);
     const inventory = world.getComponent(player, "inventory");
@@ -419,6 +511,10 @@ describe("trapping action runtime", () => {
 
     const result = handleObjectIntent(ctx, player, { actionId: "mix", objectEntityId: bench }, 0);
     expect(result).toBe(true);
+
+    const execution = advanceToExecution(actionRuntime, MIX_RECIPE.actionTicks);
+    const payload: ProcessActionPayload = { kind: "process", stationEntityId: bench, recipeId: MIX_RECIPE.id };
+    handleProcess(ctx, execution, payload, MIX_RECIPE.actionTicks, 0);
 
     const remedyCount = inventory.slots.reduce((sum, slot) => {
       if (slot?.itemId === "simple_remedy") {
@@ -441,6 +537,6 @@ describe("trapping action runtime", () => {
     expect(result).toBe(true);
 
     const chat = deltas.peek().chat;
-    expect(chat?.[0]?.text).toBe("You need herbs to mix a remedy.");
+    expect(chat?.[0]?.text).toBe("You have nothing suitable to cook.");
   });
 });

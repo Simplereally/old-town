@@ -2,6 +2,18 @@
 import { z } from "zod";
 import { contentIdSchema, itemQuantitySchema, positiveInt, requirementSchema } from "./common";
 
+export const dropRaritySchema = z.enum(["common", "uncommon", "rare", "very_rare", "guaranteed"]);
+export type DropRarity = z.infer<typeof dropRaritySchema>;
+
+/** Rarity multipliers as percentage values (100 = 1.0x). */
+export const RARITY_MULTIPLIERS: Record<DropRarity, number> = {
+  common: 100,
+  uncommon: 50,
+  rare: 20,
+  very_rare: 5,
+  guaranteed: 0,
+};
+
 /** A single weighted drop entry. */
 export const dropEntrySchema = z
   .object({
@@ -11,6 +23,7 @@ export const dropEntrySchema = z
     /** Relative weight within the table's weighted roll. */
     weight: positiveInt,
     requirements: z.array(requirementSchema).default([]),
+    rarity: dropRaritySchema.default("common"),
   })
   .strict()
   .refine((e) => e.max >= e.min, { message: "drop entry max must be >= min" });

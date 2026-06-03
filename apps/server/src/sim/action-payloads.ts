@@ -1,5 +1,9 @@
 import type { BeginDialogueActionPayload, DialogueHandlerTable } from "../dialogue/dialogue-engine";
 import type {
+  BeginInteractPayload,
+  ObjectInteractionKind,
+} from "../systems/object-interaction-router";
+import type {
   ResourceNodeHandlerTable,
   ResourceNodeRespawnPayload,
 } from "../systems/resource-node-system";
@@ -19,11 +23,15 @@ export type ActionPayload =
   | BeginProcessActionPayload
   | ProcessActionPayload
   | ResourceNodeRespawnPayload
-  | TeleportActionPayload;
+  | TeleportActionPayload
+  | BeginInteractPayload;
 
 export type ActionKind = ActionPayload["kind"];
 
 export type ActionHandlerTable = SkillingHandlerTable &
   ResourceNodeHandlerTable &
   SpellHandlerTable &
-  DialogueHandlerTable;
+  DialogueHandlerTable &
+  {
+    begin_interact: import("../sim/action-executor").ActionHandler<BeginInteractPayload>;
+  };

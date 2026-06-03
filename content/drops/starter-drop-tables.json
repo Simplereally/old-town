@@ -1,19 +1,5 @@
 [
   {
-    "id": "cellar_rat_drops",
-    "name": "Cellar Rat Drops",
-    "rolls": 1,
-    "alwaysDrops": [
-      { "itemId": "small_bones", "quantity": 1 },
-      { "itemId": "rat_tail", "quantity": 1 }
-    ],
-    "entries": [
-      { "itemId": "coin", "min": 1, "max": 3, "weight": 10 },
-      { "itemId": "bone_chips", "min": 1, "max": 1, "weight": 5 },
-      { "itemId": "grave_dust", "min": 1, "max": 1, "weight": 2 }
-    ]
-  },
-  {
     "id": "soot_rat_drops",
     "name": "Soot Rat Drops",
     "rolls": 1,
@@ -25,18 +11,6 @@
       { "itemId": "coin", "min": 1, "max": 5, "weight": 10 },
       { "itemId": "blackcoal", "min": 1, "max": 1, "weight": 5 },
       { "itemId": "bone_chips", "min": 1, "max": 2, "weight": 3 }
-    ]
-  },
-  {
-    "id": "mud_goblin_drops",
-    "name": "Mud Goblin Drops",
-    "rolls": 1,
-    "alwaysDrops": [{ "itemId": "coin", "quantity": 1 }],
-    "entries": [
-      { "itemId": "pig_iron_ore", "min": 1, "max": 1, "weight": 10 },
-      { "itemId": "blackcoal", "min": 1, "max": 1, "weight": 8 },
-      { "itemId": "penny_copper_ore", "min": 1, "max": 1, "weight": 5 },
-      { "itemId": "coin", "min": 5, "max": 15, "weight": 10 }
     ]
   },
   {

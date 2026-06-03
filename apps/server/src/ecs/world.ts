@@ -16,6 +16,7 @@ import type {
   ResourceNodeComponent,
   ShopComponent,
   SkillsComponent,
+  StatusEffectsComponent,
   VarComponent,
 } from "./components";
 import { EntityPool } from "./entity";
@@ -38,6 +39,7 @@ export type WorldComponentMap = {
   dialogue: DialogueComponent;
   shop: ShopComponent;
   contract: ContractComponent;
+  statusEffects: StatusEffectsComponent;
 };
 
 export type WorldComponentKind = keyof WorldComponentMap;
@@ -99,6 +101,7 @@ export function createWorld(): World {
     dialogue: new Map(),
     shop: new Map(),
     contract: new Map(),
+    statusEffects: new Map(),
   };
 
   const createEntity = (): EntityId => {

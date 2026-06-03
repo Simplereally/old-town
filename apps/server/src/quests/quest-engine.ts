@@ -67,6 +67,34 @@ export function dispatchQuestEvent(
   return { progressedQuestIds };
 }
 
+export function processQuestTriggers(
+  ctx: QuestEngineContext,
+  serverTime: number,
+  tick?: number,
+): QuestDispatchResult {
+  const progressedQuestIds: string[] = [];
+
+  for (const playerId of ctx.world.entityIdsWith("player")) {
+    for (const quest of ctx.registries.quest.values()) {
+      if (isQuestCompleted(ctx, playerId, quest)) {
+        continue;
+      }
+      const stage = currentQuestStage(ctx, playerId, quest);
+      if (!stage || stage.stage === 0) {
+        continue;
+      }
+      if (!areObjectivesComplete(ctx.world, playerId, quest, stage)) {
+        continue;
+      }
+      if (completeStage(ctx, playerId, quest, stage, serverTime, tick)) {
+        progressedQuestIds.push(quest.id);
+      }
+    }
+  }
+
+  return { progressedQuestIds };
+}
+
 function recordEventProgress(ctx: QuestEngineContext, playerId: EntityId, event: QuestEvent): void {
   for (const quest of ctx.registries.quest.values()) {
     if (isQuestCompleted(ctx, playerId, quest)) {

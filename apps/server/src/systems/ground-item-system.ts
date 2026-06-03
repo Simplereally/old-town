@@ -6,12 +6,13 @@ import type {
   ItemQuantity,
   Rng,
 } from "@old-town/shared";
-import { GAME_TICK_MS, type TileCoord } from "@old-town/shared";
+import { GAME_TICK_MS, RARITY_MULTIPLIERS, type TileCoord } from "@old-town/shared";
 import type { CombatantComponent, GroundItemComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
 import { addItem, buildDelta, catalogFromItems, count, hasSpaceFor } from "../items/inventory";
 import type { ItemAuditLog } from "../items/item-audit";
 import { projectEntity } from "../net/entity-spawn-projector";
+import { meetsAllRequirements } from "../quests/requirements";
 import { dispatchQuestEvent } from "../quests/quest-engine";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import type { CollisionMap } from "../world/collision";
@@ -20,7 +21,6 @@ import {
   checkContractCompletion,
   findActiveContractEntity,
   trackContractItemGain,
-  trackContractObjective,
 } from "./contract-system";
 
 export interface GroundItemSystemContext {
@@ -70,17 +70,58 @@ export function groundItemVisibleToPlayer(
   );
 }
 
-export function rollDropTable(table: DropTableDef, rng: Rng): ItemQuantity[] {
+export interface RollDropTableContext {
+  readonly world: World;
+  readonly registries: ContentRegistries;
+  readonly entityId: EntityId;
+}
+
+function effectiveWeight(entry: DropTableDef["entries"][number]): number {
+  const rarity = entry.rarity ?? "common";
+  const multiplier = RARITY_MULTIPLIERS[rarity];
+  return Math.max(1, Math.floor((entry.weight * multiplier) / 100));
+}
+
+function entryMeetsRequirements(
+  entry: DropTableDef["entries"][number],
+  ctx?: RollDropTableContext,
+): boolean {
+  const reqs = entry.requirements ?? [];
+  if (reqs.length === 0) return true;
+  if (!ctx) return true;
+  return meetsAllRequirements(ctx, ctx.entityId, reqs);
+}
+
+export function rollDropTable(
+  table: DropTableDef,
+  rng: Rng,
+  ctx?: RollDropTableContext,
+): ItemQuantity[] {
   const drops: ItemQuantity[] = [...table.alwaysDrops];
-  const totalWeight = table.entries.reduce((sum, entry) => sum + entry.weight, 0);
+
+  const guaranteed: ItemQuantity[] = [];
+  const pool: DropTableDef["entries"][number][] = [];
+
+  for (const entry of table.entries) {
+    if (!entryMeetsRequirements(entry, ctx)) continue;
+    if (entry.rarity === "guaranteed") {
+      guaranteed.push({ itemId: entry.itemId, quantity: rng.nextInt(entry.min, entry.max) });
+    } else {
+      pool.push(entry);
+    }
+  }
+
+  drops.push(...guaranteed);
+
+  const totalWeight = pool.reduce((sum, entry) => sum + effectiveWeight(entry), 0);
   if (totalWeight <= 0) {
     return drops;
   }
 
   for (let roll = 0; roll < table.rolls; roll += 1) {
     let cursor = rng.nextInt(1, totalWeight);
-    for (const entry of table.entries) {
-      cursor -= entry.weight;
+    for (const entry of pool) {
+      cursor -= effectiveWeight(entry);
       if (cursor > 0) {
         continue;
       }
@@ -179,13 +220,13 @@ export function processDeathResolution(
       );
       const contractEntityId = findActiveContractEntity(ctx.world, ownerId);
       if (contractEntityId !== undefined) {
-        trackContractObjective(ctx, ownerId, contractEntityId, "kill", npc.npcId, 1);
         checkContractCompletion(ctx, ownerId, contractEntityId, serverTime, tick);
       }
     }
     const drops = def.drops ? ctx.registries.dropTable.get(def.drops) : undefined;
     if (drops) {
-      for (const drop of rollDropTable(drops, ctx.rng)) {
+      const rollCtx = ownerId !== undefined ? { world: ctx.world, registries: ctx.registries, entityId: ownerId } : undefined;
+      for (const drop of rollDropTable(drops, ctx.rng, rollCtx)) {
         spawnGroundItem(ctx, drop.itemId, drop.quantity, tile, {
           tick,
           ...(ownerId !== undefined ? { ownerId } : {}),

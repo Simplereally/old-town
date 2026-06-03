@@ -60,6 +60,12 @@ export interface IHitsplatLayer {
   clear(): void;
 }
 
+export interface IXpDropLayer {
+  show(entityId: number, skillId: string, amount: number, tick: number): void;
+  update(currentTick: number, positions: Map<number, Vector3>): void;
+  clear(): void;
+}
+
 export interface IProjectileLayer {
   spawn(id: string, startTile: TileCoord, endTile: TileCoord, durationTicks?: number): void;
   clear(): void;
@@ -109,6 +115,7 @@ export interface PacketApplierContext {
   readonly actors: IActorRenderer;
   readonly groundItems: IGroundItemLayer;
   readonly hitsplats: IHitsplatLayer;
+  readonly xpDrops: IXpDropLayer;
   readonly projectiles: IProjectileLayer;
   readonly chatOverhead: IChatOverheadLayer;
   readonly debug: IDebugLayer | undefined;
@@ -159,6 +166,7 @@ export class ClientPacketApplier {
     ctx.objects.clear();
     ctx.groundItems.clear();
     ctx.hitsplats.clear();
+    ctx.xpDrops.clear();
     ctx.projectiles.clear();
     ctx.chatOverhead.clear();
     ctx.debug?.clear();
@@ -272,6 +280,12 @@ export class ClientPacketApplier {
       }
     }
 
+    if (packet.xpDrops) {
+      for (const xpDrop of packet.xpDrops) {
+        ctx.xpDrops.show(this._selfEntityId, xpDrop.skillId, xpDrop.amount, currentTick);
+      }
+    }
+
     if (packet.projectiles) {
       for (const projectile of packet.projectiles) {
         ctx.projectiles.spawn(
@@ -366,7 +380,7 @@ export class ClientPacketApplier {
       if (entity.healthBar) {
         ctx.actors.updateHealthBar(entityId, entity.healthBar.current, entity.healthBar.max);
       }
-      if (kind === "player" && entityId === selfEntityId && entity.appearance) {
+      if (entity.appearance) {
         ctx.actors.updateAppearance(entityId, entity.appearance);
       }
     } else if (kind === "ground_item") {

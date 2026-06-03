@@ -16,7 +16,7 @@ import type {
  * Wire protocol version. Bump on any breaking change to packet/command shapes. The
  * client compares the version in the bootstrap {@link FullStatePacket} against this.
  */
-export const PROTOCOL_VERSION = 6;
+export const PROTOCOL_VERSION = 7;
 
 /** Discriminators for the two top-level server messages. */
 export const ServerPacketType = {
@@ -111,6 +111,15 @@ export interface ContractCompletePacket {
   readonly name: string;
 }
 
+export interface ContractProgressPacket {
+  readonly entityId: EntityId;
+  readonly contractId: string;
+  readonly objectiveKind: string;
+  readonly targetId: string;
+  readonly current: number;
+  readonly required: number;
+}
+
 /** A sound cue to play. */
 export interface SoundPacket {
   readonly soundId: string;
@@ -148,6 +157,18 @@ export interface ShopViewPacket {
   readonly buyMultiplier: number;
 }
 
+export interface InterfaceOpenPacket {
+  readonly interfaceId: string;
+  readonly dialogue?: DialogueViewPacket;
+  readonly shop?: ShopViewPacket;
+  readonly recipe?: RecipeListPacket;
+}
+
+/** A request for the client to close an interface/panel. */
+export interface InterfaceClosePacket {
+  readonly interfaceId: string;
+}
+
 export interface RecipeListEntry {
   readonly recipeId: string;
   readonly name: string;
@@ -169,24 +190,6 @@ export interface RecipeResultPacket {
   readonly productQuantity?: number;
   readonly xpReward?: number;
   readonly message?: string;
-}
-
-export interface InterfaceOpenPacket {
-  readonly interfaceId: string;
-  readonly dialogue?: DialogueViewPacket;
-  readonly shop?: ShopViewPacket;
-  readonly recipe?: RecipeListPacket;
-}
-
-/** A request for the client to close an interface/panel. */
-export interface InterfaceClosePacket {
-  readonly interfaceId: string;
-}
-
-export interface ContractCompletePacket {
-  readonly entityId: EntityId;
-  readonly contractId: string;
-  readonly name: string;
 }
 
 /** A single tile within a region load payload (compact form). */
@@ -292,11 +295,12 @@ export interface TickDeltaPacket {
   readonly regionUnloads?: readonly RegionUnloadPacket[];
   readonly interfaceOpens?: readonly InterfaceOpenPacket[];
   readonly interfaceCloses?: readonly InterfaceClosePacket[];
-  readonly recipeLists?: readonly RecipeListPacket[];
-  readonly recipeResults?: readonly RecipeResultPacket[];
   readonly deathNotices?: readonly DeathNoticePacket[];
   readonly respawnNotices?: readonly RespawnNoticePacket[];
   readonly contractComplete?: readonly ContractCompletePacket[];
+  readonly contractProgress?: readonly ContractProgressPacket[];
+  readonly recipeLists?: readonly RecipeListPacket[];
+  readonly recipeResults?: readonly RecipeResultPacket[];
   readonly debug?: DebugTickData;
 }
 

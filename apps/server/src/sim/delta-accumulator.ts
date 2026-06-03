@@ -2,6 +2,7 @@ import {
   buildEntityUpdate,
   type ChatPacket,
   type ContractCompletePacket,
+  type ContractProgressPacket,
   type DeathNoticePacket,
   type DebugPathData,
   type DebugTickData,
@@ -20,6 +21,7 @@ import {
   type RespawnNoticePacket,
   ServerPacketType,
   type SkillDelta,
+  type SoundPacket,
   type TickDeltaPacket,
   type TileCoord,
   type VarbitDelta,
@@ -44,6 +46,26 @@ export interface DirtyState {
   readonly deathNotices?: readonly DeathNoticePacket[];
   readonly respawnNotices?: readonly RespawnNoticePacket[];
   readonly contractComplete?: readonly ContractCompletePacket[];
+  readonly contractProgress?: readonly ContractProgressPacket[];
+  readonly sounds?: readonly SoundPacket[];
+  readonly debug?: DebugTickData;
+}
+
+export interface DirtyState {
+  readonly entityAdds: readonly EntitySpawnPacket[];
+  readonly entityRemoves: readonly EntityId[];
+  readonly entityUpdates: readonly EntityUpdatePacket[];
+  readonly inventoryDeltas?: readonly InventoryDelta[];
+  readonly skillDelta?: readonly SkillDelta[];
+  readonly varbitDelta?: readonly VarbitDelta[];
+  readonly chat?: readonly ChatPacket[];
+  readonly hitsplats?: readonly HitsplatPacket[];
+  readonly xpDrops?: readonly XpDropPacket[];
+  readonly projectiles?: readonly ProjectilePacket[];
+  readonly interfaceOpens?: readonly InterfaceOpenPacket[];
+  readonly interfaceCloses?: readonly InterfaceClosePacket[];
+  readonly contractProgress?: readonly ContractProgressPacket[];
+  readonly sounds?: readonly SoundPacket[];
   readonly debug?: DebugTickData;
 }
 
@@ -85,6 +107,8 @@ export class DeltaAccumulator {
   private deathNoticePackets: DeathNoticePacket[] = [];
   private respawnNoticePackets: RespawnNoticePacket[] = [];
   private contractCompletePackets: ContractCompletePacket[] = [];
+  private contractProgressPackets: ContractProgressPacket[] = [];
+  private soundPackets: SoundPacket[] = [];
   private readonly debugPaths = new Map<EntityId, DebugPathData>();
   private observer: DeltaMutationObserver | undefined;
 
@@ -183,6 +207,14 @@ export class DeltaAccumulator {
     this.contractCompletePackets.push(packet);
   }
 
+  markContractProgress(packet: ContractProgressPacket): void {
+    this.contractProgressPackets.push(packet);
+  }
+
+  markSound(packet: SoundPacket): void {
+    this.soundPackets.push(packet);
+  }
+
   markRecipeList(packet: RecipeListPacket): void {
     this.recipeListPackets.push(packet);
   }
@@ -190,6 +222,7 @@ export class DeltaAccumulator {
   markRecipeResult(packet: RecipeResultPacket): void {
     this.recipeResultPackets.push(packet);
   }
+
   markDebugPath(entityId: EntityId, path: readonly TileCoord[]): void {
     this.debugPaths.set(entityId, { entityId, path });
   }
@@ -258,6 +291,10 @@ export class DeltaAccumulator {
       ...(this.contractCompletePackets.length > 0
         ? { contractComplete: [...this.contractCompletePackets] }
         : {}),
+      ...(this.contractProgressPackets.length > 0
+        ? { contractProgress: [...this.contractProgressPackets] }
+        : {}),
+      ...(this.soundPackets.length > 0 ? { sounds: [...this.soundPackets] } : {}),
       ...(this.debugPaths.size > 0
         ? {
             debug: {
@@ -318,6 +355,8 @@ export class DeltaAccumulator {
     this.deathNoticePackets = [];
     this.respawnNoticePackets = [];
     this.contractCompletePackets = [];
+    this.contractProgressPackets = [];
+    this.soundPackets = [];
     this.debugPaths.clear();
   }
 }

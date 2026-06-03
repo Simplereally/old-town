@@ -3573,7 +3573,11 @@
   ],
   "resourceNodeSpawns": [
     { "resourceNodeId": "oak_tree_node", "x": 10, "y": 10, "respawnTicks": 100, "initialDepletion": false },
-    { "resourceNodeId": "willow_tree_node", "x": 20, "y": 20, "respawnTicks": 100, "initialDepletion": false }
+    { "resourceNodeId": "willow_tree_node", "x": 20, "y": 20, "respawnTicks": 100, "initialDepletion": false },
+    { "resourceNodeId": "penny_copper_deposit", "x": 44, "y": 10, "respawnTicks": 100, "initialDepletion": false },
+    { "resourceNodeId": "tinstone_deposit", "x": 46, "y": 14, "respawnTicks": 100, "initialDepletion": false },
+    { "resourceNodeId": "pig_iron_outcrop", "x": 48, "y": 14, "respawnTicks": 100, "initialDepletion": false },
+    { "resourceNodeId": "blackcoal_pocket", "x": 50, "y": 10, "respawnTicks": 100, "initialDepletion": false }
   ],
   "playerSpawnPoints": [
     { "x": 32, "y": 32, "plane": 0, "spawnType": "default" }

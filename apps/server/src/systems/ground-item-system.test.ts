@@ -57,8 +57,8 @@ const DROP_TABLE: DropTableDef = {
   rolls: 1,
   alwaysDrops: [{ itemId: "small_bones", quantity: 1 }],
   entries: [
-    { itemId: "coin", min: 2, max: 2, weight: 1, requirements: [] },
-    { itemId: "small_bones", min: 3, max: 3, weight: 3, requirements: [] },
+    { itemId: "coin", min: 2, max: 2, weight: 1, requirements: [], rarity: "common" },
+    { itemId: "small_bones", min: 3, max: 3, weight: 3, requirements: [], rarity: "common" },
   ],
 };
 

@@ -2,6 +2,7 @@
 import { z } from "zod";
 import { contentIdSchema, nonNegInt, positiveInt } from "./common";
 import { interactionOptionDefSchema } from "./npc";
+import { tileCoordSchema } from "../protocol/schema-primitives";
 
 export const objectDefSchema = z
   .object({
@@ -19,6 +20,10 @@ export const objectDefSchema = z
     resourceNodeId: contentIdSchema.optional(),
     /** Dialogue graph opened by interaction, if any. */
     dialogueId: contentIdSchema.optional(),
+    /** Plain text shown when the object is read. */
+    text: z.string().optional(),
+    /** Destination tile for enter actions (e.g. doors, ladders). */
+    transitionDestination: tileCoordSchema.optional(),
     options: z.array(interactionOptionDefSchema).default([]),
     /** Optional model asset reference. */
     model: contentIdSchema.optional(),

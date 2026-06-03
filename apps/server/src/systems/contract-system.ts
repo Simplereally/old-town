@@ -143,7 +143,7 @@ export function findActiveContractEntity(
   return undefined;
 }
 
-export function trackContractObjective(
+export function updateContractObjective(
   ctx: ContractTrackerContext,
   _owner: EntityId,
   contractEntityId: EntityId,
@@ -152,7 +152,7 @@ export function trackContractObjective(
   amount: number,
 ): void {
   const contract = ctx.world.getComponent(contractEntityId, "contract");
-  if (contract?.status !== "accepted") {
+  if (contract?.status !== "accepted" && contract?.status !== "ready-for-completion") {
     return;
   }
 
@@ -179,8 +179,68 @@ export function trackContractItemGain(
   if (contractEntityId === undefined) {
     return;
   }
-  trackContractObjective(ctx, owner, contractEntityId, "collect", itemId, quantity);
+  updateContractObjective(ctx, owner, contractEntityId, "collect", itemId, quantity);
   checkContractCompletion(ctx, owner, contractEntityId, 0, 0);
+}
+
+export function trackContractObjective(
+  ctx: ContractTrackerContext,
+  playerId: EntityId,
+  objectiveKind: string,
+  targetId: string,
+): void {
+  const contractEntityId = findActiveContractEntity(ctx.world, playerId);
+  if (contractEntityId === undefined) {
+    return;
+  }
+
+  const contract = ctx.world.getComponent(contractEntityId, "contract");
+  if (!contract || (contract.status !== "accepted" && contract.status !== "ready-for-completion")) {
+    return;
+  }
+
+  const objective = contract.objectives.find(
+    (obj) => obj.kind === objectiveKind && obj.targetId === targetId,
+  );
+  if (!objective) {
+    return;
+  }
+
+  const newCurrent = Math.min(objective.required, objective.current + 1);
+  const updatedObjectives = contract.objectives.map((obj) => {
+    if (obj.kind === objectiveKind && obj.targetId === targetId) {
+      return { ...obj, current: newCurrent };
+    }
+    return obj;
+  });
+
+  ctx.world.setComponent(contractEntityId, "contract", {
+    ...contract,
+    objectives: updatedObjectives,
+  });
+
+  ctx.deltas.markContractProgress({
+    entityId: playerId,
+    contractId: contract.contractId,
+    objectiveKind,
+    targetId,
+    current: newCurrent,
+    required: objective.required,
+  });
+
+  if (newCurrent >= objective.required) {
+    const allComplete = updatedObjectives.every((obj) => obj.current >= obj.required);
+    if (allComplete) {
+      ctx.world.setComponent(contractEntityId, "contract", {
+        ...contract,
+        objectives: updatedObjectives,
+        status: "ready-for-completion",
+      });
+
+      const contractDef = ctx.registries.contract.get(contract.contractId);
+      systemMessage(ctx, playerId, `Contract ready for completion: ${contractDef?.name ?? contract.contractId}`, 0);
+    }
+  }
 }
 
 export function applyContractRewards(
@@ -191,7 +251,7 @@ export function applyContractRewards(
   tick?: number,
 ): boolean {
   const contract = ctx.world.getComponent(contractEntityId, "contract");
-  if (contract?.status !== "completed") {
+  if (contract?.status !== "completed" && contract?.status !== "ready-for-completion") {
     return false;
   }
 
@@ -286,7 +346,7 @@ export function checkContractCompletion(
   tick?: number,
 ): boolean {
   const contract = ctx.world.getComponent(contractEntityId, "contract");
-  if (contract?.status !== "accepted") {
+  if (contract?.status !== "accepted" && contract?.status !== "ready-for-completion") {
     return false;
   }
 

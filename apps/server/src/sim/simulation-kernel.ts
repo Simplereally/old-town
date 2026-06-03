@@ -36,8 +36,12 @@ import { processDeathResolution, processGroundItemLifecycle } from "../systems/g
 import { npcFootprintResolver, processNpcAiPhase, syncNpcOccupancy } from "../systems/npc-system";
 import { createResourceNodeActionHandlers } from "../systems/resource-node-system";
 import { createSkillingActionHandlers } from "../systems/skilling-system";
+import { handleBeginInteract } from "../systems/object-interaction-router";
+import { processAppearanceUpdates } from "../systems/appearance-system";
 import { processShopRestockPhase } from "../systems/shop-system";
+import { processStatusEffects } from "../systems/status-system";
 import { createSpellActionHandlers } from "../systems/spell-system";
+import { processQuestTriggers } from "../quests/quest-engine";
 import { applyObjectCollision, CollisionMap } from "../world/collision";
 import { loadAllRegionMapsIntoWorld } from "../world/region-loader";
 import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
@@ -186,6 +190,14 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
     ...resourceNodeHandlers,
     ...spellHandlers,
     ...dialogueHandlers,
+    begin_interact: (payload, actionCtx) =>
+      handleBeginInteract(
+        skillingContext,
+        actionCtx.execution,
+        payload,
+        actionCtx.serverTime,
+        actionCtx.tick,
+      ),
   };
   const actionExecutor = new ActionExecutor(
     actionTable,
@@ -240,6 +252,7 @@ function wireTickPhases(
 ): void {
   const {
     world,
+    map,
     collision,
     deltas,
     commandRouter,
@@ -319,6 +332,17 @@ function wireTickPhases(
     processDamageResolutionEvents(combatContext, tick);
   });
 
+  const statusEffectContext = {
+    world,
+    deltas,
+    registries,
+    map,
+  };
+
+  tickLoop.registerPhase(TickPhase.StatusEffects, ({ tick }) => {
+    processStatusEffects(statusEffectContext, tick);
+  });
+
   tickLoop.registerPhase(TickPhase.DeathResolution, ({ tick, serverTime }) => {
     processDeathResolution(combatContext, tick, serverTime);
     processPlayerRespawn(combatContext, tick, serverTime);
@@ -334,6 +358,7 @@ function wireTickPhases(
   });
 
   tickLoop.registerPhase(TickPhase.QuestTriggersVarbits, ({ tick, serverTime }) => {
+    processQuestTriggers({ world, registries, deltas, itemAudit }, serverTime, tick);
     saveQueue.flushDue(tick, serverTime);
   });
 
@@ -343,6 +368,10 @@ function wireTickPhases(
       tick,
       serverTime,
     );
+  });
+
+  tickLoop.registerPhase(TickPhase.AppearanceUpdate, () => {
+    processAppearanceUpdates({ world, deltas, items: registries.item });
   });
 
   tickLoop.registerPhase(TickPhase.SnapshotDeltaBuild, ({ tick, serverTime }) => {

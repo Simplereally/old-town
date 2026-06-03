@@ -1,10 +1,32 @@
-import type { EntityId, EntityKind, EntitySpawnPacket, TileCoord } from "@old-town/shared";
+import type {
+  AppearanceUpdate,
+  EntityId,
+  EntityKind,
+  EntitySpawnPacket,
+  ItemDef,
+  TileCoord,
+} from "@old-town/shared";
 import type { World } from "../ecs/world";
+import { computeAppearance } from "../systems/appearance-system";
 
 export interface EntitySpawnProjectorResult {
   readonly spawns: readonly EntitySpawnPacket[];
   /** EntityIds that had required components missing and were skipped. */
   readonly skipped: readonly EntityId[];
+}
+
+function buildAppearance(
+  world: World,
+  entityId: EntityId,
+  items: ReadonlyMap<string, ItemDef> | undefined,
+): AppearanceUpdate | undefined {
+  const actor = world.getComponent(entityId, "actor");
+  if (!actor) return undefined;
+  const equipment = world.getComponent(entityId, "equipment");
+  if (equipment && items) {
+    return computeAppearance(actor, equipment, items);
+  }
+  return { name: actor.name, bodyId: actor.appearanceId };
 }
 
 /**
@@ -18,7 +40,10 @@ export interface EntitySpawnProjectorResult {
  * - groundItem component -> kind: "ground_item"
  * - missing position  -> skipped (reported, never silently dropped)
  */
-export function projectWorldEntities(world: World): EntitySpawnProjectorResult {
+export function projectWorldEntities(
+  world: World,
+  items?: ReadonlyMap<string, ItemDef>,
+): EntitySpawnProjectorResult {
   const spawns: EntitySpawnPacket[] = [];
   const skipped: EntityId[] = [];
 
@@ -37,14 +62,14 @@ export function projectWorldEntities(world: World): EntitySpawnProjectorResult {
 
     const player = world.getComponent(entityId, "player");
     if (player) {
-      const actor = world.getComponent(entityId, "actor");
       const combatant = world.getComponent(entityId, "combatant");
+      const appearance = buildAppearance(world, entityId, items);
       spawns.push({
         entityId,
         kind: "player",
         tile,
         moveSpeed: "stationary",
-        ...(actor ? { appearance: { name: actor.name, bodyId: actor.appearanceId } } : {}),
+        ...(appearance ? { appearance } : {}),
         ...(combatant
           ? { healthBar: { current: combatant.health, max: combatant.maxHealth } }
           : {}),
@@ -104,7 +129,11 @@ export function projectWorldEntities(world: World): EntitySpawnProjectorResult {
  * Project a single entity by id. Returns `undefined` if the entity is dead,
  * missing position, or has no recognised spawn kind.
  */
-export function projectEntity(world: World, entityId: EntityId): EntitySpawnPacket | undefined {
+export function projectEntity(
+  world: World,
+  entityId: EntityId,
+  items?: ReadonlyMap<string, ItemDef>,
+): EntitySpawnPacket | undefined {
   if (!world.isAlive(entityId)) return undefined;
 
   const position = world.getComponent(entityId, "position");
@@ -118,14 +147,14 @@ export function projectEntity(world: World, entityId: EntityId): EntitySpawnPack
 
   const player = world.getComponent(entityId, "player");
   if (player) {
-    const actor = world.getComponent(entityId, "actor");
     const combatant = world.getComponent(entityId, "combatant");
+    const appearance = buildAppearance(world, entityId, items);
     return {
       entityId,
       kind: "player",
       tile,
       moveSpeed: "stationary",
-      ...(actor ? { appearance: { name: actor.name, bodyId: actor.appearanceId } } : {}),
+      ...(appearance ? { appearance } : {}),
       ...(combatant ? { healthBar: { current: combatant.health, max: combatant.maxHealth } } : {}),
     };
   }

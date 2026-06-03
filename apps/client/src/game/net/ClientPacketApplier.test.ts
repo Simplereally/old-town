@@ -55,6 +55,11 @@ function createMockContext(): PacketApplierContext {
       show: vi.fn(),
       update: vi.fn(),
     },
+    xpDrops: {
+      clear: vi.fn(),
+      show: vi.fn(),
+      update: vi.fn(),
+    },
     projectiles: {
       clear: vi.fn(),
       spawn: vi.fn(),
@@ -415,6 +420,34 @@ describe("ClientPacketApplier", () => {
 
     expect(ctx.hitsplats.show).toHaveBeenCalledWith(eid(42), 5, "damage", 1);
     expect(ctx.uiState.setEquipment).toHaveBeenCalledWith(["helm"]);
+  });
+
+  it("applyTickDelta shows XP drops for self", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(fullStatePacket({ selfEntityId: eid(42) }));
+
+    applier.applyTickDelta(
+      tickDeltaPacket({
+        xpDrops: [
+          { skillId: "woodcutting", amount: 25 },
+          { skillId: "mining", amount: 15 },
+        ],
+      }),
+      1,
+    );
+
+    expect(ctx.xpDrops.show).toHaveBeenCalledWith(eid(42), "woodcutting", 25, 1);
+    expect(ctx.xpDrops.show).toHaveBeenCalledWith(eid(42), "mining", 15, 1);
+  });
+
+  it("applyFullState clears xp drops", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+
+    applier.applyFullState(fullStatePacket({ entities: [spawnPlayer(1, { x: 0, y: 0, plane: 0 })] }));
+
+    expect(ctx.xpDrops.clear).toHaveBeenCalled();
   });
 
   it("applyTickDelta spawns projectile visual events", () => {

@@ -25,7 +25,7 @@ Implement recipe selection UI protocol and server-side recipe handling so player
 
 ## Ordered stories
 
-- [ ] `E27-S01` — [Recipe Selection UI Protocol](stories/E27/E27-S01_recipe-selection-ui-protocol.md)
+- [X] `E27-S01` — [Recipe Selection UI Protocol](../completed/stories/E27/E27-S01_recipe-selection-ui-protocol.md)
 - [ ] `E27-S02` — [Server-Side Recipe Selection Handler](stories/E27/E27-S02_server-side-recipe-selection-handler.md)
 - [ ] `E27-S03` — [Recipe UI Client Rendering](stories/E27/E27-S03_recipe-ui-client-rendering.md)
 

@@ -195,7 +195,7 @@ describe("object interaction router", () => {
     expect(chat?.[0]?.text).toBe("You need an offering to pray at the shrine.");
   });
 
-  it("routes fire action to skilling system", () => {
+  it("routes fire action to processing system", () => {
     const { ctx, world, deltas } = setup();
     const player = addPlayer(world, 1, 1);
     const object = addObject(world, "trap_base", 2, 1);
@@ -204,10 +204,10 @@ describe("object interaction router", () => {
     expect(result).toBe(true);
 
     const chat = deltas.peek().chat;
-    expect(chat?.[0]?.text).toBe("You have nothing suitable to cook.");
+    expect(chat?.[0]?.text).toBe("You set a fire trap.");
   });
 
-  it("routes weave action to skilling system", () => {
+  it("routes weave action to processing system with wrong object", () => {
     const { ctx, world, deltas } = setup();
     const player = addPlayer(world, 1, 1);
     const object = addObject(world, "trap_base", 2, 1);
@@ -238,5 +238,80 @@ describe("object interaction router", () => {
 
     const movement = world.getComponent(player, "movement");
     expect(movement?.path.length).toBeGreaterThan(0);
+  });
+
+  it("teleports player on enter with transitionDestination", () => {
+    const { ctx, world, deltas } = setup();
+    const player = addPlayer(world, 1, 1);
+    const doorDef = {
+      ...OBJECT_DEF,
+      id: "door",
+      name: "Door",
+      transitionDestination: { x: 10, y: 10, plane: 0 },
+    };
+    ctx.registries.object.set("door", doorDef);
+    const object = addObject(world, "door", 2, 1);
+
+    const result = handleObjectIntent(ctx, player, { actionId: "enter", objectEntityId: object }, 0);
+    expect(result).toBe(true);
+
+    const position = world.getComponent(player, "position");
+    expect(position?.x).toBe(10);
+    expect(position?.y).toBe(10);
+  });
+
+  it("shows message on enter without transitionDestination", () => {
+    const { ctx, world, deltas } = setup();
+    const player = addPlayer(world, 1, 1);
+    const object = addObject(world, "signpost", 2, 1);
+
+    const result = handleObjectIntent(ctx, player, { actionId: "enter", objectEntityId: object }, 0);
+    expect(result).toBe(true);
+
+    const chat = deltas.peek().chat;
+    expect(chat?.[0]?.text).toBe("You cannot enter that.");
+  });
+
+  it("rings an object and emits sound", () => {
+    const { ctx, world, deltas } = setup();
+    const player = addPlayer(world, 1, 1);
+    const object = addObject(world, "signpost", 2, 1);
+
+    const result = handleObjectIntent(ctx, player, { actionId: "ring", objectEntityId: object }, 0);
+    expect(result).toBe(true);
+
+    const chat = deltas.peek().chat;
+    const sounds = deltas.peek().sounds;
+    expect(chat?.[0]?.text).toBe("You ring the bell.");
+    expect(sounds?.[0]?.soundId).toBe("bell_ring");
+  });
+
+  it("reads object text when available", () => {
+    const { ctx, world, deltas } = setup();
+    const player = addPlayer(world, 1, 1);
+    const textDef = { ...OBJECT_DEF, id: "text_sign", text: "Beware of dog." };
+    ctx.registries.object.set("text_sign", textDef);
+    const object = addObject(world, "text_sign", 2, 1);
+
+    const result = handleObjectIntent(ctx, player, { actionId: "read", objectEntityId: object }, 0);
+    expect(result).toBe(true);
+
+    const chat = deltas.peek().chat;
+    expect(chat?.[0]?.text).toBe("Beware of dog.");
+  });
+
+  it("enqueues begin_interact when out of range for non-skilling actions", () => {
+    const { ctx, world } = setup();
+    const player = addPlayer(world, 1, 1);
+    const object = addObject(world, "signpost", 5, 5);
+
+    const result = handleObjectIntent(ctx, player, { actionId: "inspect", objectEntityId: object }, 0);
+    expect(result).toBe(true);
+
+    const movement = world.getComponent(player, "movement");
+    expect(movement?.path.length).toBeGreaterThan(0);
+
+    const queue = ctx.actionRuntime.getDebugState();
+    expect(queue.some((q) => q.id === `begin-interact:${player}`)).toBe(true);
   });
 });

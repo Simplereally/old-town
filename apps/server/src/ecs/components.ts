@@ -169,7 +169,7 @@ export interface CombatantComponent {
   nextAttackTick?: number;
   dead?: boolean;
   respawnTick?: number;
-  lastDamageSourceId?: EntityId;
+  lastDamageSourceId?: EntityId | undefined;
   spellCooldowns?: Record<string, number>;
   pendingHits?: PendingHit[];
 }
@@ -233,7 +233,22 @@ export interface ContractObjective {
   readonly current: number;
 }
 
-export type ContractStatus = "available" | "accepted" | "completed" | "expired";
+export type ContractStatus = "available" | "accepted" | "ready-for-completion" | "completed" | "expired";
+
+export interface ActiveStatusEffect {
+  statusEffectId: string;
+  sourceEntityId?: EntityId | undefined;
+  stacks: number;
+  remainingTicks: number;
+}
+
+export interface StatusEffectsComponent {
+  entityId: EntityId;
+  effects: ActiveStatusEffect[];
+  baseAttackLevel?: number;
+  baseStrengthLevel?: number;
+  baseDefenceLevel?: number;
+}
 
 /** Wardenry contract state on a board or player. */
 export interface ContractComponent {

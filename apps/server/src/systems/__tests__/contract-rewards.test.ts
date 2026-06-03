@@ -18,7 +18,7 @@ import {
   applyContractRewards,
   checkContractCompletion,
   handleContractAcceptIntent,
-  trackContractObjective,
+  updateContractObjective,
 } from "../contract-system";
 
 const PLAYER = entityId(0);
@@ -169,7 +169,7 @@ describe("contract reward distribution", () => {
     const { world, ctx } = setup();
 
     handleContractAcceptIntent(ctx, PLAYER, { objectEntityId: CONTRACT_BOARD, actionId: "accept" }, 600, 1);
-    trackContractObjective(ctx, PLAYER, CONTRACT_BOARD, "kill", "mud_goblin", 10);
+    updateContractObjective(ctx, PLAYER, CONTRACT_BOARD, "kill", "mud_goblin", 10);
     checkContractCompletion(ctx, PLAYER, CONTRACT_BOARD, 600, 1);
 
     expect(world.getComponent(PLAYER, "skills")?.skills.attack?.xp).toBe(50);
@@ -179,7 +179,7 @@ describe("contract reward distribution", () => {
     const { world, ctx } = setup();
 
     handleContractAcceptIntent(ctx, PLAYER, { objectEntityId: CONTRACT_BOARD, actionId: "accept" }, 600, 1);
-    trackContractObjective(ctx, PLAYER, CONTRACT_BOARD, "kill", "mud_goblin", 10);
+    updateContractObjective(ctx, PLAYER, CONTRACT_BOARD, "kill", "mud_goblin", 10);
     checkContractCompletion(ctx, PLAYER, CONTRACT_BOARD, 600, 1);
 
     const inventory = world.getComponent(PLAYER, "inventory");
@@ -192,7 +192,7 @@ describe("contract reward distribution", () => {
     const { world, ctx } = setup();
 
     handleContractAcceptIntent(ctx, PLAYER, { objectEntityId: CONTRACT_BOARD, actionId: "accept" }, 600, 1);
-    trackContractObjective(ctx, PLAYER, CONTRACT_BOARD, "kill", "mud_goblin", 10);
+    updateContractObjective(ctx, PLAYER, CONTRACT_BOARD, "kill", "mud_goblin", 10);
     checkContractCompletion(ctx, PLAYER, CONTRACT_BOARD, 600, 1);
 
     expect(world.getComponent(PLAYER, "vars")?.values["reputation.wardenry"]).toBe(10);
@@ -202,7 +202,7 @@ describe("contract reward distribution", () => {
     const { ctx, deltas } = setup();
 
     handleContractAcceptIntent(ctx, PLAYER, { objectEntityId: CONTRACT_BOARD, actionId: "accept" }, 600, 1);
-    trackContractObjective(ctx, PLAYER, CONTRACT_BOARD, "kill", "mud_goblin", 10);
+    updateContractObjective(ctx, PLAYER, CONTRACT_BOARD, "kill", "mud_goblin", 10);
     checkContractCompletion(ctx, PLAYER, CONTRACT_BOARD, 600, 1);
 
     const state = deltas.peek();
@@ -227,7 +227,7 @@ describe("contract reward distribution", () => {
     }
 
     handleContractAcceptIntent(ctx, PLAYER, { objectEntityId: CONTRACT_BOARD, actionId: "accept" }, 600, 1);
-    trackContractObjective(ctx, PLAYER, CONTRACT_BOARD, "kill", "mud_goblin", 10);
+    updateContractObjective(ctx, PLAYER, CONTRACT_BOARD, "kill", "mud_goblin", 10);
 
     // checkContractCompletion applies rewards internally, so we should verify no rewards
     checkContractCompletion(ctx, PLAYER, CONTRACT_BOARD, 600, 1);
@@ -242,7 +242,7 @@ describe("contract reward distribution", () => {
     const { world, ctx } = setup();
 
     handleContractAcceptIntent(ctx, PLAYER, { objectEntityId: CONTRACT_BOARD, actionId: "accept" }, 600, 1);
-    trackContractObjective(ctx, PLAYER, CONTRACT_BOARD, "kill", "mud_goblin", 10);
+    updateContractObjective(ctx, PLAYER, CONTRACT_BOARD, "kill", "mud_goblin", 10);
     checkContractCompletion(ctx, PLAYER, CONTRACT_BOARD, 600, 1);
 
     // Verify rewards were applied once
@@ -296,7 +296,7 @@ describe("contract reward distribution", () => {
     Object.assign(ctxWithNoItemContract, { collision: ctx.collision, actionRuntime: ctx.actionRuntime });
 
     handleContractAcceptIntent(ctxWithNoItemContract, PLAYER, { objectEntityId: CONTRACT_BOARD, actionId: "accept" }, 600, 1);
-    trackContractObjective(ctxWithNoItemContract, PLAYER, CONTRACT_BOARD, "kill", "stray_dog", 5);
+    updateContractObjective(ctxWithNoItemContract, PLAYER, CONTRACT_BOARD, "kill", "stray_dog", 5);
     checkContractCompletion(ctxWithNoItemContract, PLAYER, CONTRACT_BOARD, 600, 1);
 
     // XP should be applied even with full inventory

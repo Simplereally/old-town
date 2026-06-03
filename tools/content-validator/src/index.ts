@@ -483,6 +483,9 @@ function buildDependencyEdges(registries: ContentRegistries): readonly Dependenc
     for (const spawn of def.groundItemSpawns) {
       add("regionMap", id, "item", spawn.itemId, "groundItemSpawns.itemId");
     }
+    for (const spawn of def.resourceNodeSpawns) {
+      add("regionMap", id, "resourceNode", spawn.resourceNodeId, "resourceNodeSpawns.resourceNodeId");
+    }
   }
   return edges.toSorted((a, b) =>
     `${a.from}|${a.to}|${a.field}`.localeCompare(`${b.from}|${b.to}|${b.field}`),

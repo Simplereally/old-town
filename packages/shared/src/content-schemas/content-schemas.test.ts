@@ -185,6 +185,20 @@ describe("contentSchemas — one entry point validates every kind", () => {
       true,
     );
     expect(validate("dropTable", { id: "river_rat_drops", entries: [] }).success).toBe(true);
+    expect(
+      validate("dropTable", {
+        id: "goblin_drops",
+        rolls: 1,
+        alwaysDrops: [{ itemId: "small_bones", quantity: 1 }],
+        entries: [
+          { itemId: "coin", min: 1, max: 5, weight: 10, rarity: "common" },
+          { itemId: "bronze_sword", min: 1, max: 1, weight: 5, rarity: "uncommon" },
+          { itemId: "iron_helm", min: 1, max: 1, weight: 2, rarity: "rare" },
+          { itemId: "rune_scim", min: 1, max: 1, weight: 1, rarity: "very_rare" },
+          { itemId: "quest_token", min: 1, max: 1, weight: 1, rarity: "guaranteed", requirements: [{ kind: "quest_stage", questId: "test_quest", minStage: 1 }] },
+        ],
+      }).success,
+    ).toBe(true);
     expect(validate("object", { id: "oak_tree", name: "Oak Tree" }).success).toBe(true);
     expect(validate("animation", { id: "chop_swing", name: "Chop" }).success).toBe(true);
     expect(validate("shop", validShop).success).toBe(true);

@@ -6,8 +6,23 @@ import type {
   PlayerVarValue,
   ShopViewPacket,
   SkillDelta,
+  TileCoord,
   VarbitDelta,
 } from "@old-town/shared";
+
+export interface MinimapTile {
+  readonly x: number;
+  readonly y: number;
+  readonly underlayId: string;
+  readonly water?: boolean;
+}
+
+export interface MinimapEntity {
+  readonly entityId: number;
+  readonly kind: "player" | "npc" | "object";
+  readonly tile: TileCoord;
+  readonly defId?: string;
+}
 
 /**
  * Client-side UI state container. Holds all authoritative state received from server
@@ -23,6 +38,10 @@ export class UIState {
   private _dialogue: DialogueViewPacket | undefined;
   private _bank = new Map<number, InventorySlotChange>();
   private _shop: ShopViewPacket | undefined;
+  private _minimapPlayerTile: TileCoord | undefined;
+  private _minimapEntities = new Map<number, MinimapEntity>();
+  private _minimapTiles = new Map<string, MinimapTile>();
+  private _minimapRegionTileKeys = new Map<string, Set<string>>();
   private _listeners = new Set<() => void>();
 
   get inventory(): ReadonlyMap<number, InventorySlotChange> {
@@ -164,6 +183,74 @@ export class UIState {
 
   clearShop(): void {
     this._shop = undefined;
+    this._notify();
+  }
+
+  get minimapPlayerTile(): TileCoord | undefined {
+    return this._minimapPlayerTile;
+  }
+
+  setMinimapPlayerTile(tile: TileCoord): void {
+    this._minimapPlayerTile = tile;
+    this._notify();
+  }
+
+  get minimapEntities(): ReadonlyMap<number, MinimapEntity> {
+    return this._minimapEntities;
+  }
+
+  setMinimapEntity(entity: MinimapEntity): void {
+    this._minimapEntities.set(entity.entityId, entity);
+    this._notify();
+  }
+
+  updateMinimapEntityTile(entityId: number, tile: TileCoord): void {
+    const existing = this._minimapEntities.get(entityId);
+    if (existing) {
+      this._minimapEntities.set(entityId, { ...existing, tile });
+      this._notify();
+    }
+  }
+
+  removeMinimapEntity(entityId: number): void {
+    this._minimapEntities.delete(entityId);
+    this._notify();
+  }
+
+  clearMinimapEntities(): void {
+    this._minimapEntities.clear();
+    this._notify();
+  }
+
+  get minimapTiles(): ReadonlyMap<string, MinimapTile> {
+    return this._minimapTiles;
+  }
+
+  addMinimapTiles(regionId: string, tiles: readonly MinimapTile[]): void {
+    const keys: string[] = [];
+    for (const tile of tiles) {
+      const key = `${tile.x}:${tile.y}`;
+      this._minimapTiles.set(key, tile);
+      keys.push(key);
+    }
+    this._minimapRegionTileKeys.set(regionId, new Set(keys));
+    this._notify();
+  }
+
+  removeMinimapTilesByRegion(regionId: string): void {
+    const keys = this._minimapRegionTileKeys.get(regionId);
+    if (keys) {
+      for (const key of keys) {
+        this._minimapTiles.delete(key);
+      }
+      this._minimapRegionTileKeys.delete(regionId);
+      this._notify();
+    }
+  }
+
+  clearMinimapTiles(): void {
+    this._minimapTiles.clear();
+    this._minimapRegionTileKeys.clear();
     this._notify();
   }
 

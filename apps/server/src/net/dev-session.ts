@@ -126,7 +126,7 @@ export class DevSessionManager {
   }
 
   private fullState(entityId: EntityId, tick: number, serverTime: number): FullStatePacket {
-    const { spawns } = projectWorldEntities(this.world);
+    const { spawns } = projectWorldEntities(this.world, this.registries.item);
 
     return {
       type: ServerPacketType.FullState,

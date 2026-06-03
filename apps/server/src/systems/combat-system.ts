@@ -17,6 +17,7 @@ import type { CollisionMap, Footprint } from "../world/collision";
 import { type InteractionTarget, resolveInteraction } from "./interaction-reach";
 import { handleMoveIntent } from "./movement-system";
 import { npcFootprint } from "./npc-system";
+import { trackContractObjective } from "./contract-system";
 
 export interface CombatSystemContext {
   readonly world: World;
@@ -625,6 +626,12 @@ function applyPendingHit(
   }
   if (after > 0) {
     assignAutoRetaliateTarget(ctx, targetId, hit.sourceId);
+  }
+  if (after <= 0) {
+    const npc = ctx.world.getComponent(targetId, "npc");
+    if (npc && hit.sourceId) {
+      trackContractObjective(ctx, hit.sourceId, "kill", npc.npcId);
+    }
   }
   return ctx.world.getComponent(targetId, "combatant") ?? next;
 }

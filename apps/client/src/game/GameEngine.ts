@@ -21,6 +21,7 @@ import { HitsplatLayer } from "./scene/HitsplatLayer";
 import { ObjectRenderer } from "./scene/ObjectRenderer";
 import { ProjectileLayer } from "./scene/ProjectileLayer";
 import { TerrainLayer } from "./scene/TerrainLayer";
+import { XpDropLayer } from "./scene/XpDropLayer";
 import { ContentClient } from "./ui/ContentClient";
 import { ContextMenu } from "./ui/ContextMenu";
 import { GlobalKeydownBus } from "./ui/GlobalKeydownBus";
@@ -54,6 +55,7 @@ export class GameEngine {
   readonly hitsplats: HitsplatLayer;
   readonly groundItems: GroundItemLayer;
   readonly chatOverhead: ChatOverheadLayer;
+  readonly xpDrops: XpDropLayer;
   readonly debug: DebugLayer | undefined;
   readonly uiState = new UIState();
   readonly content = new ContentClient();
@@ -87,6 +89,7 @@ export class GameEngine {
     this.actors = new ActorRenderer({ scene: this.renderer.scene });
     this.projectiles = new ProjectileLayer({ scene: this.renderer.scene });
     this.hitsplats = new HitsplatLayer({ scene: this.renderer.scene });
+    this.xpDrops = new XpDropLayer({ scene: this.renderer.scene });
     this.groundItems = new GroundItemLayer({ scene: this.renderer.scene });
     this.chatOverhead = new ChatOverheadLayer({ scene: this.renderer.scene });
     this.debug = import.meta.env.DEV ? new DebugLayer({ scene: this.renderer.scene }) : undefined;
@@ -99,6 +102,7 @@ export class GameEngine {
       actors: this.actors,
       groundItems: this.groundItems,
       hitsplats: this.hitsplats,
+      xpDrops: this.xpDrops,
       projectiles: this.projectiles,
       chatOverhead: this.chatOverhead,
       debug: this.debug,
@@ -235,6 +239,7 @@ export class GameEngine {
     this.actors.dispose();
     this.projectiles.dispose();
     this.hitsplats.dispose();
+    this.xpDrops.dispose();
     this.groundItems.dispose();
     this.chatOverhead.dispose();
     this.debug?.dispose();
@@ -492,6 +497,7 @@ export class GameEngine {
       this.renderer.cameraController.followTarget(selfActor.visualPosition);
     }
     this.hitsplats.update(this._currentTick, actorPositions);
+    this.xpDrops.update(this._currentTick, actorPositions);
     this.chatOverhead.update(actorPositions);
     this.hoverHighlighter.update();
     this._updateOverlay();

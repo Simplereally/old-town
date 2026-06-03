@@ -23,6 +23,8 @@ export const statusEffectDefSchema = z
     effectType: statusEffectTypeSchema,
     statModifiers: z.array(statModifierSchema).default([]),
     cureItems: z.array(contentIdSchema).default([]),
+    damagePerTick: nonNegInt.optional(),
+    damageStyle: z.enum(["stab", "slash", "crush", "ranged", "magic"]).optional(),
   })
   .strict();
 

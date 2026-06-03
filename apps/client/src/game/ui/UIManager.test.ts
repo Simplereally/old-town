@@ -4,6 +4,24 @@ import { ContentClient } from "./ContentClient";
 import { UIManager, type UIManagerCallbacks } from "./UIManager";
 import { UIState } from "./UIState";
 
+function mockCanvas(): void {
+  const mockCtx = {
+    fillRect: vi.fn(),
+    clearRect: vi.fn(),
+    fill: vi.fn(),
+    beginPath: vi.fn(),
+    moveTo: vi.fn(),
+    lineTo: vi.fn(),
+    closePath: vi.fn(),
+    setTransform: vi.fn(),
+    fillStyle: "",
+  } as unknown as CanvasRenderingContext2D;
+  HTMLCanvasElement.prototype.getContext = vi.fn((type: string) => {
+    if (type === "2d") return mockCtx;
+    return null;
+  }) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+}
+
 class TestContentClient extends ContentClient {
   override getItem = vi.fn(() => undefined);
   override getSkill = vi.fn(() => undefined);
@@ -21,6 +39,7 @@ class TestContentClient extends ContentClient {
 }
 
 function setupTestEnv(): void {
+  mockCanvas();
   document.body.innerHTML = `
     <div id="inventory-panel" class="hidden"></div>
     <div id="inventory-body"></div>
@@ -47,6 +66,7 @@ function setupTestEnv(): void {
     <div id="dialogue-npc"></div>
     <div id="dialogue-text"></div>
     <div id="dialogue-options"></div>
+
   `;
 }
 

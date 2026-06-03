@@ -2840,7 +2840,13 @@
   ],
   "resourceNodeSpawns": [
     { "resourceNodeId": "copper_rock_node", "x": 15, "y": 15, "respawnTicks": 100, "initialDepletion": false },
-    { "resourceNodeId": "tin_rock_node", "x": 25, "y": 25, "respawnTicks": 100, "initialDepletion": false }
+    { "resourceNodeId": "tin_rock_node", "x": 25, "y": 25, "respawnTicks": 100, "initialDepletion": false },
+    { "resourceNodeId": "riverwillow_tree", "x": 2, "y": 26, "respawnTicks": 100, "initialDepletion": false },
+    { "resourceNodeId": "tinfin_ripple", "x": 4, "y": 30, "respawnTicks": 100, "initialDepletion": false },
+    { "resourceNodeId": "river_curio_spot", "x": 6, "y": 34, "respawnTicks": 100, "initialDepletion": false },
+    { "resourceNodeId": "bog_fox_track", "x": 4, "y": 12, "respawnTicks": 100, "initialDepletion": false },
+    { "resourceNodeId": "allotment_patch", "x": 6, "y": 16, "respawnTicks": 100, "initialDepletion": false },
+    { "resourceNodeId": "herb_pot_table", "x": 2, "y": 18, "respawnTicks": 100, "initialDepletion": false }
   ],
   "playerSpawnPoints": [
     { "x": 32, "y": 32, "plane": 0, "spawnType": "default" }

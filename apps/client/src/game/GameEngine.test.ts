@@ -658,4 +658,21 @@ describe("GameEngine click-to-move", () => {
 
     expect(engine.chatOverhead.bubbleCount).toBe(0);
   });
+
+  it("shows XP drops from tick delta", () => {
+    (asEngine(engine)._handleFullState as (s: FullStatePacket) => void)(createFullStatePacket());
+    engine.actors.spawn(entityId(42), { x: 30, y: 32, plane: 0 }, "hero", true, "player");
+
+    const tickDelta: TickDeltaPacket = {
+      ...createTickDeltaPacket(2),
+      xpDrops: [
+        { skillId: "woodcutting", amount: 25 },
+        { skillId: "mining", amount: 15 },
+      ],
+    };
+
+    (asEngine(engine)._handleTickDelta as (d: TickDeltaPacket) => void)(tickDelta);
+
+    expect(engine.xpDrops.activeCount).toBe(2);
+  });
 });
