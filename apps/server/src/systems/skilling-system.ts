@@ -80,8 +80,10 @@ export interface GatherValidationResult {
   readonly nodeDef?: ResourceNodeDef;
 }
 
-const GATHER_ACTION_IDS = new Set(["chop", "woodcut", "mine"]);
-const PROCESS_ACTION_IDS = new Set(["cook", "use"]);
+const GATHER_ACTION_IDS = new Set(["chop", "woodcut", "mine", "fish"]);
+const PROCESS_ACTION_IDS = new Set([
+  "cook", "use", "smith", "smelt", "craft", "fire", "weave", "tan", "dye", "mix",
+]);
 
 function actionId(prefix: string, owner: EntityId): string {
   return `${prefix}:${owner}`;
@@ -322,20 +324,23 @@ export function handleObjectSkillingIntent(
   return false;
 }
 
-function matchingRecipe(
+function matchingRecipes(
   ctx: SkillingContext,
   owner: EntityId,
   stationEntityId: EntityId,
-): ProcessingRecipeDef | undefined {
+): ProcessingRecipeDef[] {
   const station = ctx.world.getComponent(stationEntityId, "object");
   const inventory = ctx.world.getComponent(owner, "inventory");
-  if (!station || !inventory) {
-    return undefined;
+  const skills = ctx.world.getComponent(owner, "skills");
+  if (!station || !inventory || !skills) {
+    return [];
   }
-  const recipes = Array.from(ctx.registries.processingRecipe.values()).filter((recipe) =>
-    hasItem(inventory, recipe.inputItemId, recipe.inputQuantity),
+  return Array.from(ctx.registries.processingRecipe.values()).filter(
+    (recipe) =>
+      recipe.stationObjectIds.includes(station.objectId) &&
+      hasItem(inventory, recipe.inputItemId, recipe.inputQuantity) &&
+      getCurrentLevel(skills, recipe.skill) >= recipe.requiredLevel,
   );
-  return recipes.find((recipe) => recipe.stationObjectIds.includes(station.objectId)) ?? recipes[0];
 }
 
 function validateProcessAction(
@@ -358,6 +363,9 @@ function validateProcessAction(
   }
   if (chebyshev(actorTile, stationTile) > 1) {
     return "You need to get closer.";
+  }
+  if (!ctx.collision.hasLineOfSight(actorTile, stationTile)) {
+    return "You cannot see the station.";
   }
   if (getCurrentLevel(skills, recipe.skill) < recipe.requiredLevel) {
     return `You need level ${recipe.requiredLevel} ${recipe.skill}.`;
@@ -414,12 +422,41 @@ function handleProcessingIntent(
   owner: EntityId,
   stationEntityId: EntityId,
   serverTime: number,
-  tick?: number,
+  _tick?: number,
 ): boolean {
-  const recipe = matchingRecipe(ctx, owner, stationEntityId);
-  if (!recipe) {
+  const recipes = matchingRecipes(ctx, owner, stationEntityId);
+  if (recipes.length === 0) {
     systemMessage(ctx.deltas, owner, "You have nothing suitable to cook.", serverTime);
     return true;
+  }
+
+  // Always send the recipe list — never auto-select, even for a single recipe.
+  ctx.deltas.markRecipeList({
+    interfaceId: "recipe",
+    recipes: recipes.map((recipe) => ({
+      recipeId: recipe.id,
+      name: recipe.name,
+      levelRequired: recipe.requiredLevel,
+      ingredients: [{ itemId: recipe.inputItemId, quantity: recipe.inputQuantity }],
+      productId: recipe.successItemId,
+      productQuantity: recipe.successQuantity,
+    })),
+  });
+  return true;
+}
+
+export function handleRecipeSelect(
+  ctx: SkillingContext,
+  owner: EntityId,
+  stationEntityId: EntityId,
+  recipeId: string,
+  serverTime: number,
+  tick?: number,
+): boolean {
+  const recipe = ctx.registries.processingRecipe.get(recipeId);
+  if (!recipe) {
+    systemMessage(ctx.deltas, owner, "Invalid recipe selection.", serverTime);
+    return false;
   }
   const error = validateProcessAction(ctx, owner, stationEntityId, recipe);
   if (!error) {
@@ -442,7 +479,7 @@ function handleProcessingIntent(
     }
   }
   systemMessage(ctx.deltas, owner, error, serverTime);
-  return true;
+  return false;
 }
 
 export function handleBeginGather(
@@ -659,6 +696,17 @@ export function handleProcess(
       tick,
     );
   }
+
+  ctx.deltas.markRecipeResult({
+    recipeId: recipe.id,
+    success: !failed,
+    productItemId: itemId,
+    productQuantity: quantity,
+    ...(failed ? {} : { xpReward: recipe.xp }),
+    message: failed
+      ? "You fail to produce anything useful."
+      : `You successfully create ${recipe.name}.`,
+  });
 }
 
 export function createSkillingActionHandlers(ctx: SkillingContext): SkillingHandlerTable {

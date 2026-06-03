@@ -24,6 +24,7 @@ import {
   handleGather,
   handleObjectSkillingIntent,
   handleProcess,
+  handleRecipeSelect,
   type ProcessActionPayload,
   type SkillingContext,
   validateGatherAction,
@@ -537,6 +538,9 @@ describe("cooking processing loop", () => {
     expect(
       handleObjectSkillingIntent(ctx, player, { objectEntityId: station, actionId: "use" }, 600),
     ).toBe(true);
+    expect(deltas.peek().recipeLists?.[0]?.recipes.length).toBe(1);
+
+    expect(handleRecipeSelect(ctx, player, station, COOK_RECIPE.id, 600, 1)).toBe(true);
 
     {
       const execution = advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks);
@@ -559,6 +563,13 @@ describe("cooking processing loop", () => {
       "skilling_process_input",
       "skilling_process_output",
     ]);
+    expect(deltas.peek().recipeResults?.[0]).toMatchObject({
+      recipeId: COOK_RECIPE.id,
+      success: true,
+      productItemId: "cooked_fish",
+      productQuantity: 1,
+      xpReward: 15,
+    });
 
     {
       const execution = advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks);
@@ -587,11 +598,14 @@ describe("cooking processing loop", () => {
   });
 
   it("can burn food without awarding cooking XP", () => {
-    const { ctx, player, station, actionRuntime, inventory } = setupProcessing({
+    const { ctx, player, station, actionRuntime, inventory, deltas } = setupProcessing({
       recipe: { ...COOK_RECIPE, failureChance: 1 },
     });
 
     handleObjectSkillingIntent(ctx, player, { objectEntityId: station, actionId: "cook" }, 600);
+    expect(deltas.peek().recipeLists?.[0]?.recipes.length).toBe(1);
+
+    handleRecipeSelect(ctx, player, station, COOK_RECIPE.id, 600, 1);
     {
       const execution = advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks);
       const payload: ProcessActionPayload = {
@@ -605,6 +619,12 @@ describe("cooking processing loop", () => {
     expect(count(inventory, "raw_fish")).toBe(0);
     expect(count(inventory, "burnt_fish")).toBe(1);
     expect(ctx.world.getComponent(player, "skills")?.skills.cooking?.xp).toBe(0);
+    expect(deltas.peek().recipeResults?.[0]).toMatchObject({
+      recipeId: COOK_RECIPE.id,
+      success: false,
+      productItemId: "burnt_fish",
+      productQuantity: 1,
+    });
   });
 
   it("rejects cooking when the player has no matching raw input", () => {
@@ -618,6 +638,7 @@ describe("cooking processing loop", () => {
 
     expect(count(inventory, "cooked_fish")).toBe(0);
     expect(actionRuntime.getDebugState()).toEqual([]);
+    expect(deltas.peek().recipeLists).toBeUndefined();
     expect(deltas.peek().chat?.[0]?.text).toBe("You have nothing suitable to cook.");
   });
 
@@ -632,6 +653,7 @@ describe("cooking processing loop", () => {
 
     expect(count(inventory, "raw_fish")).toBe(1);
     expect(actionRuntime.getDebugState()).toEqual([]);
-    expect(deltas.peek().chat?.[0]?.text).toBe("You need a different cooking station.");
+    expect(deltas.peek().recipeLists).toBeUndefined();
+    expect(deltas.peek().chat?.[0]?.text).toBe("You have nothing suitable to cook.");
   });
 });

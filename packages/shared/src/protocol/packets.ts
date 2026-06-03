@@ -142,15 +142,45 @@ export interface ShopViewPacket {
   readonly buyMultiplier: number;
 }
 
+export interface RecipeListEntry {
+  readonly recipeId: string;
+  readonly name: string;
+  readonly levelRequired: number;
+  readonly ingredients: readonly { readonly itemId: string; readonly quantity: number }[];
+  readonly productId: string;
+  readonly productQuantity: number;
+}
+
+export interface RecipeListPacket {
+  readonly interfaceId: string;
+  readonly recipes: readonly RecipeListEntry[];
+}
+
+export interface RecipeResultPacket {
+  readonly recipeId: string;
+  readonly success: boolean;
+  readonly productItemId?: string;
+  readonly productQuantity?: number;
+  readonly xpReward?: number;
+  readonly message?: string;
+}
+
 export interface InterfaceOpenPacket {
   readonly interfaceId: string;
   readonly dialogue?: DialogueViewPacket;
   readonly shop?: ShopViewPacket;
+  readonly recipe?: RecipeListPacket;
 }
 
 /** A request for the client to close an interface/panel. */
 export interface InterfaceClosePacket {
   readonly interfaceId: string;
+}
+
+export interface ContractCompletePacket {
+  readonly entityId: EntityId;
+  readonly contractId: string;
+  readonly name: string;
 }
 
 /** A single tile within a region load payload (compact form). */
@@ -256,8 +286,11 @@ export interface TickDeltaPacket {
   readonly regionUnloads?: readonly RegionUnloadPacket[];
   readonly interfaceOpens?: readonly InterfaceOpenPacket[];
   readonly interfaceCloses?: readonly InterfaceClosePacket[];
+  readonly recipeLists?: readonly RecipeListPacket[];
+  readonly recipeResults?: readonly RecipeResultPacket[];
   readonly deathNotices?: readonly DeathNoticePacket[];
   readonly respawnNotices?: readonly RespawnNoticePacket[];
+  readonly contractComplete?: readonly ContractCompletePacket[];
   readonly debug?: DebugTickData;
 }
 

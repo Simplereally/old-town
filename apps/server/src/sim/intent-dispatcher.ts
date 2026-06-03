@@ -15,6 +15,7 @@ import {
   processMovementPhase,
 } from "../systems/movement-system";
 import { handleObjectIntent } from "../systems/object-interaction-router";
+import { handleRecipeSelect } from "../systems/skilling-system";
 import { handleShopIntent } from "../systems/shop-system";
 import { handleSpellIntent } from "../systems/spell-system";
 import type { CollisionMap } from "../world/collision";
@@ -65,6 +66,7 @@ function dispatchSingleIntent(
   switch (intent.kind) {
     case IntentKind.Move: {
       ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
       handleMoveIntent(
         { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
         owner,
@@ -89,6 +91,7 @@ function dispatchSingleIntent(
 
     case IntentKind.Item: {
       ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
       handleItemIntent(
         {
           world: ctx.world,
@@ -111,6 +114,7 @@ function dispatchSingleIntent(
       }
       if (intent.payload.action === "unequip" && intent.payload.value !== undefined) {
         ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+        ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
         handleUnequipIntent(
           {
             world: ctx.world,
@@ -130,6 +134,7 @@ function dispatchSingleIntent(
 
     case IntentKind.Object: {
       ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
       const object = ctx.world.getComponent(intent.payload.objectEntityId, "object");
       if (handleObjectIntent(ctx, owner, intent.payload, serverTime, tick)) {
         if (object) {
@@ -169,6 +174,7 @@ function dispatchSingleIntent(
 
     case IntentKind.Npc: {
       ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
       if (intent.payload.actionId === "bank") {
         handleBankIntent(
           { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, registries: ctx.registries, itemAudit: ctx.itemAudit },
@@ -201,6 +207,7 @@ function dispatchSingleIntent(
 
     case IntentKind.BankAction: {
       ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
       handleBankIntent(
         { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, registries: ctx.registries, itemAudit: ctx.itemAudit },
         owner,
@@ -213,6 +220,7 @@ function dispatchSingleIntent(
 
     case IntentKind.ShopAction: {
       ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
       handleShopIntent(
         { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, registries: ctx.registries, itemAudit: ctx.itemAudit },
         owner,
@@ -225,6 +233,7 @@ function dispatchSingleIntent(
 
     case IntentKind.GroundItem: {
       ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
       if (handleGroundItemIntent(ctx, owner, intent.payload, tick, serverTime)) {
         return;
       }
@@ -234,10 +243,31 @@ function dispatchSingleIntent(
 
     case IntentKind.Spell: {
       ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
       if (handleSpellIntent(ctx, owner, intent.payload, tick, serverTime)) {
         return;
       }
       emitSystemMessage(ctx, owner, "Spell casting is not yet implemented.", serverTime);
+      return;
+    }
+
+    case IntentKind.RecipeSelect: {
+      ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      handleRecipeSelect(
+        {
+          world: ctx.world,
+          collision: ctx.collision,
+          deltas: ctx.deltas,
+          registries: ctx.registries,
+          actionRuntime: ctx.actionRuntime,
+          rng: ctx.rng,
+        },
+        owner,
+        intent.payload.stationEntityId,
+        intent.payload.recipeId,
+        serverTime,
+        tick,
+      );
       return;
     }
 

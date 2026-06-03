@@ -1,6 +1,7 @@
 import {
   buildEntityUpdate,
   type ChatPacket,
+  type ContractCompletePacket,
   type DeathNoticePacket,
   type DebugPathData,
   type DebugTickData,
@@ -14,6 +15,8 @@ import {
   type InventoryDelta,
   type InventorySlotChange,
   type ProjectilePacket,
+  type RecipeListPacket,
+  type RecipeResultPacket,
   type RespawnNoticePacket,
   ServerPacketType,
   type SkillDelta,
@@ -36,24 +39,11 @@ export interface DirtyState {
   readonly projectiles?: readonly ProjectilePacket[];
   readonly interfaceOpens?: readonly InterfaceOpenPacket[];
   readonly interfaceCloses?: readonly InterfaceClosePacket[];
+  readonly recipeLists?: readonly RecipeListPacket[];
+  readonly recipeResults?: readonly RecipeResultPacket[];
   readonly deathNotices?: readonly DeathNoticePacket[];
   readonly respawnNotices?: readonly RespawnNoticePacket[];
-  readonly debug?: DebugTickData;
-}
-
-export interface DirtyState {
-  readonly entityAdds: readonly EntitySpawnPacket[];
-  readonly entityRemoves: readonly EntityId[];
-  readonly entityUpdates: readonly EntityUpdatePacket[];
-  readonly inventoryDeltas?: readonly InventoryDelta[];
-  readonly skillDelta?: readonly SkillDelta[];
-  readonly varbitDelta?: readonly VarbitDelta[];
-  readonly chat?: readonly ChatPacket[];
-  readonly hitsplats?: readonly HitsplatPacket[];
-  readonly xpDrops?: readonly XpDropPacket[];
-  readonly projectiles?: readonly ProjectilePacket[];
-  readonly interfaceOpens?: readonly InterfaceOpenPacket[];
-  readonly interfaceCloses?: readonly InterfaceClosePacket[];
+  readonly contractComplete?: readonly ContractCompletePacket[];
   readonly debug?: DebugTickData;
 }
 
@@ -90,8 +80,11 @@ export class DeltaAccumulator {
   private projectilePackets: ProjectilePacket[] = [];
   private interfaceOpenPackets: InterfaceOpenPacket[] = [];
   private interfaceClosePackets: InterfaceClosePacket[] = [];
+  private recipeListPackets: RecipeListPacket[] = [];
+  private recipeResultPackets: RecipeResultPacket[] = [];
   private deathNoticePackets: DeathNoticePacket[] = [];
   private respawnNoticePackets: RespawnNoticePacket[] = [];
+  private contractCompletePackets: ContractCompletePacket[] = [];
   private readonly debugPaths = new Map<EntityId, DebugPathData>();
   private observer: DeltaMutationObserver | undefined;
 
@@ -186,6 +179,18 @@ export class DeltaAccumulator {
     this.respawnNoticePackets.push(packet);
   }
 
+  markContractComplete(packet: ContractCompletePacket): void {
+    this.contractCompletePackets.push(packet);
+  }
+
+  markRecipeList(packet: RecipeListPacket): void {
+    this.recipeListPackets.push(packet);
+  }
+
+  markRecipeResult(packet: RecipeResultPacket): void {
+    this.recipeResultPackets.push(packet);
+  }
+
   markDebugPath(entityId: EntityId, path: readonly TileCoord[]): void {
     this.debugPaths.set(entityId, { entityId, path });
   }
@@ -239,11 +244,20 @@ export class DeltaAccumulator {
       ...(this.interfaceClosePackets.length > 0
         ? { interfaceCloses: [...this.interfaceClosePackets] }
         : {}),
+      ...(this.recipeListPackets.length > 0
+        ? { recipeLists: [...this.recipeListPackets] }
+        : {}),
+      ...(this.recipeResultPackets.length > 0
+        ? { recipeResults: [...this.recipeResultPackets] }
+        : {}),
       ...(this.deathNoticePackets.length > 0
         ? { deathNotices: [...this.deathNoticePackets] }
         : {}),
       ...(this.respawnNoticePackets.length > 0
         ? { respawnNotices: [...this.respawnNoticePackets] }
+        : {}),
+      ...(this.contractCompletePackets.length > 0
+        ? { contractComplete: [...this.contractCompletePackets] }
         : {}),
       ...(this.debugPaths.size > 0
         ? {
@@ -300,8 +314,11 @@ export class DeltaAccumulator {
     this.projectilePackets = [];
     this.interfaceOpenPackets = [];
     this.interfaceClosePackets = [];
+    this.recipeListPackets = [];
+    this.recipeResultPackets = [];
     this.deathNoticePackets = [];
     this.respawnNoticePackets = [];
+    this.contractCompletePackets = [];
     this.debugPaths.clear();
   }
 }
