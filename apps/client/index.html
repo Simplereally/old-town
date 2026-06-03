@@ -757,6 +757,166 @@
     #spell-target-overlay.visible {
       display: block;
     }
+
+    /* Recipe panel */
+    #recipe-panel {
+      width: 220px;
+    }
+
+    #recipe-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+
+    .recipe-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 6px;
+      background: rgba(40, 40, 50, 0.8);
+      border: 1px solid #444;
+      border-radius: 2px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .recipe-row:hover {
+      background: rgba(60, 60, 75, 0.9);
+      border-color: #666;
+    }
+
+    .recipe-row.selected {
+      background: rgba(80, 70, 50, 0.9);
+      border-color: #d4a843;
+    }
+
+    .recipe-row .recipe-name {
+      flex: 1;
+      font-size: 11px;
+    }
+
+    .recipe-row .recipe-level {
+      font-size: 10px;
+      color: #aaa;
+      margin-left: 4px;
+    }
+
+    .recipe-row .recipe-level.too-high {
+      color: #ff4444;
+    }
+
+    .recipe-row.unmet {
+      opacity: 0.6;
+    }
+
+    .recipe-detail {
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px solid #444;
+    }
+
+    .recipe-detail.hidden {
+      display: none;
+    }
+
+    #recipe-ingredients {
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+
+    #recipe-ingredients .ingredient-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 2px 0;
+      color: #ccc;
+    }
+
+    #recipe-ingredients .ingredient-row.missing {
+      color: #ff4444;
+    }
+
+    #recipe-output {
+      font-size: 11px;
+      color: #d4a843;
+      margin-bottom: 8px;
+    }
+
+    .recipe-make-btn {
+      width: 100%;
+      padding: 6px 0;
+      background: linear-gradient(180deg, #5a6c3a 0%, #4a5c2a 50%, #3a4c1a 100%);
+      border: 1px solid rgba(100, 120, 60, 0.5);
+      color: #e8dcc8;
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .recipe-make-btn:hover {
+      background: linear-gradient(180deg, #6a7c4a 0%, #5a6c3a 50%, #4a5c2a 100%);
+    }
+
+    .recipe-make-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .recipe-quantity {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 6px;
+    }
+
+    .qty-btn {
+      flex: 1;
+      padding: 3px 0;
+      background: rgba(40, 40, 50, 0.8);
+      border: 1px solid #444;
+      color: #ccc;
+      font-family: "Courier New", monospace;
+      font-size: 10px;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+
+    .qty-btn:hover {
+      background: rgba(60, 60, 75, 0.9);
+    }
+
+    .qty-btn.active {
+      background: rgba(80, 70, 50, 0.9);
+      border-color: #d4a843;
+      color: #d4a843;
+    }
+
+    .recipe-feedback {
+      margin-top: 8px;
+      padding: 6px;
+      border-radius: 2px;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .recipe-feedback.hidden {
+      display: none;
+    }
+
+    .recipe-feedback.success {
+      background: rgba(40, 80, 40, 0.8);
+      border: 1px solid #4a9a4a;
+      color: #88ff88;
+    }
+
+    .recipe-feedback.failure {
+      background: rgba(80, 40, 40, 0.8);
+      border: 1px solid #ff4444;
+      color: #ff8888;
+    }
   </style>
 </head>
 <body>
@@ -853,6 +1013,24 @@
         <div class="ui-panel-header">Shop</div>
         <div class="ui-panel-body" id="shop-body"></div>
       </div>
+      <div id="recipe-panel" class="ui-panel hidden">
+        <div class="ui-panel-header" id="recipe-header">Recipe</div>
+        <div class="ui-panel-body" id="recipe-body">
+          <div id="recipe-list"></div>
+          <div id="recipe-detail" class="recipe-detail hidden">
+            <div id="recipe-ingredients"></div>
+            <div id="recipe-output"></div>
+            <div id="recipe-quantity" class="recipe-quantity">
+              <button type="button" class="qty-btn active" data-qty="1">1</button>
+              <button type="button" class="qty-btn" data-qty="5">5</button>
+              <button type="button" class="qty-btn" data-qty="10">10</button>
+              <button type="button" class="qty-btn" data-qty="x">X</button>
+            </div>
+            <button type="button" id="recipe-make-btn" class="recipe-make-btn">Make</button>
+          </div>
+          <div id="recipe-feedback" class="recipe-feedback hidden"></div>
+        </div>
+      </div>
     </div>
     <div id="ui-bottom">
       <div id="chat-box" class="ui-panel hidden chat-box">
@@ -881,6 +1059,7 @@
     <div id="ui-bar-right">
       <button type="button" class="ui-bar-btn" data-panel="bank-panel">🏦</button>
       <button type="button" class="ui-bar-btn" data-panel="shop-panel">🏪</button>
+      <button type="button" class="ui-bar-btn" data-panel="recipe-panel">🔨</button>
       <button type="button" class="ui-bar-btn" data-panel="chat-box">💬</button>
       <button type="button" class="ui-bar-btn" data-panel="debug-overlay">🐛</button>
     </div>

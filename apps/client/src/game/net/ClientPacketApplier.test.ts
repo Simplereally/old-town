@@ -93,6 +93,10 @@ function createMockContext(): PacketApplierContext {
       clearBank: vi.fn(),
       setShop: vi.fn(),
       clearShop: vi.fn(),
+      setRecipeList: vi.fn(),
+      clearRecipeList: vi.fn(),
+      setRecipeResult: vi.fn(),
+      clearRecipeResult: vi.fn(),
     },
     selfEntityId: 0,
     logDebug: vi.fn(),
@@ -688,5 +692,80 @@ describe("ClientPacketApplier", () => {
     expect(ctx.debug?.setPendingHits).toHaveBeenCalledWith(new Map([["5", 10]]));
     expect(ctx.debug?.setNpcLeash).toHaveBeenCalledWith({ x: 4, y: 4, plane: 0 });
     expect(ctx.debug?.setVarbits).toHaveBeenCalledWith(new Map([["q1", 1]]));
+  });
+
+  it("applies recipeLists from tick delta", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(fullStatePacket({ selfEntityId: eid(1) }));
+
+    const recipeList = {
+      interfaceId: "recipe",
+      stationEntityId: 5,
+      stationName: "Range",
+      recipes: [],
+    };
+
+    applier.applyTickDelta(
+      tickDeltaPacket({ recipeLists: [recipeList] }),
+      1,
+    );
+
+    expect(ctx.uiState.setRecipeList).toHaveBeenCalledWith(recipeList);
+  });
+
+  it("applies recipeResults from tick delta", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(fullStatePacket({ selfEntityId: eid(1) }));
+
+    const results = [
+      { recipeId: "r1", success: true, xpReward: 10 },
+      { recipeId: "r2", success: false, message: "Failed" },
+    ];
+
+    applier.applyTickDelta(
+      tickDeltaPacket({ recipeResults: results }),
+      1,
+    );
+
+    expect(ctx.uiState.setRecipeResult).toHaveBeenCalledWith(results[results.length - 1]);
+  });
+
+  it("opens recipe via interfaceOpens", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(fullStatePacket({ selfEntityId: eid(1) }));
+
+    const recipeList = {
+      interfaceId: "recipe",
+      stationEntityId: 7,
+      stationName: "Furnace",
+      recipes: [],
+    };
+
+    applier.applyTickDelta(
+      tickDeltaPacket({
+        interfaceOpens: [{ interfaceId: "recipe", recipe: recipeList }],
+      }),
+      1,
+    );
+
+    expect(ctx.uiState.setRecipeList).toHaveBeenCalledWith(recipeList);
+  });
+
+  it("closes recipe via interfaceCloses", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(fullStatePacket({ selfEntityId: eid(1) }));
+
+    applier.applyTickDelta(
+      tickDeltaPacket({
+        interfaceCloses: [{ interfaceId: "recipe" }],
+      }),
+      1,
+    );
+
+    expect(ctx.uiState.clearRecipeList).toHaveBeenCalled();
   });
 });

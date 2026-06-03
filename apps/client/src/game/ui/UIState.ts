@@ -4,6 +4,8 @@ import type {
   InventoryDelta,
   InventorySlotChange,
   PlayerVarValue,
+  RecipeListPacket,
+  RecipeResultPacket,
   ShopViewPacket,
   SkillDelta,
   VarbitDelta,
@@ -23,6 +25,8 @@ export class UIState {
   private _dialogue: DialogueViewPacket | undefined;
   private _bank = new Map<number, InventorySlotChange>();
   private _shop: ShopViewPacket | undefined;
+  private _recipeList: RecipeListPacket | undefined;
+  private _recipeResult: RecipeResultPacket | undefined;
   private _listeners = new Set<() => void>();
 
   get inventory(): ReadonlyMap<number, InventorySlotChange> {
@@ -164,6 +168,36 @@ export class UIState {
 
   clearShop(): void {
     this._shop = undefined;
+    this._notify();
+  }
+
+  get recipeList(): RecipeListPacket | undefined {
+    return this._recipeList;
+  }
+
+  setRecipeList(packet: RecipeListPacket): void {
+    this._recipeList = packet;
+    this._recipeResult = undefined;
+    this._notify();
+  }
+
+  clearRecipeList(): void {
+    this._recipeList = undefined;
+    this._recipeResult = undefined;
+    this._notify();
+  }
+
+  get recipeResult(): RecipeResultPacket | undefined {
+    return this._recipeResult;
+  }
+
+  setRecipeResult(packet: RecipeResultPacket): void {
+    this._recipeResult = packet;
+    this._notify();
+  }
+
+  clearRecipeResult(): void {
+    this._recipeResult = undefined;
     this._notify();
   }
 

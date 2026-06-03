@@ -5,7 +5,7 @@ import { UIManager, type UIManagerCallbacks } from "./UIManager";
 import { UIState } from "./UIState";
 
 class TestContentClient extends ContentClient {
-  override getItem = vi.fn(() => undefined);
+  override getItem = vi.fn((_itemId: string) => undefined);
   override getSkill = vi.fn(() => undefined);
   override getAllSkills = vi.fn(() => []);
   override getSpell = vi.fn(() => undefined);
@@ -43,10 +43,29 @@ function setupTestEnv(): void {
     <button class="ui-bar-btn" data-panel="spellbook-panel"></button>
     <button class="ui-bar-btn" data-panel="quest-panel"></button>
     <button class="ui-bar-btn" data-panel="chat-box"></button>
+    <button class="ui-bar-btn" data-panel="recipe-panel"></button>
     <div id="dialogue-box" class="hidden"></div>
     <div id="dialogue-npc"></div>
     <div id="dialogue-text"></div>
     <div id="dialogue-options"></div>
+    <div id="recipe-panel" class="hidden">
+      <div class="ui-panel-header" id="recipe-header">Recipe</div>
+      <div class="ui-panel-body" id="recipe-body">
+        <div id="recipe-list"></div>
+        <div id="recipe-detail" class="recipe-detail hidden">
+          <div id="recipe-ingredients"></div>
+          <div id="recipe-output"></div>
+          <div id="recipe-quantity" class="recipe-quantity">
+            <button class="qty-btn active" data-qty="1">1</button>
+            <button class="qty-btn" data-qty="5">5</button>
+            <button class="qty-btn" data-qty="10">10</button>
+            <button class="qty-btn" data-qty="x">X</button>
+          </div>
+          <button id="recipe-make-btn" class="recipe-make-btn"></button>
+        </div>
+        <div id="recipe-feedback" class="recipe-feedback hidden"></div>
+      </div>
+    </div>
   `;
 }
 
@@ -67,6 +86,7 @@ describe("UIManager", () => {
       sendUiActionCommand: vi.fn(),
       sendBankCommand: vi.fn(),
       sendShopCommand: vi.fn(),
+      sendRecipeCommand: vi.fn(),
     };
     manager = new UIManager(uiState, content, callbacks);
   });
@@ -188,5 +208,221 @@ describe("UIManager", () => {
     expect(close?.textContent).toBe("Continue");
     close?.click();
     expect(callbacks.sendUiActionCommand).toHaveBeenCalledWith("dialogue_close", "baker_dialogue");
+  });
+
+  it("renders recipe list when setRecipeList is called", () => {
+    uiState.setRecipeList({
+      interfaceId: "recipe",
+      stationEntityId: 42,
+      stationName: "Range",
+      recipes: [
+        {
+          recipeId: "cooked_fish",
+          name: "Cooked Fish",
+          skillId: "cooking",
+          levelRequired: 1,
+          xp: 40,
+          ingredients: [{ itemId: "raw_fish", quantity: 1 }],
+          productId: "cooked_fish",
+          productQuantity: 1,
+        },
+      ],
+    });
+
+    const rows = document.querySelectorAll(".recipe-row");
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.textContent).toContain("Cooked Fish");
+    expect(document.getElementById("recipe-header")?.textContent).toBe("Range");
+  });
+
+  it("highlights selected recipe on click", () => {
+    uiState.setRecipeList({
+      interfaceId: "recipe",
+      stationEntityId: 42,
+      stationName: "Range",
+      recipes: [
+        {
+          recipeId: "r1",
+          name: "Recipe One",
+          skillId: "cooking",
+          levelRequired: 1,
+          xp: 10,
+          ingredients: [],
+          productId: "p1",
+          productQuantity: 1,
+        },
+        {
+          recipeId: "r2",
+          name: "Recipe Two",
+          skillId: "cooking",
+          levelRequired: 5,
+          xp: 20,
+          ingredients: [],
+          productId: "p2",
+          productQuantity: 1,
+        },
+      ],
+    });
+
+    const rows = document.querySelectorAll<HTMLDivElement>(".recipe-row");
+    rows[0]?.click();
+    const rowsAfter = document.querySelectorAll<HTMLDivElement>(".recipe-row");
+    expect(rowsAfter[0]?.classList.contains("selected")).toBe(true);
+    expect(rowsAfter[1]?.classList.contains("selected")).toBe(false);
+  });
+
+  it("shows detail panel and Make button on selection", () => {
+    uiState.setSkills([{ skillId: "cooking", level: 10, xp: 1000, effectiveLevel: 10 }]);
+    content.getItem.mockImplementation((itemId: string) => {
+      if (itemId === "cooked_fish") return { name: "Cooked Fish" } as unknown as ReturnType<typeof content.getItem>;
+      return undefined;
+    });
+    uiState.setRecipeList({
+      interfaceId: "recipe",
+      stationEntityId: 42,
+      stationName: "Range",
+      recipes: [
+        {
+          recipeId: "r1",
+          name: "Recipe One",
+          skillId: "cooking",
+          levelRequired: 1,
+          xp: 40,
+          ingredients: [{ itemId: "raw_fish", quantity: 1 }],
+          productId: "cooked_fish",
+          productQuantity: 1,
+        },
+      ],
+    });
+
+    const rows = document.querySelectorAll<HTMLDivElement>(".recipe-row");
+    rows[0]?.click();
+
+    const detail = document.getElementById("recipe-detail");
+    expect(detail?.classList.contains("hidden")).toBe(false);
+
+    const makeBtn = document.getElementById("recipe-make-btn") as HTMLButtonElement | null;
+    expect(makeBtn?.textContent).toBe("Make");
+    expect(makeBtn?.disabled).toBe(false);
+
+    const output = document.getElementById("recipe-output");
+    expect(output?.textContent).toContain("Cooked Fish");
+    expect(output?.textContent).toContain("(+40 XP)");
+  });
+
+  it("disables Make button when level requirement is not met", () => {
+    uiState.setSkills([{ skillId: "cooking", level: 5, xp: 100, effectiveLevel: 5 }]);
+    uiState.setRecipeList({
+      interfaceId: "recipe",
+      stationEntityId: 42,
+      stationName: "Range",
+      recipes: [
+        {
+          recipeId: "r1",
+          name: "Hard Recipe",
+          skillId: "cooking",
+          levelRequired: 10,
+          xp: 100,
+          ingredients: [],
+          productId: "p1",
+          productQuantity: 1,
+        },
+      ],
+    });
+
+    const rows = document.querySelectorAll<HTMLDivElement>(".recipe-row");
+    rows[0]?.click();
+
+    const makeBtn = document.getElementById("recipe-make-btn") as HTMLButtonElement | null;
+    expect(makeBtn?.disabled).toBe(true);
+    expect(makeBtn?.textContent).toBe("Level too low");
+  });
+
+  it("sends RecipeSelect command on Make click", () => {
+    uiState.setSkills([{ skillId: "cooking", level: 10, xp: 1000, effectiveLevel: 10 }]);
+    uiState.setRecipeList({
+      interfaceId: "recipe",
+      stationEntityId: 99,
+      stationName: "Range",
+      recipes: [
+        {
+          recipeId: "r1",
+          name: "Recipe One",
+          skillId: "cooking",
+          levelRequired: 1,
+          xp: 10,
+          ingredients: [],
+          productId: "p1",
+          productQuantity: 1,
+        },
+      ],
+    });
+
+    const rows = document.querySelectorAll<HTMLDivElement>(".recipe-row");
+    rows[0]?.click();
+
+    const makeBtn = document.getElementById("recipe-make-btn") as HTMLButtonElement | null;
+    makeBtn?.click();
+
+    expect(callbacks.sendRecipeCommand).toHaveBeenCalledWith("r1", 99);
+  });
+
+  it("shows success feedback on setRecipeResult", () => {
+    uiState.setRecipeResult({
+      recipeId: "r1",
+      success: true,
+      productItemId: "cooked_fish",
+      productQuantity: 1,
+      xpReward: 40,
+      message: "You cook the fish.",
+    });
+
+    const feedback = document.getElementById("recipe-feedback");
+    expect(feedback?.classList.contains("hidden")).toBe(false);
+    expect(feedback?.classList.contains("success")).toBe(true);
+    expect(feedback?.textContent).toContain("You cook the fish.");
+  });
+
+  it("shows failure feedback on setRecipeResult", () => {
+    uiState.setRecipeResult({
+      recipeId: "r1",
+      success: false,
+      message: "You burn the fish.",
+    });
+
+    const feedback = document.getElementById("recipe-feedback");
+    expect(feedback?.classList.contains("hidden")).toBe(false);
+    expect(feedback?.classList.contains("failure")).toBe(true);
+    expect(feedback?.textContent).toContain("You burn the fish.");
+  });
+
+  it("clears panel on clearRecipeList", () => {
+    uiState.setRecipeList({
+      interfaceId: "recipe",
+      stationEntityId: 42,
+      stationName: "Range",
+      recipes: [
+        {
+          recipeId: "r1",
+          name: "Recipe One",
+          skillId: "cooking",
+          levelRequired: 1,
+          xp: 10,
+          ingredients: [],
+          productId: "p1",
+          productQuantity: 1,
+        },
+      ],
+    });
+
+    uiState.clearRecipeList();
+
+    expect(document.getElementById("recipe-list")?.innerHTML).toBe("");
+    expect(document.getElementById("recipe-detail")?.classList.contains("hidden")).toBe(true);
+    expect(document.getElementById("recipe-feedback")?.classList.contains("hidden")).toBe(true);
+  });
+
+  it("disposes without error with recipe panel attached", () => {
+    expect(() => manager.dispose()).not.toThrow();
   });
 });

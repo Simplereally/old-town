@@ -16,7 +16,7 @@ import type {
  * Wire protocol version. Bump on any breaking change to packet/command shapes. The
  * client compares the version in the bootstrap {@link FullStatePacket} against this.
  */
-export const PROTOCOL_VERSION = 6;
+export const PROTOCOL_VERSION = 7;
 
 /** Discriminators for the two top-level server messages. */
 export const ServerPacketType = {
@@ -146,11 +146,39 @@ export interface InterfaceOpenPacket {
   readonly interfaceId: string;
   readonly dialogue?: DialogueViewPacket;
   readonly shop?: ShopViewPacket;
+  readonly recipe?: RecipeListPacket;
 }
 
 /** A request for the client to close an interface/panel. */
 export interface InterfaceClosePacket {
   readonly interfaceId: string;
+}
+
+export interface RecipeListEntry {
+  readonly recipeId: string;
+  readonly name: string;
+  readonly skillId: string;
+  readonly levelRequired: number;
+  readonly xp: number;
+  readonly ingredients: readonly { readonly itemId: string; readonly quantity: number }[];
+  readonly productId: string;
+  readonly productQuantity: number;
+}
+
+export interface RecipeListPacket {
+  readonly interfaceId: string;
+  readonly stationEntityId: number;
+  readonly stationName: string;
+  readonly recipes: readonly RecipeListEntry[];
+}
+
+export interface RecipeResultPacket {
+  readonly recipeId: string;
+  readonly success: boolean;
+  readonly productItemId?: string;
+  readonly productQuantity?: number;
+  readonly xpReward?: number;
+  readonly message?: string;
 }
 
 /** A single tile within a region load payload (compact form). */
@@ -258,6 +286,8 @@ export interface TickDeltaPacket {
   readonly interfaceCloses?: readonly InterfaceClosePacket[];
   readonly deathNotices?: readonly DeathNoticePacket[];
   readonly respawnNotices?: readonly RespawnNoticePacket[];
+  readonly recipeLists?: readonly RecipeListPacket[];
+  readonly recipeResults?: readonly RecipeResultPacket[];
   readonly debug?: DebugTickData;
 }
 

@@ -9,6 +9,7 @@ export interface UIManagerCallbacks {
   sendUiActionCommand(action: string, targetId?: string, value?: number): void;
   sendBankCommand(action: "deposit" | "withdraw" | "open" | "close", itemUid?: number, quantity?: number): void;
   sendShopCommand(action: "buy" | "sell" | "open" | "close", itemId?: string, quantity?: number): void;
+  sendRecipeCommand(recipeId: string, stationEntityId: number): void;
 }
 
 /**
@@ -30,6 +31,7 @@ export class UIManager {
     "chat-box",
     "bank-panel",
     "shop-panel",
+    "recipe-panel",
   ];
   private readonly keyBindings: Record<string, string> = {
     i: "inventory-panel",
@@ -43,6 +45,10 @@ export class UIManager {
     d: "debug-overlay",
   };
   private _unsubscribe: (() => void) | undefined;
+  private _selectedRecipeId: string | undefined;
+  private _selectedQuantity = 1;
+  private _recipeClickListeners: Array<() => void> = [];
+  private _recipeMakeListener: (() => void) | undefined;
 
   constructor(uiState: UIState, content: ContentClient, callbacks: UIManagerCallbacks) {
     this.uiState = uiState;
@@ -53,7 +59,9 @@ export class UIManager {
     this._bindBarButtons();
     this._bindKeyboardShortcuts();
     this._bindChatInput();
+    this._bindRecipeMakeButton();
     this._unsubscribe = uiState.onChange(() => this._renderAll());
+    this._renderAll();
   }
 
   private _barButtonListeners: Map<string, () => void> = new Map();
@@ -78,6 +86,15 @@ export class UIManager {
     }
     if (sendBtn && this._chatSendListener) {
       sendBtn.removeEventListener("click", this._chatSendListener);
+    }
+
+    for (const listener of this._recipeClickListeners) {
+      listener();
+    }
+    this._recipeClickListeners = [];
+    const makeBtn = document.getElementById("recipe-make-btn");
+    if (makeBtn && this._recipeMakeListener) {
+      makeBtn.removeEventListener("click", this._recipeMakeListener);
     }
   }
 
@@ -191,6 +208,7 @@ export class UIManager {
     this._renderDialogue();
     this._renderBank();
     this._renderShop();
+    this._renderRecipes();
   }
 
   private _renderInventory(): void {
@@ -519,5 +537,137 @@ export class UIManager {
       });
       body.appendChild(row);
     }
+  }
+
+  private _renderRecipes(): void {
+    const body = document.getElementById("recipe-body");
+    const listEl = document.getElementById("recipe-list");
+    const detailEl = document.getElementById("recipe-detail");
+    const feedbackEl = document.getElementById("recipe-feedback");
+    const headerEl = document.getElementById("recipe-header");
+    const makeBtn = document.getElementById("recipe-make-btn") as HTMLButtonElement | null;
+    if (!body || !listEl || !detailEl || !feedbackEl || !headerEl || !makeBtn) return;
+
+    for (const listener of this._recipeClickListeners) {
+      listener();
+    }
+    this._recipeClickListeners = [];
+
+    const list = this.uiState.recipeList;
+    const result = this.uiState.recipeResult;
+
+    if (!list) {
+      listEl.innerHTML = "";
+      detailEl.classList.add("hidden");
+      headerEl.textContent = "Recipe";
+    } else {
+      headerEl.textContent = list.stationName || "Recipe";
+
+      listEl.innerHTML = "";
+      for (const entry of list.recipes) {
+      const row = document.createElement("div");
+      row.classList.add("recipe-row");
+      if (this._selectedRecipeId === entry.recipeId) {
+        row.classList.add("selected");
+      }
+
+      const nameSpan = document.createElement("span");
+      nameSpan.classList.add("recipe-name");
+      nameSpan.textContent = entry.name;
+
+      const levelSpan = document.createElement("span");
+      levelSpan.classList.add("recipe-level");
+      const skill = this.uiState.skills.get(entry.skillId);
+      const playerLevel = skill?.level ?? 1;
+      levelSpan.textContent = `Lvl ${entry.levelRequired}`;
+      if (playerLevel < entry.levelRequired) {
+        levelSpan.classList.add("too-high");
+        row.classList.add("unmet");
+      }
+
+      row.appendChild(nameSpan);
+      row.appendChild(levelSpan);
+
+      const clickHandler = () => {
+        this._selectedRecipeId = entry.recipeId;
+        this._renderRecipes();
+      };
+      row.addEventListener("click", clickHandler);
+      this._recipeClickListeners.push(() => row.removeEventListener("click", clickHandler));
+
+      listEl.appendChild(row);
+    }
+
+    const selected = list.recipes.find((r) => r.recipeId === this._selectedRecipeId);
+    if (selected) {
+      detailEl.classList.remove("hidden");
+
+      const ingredientsEl = document.getElementById("recipe-ingredients");
+      if (ingredientsEl) {
+        ingredientsEl.innerHTML = "";
+        for (const ing of selected.ingredients) {
+          const ingRow = document.createElement("div");
+          ingRow.classList.add("ingredient-row");
+          const def = this.content.getItem(ing.itemId);
+          const name = def?.name ?? ing.itemId;
+          ingRow.textContent = `${name} x${ing.quantity}`;
+          ingredientsEl.appendChild(ingRow);
+        }
+      }
+
+      const outputEl = document.getElementById("recipe-output");
+      if (outputEl) {
+        const def = this.content.getItem(selected.productId);
+        const name = def?.name ?? selected.productId;
+        outputEl.textContent = `Makes: ${name} x${selected.productQuantity} (+${selected.xp} XP)`;
+      }
+
+      const qtyEl = document.getElementById("recipe-quantity");
+      if (qtyEl) {
+        const qtyBtns = qtyEl.querySelectorAll(".qty-btn");
+        qtyBtns.forEach((btn) => {
+          btn.classList.remove("active");
+        });
+        const activeBtn = qtyEl.querySelector(`[data-qty="${this._selectedQuantity ?? 1}"]`);
+        if (activeBtn) activeBtn.classList.add("active");
+      }
+
+      const skill = this.uiState.skills.get(selected.skillId);
+      const canMake = (skill?.level ?? 1) >= selected.levelRequired;
+      makeBtn.disabled = !canMake;
+      makeBtn.textContent = canMake ? "Make" : "Level too low";
+    } else {
+      detailEl.classList.add("hidden");
+      makeBtn.disabled = true;
+    }
+
+    }
+
+    if (result) {
+      feedbackEl.classList.remove("hidden");
+      feedbackEl.classList.remove("success", "failure");
+      feedbackEl.classList.add(result.success ? "success" : "failure");
+      const productDef = result.productItemId ? this.content.getItem(result.productItemId) : undefined;
+      const productName = productDef?.name ?? result.productItemId ?? "unknown";
+      const xpText = result.xpReward ? ` (+${result.xpReward} XP)` : "";
+      feedbackEl.textContent = result.message
+        ?? (result.success ? `You made ${productName} x${result.productQuantity ?? 1}${xpText}.`
+                           : `You failed to make ${productName}.`);
+    } else {
+      feedbackEl.classList.add("hidden");
+    }
+  }
+
+  private _bindRecipeMakeButton(): void {
+    const makeBtn = document.getElementById("recipe-make-btn") as HTMLButtonElement | null;
+    if (!makeBtn) return;
+
+    this._recipeMakeListener = () => {
+      const list = this.uiState.recipeList;
+      const selected = this._selectedRecipeId;
+      if (!list || !selected) return;
+      this.callbacks.sendRecipeCommand(selected, list.stationEntityId);
+    };
+    makeBtn.addEventListener("click", this._recipeMakeListener);
   }
 }

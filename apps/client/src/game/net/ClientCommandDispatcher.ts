@@ -120,6 +120,15 @@ export class ClientCommandDispatcher {
     });
   }
 
+  recipeSelect(recipeId: string, stationEntityId: number): void {
+    this._sendCommand({
+      type: ClientCommandType.RecipeSelect,
+      commandId: ++this._commandId,
+      clientTickHint: this._currentTick,
+      payload: { recipeId, stationEntityId: entityId(stationEntityId) },
+    });
+  }
+
   private _sendCommand(command: ClientCommand): void {
     this._socket.sendCommand(command);
   }
