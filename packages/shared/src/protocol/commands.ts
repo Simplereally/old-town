@@ -20,6 +20,7 @@ export const ClientCommandType = {
   UiAction: "C2S_UI_ACTION",
   BankAction: "C2S_BANK_ACTION",
   ShopAction: "C2S_SHOP_ACTION",
+  RecipeSelect: "C2S_RECIPE_SELECT",
   Ping: "C2S_PING",
 } as const;
 
@@ -100,6 +101,11 @@ export interface ShopIntent {
   readonly targetEntityId?: EntityId;
 }
 
+export interface RecipeSelectIntent {
+  readonly recipeId: string;
+  readonly stationEntityId: EntityId;
+}
+
 // --- Command envelope -------------------------------------------------------------
 
 /** Common envelope: a typed payload plus dedupe/ordering metadata. */
@@ -128,6 +134,7 @@ export type ChatCommand = ClientCommandBase<typeof ClientCommandType.Chat, ChatI
 export type UiActionCommand = ClientCommandBase<typeof ClientCommandType.UiAction, UiActionIntent>;
 export type BankActionCommand = ClientCommandBase<typeof ClientCommandType.BankAction, BankIntent>;
 export type ShopActionCommand = ClientCommandBase<typeof ClientCommandType.ShopAction, ShopIntent>;
+export type RecipeSelectCommand = ClientCommandBase<typeof ClientCommandType.RecipeSelect, RecipeSelectIntent>;
 export type PingCommand = ClientCommandBase<typeof ClientCommandType.Ping, PingIntent>;
 
 /** The discriminated union of every client → server command. */
@@ -142,4 +149,5 @@ export type ClientCommand =
   | UiActionCommand
   | BankActionCommand
   | ShopActionCommand
+  | RecipeSelectCommand
   | PingCommand;

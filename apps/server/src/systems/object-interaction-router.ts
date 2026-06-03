@@ -36,8 +36,10 @@ function chebyshev(a: TileCoord, b: TileCoord): number {
   return a.plane === b.plane ? Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y)) : Infinity;
 }
 
-const GATHER_ACTION_IDS = new Set(["chop", "woodcut", "mine"]);
-const PROCESS_ACTION_IDS = new Set(["cook", "use"]);
+const GATHER_ACTION_IDS = new Set(["chop", "woodcut", "mine", "fish"]);
+const PROCESS_ACTION_IDS = new Set([
+  "cook", "use", "smith", "smelt", "craft", "fire", "weave", "tan", "dye", "mix",
+]);
 
 export function handleObjectIntent(
   ctx: ObjectInteractionContext,

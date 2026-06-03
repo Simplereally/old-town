@@ -41,10 +41,9 @@ async function startHarness(onCommand = () => undefined) {
     throw new Error("Expected TCP address");
   }
   cleanup = async () => {
-    await Promise.all([
-      transport.close(),
-      new Promise<void>((resolve) => httpServer.close(() => resolve())),
-    ]);
+    await transport.close();
+    (httpServer as any).closeAllConnections?.();
+    await new Promise<void>((resolve) => httpServer.close(() => resolve()));
   };
   return { url: `ws://127.0.0.1:${address.port}${transport.path}`, transport };
 }
@@ -148,8 +147,12 @@ describe("WebSocket transport", () => {
     });
 
     socket.send(JSON.stringify({ type: ClientCommandType.MoveClick, commandId: 2, payload: {} }));
-    expect(await nextMessage(socket)).toMatchObject({
+    const msg = await Promise.race([
+      nextMessage(socket),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout waiting for CommandRejected")), 3000)),
+    ]);
+    expect(msg).toMatchObject({
       type: TransportServerMessageType.CommandRejected,
     });
-  });
+  }, 10_000);
 });

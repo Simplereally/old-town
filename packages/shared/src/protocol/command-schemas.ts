@@ -100,6 +100,16 @@ const shopActionCommandSchema = command(
     .strict(),
 );
 
+const recipeSelectCommandSchema = command(
+  ClientCommandType.RecipeSelect,
+  z
+    .object({
+      recipeId: z.string().min(1).max(64),
+      stationEntityId: entityIdSchema,
+    })
+    .strict(),
+);
+
 const pingCommandSchema = command(
   ClientCommandType.Ping,
   z.object({ clientTimeMs: z.number().int().nonnegative() }).strict(),
@@ -117,6 +127,7 @@ export const clientCommandSchema = z.discriminatedUnion("type", [
   uiActionCommandSchema,
   bankActionCommandSchema,
   shopActionCommandSchema,
+  recipeSelectCommandSchema,
   pingCommandSchema,
 ]);
 

@@ -195,7 +195,7 @@ describe("object interaction router", () => {
     expect(chat?.[0]?.text).toBe("You need an offering to pray at the shrine.");
   });
 
-  it("routes fire action to trapping system", () => {
+  it("routes fire action to skilling system", () => {
     const { ctx, world, deltas } = setup();
     const player = addPlayer(world, 1, 1);
     const object = addObject(world, "trap_base", 2, 1);
@@ -204,10 +204,10 @@ describe("object interaction router", () => {
     expect(result).toBe(true);
 
     const chat = deltas.peek().chat;
-    expect(chat?.[0]?.text).toBe("You set a fire trap.");
+    expect(chat?.[0]?.text).toBe("You have nothing suitable to cook.");
   });
 
-  it("routes weave action to trapping system with wrong object", () => {
+  it("routes weave action to skilling system", () => {
     const { ctx, world, deltas } = setup();
     const player = addPlayer(world, 1, 1);
     const object = addObject(world, "trap_base", 2, 1);
@@ -216,7 +216,7 @@ describe("object interaction router", () => {
     expect(result).toBe(true);
 
     const chat = deltas.peek().chat;
-    expect(chat?.[0]?.text).toBe("You cannot do that here.");
+    expect(chat?.[0]?.text).toBe("You have nothing suitable to cook.");
   });
 
   it("returns false for unknown object action", () => {

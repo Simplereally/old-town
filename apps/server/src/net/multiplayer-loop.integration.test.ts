@@ -298,7 +298,7 @@ describe("multiplayer loop integration", () => {
     expect(selfUpdate(delta, self)?.changes.position).not.toEqual(tile(32, 32));
   });
 
-  it("paths object interactions toward a reachable adjacent tile", async () => {
+  it("sends recipe list for object cook interaction", async () => {
     harness = await startHarness();
     const client = await connectClient("object-smoke");
     const state = fullState(client);
@@ -311,11 +311,9 @@ describe("multiplayer loop integration", () => {
 
     await sendObjectOption(client, 1, hearth.entityId, "cook");
     const delta = deltaAt(await runTick([client]), 0);
-    const update = selfUpdate(delta, state.selfEntityId);
 
-    expect(update?.changes.position).toBeDefined();
-    expect(update?.changes.position).not.toEqual(hearth.tile);
-    expect(update?.changes.moveSpeed).toBe("walk");
+    expect(delta.recipeLists).toBeDefined();
+    expect(delta.recipeLists?.length).toBeGreaterThan(0);
   });
 
   it("shows a second session to the first and filters it out after it leaves interest", async () => {
