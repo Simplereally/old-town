@@ -40,7 +40,7 @@ const fullState: FullStatePacket = {
     containerId: "inventory",
     changes: [{ slot: 0, itemId: "penny_hatchet", quantity: 1 }],
   },
-  skills: [{ skillId: "woodcutting", level: 1, xp: 0 }],
+  skills: [{ skillId: "woodcutting", level: 1, xp: 0, effectiveLevel: 1 }],
   vars: [{ varId: "quest_smoke", value: 0 }],
   regionLoads: [
     { region: { rx: 0, ry: 0, plane: 0 }, regionId: regionId({ rx: 0, ry: 0, plane: 0 }) },

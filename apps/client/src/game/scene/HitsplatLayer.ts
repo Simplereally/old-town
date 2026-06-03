@@ -1,110 +1,190 @@
-import type { Scene } from "three";
-import { Group, type Mesh, MeshBasicMaterial, PlaneGeometry, type Vector3 } from "three";
-import { MeshPool } from "../renderer/MeshPool";
+import type { HitsplatType } from "@old-town/shared";
+import { GAME_TICK_MS } from "@old-town/shared";
+import type { Scene, Vector3 } from "three";
+import { CanvasTexture, Group, Sprite, SpriteMaterial } from "three";
 
 interface Hitsplat {
   readonly entityId: number;
   readonly amount: number;
-  readonly type: "damage" | "block" | "heal" | "poison";
+  readonly type: HitsplatType;
+  readonly startTick: number;
   readonly startTime: number;
-  readonly mesh: Mesh;
+  readonly sprite: Sprite;
+  readonly texture: CanvasTexture;
 }
 
 export interface HitsplatLayerOptions {
   readonly scene: Scene;
 }
 
+/** Number of game ticks a hitsplat remains visible. OSRS uses 1–2 ticks; we use 2 for clarity. */
+const HITSPLAT_LIFETIME_TICKS = 2;
+
+/** Sprite scale in world units. */
+const HITSPLAT_SCALE = 0.5;
+
+/** Canvas size for the hitsplat texture. */
+const CANVAS_SIZE = 64;
+
+function colorForType(type: HitsplatType): string {
+  switch (type) {
+    case "damage":
+      return "#d01010";
+    case "block":
+      return "#1080d0";
+    case "heal":
+      return "#10a010";
+    case "poison":
+      return "#609010";
+  }
+}
+
+function drawRoundedRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+): void {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+}
+
+function createHitsplatTexture(amount: number, type: HitsplatType): CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = CANVAS_SIZE;
+  canvas.height = CANVAS_SIZE;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    throw new Error("Canvas 2D context not available");
+  }
+
+  const bgColor = colorForType(type);
+  const half = CANVAS_SIZE / 2;
+
+  // Background
+  ctx.fillStyle = bgColor;
+  drawRoundedRect(ctx, 2, 2, CANVAS_SIZE - 4, CANVAS_SIZE - 4, 8);
+  ctx.fill();
+
+  // Border
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
+  ctx.lineWidth = 2;
+  drawRoundedRect(ctx, 2, 2, CANVAS_SIZE - 4, CANVAS_SIZE - 4, 8);
+  ctx.stroke();
+
+  // Text shadow for depth
+  ctx.font = "bold 28px 'Courier New', monospace";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+  const text = amount.toString();
+  ctx.fillText(text, half + 1, half + 2);
+
+  // Main text
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(text, half, half);
+
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = "srgb";
+  return texture;
+}
+
+/**
+ * Renders damage/heal/poison/block numbers above entities as floating 3D sprites.
+ *
+ * Lifetime is **tick-based** (2 ticks), matching OSRS behaviour. Visuals are
+ * interpolated at frame rate for smooth rising and fade, but the hitsplat is
+ * removed on the exact tick boundary so timing is deterministic and resilient
+ * to frame drops or reconnects.
+ */
 export class HitsplatLayer {
   private readonly scene: Scene;
   private readonly hitsplats = new Map<number, Hitsplat>();
   private readonly group = new Group();
-  private readonly damagePool: MeshPool;
-  private readonly healPool: MeshPool;
-  private readonly blockPool: MeshPool;
-  private readonly poisonPool: MeshPool;
   private _nextId = 1;
 
   constructor(options: HitsplatLayerOptions) {
     this.scene = options.scene;
     this.group.name = "hitsplats";
     this.scene.add(this.group);
-    const geometry = new PlaneGeometry(0.6, 0.3);
-    this.damagePool = new MeshPool({
-      geometry,
-      material: new MeshBasicMaterial({ color: 0xff0000, side: 2 }),
-      initialSize: 4,
-    });
-    this.healPool = new MeshPool({
-      geometry,
-      material: new MeshBasicMaterial({ color: 0x00ff00, side: 2 }),
-      initialSize: 2,
-    });
-    this.blockPool = new MeshPool({
-      geometry,
-      material: new MeshBasicMaterial({ color: 0xaaaaaa, side: 2 }),
-      initialSize: 2,
-    });
-    this.poisonPool = new MeshPool({
-      geometry,
-      material: new MeshBasicMaterial({ color: 0x00aa00, side: 2 }),
-      initialSize: 2,
-    });
   }
 
-  show(
-    entityId: number,
-    amount: number,
-    type: "damage" | "block" | "heal" | "poison" = "damage",
-  ): void {
+  /**
+   * Show a new hitsplat above an entity.
+   *
+   * @param entityId  The entity to anchor the hitsplat to.
+   * @param amount    The numeric value to display (e.g. 5, 0, 3).
+   * @param type      The kind of hitsplat (damage, block, heal, poison).
+   * @param tick      The authoritative server tick this hitsplat was created on.
+   */
+  show(entityId: number, amount: number, type: HitsplatType, tick: number): void {
     const id = this._nextId++;
-    const pool =
-      type === "heal"
-        ? this.healPool
-        : type === "block"
-          ? this.blockPool
-          : type === "poison"
-            ? this.poisonPool
-            : this.damagePool;
-    const mesh = pool.acquire();
-    mesh.position.set(0, 1.5, 0);
-    mesh.name = `hitsplat_${id}`;
-    (mesh.material as MeshBasicMaterial).opacity = 1;
-    this.group.add(mesh);
+    const texture = createHitsplatTexture(amount, type);
+    const material = new SpriteMaterial({ map: texture, transparent: true, depthTest: false });
+    const sprite = new Sprite(material);
+    sprite.position.set(0, 1.15, 0);
+    sprite.scale.set(HITSPLAT_SCALE, HITSPLAT_SCALE, 1);
 
+    this.group.add(sprite);
     this.hitsplats.set(id, {
       entityId,
       amount,
       type,
+      startTick: tick,
       startTime: performance.now(),
-      mesh,
+      sprite,
+      texture,
     });
   }
 
-  update(entityPositions: Map<number, Vector3>): void {
+  /**
+   * Update positions and lifetimes of all active hitsplats.
+   *
+   * @param currentTick      The authoritative server tick the client is currently on.
+   * @param entityPositions  Map of entity IDs to their interpolated world positions.
+   */
+  update(currentTick: number, entityPositions: Map<number, Vector3>): void {
     const now = performance.now();
-    const lifetime = 1200;
 
     for (const [id, hitsplat] of this.hitsplats) {
-      const entityId = hitsplat.entityId;
-      const mesh = hitsplat.mesh;
-      const startTime = hitsplat.startTime;
+      const tickAge = currentTick - hitsplat.startTick;
 
-      const pos = entityPositions.get(entityId);
-      if (pos) {
-        mesh.position.copy(pos);
-        mesh.position.y += 1.5;
-        const progress = (now - startTime) / lifetime;
-        if (progress >= 1) {
-          this._remove(id);
-        } else {
-          mesh.position.y += progress * 0.5;
-          const mat = mesh.material as MeshBasicMaterial;
-          mat.opacity = 1 - progress;
-          mat.transparent = true;
-        }
-      } else {
+      // OSRS hitsplats vanish after exactly 2 ticks.
+      if (tickAge >= HITSPLAT_LIFETIME_TICKS) {
         this._remove(id);
+        continue;
       }
+
+      const pos = entityPositions.get(hitsplat.entityId);
+      if (!pos) {
+        this._remove(id);
+        continue;
+      }
+
+      // Smooth visual interpolation within the tick.
+      const elapsedMs = now - hitsplat.startTime;
+      const totalMs = HITSPLAT_LIFETIME_TICKS * GAME_TICK_MS;
+      const timeProgress = Math.min(1, elapsedMs / totalMs);
+
+      hitsplat.sprite.position.x = pos.x;
+      hitsplat.sprite.position.z = pos.z;
+      hitsplat.sprite.position.y = pos.y + 1.15;
+
+      // Fade out during the last 30% of the lifetime.
+      const material = hitsplat.sprite.material as SpriteMaterial;
+      material.opacity = timeProgress > 0.7 ? 1 - (timeProgress - 0.7) / 0.3 : 1;
     }
   }
 
@@ -116,26 +196,15 @@ export class HitsplatLayer {
 
   dispose(): void {
     this.clear();
-    this.damagePool.dispose();
-    this.healPool.dispose();
-    this.blockPool.dispose();
-    this.poisonPool.dispose();
     this.scene.remove(this.group);
   }
 
   private _remove(id: number): void {
     const hitsplat = this.hitsplats.get(id);
     if (!hitsplat) return;
-    this.group.remove(hitsplat.mesh);
-    const pool =
-      hitsplat.type === "heal"
-        ? this.healPool
-        : hitsplat.type === "block"
-          ? this.blockPool
-          : hitsplat.type === "poison"
-            ? this.poisonPool
-            : this.damagePool;
-    pool.release(hitsplat.mesh);
+    this.group.remove(hitsplat.sprite);
+    hitsplat.sprite.material.dispose();
+    hitsplat.texture.dispose();
     this.hitsplats.delete(id);
   }
 }

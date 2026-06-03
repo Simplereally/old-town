@@ -16,7 +16,7 @@ import type {
  * Wire protocol version. Bump on any breaking change to packet/command shapes. The
  * client compares the version in the bootstrap {@link FullStatePacket} against this.
  */
-export const PROTOCOL_VERSION = 5;
+export const PROTOCOL_VERSION = 6;
 
 /** Discriminators for the two top-level server messages. */
 export const ServerPacketType = {
@@ -47,6 +47,8 @@ export interface SkillDelta {
   readonly skillId: string;
   readonly level: number;
   readonly xp: number;
+  /** Effective level after boost/drain (e.g. 10/10 display). */
+  readonly effectiveLevel: number;
 }
 
 /** A typed player/quest variable value. Gameplay owns these on the server. */

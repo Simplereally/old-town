@@ -1,6 +1,6 @@
 import type { EntityId } from "@old-town/shared";
 import { levelForXp } from "@old-town/shared";
-import type { SkillsComponent } from "../ecs/components";
+import type { SkillState, SkillsComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 
@@ -16,6 +16,10 @@ export interface AddXpResult {
   readonly oldXp: number;
   readonly newXp: number;
   readonly levelUp: boolean;
+}
+
+export function getEffectiveLevel(skill: SkillState): number {
+  return Math.max(1, skill.level + skill.boost - skill.drain);
 }
 
 export function addXp(
@@ -48,7 +52,7 @@ export function addXp(
 
   const levelUp = newLevel > oldLevel;
 
-  ctx.deltas.markSkillDelta({ skillId, level: newLevel, xp: newXp });
+  ctx.deltas.markSkillDelta({ skillId, level: newLevel, xp: newXp, effectiveLevel: getEffectiveLevel(skill) });
   ctx.deltas.markXpDrop({ skillId, amount });
 
   return { skillId, oldLevel, newLevel, oldXp, newXp, levelUp };

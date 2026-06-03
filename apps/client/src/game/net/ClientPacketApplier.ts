@@ -5,6 +5,7 @@ import {
   Direction,
   type EntitySpawnPacket,
   type FullStatePacket,
+  type HitsplatType,
   type InventoryDelta,
   type RegionId,
   type SkillDelta,
@@ -39,6 +40,7 @@ export interface IActorRenderer {
   updateTile(entityId: number, tile: TileCoord): void;
   updateFacing(entityId: number, direction: Direction): void;
   updateHealthBar(entityId: number, health: number, maxHealth: number): void;
+  notifyHit(entityId: number, tick: number): void;
   updateAppearance(
     entityId: number,
     appearance: { name?: string; bodyId?: string; colors?: readonly number[] },
@@ -53,7 +55,8 @@ export interface IGroundItemLayer {
 }
 
 export interface IHitsplatLayer {
-  show(entityId: number, amount: number, type?: "damage" | "block" | "heal" | "poison"): void;
+  show(entityId: number, amount: number, type: HitsplatType | undefined, tick: number): void;
+  update(currentTick: number, positions: Map<number, Vector3>): void;
   clear(): void;
 }
 
@@ -241,7 +244,8 @@ export class ClientPacketApplier {
         }
       }
       if (changes.hitsplat) {
-        ctx.hitsplats.show(update.entityId, changes.hitsplat.amount, changes.hitsplat.type);
+        ctx.hitsplats.show(update.entityId, changes.hitsplat.amount, changes.hitsplat.type, currentTick);
+        ctx.actors.notifyHit(update.entityId, currentTick);
       }
       if (changes.healthBar) {
         ctx.actors.updateHealthBar(
@@ -263,7 +267,8 @@ export class ClientPacketApplier {
 
     if (packet.hitsplats) {
       for (const hitsplat of packet.hitsplats) {
-        ctx.hitsplats.show(hitsplat.entityId, hitsplat.hitsplat.amount, hitsplat.hitsplat.type);
+        ctx.hitsplats.show(hitsplat.entityId, hitsplat.hitsplat.amount, hitsplat.hitsplat.type, currentTick);
+        ctx.actors.notifyHit(hitsplat.entityId, currentTick);
       }
     }
 

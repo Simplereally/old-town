@@ -203,6 +203,17 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
     socket.on("error", (error) => {
       options.logger.warn("ws", "Socket error", { message: error.message });
     });
+
+    // Keep-alive ping to prevent NAT/mobile timeouts
+    const pingInterval = setInterval(() => {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.ping();
+      }
+    }, 15000);
+
+    socket.on("close", () => {
+      clearInterval(pingInterval);
+    });
   });
 
   return {

@@ -313,6 +313,7 @@ export class DevSessionManager {
         skillId,
         level: state.level,
         xp: state.xp,
+        effectiveLevel: Math.max(1, state.level + state.boost - state.drain),
       }));
   }
 

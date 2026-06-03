@@ -7,6 +7,8 @@
  */
 import type { Server } from "node:http";
 import { createServer } from "node:http";
+import { readFileSync, existsSync, statSync } from "node:fs";
+import { resolve, extname } from "node:path";
 import { GAME_TICK_MS } from "@old-town/shared";
 import { type BootContentResult, loadContent } from "./content-loader";
 import { loadRuntimeConfig } from "./env";
@@ -102,6 +104,34 @@ export async function startServer(): Promise<GameServer> {
       res.end(JSON.stringify(kernel.stats()));
       return;
     }
+    // Static file serving for client build
+    if (req.method === "GET") {
+      const staticPath = resolve("apps/client/dist", "." + (url?.pathname ?? "/"));
+      if (existsSync(staticPath) && statSync(staticPath).isFile()) {
+        const mimeTypes: Record<string, string> = {
+          ".html": "text/html",
+          ".js": "application/javascript",
+          ".css": "text/css",
+          ".json": "application/json",
+          ".svg": "image/svg+xml",
+          ".png": "image/png",
+          ".jpg": "image/jpeg",
+          ".ico": "image/x-icon",
+        };
+        const ext = extname(staticPath).toLowerCase();
+        res.writeHead(200, { "Content-Type": mimeTypes[ext] ?? "application/octet-stream" });
+        res.end(readFileSync(staticPath));
+        return;
+      }
+      if (url?.pathname === "/" || !extname(url?.pathname ?? "")) {
+        const fallback = resolve("apps/client/dist", "index.html");
+        if (existsSync(fallback)) {
+          res.writeHead(200, { "Content-Type": "text/html" });
+          res.end(readFileSync(fallback));
+          return;
+        }
+      }
+    }
     res.writeHead(404, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ error: "not found" }));
   });
@@ -117,8 +147,8 @@ export async function startServer(): Promise<GameServer> {
 
   kernel.attachDeltaTransport(transport);
 
-  httpServer.listen(config.port, () => {
-    logger.info("http", `Server listening on port ${config.port}`, { port: config.port });
+  httpServer.listen(config.port, config.host, () => {
+    logger.info("http", `Server listening on ${config.host}:${config.port}`, { port: config.port, host: config.host });
   });
 
   // --- Tick loop timer --------------------------------------------------------------

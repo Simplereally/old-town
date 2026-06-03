@@ -9,6 +9,8 @@ import { GAME_TICK_MS } from "@old-town/shared";
 export interface RuntimeConfig {
   /** Port the WebSocket server listens on. */
   port: number;
+  /** Host the server binds to. */
+  host: string;
   /** Server simulation tick length in milliseconds (gameplay truth; do not change lightly). */
   tickMs: number;
   /** Content directory path relative to project root. */
@@ -78,6 +80,7 @@ const builtEnv = ((): Map<string, string> => {
 export function loadRuntimeConfig(): RuntimeConfig {
   return {
     port: parseIntEnv(builtEnv.get("PORT"), 8080),
+    host: builtEnv.get("HOST") ?? "0.0.0.0",
     tickMs: parseIntEnv(builtEnv.get("TICK_MS"), GAME_TICK_MS),
     contentDir: builtEnv.get("CONTENT_DIR") ?? "content",
     persistence: {

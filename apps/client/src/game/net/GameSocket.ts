@@ -171,9 +171,17 @@ export class GameSocket {
     this.socket.send(JSON.stringify(command));
   }
 
+  get open(): boolean {
+    return this.socket?.readyState === WebSocket.OPEN;
+  }
+
   startPing(intervalMs = 5000): void {
     this.stopPing();
     this._pingInterval = setInterval(() => {
+      if (!this.open) {
+        this.stopPing();
+        return;
+      }
       this._lastPingTime = performance.now();
       this.sendCommand({
         type: ClientCommandType.Ping,

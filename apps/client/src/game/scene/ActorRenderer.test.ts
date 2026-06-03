@@ -8,6 +8,19 @@ const TILE: TileCoord = { x: 5, y: 5, plane: 0 };
 const ID1 = entityId(1);
 const ID2 = entityId(2);
 
+function actorMeshes(renderer: ActorRenderer, id: number) {
+  const meshes = (renderer as unknown as { meshes: Map<number, unknown> }).meshes.get(id);
+  if (!meshes) {
+    throw new Error(`Expected actor meshes for ${id}`);
+  }
+  return meshes as {
+    healthBar?: {
+      group: { visible: boolean };
+      fill: { scale: { x: number }; position: { x: number } };
+    };
+  };
+}
+
 describe("ActorRenderer", () => {
   let scene: Scene;
   let renderer: ActorRenderer;
@@ -57,7 +70,7 @@ describe("ActorRenderer", () => {
     renderer.spawn(ID1, TILE, "player", true);
     const newTile: TileCoord = { x: 6, y: 5, plane: 0 };
     renderer.updateTile(ID1, newTile);
-    renderer.interpolate();
+    renderer.interpolate(1);
     const actor = renderer.getActorState(ID1);
     expect(actor?.visualPosition).toBeInstanceOf(Vector3);
   });
@@ -83,7 +96,7 @@ describe("ActorRenderer", () => {
     renderer.spawn(ID1, TILE, "player", true);
     const newTile: TileCoord = { x: 6, y: 5, plane: 0 };
     renderer.updateTile(ID1, newTile);
-    renderer.interpolate();
+    renderer.interpolate(1);
     const actor = renderer.getActorState(ID1);
     expect(actor?.visualPosition.x).toBeCloseTo(5, 1);
     expect(actor?.visualPosition.z).toBeCloseTo(-5, 1);
@@ -113,5 +126,40 @@ describe("ActorRenderer", () => {
     renderer.spawn(ID2, TILE, "npc", false);
     renderer.dispose();
     expect(renderer.actorCount).toBe(0);
+  });
+
+  it("keeps health bar hidden until a hit is reported", () => {
+    renderer.spawn(ID1, TILE, "player", true);
+    renderer.updateHealthBar(ID1, 10, 10);
+
+    expect(actorMeshes(renderer, ID1).healthBar?.group.visible).toBe(false);
+  });
+
+  it("renders full, partial, and empty health bars with clamped width", () => {
+    renderer.spawn(ID1, TILE, "player", true);
+    renderer.notifyHit(ID1, 5);
+
+    renderer.updateHealthBar(ID1, 10, 10);
+    expect(actorMeshes(renderer, ID1).healthBar?.fill.scale.x).toBeCloseTo(1.2);
+
+    renderer.updateHealthBar(ID1, 5, 10);
+    expect(actorMeshes(renderer, ID1).healthBar?.fill.scale.x).toBeCloseTo(0.6);
+
+    renderer.updateHealthBar(ID1, 0, 10);
+    expect(actorMeshes(renderer, ID1).healthBar?.fill.scale.x).toBeGreaterThan(0);
+    expect(actorMeshes(renderer, ID1).healthBar?.fill.scale.x).toBeLessThan(0.01);
+  });
+
+  it("clamps invalid health bar values before rendering", () => {
+    renderer.spawn(ID1, TILE, "player", true);
+    renderer.notifyHit(ID1, 5);
+
+    renderer.updateHealthBar(ID1, 20, 10);
+    expect(renderer.getActorState(ID1)?.healthBar).toEqual({ current: 10, max: 10 });
+    expect(actorMeshes(renderer, ID1).healthBar?.fill.scale.x).toBeCloseTo(1.2);
+
+    renderer.updateHealthBar(ID1, -5, 10);
+    expect(renderer.getActorState(ID1)?.healthBar).toEqual({ current: 0, max: 10 });
+    expect(actorMeshes(renderer, ID1).healthBar?.fill.scale.x).toBeLessThan(0.01);
   });
 });

@@ -9,6 +9,8 @@ import {
   Mesh,
   MeshLambertMaterial,
   SphereGeometry,
+  Sprite,
+  SpriteMaterial,
   Vector3,
 } from "three";
 import { compose, PALETTE, vertexColorMaterial } from "./lowpoly";
@@ -26,6 +28,7 @@ interface ActorState {
   name: string;
   kind: "player" | "npc";
   healthBar?: { current: number; max: number };
+  lastHitTick: number;
   tickStartTime: number;
 }
 
@@ -34,6 +37,11 @@ interface ActorMeshes {
   readonly body: Mesh;
   readonly parts: Mesh[];
   readonly marker: Mesh | undefined;
+  healthBar?: {
+    group: Group;
+    bg: Sprite;
+    fill: Sprite;
+  };
 }
 
 /** Non-humanoid body plan for a creature, resolved from its def keyword. */
@@ -65,6 +73,13 @@ const ARM_Y = LEG_H + TORSO_H * 0.55;
 const HEAD_Y = LEG_H + TORSO_H + HEAD_S / 2;
 // Lift the whole figure so its feet rest on top of the terrain tile surface.
 const GROUND_OFFSET = 0.1;
+
+/** Number of ticks the health bar stays visible after being hit. OSRS: ~10-12 ticks. */
+const HP_BAR_LIFETIME_TICKS = 10;
+const HP_BAR_WIDTH = 1.2;
+const HP_BAR_HEIGHT = 0.18;
+const HP_BAR_FILL_HEIGHT = 0.15;
+const HP_BAR_EPSILON = 0.001;
 
 /**
  * Pick a non-humanoid body plan from a creature def. Keyword-based and purely
@@ -317,6 +332,9 @@ export class ActorRenderer {
   private readonly markerMaterial = new MeshLambertMaterial({ color: 0xffd23f, flatShading: true });
   // One shared material for every non-humanoid creature; colour lives in the geometry.
   private readonly creatureMaterial = vertexColorMaterial();
+  // Shared health-bar materials (tinted white squares; scale and position drive the bar).
+  private readonly healthBarBgMaterial = new SpriteMaterial({ color: 0x400000, depthTest: false });
+  private readonly healthBarFillMaterial = new SpriteMaterial({ color: 0x10c010, depthTest: false });
 
   constructor(options: ActorRendererOptions) {
     this.scene = options.scene;
@@ -351,6 +369,7 @@ export class ActorRenderer {
       isLocalPlayer,
       name: defId ?? "Actor",
       kind,
+      lastHitTick: -Infinity,
       tickStartTime: performance.now(),
     };
 
@@ -392,11 +411,29 @@ export class ActorRenderer {
     actor.animationState = state;
   }
 
-  /** Update health bar. */
+  /** Update health bar and make it visible. */
   updateHealthBar(entityId: number, health: number, maxHealth: number): void {
     const actor = this.actors.get(entityId);
     if (!actor) return;
-    actor.healthBar = { current: health, max: maxHealth };
+    const safeMax = Math.max(1, Math.floor(maxHealth));
+    const safeCurrent = Math.min(safeMax, Math.max(0, Math.floor(health)));
+    actor.healthBar = { current: safeCurrent, max: safeMax };
+    const meshes = this.meshes.get(entityId);
+    if (meshes?.healthBar) {
+      this._applyHealthBarVisual(meshes.healthBar, safeCurrent, safeMax);
+      meshes.healthBar.group.visible = Number.isFinite(actor.lastHitTick);
+    }
+  }
+
+  /** Notify that this actor was hit (even for 0). Resets the health-bar visibility timer. */
+  notifyHit(entityId: number, tick: number): void {
+    const actor = this.actors.get(entityId);
+    if (!actor) return;
+    actor.lastHitTick = tick;
+    const meshes = this.meshes.get(entityId);
+    if (meshes?.healthBar && actor.healthBar) {
+      meshes.healthBar.group.visible = true;
+    }
   }
 
   /** Update actor appearance (name, body style, colors). */
@@ -412,7 +449,7 @@ export class ActorRenderer {
   }
 
   /** Interpolate all actor visual positions. Call this every frame. */
-  interpolate(): void {
+  interpolate(currentTick: number): void {
     const now = performance.now();
 
     for (const actor of this.actors.values()) {
@@ -433,6 +470,11 @@ export class ActorRenderer {
         meshes.group.position.copy(visualPosition);
         meshes.group.position.y += GROUND_OFFSET;
         meshes.group.rotation.y = this._directionToRotation(facingDirection);
+
+        if (meshes.healthBar) {
+          const elapsed = currentTick - actor.lastHitTick;
+          meshes.healthBar.group.visible = elapsed <= HP_BAR_LIFETIME_TICKS && !!actor.healthBar;
+        }
       }
     }
   }
@@ -460,6 +502,8 @@ export class ActorRenderer {
     this.markerGeometry.dispose();
     this.markerMaterial.dispose();
     this.creatureMaterial.dispose();
+    this.healthBarBgMaterial.dispose();
+    this.healthBarFillMaterial.dispose();
     for (const geometry of creatureTemplates.values()) {
       geometry.dispose();
     }
@@ -547,10 +591,13 @@ export class ActorRenderer {
       group.add(marker);
     }
 
+    const healthBar = this._createHealthBarGroup();
+    group.add(healthBar.group);
+
     group.position.copy(state.visualPosition);
     group.position.y += GROUND_OFFSET;
     this.actorGroup.add(group);
-    return { group, body, parts, marker };
+    return { group, body, parts, marker, healthBar };
   }
 
   /** Build a non-humanoid creature as a single merged vertex-coloured mesh. */
@@ -564,15 +611,48 @@ export class ActorRenderer {
     body.userData = { entityId: state.entityId, kind: state.kind };
     group.add(body);
 
+    const healthBar = this._createHealthBarGroup();
+    group.add(healthBar.group);
+
     group.scale.setScalar(spec.scale);
     group.position.copy(state.visualPosition);
     group.position.y += GROUND_OFFSET;
     this.actorGroup.add(group);
-    return { group, body, parts: [], marker: undefined };
+    return { group, body, parts: [], marker: undefined, healthBar };
   }
 
   private _tileToWorld(tile: TileCoord): Vector3 {
     return new Vector3(tile.x * TILE_SIZE_WORLD_UNITS, 0, -tile.y * TILE_SIZE_WORLD_UNITS);
+  }
+
+  /** Build a billboarded health-bar group (red bg + green fill). */
+  private _createHealthBarGroup(): NonNullable<ActorMeshes["healthBar"]> {
+    const group = new Group();
+    group.position.set(0, 1.85, 0);
+    group.visible = false;
+
+    const bg = new Sprite(this.healthBarBgMaterial);
+    bg.center.set(0, 0.5);
+    bg.position.x = -HP_BAR_WIDTH / 2;
+    bg.scale.set(HP_BAR_WIDTH, HP_BAR_HEIGHT, 1);
+    group.add(bg);
+
+    const fill = new Sprite(this.healthBarFillMaterial);
+    fill.center.set(0, 0.5);
+    fill.position.x = -HP_BAR_WIDTH / 2;
+    fill.scale.set(HP_BAR_EPSILON, HP_BAR_FILL_HEIGHT, 1);
+    group.add(fill);
+
+    return { group, bg, fill };
+  }
+
+  private _applyHealthBarVisual(
+    healthBar: NonNullable<ActorMeshes["healthBar"]>,
+    health: number,
+    maxHealth: number,
+  ): void {
+    const ratio = maxHealth > 0 ? Math.min(1, Math.max(0, health / maxHealth)) : 0;
+    healthBar.fill.scale.x = ratio <= 0 ? HP_BAR_EPSILON : HP_BAR_WIDTH * ratio;
   }
 
   private _directionToRotation(direction: Direction): number {

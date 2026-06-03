@@ -461,7 +461,7 @@ describe("woodcutting loop", () => {
 
     expect(inventory.slots.some((slot) => slot?.itemId === "dry_log")).toBe(true);
     expect(ctx.world.getComponent(player, "skills")?.skills.woodcutting?.xp).toBe(10);
-    expect(deltas.peek().skillDelta).toEqual([{ skillId: "woodcutting", level: 1, xp: 10 }]);
+    expect(deltas.peek().skillDelta).toEqual([{ skillId: "woodcutting", level: 1, xp: 10, effectiveLevel: 1 }]);
     expect(itemAudit.snapshot()[0]).toMatchObject({
       reason: "skilling_gather",
       itemId: "dry_log",
@@ -524,7 +524,7 @@ describe("mining loop", () => {
 
     expect(inventory.slots.some((slot) => slot?.itemId === "copper_ore")).toBe(true);
     expect(ctx.world.getComponent(player, "skills")?.skills.mining?.xp).toBe(15);
-    expect(deltas.peek().skillDelta).toEqual([{ skillId: "mining", level: 1, xp: 15 }]);
+    expect(deltas.peek().skillDelta).toEqual([{ skillId: "mining", level: 1, xp: 15, effectiveLevel: 1 }]);
   });
 });
 

@@ -279,23 +279,70 @@ export class UIManager {
     const body = document.getElementById("skills-body");
     if (!body) return;
     body.innerHTML = "";
+    const grid = document.createElement("div");
+    grid.classList.add("skill-grid");
+
     const skills = Array.from(this.content.getAllSkills()).toSorted((a, b) =>
       a.name.localeCompare(b.name),
     );
     const uiSkills = this.uiState.skills;
     for (const skillDef of skills) {
       const state = uiSkills.get(skillDef.id);
-      const row = document.createElement("div");
-      row.classList.add("ui-row");
-      const name = document.createElement("span");
-      name.textContent = skillDef.name;
-      const level = document.createElement("span");
-      level.textContent = state ? `${state.level} / ${state.xp} XP` : "1 / 0 XP";
-      level.classList.add("text-muted");
-      row.appendChild(name);
-      row.appendChild(level);
-      body.appendChild(row);
+      const baseLevel = state?.level ?? 1;
+      const effectiveLevel = state?.effectiveLevel ?? baseLevel;
+      const tile = document.createElement("div");
+      tile.classList.add("skill-tile");
+      tile.title = `${skillDef.name} — Level ${effectiveLevel} / ${baseLevel}`;
+
+      const icon = document.createElement("div");
+      icon.classList.add("skill-tile-icon");
+      icon.textContent = this._skillIcon(skillDef.id);
+
+      const levelText = document.createElement("div");
+      levelText.classList.add("skill-tile-level");
+      levelText.textContent = `${effectiveLevel}/${baseLevel}`;
+      levelText.style.color = "#ffcc00";
+
+      tile.appendChild(icon);
+      tile.appendChild(levelText);
+      grid.appendChild(tile);
     }
+    body.appendChild(grid);
+  }
+
+  private _skillIcon(skillId: string): string {
+    const map: Record<string, string> = {
+      attack: "⚔️",
+      strength: "💪",
+      defence: "🛡️",
+      hitpoints: "❤️",
+      magic: "🎩",
+      arms: "🦾",
+      might: "⚡",
+      guard: "🛡️",
+      vitality: "🫀",
+      ranged: "🏹",
+      favour: "⭐",
+      cooking: "🍳",
+      smithing: "🔨",
+      bowcraft: "🏹",
+      tailoring: "🧵",
+      handicraft: "🎨",
+      beadwork: "📿",
+      apothecary: "🧪",
+      carpentry: "🪵",
+      wayfaring: "🧭",
+      sleight: "🎭",
+      wardenry: "🏰",
+      hearthcraft: "🔥",
+      cartography: "🗺️",
+      woodcutting: "🪓",
+      mining: "⛏️",
+      fishing: "🎣",
+      trapping: "🪤",
+      gardening: "🌱",
+    };
+    return map[skillId] ?? "❓";
   }
 
   private _renderSpellbook(): void {

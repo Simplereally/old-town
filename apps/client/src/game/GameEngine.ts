@@ -478,7 +478,7 @@ export class GameEngine {
   }
 
   private _onFrame(_deltaTime: number, _elapsedTime: number): void {
-    this.actors.interpolate();
+    this.actors.interpolate(this._currentTick);
     this.projectiles.update();
     const actorPositions = new Map<number, Vector3>();
     const actorStates = this.actors.getActorStates();
@@ -491,7 +491,7 @@ export class GameEngine {
     if (selfActor) {
       this.renderer.cameraController.followTarget(selfActor.visualPosition);
     }
-    this.hitsplats.update(actorPositions);
+    this.hitsplats.update(this._currentTick, actorPositions);
     this.chatOverhead.update(actorPositions);
     this.hoverHighlighter.update();
     this._updateOverlay();

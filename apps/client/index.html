@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Old Town</title>
     <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
     /* Login Screen */
@@ -41,6 +42,7 @@
         radial-gradient(ellipse at 80% 50%, rgba(40, 30, 20, 0.6) 0%, transparent 50%),
         linear-gradient(180deg, #1a1510 0%, #2a2018 40%, #1a1510 100%);
       z-index: 0;
+      pointer-events: none;
     }
 
     .login-bg::before {
@@ -102,6 +104,7 @@
       padding: 8px 14px;
       text-align: center;
       cursor: pointer;
+      pointer-events: none;
     }
     .world-selector-label {
       color: #d4a843;
@@ -129,6 +132,7 @@
       border: 1px solid rgba(100, 80, 60, 0.5);
       border-radius: 4px;
       padding: 8px 12px;
+      pointer-events: none;
     }
     .online-counter-shield {
       font-size: 20px;
@@ -159,6 +163,7 @@
       padding: 12px 16px;
       font-family: "Courier New", monospace;
       text-align: center;
+      pointer-events: none;
     }
     .info-sign-text {
       color: #c8b8a0;
@@ -175,6 +180,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      pointer-events: none;
     }
     .login-logo-shield {
       font-size: 36px;
@@ -210,7 +216,7 @@
     /* Login Panel */
     .login-panel {
       position: relative;
-      z-index: 10;
+      z-index: 20;
       width: 360px;
       background: rgba(20, 18, 25, 0.92);
       border: 2px solid rgba(80, 70, 60, 0.6);
@@ -219,6 +225,7 @@
       box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.6),
         inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      pointer-events: auto;
     }
 
     .login-panel-header {
@@ -258,7 +265,7 @@
       padding: 10px 12px;
       color: #e8dcc8;
       font-family: "Courier New", monospace;
-      font-size: 14px;
+      font-size: 16px;
       outline: none;
       transition: border-color 0.2s;
     }
@@ -288,6 +295,15 @@
     .login-btn-primary:hover {
       background: linear-gradient(180deg, #6a7c4a 0%, #5a6c3a 50%, #4a5c2a 100%);
       box-shadow: 0 4px 12px rgba(80, 100, 40, 0.3);
+    }
+    .login-btn:disabled {
+      cursor: wait;
+      opacity: 0.82;
+    }
+    .login-btn-loading {
+      background: linear-gradient(180deg, #766735 0%, #5c4e29 50%, #44391f 100%);
+      border-color: rgba(180, 150, 70, 0.6);
+      box-shadow: 0 0 14px rgba(212, 168, 67, 0.25);
     }
     .login-btn-secondary {
       background: linear-gradient(180deg, #3a4a6c 0%, #2a3a5c 50%, #1a2a4c 100%);
@@ -347,6 +363,26 @@
       height: 100%;
       overflow: hidden;
       background: #1a1a2e;
+      overscroll-behavior: none;
+      touch-action: none;
+      -webkit-text-size-adjust: 100%;
+    }
+    button,
+    input,
+    .world-selector,
+    .login-btn,
+    .ui-bar-btn,
+    .inventory-cell,
+    .dialogue-option,
+    .spell-row,
+    .context-menu,
+    .context-menu-item,
+    .chat-send-btn {
+      touch-action: manipulation;
+    }
+    button {
+      user-select: none;
+      -webkit-user-select: none;
     }
     #game-canvas {
       display: block;
@@ -438,11 +474,65 @@
       flex-direction: column;
       gap: 8px;
     }
+    /* OSRS-style skill grid */
+    .skill-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      padding: 4px;
+    }
+    .skill-tile {
+      background: rgba(40, 40, 50, 0.9);
+      border: 2px solid;
+      border-color: #555 #333 #333 #555;
+      border-radius: 2px;
+      padding: 4px 2px;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+      min-height: 56px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+    .skill-tile:hover {
+      background: rgba(60, 60, 75, 0.9);
+      border-color: #666 #444 #444 #666;
+    }
+    .skill-tile-icon {
+      font-size: 20px;
+      line-height: 1;
+    }
+    .skill-tile-level {
+      color: #ffcc00;
+      font-size: 11px;
+      font-weight: bold;
+      line-height: 1;
+    }
+    #skills-panel {
+      width: 220px;
+    }
+    @media (max-width: 480px) {
+      #skills-panel {
+        width: 180px;
+      }
+      .skill-tile {
+        min-height: 48px;
+      }
+      .skill-tile-icon {
+        font-size: 16px;
+      }
+      .skill-tile-level {
+        font-size: 10px;
+      }
+    }
     #ui-right {
       position: absolute;
       top: 80px;
       right: 8px;
-      width: 200px;
+      width: 220px;
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -455,37 +545,56 @@
       display: flex;
       justify-content: center;
     }
-    #ui-bar {
+    #ui-bar-left {
       position: absolute;
-      bottom: 180px;
-      left: 50%;
-      transform: translateX(-50%);
+      bottom: 8px;
+      left: 8px;
       display: flex;
+      flex-direction: column;
       gap: 4px;
-      background: rgba(20, 20, 30, 0.85);
-      padding: 4px 8px;
-      border-radius: 4px;
+      z-index: 30;
+    }
+    #ui-bar-right {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
       z-index: 30;
     }
     .ui-bar-btn {
-      background: rgba(60, 60, 80, 0.8);
+      width: 36px;
+      height: 36px;
+      background: rgba(20, 20, 30, 0.85);
       border: 1px solid #444;
       color: #ccc;
-      padding: 4px 10px;
-      font-family: "Courier New", monospace;
-      font-size: 11px;
+      font-size: 18px;
       cursor: pointer;
-      border-radius: 3px;
+      border-radius: 6px;
       user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      line-height: 1;
     }
     .ui-bar-btn:hover {
-      background: rgba(80, 80, 100, 0.9);
+      background: rgba(60, 60, 80, 0.9);
+      border-color: #666;
       color: #fff;
     }
     .ui-bar-btn.active {
-      background: rgba(100, 100, 130, 0.9);
+      background: rgba(80, 80, 110, 0.95);
+      border-color: #888;
       color: #fff;
-      border-color: #666;
+    }
+    @media (max-width: 480px) {
+      .ui-bar-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+      }
     }
 
     /* Inventory */
@@ -604,7 +713,7 @@
       color: #fff;
       padding: 4px 8px;
       font-family: 'Courier New', monospace;
-      font-size: 11px;
+      font-size: 16px;
       border-radius: 2px;
     }
     .chat-send-btn {
@@ -762,16 +871,18 @@
         </div>
       </div>
     </div>
-    <div id="ui-bar">
-      <button type="button" class="ui-bar-btn" id="btn-inventory" data-panel="inventory-panel">Inv</button>
-      <button type="button" class="ui-bar-btn" id="btn-equipment" data-panel="equipment-panel">Eq</button>
-      <button type="button" class="ui-bar-btn" id="btn-skills" data-panel="skills-panel">Skill</button>
-      <button type="button" class="ui-bar-btn" id="btn-spellbook" data-panel="spellbook-panel">Spell</button>
-      <button type="button" class="ui-bar-btn" id="btn-quest" data-panel="quest-panel">Quest</button>
-      <button type="button" class="ui-bar-btn" id="btn-bank" data-panel="bank-panel">Bank</button>
-      <button type="button" class="ui-bar-btn" id="btn-shop" data-panel="shop-panel">Shop</button>
-      <button type="button" class="ui-bar-btn" id="btn-chat" data-panel="chat-box">Chat</button>
-      <button type="button" class="ui-bar-btn" id="btn-debug" data-panel="debug-overlay">Debug</button>
+    <div id="ui-bar-left">
+      <button type="button" class="ui-bar-btn" data-panel="inventory-panel">🎒</button>
+      <button type="button" class="ui-bar-btn" data-panel="equipment-panel">🛡️</button>
+      <button type="button" class="ui-bar-btn" data-panel="skills-panel">📊</button>
+      <button type="button" class="ui-bar-btn" data-panel="spellbook-panel">✨</button>
+      <button type="button" class="ui-bar-btn" data-panel="quest-panel">📜</button>
+    </div>
+    <div id="ui-bar-right">
+      <button type="button" class="ui-bar-btn" data-panel="bank-panel">🏦</button>
+      <button type="button" class="ui-bar-btn" data-panel="shop-panel">🏪</button>
+      <button type="button" class="ui-bar-btn" data-panel="chat-box">💬</button>
+      <button type="button" class="ui-bar-btn" data-panel="debug-overlay">🐛</button>
     </div>
     <div id="spell-target-overlay">Select target for spell (Esc to cancel)</div>
   </div>

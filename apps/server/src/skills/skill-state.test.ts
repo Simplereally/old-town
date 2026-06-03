@@ -101,7 +101,7 @@ describe("addXp", () => {
     addXp({ world, deltas }, owner, "woodcutting", 100);
 
     const dirty = deltas.peek();
-    expect(dirty.skillDelta).toEqual([{ skillId: "woodcutting", level: 2, xp: 100 }]);
+    expect(dirty.skillDelta).toEqual([{ skillId: "woodcutting", level: 2, xp: 100, effectiveLevel: 2 }]);
     expect(dirty.xpDrops).toEqual([{ skillId: "woodcutting", amount: 100 }]);
   });
 

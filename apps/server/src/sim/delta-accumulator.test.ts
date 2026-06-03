@@ -67,8 +67,8 @@ describe("DeltaAccumulator", () => {
         { slot: 1, itemId: "logs", quantity: 2 },
       ],
     });
-    deltas.markSkillDelta({ skillId: "woodcutting", level: 1, xp: 10 });
-    deltas.markSkillDelta({ skillId: "woodcutting", level: 2, xp: 100 });
+    deltas.markSkillDelta({ skillId: "woodcutting", level: 1, xp: 10, effectiveLevel: 1 });
+    deltas.markSkillDelta({ skillId: "woodcutting", level: 2, xp: 100, effectiveLevel: 2 });
     deltas.markVarbitDelta({ varId: "quest.stage", value: 1 });
     deltas.markVarbitDelta({ varId: "quest.started", value: true });
     deltas.markChat({
@@ -91,7 +91,7 @@ describe("DeltaAccumulator", () => {
         changes: [{ slot: 1, itemId: "logs", quantity: 2 }],
       },
     ]);
-    expect(packet.skillDelta).toEqual([{ skillId: "woodcutting", level: 2, xp: 100 }]);
+    expect(packet.skillDelta).toEqual([{ skillId: "woodcutting", level: 2, xp: 100, effectiveLevel: 2 }]);
     expect(packet.varbitDelta).toEqual([
       { varId: "quest.stage", value: 1 },
       { varId: "quest.started", value: true },

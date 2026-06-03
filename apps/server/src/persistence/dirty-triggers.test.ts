@@ -40,7 +40,7 @@ describe("persistence dirty triggers", () => {
     const { observer, saveQueue } = setup();
 
     observer.onVarbitDelta?.({ varId: "quest.smoke_over_old_town.completed", value: true });
-    observer.onSkillDelta?.({ skillId: "cooking", level: 2, xp: 90 });
+    observer.onSkillDelta?.({ skillId: "cooking", level: 2, xp: 90, effectiveLevel: 2 });
 
     expect(saveQueue.markImmediate).toHaveBeenCalledWith(PLAYER, "quest", 4, 2_400);
     expect(saveQueue.markImmediate).toHaveBeenCalledWith(OTHER_PLAYER, "quest", 4, 2_400);

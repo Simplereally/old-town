@@ -338,7 +338,7 @@ describe("SpellSystem", () => {
       animation: { id: SPELL_CAST_ANIMATION_ID, startTick: 10 },
       graphic: { id: "ember_flick_cast" },
     });
-    expect(deltas.peek().skillDelta).toEqual([{ skillId: "magic", level: 1, xp: 5.5 }]);
+    expect(deltas.peek().skillDelta).toEqual([{ skillId: "magic", level: 1, xp: 5.5, effectiveLevel: 1 }]);
 
     deltas.consume(10, 6_000);
     processDamageResolutionEvents(ctx, 11);
@@ -354,8 +354,8 @@ describe("SpellSystem", () => {
       healthBar: { current: 8, max: 10 },
     });
     expect(deltas.peek().skillDelta).toEqual([
-      { skillId: "hitpoints", level: 1, xp: 2 },
-      { skillId: "magic", level: 1, xp: 13.5 },
+      { skillId: "hitpoints", level: 1, xp: 2, effectiveLevel: 1 },
+      { skillId: "magic", level: 1, xp: 13.5, effectiveLevel: 1 },
     ]);
   });
 
@@ -473,7 +473,7 @@ describe("SpellSystem", () => {
       animation: { id: SPELL_CAST_ANIMATION_ID, startTick: 10 },
       graphic: { id: "bone_bind_cast" },
     });
-    expect(deltas.peek().skillDelta).toEqual([{ skillId: "magic", level: 1, xp: 6 }]);
+    expect(deltas.peek().skillDelta).toEqual([{ skillId: "magic", level: 1, xp: 6, effectiveLevel: 1 }]);
   });
 
   it("queues and completes home teleport through the action runtime", () => {

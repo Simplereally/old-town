@@ -41,6 +41,7 @@ function createMockContext(): PacketApplierContext {
       updateTile: vi.fn(),
       updateFacing: vi.fn(),
       updateHealthBar: vi.fn(),
+      notifyHit: vi.fn(),
       updateAppearance: vi.fn(),
       getActorState: vi.fn(),
     },
@@ -52,6 +53,7 @@ function createMockContext(): PacketApplierContext {
     hitsplats: {
       clear: vi.fn(),
       show: vi.fn(),
+      update: vi.fn(),
     },
     projectiles: {
       clear: vi.fn(),
@@ -261,7 +263,7 @@ describe("ClientPacketApplier", () => {
       containerId: "inventory",
       changes: [{ slot: 0, itemId: "coin", quantity: 5 }],
     };
-    const skills = [{ skillId: "attack", level: 1, xp: 0 }];
+    const skills = [{ skillId: "attack", level: 1, xp: 0, effectiveLevel: 1 }];
     const vars = [{ varId: "quest", value: 1 }];
     const equipment = { slots: ["helm", null, "amulet"] };
 
@@ -411,7 +413,7 @@ describe("ClientPacketApplier", () => {
       1,
     );
 
-    expect(ctx.hitsplats.show).toHaveBeenCalledWith(eid(42), 5, "damage");
+    expect(ctx.hitsplats.show).toHaveBeenCalledWith(eid(42), 5, "damage", 1);
     expect(ctx.uiState.setEquipment).toHaveBeenCalledWith(["helm"]);
   });
 
@@ -506,7 +508,7 @@ describe("ClientPacketApplier", () => {
     applier.applyTickDelta(
       tickDeltaPacket({
         inventoryDeltas: [{ containerId: "inventory", changes: [] }],
-        skillDelta: [{ skillId: "attack", level: 2, xp: 100 }],
+        skillDelta: [{ skillId: "attack", level: 2, xp: 100, effectiveLevel: 2 }],
         varbitDelta: [{ varId: "flag", value: 1 }],
         chat,
         interfaceOpens: [
@@ -528,7 +530,7 @@ describe("ClientPacketApplier", () => {
 
     expect(ctx.uiState.applyInventoryDelta).toHaveBeenCalled();
     expect(ctx.uiState.applySkillDelta).toHaveBeenCalledWith([
-      { skillId: "attack", level: 2, xp: 100 },
+      { skillId: "attack", level: 2, xp: 100, effectiveLevel: 2 },
     ]);
     expect(ctx.uiState.applyVarbitDelta).toHaveBeenCalledWith([{ varId: "flag", value: 1 }]);
     expect(ctx.uiState.addChat).toHaveBeenCalledWith(chat);

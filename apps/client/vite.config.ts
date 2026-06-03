@@ -8,7 +8,7 @@ export default defineConfig({
     sourcemap: true,
   },
   server: {
-    port: 5173,
+    port: 5174,
     host: true,
   },
   envPrefix: "VITE_",
