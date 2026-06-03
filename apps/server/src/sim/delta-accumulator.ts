@@ -1,6 +1,7 @@
 import {
   buildEntityUpdate,
   type ChatPacket,
+  type ContractCompletePacket,
   type DeathNoticePacket,
   type DebugPathData,
   type DebugTickData,
@@ -38,6 +39,7 @@ export interface DirtyState {
   readonly interfaceCloses?: readonly InterfaceClosePacket[];
   readonly deathNotices?: readonly DeathNoticePacket[];
   readonly respawnNotices?: readonly RespawnNoticePacket[];
+  readonly contractComplete?: readonly ContractCompletePacket[];
   readonly debug?: DebugTickData;
 }
 
@@ -92,6 +94,7 @@ export class DeltaAccumulator {
   private interfaceClosePackets: InterfaceClosePacket[] = [];
   private deathNoticePackets: DeathNoticePacket[] = [];
   private respawnNoticePackets: RespawnNoticePacket[] = [];
+  private contractCompletePackets: ContractCompletePacket[] = [];
   private readonly debugPaths = new Map<EntityId, DebugPathData>();
   private observer: DeltaMutationObserver | undefined;
 
@@ -186,6 +189,10 @@ export class DeltaAccumulator {
     this.respawnNoticePackets.push(packet);
   }
 
+  markContractComplete(packet: ContractCompletePacket): void {
+    this.contractCompletePackets.push(packet);
+  }
+
   markDebugPath(entityId: EntityId, path: readonly TileCoord[]): void {
     this.debugPaths.set(entityId, { entityId, path });
   }
@@ -245,6 +252,9 @@ export class DeltaAccumulator {
       ...(this.respawnNoticePackets.length > 0
         ? { respawnNotices: [...this.respawnNoticePackets] }
         : {}),
+      ...(this.contractCompletePackets.length > 0
+        ? { contractComplete: [...this.contractCompletePackets] }
+        : {}),
       ...(this.debugPaths.size > 0
         ? {
             debug: {
@@ -302,6 +312,7 @@ export class DeltaAccumulator {
     this.interfaceClosePackets = [];
     this.deathNoticePackets = [];
     this.respawnNoticePackets = [];
+    this.contractCompletePackets = [];
     this.debugPaths.clear();
   }
 }

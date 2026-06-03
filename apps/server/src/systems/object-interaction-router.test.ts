@@ -51,6 +51,7 @@ const ALTAR_DEF = {
 const TRAP_BASE_DEF = {
   id: "trap_base",
   name: "Trap Base",
+  examine: "A base for setting traps.",
   width: 1,
   length: 1,
   blocksMovement: false,
@@ -182,7 +183,7 @@ describe("object interaction router", () => {
     expect(chat?.[0]?.text).toBe("There is nothing to read.");
   });
 
-  it("routes pray action to stub", () => {
+  it("routes pray action to favour system", () => {
     const { ctx, world, deltas } = setup();
     const player = addPlayer(world, 1, 1);
     const object = addObject(world, "altar", 2, 1);
@@ -191,10 +192,10 @@ describe("object interaction router", () => {
     expect(result).toBe(true);
 
     const chat = deltas.peek().chat;
-    expect(chat?.[0]?.text).toBe("You offer a quiet prayer.");
+    expect(chat?.[0]?.text).toBe("You need an offering to pray at the shrine.");
   });
 
-  it("routes fire action to stub", () => {
+  it("routes fire action to trapping system", () => {
     const { ctx, world, deltas } = setup();
     const player = addPlayer(world, 1, 1);
     const object = addObject(world, "trap_base", 2, 1);
@@ -206,7 +207,7 @@ describe("object interaction router", () => {
     expect(chat?.[0]?.text).toBe("You set a fire trap.");
   });
 
-  it("routes weave action to stub", () => {
+  it("routes weave action to trapping system with wrong object", () => {
     const { ctx, world, deltas } = setup();
     const player = addPlayer(world, 1, 1);
     const object = addObject(world, "trap_base", 2, 1);
@@ -215,7 +216,7 @@ describe("object interaction router", () => {
     expect(result).toBe(true);
 
     const chat = deltas.peek().chat;
-    expect(chat?.[0]?.text).toBe("You weave a trap.");
+    expect(chat?.[0]?.text).toBe("You cannot do that here.");
   });
 
   it("returns false for unknown object action", () => {

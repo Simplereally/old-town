@@ -26,7 +26,7 @@ const snapshot: CharacterSnapshot = {
   },
   equipment: { slots: {} },
   vars: { "quest.points": 1 },
-  bank: { slots: [] },
+  bank: { capacity: 400, nextUid: 1, slots: [] },
 };
 
 const auditRecord = {

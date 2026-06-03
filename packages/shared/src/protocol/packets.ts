@@ -105,6 +105,12 @@ export interface RespawnNoticePacket {
   readonly tile: TileCoord;
 }
 
+export interface ContractCompletePacket {
+  readonly entityId: EntityId;
+  readonly contractId: string;
+  readonly name: string;
+}
+
 /** A sound cue to play. */
 export interface SoundPacket {
   readonly soundId: string;
@@ -258,6 +264,7 @@ export interface TickDeltaPacket {
   readonly interfaceCloses?: readonly InterfaceClosePacket[];
   readonly deathNotices?: readonly DeathNoticePacket[];
   readonly respawnNotices?: readonly RespawnNoticePacket[];
+  readonly contractComplete?: readonly ContractCompletePacket[];
   readonly debug?: DebugTickData;
 }
 

@@ -23,7 +23,7 @@ import {
 import type { InventoryComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
 import { createEquipment, equipmentUpdate } from "../items/equipment";
-import { addItem, catalogFromItems, createInventory, toInventoryDelta } from "../items/inventory";
+import { addItem, catalogFromItems, createBank, createInventory, toInventoryDelta } from "../items/inventory";
 import type { ItemAuditLog } from "../items/item-audit";
 import { DisabledPersistenceAdapter, type PersistenceAdapter } from "../persistence";
 import { applyCharacterSnapshot, snapshotCharacter } from "../persistence/character-state";
@@ -36,6 +36,8 @@ import { projectWorldEntities } from "./entity-spawn-projector";
 import type { TransportSession } from "./websocket-transport";
 
 export const DEV_SPAWN_TILE: TileCoord = { x: 30, y: 32, plane: 0 };
+
+const DEFAULT_BANK_CAPACITY = 400;
 
 const STARTER_ITEMS: readonly { itemId: string; quantity: number }[] = [
   { itemId: "pennywrought_axe", quantity: 1 },
@@ -176,6 +178,7 @@ export class DevSessionManager {
       this.world.destroyEntity(entityId);
       throw error;
     }
+    this.characterIdByEntity.set(entityId, session.characterId);
     return entityId;
   }
 
@@ -218,6 +221,7 @@ export class DevSessionManager {
       this.createStarterInventory(entityId, session.characterId, options),
     );
     this.world.setComponent(entityId, "equipment", createEquipment(entityId));
+    this.world.setComponent(entityId, "bank", createBank(entityId, DEFAULT_BANK_CAPACITY));
     this.world.setComponent(entityId, "vars", createVarComponent(entityId));
     this.world.setComponent(entityId, "skills", {
       entityId,
@@ -292,7 +296,7 @@ export class DevSessionManager {
   private bankDelta(entityId: EntityId): InventoryDelta {
     const bank = this.world.getComponent(entityId, "bank");
     if (!bank) {
-      return { containerId: "bank", changes: [] };
+      return { containerId: `bank:${entityId}`, changes: [] };
     }
     return toInventoryDelta(bank);
   }

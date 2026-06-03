@@ -23,6 +23,7 @@ import type { ActionHandler } from "../sim/action-executor";
 import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { addXp, getCurrentLevel } from "../skills/skill-state";
+import { trackContractItemGain } from "./contract-system";
 import { handleMoveIntent } from "./movement-system";
 import { depleteResourceNode, type ResourceNodeContext } from "./resource-node-system";
 
@@ -80,7 +81,7 @@ export interface GatherValidationResult {
   readonly nodeDef?: ResourceNodeDef;
 }
 
-const GATHER_ACTION_IDS = new Set(["chop", "woodcut", "mine"]);
+const GATHER_ACTION_IDS = new Set(["chop", "woodcut", "mine", "fish"]);
 const PROCESS_ACTION_IDS = new Set(["cook", "use"]);
 
 function actionId(prefix: string, owner: EntityId): string {
@@ -541,6 +542,7 @@ export function handleGather(
       serverTime,
       tick,
     );
+    trackContractItemGain(ctx, action.entry.owner, nodeDef.outputItemId, nodeDef.outputQuantity);
   }
   if (ctx.rng.nextFloat() < nodeDef.depletionChance) {
     depleteResourceNode(ctx, payload.nodeEntityId, tick);
@@ -649,6 +651,7 @@ export function handleProcess(
     serverTime,
     tick,
   );
+  trackContractItemGain(ctx, action.entry.owner, itemId, quantity);
   if (!failed) {
     addXp({ world: ctx.world, deltas: ctx.deltas }, action.entry.owner, recipe.skill, recipe.xp);
     dispatchQuestEvent(

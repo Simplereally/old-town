@@ -19,6 +19,7 @@ export interface PersistenceDirtyTriggerOptions {
 }
 
 const INVENTORY_CONTAINER_PREFIX = "inventory:";
+const BANK_CONTAINER_PREFIX = "bank:";
 
 export function createPersistenceDirtyObserver(
   options: PersistenceDirtyTriggerOptions,
@@ -79,10 +80,15 @@ function markEntityUpdate(
 }
 
 function entityIdFromInventoryContainer(containerId: string): EntityId | undefined {
-  if (!containerId.startsWith(INVENTORY_CONTAINER_PREFIX)) {
-    return undefined;
+  if (containerId.startsWith(INVENTORY_CONTAINER_PREFIX)) {
+    const raw = containerId.slice(INVENTORY_CONTAINER_PREFIX.length);
+    const parsed = Number.parseInt(raw, 10);
+    return Number.isInteger(parsed) && parsed >= 0 ? entityId(parsed) : undefined;
   }
-  const raw = containerId.slice(INVENTORY_CONTAINER_PREFIX.length);
-  const parsed = Number.parseInt(raw, 10);
-  return Number.isInteger(parsed) && parsed >= 0 ? entityId(parsed) : undefined;
+  if (containerId.startsWith(BANK_CONTAINER_PREFIX)) {
+    const raw = containerId.slice(BANK_CONTAINER_PREFIX.length);
+    const parsed = Number.parseInt(raw, 10);
+    return Number.isInteger(parsed) && parsed >= 0 ? entityId(parsed) : undefined;
+  }
+  return undefined;
 }

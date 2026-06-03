@@ -73,16 +73,16 @@ describe("HitsplatLayer", () => {
     layer.show(ID1, 5, "damage", 10);
     const positions = new Map<number, Vector3>([[1, new Vector3(5, 0, -5)]]);
     layer.update(10, positions);
-    expect(scene.children[0]!.children.length).toBe(1);
+    expect(scene.children[0]?.children.length).toBe(1);
     layer.update(12, positions);
-    expect(scene.children[0]!.children.length).toBe(0);
+    expect(scene.children[0]?.children.length).toBe(0);
   });
 
   it("clears all hitsplats", () => {
     layer.show(ID1, 5, "damage", 10);
     layer.show(ID2, 3, "heal", 10);
     layer.clear();
-    expect(scene.children[0]!.children.length).toBe(0);
+    expect(scene.children[0]?.children.length).toBe(0);
   });
 
   it("fades out hitsplats over time", () => {

@@ -25,7 +25,7 @@ const validSnapshot = {
     "quest.smoke_over_old_town.completed": false,
     "quest.points": 1,
   },
-  bank: { slots: [{ slot: 0, itemId: "dry_log", quantity: 10 }] },
+  bank: { slots: [{ slot: 0, itemId: "dry_log", quantity: 10, uid: 1 }] },
 };
 
 describe("characterSnapshotSchema", () => {

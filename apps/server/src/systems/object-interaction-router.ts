@@ -6,6 +6,10 @@ import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { handleMoveIntent } from "./movement-system";
 import type { ResourceNodeContext } from "./resource-node-system";
 import { handleObjectSkillingIntent } from "./skilling-system";
+import { handlePrayIntent } from "./favour-system";
+import { handleTrappingIntent, isTrappingAction } from "./trapping-system";
+import { handleSurveyIntent } from "./cartography-system";
+import { handleContractAcceptIntent } from "./contract-system";
 
 export interface ObjectInteractionContext extends ResourceNodeContext {
   readonly rng: Rng;
@@ -97,18 +101,18 @@ export function handleObjectIntent(
       return true;
     }
     case "pray": {
-      systemMessage(ctx.deltas, owner, "You offer a quiet prayer.", serverTime);
-      return true;
+      return handlePrayIntent(ctx, owner, intent, serverTime, tick);
     }
-    case "fire": {
-      systemMessage(ctx.deltas, owner, "You set a fire trap.", serverTime);
-      return true;
+    case "survey": {
+      return handleSurveyIntent(ctx, owner, intent, serverTime, tick);
     }
-    case "weave": {
-      systemMessage(ctx.deltas, owner, "You weave a trap.", serverTime);
-      return true;
+    case "accept": {
+      return handleContractAcceptIntent(ctx, owner, intent, serverTime, tick);
     }
     default:
+      if (isTrappingAction(intent.actionId)) {
+        return handleTrappingIntent(ctx, owner, intent, serverTime, tick);
+      }
       return false;
   }
 }

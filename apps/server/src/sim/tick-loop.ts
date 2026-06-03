@@ -15,6 +15,7 @@ export const TickPhase = {
   SkillingProgress: "skillingProgress",
   ShopRestock: "shopRestock",
   QuestTriggersVarbits: "questTriggersVarbits",
+  ContractLifecycle: "contractLifecycle",
   SnapshotDeltaBuild: "snapshotDeltaBuild",
 } as const;
 
@@ -34,6 +35,7 @@ export const TICK_PHASE_ORDER = [
   TickPhase.SkillingProgress,
   TickPhase.ShopRestock,
   TickPhase.QuestTriggersVarbits,
+  TickPhase.ContractLifecycle,
   TickPhase.SnapshotDeltaBuild,
 ] as const satisfies readonly TickPhase[];
 

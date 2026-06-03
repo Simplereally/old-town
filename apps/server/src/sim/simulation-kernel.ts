@@ -31,6 +31,7 @@ import {
 } from "../systems/combat-system";
 import { ConsumableSystem } from "../systems/consumable-system";
 import { processPlayerRespawn } from "../systems/death-system";
+import { processContractLifecycle } from "../systems/contract-system";
 import { processDeathResolution, processGroundItemLifecycle } from "../systems/ground-item-system";
 import { npcFootprintResolver, processNpcAiPhase, syncNpcOccupancy } from "../systems/npc-system";
 import { createResourceNodeActionHandlers } from "../systems/resource-node-system";
@@ -334,6 +335,14 @@ function wireTickPhases(
 
   tickLoop.registerPhase(TickPhase.QuestTriggersVarbits, ({ tick, serverTime }) => {
     saveQueue.flushDue(tick, serverTime);
+  });
+
+  tickLoop.registerPhase(TickPhase.ContractLifecycle, ({ tick, serverTime }) => {
+    processContractLifecycle(
+      { world, deltas, registries, itemAudit },
+      tick,
+      serverTime,
+    );
   });
 
   tickLoop.registerPhase(TickPhase.SnapshotDeltaBuild, ({ tick, serverTime }) => {

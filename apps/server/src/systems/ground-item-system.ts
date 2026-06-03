@@ -16,6 +16,12 @@ import { dispatchQuestEvent } from "../quests/quest-engine";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import type { CollisionMap } from "../world/collision";
 import { syncNpcOccupancy } from "./npc-system";
+import {
+  checkContractCompletion,
+  findActiveContractEntity,
+  trackContractItemGain,
+  trackContractObjective,
+} from "./contract-system";
 
 export interface GroundItemSystemContext {
   readonly world: World;
@@ -171,6 +177,11 @@ export function processDeathResolution(
         { kind: "npc_killed", npcId: npc.npcId },
         serverTime,
       );
+      const contractEntityId = findActiveContractEntity(ctx.world, ownerId);
+      if (contractEntityId !== undefined) {
+        trackContractObjective(ctx, ownerId, contractEntityId, "kill", npc.npcId, 1);
+        checkContractCompletion(ctx, ownerId, contractEntityId, serverTime, tick);
+      }
     }
     const drops = def.drops ? ctx.registries.dropTable.get(def.drops) : undefined;
     if (drops) {
@@ -358,6 +369,7 @@ export function handleGroundItemIntent(
     { kind: "item_gained", itemId: groundItem.itemId, quantity: groundItem.quantity },
     serverTime,
   );
+  trackContractItemGain(ctx, owner, groundItem.itemId, groundItem.quantity);
   ctx.world.destroyEntity(intent.groundItemEntityId);
   ctx.deltas.markEntityRemove(intent.groundItemEntityId);
   return true;

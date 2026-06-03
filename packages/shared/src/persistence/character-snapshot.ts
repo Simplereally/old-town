@@ -94,7 +94,9 @@ export const characterHitpointsSnapshotSchema = z
 
 export const characterBankSnapshotSchema = z
   .object({
-    slots: z.array(characterInventorySlotSnapshotSchema.omit({ uid: true })).default([]),
+    capacity: positiveInt.default(400),
+    nextUid: positiveInt.default(1),
+    slots: z.array(characterInventorySlotSnapshotSchema).default([]),
   })
   .strict();
 

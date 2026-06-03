@@ -141,7 +141,7 @@ if (win.__OLD_TOWN_INIT__) {
 
   const urlParams = new URLSearchParams(window.location.search);
   const autoLogin = urlParams.get("autoLogin");
-  if (autoLogin) {
+  if (autoLogin && import.meta.env.DEV) {
     loginUsername.value = autoLogin;
     handleLogin();
   }

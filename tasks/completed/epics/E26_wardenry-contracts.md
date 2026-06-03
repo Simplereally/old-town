@@ -25,9 +25,9 @@ Implement the Wardenry contract runtime: contract acceptance, objective tracking
 
 ## Ordered stories
 
-- [ ] `E26-S01` — [Contract Runtime State Machine](stories/E26/E26-S01_contract-runtime-state-machine.md)
-- [ ] `E26-S02` — [Contract Objective Tracking and Completion](stories/E26/E26-S02_contract-objective-tracking-and-completion.md)
-- [ ] `E26-S03` — [Contract Reward Distribution](stories/E26/E26-S03_contract-reward-distribution.md)
+- [X] `E26-S01` — [Contract Runtime State Machine](completed/stories/E26/E26-S01_contract-runtime-state-machine.md)
+- [X] `E26-S02` — [Contract Objective Tracking and Completion](completed/stories/E26/E26-S02_contract-objective-tracking-and-completion.md)
+- [X] `E26-S03` — [Contract Reward Distribution](completed/stories/E26/E26-S03_contract-reward-distribution.md)
 
 ## Epic acceptance criteria
 

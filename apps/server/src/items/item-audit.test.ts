@@ -73,10 +73,13 @@ describe("ItemAuditLog", () => {
       "net/dev-session.ts",
       "quests/effects.ts",
       "systems/bank-system.ts",
+      "systems/contract-system.ts",
+      "systems/favour-system.ts",
       "systems/ground-item-system.ts",
       "systems/shop-system.ts",
       "systems/skilling-system.ts",
       "systems/spell-system.ts",
+      "systems/trapping-system.ts",
     ]);
 
     const filesWithMutators: string[] = [];

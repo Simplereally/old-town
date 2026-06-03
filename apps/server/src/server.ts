@@ -207,6 +207,7 @@ function serializeContentForClient(registries: BootContentResult["registries"]):
     spell: Object.fromEntries(registries.spell),
     quest: Object.fromEntries(registries.quest),
     dialogue: Object.fromEntries(registries.dialogue),
+    contract: Object.fromEntries(registries.contract),
   };
 }
 

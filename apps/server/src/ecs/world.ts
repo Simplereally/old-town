@@ -3,6 +3,7 @@ import type {
   ActorComponent,
   BankComponent,
   CombatantComponent,
+  ContractComponent,
   DialogueComponent,
   EquipmentComponent,
   GroundItemComponent,
@@ -36,6 +37,7 @@ export type WorldComponentMap = {
   vars: VarComponent;
   dialogue: DialogueComponent;
   shop: ShopComponent;
+  contract: ContractComponent;
 };
 
 export type WorldComponentKind = keyof WorldComponentMap;
@@ -96,6 +98,7 @@ export function createWorld(): World {
     vars: new Map(),
     dialogue: new Map(),
     shop: new Map(),
+    contract: new Map(),
   };
 
   const createEntity = (): EntityId => {

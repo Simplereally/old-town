@@ -65,7 +65,7 @@ export function createBank(
 ): import("../ecs/components").BankComponent {
   return {
     entityId,
-    containerId: "bank",
+    containerId: `bank:${entityId}`,
     capacity,
     slots: Array.from({ length: capacity }, () => undefined),
     nextUid: 1,

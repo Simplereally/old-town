@@ -5,7 +5,7 @@ import {
   addItem,
   buildDelta,
   catalogFromItems,
-  createInventory,
+  createBank,
   findSlotByUid,
   hasSpaceFor,
   removeFromSlot,
@@ -42,7 +42,7 @@ function getOrCreateBank(ctx: BankSystemContext, owner: EntityId): BankComponent
   const bankDef = ctx.registries.bank.values().next().value as BankDef | undefined;
   const capacity = bankDef?.capacity ?? DEFAULT_BANK_CAPACITY;
 
-  const bank = createInventory(owner, "bank", capacity) as unknown as BankComponent;
+  const bank = createBank(owner, capacity);
   ctx.world.setComponent(owner, "bank", bank);
   return bank;
 }

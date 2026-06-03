@@ -131,11 +131,13 @@ function snapshotInventory(
 
 function snapshotBank(bank: BankComponent | undefined): CharacterSnapshot["bank"] {
   if (!bank) {
-    return { slots: [] };
+    return { capacity: DEFAULT_BANK_CAPACITY, nextUid: 1, slots: [] };
   }
   return {
+    capacity: bank.capacity,
+    nextUid: bank.nextUid,
     slots: bank.slots.flatMap((item, slot) =>
-      item ? [{ slot, itemId: item.itemId, quantity: item.quantity }] : [],
+      item ? [{ slot, itemId: item.itemId, quantity: item.quantity, uid: item.uid }] : [],
     ),
   };
 }
@@ -164,14 +166,17 @@ function restoreInventory(entityId: EntityId, snapshot: CharacterSnapshot): Inve
 }
 
 function restoreBank(entityId: EntityId, snapshot: CharacterSnapshot): BankComponent {
-  const bank = createBank(entityId, DEFAULT_BANK_CAPACITY);
+  const bank = createBank(entityId, snapshot.bank.capacity ?? DEFAULT_BANK_CAPACITY);
+  bank.nextUid = snapshot.bank.nextUid ?? 1;
   for (const item of snapshot.bank.slots) {
     bank.slots[item.slot] = {
       itemId: item.itemId,
       quantity: item.quantity,
-      uid: bank.nextUid,
+      uid: item.uid ?? bank.nextUid,
     } satisfies InventorySlot;
-    bank.nextUid += 1;
+    if (item.uid === undefined) {
+      bank.nextUid += 1;
+    }
   }
   return bank;
 }

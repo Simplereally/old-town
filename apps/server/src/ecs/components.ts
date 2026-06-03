@@ -225,3 +225,22 @@ export interface BankComponent {
   /** Monotonic allocator for slot `uid`s (starts at 1). */
   nextUid: number;
 }
+
+export interface ContractObjective {
+  readonly kind: string;
+  readonly targetId: string;
+  readonly required: number;
+  readonly current: number;
+}
+
+export type ContractStatus = "available" | "accepted" | "completed" | "expired";
+
+/** Wardenry contract state on a board or player. */
+export interface ContractComponent {
+  entityId: EntityId;
+  contractId: string;
+  status: ContractStatus;
+  objectives: ContractObjective[];
+  startTick: number;
+  expiryTick: number;
+}

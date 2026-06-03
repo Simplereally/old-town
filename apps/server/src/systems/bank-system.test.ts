@@ -1,7 +1,7 @@
 import type { BankDef, ItemDef } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { createWorld } from "../ecs/world";
-import { addItem, catalogFromItems, count, createInventory } from "../items/inventory";
+import { addItem, catalogFromItems, count, createBank, createInventory } from "../items/inventory";
 import { ItemAuditLog } from "../items/item-audit";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { makeRegistries } from "../test-support/registries";
@@ -98,7 +98,7 @@ describe("handleBankIntent — open", () => {
 
     expect(result).toBe(true);
     expect(ctx.deltas.peek().interfaceOpens).toEqual([{ interfaceId: "bank" }]);
-    expect(ctx.deltas.peek().inventoryDeltas?.[0]?.containerId).toBe("bank");
+    expect(ctx.deltas.peek().inventoryDeltas?.[0]?.containerId).toBe(`bank:${owner}`);
   });
 
   it("creates a bank component if one does not exist", () => {
@@ -151,7 +151,7 @@ describe("handleBankIntent — deposit", () => {
     const deltas = ctx.deltas.peek().inventoryDeltas ?? [];
     expect(deltas).toHaveLength(2);
     const inventoryDelta = deltas.find((d) => d.containerId === `inventory:${owner}`);
-    const bankDelta = deltas.find((d) => d.containerId === "bank");
+    const bankDelta = deltas.find((d) => d.containerId === `bank:${owner}`);
     expect(inventoryDelta).toBeDefined();
     expect(bankDelta).toBeDefined();
   });
@@ -213,9 +213,9 @@ describe("handleBankIntent — deposit", () => {
     const bank = ctx.world.getComponent(owner, "bank");
     // If bank doesn't exist yet, create it and fill it
     if (!bank) {
-      const newBank = createInventory(owner, "bank", 1);
+      const newBank = createBank(owner, 1);
       newBank.slots[0] = { itemId: "coin", quantity: 1, uid: 1 };
-      ctx.world.setComponent(owner, "bank", newBank as unknown as import("../ecs/components").BankComponent);
+      ctx.world.setComponent(owner, "bank", newBank);
     }
 
     const result = handleBankIntent(
@@ -238,9 +238,9 @@ describe("handleBankIntent — deposit", () => {
 describe("handleBankIntent — withdraw", () => {
   it("moves a stackable item from bank to inventory", () => {
     const { ctx, owner, inventory } = setup();
-    const bank = createInventory(owner, "bank", 400);
+    const bank = createBank(owner, 400);
     addItem(bank, catalogFromItems(ITEMS), "coin", 10);
-    ctx.world.setComponent(owner, "bank", bank as unknown as import("../ecs/components").BankComponent);
+    ctx.world.setComponent(owner, "bank", bank);
 
     const result = handleBankIntent(
       ctx,
@@ -260,9 +260,9 @@ describe("handleBankIntent — withdraw", () => {
 
   it("moves an unstackable item from bank to inventory", () => {
     const { ctx, owner, inventory } = setup();
-    const bank = createInventory(owner, "bank", 400);
+    const bank = createBank(owner, 400);
     addItem(bank, catalogFromItems(ITEMS), "test_blade", 1);
-    ctx.world.setComponent(owner, "bank", bank as unknown as import("../ecs/components").BankComponent);
+    ctx.world.setComponent(owner, "bank", bank);
 
     const result = handleBankIntent(
       ctx,
@@ -284,9 +284,9 @@ describe("handleBankIntent — withdraw", () => {
       inventory.slots[i] = { itemId: "coin", quantity: 1, uid: 100 + i };
     }
 
-    const bank = createInventory(owner, "bank", 400);
+    const bank = createBank(owner, 400);
     addItem(bank, catalogFromItems(ITEMS), "test_blade", 1);
-    ctx.world.setComponent(owner, "bank", bank as unknown as import("../ecs/components").BankComponent);
+    ctx.world.setComponent(owner, "bank", bank);
 
     const result = handleBankIntent(
       ctx,

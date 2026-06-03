@@ -336,6 +336,12 @@ export class ClientPacketApplier {
       }
     }
 
+    if (packet.contractComplete) {
+      for (const contract of packet.contractComplete) {
+        ctx.logDebug(`Contract complete: ${contract.name}`);
+      }
+    }
+
     const rejectedMoves = this._applyDebugData(packet.debug, currentTick);
 
     return {
