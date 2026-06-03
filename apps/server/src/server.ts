@@ -5,11 +5,12 @@
  * wires the simulation kernel, and starts the WebSocket transport. Graceful shutdown
  * stops the tick loop and closes sockets.
  */
-import type { Server } from "node:http";
+
+import { existsSync, readFileSync, statSync } from "node:fs";
+import type { Server, ServerResponse } from "node:http";
 import { createServer } from "node:http";
-import { readFileSync, existsSync, statSync } from "node:fs";
-import { resolve, extname } from "node:path";
-import { GAME_TICK_MS } from "@old-town/shared";
+import { extname, resolve } from "node:path";
+import { GAME_TICK_MS, PROTOCOL_VERSION } from "@old-town/shared";
 import { type BootContentResult, loadContent } from "./content-loader";
 import { loadRuntimeConfig } from "./env";
 import { createLogger } from "./logger";
@@ -27,6 +28,15 @@ export interface GameServer {
   /** The authoritative simulation kernel. */
   kernel: SimulationKernel;
 }
+
+interface ClientBuildCompatibility {
+  readonly ok: boolean;
+  readonly reason?: string;
+  readonly clientProtocolVersion?: number;
+}
+
+const CLIENT_DIST_DIR = resolve("apps/client/dist");
+const CLIENT_BUILD_MANIFEST = resolve(CLIENT_DIST_DIR, "old-town-build.json");
 
 export async function startServer(): Promise<GameServer> {
   const config = loadRuntimeConfig();
@@ -74,12 +84,16 @@ export async function startServer(): Promise<GameServer> {
     const url = req.url ? new URL(req.url, "http://old-town.local") : undefined;
     if (url?.pathname === "/health" && req.method === "GET") {
       res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ status: "ok", tickMs: config.tickMs }));
+      res.end(
+        JSON.stringify({ status: "ok", tickMs: config.tickMs, protocolVersion: PROTOCOL_VERSION }),
+      );
       return;
     }
     if (url?.pathname === "/ready" && req.method === "GET") {
       res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ status: "ready", content: true }));
+      res.end(
+        JSON.stringify({ status: "ready", content: true, protocolVersion: PROTOCOL_VERSION }),
+      );
       return;
     }
     if (url?.pathname === "/api/content" && req.method === "GET") {
@@ -106,8 +120,13 @@ export async function startServer(): Promise<GameServer> {
     }
     // Static file serving for client build
     if (req.method === "GET") {
-      const staticPath = resolve("apps/client/dist", "." + (url?.pathname ?? "/"));
+      const staticPath = resolve(CLIENT_DIST_DIR, `.${url?.pathname ?? "/"}`);
       if (existsSync(staticPath) && statSync(staticPath).isFile()) {
+        const compatibility = readClientBuildCompatibility();
+        if (!compatibility.ok) {
+          writeClientBuildMismatch(res, compatibility);
+          return;
+        }
         const mimeTypes: Record<string, string> = {
           ".html": "text/html",
           ".js": "application/javascript",
@@ -124,8 +143,13 @@ export async function startServer(): Promise<GameServer> {
         return;
       }
       if (url?.pathname === "/" || !extname(url?.pathname ?? "")) {
-        const fallback = resolve("apps/client/dist", "index.html");
+        const fallback = resolve(CLIENT_DIST_DIR, "index.html");
         if (existsSync(fallback)) {
+          const compatibility = readClientBuildCompatibility();
+          if (!compatibility.ok) {
+            writeClientBuildMismatch(res, compatibility);
+            return;
+          }
           res.writeHead(200, { "Content-Type": "text/html" });
           res.end(readFileSync(fallback));
           return;
@@ -148,7 +172,10 @@ export async function startServer(): Promise<GameServer> {
   kernel.attachDeltaTransport(transport);
 
   httpServer.listen(config.port, config.host, () => {
-    logger.info("http", `Server listening on ${config.host}:${config.port}`, { port: config.port, host: config.host });
+    logger.info("http", `Server listening on ${config.host}:${config.port}`, {
+      port: config.port,
+      host: config.host,
+    });
   });
 
   // --- Tick loop timer --------------------------------------------------------------
@@ -181,4 +208,52 @@ function serializeContentForClient(registries: BootContentResult["registries"]):
     quest: Object.fromEntries(registries.quest),
     dialogue: Object.fromEntries(registries.dialogue),
   };
+}
+
+function readClientBuildCompatibility(): ClientBuildCompatibility {
+  if (!existsSync(CLIENT_BUILD_MANIFEST)) {
+    return { ok: false, reason: "missing_client_build_manifest" };
+  }
+
+  let manifest: unknown;
+  try {
+    manifest = JSON.parse(readFileSync(CLIENT_BUILD_MANIFEST, "utf8"));
+  } catch {
+    return { ok: false, reason: "invalid_client_build_manifest" };
+  }
+
+  const clientProtocolVersion =
+    typeof manifest === "object" && manifest !== null
+      ? (manifest as { protocolVersion?: unknown }).protocolVersion
+      : undefined;
+  if (typeof clientProtocolVersion !== "number") {
+    return { ok: false, reason: "invalid_client_protocol_version" };
+  }
+  if (clientProtocolVersion !== PROTOCOL_VERSION) {
+    return {
+      ok: false,
+      reason: "client_server_protocol_mismatch",
+      clientProtocolVersion,
+    };
+  }
+
+  return { ok: true, clientProtocolVersion };
+}
+
+function writeClientBuildMismatch(
+  res: ServerResponse,
+  compatibility: ClientBuildCompatibility,
+): void {
+  res.writeHead(503, {
+    "Content-Type": "application/json",
+    "Cache-Control": "no-store",
+  });
+  res.end(
+    JSON.stringify({
+      error: "client_build_not_compatible",
+      reason: compatibility.reason ?? "unknown",
+      clientProtocolVersion: compatibility.clientProtocolVersion,
+      serverProtocolVersion: PROTOCOL_VERSION,
+    }),
+  );
 }
