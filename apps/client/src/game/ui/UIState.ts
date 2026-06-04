@@ -1,5 +1,7 @@
 import type {
   ChatPacket,
+  ContractCompletePacket,
+  ContractProgressPacket,
   DialogueViewPacket,
   InventoryDelta,
   InventorySlotChange,
@@ -8,8 +10,10 @@ import type {
   RecipeResultPacket,
   ShopViewPacket,
   SkillDelta,
+  StatusEffectUpdate,
   TileCoord,
   VarbitDelta,
+  XpDropPacket,
 } from "@old-town/shared";
 
 export interface MinimapTile {
@@ -24,6 +28,13 @@ export interface MinimapEntity {
   readonly kind: "player" | "npc" | "object";
   readonly tile: TileCoord;
   readonly defId?: string;
+}
+
+export interface Notification {
+  readonly id: string;
+  readonly text: string;
+  readonly type: "success" | "failure" | "info";
+  readonly createdAt: number;
 }
 
 /**
@@ -46,6 +57,12 @@ export class UIState {
   private _minimapRegionTileKeys = new Map<string, Set<string>>();
   private _recipeList: RecipeListPacket | undefined;
   private _recipeResult: RecipeResultPacket | undefined;
+  private _activeContract: ContractProgressPacket | undefined;
+  private _contractCompletes: ContractCompletePacket[] = [];
+  private _statusEffects: StatusEffectUpdate[] = [];
+  private _deathScreen = false;
+  private _notifications: Notification[] = [];
+  private _xpDrops: XpDropPacket[] = [];
   private _listeners = new Set<() => void>();
 
   get inventory(): ReadonlyMap<number, InventorySlotChange> {
@@ -285,6 +302,98 @@ export class UIState {
 
   clearRecipeResult(): void {
     this._recipeResult = undefined;
+    this._notify();
+  }
+
+  get activeContract(): ContractProgressPacket | undefined {
+    return this._activeContract;
+  }
+
+  setActiveContract(contract: ContractProgressPacket): void {
+    this._activeContract = contract;
+    this._notify();
+  }
+
+  clearActiveContract(): void {
+    this._activeContract = undefined;
+    this._notify();
+  }
+
+  get contractCompletes(): readonly ContractCompletePacket[] {
+    return this._contractCompletes;
+  }
+
+  addContractComplete(packet: ContractCompletePacket): void {
+    this._contractCompletes.push(packet);
+    while (this._contractCompletes.length > 10) {
+      this._contractCompletes.shift();
+    }
+    this._notify();
+  }
+
+  setContract(packet: ContractCompletePacket): void {
+    this.addContractComplete(packet);
+  }
+
+  clearContractCompletes(): void {
+    this._contractCompletes = [];
+    this._notify();
+  }
+
+  get statusEffects(): readonly StatusEffectUpdate[] {
+    return this._statusEffects;
+  }
+
+  setStatusEffects(effects: readonly StatusEffectUpdate[]): void {
+    this._statusEffects = effects.slice();
+    this._notify();
+  }
+
+  get deathScreen(): boolean {
+    return this._deathScreen;
+  }
+
+  setDeathScreen(active: boolean): void {
+    this._deathScreen = active;
+    this._notify();
+  }
+
+  get notifications(): readonly Notification[] {
+    return this._notifications;
+  }
+
+  addNotification(notification: Notification): void {
+    this._notifications.push(notification);
+    while (this._notifications.length > 20) {
+      this._notifications.shift();
+    }
+    this._notify();
+  }
+
+  removeNotification(id: string): void {
+    this._notifications = this._notifications.filter((n) => n.id !== id);
+    this._notify();
+  }
+
+  clearNotifications(): void {
+    this._notifications = [];
+    this._notify();
+  }
+
+  get xpDrops(): readonly XpDropPacket[] {
+    return this._xpDrops;
+  }
+
+  addXpDrops(drops: readonly XpDropPacket[]): void {
+    this._xpDrops.push(...drops);
+    while (this._xpDrops.length > 50) {
+      this._xpDrops.shift();
+    }
+    this._notify();
+  }
+
+  clearXpDrops(): void {
+    this._xpDrops = [];
     this._notify();
   }
 

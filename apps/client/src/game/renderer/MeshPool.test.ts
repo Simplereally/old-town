@@ -90,7 +90,7 @@ describe("MeshPool", () => {
     otherPool.dispose();
   });
 
-  it("disposes all resources", () => {
+  it("disposes all internal state", () => {
     const mesh = pool.acquire();
     pool.release(mesh);
     pool.dispose();
@@ -98,16 +98,34 @@ describe("MeshPool", () => {
     expect(pool.activeCount).toBe(0);
   });
 
-  it("disposes original geometry and material", () => {
+  it("does not grow beyond maxSize", () => {
+    const smallPool = new MeshPool({
+      geometry: new BoxGeometry(1, 1, 1),
+      material: new MeshBasicMaterial({ color: 0x0000ff }),
+      initialSize: 1,
+      maxSize: 2,
+    });
+    expect(smallPool.acquire()).toBeDefined();
+    expect(smallPool.acquire()).toBeDefined();
+    expect(smallPool.acquire()).toBeNull();
+    expect(smallPool.poolSize).toBe(2);
+    smallPool.dispose();
+  });
+
+  it("shares geometry and material across pooled meshes", () => {
     const geometry = new BoxGeometry(1, 1, 1);
     const material = new MeshBasicMaterial({ color: 0xff0000 });
-    const testPool = new MeshPool({
+    const sharedPool = new MeshPool({
       geometry,
       material,
-      initialSize: 1,
+      initialSize: 2,
     });
-    testPool.dispose();
-    expect(geometry).toBeDefined();
-    expect(material).toBeDefined();
+    const mesh1 = sharedPool.acquire();
+    const mesh2 = sharedPool.acquire();
+    expect(mesh1.geometry).toBe(geometry);
+    expect(mesh2.geometry).toBe(geometry);
+    expect(mesh1.material).toBe(material);
+    expect(mesh2.material).toBe(material);
+    sharedPool.dispose();
   });
 });

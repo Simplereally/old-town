@@ -8,7 +8,7 @@ import {
 import { describe, expect, it } from "vitest";
 import { createWorld, type World } from "../ecs/world";
 import { ActionExecutor } from "../sim/action-executor";
-import { ActionRuntime } from "../sim/action-runtime";
+import { ActionQueue } from "../sim/action-queue";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { makeRegistries } from "../test-support/registries";
 import {
@@ -62,7 +62,7 @@ function registries(node: ResourceNodeDef = NODE_DEF): ContentRegistries {
 function setup(node: ResourceNodeDef = NODE_DEF): {
   readonly world: World;
   readonly nodeEntity: EntityId;
-  readonly actionRuntime: ActionRuntime;
+  readonly actionQueue: ActionQueue;
   readonly deltas: DeltaAccumulator;
   readonly collision: CollisionMap;
   readonly content: ContentRegistries;
@@ -99,7 +99,7 @@ function setup(node: ResourceNodeDef = NODE_DEF): {
   return {
     world,
     nodeEntity,
-    actionRuntime: new ActionRuntime(),
+    actionQueue: new ActionQueue(),
     deltas: new DeltaAccumulator(),
     collision,
     content,
@@ -148,10 +148,10 @@ describe("resource node runtime state", () => {
     );
 
     depleteResourceNode({ ...ctx, registries: ctx.content }, ctx.nodeEntity, 5);
-    expect(ctx.actionRuntime.getDebugState()[0]?.id).toBe(resourceRespawnActionId(ctx.nodeEntity));
+    expect(ctx.actionQueue.getDebugState()[0]?.id).toBe(resourceRespawnActionId(ctx.nodeEntity));
 
     for (let tick = 6; tick <= 8; tick += 1) {
-      actionExecutor.execute(ctx.actionRuntime.advanceTick(), { tick, serverTime: tick * 600 });
+      actionExecutor.execute(ctx.actionQueue.advanceTick(), { tick, serverTime: tick * 600 });
     }
 
     expect(ctx.world.getComponent(ctx.nodeEntity, "resourceNode")).toMatchObject({

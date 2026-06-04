@@ -1,21 +1,21 @@
+import { tileKey } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { createWorld, type World } from "../../ecs/world";
-import { createInventory, addItem, catalogFromItems } from "../../items/inventory";
-import { ActionRuntime } from "../../sim/action-runtime";
+import { addItem, catalogFromItems, createInventory } from "../../items/inventory";
+import { ActionQueue } from "../../sim/action-queue";
 import { DeltaAccumulator } from "../../sim/delta-accumulator";
 import { makeRegistries } from "../../test-support/registries";
 import { CollisionMap } from "../../world/collision";
 import { createRuntimeMap } from "../../world/runtime-map";
-import { handleObjectIntent } from "../object-interaction-router";
 import {
-  validateNookEntry,
-  revealNook,
-  isNookRevealed,
-  enterNook,
   checkNookDiscovery,
+  enterNook,
+  isNookRevealed,
   type NookDef,
+  revealNook,
+  validateNookEntry,
 } from "../nook-system";
-import { tileKey } from "@old-town/shared";
+import { handleObjectIntent } from "../object-interaction-router";
 
 const HIDDEN_NOOK: NookDef = {
   id: "sewer_cache",
@@ -176,7 +176,7 @@ function setup() {
   addOpenTiles(map);
   const collision = new CollisionMap(map);
   const deltas = new DeltaAccumulator();
-  const actionRuntime = new ActionRuntime();
+  const actionQueue = new ActionQueue();
   const registries = makeRegistries({
     object: new Map([[NOOK_DOOR_DEF.id, NOOK_DOOR_DEF]]),
     item: new Map([[CELLAR_KEY_DEF.id, CELLAR_KEY_DEF]]),
@@ -186,17 +186,22 @@ function setup() {
     world,
     collision,
     deltas,
-    actionRuntime,
+    actionQueue,
     registries,
     rng: { nextFloat: () => 0, nextInt: () => 0, chanceOneIn: () => false },
     itemAudit: undefined,
   };
-  return { ctx, world, deltas, actionRuntime };
+  return { ctx, world, deltas, actionQueue };
 }
 
 function setupNookCtx() {
   const { ctx, world, deltas } = setup();
-  return { ctx: { world, deltas } as import("../nook-system").NookSystemContext, world, deltas, registries: ctx.registries };
+  return {
+    ctx: { world, deltas } as import("../nook-system").NookSystemContext,
+    world,
+    deltas,
+    registries: ctx.registries,
+  };
 }
 
 describe("nook entry validation", () => {
@@ -214,7 +219,9 @@ describe("nook entry validation", () => {
 
     const result = validateNookEntry(ctx, player, ITEM_GATED_NOOK, 0);
     expect(result.ok).toBe(false);
-    expect(result.reason).toContain("item");
+    if (!result.ok) {
+      expect(result.reason).toContain("item");
+    }
   });
 
   it("passes when required item is present", () => {
@@ -235,7 +242,9 @@ describe("nook entry validation", () => {
 
     const result = validateNookEntry(ctx, player, QUEST_GATED_NOOK, 0);
     expect(result.ok).toBe(false);
-    expect(result.reason).toContain("quest");
+    if (!result.ok) {
+      expect(result.reason).toContain("quest");
+    }
   });
 
   it("passes when required quest is completed", () => {
@@ -258,7 +267,9 @@ describe("nook entry validation", () => {
 
     const result = validateNookEntry(ctx, player, LEVEL_GATED_NOOK, 0);
     expect(result.ok).toBe(false);
-    expect(result.reason).toContain("level 30");
+    if (!result.ok) {
+      expect(result.reason).toContain("level 30");
+    }
   });
 
   it("passes when required level is met", () => {
@@ -279,7 +290,9 @@ describe("nook entry validation", () => {
 
     const result = validateNookEntry(ctx, player, TIME_GATED_NOOK, noon);
     expect(result.ok).toBe(false);
-    expect(result.reason).toContain("not accessible");
+    if (!result.ok) {
+      expect(result.reason).toContain("not accessible");
+    }
   });
 
   it("passes when inside time window", () => {
@@ -444,9 +457,14 @@ describe("nook object interaction router", () => {
     const player = addPlayer(ctx.world, 5, 5);
     const door = addNookDoor(ctx.world, "nook_door", "sewer_cache", 5, 5);
 
-    const result = handleObjectIntent(ctx, player, { actionId: "enter", objectEntityId: door }, 0, 0, [
-      HIDDEN_NOOK,
-    ]);
+    const result = handleObjectIntent(
+      ctx,
+      player,
+      { actionId: "enter", objectEntityId: door },
+      0,
+      0,
+      [HIDDEN_NOOK],
+    );
     expect(result).toBe(true);
 
     const position = world.getComponent(player, "position");
@@ -464,9 +482,14 @@ describe("nook object interaction router", () => {
     const door = addNookDoor(ctx.world, "nook_door", "sewer_cache", 5, 5);
     const gated = { ...HIDDEN_NOOK, requiredItem: "cellar_key" };
 
-    const result = handleObjectIntent(ctx, player, { actionId: "enter", objectEntityId: door }, 0, 0, [
-      gated,
-    ]);
+    const result = handleObjectIntent(
+      ctx,
+      player,
+      { actionId: "enter", objectEntityId: door },
+      0,
+      0,
+      [gated],
+    );
     expect(result).toBe(true);
 
     const position = world.getComponent(player, "position");
@@ -510,7 +533,13 @@ describe("nook object interaction router", () => {
     });
     const customCtx = { ...ctx, registries };
 
-    const result = handleObjectIntent(customCtx, player, { actionId: "enter", objectEntityId: door }, 0, 0);
+    const result = handleObjectIntent(
+      customCtx,
+      player,
+      { actionId: "enter", objectEntityId: door },
+      0,
+      0,
+    );
     expect(result).toBe(true);
 
     const position = world.getComponent(player, "position");

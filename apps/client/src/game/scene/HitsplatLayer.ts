@@ -2,14 +2,17 @@ import type { HitsplatType } from "@old-town/shared";
 import { GAME_TICK_MS } from "@old-town/shared";
 import type { Scene, Vector3 } from "three";
 import { CanvasTexture, Group, Sprite, SpriteMaterial } from "three";
+import { RenderObjectPool } from "../renderer/RenderObjectPool";
 
 interface Hitsplat {
+  readonly id: number;
   readonly entityId: number;
   readonly amount: number;
   readonly type: HitsplatType;
   readonly startTick: number;
-  readonly startTime: number;
+  readonly startServerTimeMs: number;
   readonly sprite: Sprite;
+  readonly material: SpriteMaterial;
   readonly texture: CanvasTexture;
 }
 
@@ -108,17 +111,42 @@ function createHitsplatTexture(amount: number, type: HitsplatType): CanvasTextur
  * interpolated at frame rate for smooth rising and fade, but the hitsplat is
  * removed on the exact tick boundary so timing is deterministic and resilient
  * to frame drops or reconnects.
+ *
+ * Sprites are pooled; each hitsplat still creates a unique CanvasTexture, but
+ * the Sprite and its material lifecycle are managed by the pool to avoid hot-path
+ * allocation.
  */
 export class HitsplatLayer {
   private readonly scene: Scene;
   private readonly hitsplats = new Map<number, Hitsplat>();
   private readonly group = new Group();
+  private readonly spritePool: RenderObjectPool<Sprite>;
   private _nextId = 1;
 
   constructor(options: HitsplatLayerOptions) {
     this.scene = options.scene;
     this.group.name = "hitsplats";
     this.scene.add(this.group);
+    this.spritePool = new RenderObjectPool<Sprite>({
+      create: () => {
+        const sprite = new Sprite();
+        sprite.position.set(0, 1.15, 0);
+        sprite.scale.set(HITSPLAT_SCALE, HITSPLAT_SCALE, 1);
+        return sprite;
+      },
+      reset: (sprite) => {
+        sprite.visible = false;
+        sprite.position.set(0, 1.15, 0);
+        sprite.scale.set(HITSPLAT_SCALE, HITSPLAT_SCALE, 1);
+        // @ts-expect-error Three.js allows null material at runtime
+        sprite.material = null;
+        if (sprite.parent) {
+          sprite.parent.remove(sprite);
+        }
+      },
+      initialSize: 8,
+      maxSize: 64,
+    });
   }
 
   /**
@@ -130,21 +158,25 @@ export class HitsplatLayer {
    * @param tick      The authoritative server tick this hitsplat was created on.
    */
   show(entityId: number, amount: number, type: HitsplatType, tick: number): void {
+    const sprite = this.spritePool.acquire();
+    if (!sprite) return;
+
     const id = this._nextId++;
     const texture = createHitsplatTexture(amount, type);
     const material = new SpriteMaterial({ map: texture, transparent: true, depthTest: false });
-    const sprite = new Sprite(material);
-    sprite.position.set(0, 1.15, 0);
-    sprite.scale.set(HITSPLAT_SCALE, HITSPLAT_SCALE, 1);
+    sprite.material = material;
+    sprite.visible = true;
 
     this.group.add(sprite);
     this.hitsplats.set(id, {
+      id,
       entityId,
       amount,
       type,
       startTick: tick,
-      startTime: performance.now(),
+      startServerTimeMs: tick * GAME_TICK_MS,
       sprite,
+      material,
       texture,
     });
   }
@@ -152,12 +184,11 @@ export class HitsplatLayer {
   /**
    * Update positions and lifetimes of all active hitsplats.
    *
-   * @param currentTick      The authoritative server tick the client is currently on.
-   * @param entityPositions  Map of entity IDs to their interpolated world positions.
+   * @param currentTick         The authoritative server tick the client is currently on.
+   * @param renderServerTimeMs  The render server time in milliseconds.
+   * @param entityPositions     Map of entity IDs to their interpolated world positions.
    */
-  update(currentTick: number, entityPositions: Map<number, Vector3>): void {
-    const now = performance.now();
-
+  update(currentTick: number, renderServerTimeMs: number, entityPositions: Map<number, Vector3>): void {
     for (const [id, hitsplat] of this.hitsplats) {
       const tickAge = currentTick - hitsplat.startTick;
 
@@ -173,8 +204,8 @@ export class HitsplatLayer {
         continue;
       }
 
-      // Smooth visual interpolation within the tick.
-      const elapsedMs = now - hitsplat.startTime;
+      // Smooth visual interpolation within the tick using server time.
+      const elapsedMs = renderServerTimeMs - hitsplat.startServerTimeMs;
       const totalMs = HITSPLAT_LIFETIME_TICKS * GAME_TICK_MS;
       const timeProgress = Math.min(1, elapsedMs / totalMs);
 
@@ -183,8 +214,7 @@ export class HitsplatLayer {
       hitsplat.sprite.position.y = pos.y + 1.15;
 
       // Fade out during the last 30% of the lifetime.
-      const material = hitsplat.sprite.material as SpriteMaterial;
-      material.opacity = timeProgress > 0.7 ? 1 - (timeProgress - 0.7) / 0.3 : 1;
+      hitsplat.material.opacity = timeProgress > 0.7 ? 1 - (timeProgress - 0.7) / 0.3 : 1;
     }
   }
 
@@ -196,14 +226,28 @@ export class HitsplatLayer {
 
   dispose(): void {
     this.clear();
+    this.spritePool.dispose();
     this.scene.remove(this.group);
+  }
+
+  /** Number of active hitsplats. */
+  get activeHitsplats(): number {
+    return this.hitsplats.size;
+  }
+
+  /** Total sprite pool size (active + idle). */
+  get poolSize(): number {
+    return this.spritePool.poolSize;
   }
 
   private _remove(id: number): void {
     const hitsplat = this.hitsplats.get(id);
     if (!hitsplat) return;
     this.group.remove(hitsplat.sprite);
-    hitsplat.sprite.material.dispose();
+    // @ts-expect-error Three.js allows null material at runtime
+    hitsplat.sprite.material = null;
+    this.spritePool.release(hitsplat.sprite);
+    hitsplat.material.dispose();
     hitsplat.texture.dispose();
     this.hitsplats.delete(id);
   }

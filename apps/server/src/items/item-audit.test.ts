@@ -2,7 +2,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { join, relative } from "node:path";
 import { entityId, type ItemTransactionAuditRecord } from "@old-town/shared";
 import { describe, expect, it, vi } from "vitest";
-import { MemoryPersistenceAdapter } from "../persistence";
+import { MemoryPersistenceAdapter } from "../persistence/adapter";
 import { ItemAuditLog } from "./item-audit";
 
 describe("ItemAuditLog", () => {
@@ -73,10 +73,14 @@ describe("ItemAuditLog", () => {
       "net/dev-session.ts",
       "quests/effects.ts",
       "systems/bank-system.ts",
+      "systems/charter-system.ts",
       "systems/contract-system.ts",
+      "systems/favour-advanced-system.ts",
       "systems/favour-system.ts",
       "systems/ground-item-system.ts",
       "systems/ledger-system.ts",
+      "systems/public-works-system.ts",
+      "systems/service-fee-system.ts",
       "systems/shop-system.ts",
       "systems/skilling-system.ts",
       "systems/spell-system.ts",

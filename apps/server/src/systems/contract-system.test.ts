@@ -1,13 +1,13 @@
+import { tileKey } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { createWorld, type World } from "../ecs/world";
 import { createInventory } from "../items/inventory";
-import { ActionRuntime } from "../sim/action-runtime";
+import { ActionQueue } from "../sim/action-queue";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
 import { handleObjectIntent } from "./object-interaction-router";
-import { tileKey } from "@old-town/shared";
 
 const WARDEN_BOARD_DEF = {
   id: "warden_board",
@@ -146,7 +146,7 @@ function setup() {
   addOpenTiles(map);
   const collision = new CollisionMap(map);
   const deltas = new DeltaAccumulator();
-  const actionRuntime = new ActionRuntime();
+  const actionQueue = new ActionQueue();
   const registries = makeRegistries({
     object: new Map([[WARDEN_BOARD_DEF.id, WARDEN_BOARD_DEF]]),
     item: new Map([[COIN_DEF.id, COIN_DEF]]),
@@ -163,7 +163,7 @@ function setup() {
     world,
     collision,
     deltas,
-    actionRuntime,
+    actionQueue,
     registries,
     rng: { nextFloat: () => 0, nextInt: () => 0, chanceOneIn: () => false },
     itemAudit: undefined,
@@ -177,7 +177,12 @@ describe("contract runtime state machine", () => {
     const player = addPlayer(world, 1, 1);
     const board = addWardenBoard(world, 2, 1);
 
-    const result = handleObjectIntent(ctx, player, { actionId: "accept", objectEntityId: board }, 0);
+    const result = handleObjectIntent(
+      ctx,
+      player,
+      { actionId: "accept", objectEntityId: board },
+      0,
+    );
     expect(result).toBe(true);
 
     const vars = world.getComponent(player, "vars");
@@ -204,7 +209,12 @@ describe("contract runtime state machine", () => {
       expiryTick: 0,
     });
 
-    const result = handleObjectIntent(ctx, player, { actionId: "accept", objectEntityId: board }, 0);
+    const result = handleObjectIntent(
+      ctx,
+      player,
+      { actionId: "accept", objectEntityId: board },
+      0,
+    );
     expect(result).toBe(true);
 
     const chat = deltas.peek().chat;
@@ -219,7 +229,12 @@ describe("contract runtime state machine", () => {
     const beforeContract = world.getComponent(board, "contract");
     expect(beforeContract?.status).toBe("available");
 
-    const result = handleObjectIntent(ctx, player, { actionId: "accept", objectEntityId: board }, 0);
+    const result = handleObjectIntent(
+      ctx,
+      player,
+      { actionId: "accept", objectEntityId: board },
+      0,
+    );
     expect(result).toBe(true);
 
     const afterContract = world.getComponent(board, "contract");
@@ -240,7 +255,13 @@ describe("contract runtime state machine", () => {
     contract.expiryTick = 5;
     world.setComponent(board, "contract", contract);
 
-    const result = handleObjectIntent(ctx, player, { actionId: "accept", objectEntityId: board }, 0, 10);
+    const result = handleObjectIntent(
+      ctx,
+      player,
+      { actionId: "accept", objectEntityId: board },
+      0,
+      10,
+    );
     expect(result).toBe(true);
 
     const afterContract = world.getComponent(board, "contract");

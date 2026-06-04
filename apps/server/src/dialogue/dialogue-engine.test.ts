@@ -10,7 +10,7 @@ import {
 import { describe, expect, it } from "vitest";
 import { createWorld, type World } from "../ecs/world";
 import { createInventory } from "../items/inventory";
-import { ActionRuntime } from "../sim/action-runtime";
+import { ActionQueue } from "../sim/action-queue";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
@@ -160,7 +160,7 @@ function setup(): {
       world,
       collision: new CollisionMap(createRuntimeMap()),
       deltas,
-      actionRuntime: new ActionRuntime(),
+      actionQueue: new ActionQueue(),
       registries: registries(),
     },
   };

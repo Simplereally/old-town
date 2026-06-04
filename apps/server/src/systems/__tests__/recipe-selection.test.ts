@@ -1,20 +1,20 @@
 import type { ItemDef, ObjectDef, ProcessingRecipeDef, SkillDef } from "@old-town/shared";
 import { createRng, entityId } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
-import { ChatSystem } from "../../systems/chat-system";
-import { ConsumableSystem } from "../../systems/consumable-system";
 import { createWorld } from "../../ecs/world";
 import { addItem, catalogFromItems, createInventory } from "../../items/inventory";
 import { ItemAuditLog } from "../../items/item-audit";
+import { ActionQueue } from "../../sim/action-queue";
 import { CommandBuffer } from "../../sim/command-buffer";
-import { dispatchIntentGroup } from "../../sim/intent-dispatcher";
-import { ActionRuntime } from "../../sim/action-runtime";
 import { DeltaAccumulator } from "../../sim/delta-accumulator";
+import { dispatchIntentGroup } from "../../sim/intent-dispatcher";
+import { ChatSystem } from "../../systems/chat-system";
+import { ConsumableSystem } from "../../systems/consumable-system";
 import { makeRegistries } from "../../test-support/registries";
 import { CollisionFlag, CollisionMap } from "../../world/collision";
 import { createRuntimeMap } from "../../world/runtime-map";
-import { handleRecipeSelect, handleObjectSkillingIntent, handleProcess } from "../skilling-system";
 import type { ProcessActionPayload } from "../skilling-system";
+import { handleObjectSkillingIntent, handleProcess, handleRecipeSelect } from "../skilling-system";
 
 const PLAYER = entityId(0);
 const FIRE = entityId(1);
@@ -158,17 +158,17 @@ function setup() {
 
   const itemAudit = new ItemAuditLog();
   const collision = new CollisionMap(createRuntimeMap());
-  const actionRuntime = new ActionRuntime();
+  const actionQueue = new ActionQueue();
   const ctx = {
     world,
     registries,
     deltas,
     itemAudit,
     collision,
-    actionRuntime,
+    actionQueue,
     rng: createRng(1),
   };
-  return { world, deltas, ctx, registries, itemAudit, collision, actionRuntime };
+  return { world, deltas, ctx, registries, itemAudit, collision, actionQueue };
 }
 
 function setupSingleRecipe() {
@@ -213,17 +213,17 @@ function setupSingleRecipe() {
 
   const itemAudit = new ItemAuditLog();
   const collision = new CollisionMap(createRuntimeMap());
-  const actionRuntime = new ActionRuntime();
+  const actionQueue = new ActionQueue();
   const ctx = {
     world,
     registries,
     deltas,
     itemAudit,
     collision,
-    actionRuntime,
+    actionQueue,
     rng: createRng(1),
   };
-  return { world, deltas, ctx, registries, itemAudit, collision, actionRuntime };
+  return { world, deltas, ctx, registries, itemAudit, collision, actionQueue };
 }
 
 describe("recipe selection", () => {
@@ -324,7 +324,7 @@ describe("recipe selection", () => {
     const result = handleRecipeSelect(ctx, PLAYER, FIRE, "cook_fish", 0, 1);
     expect(result).toBe(true);
 
-    const queue = ctx.actionRuntime.getDebugState().filter((e) => e.owner === PLAYER);
+    const queue = ctx.actionQueue.getDebugState().filter((e) => e.owner === PLAYER);
     expect(queue).toBeDefined();
     expect(queue.length).toBe(1);
     expect(queue[0]?.payload).toMatchObject({
@@ -410,7 +410,7 @@ describe("recipe selection", () => {
     const result = handleRecipeSelect(ctx, PLAYER, FIRE, "cook_fish", 0, 1);
     expect(result).toBe(true);
 
-    const queue = ctx.actionRuntime.getDebugState().filter((e) => e.owner === PLAYER);
+    const queue = ctx.actionQueue.getDebugState().filter((e) => e.owner === PLAYER);
     expect(queue.length).toBe(1);
     expect(queue[0]?.payload).toMatchObject({
       kind: "begin_process",
@@ -431,10 +431,7 @@ describe("recipe selection", () => {
     world.setComponent(FIRE, "position", { entityId: FIRE, x: 0, y: 0, plane: 0 });
 
     // Block line of sight on the fire tile
-    collision.addDynamic(
-      { x: 0, y: 0, plane: 0 },
-      CollisionFlag.BLOCK_LOS_FULL,
-    );
+    collision.addDynamic({ x: 0, y: 0, plane: 0 }, CollisionFlag.BLOCK_LOS_FULL);
 
     const result = handleRecipeSelect(ctx, PLAYER, FIRE, "cook_fish", 0, 1);
     expect(result).toBe(false);
@@ -456,7 +453,7 @@ describe("recipe processing", () => {
     const result = handleRecipeSelect(ctx, PLAYER, FIRE, "cook_fish", 0, 1);
     expect(result).toBe(true);
 
-    const queue = ctx.actionRuntime.getDebugState().filter((e) => e.owner === PLAYER);
+    const queue = ctx.actionQueue.getDebugState().filter((e) => e.owner === PLAYER);
     expect(queue.length).toBe(1);
     expect(queue[0]?.payload).toMatchObject({
       kind: "process",
@@ -477,7 +474,7 @@ describe("recipe processing", () => {
     const result = handleRecipeSelect(ctx, PLAYER, FIRE, "cook_fish", 0, 1);
     expect(result).toBe(true);
 
-    const queue = ctx.actionRuntime.getDebugState().filter((e) => e.owner === PLAYER);
+    const queue = ctx.actionQueue.getDebugState().filter((e) => e.owner === PLAYER);
     expect(queue.length).toBe(1);
     expect(queue[0]?.payload).toMatchObject({
       kind: "begin_process",
@@ -495,7 +492,7 @@ describe("recipe processing", () => {
 
     handleRecipeSelect(ctx, PLAYER, FIRE, "cook_fish", 0, 1);
 
-    const executions = ctx.actionRuntime.advanceTick();
+    const executions = ctx.actionQueue.advanceTick();
     expect(executions.length).toBe(1);
     const execution = executions[0];
     if (!execution) throw new Error("expected process execution");
@@ -548,7 +545,7 @@ describe("recipe processing", () => {
 
     handleRecipeSelect(ctxWithFailure, PLAYER, FIRE, "cook_fish", 0, 1);
 
-    const executions = ctxWithFailure.actionRuntime.advanceTick();
+    const executions = ctxWithFailure.actionQueue.advanceTick();
     expect(executions.length).toBe(1);
     const execution = executions[0];
     if (!execution) throw new Error("expected process execution");
@@ -578,7 +575,7 @@ describe("recipe processing", () => {
 
     handleRecipeSelect(ctx, PLAYER, FIRE, "cook_fish", 0, 1);
 
-    const executions = ctx.actionRuntime.advanceTick();
+    const executions = ctx.actionQueue.advanceTick();
     expect(executions.length).toBe(1);
     const execution = executions[0];
     if (!execution) throw new Error("expected process execution");
@@ -593,7 +590,7 @@ describe("recipe processing", () => {
     expect(inventory.slots.some((s) => s?.itemId === "raw_fish")).toBe(false);
 
     // Second tick should cancel the action because input is exhausted
-    const nextExecutions = ctx.actionRuntime.advanceTick();
+    const nextExecutions = ctx.actionQueue.advanceTick();
     if (nextExecutions.length > 0) {
       const nextExecution = nextExecutions[0];
       if (nextExecution) {
@@ -601,7 +598,7 @@ describe("recipe processing", () => {
       }
     }
 
-    expect(ctx.actionRuntime.getDebugState().filter((e) => e.owner === PLAYER)).toEqual([]);
+    expect(ctx.actionQueue.getDebugState().filter((e) => e.owner === PLAYER)).toEqual([]);
     expect(ctx.deltas.peek().chat?.at(-1)?.text).toBe("You have nothing suitable to cook.");
   });
 });
@@ -662,7 +659,7 @@ describe("recipe validation", () => {
     const result = handleRecipeSelect(ctx, PLAYER, FIRE, "cook_fish", 0, 1);
     expect(result).toBe(true);
 
-    const queue = ctx.actionRuntime.getDebugState().filter((e) => e.owner === PLAYER);
+    const queue = ctx.actionQueue.getDebugState().filter((e) => e.owner === PLAYER);
     expect(queue[0]?.payload).toMatchObject({
       kind: "begin_process",
       stationEntityId: FIRE,
@@ -700,7 +697,7 @@ describe("intent dispatch", () => {
       world: ctx.world,
       collision: ctx.collision,
       deltas: ctx.deltas,
-      actionRuntime: ctx.actionRuntime,
+      actionQueue: ctx.actionQueue,
       registries: ctx.registries,
       rng: ctx.rng,
       chatSystem: new ChatSystem(),
@@ -710,7 +707,7 @@ describe("intent dispatch", () => {
 
     dispatchIntentGroup(dispatcherCtx, group, 1, 0);
 
-    const queue = ctx.actionRuntime.getDebugState().filter((e) => e.owner === PLAYER);
+    const queue = ctx.actionQueue.getDebugState().filter((e) => e.owner === PLAYER);
     expect(queue.length).toBe(1);
     expect(queue[0]?.payload).toMatchObject({
       kind: "process",

@@ -44,4 +44,27 @@ describe("GroundItemLayer", () => {
     layer.clear();
     expect(layer.itemCount).toBe(0);
   });
+
+  it("reuses meshes after spawn/remove cycles", () => {
+    layer.spawn(ID1, TILE, "coin", 1);
+    const poolSizeBefore = layer.poolSize;
+    layer.remove(ID1);
+    layer.spawn(ID2, TILE, "gem", 1);
+    expect(layer.poolSize).toBe(poolSizeBefore);
+  });
+
+  it("preserves raycast targets", () => {
+    layer.spawn(ID1, TILE, "coin", 1);
+    layer.spawn(ID2, TILE, "gem", 1);
+    const targets = layer.getRaycastTargets();
+    expect(targets.length).toBe(2);
+    expect(targets[0]?.name).toBe("item_1");
+    expect(targets[1]?.name).toBe("item_2");
+  });
+
+  it("exposes pool stats", () => {
+    layer.spawn(ID1, TILE, "coin", 1);
+    expect(layer.itemCount).toBe(1);
+    expect(layer.poolSize).toBeGreaterThanOrEqual(1);
+  });
 });

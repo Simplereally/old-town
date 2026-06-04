@@ -1,14 +1,19 @@
+import type { ContractDef } from "@old-town/shared";
+import { tileKey } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { createWorld, type World } from "../ecs/world";
 import { createInventory } from "../items/inventory";
-import { ActionRuntime } from "../sim/action-runtime";
+import { ActionQueue } from "../sim/action-queue";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
-import { tileKey } from "@old-town/shared";
-import type { ContractDef } from "@old-town/shared";
-import { updateContractObjective, checkContractCompletion, trackContractObjective, handleContractAcceptIntent } from "./contract-system";
+import {
+  checkContractCompletion,
+  handleContractAcceptIntent,
+  trackContractObjective,
+  updateContractObjective,
+} from "./contract-system";
 
 const CONTRACT_DEF = {
   id: "slay_goblins",
@@ -61,7 +66,11 @@ function addPlayer(world: World, x = 1, y = 1): import("@old-town/shared").Entit
   return entityId;
 }
 
-function addContractEntity(world: World, contractId: string, status: "accepted" | "completed" = "accepted"): import("@old-town/shared").EntityId {
+function addContractEntity(
+  world: World,
+  contractId: string,
+  status: "accepted" | "completed" = "accepted",
+): import("@old-town/shared").EntityId {
   const entityId = world.createEntity();
   const def = contractId === "slay_goblins" ? CONTRACT_DEF : COLLECT_CONTRACT_DEF;
   world.setComponent(entityId, "contract", {
@@ -82,7 +91,12 @@ function addContractEntity(world: World, contractId: string, status: "accepted" 
   return entityId;
 }
 
-function addWardenBoard(world: World, contractId: string, x = 2, y = 1): import("@old-town/shared").EntityId {
+function addWardenBoard(
+  world: World,
+  contractId: string,
+  x = 2,
+  y = 1,
+): import("@old-town/shared").EntityId {
   const entityId = world.createEntity();
   const def = contractId === "slay_goblins" ? CONTRACT_DEF : COLLECT_CONTRACT_DEF;
   world.setComponent(entityId, "position", { entityId, x, y, plane: 0 });
@@ -131,7 +145,7 @@ function setup() {
   addOpenTiles(map);
   const collision = new CollisionMap(map);
   const deltas = new DeltaAccumulator();
-  const actionRuntime = new ActionRuntime();
+  const actionQueue = new ActionQueue();
   const registries = makeRegistries({
     contract: new Map<string, ContractDef>([
       [CONTRACT_DEF.id, CONTRACT_DEF as ContractDef],
@@ -158,7 +172,7 @@ function setup() {
     world,
     collision,
     deltas,
-    actionRuntime,
+    actionQueue,
     registries,
     rng: { nextFloat: () => 0, nextInt: () => 0, chanceOneIn: () => false },
     itemAudit: undefined,

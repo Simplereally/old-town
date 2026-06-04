@@ -17,11 +17,11 @@ Implement advanced status effects (poison, burn, freeze, buffs/debuffs) and drop
 
 ## Completion checklist
 
-- [ ] Complete the stories below in exact order.
-- [ ] Run all validation commands listed by completed stories.
-- [ ] Confirm no unchecked acceptance criteria remain in this epic's stories.
-- [ ] Move completed story files into `tasks/completed/stories/E29/`.
-- [ ] Move this epic file into `tasks/completed/epics/` after all stories are complete.
+- [X] Complete the stories below in exact order.
+- [X] Run all validation commands listed by completed stories.
+- [X] Confirm no unchecked acceptance criteria remain in this epic's stories.
+- [X] Move completed story files into `tasks/completed/stories/E29/`.
+- [X] Move this epic file into `tasks/completed/epics/` after all stories are complete.
 
 ## Ordered stories
 
@@ -30,6 +30,6 @@ Implement advanced status effects (poison, burn, freeze, buffs/debuffs) and drop
 
 ## Epic acceptance criteria
 
-- [ ] All listed story files are complete and moved to the completed folder.
-- [ ] The implementation still preserves server authority, integer tile truth, 600ms tick semantics, content-driven definitions, and client-only presentation.
-- [ ] No later epic has been implemented in a way that bypasses this epic's contracts.
+- [X] All listed story files are complete and moved to the completed folder.
+- [X] The implementation still preserves server authority, integer tile truth, 600ms tick semantics, content-driven definitions, and client-only presentation.
+- [X] No later epic has been implemented in a way that bypasses this epic's contracts.

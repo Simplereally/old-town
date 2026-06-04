@@ -12,5 +12,8 @@
   },
   "dependencies": {
     "@old-town/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.0"
   }
 }

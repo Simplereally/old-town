@@ -14,8 +14,8 @@ import { applyEffects } from "../quests/effects";
 import { dispatchQuestEvent } from "../quests/quest-engine";
 import { meetsAllRequirements } from "../quests/requirements";
 import type { ActionHandler } from "../sim/action-executor";
+import type { ActionQueue } from "../sim/action-queue";
 import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
-import type { ActionRuntime } from "../sim/action-runtime";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { type InteractionTarget, resolveInteraction } from "../systems/interaction-reach";
 import { handleMoveIntent } from "../systems/movement-system";
@@ -26,7 +26,7 @@ export interface DialogueContext {
   readonly world: World;
   readonly collision: CollisionMap;
   readonly deltas: DeltaAccumulator;
-  readonly actionRuntime: ActionRuntime;
+  readonly actionQueue: ActionQueue;
   readonly registries: ContentRegistries;
   readonly itemAudit?: ItemAuditLog | undefined;
 }
@@ -104,7 +104,7 @@ function dialogueTarget(
 
 function enqueueBeginDialogue(ctx: DialogueContext, owner: EntityId, npcEntityId: EntityId): void {
   const payload: BeginDialogueActionPayload = { kind: "begin_dialogue", npcEntityId };
-  ctx.actionRuntime.enqueue({
+  ctx.actionQueue.enqueue({
     id: actionId("begin-dialogue", owner),
     owner,
     type: ActionQueueType.Weak,
@@ -227,13 +227,7 @@ function handleNpcDialogue(
     },
   );
   if (resolution.kind === "ready") {
-    dispatchQuestEvent(
-      ctx,
-      owner,
-      { kind: "dialogue", npcId: npcDef.id },
-      serverTime,
-      tick,
-    );
+    dispatchQuestEvent(ctx, owner, { kind: "dialogue", npcId: npcDef.id }, serverTime, tick);
     openDialogueNode(
       ctx,
       owner,
@@ -344,11 +338,11 @@ export function handleBeginDialogue(
     false,
   );
   if (!handled) {
-    ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
+    ctx.actionQueue.cancel(action.entry.owner, { id: action.entry.id });
     return;
   }
   if (ctx.world.hasComponent(action.entry.owner, "dialogue")) {
-    ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
+    ctx.actionQueue.cancel(action.entry.owner, { id: action.entry.id });
   }
 }
 

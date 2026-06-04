@@ -9,7 +9,7 @@ import { loadContent } from "../content-loader";
 import { handleDialogueUiIntent, handleNpcDialogueIntent } from "../dialogue/dialogue-engine";
 import { createWorld, type World } from "../ecs/world";
 import { addItem, catalogFromItems, count, createInventory } from "../items/inventory";
-import { ActionRuntime } from "../sim/action-runtime";
+import { ActionQueue } from "../sim/action-queue";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { getBooleanVar, getNumberVar, getQuestStage } from "../vars/player-vars";
 import { CollisionMap } from "../world/collision";
@@ -23,7 +23,7 @@ interface SmokeQuestHarness {
   readonly world: World;
   readonly registries: ContentRegistries;
   readonly deltas: DeltaAccumulator;
-  readonly actionRuntime: ActionRuntime;
+  readonly actionQueue: ActionQueue;
   readonly collision: CollisionMap;
   readonly quest: QuestDef;
 }
@@ -72,7 +72,7 @@ function setup(): SmokeQuestHarness {
     world,
     registries: seedContent,
     deltas: new DeltaAccumulator(),
-    actionRuntime: new ActionRuntime(),
+    actionQueue: new ActionQueue(),
     collision: new CollisionMap(createRuntimeMap()),
     quest,
   };

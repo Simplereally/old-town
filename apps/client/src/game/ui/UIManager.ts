@@ -28,6 +28,11 @@ export class UIManager {
     "bank-panel",
     "shop-panel",
     "recipe-panel",
+    "minimap-panel",
+    "contract-panel",
+    "status-effects-panel",
+    "death-screen",
+    "notification-toast",
   ];
   private readonly keyBindings: Record<string, string> = {
     i: "inventory-panel",
@@ -38,6 +43,8 @@ export class UIManager {
     c: "chat-box",
     b: "bank-panel",
     s: "shop-panel",
+    ",": "minimap-panel",
+    ".": "contract-panel",
     d: "debug-overlay",
   };
   private _unsubscribe: (() => void) | undefined;
@@ -205,6 +212,11 @@ export class UIManager {
     this._renderBank();
     this._renderShop();
     this._renderRecipes();
+    this._renderMinimap();
+    this._renderContract();
+    this._renderStatusEffects();
+    this._renderDeathScreen();
+    this._renderNotifications();
   }
 
   private _renderInventory(): void {
@@ -651,6 +663,119 @@ export class UIManager {
                            : `You failed to make ${productName}.`);
     } else {
       feedbackEl.classList.add("hidden");
+    }
+  }
+
+  private _renderMinimap(): void {
+    const canvas = document.getElementById("minimap-canvas") as HTMLCanvasElement | null;
+    const panel = document.getElementById("minimap-panel");
+    if (!canvas || !panel) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const tiles = this.uiState.minimapTiles;
+    const playerTile = this.uiState.minimapPlayerTile;
+    const entities = this.uiState.minimapEntities;
+
+    const tileSize = 4;
+    const offsetX = canvas.width / 2;
+    const offsetY = canvas.height / 2;
+
+    if (playerTile) {
+      const baseX = playerTile.x * tileSize;
+      const baseY = playerTile.y * tileSize;
+      for (const [, tile] of tiles) {
+        const dx = tile.x * tileSize - baseX;
+        const dy = tile.y * tileSize - baseY;
+        ctx.fillStyle = tile.water ? "#4466aa" : "#3a5a3a";
+        ctx.fillRect(offsetX + dx, offsetY + dy, tileSize, tileSize);
+      }
+      for (const [, entity] of entities) {
+        const dx = entity.tile.x * tileSize - baseX;
+        const dy = entity.tile.y * tileSize - baseY;
+        const color = entity.kind === "player" ? "#ffcc00" : entity.kind === "npc" ? "#ff4444" : "#888888";
+        ctx.fillStyle = color;
+        ctx.fillRect(offsetX + dx, offsetY + dy, tileSize, tileSize);
+      }
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(offsetX - 1, offsetY - 1, 2, 2);
+    }
+  }
+
+  private _renderContract(): void {
+    const body = document.getElementById("contract-body");
+    const panel = document.getElementById("contract-panel");
+    const bar = document.getElementById("contract-progress-bar");
+    const fill = document.getElementById("contract-progress-fill");
+    if (!body || !panel || !bar || !fill) return;
+
+    const contract = this.uiState.activeContract;
+    if (!contract) {
+      body.innerHTML = '<div class="text-dim">No active contract.</div>';
+      bar.style.display = "none";
+      return;
+    }
+
+    bar.style.display = "block";
+    const pct = contract.required > 0 ? Math.min(100, (contract.current / contract.required) * 100) : 0;
+    fill.style.width = `${pct}%`;
+
+    body.innerHTML = `
+      <div class="text-bright">${contract.objectiveKind}</div>
+      <div class="text-muted">${contract.current} / ${contract.required}</div>
+    `;
+    body.appendChild(bar);
+  }
+
+  private _renderStatusEffects(): void {
+    const panel = document.getElementById("status-effects-panel");
+    if (!panel) return;
+    const effects = this.uiState.statusEffects;
+    if (effects.length === 0) {
+      panel.classList.add("hidden");
+      return;
+    }
+    panel.classList.remove("hidden");
+    panel.innerHTML = "";
+    for (const effect of effects) {
+      const badge = document.createElement("div");
+      badge.classList.add("status-effect-badge");
+      badge.textContent = effect.effectId.slice(0, 2);
+      const dur = document.createElement("span");
+      dur.classList.add("duration");
+      dur.textContent = `${effect.durationTicks}`;
+      badge.appendChild(dur);
+      panel.appendChild(badge);
+    }
+  }
+
+  private _renderDeathScreen(): void {
+    const screen = document.getElementById("death-screen");
+    if (!screen) return;
+    if (this.uiState.deathScreen) {
+      screen.classList.remove("hidden");
+    } else {
+      screen.classList.add("hidden");
+    }
+  }
+
+  private _renderNotifications(): void {
+    const container = document.getElementById("notification-toast");
+    if (!container) return;
+    const notes = this.uiState.notifications;
+    if (notes.length === 0) {
+      container.classList.add("hidden");
+      return;
+    }
+    container.classList.remove("hidden");
+    container.innerHTML = "";
+    for (const note of notes) {
+      const el = document.createElement("div");
+      el.classList.add("toast-item", note.type);
+      el.textContent = note.text;
+      container.appendChild(el);
     }
   }
 

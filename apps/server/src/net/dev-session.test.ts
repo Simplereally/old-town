@@ -8,7 +8,7 @@ import { describe, expect, it } from "vitest";
 import { loadContent } from "../content-loader";
 import { createWorld } from "../ecs/world";
 import { aggregateBonuses } from "../items/equipment";
-import { MemoryPersistenceAdapter, type PersistenceAdapter } from "../persistence";
+import { MemoryPersistenceAdapter, type PersistenceAdapter } from "../persistence/adapter";
 import { loadAllRegionMapsIntoWorld } from "../world/region-loader";
 import { createRuntimeMap } from "../world/runtime-map";
 import { DEV_SPAWN_TILE, DevSessionManager } from "./dev-session";

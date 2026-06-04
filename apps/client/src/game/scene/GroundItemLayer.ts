@@ -30,6 +30,7 @@ export class GroundItemLayer {
       geometry: new OctahedronGeometry(0.22, 0),
       material: new MeshLambertMaterial({ color: 0xf0c33c, flatShading: true }),
       initialSize: 8,
+      maxSize: 128,
     });
   }
 
@@ -70,6 +71,11 @@ export class GroundItemLayer {
 
   get itemCount(): number {
     return this.items.size;
+  }
+
+  /** Total pool size (active + idle). */
+  get poolSize(): number {
+    return this.meshPool.poolSize;
   }
 
   getRaycastTargets(): Mesh[] {

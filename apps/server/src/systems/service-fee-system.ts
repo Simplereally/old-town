@@ -102,7 +102,7 @@ function checkRequirements(
   serverTime: number,
 ): { ok: true } | { ok: false; message: string } {
   if (feeDef.requiresQuest !== undefined) {
-    const vars = ctx.world.getComponent(owner, "var");
+    const vars = ctx.world.getComponent(owner, "vars");
     const questVar = vars?.values[`quest_${feeDef.requiresQuest}`];
     if (questVar === undefined || questVar === 0) {
       return { ok: false, message: "You must complete a required quest first." };
@@ -182,7 +182,7 @@ function applyTeleport(
   const pos = ctx.world.getComponent(owner, "position");
   if (!pos) return "You could not be teleported.";
 
-  const dest: TileCoord = feeDef.destination ?? { x: 0, y: 0, plane: 0 };
+  const dest: TileCoord = feeDef.destination ?? { x: 0, y: 0, plane: 0 as import("@old-town/shared/types/coords").Plane };
   pos.x = dest.x;
   pos.y = dest.y;
   pos.plane = dest.plane;

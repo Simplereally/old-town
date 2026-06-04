@@ -917,6 +917,172 @@
       border: 1px solid #ff4444;
       color: #ff8888;
     }
+
+    /* Minimap panel */
+    #minimap-panel {
+      width: 160px;
+    }
+    #minimap-panel canvas {
+      width: 100%;
+      height: 120px;
+      background: rgba(10, 20, 10, 0.9);
+      border-radius: 2px;
+      image-rendering: pixelated;
+    }
+
+    /* Contract panel */
+    #contract-panel {
+      width: 220px;
+    }
+    #contract-body {
+      font-size: 11px;
+    }
+    #contract-progress-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(40, 40, 50, 0.9);
+      border-radius: 3px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    #contract-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #d4a843;
+      border-radius: 3px;
+      transition: width 0.2s;
+    }
+
+    /* Status effects panel */
+    #status-effects-panel {
+      position: absolute;
+      top: 48px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 4px;
+      z-index: 25;
+      pointer-events: none;
+    }
+    #status-effects-panel.hidden {
+      display: none;
+    }
+    .status-effect-badge {
+      position: relative;
+      width: 28px;
+      height: 28px;
+      background: rgba(20, 20, 30, 0.85);
+      border: 1px solid #555;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      pointer-events: auto;
+    }
+    .status-effect-badge .duration {
+      position: absolute;
+      bottom: 0;
+      right: 2px;
+      font-size: 9px;
+      color: #aaa;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 0 2px;
+      border-radius: 2px;
+      line-height: 1;
+    }
+
+    /* Death screen */
+    #death-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2000;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #ff4444;
+      font-family: "Courier New", monospace;
+      pointer-events: auto;
+    }
+    #death-screen.hidden {
+      display: none;
+    }
+    .death-title {
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      text-shadow: 0 0 16px rgba(255, 0, 0, 0.5);
+    }
+    .death-subtitle {
+      font-size: 14px;
+      color: #ccc;
+      margin-bottom: 24px;
+    }
+    .death-respawn-btn {
+      padding: 12px 24px;
+      background: linear-gradient(180deg, #5a3a3a 0%, #4a2a2a 50%, #3a1a1a 100%);
+      border: 1px solid rgba(180, 80, 80, 0.5);
+      color: #e8dcc8;
+      font-family: "Courier New", monospace;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .death-respawn-btn:hover {
+      background: linear-gradient(180deg, #6a4a4a 0%, #5a3a3a 50%, #4a2a2a 100%);
+    }
+
+    /* Notification toast */
+    #notification-toast {
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1500;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      pointer-events: none;
+      max-width: 320px;
+      width: 100%;
+    }
+    #notification-toast.hidden {
+      display: none;
+    }
+    .toast-item {
+      padding: 8px 14px;
+      border-radius: 4px;
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      text-align: center;
+      animation: toastIn 0.3s ease-out;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+    .toast-item.success {
+      background: rgba(40, 80, 40, 0.9);
+      border: 1px solid #4a9a4a;
+      color: #88ff88;
+    }
+    .toast-item.failure {
+      background: rgba(80, 40, 40, 0.9);
+      border: 1px solid #ff4444;
+      color: #ff8888;
+    }
+    .toast-item.info {
+      background: rgba(40, 60, 80, 0.9);
+      border: 1px solid #4a8aaa;
+      color: #88ccff;
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -1031,6 +1197,19 @@
           <div id="recipe-feedback" class="recipe-feedback hidden"></div>
         </div>
       </div>
+      <div id="minimap-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Minimap</div>
+        <div class="ui-panel-body">
+          <canvas id="minimap-canvas" width="160" height="120"></canvas>
+        </div>
+      </div>
+      <div id="contract-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Contract</div>
+        <div class="ui-panel-body" id="contract-body">
+          <div class="text-dim">No active contract.</div>
+          <div id="contract-progress-bar"><div id="contract-progress-fill"></div></div>
+        </div>
+      </div>
     </div>
     <div id="ui-bottom">
       <div id="chat-box" class="ui-panel hidden chat-box">
@@ -1061,10 +1240,18 @@
       <button type="button" class="ui-bar-btn" data-panel="shop-panel">🏪</button>
       <button type="button" class="ui-bar-btn" data-panel="minimap-panel">🗺️</button>
       <button type="button" class="ui-bar-btn" data-panel="recipe-panel">🔨</button>
+      <button type="button" class="ui-bar-btn" data-panel="contract-panel">📋</button>
       <button type="button" class="ui-bar-btn" data-panel="chat-box">💬</button>
       <button type="button" class="ui-bar-btn" data-panel="debug-overlay">🐛</button>
     </div>
     <div id="spell-target-overlay">Select target for spell (Esc to cancel)</div>
+    <div id="status-effects-panel" class="hidden"></div>
+    <div id="notification-toast" class="hidden"></div>
+  </div>
+  <div id="death-screen" class="hidden">
+    <div class="death-title">You have died</div>
+    <div class="death-subtitle">Your items have been placed in a grave.</div>
+    <button type="button" id="death-respawn-btn" class="death-respawn-btn">Respawn</button>
   </div>
   <script type="module" src="/src/main.ts"></script>
 </body>

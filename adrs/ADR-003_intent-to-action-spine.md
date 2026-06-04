@@ -16,11 +16,11 @@ The `SimulationKernel` was doing raw intent switching inline inside `TickPhase.I
 
 ## Decision
 
-1. **`ActionRuntime` owns the queue.** The `SimulationKernel` creates one `ActionRuntime` instance, which wraps a single `ActionQueue`. `ActionRuntime` is advanced during `TickPhase.ActionQueueTimers`. No system creates its own queue.
+1. **The `SimulationKernel` owns the queue.** The kernel creates one `ActionQueue` instance and advances it during `TickPhase.ActionQueueTimers`. No system creates its own queue.
 
 2. **`IntentDispatcher` routes all intents.** All consumed intents pass through `dispatchIntentGroup` in `apps/server/src/sim/intent-dispatcher.ts`. The kernel no longer does raw intent switching.
 
-3. **Movement always cancels weak actions.** The `IntentDispatcher` calls `actionRuntime.cancel(owner, { type: Weak })` before routing a move intent. The `handleMoveIntent` function no longer accepts an optional `actionQueue` parameter.
+3. **Movement always cancels weak actions.** The `IntentDispatcher` calls `actionQueue.cancel(owner, { type: Weak })` before routing a move intent. The `handleMoveIntent` function no longer accepts an optional `actionQueue` parameter.
 
 4. **Item/UI actions cancel weak actions.** The `IntentDispatcher` cancels weak actions before item and UI unequip intents, matching the spec that item interaction interrupts weak actions.
 
@@ -39,16 +39,15 @@ The `SimulationKernel` was doing raw intent switching inline inside `TickPhase.I
 - `SimulationKernel` is now thinner. It only creates deps, wires phases, and exposes the interface. All intent routing lives in `IntentDispatcher`.
 - `TickPhase.ActionQueueTimers` is now wired and executes every tick.
 - Future intent kinds (dialogue, teleport, trade) only require adding a case to `IntentDispatcher`, not touching the kernel.
-- Future systems that need to enqueue actions (skilling, combat, spells) use `actionRuntime.enqueue` with a typed `ActionQueueEntry`.
+- Future systems that need to enqueue actions (skilling, combat, spells) use the kernel-owned `actionQueue.enqueue` with a typed `ActionQueueEntry`.
 - Tests verify the dispatcher behavior directly: `intent-dispatcher.test.ts` covers cancellation, feedback, and routing.
-- `action-runtime.test.ts` verifies the wrapper delegates to the queue correctly.
+- `action-queue.test.ts` verifies queue timing, cancellation, interruption, repeat, and priority semantics directly.
 
 ## Related
 
 - `POC_SPEC.md` §10 (Action queue system)
-- `apps/server/src/sim/action-runtime.ts`
 - `apps/server/src/sim/intent-dispatcher.ts`
 - `apps/server/src/sim/simulation-kernel.ts`
 - `apps/server/src/sim/action-queue.ts`
-- `apps/server/src/sim/action-runtime.test.ts`
+- `apps/server/src/sim/action-queue.test.ts`
 - `apps/server/src/sim/intent-dispatcher.test.ts`

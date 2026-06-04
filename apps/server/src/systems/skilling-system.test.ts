@@ -13,8 +13,12 @@ import type { InventoryComponent, SkillsComponent } from "../ecs/components";
 import { createWorld, type World } from "../ecs/world";
 import { addItem, catalogFromItems, count, createInventory } from "../items/inventory";
 import { ItemAuditLog } from "../items/item-audit";
-import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
-import { ActionRuntime } from "../sim/action-runtime";
+import {
+  type ActionExecution,
+  ActionQueue,
+  ActionQueueType,
+  InterruptGroup,
+} from "../sim/action-queue";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { makeRegistries } from "../test-support/registries";
 import { applyObjectCollision, CollisionMap } from "../world/collision";
@@ -193,7 +197,7 @@ function setup(
   readonly player: EntityId;
   readonly node: EntityId;
   readonly inventory: InventoryComponent;
-  readonly actionRuntime: ActionRuntime;
+  readonly actionQueue: ActionQueue;
   readonly deltas: DeltaAccumulator;
   readonly itemAudit: ItemAuditLog;
 } {
@@ -246,7 +250,7 @@ function setup(
 
   const collision = new CollisionMap(map);
   applyObjectCollision(world, content, collision);
-  const actionRuntime = new ActionRuntime();
+  const actionQueue = new ActionQueue();
   const deltas = new DeltaAccumulator();
   const itemAudit = new ItemAuditLog();
   return {
@@ -254,7 +258,7 @@ function setup(
       world,
       collision,
       deltas,
-      actionRuntime,
+      actionQueue,
       registries: content,
       rng: createRng(1),
       itemAudit,
@@ -263,7 +267,7 @@ function setup(
     player,
     node,
     inventory,
-    actionRuntime,
+    actionQueue,
     deltas,
     itemAudit,
   };
@@ -282,7 +286,7 @@ function setupProcessing(
   readonly player: EntityId;
   readonly station: EntityId;
   readonly inventory: InventoryComponent;
-  readonly actionRuntime: ActionRuntime;
+  readonly actionQueue: ActionQueue;
   readonly deltas: DeltaAccumulator;
   readonly itemAudit: ItemAuditLog;
 } {
@@ -325,7 +329,7 @@ function setupProcessing(
 
   const collision = new CollisionMap(map);
   applyObjectCollision(world, content, collision);
-  const actionRuntime = new ActionRuntime();
+  const actionQueue = new ActionQueue();
   const deltas = new DeltaAccumulator();
   const itemAudit = new ItemAuditLog();
   return {
@@ -333,7 +337,7 @@ function setupProcessing(
       world,
       collision,
       deltas,
-      actionRuntime,
+      actionQueue,
       registries: content,
       rng: createRng(1),
       itemAudit,
@@ -342,16 +346,16 @@ function setupProcessing(
     player,
     station,
     inventory,
-    actionRuntime,
+    actionQueue,
     deltas,
     itemAudit,
   };
 }
 
-function advanceToExecution(actionRuntime: ActionRuntime, delayTicks: number): ActionExecution {
+function advanceToExecution(actionQueue: ActionQueue, delayTicks: number): ActionExecution {
   let executions: readonly ActionExecution[] = [];
   for (let tick = 1; tick <= delayTicks; tick += 1) {
-    executions = actionRuntime.advanceTick();
+    executions = actionQueue.advanceTick();
   }
   const execution = executions[0];
   if (!execution) {
@@ -400,8 +404,8 @@ describe("skilling gather validation", () => {
   });
 
   it("movement cancellation removes queued weak gathering actions", () => {
-    const { actionRuntime, player } = setup();
-    actionRuntime.enqueue({
+    const { actionQueue, player } = setup();
+    actionQueue.enqueue({
       id: `gather:${player}`,
       owner: player,
       type: ActionQueueType.Weak,
@@ -411,15 +415,15 @@ describe("skilling gather validation", () => {
       payload: { kind: "gather" },
     });
 
-    actionRuntime.cancel(player, { type: ActionQueueType.Weak });
+    actionQueue.cancel(player, { type: ActionQueueType.Weak });
 
-    expect(actionRuntime.getDebugState()).toEqual([]);
+    expect(actionQueue.getDebugState()).toEqual([]);
   });
 
   it("revalidates repeated actions and cancels after depletion", () => {
-    const { ctx, player, node, actionRuntime } = setup({ depleted: true });
+    const { ctx, player, node, actionQueue } = setup({ depleted: true });
     const payload: GatherActionPayload = { kind: "gather", nodeEntityId: node };
-    actionRuntime.enqueue({
+    actionQueue.enqueue({
       id: `gather:${player}`,
       owner: player,
       type: ActionQueueType.Weak,
@@ -428,18 +432,18 @@ describe("skilling gather validation", () => {
       interruptGroup: InterruptGroup.Skilling,
       payload,
     });
-    const [execution] = actionRuntime.advanceTick();
+    const [execution] = actionQueue.advanceTick();
     if (!execution) throw new Error("expected gather execution");
 
     handleGather(ctx, execution, payload, 1, 600);
 
-    expect(actionRuntime.getDebugState()).toEqual([]);
+    expect(actionQueue.getDebugState()).toEqual([]);
   });
 });
 
 describe("woodcutting loop", () => {
   it("queues from a Chop object option and awards logs plus XP on success", () => {
-    const { ctx, player, node, actionRuntime, inventory, deltas, itemAudit } = setup();
+    const { ctx, player, node, actionQueue, inventory, deltas, itemAudit } = setup();
 
     expect(
       handleObjectSkillingIntent(ctx, player, { objectEntityId: node, actionId: "woodcut" }, 600),
@@ -452,7 +456,7 @@ describe("woodcutting loop", () => {
 
     let executions: readonly ActionExecution[] = [];
     for (let tick = 1; tick <= NODE_DEF.actionTicks; tick += 1) {
-      executions = [...actionRuntime.advanceTick()];
+      executions = [...actionQueue.advanceTick()];
     }
     expect(executions).toHaveLength(1);
     const execution = executions[0];
@@ -462,7 +466,9 @@ describe("woodcutting loop", () => {
 
     expect(inventory.slots.some((slot) => slot?.itemId === "dry_log")).toBe(true);
     expect(ctx.world.getComponent(player, "skills")?.skills.woodcutting?.xp).toBe(10);
-    expect(deltas.peek().skillDelta).toEqual([{ skillId: "woodcutting", level: 1, xp: 10, effectiveLevel: 1 }]);
+    expect(deltas.peek().skillDelta).toEqual([
+      { skillId: "woodcutting", level: 1, xp: 10, effectiveLevel: 1 },
+    ]);
     expect(itemAudit.snapshot()[0]).toMatchObject({
       reason: "skilling_gather",
       itemId: "dry_log",
@@ -475,9 +481,9 @@ describe("woodcutting loop", () => {
 
   it("depletes trees, transforms them, and cancels the repeated gather action", () => {
     const nodeDef = { ...NODE_DEF, depletionChance: 1 };
-    const { ctx, player, node, actionRuntime } = setup({ node: nodeDef });
+    const { ctx, player, node, actionQueue } = setup({ node: nodeDef });
     const payload: GatherActionPayload = { kind: "gather", nodeEntityId: node };
-    actionRuntime.enqueue({
+    actionQueue.enqueue({
       id: `gather:${player}`,
       owner: player,
       type: ActionQueueType.Weak,
@@ -486,7 +492,7 @@ describe("woodcutting loop", () => {
       interruptGroup: InterruptGroup.Skilling,
       payload,
     });
-    const [execution] = actionRuntime.advanceTick();
+    const [execution] = actionQueue.advanceTick();
     if (!execution) throw new Error("expected gather execution");
 
     handleGather(ctx, execution, payload, 1, 600);
@@ -498,7 +504,7 @@ describe("woodcutting loop", () => {
     expect(ctx.deltas.peek().entityUpdates.map((update) => update.changes.transform)).toContain(
       "dry_tree_depleted",
     );
-    expect(actionRuntime.getDebugState().some((entry) => entry.id === `gather:${player}`)).toBe(
+    expect(actionQueue.getDebugState().some((entry) => entry.id === `gather:${player}`)).toBe(
       false,
     );
   });
@@ -506,7 +512,7 @@ describe("woodcutting loop", () => {
 
 describe("mining loop", () => {
   it("uses the same gather engine with pickaxe, mining XP, and ore output", () => {
-    const { ctx, player, node, actionRuntime, inventory, deltas } = setup({
+    const { ctx, player, node, actionQueue, inventory, deltas } = setup({
       object: ROCK_DEF,
       node: MINE_NODE,
       toolItemId: "pennywrought_pickaxe",
@@ -516,7 +522,7 @@ describe("mining loop", () => {
 
     let executions: readonly ActionExecution[] = [];
     for (let tick = 1; tick <= MINE_NODE.actionTicks; tick += 1) {
-      executions = [...actionRuntime.advanceTick()];
+      executions = [...actionQueue.advanceTick()];
     }
     const execution = executions[0];
     if (!execution) throw new Error("expected mining execution");
@@ -525,13 +531,15 @@ describe("mining loop", () => {
 
     expect(inventory.slots.some((slot) => slot?.itemId === "copper_ore")).toBe(true);
     expect(ctx.world.getComponent(player, "skills")?.skills.mining?.xp).toBe(15);
-    expect(deltas.peek().skillDelta).toEqual([{ skillId: "mining", level: 1, xp: 15, effectiveLevel: 1 }]);
+    expect(deltas.peek().skillDelta).toEqual([
+      { skillId: "mining", level: 1, xp: 15, effectiveLevel: 1 },
+    ]);
   });
 });
 
 describe("cooking processing loop", () => {
   it("routes object Use/Cook through the tick queue and repeats until input is missing", () => {
-    const { ctx, player, station, actionRuntime, inventory, deltas, itemAudit } = setupProcessing({
+    const { ctx, player, station, actionQueue, inventory, deltas, itemAudit } = setupProcessing({
       rawQuantity: 2,
     });
 
@@ -543,7 +551,7 @@ describe("cooking processing loop", () => {
     expect(handleRecipeSelect(ctx, player, station, COOK_RECIPE.id, 600, 1)).toBe(true);
 
     {
-      const execution = advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks);
+      const execution = advanceToExecution(actionQueue, COOK_RECIPE.actionTicks);
       const payload: ProcessActionPayload = {
         kind: "process",
         stationEntityId: station,
@@ -572,7 +580,7 @@ describe("cooking processing loop", () => {
     });
 
     {
-      const execution = advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks);
+      const execution = advanceToExecution(actionQueue, COOK_RECIPE.actionTicks);
       const payload: ProcessActionPayload = {
         kind: "process",
         stationEntityId: station,
@@ -584,7 +592,7 @@ describe("cooking processing loop", () => {
     expect(count(inventory, "cooked_fish")).toBe(2);
 
     {
-      const execution = advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks);
+      const execution = advanceToExecution(actionQueue, COOK_RECIPE.actionTicks);
       const payload: ProcessActionPayload = {
         kind: "process",
         stationEntityId: station,
@@ -593,12 +601,12 @@ describe("cooking processing loop", () => {
       handleProcess(ctx, execution, payload, 9, 5_400);
     }
 
-    expect(actionRuntime.getDebugState()).toEqual([]);
+    expect(actionQueue.getDebugState()).toEqual([]);
     expect(deltas.peek().chat?.at(-1)?.text).toBe("You have nothing suitable to cook.");
   });
 
   it("can burn food without awarding cooking XP", () => {
-    const { ctx, player, station, actionRuntime, inventory, deltas } = setupProcessing({
+    const { ctx, player, station, actionQueue, inventory, deltas } = setupProcessing({
       recipe: { ...COOK_RECIPE, failureChance: 1 },
     });
 
@@ -607,7 +615,7 @@ describe("cooking processing loop", () => {
 
     handleRecipeSelect(ctx, player, station, COOK_RECIPE.id, 600, 1);
     {
-      const execution = advanceToExecution(actionRuntime, COOK_RECIPE.actionTicks);
+      const execution = advanceToExecution(actionQueue, COOK_RECIPE.actionTicks);
       const payload: ProcessActionPayload = {
         kind: "process",
         stationEntityId: station,
@@ -628,7 +636,7 @@ describe("cooking processing loop", () => {
   });
 
   it("rejects cooking when the player has no matching raw input", () => {
-    const { ctx, player, station, actionRuntime, inventory, deltas } = setupProcessing({
+    const { ctx, player, station, actionQueue, inventory, deltas } = setupProcessing({
       rawQuantity: 0,
     });
 
@@ -637,13 +645,13 @@ describe("cooking processing loop", () => {
     ).toBe(true);
 
     expect(count(inventory, "cooked_fish")).toBe(0);
-    expect(actionRuntime.getDebugState()).toEqual([]);
+    expect(actionQueue.getDebugState()).toEqual([]);
     expect(deltas.peek().recipeLists).toBeUndefined();
     expect(deltas.peek().chat?.[0]?.text).toBe("You have nothing suitable to cook.");
   });
 
   it("rejects cooking at the wrong station without consuming input", () => {
-    const { ctx, player, station, actionRuntime, inventory, deltas } = setupProcessing({
+    const { ctx, player, station, actionQueue, inventory, deltas } = setupProcessing({
       object: WRONG_STATION_DEF,
     });
 
@@ -652,7 +660,7 @@ describe("cooking processing loop", () => {
     ).toBe(true);
 
     expect(count(inventory, "raw_fish")).toBe(1);
-    expect(actionRuntime.getDebugState()).toEqual([]);
+    expect(actionQueue.getDebugState()).toEqual([]);
     expect(deltas.peek().recipeLists).toBeUndefined();
     expect(deltas.peek().chat?.[0]?.text).toBe("You need a different cooking station.");
   });

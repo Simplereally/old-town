@@ -6,8 +6,7 @@ import { ConsumableSystem } from "../systems/consumable-system";
 import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
-import { ActionQueueType, InterruptGroup } from "./action-queue";
-import { ActionRuntime } from "./action-runtime";
+import { ActionQueue, ActionQueueType, InterruptGroup } from "./action-queue";
 import { type ConsumedCommandGroup, IntentKind } from "./command-buffer";
 import { DeltaAccumulator } from "./delta-accumulator";
 import { dispatchIntentGroup } from "./intent-dispatcher";
@@ -25,7 +24,7 @@ function setup() {
 
   const collision = new CollisionMap(createRuntimeMap());
   const deltas = new DeltaAccumulator();
-  const actionRuntime = new ActionRuntime();
+  const actionQueue = new ActionQueue();
   const chatSystem = new ChatSystem();
   const consumableSystem = new ConsumableSystem();
   const registries: ContentRegistries = makeRegistries();
@@ -34,7 +33,7 @@ function setup() {
     world,
     collision,
     deltas,
-    actionRuntime,
+    actionQueue,
     registries,
     rng: createRng(1),
     chatSystem,
@@ -46,7 +45,7 @@ function setup() {
     player,
     collision,
     deltas,
-    actionRuntime,
+    actionQueue,
     chatSystem,
     consumableSystem,
     registries,
@@ -60,8 +59,8 @@ function makeGroup(owner: number, intents: ConsumedCommandGroup["intents"]): Con
 
 describe("IntentDispatcher", () => {
   it("move intent cancels weak actions for the owner", () => {
-    const { ctx, player, actionRuntime } = setup();
-    actionRuntime.enqueue({
+    const { ctx, player, actionQueue } = setup();
+    actionQueue.enqueue({
       id: "woodcutting",
       owner: player,
       type: ActionQueueType.Weak,
@@ -87,12 +86,12 @@ describe("IntentDispatcher", () => {
       600,
     );
 
-    expect(actionRuntime.getDebugState()).toEqual([]);
+    expect(actionQueue.getDebugState()).toEqual([]);
   });
 
   it("item intent cancels weak actions for the owner", () => {
-    const { ctx, player, actionRuntime } = setup();
-    actionRuntime.enqueue({
+    const { ctx, player, actionQueue } = setup();
+    actionQueue.enqueue({
       id: "woodcutting",
       owner: player,
       type: ActionQueueType.Weak,
@@ -118,12 +117,12 @@ describe("IntentDispatcher", () => {
       600,
     );
 
-    expect(actionRuntime.getDebugState()).toEqual([]);
+    expect(actionQueue.getDebugState()).toEqual([]);
   });
 
   it("ui unequip intent cancels weak actions for the owner", () => {
-    const { ctx, player, actionRuntime } = setup();
-    actionRuntime.enqueue({
+    const { ctx, player, actionQueue } = setup();
+    actionQueue.enqueue({
       id: "woodcutting",
       owner: player,
       type: ActionQueueType.Weak,
@@ -149,12 +148,12 @@ describe("IntentDispatcher", () => {
       600,
     );
 
-    expect(actionRuntime.getDebugState()).toEqual([]);
+    expect(actionQueue.getDebugState()).toEqual([]);
   });
 
   it("object intent emits explicit feedback and cancels weak actions", () => {
-    const { ctx, player, actionRuntime, deltas } = setup();
-    actionRuntime.enqueue({
+    const { ctx, player, actionQueue, deltas } = setup();
+    actionQueue.enqueue({
       id: "woodcutting",
       owner: player,
       type: ActionQueueType.Weak,
@@ -180,15 +179,15 @@ describe("IntentDispatcher", () => {
       600,
     );
 
-    expect(actionRuntime.getDebugState()).toEqual([]);
+    expect(actionQueue.getDebugState()).toEqual([]);
     const packet = deltas.consume(1, 600);
     expect(packet.chat?.[0]?.text).toBe("Object interaction is not yet implemented.");
     expect(packet.chat?.[0]?.channel).toBe("system");
   });
 
   it("npc intent emits explicit feedback and cancels weak actions", () => {
-    const { ctx, player, actionRuntime, deltas } = setup();
-    actionRuntime.enqueue({
+    const { ctx, player, actionQueue, deltas } = setup();
+    actionQueue.enqueue({
       id: "woodcutting",
       owner: player,
       type: ActionQueueType.Weak,
@@ -214,14 +213,14 @@ describe("IntentDispatcher", () => {
       600,
     );
 
-    expect(actionRuntime.getDebugState()).toEqual([]);
+    expect(actionQueue.getDebugState()).toEqual([]);
     const packet = deltas.consume(1, 600);
     expect(packet.chat?.[0]?.text).toBe("NPC interaction is not yet implemented.");
   });
 
   it("ground item intent emits explicit feedback and cancels weak actions", () => {
-    const { ctx, player, actionRuntime, deltas } = setup();
-    actionRuntime.enqueue({
+    const { ctx, player, actionQueue, deltas } = setup();
+    actionQueue.enqueue({
       id: "woodcutting",
       owner: player,
       type: ActionQueueType.Weak,
@@ -247,15 +246,15 @@ describe("IntentDispatcher", () => {
       600,
     );
 
-    expect(actionRuntime.getDebugState()).toEqual([]);
+    expect(actionQueue.getDebugState()).toEqual([]);
     const packet = deltas.consume(1, 600);
     expect(packet.chat?.[0]?.text).toBe("That item is no longer there.");
     expect(packet.chat?.[0]?.channel).toBe("system");
   });
 
   it("spell intent routes through spell validation and cancels weak actions", () => {
-    const { ctx, player, actionRuntime, deltas } = setup();
-    actionRuntime.enqueue({
+    const { ctx, player, actionQueue, deltas } = setup();
+    actionQueue.enqueue({
       id: "woodcutting",
       owner: player,
       type: ActionQueueType.Weak,
@@ -281,7 +280,7 @@ describe("IntentDispatcher", () => {
       600,
     );
 
-    expect(actionRuntime.getDebugState()).toEqual([]);
+    expect(actionQueue.getDebugState()).toEqual([]);
     const packet = deltas.consume(1, 600);
     expect(packet.chat?.[0]?.text).toBe("You do not know that spell.");
   });

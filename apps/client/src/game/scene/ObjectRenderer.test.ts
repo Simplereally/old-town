@@ -58,7 +58,7 @@ describe("ObjectRenderer", () => {
     const group = scene.children[0];
     const mesh = group?.children[0] as import("three").Mesh | undefined;
     expect(renderer.objectCount).toBe(1);
-    expect(mesh?.userData.defId).toBe("dry_tree_depleted");
+    expect(mesh?.userData.instanceMap[0].defId).toBe("dry_tree_depleted");
   });
 
   it("handles remove of non-existent object gracefully", () => {
@@ -106,9 +106,10 @@ describe("ObjectRenderer", () => {
     renderer.spawn(ID1, TILE, "tree_oak");
     renderer.spawn(ID2, TILE, "tree_oak");
     const group = scene.children[0];
-    const mesh1 = group?.children[0] as import("three").Mesh | undefined;
-    const mesh2 = group?.children[1] as import("three").Mesh | undefined;
-    expect(mesh1?.geometry).toBe(mesh2?.geometry);
-    expect(mesh1?.material).toBe(mesh2?.material);
+    // Same archetype + region + layer => single bucket mesh
+    expect(group?.children.length).toBe(1);
+    const mesh = group?.children[0] as import("three").Mesh | undefined;
+    expect(renderer.objectCount).toBe(2);
+    expect(mesh).toBeDefined();
   });
 });

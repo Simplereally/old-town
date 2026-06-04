@@ -2,8 +2,8 @@ import type { ContentRegistries, EntityId, ResourceNodeDef, TileCoord } from "@o
 import type { ObjectComponent, ResourceNodeComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
 import type { ActionHandler } from "../sim/action-executor";
+import type { ActionQueue } from "../sim/action-queue";
 import { ActionQueueType, InterruptGroup } from "../sim/action-queue";
-import type { ActionRuntime } from "../sim/action-runtime";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { CollisionFlag, type CollisionMap, objectCollisionFlags } from "../world/collision";
 
@@ -12,7 +12,7 @@ export interface ResourceNodeContext {
   readonly collision: CollisionMap;
   readonly deltas: DeltaAccumulator;
   readonly registries: ContentRegistries;
-  readonly actionRuntime: ActionRuntime;
+  readonly actionQueue: ActionQueue;
 }
 
 export interface ResourceNodeRespawnPayload {
@@ -101,9 +101,9 @@ export function depleteResourceNode(
   ctx.world.setComponent(entityId, "resourceNode", next);
   setNodeCollision(ctx, entityId, false, def);
   ctx.deltas.markEntityUpdate(entityId, { transform: depletedTransformId(object, def) });
-  ctx.actionRuntime.cancel(entityId, { id: resourceRespawnActionId(entityId) });
+  ctx.actionQueue.cancel(entityId, { id: resourceRespawnActionId(entityId) });
   const payload: ResourceNodeRespawnPayload = { kind: "resource_respawn", nodeEntityId: entityId };
-  ctx.actionRuntime.enqueue({
+  ctx.actionQueue.enqueue({
     id: resourceRespawnActionId(entityId),
     owner: entityId,
     type: ActionQueueType.Soft,

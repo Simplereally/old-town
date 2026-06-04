@@ -1,97 +1,21 @@
 import {
   type ChatPacket,
-  type ChunkData,
-  type DialogueViewPacket,
   Direction,
   type EntitySpawnPacket,
   type FullStatePacket,
   type HitsplatType,
   type InventoryDelta,
-  type RecipeListPacket,
-  type RecipeResultPacket,
   type RegionId,
   type SkillDelta,
+  type StatusEffectUpdate,
   type TickDeltaPacket,
   type TileCoord,
   type VarbitDelta,
+  type XpDropPacket,
 } from "@old-town/shared";
-import { Vector3 } from "three";
-
-export interface ITerrainLayer {
-  loadChunk(regionId: RegionId, chunk: ChunkData): void;
-  unloadRegion(regionId: RegionId): void;
-}
-
-export interface IObjectRenderer {
-  spawn(entityId: number, tile: TileCoord, defId: string): void;
-  remove(entityId: number): void;
-  clear(): void;
-  transform(entityId: number, defId: string): void;
-}
-
-export interface IActorRenderer {
-  spawn(
-    entityId: number,
-    tile: TileCoord,
-    defId: string | undefined,
-    isLocalPlayer: boolean,
-    kind: "player" | "npc",
-  ): void;
-  remove(entityId: number): void;
-  clear(): void;
-  updateTile(entityId: number, tile: TileCoord): void;
-  updateFacing(entityId: number, direction: Direction): void;
-  updateHealthBar(entityId: number, health: number, maxHealth: number): void;
-  notifyHit(entityId: number, tick: number): void;
-  updateAppearance(
-    entityId: number,
-    appearance: { name?: string; bodyId?: string; colors?: readonly number[] },
-  ): void;
-  getActorState(entityId: number): { serverTile: TileCoord; visualPosition: Vector3 } | undefined;
-}
-
-export interface IGroundItemLayer {
-  spawn(entityId: number, tile: TileCoord, defId: string, quantity: number): void;
-  remove(entityId: number): void;
-  clear(): void;
-}
-
-export interface IHitsplatLayer {
-  show(entityId: number, amount: number, type: HitsplatType | undefined, tick: number): void;
-  update(currentTick: number, positions: Map<number, Vector3>): void;
-  clear(): void;
-}
-
-export interface IXpDropLayer {
-  show(entityId: number, skillId: string, amount: number, tick: number): void;
-  update(currentTick: number, positions: Map<number, Vector3>): void;
-  clear(): void;
-}
-
-export interface IProjectileLayer {
-  spawn(id: string, startTile: TileCoord, endTile: TileCoord, durationTicks?: number): void;
-  clear(): void;
-}
-
-export interface IChatOverheadLayer {
-  show(entityId: number, text: string, position: Vector3): void;
-  clear(): void;
-}
-
-export interface IDebugLayer {
-  clear(): void;
-  markPathTile(tile: TileCoord): void;
-  markTrueTile(tile: TileCoord, entityId: number): void;
-  markCollisionTile(tile: TileCoord): void;
-  markFootprint(tile: TileCoord): void;
-  markReachTiles(center: TileCoord, radius: number): void;
-  markLoSRay(start: Vector3, end: Vector3): void;
-  setActionQueue(queue: string[]): void;
-  setCombatCooldown(ticks: number): void;
-  setPendingHits(hits: Map<string, number>): void;
-  setNpcLeash(tile: TileCoord): void;
-  setVarbits(vars: Map<string, number>): void;
-}
+import type { AnimationState } from "../scene/ActorRenderer";
+import type { ClientWorldStore, WorldEntity } from "./ClientWorldStore";
+import type { RenderEvent, RenderSnapshot, SnapshotBuffer } from "./SnapshotBuffer";
 
 export interface IUIState {
   setInventory(delta: InventoryDelta): void;
@@ -102,56 +26,63 @@ export interface IUIState {
   applySkillDelta(delta: readonly SkillDelta[]): void;
   applyVarbitDelta(delta: readonly VarbitDelta[]): void;
   addChat(chat: readonly ChatPacket[]): void;
-  setDialogue(dialogue: DialogueViewPacket): void;
+  setDialogue(dialogue: import("@old-town/shared").DialogueViewPacket): void;
   clearDialogue(): void;
   setBank(delta: InventoryDelta): void;
   applyBankDelta(delta: InventoryDelta): void;
   clearBank(): void;
   setShop(shop: import("@old-town/shared").ShopViewPacket): void;
   clearShop(): void;
-  setRecipeList(packet: RecipeListPacket): void;
+  setRecipeList(packet: import("@old-town/shared").RecipeListPacket): void;
   clearRecipeList(): void;
-  setRecipeResult(packet: RecipeResultPacket): void;
+  setRecipeResult(packet: import("@old-town/shared").RecipeResultPacket): void;
   clearRecipeResult(): void;
+  addXpDrops(drops: readonly XpDropPacket[]): void;
+  setDeathScreen(active: boolean): void;
+  setStatusEffects(effects: readonly StatusEffectUpdate[]): void;
+  setContract(contract: import("@old-town/shared").ContractCompletePacket): void;
+  addNotification(notification: { id: string; text: string; type: "success" | "failure" | "info"; createdAt: number }): void;
 }
 
-export interface PacketApplierContext {
-  readonly terrain: ITerrainLayer;
-  readonly objects: IObjectRenderer;
-  readonly actors: IActorRenderer;
-  readonly groundItems: IGroundItemLayer;
-  readonly hitsplats: IHitsplatLayer;
-  readonly xpDrops: IXpDropLayer;
-  readonly projectiles: IProjectileLayer;
-  readonly chatOverhead: IChatOverheadLayer;
-  readonly debug: IDebugLayer | undefined;
+export interface PresentationEvent {
+  readonly type: string;
+  readonly payload: unknown;
+}
+
+export interface PurePacketApplierContext {
+  readonly store: ClientWorldStore;
+  readonly snapshotBuffer: SnapshotBuffer;
   readonly uiState: IUIState;
-  readonly selfEntityId: number;
   readonly logDebug: (message: string) => void;
   readonly tileSizeWorldUnits: number;
 }
 
-export interface PacketApplierResult {
+export interface PurePacketApplierResult {
   readonly tick: number;
   readonly serverTime: number;
   readonly selfEntityId: number;
   readonly rejectedMoves: readonly { tile: TileCoord; tick: number }[];
+  readonly presentationEvents: readonly PresentationEvent[];
+  readonly debugEvents: readonly PresentationEvent[];
+  readonly snapshot: RenderSnapshot;
 }
 
 /**
  * Owns all server → client packet application semantics.
- * GameEngine routes socket packets here; this module decides what layers
- * to update, what entities to spawn/remove, and what UI state to mutate.
  *
- * Full state is an authoritative reset: all layers are cleared before
- * applying the new snapshot.
+ * Refactored to be pure: it updates ClientWorldStore, SnapshotBuffer, and
+ * UIState, and returns PresentationEvent / DebugEvent queues. It never calls
+ * scene-layer methods directly. GameEngine or a render-frame applier consumes
+ * the returned events.
+ *
+ * Full state is an authoritative reset: the store is cleared and the snapshot
+ * buffer is reset before applying the new snapshot.
  */
 export class ClientPacketApplier {
   private _lastClickTile: TileCoord | undefined;
   private _lastClickTick = 0;
-  private _selfEntityId = 0;
 
-  constructor(private readonly ctx: PacketApplierContext) {}
+  constructor(private readonly ctx: PurePacketApplierContext) {}
 
   get lastClickTile(): TileCoord | undefined {
     return this._lastClickTile;
@@ -162,35 +93,59 @@ export class ClientPacketApplier {
   }
 
   get selfEntityId(): number {
-    return this._selfEntityId;
+    return this.ctx.store.selfEntityId;
   }
 
-  applyFullState(packet: FullStatePacket): PacketApplierResult {
-    const ctx = this.ctx;
-    this._selfEntityId = packet.selfEntityId;
-    ctx.actors.clear();
-    ctx.objects.clear();
-    ctx.groundItems.clear();
-    ctx.hitsplats.clear();
-    ctx.xpDrops.clear();
-    ctx.projectiles.clear();
-    ctx.chatOverhead.clear();
-    ctx.debug?.clear();
+  recordClickTile(tile: TileCoord, tick: number): void {
+    this._lastClickTile = tile;
+    this._lastClickTick = tick;
+  }
 
+  applyFullState(packet: FullStatePacket): PurePacketApplierResult {
+    const ctx = this.ctx;
+    const store = ctx.store;
+    const presentationEvents: PresentationEvent[] = [];
+    const debugEvents: PresentationEvent[] = [];
+
+    store.clear();
+    ctx.snapshotBuffer.reset({
+      tick: packet.tick,
+      sequence: packet.tick,
+      serverTimeMs: packet.serverTime,
+      entities: [],
+      events: [],
+      regionLoads: packet.regionLoads ?? [],
+      regionUnloads: [],
+    });
+
+    store.setSelfEntityId(packet.selfEntityId);
+
+    // Clear events
+    presentationEvents.push({ type: "actors.clear", payload: undefined });
+    presentationEvents.push({ type: "objects.clear", payload: undefined });
+    presentationEvents.push({ type: "groundItems.clear", payload: undefined });
+    presentationEvents.push({ type: "hitsplats.clear", payload: undefined });
+    presentationEvents.push({ type: "xpDrops.clear", payload: undefined });
+    presentationEvents.push({ type: "projectiles.clear", payload: undefined });
+    presentationEvents.push({ type: "chatOverhead.clear", payload: undefined });
+    debugEvents.push({ type: "debug.clear", payload: undefined });
+
+    // Region loads
     if (packet.regionLoads) {
       for (const region of packet.regionLoads) {
-        if (region.chunks) {
-          for (const chunk of region.chunks) {
-            ctx.terrain.loadChunk(region.regionId, chunk);
-          }
-        }
+        presentationEvents.push({
+          type: "region.load",
+          payload: { regionId: region.regionId, chunks: region.chunks ?? [] },
+        });
       }
     }
 
+    // Entities
     for (const entity of packet.entities) {
-      this._spawnEntity(entity, this._selfEntityId);
+      this._spawnEntity(entity, packet.selfEntityId, store, presentationEvents);
     }
 
+    // UI state
     if (packet.inventory) {
       ctx.uiState.setInventory(packet.inventory);
     }
@@ -203,106 +158,305 @@ export class ClientPacketApplier {
     if (packet.vars) {
       ctx.uiState.setVars(packet.vars);
     }
+    if (packet.bank) {
+      ctx.uiState.setBank(packet.bank);
+    }
+
+    const snapshot = this._buildSnapshot(
+      packet.tick,
+      packet.serverTime,
+      presentationEvents,
+      debugEvents,
+      packet.regionLoads ?? [],
+      [],
+    );
+    ctx.snapshotBuffer.reset(snapshot);
 
     return {
       tick: packet.tick,
       serverTime: packet.serverTime,
       selfEntityId: packet.selfEntityId,
       rejectedMoves: [],
+      presentationEvents,
+      debugEvents,
+      snapshot,
     };
   }
 
-  applyTickDelta(packet: TickDeltaPacket, currentTick: number): PacketApplierResult {
+  applyTickDelta(packet: TickDeltaPacket, currentTick: number): PurePacketApplierResult | null {
     const ctx = this.ctx;
+    const store = ctx.store;
 
+    if (packet.tick <= currentTick) {
+      return null;
+    }
+
+    const presentationEvents: PresentationEvent[] = [];
+    const debugEvents: PresentationEvent[] = [];
+
+    // Region unloads
     if (packet.regionUnloads) {
       for (const region of packet.regionUnloads) {
-        ctx.terrain.unloadRegion(region.regionId);
+        presentationEvents.push({
+          type: "region.unload",
+          payload: { regionId: region.regionId },
+        });
       }
     }
 
+    // Region loads
     if (packet.regionLoads) {
       for (const region of packet.regionLoads) {
-        if (region.chunks) {
-          for (const chunk of region.chunks) {
-            ctx.terrain.loadChunk(region.regionId, chunk);
-          }
-        }
+        presentationEvents.push({
+          type: "region.load",
+          payload: { regionId: region.regionId, chunks: region.chunks ?? [] },
+        });
       }
     }
 
+    // Entity adds
     for (const entity of packet.entityAdds) {
-      this._spawnEntity(entity, this._selfEntityId);
+      this._spawnEntity(entity, store.selfEntityId, store, presentationEvents);
     }
 
+    // Entity removes
     for (const id of packet.entityRemoves) {
-      ctx.objects.remove(id);
-      ctx.actors.remove(id);
-      ctx.groundItems.remove(id);
+      store.removeEntity(id);
+      presentationEvents.push({ type: "objects.remove", payload: { entityId: id } });
+      presentationEvents.push({ type: "actors.remove", payload: { entityId: id } });
+      presentationEvents.push({ type: "groundItems.remove", payload: { entityId: id } });
     }
 
+    // Entity updates
     for (const update of packet.entityUpdates) {
       const changes = update.changes;
+      const entityId = update.entityId;
+      const entity = store.getEntity(entityId);
+
       if (changes.position) {
-        ctx.actors.updateTile(update.entityId, changes.position);
+        if (entity) {
+          const updated: WorldEntity = {
+            ...entity,
+            previousTile: entity.tile,
+            tile: changes.position,
+            moveSpeed: this._deriveMoveSpeed(entity),
+          };
+          store.setEntity(updated);
+        }
+        presentationEvents.push({
+          type: "actors.updateTile",
+          payload: { entityId, tile: changes.position },
+        });
       }
       if (changes.facingTile) {
-        const actor = ctx.actors.getActorState(update.entityId);
-        if (actor) {
-          const dx = changes.facingTile.x - actor.serverTile.x;
-          const dy = changes.facingTile.y - actor.serverTile.y;
+        if (entity) {
+          const dx = changes.facingTile.x - entity.tile.x;
+          const dy = changes.facingTile.y - entity.tile.y;
           if (dx !== 0 || dy !== 0) {
             const direction = this._getDirectionFromDelta(dx, dy);
-            ctx.actors.updateFacing(update.entityId, direction);
+            presentationEvents.push({
+              type: "actors.updateFacing",
+              payload: { entityId, direction },
+            });
+            const updated: WorldEntity = { ...entity, facing: direction };
+            store.setEntity(updated);
           }
         }
       }
       if (changes.hitsplat) {
-        ctx.hitsplats.show(update.entityId, changes.hitsplat.amount, changes.hitsplat.type, currentTick);
-        ctx.actors.notifyHit(update.entityId, currentTick);
+        presentationEvents.push({
+          type: "hitsplats.show",
+          payload: {
+            entityId,
+            amount: changes.hitsplat.amount,
+            type: changes.hitsplat.type,
+            tick: currentTick,
+          },
+        });
+        presentationEvents.push({
+          type: "actors.notifyHit",
+          payload: { entityId, tick: currentTick },
+        });
       }
       if (changes.healthBar) {
-        ctx.actors.updateHealthBar(
-          update.entityId,
-          changes.healthBar.current,
-          changes.healthBar.max,
-        );
+        if (entity) {
+          const updated: WorldEntity = { ...entity, healthBar: changes.healthBar };
+          store.setEntity(updated);
+        }
+        presentationEvents.push({
+          type: "actors.updateHealthBar",
+          payload: {
+            entityId,
+            health: changes.healthBar.current,
+            maxHealth: changes.healthBar.max,
+          },
+        });
       }
-      if (changes.equipment && update.entityId === this._selfEntityId) {
+      if (changes.equipment && entityId === store.selfEntityId) {
         ctx.uiState.setEquipment(changes.equipment.slots);
       }
       if (changes.appearance) {
-        ctx.actors.updateAppearance(update.entityId, changes.appearance);
+        if (entity) {
+          const updated: WorldEntity = { ...entity, appearance: changes.appearance };
+          store.setEntity(updated);
+        }
+        presentationEvents.push({
+          type: "actors.updateAppearance",
+          payload: { entityId, appearance: changes.appearance },
+        });
       }
       if (changes.transform) {
-        ctx.objects.transform(update.entityId, changes.transform);
+        presentationEvents.push({
+          type: "objects.transform",
+          payload: { entityId, defId: changes.transform },
+        });
+      }
+      if (changes.overheadText) {
+        presentationEvents.push({
+          type: "chatOverhead.show",
+          payload: { entityId, text: changes.overheadText },
+        });
+      }
+      if (changes.animation) {
+        presentationEvents.push({
+          type: "actors.updateAnimation",
+          payload: { entityId, state: changes.animation.id as AnimationState },
+        });
+      }
+      if (changes.moveSpeed) {
+        if (entity) {
+          const updated: WorldEntity = {
+            ...entity,
+            moveSpeedRaw: changes.moveSpeed,
+            moveSpeed: this._mapMoveSpeed(changes.moveSpeed),
+          };
+          store.setEntity(updated);
+        }
+        presentationEvents.push({
+          type: "actors.updateMoveSpeed",
+          payload: { entityId, speed: changes.moveSpeed },
+        });
+      }
+      if (changes.facingEntity) {
+        const actor = store.getEntity(entityId);
+        const targetActor = store.getEntity(changes.facingEntity);
+        if (actor && targetActor) {
+          const dx = targetActor.tile.x - actor.tile.x;
+          const dy = targetActor.tile.y - actor.tile.y;
+          if (dx !== 0 || dy !== 0) {
+            const direction = this._getDirectionFromDelta(dx, dy);
+            presentationEvents.push({
+              type: "actors.updateFacing",
+              payload: { entityId, direction },
+            });
+            const updated: WorldEntity = { ...actor, facing: direction };
+            store.setEntity(updated);
+          }
+        }
+      }
+      if (changes.statusEffects) {
+        ctx.uiState.setStatusEffects(changes.statusEffects);
+      }
+      if (changes.graphic) {
+        ctx.logDebug(`Graphic play: ${changes.graphic.id}`);
       }
     }
 
+    // Hitsplats
     if (packet.hitsplats) {
       for (const hitsplat of packet.hitsplats) {
-        ctx.hitsplats.show(hitsplat.entityId, hitsplat.hitsplat.amount, hitsplat.hitsplat.type, currentTick);
-        ctx.actors.notifyHit(hitsplat.entityId, currentTick);
+        presentationEvents.push({
+          type: "hitsplats.show",
+          payload: {
+            entityId: hitsplat.entityId,
+            amount: hitsplat.hitsplat.amount,
+            type: hitsplat.hitsplat.type,
+            tick: currentTick,
+          },
+        });
+        presentationEvents.push({
+          type: "actors.notifyHit",
+          payload: { entityId: hitsplat.entityId, tick: currentTick },
+        });
       }
     }
 
+    // XP drops
     if (packet.xpDrops) {
       for (const xpDrop of packet.xpDrops) {
-        ctx.xpDrops.show(this._selfEntityId, xpDrop.skillId, xpDrop.amount, currentTick);
+        presentationEvents.push({
+          type: "xpDrops.show",
+          payload: {
+            entityId: store.selfEntityId,
+            skillId: xpDrop.skillId,
+            amount: xpDrop.amount,
+            tick: currentTick,
+          },
+        });
+      }
+      ctx.uiState.addXpDrops(packet.xpDrops);
+    }
+
+    // Death notices
+    if (packet.deathNotices) {
+      for (const notice of packet.deathNotices) {
+        ctx.uiState.setDeathScreen(true);
+        presentationEvents.push({
+          type: "actors.hide",
+          payload: { entityId: notice.entityId },
+        });
+        const entity = store.getEntity(notice.entityId);
+        if (entity) {
+          const updated = { ...entity, hidden: true };
+          store.setEntity(updated);
+        }
       }
     }
 
+    // Respawn notices
+    if (packet.respawnNotices) {
+      for (const notice of packet.respawnNotices) {
+        ctx.uiState.setDeathScreen(false);
+        presentationEvents.push({
+          type: "actors.show",
+          payload: { entityId: notice.entityId },
+        });
+        presentationEvents.push({
+          type: "actors.updateTile",
+          payload: { entityId: notice.entityId, tile: notice.tile },
+        });
+        const entity = store.getEntity(notice.entityId);
+        if (entity) {
+          const updated = { ...entity, tile: notice.tile, previousTile: entity.tile, hidden: false };
+          store.setEntity(updated);
+        }
+      }
+    }
+
+    // Sounds
+    if (packet.sounds) {
+      for (const sound of packet.sounds) {
+        ctx.logDebug(`Sound: ${sound.soundId}`);
+      }
+    }
+
+    // Projectiles
     if (packet.projectiles) {
       for (const projectile of packet.projectiles) {
-        ctx.projectiles.spawn(
-          projectile.id,
-          projectile.startTile,
-          projectile.endTile,
-          projectile.hitTick - projectile.startTick,
-        );
+        presentationEvents.push({
+          type: "projectiles.spawn",
+          payload: {
+            id: projectile.id,
+            startTile: projectile.startTile,
+            endTile: projectile.endTile,
+            startTick: projectile.startTick,
+            hitTick: projectile.hitTick,
+          },
+        });
       }
     }
 
+    // Inventory deltas
     if (packet.inventoryDeltas) {
       for (const delta of packet.inventoryDeltas) {
         if (delta.containerId === "bank") {
@@ -322,23 +476,28 @@ export class ClientPacketApplier {
       ctx.uiState.addChat(packet.chat);
       for (const msg of packet.chat) {
         if (msg.channel !== "system" && msg.entityId !== undefined) {
-          const actor = ctx.actors.getActorState(msg.entityId);
-          if (actor) {
-            ctx.chatOverhead.show(msg.entityId, msg.text, actor.visualPosition);
-          }
+          presentationEvents.push({
+            type: "chatOverhead.show",
+            payload: { entityId: msg.entityId, text: msg.text },
+          });
         }
       }
     }
 
+    // Interface opens
     if (packet.interfaceOpens) {
       for (const open of packet.interfaceOpens) {
         if (open.dialogue) {
           ctx.uiState.setDialogue(open.dialogue);
         }
         if (open.interfaceId === "bank") {
+          // no-op
         }
         if (open.shop) {
           ctx.uiState.setShop(open.shop);
+        }
+        if (open.recipe) {
+          ctx.uiState.setRecipeList(open.recipe);
         }
       }
     }
@@ -369,62 +528,161 @@ export class ClientPacketApplier {
       if (last) ctx.uiState.setRecipeResult(last);
     }
 
-    if (packet.interfaceOpens) {
-      for (const open of packet.interfaceOpens) {
-        if (open.recipe) {
-          ctx.uiState.setRecipeList(open.recipe);
-        }
-      }
-    }
-
     if (packet.contractComplete) {
       for (const contract of packet.contractComplete) {
+        ctx.uiState.setContract(contract);
+        ctx.uiState.addNotification({
+          id: `contract-${contract.contractId}`,
+          text: `Contract complete: ${contract.name}`,
+          type: "success",
+          createdAt: packet.serverTime,
+        });
         ctx.logDebug(`Contract complete: ${contract.name}`);
       }
     }
 
-    const rejectedMoves = this._applyDebugData(packet.debug, currentTick);
+    const rejectedMoves = this._applyDebugData(packet.debug, currentTick, debugEvents);
+
+    const snapshot = this._buildSnapshot(
+      packet.tick,
+      packet.serverTime,
+      presentationEvents,
+      debugEvents,
+      packet.regionLoads ?? [],
+      packet.regionUnloads ?? [],
+    );
+    const accepted = ctx.snapshotBuffer.insert(snapshot);
+    if (!accepted) {
+      return null;
+    }
 
     return {
       tick: packet.tick,
       serverTime: packet.serverTime,
-      selfEntityId: this._selfEntityId,
+      selfEntityId: store.selfEntityId,
       rejectedMoves,
+      presentationEvents,
+      debugEvents,
+      snapshot,
     };
   }
 
-  private _spawnEntity(entity: EntitySpawnPacket, selfEntityId: number): void {
-    const ctx = this.ctx;
+  private _spawnEntity(
+    entity: EntitySpawnPacket,
+    selfEntityId: number,
+    store: ClientWorldStore,
+    events: PresentationEvent[],
+  ): void {
     const entityId = entity.entityId;
     const kind = entity.kind;
     const tile = entity.tile;
     const defId = entity.defId;
 
     if (kind === "object") {
-      ctx.objects.spawn(entityId, tile, defId ?? "default");
+      store.setEntity({
+        entityId,
+        kind: "object",
+        tile,
+        previousTile: null,
+        moveSpeed: "idle",
+        facing: 0,
+        appearance: {},
+        healthBar: null,
+        defId: defId ?? "default",
+        isLocalPlayer: false,
+      });
+      events.push({
+        type: "objects.spawn",
+        payload: { entityId, tile, defId: defId ?? "default" },
+      });
     } else if (kind === "player" || kind === "npc") {
-      ctx.actors.spawn(entityId, tile, defId, entityId === selfEntityId, kind);
+      const isLocalPlayer = entityId === selfEntityId;
+      const moveSpeed = this._mapMoveSpeed(entity.moveSpeed ?? "stationary");
+      store.setEntity({
+        entityId,
+        kind,
+        tile,
+        previousTile: null,
+        moveSpeed,
+        facing: entity.facing ?? 0,
+        appearance: entity.appearance ?? {},
+        healthBar: entity.healthBar ?? null,
+        defId: defId ?? (kind === "player" ? "player" : "npc"),
+        isLocalPlayer,
+        moveSpeedRaw: entity.moveSpeed ?? "stationary",
+      });
+      events.push({
+        type: "actors.spawn",
+        payload: { entityId, tile, defId, isLocalPlayer, kind },
+      });
       if (entity.healthBar) {
-        ctx.actors.updateHealthBar(entityId, entity.healthBar.current, entity.healthBar.max);
+        events.push({
+          type: "actors.updateHealthBar",
+          payload: {
+            entityId,
+            health: entity.healthBar.current,
+            maxHealth: entity.healthBar.max,
+          },
+        });
       }
       if (entity.appearance) {
-        ctx.actors.updateAppearance(entityId, entity.appearance);
+        events.push({
+          type: "actors.updateAppearance",
+          payload: { entityId, appearance: entity.appearance },
+        });
       }
     } else if (kind === "ground_item") {
-      ctx.groundItems.spawn(entityId, tile, defId ?? "unknown", entity.quantity ?? 1);
+      store.setEntity({
+        entityId,
+        kind: "groundItem",
+        tile,
+        previousTile: null,
+        moveSpeed: "idle",
+        facing: 0,
+        appearance: {},
+        healthBar: null,
+        defId: defId ?? "unknown",
+        quantity: entity.quantity ?? 1,
+        isLocalPlayer: false,
+      });
+      events.push({
+        type: "groundItems.spawn",
+        payload: {
+          entityId,
+          tile,
+          defId: defId ?? "unknown",
+          quantity: entity.quantity ?? 1,
+        },
+      });
     } else if (kind === "grave") {
-      ctx.objects.spawn(entityId, tile, defId ?? "grave");
+      store.setEntity({
+        entityId,
+        kind: "grave",
+        tile,
+        previousTile: null,
+        moveSpeed: "idle",
+        facing: 0,
+        appearance: {},
+        healthBar: null,
+        defId: defId ?? "grave",
+        isLocalPlayer: false,
+      });
+      events.push({
+        type: "objects.spawn",
+        payload: { entityId, tile, defId: defId ?? "grave" },
+      });
     } else {
-      ctx.logDebug(`Unknown entity kind in spawn: ${kind}`);
+      this.ctx.logDebug(`Unknown entity kind in spawn: ${kind}`);
     }
   }
 
   private _applyDebugData(
     debugData: TickDeltaPacket["debug"],
     currentTick: number,
+    events: PresentationEvent[],
   ): { tile: TileCoord; tick: number }[] {
-    const ctx = this.ctx;
     const rejected: { tile: TileCoord; tick: number }[] = [];
+    const ctx = this.ctx;
 
     if (!debugData) return rejected;
 
@@ -433,7 +691,7 @@ export class ClientPacketApplier {
       for (const pathData of debugData.paths) {
         const entityId = pathData.entityId;
         const path = pathData.path;
-        if (entityId === this._selfEntityId) {
+        if (entityId === ctx.store.selfEntityId) {
           foundSelfPath = true;
           if (path.length === 0 && this._lastClickTile && this._lastClickTick > currentTick - 2) {
             rejected.push({ tile: this._lastClickTile, tick: this._lastClickTick });
@@ -442,7 +700,7 @@ export class ClientPacketApplier {
             );
           } else {
             for (const tile of path) {
-              ctx.debug?.markPathTile(tile);
+              events.push({ type: "debug.markPathTile", payload: { tile } });
             }
           }
         }
@@ -457,61 +715,76 @@ export class ClientPacketApplier {
 
     if (debugData?.trueTiles) {
       for (const tt of debugData.trueTiles) {
-        ctx.debug?.markTrueTile(tt.tile, tt.entityId);
+        events.push({
+          type: "debug.markTrueTile",
+          payload: { tile: tt.tile, entityId: tt.entityId },
+        });
       }
     }
     if (debugData?.collisionTiles) {
       for (const tile of debugData.collisionTiles) {
-        ctx.debug?.markCollisionTile(tile);
+        events.push({ type: "debug.markCollisionTile", payload: { tile } });
       }
     }
     if (debugData?.footprints) {
       for (const tile of debugData.footprints) {
-        ctx.debug?.markFootprint(tile);
+        events.push({ type: "debug.markFootprint", payload: { tile } });
       }
     }
     if (debugData?.reachTiles) {
       for (const rt of debugData.reachTiles) {
-        ctx.debug?.markReachTiles(rt.center, rt.radius);
+        events.push({
+          type: "debug.markReachTiles",
+          payload: { center: rt.center, radius: rt.radius },
+        });
       }
     }
     if (debugData?.loSRays) {
       for (const ray of debugData.loSRays) {
-        const start = new Vector3(
-          ray.start.x * ctx.tileSizeWorldUnits,
-          0.5,
-          -ray.start.y * ctx.tileSizeWorldUnits,
-        );
-        const end = new Vector3(
-          ray.end.x * ctx.tileSizeWorldUnits,
-          0.5,
-          -ray.end.y * ctx.tileSizeWorldUnits,
-        );
-        ctx.debug?.markLoSRay(start, end);
+        const start = {
+          x: ray.start.x * ctx.tileSizeWorldUnits,
+          y: 0.5,
+          z: -ray.start.y * ctx.tileSizeWorldUnits,
+        };
+        const end = {
+          x: ray.end.x * ctx.tileSizeWorldUnits,
+          y: 0.5,
+          z: -ray.end.y * ctx.tileSizeWorldUnits,
+        };
+        events.push({ type: "debug.markLoSRay", payload: { start, end } });
       }
     }
     if (debugData?.actionQueue) {
-      ctx.debug?.setActionQueue(debugData.actionQueue as string[]);
+      events.push({
+        type: "debug.setActionQueue",
+        payload: { queue: debugData.actionQueue as string[] },
+      });
     }
     if (debugData?.combatCooldown !== undefined) {
-      ctx.debug?.setCombatCooldown(debugData.combatCooldown);
+      events.push({
+        type: "debug.setCombatCooldown",
+        payload: { ticks: debugData.combatCooldown },
+      });
     }
     if (debugData?.pendingHits) {
       const hits = new Map<string, number>();
       for (const h of debugData.pendingHits) {
         hits.set(h.targetId.toString(), h.amount);
       }
-      ctx.debug?.setPendingHits(hits);
+      events.push({ type: "debug.setPendingHits", payload: { hits } });
     }
     if (debugData?.npcLeash) {
-      ctx.debug?.setNpcLeash(debugData.npcLeash);
+      events.push({
+        type: "debug.setNpcLeash",
+        payload: { tile: debugData.npcLeash },
+      });
     }
     if (debugData?.varbits) {
       const vars = new Map<string, number>();
       for (const v of debugData.varbits) {
         vars.set(v.varId, v.value);
       }
-      ctx.debug?.setVarbits(vars);
+      events.push({ type: "debug.setVarbits", payload: { vars } });
     }
 
     return rejected;
@@ -525,9 +798,53 @@ export class ClientPacketApplier {
     return dx > 0 ? Direction.East : Direction.West;
   }
 
-  /** Record a click tile for move-rejection tracking. */
-  recordClickTile(tile: TileCoord, tick: number): void {
-    this._lastClickTile = tile;
-    this._lastClickTick = tick;
+  private _mapMoveSpeed(speed: "stationary" | "walk" | "run"): "idle" | "walk" | "run" | "teleport" {
+    if (speed === "stationary") return "idle";
+    return speed;
+  }
+
+  private _deriveMoveSpeed(entity: WorldEntity): "walk" | "run" | "idle" | "teleport" {
+    if (!entity.previousTile) return "idle";
+    const dx = Math.abs(entity.tile.x - entity.previousTile.x);
+    const dy = Math.abs(entity.tile.y - entity.previousTile.y);
+    const dist = Math.max(dx, dy);
+    if (dist > 1) return "teleport";
+    if (dist === 0) return "idle";
+    return entity.moveSpeedRaw === "run" ? "run" : "walk";
+  }
+
+  private _buildSnapshot(
+    tick: number,
+    serverTime: number,
+    presentationEvents: PresentationEvent[],
+    debugEvents: PresentationEvent[],
+    regionLoads: readonly import("@old-town/shared").RegionLoadPacket[] = [],
+    regionUnloads: readonly import("@old-town/shared").RegionUnloadPacket[] = [],
+  ): RenderSnapshot {
+    const entities = this.ctx.store.getAllEntities().map((e) => ({
+      entityId: e.entityId,
+      kind: e.kind === "groundItem" ? "groundItem" : e.kind === "grave" ? "object" : (e.kind as "player" | "npc" | "object" | "groundItem"),
+      tile: e.tile,
+      previousTile: e.previousTile,
+      moveSpeed: e.moveSpeed,
+      facing: e.facing,
+      appearance: e.appearance,
+      healthBar: e.healthBar,
+      defId: e.defId,
+      presentationFlags: e.hidden ? 1 : 0,
+    }));
+    const events: RenderEvent[] = [
+      ...presentationEvents.map((e) => ({ type: e.type, payload: e.payload })),
+      ...debugEvents.map((e) => ({ type: e.type, payload: e.payload })),
+    ];
+    return {
+      tick,
+      sequence: tick,
+      serverTimeMs: serverTime,
+      entities,
+      events,
+      regionLoads,
+      regionUnloads,
+    };
   }
 }

@@ -284,3 +284,72 @@ export interface GraveComponent {
   items: InventorySlot[];
   despawnTick: number;
 }
+
+/** Door or chest open/close state. */
+export interface DoorStateComponent {
+  entityId: EntityId;
+  isOpen: boolean;
+  openDuration?: number;
+  linkedDoorId?: EntityId;
+}
+
+/** A permit issued by a charter system. */
+export interface Permit {
+  charterId: string;
+  issuedTick: number;
+  expiryTick: number;
+}
+
+/** Charter permit state on a player entity. */
+export interface CharterComponent {
+  entityId: EntityId;
+  permits: Permit[];
+}
+
+/** A single active effect entry in the new status-effect component. */
+export interface ActiveEffect {
+  effectId: string;
+  durationTicks: number;
+  damagePerTick?: number;
+  healPerTick?: number;
+  statModifiers?: Record<string, number>;
+}
+
+/** New status-effect component (flat shape per spec). */
+export interface StatusEffectComponent {
+  entityId: EntityId;
+  activeEffects: ActiveEffect[];
+  baseStats?: {
+    attackLevel: number;
+    strengthLevel: number;
+    defenceLevel: number;
+  };
+}
+
+/** A single resource requirement for a public work. */
+export interface PublicWorkResource {
+  itemId: string;
+  quantity: number;
+}
+
+/** A single contribution by a player to a public work. */
+export interface PublicWorkContributor {
+  playerId: EntityId;
+  itemId: string;
+  quantity: number;
+}
+
+/** A collective community building project. */
+export interface PublicWorkComponent {
+  entityId: EntityId;
+  publicWorkId: string;
+  name: string;
+  requiredResources: PublicWorkResource[];
+  currentResources: PublicWorkResource[];
+  contributors: PublicWorkContributor[];
+  completed: boolean;
+  rewardsDistributed?: boolean;
+  rewardItems?: { itemId: string; quantity: number }[];
+  rewardXp?: { skillId: string; amount: number }[];
+  worldChange?: string;
+}

@@ -16,13 +16,13 @@ import {
 } from "../systems/movement-system";
 import type { NookDef } from "../systems/nook-system";
 import { handleObjectIntent } from "../systems/object-interaction-router";
-import { handleRecipeSelect } from "../systems/skilling-system";
 import { handleServiceFeeIntent } from "../systems/service-fee-system";
 import { handleShopIntent } from "../systems/shop-system";
+import { handleRecipeSelect } from "../systems/skilling-system";
 import { handleSpellIntent } from "../systems/spell-system";
 import type { CollisionMap } from "../world/collision";
+import type { ActionQueue } from "./action-queue";
 import { ActionQueueType } from "./action-queue";
-import type { ActionRuntime } from "./action-runtime";
 import { type BufferedIntent, type ConsumedCommandGroup, IntentKind } from "./command-buffer";
 import type { DeltaAccumulator } from "./delta-accumulator";
 
@@ -30,7 +30,7 @@ export interface IntentDispatcherContext {
   readonly world: World;
   readonly collision: CollisionMap;
   readonly deltas: DeltaAccumulator;
-  readonly actionRuntime: ActionRuntime;
+  readonly actionQueue: ActionQueue;
   readonly registries: ContentRegistries;
   readonly rng: Rng;
   readonly chatSystem: ChatSystem;
@@ -68,7 +68,7 @@ function dispatchSingleIntent(
 ): void {
   switch (intent.kind) {
     case IntentKind.Move: {
-      ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      ctx.actionQueue.cancel(owner, { type: ActionQueueType.Weak });
       ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
       handleMoveIntent(
         { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
@@ -93,7 +93,7 @@ function dispatchSingleIntent(
     }
 
     case IntentKind.Item: {
-      ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      ctx.actionQueue.cancel(owner, { type: ActionQueueType.Weak });
       ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
       handleItemIntent(
         {
@@ -116,7 +116,7 @@ function dispatchSingleIntent(
         return;
       }
       if (intent.payload.action === "unequip" && intent.payload.value !== undefined) {
-        ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+        ctx.actionQueue.cancel(owner, { type: ActionQueueType.Weak });
         ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
         handleUnequipIntent(
           {
@@ -136,7 +136,7 @@ function dispatchSingleIntent(
     }
 
     case IntentKind.Object: {
-      ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      ctx.actionQueue.cancel(owner, { type: ActionQueueType.Weak });
       ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
       const object = ctx.world.getComponent(intent.payload.objectEntityId, "object");
       if (handleObjectIntent(ctx, owner, intent.payload, serverTime, tick, ctx.nooks)) {
@@ -176,11 +176,17 @@ function dispatchSingleIntent(
     }
 
     case IntentKind.Npc: {
-      ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      ctx.actionQueue.cancel(owner, { type: ActionQueueType.Weak });
       ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
       if (intent.payload.actionId === "bank") {
         handleBankIntent(
-          { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, registries: ctx.registries, itemAudit: ctx.itemAudit },
+          {
+            world: ctx.world,
+            collision: ctx.collision,
+            deltas: ctx.deltas,
+            registries: ctx.registries,
+            itemAudit: ctx.itemAudit,
+          },
           owner,
           { action: "open", targetEntityId: intent.payload.npcEntityId },
           tick,
@@ -190,7 +196,13 @@ function dispatchSingleIntent(
       }
       if (intent.payload.actionId === "trade") {
         handleShopIntent(
-          { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, registries: ctx.registries, itemAudit: ctx.itemAudit },
+          {
+            world: ctx.world,
+            collision: ctx.collision,
+            deltas: ctx.deltas,
+            registries: ctx.registries,
+            itemAudit: ctx.itemAudit,
+          },
           owner,
           { action: "open", targetEntityId: intent.payload.npcEntityId },
           tick,
@@ -198,13 +210,21 @@ function dispatchSingleIntent(
         );
         return;
       }
-      if (handleServiceFeeIntent(
-        { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, registries: ctx.registries, itemAudit: ctx.itemAudit },
-        owner,
-        intent.payload,
-        tick,
-        serverTime,
-      )) {
+      if (
+        handleServiceFeeIntent(
+          {
+            world: ctx.world,
+            collision: ctx.collision,
+            deltas: ctx.deltas,
+            registries: ctx.registries,
+            itemAudit: ctx.itemAudit,
+          },
+          owner,
+          intent.payload,
+          tick,
+          serverTime,
+        )
+      ) {
         return;
       }
       if (handleNpcDialogueIntent(ctx, owner, intent.payload, serverTime, tick)) {
@@ -218,10 +238,16 @@ function dispatchSingleIntent(
     }
 
     case IntentKind.BankAction: {
-      ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      ctx.actionQueue.cancel(owner, { type: ActionQueueType.Weak });
       ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
       handleBankIntent(
-        { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, registries: ctx.registries, itemAudit: ctx.itemAudit },
+        {
+          world: ctx.world,
+          collision: ctx.collision,
+          deltas: ctx.deltas,
+          registries: ctx.registries,
+          itemAudit: ctx.itemAudit,
+        },
         owner,
         intent.payload,
         tick,
@@ -231,10 +257,16 @@ function dispatchSingleIntent(
     }
 
     case IntentKind.ShopAction: {
-      ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      ctx.actionQueue.cancel(owner, { type: ActionQueueType.Weak });
       ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
       handleShopIntent(
-        { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, registries: ctx.registries, itemAudit: ctx.itemAudit },
+        {
+          world: ctx.world,
+          collision: ctx.collision,
+          deltas: ctx.deltas,
+          registries: ctx.registries,
+          itemAudit: ctx.itemAudit,
+        },
         owner,
         intent.payload,
         tick,
@@ -244,7 +276,7 @@ function dispatchSingleIntent(
     }
 
     case IntentKind.GroundItem: {
-      ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      ctx.actionQueue.cancel(owner, { type: ActionQueueType.Weak });
       ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
       if (handleGroundItemIntent(ctx, owner, intent.payload, tick, serverTime)) {
         return;
@@ -254,7 +286,7 @@ function dispatchSingleIntent(
     }
 
     case IntentKind.Spell: {
-      ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      ctx.actionQueue.cancel(owner, { type: ActionQueueType.Weak });
       ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
       if (handleSpellIntent(ctx, owner, intent.payload, tick, serverTime)) {
         return;
@@ -264,14 +296,14 @@ function dispatchSingleIntent(
     }
 
     case IntentKind.RecipeSelect: {
-      ctx.actionRuntime.cancel(owner, { type: ActionQueueType.Weak });
+      ctx.actionQueue.cancel(owner, { type: ActionQueueType.Weak });
       handleRecipeSelect(
         {
           world: ctx.world,
           collision: ctx.collision,
           deltas: ctx.deltas,
           registries: ctx.registries,
-          actionRuntime: ctx.actionRuntime,
+          actionQueue: ctx.actionQueue,
           rng: ctx.rng,
         },
         owner,

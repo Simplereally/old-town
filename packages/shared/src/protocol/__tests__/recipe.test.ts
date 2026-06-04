@@ -12,11 +12,15 @@ describe("recipe protocol", () => {
   it("round-trips a RecipeListPacket through a TickDelta", () => {
     const packet: RecipeListPacket = {
       interfaceId: "recipe",
+      stationEntityId: 1,
+      stationName: "Range",
       recipes: [
         {
           recipeId: "cook_raw_fish",
           name: "Cooked Fish",
+          skillId: "cooking",
           levelRequired: 1,
+          xp: 40,
           ingredients: [{ itemId: "raw_fish", quantity: 1 }],
           productId: "cooked_fish",
           productQuantity: 1,

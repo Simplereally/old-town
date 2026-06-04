@@ -1,4 +1,5 @@
 import { entityId } from "@old-town/shared";
+import { GAME_TICK_MS } from "@old-town/shared";
 import { Scene, Vector3 } from "three";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HitsplatLayer } from "./HitsplatLayer";
@@ -52,6 +53,7 @@ describe("HitsplatLayer", () => {
   it("shows a damage hitsplat", () => {
     layer.show(ID1, 5, "damage", 10);
     expect(scene.children.length).toBe(1); // Group added
+    expect(layer.activeHitsplats).toBe(1);
   });
 
   it("shows different hit types", () => {
@@ -60,22 +62,24 @@ describe("HitsplatLayer", () => {
     layer.show(ID1, 0, "block", 10);
     layer.show(ID1, 2, "poison", 10);
     expect(scene.children.length).toBe(1); // Group added
+    expect(layer.activeHitsplats).toBe(4);
   });
 
-  it("updates hitsplat positions", () => {
+  it("updates hitsplat positions using server time", () => {
     layer.show(ID1, 5, "damage", 10);
     const positions = new Map<number, Vector3>([[1, new Vector3(5, 0, -5)]]);
-    layer.update(10, positions);
+    layer.update(10, 10 * GAME_TICK_MS, positions);
     expect(scene.children.length).toBe(1);
   });
 
   it("removes hitsplats after lifetime ticks", () => {
     layer.show(ID1, 5, "damage", 10);
     const positions = new Map<number, Vector3>([[1, new Vector3(5, 0, -5)]]);
-    layer.update(10, positions);
+    layer.update(10, 10 * GAME_TICK_MS, positions);
     expect(scene.children[0]?.children.length).toBe(1);
-    layer.update(12, positions);
+    layer.update(12, 12 * GAME_TICK_MS, positions);
     expect(scene.children[0]?.children.length).toBe(0);
+    expect(layer.activeHitsplats).toBe(0);
   });
 
   it("clears all hitsplats", () => {
@@ -83,21 +87,37 @@ describe("HitsplatLayer", () => {
     layer.show(ID2, 3, "heal", 10);
     layer.clear();
     expect(scene.children[0]?.children.length).toBe(0);
+    expect(layer.activeHitsplats).toBe(0);
   });
 
   it("fades out hitsplats over time", () => {
     layer.show(ID1, 5, "damage", 10);
     const positions = new Map<number, Vector3>([[1, new Vector3(5, 0, -5)]]);
-    layer.update(10, positions);
+    layer.update(10, 10 * GAME_TICK_MS, positions);
     const hitsplat = (
-      layer as unknown as { hitsplats: Map<number, { sprite: { material: { opacity: number } } }> }
+      layer as unknown as { hitsplats: Map<number, { material: { opacity: number } }> }
     ).hitsplats.get(1);
-    expect(hitsplat?.sprite.material.opacity).toBeLessThanOrEqual(1);
+    expect(hitsplat?.material.opacity).toBeLessThanOrEqual(1);
   });
 
   it("disposes all resources", () => {
     layer.show(ID1, 5, "damage", 10);
     layer.dispose();
     expect(scene.children.length).toBe(0);
+  });
+
+  it("reuses sprites after spawn/remove cycles", () => {
+    layer.show(ID1, 5, "damage", 10);
+    const poolSizeBefore = layer.poolSize;
+    const positions = new Map<number, Vector3>([[1, new Vector3(5, 0, -5)]]);
+    layer.update(12, 12 * GAME_TICK_MS, positions);
+    layer.show(ID2, 3, "heal", 12);
+    expect(layer.poolSize).toBe(poolSizeBefore);
+  });
+
+  it("exposes pool stats", () => {
+    layer.show(ID1, 5, "damage", 10);
+    expect(layer.activeHitsplats).toBe(1);
+    expect(layer.poolSize).toBeGreaterThanOrEqual(1);
   });
 });

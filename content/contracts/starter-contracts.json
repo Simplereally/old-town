@@ -1,79 +1,108 @@
 [
   {
-    "id": "slay_goblins",
-    "name": "Slay Goblins",
-    "description": "The Warden needs goblin numbers reduced.",
-    "contractType": "bounty",
-    "targetCreatureIds": ["mud_goblin"],
-    "targetCount": 10,
-    "rewardItems": [{ "itemId": "coin", "quantity": 100 }],
-    "rewardXp": [{ "skillId": "attack", "amount": 50 }],
-    "rewardReputation": { "factionId": "wardenry", "amount": 10 },
-    "requiredLevel": 1,
-    "maxConcurrent": 1,
-    "completionTrigger": "kill"
-  },
-  {
-    "id": "clear_wolves",
-    "name": "Clear Wolf Pack",
-    "description": "Wolves are threatening the eastern road.",
-    "contractType": "extermination",
-    "targetCreatureIds": ["stray_dog"],
-    "targetCount": 5,
-    "rewardItems": [{ "itemId": "coin", "quantity": 200 }],
-    "rewardXp": [{ "skillId": "attack", "amount": 100 }],
-    "requiredLevel": 5,
-    "maxConcurrent": 1,
-    "completionTrigger": "kill"
-  },
-  {
-    "id": "collect_herbs",
-    "name": "Collect Herbs",
-    "description": "The healer needs medicinal herbs.",
-    "contractType": "collection",
-    "targetCreatureIds": [],
-    "targetCount": 20,
-    "rewardItems": [{ "itemId": "coin", "quantity": 50 }],
-    "rewardXp": [{ "skillId": "gardening", "amount": 25 }],
-    "requiredLevel": 1,
-    "maxConcurrent": 1,
-    "completionTrigger": "collect"
-  },
-  {
-    "id": "hunt_bears",
-    "name": "Hunt Bears",
-    "description": "A large bear has been spotted near the river.",
-    "contractType": "bounty",
-    "targetCreatureIds": ["ash_drake_whelp"],
-    "targetCount": 3,
-    "rewardItems": [{ "itemId": "coin", "quantity": 500 }],
-    "rewardXp": [{ "skillId": "attack", "amount": 200 }],
-    "requiredLevel": 20,
-    "maxConcurrent": 1,
-    "completionTrigger": "kill"
-  },
-  {
-    "id": "defend_caravan",
-    "name": "Defend Caravan",
-    "description": "Escort the merchant caravan safely through.",
-    "contractType": "escort",
-    "targetCreatureIds": [],
-    "targetCount": 1,
-    "rewardItems": [{ "itemId": "coin", "quantity": 300 }],
-    "rewardXp": [{ "skillId": "defence", "amount": 150 }],
-    "requiredLevel": 10,
-    "maxConcurrent": 1,
-    "completionTrigger": "deliver"
-  },
-  {
-    "id": "exterminate_rats",
-    "name": "Exterminate Rats",
-    "description": "The cellar is infested with rats.",
+    "id": "rats_under_tallys_contract",
+    "name": "Rats Under Tally's",
+    "description": "The cellar beneath Tally's counting-house is thick with rats. Clear five cellar rats and claim the bounty from Warden Holt.",
     "contractType": "extermination",
     "targetCreatureIds": ["cellar_rat"],
-    "targetCount": 15,
-    "rewardItems": [{ "itemId": "coin", "quantity": 50 }],
-    "rewardXp": [{ "skillId": "attack", "amount": 30 }],
+    "targetCount": 5,
+    "rewardItems": [
+      { "itemId": "coin", "quantity": 20 },
+      { "itemId": "rat_tail", "quantity": 1 }
+    ],
+    "rewardXp": [
+      { "skillId": "wardenry", "amount": 50 }
+    ],
+    "requiredLevel": 1,
+    "maxConcurrent": 1,
+    "completionTrigger": "kill"
+  },
+  {
+    "id": "mud_on_the_north_road",
+    "name": "Mud on the North Road",
+    "description": "Mud goblins have begun blocking the northern road. Slay three mud goblins to reopen the route.",
+    "contractType": "bounty",
+    "targetCreatureIds": ["mud_goblin"],
+    "targetCount": 3,
+    "rewardItems": [
+      { "itemId": "coin", "quantity": 50 },
+      { "itemId": "pig_iron_scrap", "quantity": 1 }
+    ],
+    "rewardXp": [
+      { "skillId": "wardenry", "amount": 100 }
+    ],
+    "requiredLevel": 1,
+    "maxConcurrent": 1,
+    "completionTrigger": "kill"
+  },
+  {
+    "id": "bats_in_the_bell_rafters",
+    "name": "Bats in the Bell Rafters",
+    "description": "Bell bats have taken roost in the Market Bell tower. Clear four of them before the droppings ruin the ropework.",
+    "contractType": "extermination",
+    "targetCreatureIds": ["bell_bat"],
+    "targetCount": 4,
+    "rewardItems": [
+      { "itemId": "coin", "quantity": 40 },
+      { "itemId": "bellfeathers", "quantity": 5 }
+    ],
+    "rewardXp": [
+      { "skillId": "wardenry", "amount": 80 }
+    ],
+    "requiredLevel": 1,
+    "maxConcurrent": 1,
+    "completionTrigger": "kill"
+  },
+  {
+    "id": "foxes_in_patch_lane",
+    "name": "Foxes in Patch Lane",
+    "description": "Bog foxes have been digging up the gardens in Patch Lane. Hunt two foxes to keep the lane safe.",
+    "contractType": "bounty",
+    "targetCreatureIds": ["bog_fox"],
+    "targetCount": 2,
+    "rewardItems": [
+      { "itemId": "coin", "quantity": 60 },
+      { "itemId": "fox_hide", "quantity": 1 }
+    ],
+    "rewardXp": [
+      { "skillId": "wardenry", "amount": 120 }
+    ],
+    "requiredLevel": 1,
+    "maxConcurrent": 1,
+    "completionTrigger": "kill"
+  },
+  {
+    "id": "mites_at_gravegate",
+    "name": "Mites at Gravegate",
+    "description": "Grave mites are crawling over the stones at Gravegate. Exterminate five mites before they reach the shrine.",
+    "contractType": "extermination",
+    "targetCreatureIds": ["grave_mite"],
+    "targetCount": 5,
+    "rewardItems": [
+      { "itemId": "coin", "quantity": 30 },
+      { "itemId": "grave_dust", "quantity": 3 }
+    ],
+    "rewardXp": [
+      { "skillId": "wardenry", "amount": 70 }
+    ],
+    "requiredLevel": 1,
+    "maxConcurrent": 1,
+    "completionTrigger": "kill"
+  },
+  {
+    "id": "smoke_in_the_old_kiln",
+    "name": "Smoke in the Old Kiln",
+    "description": "An ash drake whelp has nested in the old kiln and its smoke is choking the kiln lane. This is a chartered contract for experienced wardens.",
+    "contractType": "bounty",
+    "targetCreatureIds": ["ash_drake_whelp"],
+    "targetCount": 1,
+    "rewardItems": [
+      { "itemId": "coin", "quantity": 100 },
+      { "itemId": "warm_scale", "quantity": 1 }
+    ],
+    "rewardXp": [
+      { "skillId": "wardenry", "amount": 200 }
+    ],
     "requiredLevel": 1,
     "maxConcurrent": 1,
     "completionTrigger": "kill"

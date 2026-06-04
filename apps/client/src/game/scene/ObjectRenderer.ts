@@ -1,63 +1,36 @@
 import type { TileCoord } from "@old-town/shared";
-import type { Scene } from "three";
+import type { Scene, BufferGeometry, MeshLambertMaterial } from "three";
 import {
   BoxGeometry,
-  type BufferGeometry,
   ConeGeometry,
   CylinderGeometry,
   Group,
   IcosahedronGeometry,
-  Mesh,
-  type MeshLambertMaterial,
+  Matrix4,
+  Quaternion,
   TetrahedronGeometry,
   Vector3,
 } from "three";
+import { InstanceBucket, type InstanceBucketKey } from "../renderer/InstanceBucket";
+import {
+  RenderResourceRegistry,
+  type RenderResourceKey,
+} from "../renderer/RenderResourceRegistry";
 import { compose, PALETTE, vertexColorMaterial } from "./lowpoly";
 
 interface ObjectInstance {
   readonly entityId: number;
-  readonly mesh: Mesh;
   readonly tile: TileCoord;
   readonly defId: string;
+  readonly archetypeId: string;
+  readonly bucketKey: string;
+  readonly slot: number;
 }
 
-interface ObjectTemplate {
-  readonly geometry: BufferGeometry;
-  readonly material: MeshLambertMaterial;
-  readonly scale: Vector3;
-  readonly yOffset: number;
-}
-
-const objectTemplates = new Map<string, ObjectTemplate>();
-
-function getTemplate(defId: string): ObjectTemplate {
-  const existing = objectTemplates.get(defId);
-  if (existing) {
-    return existing;
-  }
-
-  const template = buildTemplate(defId);
-  objectTemplates.set(defId, template);
-  return template;
-}
-
-function buildTemplate(defId: string): ObjectTemplate {
-  const geometry = buildGeometry(resolveArchetype(defId), defId);
-  return {
-    geometry,
-    material: vertexColorMaterial(),
-    scale: new Vector3(1, 1, 1),
-    // Rest props on top of the ~0.1-tall terrain tile surface.
-    yOffset: 0.1,
-  };
-}
-
-/**
- * Visual archetype for an object def. Resolution is keyword-based and purely
+/** Visual archetype for an object def. Resolution is keyword-based and purely
  * presentational — gameplay never reads it. Ordered most-specific first; the
  * first matching keyword wins. Unknown defs fall back to a readable crate
- * rather than a featureless cube.
- */
+ * rather than a featureless cube. */
 function resolveArchetype(defId: string): string {
   const id = defId;
   const has = (...keys: string[]): boolean => keys.some((k) => id.includes(k));
@@ -106,7 +79,6 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
       const dead = defId.includes("dry") || defId.includes("dead");
       const trunk = woodTone(defId);
       if (dead) {
-        // Bare, leafless silhouette: trunk plus a few jagged branch stubs.
         return compose([
           { geometry: new CylinderGeometry(0.12, 0.18, 1.6, 5), color: trunk, y: 0.8 },
           { geometry: new CylinderGeometry(0.05, 0.08, 0.7, 4), color: trunk, x: 0.2, y: 1.4, rotZ: -0.7 },
@@ -131,7 +103,6 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
       ]);
     }
     case "furnace": {
-      // Stone block, stubby chimney, and a glowing fire mouth.
       return compose([
         { geometry: new BoxGeometry(1.0, 1.0, 1.0), color: PALETTE.stoneDark, y: 0.5 },
         { geometry: new BoxGeometry(0.34, 0.7, 0.34), color: PALETTE.stoneMid, x: 0.0, y: 1.3, z: -0.2 },
@@ -140,7 +111,6 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
       ]);
     }
     case "kiln": {
-      // Domed clay kiln with a glowing opening.
       const dome = new IcosahedronGeometry(0.62, 1);
       dome.scale(1, 0.8, 1);
       return compose([
@@ -150,7 +120,6 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
       ]);
     }
     case "hearth": {
-      // Open stone hearth with embers and a hanging pot.
       return compose([
         { geometry: new BoxGeometry(1.0, 0.45, 0.8), color: PALETTE.stoneMid, y: 0.22 },
         { geometry: new BoxGeometry(0.7, 0.16, 0.5), color: PALETTE.coal, y: 0.5 },
@@ -159,7 +128,6 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
       ]);
     }
     case "anvil": {
-      // Dark iron anvil on a wooden stump.
       return compose([
         { geometry: new CylinderGeometry(0.26, 0.3, 0.5, 7), color: PALETTE.barkMid, y: 0.25 },
         { geometry: new BoxGeometry(0.6, 0.18, 0.28), color: PALETTE.iron, y: 0.6 },
@@ -168,7 +136,6 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
       ]);
     }
     case "vat": {
-      // Barrel vat brimming with dye.
       return compose([
         { geometry: new CylinderGeometry(0.42, 0.46, 0.8, 9), color: PALETTE.barkMid, y: 0.4 },
         { geometry: new CylinderGeometry(0.36, 0.36, 0.06, 9), color: PALETTE.dye, y: 0.82 },
@@ -176,7 +143,6 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
       ]);
     }
     case "loom": {
-      // Upright frame strung with threads.
       return compose([
         { geometry: new BoxGeometry(0.12, 1.2, 0.12), color: PALETTE.barkMid, x: -0.5, y: 0.6 },
         { geometry: new BoxGeometry(0.12, 1.2, 0.12), color: PALETTE.barkMid, x: 0.5, y: 0.6 },
@@ -185,7 +151,6 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
       ]);
     }
     case "frame": {
-      // A-frame stretched with a drying hide.
       return compose([
         { geometry: new BoxGeometry(0.1, 1.0, 0.1), color: PALETTE.barkMid, x: -0.45, y: 0.5, rotZ: 0.18 },
         { geometry: new BoxGeometry(0.1, 1.0, 0.1), color: PALETTE.barkMid, x: 0.45, y: 0.5, rotZ: -0.18 },
@@ -193,14 +158,12 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
       ]);
     }
     case "counter": {
-      // Service counter: a top slab on a solid base.
       return compose([
         { geometry: new BoxGeometry(1.1, 0.7, 0.5), color: PALETTE.barkMid, y: 0.35, z: 0.1 },
         { geometry: new BoxGeometry(1.2, 0.12, 0.62), color: PALETTE.barkLight, y: 0.74, z: 0.08 },
       ]);
     }
     case "table": {
-      // Four legs and a top, with a little clutter.
       const leg = (x: number, z: number) => ({
         geometry: new BoxGeometry(0.1, 0.5, 0.1),
         color: PALETTE.barkDark,
@@ -218,7 +181,6 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
       ]);
     }
     case "chest": {
-      // Crate body with a rounded lid and a clasp.
       const lid = new CylinderGeometry(0.42, 0.42, 0.78, 8, 1, false, 0, Math.PI);
       return compose([
         { geometry: new BoxGeometry(0.82, 0.46, 0.56), color: PALETTE.barkMid, y: 0.23 },
@@ -233,7 +195,6 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
       ]);
     }
     case "bell": {
-      // Two posts, a crossbeam, and a hanging bell.
       const bell = new CylinderGeometry(0.28, 0.36, 0.5, 8, 1, true);
       return compose([
         { geometry: new BoxGeometry(0.1, 1.4, 0.1), color: PALETTE.barkMid, x: -0.45, y: 0.7 },
@@ -249,7 +210,6 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
       ]);
     }
     case "arch": {
-      // Two stone pillars under a lintel.
       return compose([
         { geometry: new BoxGeometry(0.3, 1.7, 0.3), color: PALETTE.stoneMid, x: -0.7, y: 0.85 },
         { geometry: new BoxGeometry(0.3, 1.7, 0.3), color: PALETTE.stoneMid, x: 0.7, y: 0.85 },
@@ -283,7 +243,6 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
       ]);
     }
     default: {
-      // Crate: a slatted wooden box. Far more legible than a bare cube.
       return compose([
         { geometry: new BoxGeometry(0.74, 0.66, 0.74), color: PALETTE.barkMid, y: 0.43 },
         { geometry: new BoxGeometry(0.8, 0.12, 0.8), color: PALETTE.barkDark, y: 0.74 },
@@ -294,68 +253,122 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
   }
 }
 
+function computeRegionId(tile: TileCoord): string {
+  const regionSize = 64;
+  const rx = Math.floor(tile.x / regionSize);
+  const ry = Math.floor(tile.y / regionSize);
+  return `r${rx}:${ry}:${tile.plane}`;
+}
+
+function makeBucketKey(
+  archetypeId: string,
+  materialId: string,
+  regionId: string,
+  layer: string,
+): string {
+  return `${archetypeId}:${materialId}:${regionId}:${layer}`;
+}
+
 export interface ObjectRendererOptions {
   readonly scene: Scene;
+  readonly registry?: RenderResourceRegistry;
 }
 
 /**
  * Object renderer for static and dynamic world objects (trees, rocks, buildings, doors).
- * Uses shared geometry/materials and a mesh pool to avoid creating unique meshes/materials
- * for every object instance.
+ * Uses InstanceBuckets keyed by archetype+material+region+layer to batch draw calls.
+ * Geometry and material are obtained through RenderResourceRegistry.
  */
 export class ObjectRenderer {
   private readonly scene: Scene;
+  private readonly registry: RenderResourceRegistry;
   private readonly objects = new Map<number, ObjectInstance>();
+  private readonly buckets = new Map<string, InstanceBucket>();
   private readonly objectGroup = new Group();
-  private readonly meshPool = new Map<string, Mesh[]>();
+  private readonly flushPending = new Set<string>();
+  private readonly _registeredArchetypes = new Set<string>();
+  private readonly _scratchPos = new Vector3();
+  private readonly _scratchQuat = new Quaternion();
+  private readonly _scratchScale = new Vector3();
+  private readonly _scratchMatrix = new Matrix4();
+  private _frameId = 0;
 
   constructor(options: ObjectRendererOptions) {
     this.scene = options.scene;
+    this.registry = options.registry ?? new RenderResourceRegistry();
     this.objectGroup.name = "objects";
     this.scene.add(this.objectGroup);
   }
 
-  /** Spawn an object at a tile. Reuses pooled meshes when available. */
+  /** Spawn an object at a tile. Acquires a slot in the correct bucket. */
   spawn(entityId: number, tile: TileCoord, defId: string): void {
     if (this.objects.has(entityId)) {
       this.remove(entityId);
     }
 
-    const template = getTemplate(defId);
-    const yOffset = template.yOffset;
-    const scale = template.scale;
-    const mesh = this._acquireMesh(defId, template);
-    mesh.position.set(tile.x, yOffset, -tile.y);
-    mesh.scale.copy(scale);
-    mesh.castShadow = false;
-    mesh.receiveShadow = false;
-    mesh.visible = true;
-    mesh.name = `object_${entityId}`;
-    mesh.userData = { entityId, kind: "object", defId };
+    const archetypeId = resolveArchetype(defId);
+    const regionId = computeRegionId(tile);
+    const materialId = "default";
+    const layer = "objects";
+    const keyStr = makeBucketKey(archetypeId, materialId, regionId, layer);
 
-    this.objectGroup.add(mesh);
+    const bucket = this._getOrCreateBucket(keyStr, archetypeId, regionId, materialId, layer);
+    let slot = bucket.acquire(entityId);
+    if (slot === null) {
+      bucket.growCapacity(Math.max(bucket.stats().capacity * 2, 16));
+      slot = bucket.acquire(entityId);
+      if (slot === null) return;
+    }
+
+    this._scratchPos.set(tile.x, 0.1, -tile.y);
+    this._scratchQuat.set(0, 0, 0, 1);
+    this._scratchScale.set(1, 1, 1);
+    this._scratchMatrix.compose(this._scratchPos, this._scratchQuat, this._scratchScale);
+    bucket.writeTransform(entityId, this._scratchMatrix);
+
     this.objects.set(entityId, {
       entityId,
-      mesh,
       tile,
       defId,
+      archetypeId,
+      bucketKey: keyStr,
+      slot,
     });
+
+    this._updateBucketUserData(keyStr);
+    this._markPending(keyStr);
   }
 
-  /** Remove an object by entity ID. Returns mesh to pool for reuse. */
+  /** Remove an object by entity ID. Releases its bucket slot. */
   remove(entityId: number): void {
     const obj = this.objects.get(entityId);
     if (!obj) return;
-    this.objectGroup.remove(obj.mesh);
-    this._releaseMesh(obj.defId, obj.mesh);
+
     this.objects.delete(entityId);
+
+    const bucket = this.buckets.get(obj.bucketKey);
+    if (bucket) {
+      bucket.release(entityId);
+      this._updateBucketUserData(obj.bucketKey);
+      this._markPending(obj.bucketKey);
+    }
   }
 
-  /** Update an object's transform (rotation, state). */
+  /** Update an object's transform (rotation). */
   updateTransform(entityId: number, rotation: number): void {
     const obj = this.objects.get(entityId);
     if (!obj) return;
-    obj.mesh.rotation.y = (rotation * Math.PI) / 2;
+
+    const bucket = this.buckets.get(obj.bucketKey);
+    if (!bucket) return;
+
+    const angle = (rotation * Math.PI) / 2;
+    this._scratchPos.set(obj.tile.x, 0.1, -obj.tile.y);
+    this._scratchQuat.set(0, Math.sin(angle / 2), 0, Math.cos(angle / 2));
+    this._scratchScale.set(1, 1, 1);
+    this._scratchMatrix.compose(this._scratchPos, this._scratchQuat, this._scratchScale);
+    bucket.writeTransform(entityId, this._scratchMatrix);
+    this._markPending(obj.bucketKey);
   }
 
   /** Replace the object's render definition while keeping its authoritative tile. */
@@ -371,22 +384,25 @@ export class ObjectRenderer {
     for (const id of Array.from(this.objects.keys())) {
       this.remove(id);
     }
+    for (const bucket of this.buckets.values()) {
+      bucket.flush(this._frameId);
+    }
+    this.flushPending.clear();
   }
 
   dispose(): void {
     this.clear();
-    for (const meshes of this.meshPool.values()) {
-      for (const mesh of meshes) {
-        mesh.clear();
-      }
+    for (const bucket of this.buckets.values()) {
+      bucket.dispose();
     }
-    this.meshPool.clear();
-    // Dispose templates
-    for (const template of objectTemplates.values()) {
-      template.geometry.dispose();
-      template.material.dispose();
+    this.buckets.clear();
+
+    for (const archetypeId of this._registeredArchetypes) {
+      this.registry.releaseGeometry({ type: "prop", contentId: archetypeId });
+      this.registry.releaseMaterial({ type: "prop", contentId: archetypeId, materialId: "default" });
     }
-    objectTemplates.clear();
+    this._registeredArchetypes.clear();
+
     this.objectGroup.clear();
     this.scene.remove(this.objectGroup);
   }
@@ -396,39 +412,98 @@ export class ObjectRenderer {
     return this.objects.size;
   }
 
-  /** Return all object meshes for raycasting. */
-  getRaycastTargets(): Mesh[] {
-    const targets: Mesh[] = [];
-    for (const obj of this.objects.values()) {
-      targets.push(obj.mesh);
+  /** Return all bucket meshes for raycasting. */
+  getRaycastTargets(): import("three").Mesh[] {
+    const targets: import("three").Mesh[] = [];
+    for (const bucket of this.buckets.values()) {
+      targets.push(bucket.mesh);
     }
     return targets;
   }
 
-  private _acquireMesh(defId: string, template: ObjectTemplate): Mesh {
-    const pool = this.meshPool.get(defId);
-    const material = template.material;
-    const geometry = template.geometry;
-    if (pool && pool.length > 0) {
-      const mesh = pool.pop();
-      if (mesh) {
-        mesh.material = material;
-        mesh.geometry = geometry;
-        mesh.rotation.set(0, 0, 0);
-        return mesh;
+  /** Flush all changed buckets. Call once per render frame. */
+  flush(frameId: number): void {
+    this._frameId = frameId;
+    for (const keyStr of this.flushPending) {
+      const bucket = this.buckets.get(keyStr);
+      if (bucket) {
+        bucket.flush(frameId);
       }
     }
-    return new Mesh(geometry, material);
+    this.flushPending.clear();
   }
 
-  private _releaseMesh(defId: string, mesh: Mesh): void {
-    let pool = this.meshPool.get(defId);
-    if (!pool) {
-      pool = [];
-      this.meshPool.set(defId, pool);
+  /** Cull or show all buckets belonging to a region without destroying slots. */
+  setRegionVisible(regionId: string, visible: boolean): void {
+    for (const bucket of this.buckets.values()) {
+      if (bucket.key.regionId === regionId) {
+        bucket.mesh.visible = visible;
+      }
     }
-    mesh.visible = false;
-    mesh.userData = {};
-    pool.push(mesh);
+  }
+
+  private _getOrCreateBucket(
+    keyStr: string,
+    archetypeId: string,
+    regionId: string,
+    materialId: string,
+    layer: string,
+  ): InstanceBucket {
+    let bucket = this.buckets.get(keyStr);
+    if (bucket) return bucket;
+
+    this._ensureArchetypeRegistered(archetypeId);
+
+    const geometryKey: RenderResourceKey = { type: "prop", contentId: archetypeId };
+    const materialKey: RenderResourceKey = { type: "prop", contentId: archetypeId, materialId };
+
+    const geometry = this.registry.getGeometry(geometryKey);
+    const material = this.registry.getMaterial(materialKey);
+
+    const key: InstanceBucketKey = { archetypeId, materialId, regionId, layer };
+    bucket = new InstanceBucket(key, {
+      geometry,
+      material,
+      initialCapacity: 16,
+    });
+
+    this.objectGroup.add(bucket.mesh);
+    this.buckets.set(keyStr, bucket);
+    return bucket;
+  }
+
+  private _ensureArchetypeRegistered(archetypeId: string): void {
+    if (this._registeredArchetypes.has(archetypeId)) return;
+    this._registeredArchetypes.add(archetypeId);
+
+    const geometryKey: RenderResourceKey = { type: "prop", contentId: archetypeId };
+    const materialKey: RenderResourceKey = { type: "prop", contentId: archetypeId, materialId: "default" };
+
+    this.registry.registerGeometry(geometryKey, () => {
+      return buildGeometry(archetypeId, `${archetypeId}_default`);
+    });
+
+    this.registry.registerMaterial(materialKey, () => {
+      return vertexColorMaterial();
+    });
+  }
+
+  private _updateBucketUserData(keyStr: string): void {
+    const bucket = this.buckets.get(keyStr);
+    if (!bucket) return;
+    const instanceMap: { entityId: number; defId: string }[] = [];
+    for (const obj of this.objects.values()) {
+      if (obj.bucketKey === keyStr) {
+        instanceMap[obj.slot] = { entityId: obj.entityId, defId: obj.defId };
+      }
+    }
+    bucket.mesh.userData = {
+      kind: "object",
+      instanceMap,
+    };
+  }
+
+  private _markPending(keyStr: string): void {
+    this.flushPending.add(keyStr);
   }
 }

@@ -1,20 +1,22 @@
+import { tileKey } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { createWorld, type World } from "../ecs/world";
-import { createInventory, addItem, catalogFromItems } from "../items/inventory";
-import { ActionRuntime } from "../sim/action-runtime";
+import { addItem, catalogFromItems, createInventory } from "../items/inventory";
+import { type ActionExecution, ActionQueue } from "../sim/action-queue";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
 import { handleObjectIntent } from "./object-interaction-router";
 import { handleProcess, handleRecipeSelect, type ProcessActionPayload } from "./skilling-system";
-import { type ActionExecution } from "../sim/action-queue";
-import { tileKey } from "@old-town/shared";
 
-function advanceToExecution(actionRuntime: import("../sim/action-runtime").ActionRuntime, delayTicks: number): ActionExecution {
+function advanceToExecution(
+  actionQueue: import("../sim/action-queue").ActionQueue,
+  delayTicks: number,
+): ActionExecution {
   let executions: readonly ActionExecution[] = [];
   for (let tick = 1; tick <= delayTicks; tick += 1) {
-    executions = actionRuntime.advanceTick();
+    executions = actionQueue.advanceTick();
   }
   const execution = executions[0];
   if (!execution) {
@@ -238,7 +240,12 @@ function addPlayer(world: World, x = 1, y = 1): import("@old-town/shared").Entit
   return entityId;
 }
 
-function addObject(world: World, objectId: string, x = 2, y = 1): import("@old-town/shared").EntityId {
+function addObject(
+  world: World,
+  objectId: string,
+  x = 2,
+  y = 1,
+): import("@old-town/shared").EntityId {
   const entityId = world.createEntity();
   world.setComponent(entityId, "position", { entityId, x, y, plane: 0 });
   world.setComponent(entityId, "object", {
@@ -331,7 +338,7 @@ function setup() {
   addOpenTiles(map);
   const collision = new CollisionMap(map);
   const deltas = new DeltaAccumulator();
-  const actionRuntime = new ActionRuntime();
+  const actionQueue = new ActionQueue();
   const registries = makeRegistries({
     object: new Map([
       [TANNING_FRAME_DEF.id, TANNING_FRAME_DEF],
@@ -366,17 +373,17 @@ function setup() {
     world,
     collision,
     deltas,
-    actionRuntime,
+    actionQueue,
     registries,
     rng: { nextFloat: () => 0, nextInt: () => 0, chanceOneIn: () => false },
     itemAudit: undefined,
   };
-  return { ctx, world, deltas, actionRuntime };
+  return { ctx, world, deltas, actionQueue };
 }
 
 describe("trapping action runtime", () => {
   it("tan converts hide to leather at tanning frame", () => {
-    const { ctx, world, deltas, actionRuntime } = setup();
+    const { ctx, world, deltas, actionQueue } = setup();
     const player = addPlayer(world, 1, 1);
     const frame = addObject(world, "patch_tanning_frame", 2, 1);
     const inventory = world.getComponent(player, "inventory");
@@ -389,8 +396,12 @@ describe("trapping action runtime", () => {
     expect(result).toBe(true);
 
     expect(handleRecipeSelect(ctx, player, frame, TAN_RECIPE.id, 0)).toBe(true);
-    const execution = advanceToExecution(actionRuntime, TAN_RECIPE.actionTicks);
-    const payload: ProcessActionPayload = { kind: "process", stationEntityId: frame, recipeId: TAN_RECIPE.id };
+    const execution = advanceToExecution(actionQueue, TAN_RECIPE.actionTicks);
+    const payload: ProcessActionPayload = {
+      kind: "process",
+      stationEntityId: frame,
+      recipeId: TAN_RECIPE.id,
+    };
     handleProcess(ctx, execution, payload, TAN_RECIPE.actionTicks, 0);
 
     const leatherCount = inventory.slots.reduce((sum, slot) => {
@@ -418,7 +429,7 @@ describe("trapping action runtime", () => {
   });
 
   it("dye applies dye to cloth at dye vat", () => {
-    const { ctx, world, deltas, actionRuntime } = setup();
+    const { ctx, world, deltas, actionQueue } = setup();
     const player = addPlayer(world, 1, 1);
     const vat = addObject(world, "patch_dye_vat", 2, 1);
     const inventory = world.getComponent(player, "inventory");
@@ -432,8 +443,12 @@ describe("trapping action runtime", () => {
     expect(result).toBe(true);
 
     expect(handleRecipeSelect(ctx, player, vat, DYE_RECIPE.id, 0)).toBe(true);
-    const execution = advanceToExecution(actionRuntime, DYE_RECIPE.actionTicks);
-    const payload: ProcessActionPayload = { kind: "process", stationEntityId: vat, recipeId: DYE_RECIPE.id };
+    const execution = advanceToExecution(actionQueue, DYE_RECIPE.actionTicks);
+    const payload: ProcessActionPayload = {
+      kind: "process",
+      stationEntityId: vat,
+      recipeId: DYE_RECIPE.id,
+    };
     handleProcess(ctx, execution, payload, DYE_RECIPE.actionTicks, 0);
 
     const clothCount = inventory.slots.reduce((sum, slot) => {
@@ -473,7 +488,7 @@ describe("trapping action runtime", () => {
   });
 
   it("weave creates bead strand at loom", () => {
-    const { ctx, world, deltas, actionRuntime } = setup();
+    const { ctx, world, deltas, actionQueue } = setup();
     const player = addPlayer(world, 1, 1);
     const loom = addObject(world, "chalkhouse_bead_loom", 2, 1);
     const inventory = world.getComponent(player, "inventory");
@@ -486,8 +501,12 @@ describe("trapping action runtime", () => {
     expect(result).toBe(true);
 
     expect(handleRecipeSelect(ctx, player, loom, WEAVE_RECIPE.id, 0)).toBe(true);
-    const execution = advanceToExecution(actionRuntime, WEAVE_RECIPE.actionTicks);
-    const payload: ProcessActionPayload = { kind: "process", stationEntityId: loom, recipeId: WEAVE_RECIPE.id };
+    const execution = advanceToExecution(actionQueue, WEAVE_RECIPE.actionTicks);
+    const payload: ProcessActionPayload = {
+      kind: "process",
+      stationEntityId: loom,
+      recipeId: WEAVE_RECIPE.id,
+    };
     handleProcess(ctx, execution, payload, WEAVE_RECIPE.actionTicks, 0);
 
     const strandCount = inventory.slots.reduce((sum, slot) => {
@@ -503,7 +522,7 @@ describe("trapping action runtime", () => {
   });
 
   it("mix creates remedy at mixing bench", () => {
-    const { ctx, world, deltas, actionRuntime } = setup();
+    const { ctx, world, deltas, actionQueue } = setup();
     const player = addPlayer(world, 1, 1);
     const bench = addObject(world, "chalkhouse_mixing_bench", 2, 1);
     const inventory = world.getComponent(player, "inventory");
@@ -516,8 +535,12 @@ describe("trapping action runtime", () => {
     expect(result).toBe(true);
 
     expect(handleRecipeSelect(ctx, player, bench, MIX_RECIPE.id, 0)).toBe(true);
-    const execution = advanceToExecution(actionRuntime, MIX_RECIPE.actionTicks);
-    const payload: ProcessActionPayload = { kind: "process", stationEntityId: bench, recipeId: MIX_RECIPE.id };
+    const execution = advanceToExecution(actionQueue, MIX_RECIPE.actionTicks);
+    const payload: ProcessActionPayload = {
+      kind: "process",
+      stationEntityId: bench,
+      recipeId: MIX_RECIPE.id,
+    };
     handleProcess(ctx, execution, payload, MIX_RECIPE.actionTicks, 0);
 
     const remedyCount = inventory.slots.reduce((sum, slot) => {

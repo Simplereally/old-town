@@ -1,7 +1,7 @@
 import { ClientCommandType } from "@old-town/shared";
 import { describe, expect, it, vi } from "vitest";
 import { loadContent } from "../content-loader";
-import type { DeltaTransport } from "../net/delta-broadcaster";
+import type { DeltaTransport } from "../net/delta-transport";
 import { createSimulationKernel } from "./simulation-kernel";
 
 async function setup() {
@@ -112,6 +112,45 @@ describe("SimulationKernel", () => {
     expect(result.reason).toBe("no_session_entity");
   });
 
+  it("rejects per-tick command spam", async () => {
+    const { kernel } = await setup();
+
+    const session = makeSession("session-1", "dev-a");
+    await kernel.connectSession(session);
+
+    for (let commandId = 1; commandId <= 8; commandId += 1) {
+      expect(
+        kernel.routeCommand(session, {
+          type: ClientCommandType.MoveClick,
+          commandId,
+          clientTickHint: 0,
+          payload: { dest: { x: 32, y: 34, plane: 0 } },
+        }),
+      ).toEqual({ ok: true });
+    }
+
+    const rejected = kernel.routeCommand(session, {
+      type: ClientCommandType.MoveClick,
+      commandId: 9,
+      clientTickHint: 0,
+      payload: { dest: { x: 32, y: 34, plane: 0 } },
+    });
+
+    expect(rejected).toEqual({ ok: false, reason: "spam_cap" });
+    expect(kernel.stats().pendingCommandCount).toBe(8);
+
+    kernel.runOneTick();
+    expect(
+      kernel.routeCommand(session, {
+        type: ClientCommandType.MoveClick,
+        commandId: 10,
+        clientTickHint: 1,
+        payload: { dest: { x: 32, y: 34, plane: 0 } },
+      }),
+    ).toEqual({ ok: true });
+    expect(kernel.stats().pendingCommandCount).toBe(1);
+  });
+
   it("advances tick and server time on runOneTick", async () => {
     const { kernel } = await setup();
 
@@ -130,7 +169,8 @@ describe("SimulationKernel", () => {
     const { kernel } = await setup();
 
     const startTime = kernel.stats().currentServerTime;
-    const ran = kernel.runDueTicks(startTime + 600 * 5);
+    const { runDueTicks } = kernel;
+    const ran = runDueTicks(startTime + 600 * 5);
 
     expect(ran).toBe(5);
     expect(kernel.stats().currentTick).toBe(5);

@@ -10,9 +10,11 @@ import {
   type TickDeltaPacket,
   type TileCoord,
 } from "@old-town/shared";
-import { Vector3 } from "three";
 import { describe, expect, it, vi } from "vitest";
-import { ClientPacketApplier, type PacketApplierContext } from "./ClientPacketApplier";
+import { UIState } from "../ui/UIState";
+import { ClientPacketApplier, type PurePacketApplierContext } from "./ClientPacketApplier";
+import { ClientWorldStore } from "./ClientWorldStore";
+import { SnapshotBuffer } from "./SnapshotBuffer";
 
 function eid(value: number): EntityId {
   return entityId(value);
@@ -22,88 +24,21 @@ function rid(value: string): RegionId {
   return value as RegionId;
 }
 
-function createMockContext(): PacketApplierContext {
+function createMockContext(): PurePacketApplierContext {
+  const store = new ClientWorldStore();
+  const snapshotBuffer = new SnapshotBuffer({
+    tickMs: 600,
+    interpolationDelayMs: 600,
+    maxSnapshots: 32,
+    freezeAfterMissingTicks: 2,
+    snapAfterMissingTicks: 6,
+  });
+  const uiState = new UIState();
+
   return {
-    terrain: {
-      loadChunk: vi.fn(),
-      unloadRegion: vi.fn(),
-    },
-    objects: {
-      clear: vi.fn(),
-      spawn: vi.fn(),
-      remove: vi.fn(),
-      transform: vi.fn(),
-    },
-    actors: {
-      clear: vi.fn(),
-      spawn: vi.fn(),
-      remove: vi.fn(),
-      updateTile: vi.fn(),
-      updateFacing: vi.fn(),
-      updateHealthBar: vi.fn(),
-      notifyHit: vi.fn(),
-      updateAppearance: vi.fn(),
-      getActorState: vi.fn(),
-    },
-    groundItems: {
-      clear: vi.fn(),
-      spawn: vi.fn(),
-      remove: vi.fn(),
-    },
-    hitsplats: {
-      clear: vi.fn(),
-      show: vi.fn(),
-      update: vi.fn(),
-    },
-    xpDrops: {
-      clear: vi.fn(),
-      show: vi.fn(),
-      update: vi.fn(),
-    },
-    projectiles: {
-      clear: vi.fn(),
-      spawn: vi.fn(),
-    },
-    chatOverhead: {
-      clear: vi.fn(),
-      show: vi.fn(),
-    },
-    debug: {
-      clear: vi.fn(),
-      markPathTile: vi.fn(),
-      markTrueTile: vi.fn(),
-      markCollisionTile: vi.fn(),
-      markFootprint: vi.fn(),
-      markReachTiles: vi.fn(),
-      markLoSRay: vi.fn(),
-      setActionQueue: vi.fn(),
-      setCombatCooldown: vi.fn(),
-      setPendingHits: vi.fn(),
-      setNpcLeash: vi.fn(),
-      setVarbits: vi.fn(),
-    },
-    uiState: {
-      setInventory: vi.fn(),
-      setSkills: vi.fn(),
-      setVars: vi.fn(),
-      setEquipment: vi.fn(),
-      applyInventoryDelta: vi.fn(),
-      applySkillDelta: vi.fn(),
-      applyVarbitDelta: vi.fn(),
-      addChat: vi.fn(),
-      setDialogue: vi.fn(),
-      clearDialogue: vi.fn(),
-      setBank: vi.fn(),
-      applyBankDelta: vi.fn(),
-      clearBank: vi.fn(),
-      setShop: vi.fn(),
-      clearShop: vi.fn(),
-      setRecipeList: vi.fn(),
-      clearRecipeList: vi.fn(),
-      setRecipeResult: vi.fn(),
-      clearRecipeResult: vi.fn(),
-    },
-    selfEntityId: 0,
+    store,
+    snapshotBuffer,
+    uiState,
     logDebug: vi.fn(),
     tileSizeWorldUnits: 1,
   };
@@ -178,8 +113,8 @@ function spawnGroundItem(
   };
 }
 
-describe("ClientPacketApplier", () => {
-  it("applyFullState clears all layers before spawning", () => {
+describe("ClientPacketApplier (pure)", () => {
+  it("applyFullState clears store before spawning", () => {
     const ctx = createMockContext();
     const applier = new ClientPacketApplier(ctx);
 
@@ -187,12 +122,20 @@ describe("ClientPacketApplier", () => {
       fullStatePacket({ entities: [spawnPlayer(1, { x: 0, y: 0, plane: 0 })] }),
     );
 
-    expect(vi.mocked(ctx.actors.clear)).toHaveBeenCalledBefore(vi.mocked(ctx.actors.spawn));
-    expect(ctx.objects.clear).toHaveBeenCalled();
-    expect(ctx.groundItems.clear).toHaveBeenCalled();
-    expect(ctx.hitsplats.clear).toHaveBeenCalled();
-    expect(ctx.chatOverhead.clear).toHaveBeenCalled();
-    expect(ctx.debug?.clear).toHaveBeenCalled();
+    expect(ctx.store.getEntity(1)).toBeDefined();
+    expect(ctx.store.getAllEntities().length).toBe(1);
+  });
+
+  it("applyFullState resets snapshot buffer", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+
+    applier.applyFullState(
+      fullStatePacket({ tick: 10, entities: [spawnPlayer(1, { x: 0, y: 0, plane: 0 })] }),
+    );
+
+    expect(ctx.snapshotBuffer.latestAcceptedTick).toBe(10);
+    expect(ctx.snapshotBuffer.depth).toBe(1);
   });
 
   it("applyFullState sets selfEntityId from packet", () => {
@@ -203,39 +146,71 @@ describe("ClientPacketApplier", () => {
     expect(applier.selfEntityId).toBe(99);
   });
 
-  it("applyFullState loads terrain chunks", () => {
+  it("applyFullState emits region load events", () => {
     const ctx = createMockContext();
     const applier = new ClientPacketApplier(ctx);
     const chunk = { cx: 0, cy: 0, tiles: [] };
 
-    applier.applyFullState(
+    const result = applier.applyFullState(
       fullStatePacket({ regionLoads: [{ regionId: rid("r1"), chunks: [chunk] }] }),
     );
 
-    expect(ctx.terrain.loadChunk).toHaveBeenCalledWith(rid("r1"), chunk);
+    const loadEvents = result.presentationEvents.filter(
+      (e) => e.type === "region.load",
+    );
+    expect(loadEvents.length).toBe(1);
+    expect(loadEvents[0]!.payload).toEqual({ regionId: rid("r1"), chunks: [chunk] });
   });
 
-  it("applyFullState spawns player with self flag", () => {
+  it("applyFullState emits player spawn event with self flag", () => {
     const ctx = createMockContext();
     const applier = new ClientPacketApplier(ctx);
     const player = spawnPlayer(42, { x: 5, y: 5, plane: 0 });
 
-    applier.applyFullState(fullStatePacket({ selfEntityId: eid(42), entities: [player] }));
-
-    expect(ctx.actors.spawn).toHaveBeenCalledWith(
-      eid(42),
-      { x: 5, y: 5, plane: 0 },
-      undefined,
-      true,
-      "player",
+    const result = applier.applyFullState(
+      fullStatePacket({ selfEntityId: eid(42), entities: [player] }),
     );
-    expect(ctx.actors.updateAppearance).toHaveBeenCalledWith(eid(42), {
-      name: "Hero",
-      bodyId: "dev",
+
+    const spawnEvent = result.presentationEvents.find((e) => e.type === "actors.spawn");
+    expect(spawnEvent).toBeDefined();
+    expect(spawnEvent!.payload).toMatchObject({
+      entityId: eid(42),
+      tile: { x: 5, y: 5, plane: 0 },
+      isLocalPlayer: true,
+      kind: "player",
+    });
+
+    const appearanceEvent = result.presentationEvents.find(
+      (e) => e.type === "actors.updateAppearance",
+    );
+    expect(appearanceEvent).toBeDefined();
+    expect(appearanceEvent!.payload).toEqual({
+      entityId: eid(42),
+      appearance: { name: "Hero", bodyId: "dev" },
     });
   });
 
-  it("applyFullState spawns npc, object, and ground_item", () => {
+  it("applyFullState emits npc, object, and ground_item spawn events", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+
+    const result = applier.applyFullState(
+      fullStatePacket({
+        entities: [
+          spawnNpc(1, { x: 1, y: 1, plane: 0 }, "guard"),
+          spawnObject(2, { x: 2, y: 2, plane: 0 }, "rock"),
+          spawnGroundItem(3, { x: 3, y: 3, plane: 0 }, "sword", 1),
+        ],
+      }),
+    );
+
+    const eventTypes = result.presentationEvents.map((e) => e.type);
+    expect(eventTypes).toContain("actors.spawn");
+    expect(eventTypes).toContain("objects.spawn");
+    expect(eventTypes).toContain("groundItems.spawn");
+  });
+
+  it("applyFullState stores npc, object, and ground_item in world store", () => {
     const ctx = createMockContext();
     const applier = new ClientPacketApplier(ctx);
 
@@ -249,20 +224,9 @@ describe("ClientPacketApplier", () => {
       }),
     );
 
-    expect(ctx.actors.spawn).toHaveBeenCalledWith(
-      eid(1),
-      { x: 1, y: 1, plane: 0 },
-      "guard",
-      false,
-      "npc",
-    );
-    expect(ctx.objects.spawn).toHaveBeenCalledWith(eid(2), { x: 2, y: 2, plane: 0 }, "rock");
-    expect(ctx.groundItems.spawn).toHaveBeenCalledWith(
-      eid(3),
-      { x: 3, y: 3, plane: 0 },
-      "sword",
-      1,
-    );
+    expect(ctx.store.getEntity(1)!.kind).toBe("npc");
+    expect(ctx.store.getEntity(2)!.kind).toBe("object");
+    expect(ctx.store.getEntity(3)!.kind).toBe("groundItem");
   });
 
   it("applyFullState sets inventory, equipment, skills, and vars", () => {
@@ -278,10 +242,10 @@ describe("ClientPacketApplier", () => {
 
     applier.applyFullState(fullStatePacket({ inventory, equipment, skills, vars }));
 
-    expect(ctx.uiState.setInventory).toHaveBeenCalledWith(inventory);
-    expect(ctx.uiState.setEquipment).toHaveBeenCalledWith(equipment.slots);
-    expect(ctx.uiState.setSkills).toHaveBeenCalledWith(skills);
-    expect(ctx.uiState.setVars).toHaveBeenCalledWith(vars);
+    expect(ctx.uiState.inventory.get(0)?.itemId).toBe("coin");
+    expect(ctx.uiState.equipment.get(0)).toBe("helm");
+    expect(ctx.uiState.skills.get("attack")?.level).toBe(1);
+    expect(ctx.uiState.vars.get("quest")).toBe(1);
   });
 
   it("applyFullState returns tick, serverTime, and selfEntityId", () => {
@@ -305,15 +269,15 @@ describe("ClientPacketApplier", () => {
     applier.applyFullState(fullStatePacket({ selfEntityId: eid(42) }));
     const result = applier.applyTickDelta(tickDeltaPacket(), 1);
 
-    expect(result.selfEntityId).toBe(42);
+    expect(result!.selfEntityId).toBe(42);
   });
 
-  it("applyTickDelta unloads and loads terrain regions", () => {
+  it("applyTickDelta emits region unloads and loads", () => {
     const ctx = createMockContext();
     const applier = new ClientPacketApplier(ctx);
     const chunk = { cx: 0, cy: 0, tiles: [] };
 
-    applier.applyTickDelta(
+    const result = applier.applyTickDelta(
       tickDeltaPacket({
         regionUnloads: [{ regionId: rid("old") }],
         regionLoads: [{ regionId: rid("new"), chunks: [chunk] }],
@@ -321,11 +285,32 @@ describe("ClientPacketApplier", () => {
       1,
     );
 
-    expect(ctx.terrain.unloadRegion).toHaveBeenCalledWith(rid("old"));
-    expect(ctx.terrain.loadChunk).toHaveBeenCalledWith(rid("new"), chunk);
+    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    expect(eventTypes).toContain("region.unload");
+    expect(eventTypes).toContain("region.load");
   });
 
-  it("applyTickDelta adds and removes entities", () => {
+  it("applyTickDelta emits add and remove events", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(fullStatePacket({ selfEntityId: eid(1) }));
+
+    const result = applier.applyTickDelta(
+      tickDeltaPacket({
+        entityAdds: [spawnNpc(10, { x: 0, y: 0, plane: 0 })],
+        entityRemoves: [eid(5)],
+      }),
+      1,
+    );
+
+    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    expect(eventTypes).toContain("actors.spawn");
+    expect(eventTypes).toContain("objects.remove");
+    expect(eventTypes).toContain("actors.remove");
+    expect(eventTypes).toContain("groundItems.remove");
+  });
+
+  it("applyTickDelta updates store on entity add and remove", () => {
     const ctx = createMockContext();
     const applier = new ClientPacketApplier(ctx);
     applier.applyFullState(fullStatePacket({ selfEntityId: eid(1) }));
@@ -338,29 +323,16 @@ describe("ClientPacketApplier", () => {
       1,
     );
 
-    expect(ctx.actors.spawn).toHaveBeenCalledWith(
-      eid(10),
-      { x: 0, y: 0, plane: 0 },
-      "goblin",
-      false,
-      "npc",
-    );
-    expect(ctx.objects.remove).toHaveBeenCalledWith(eid(5));
-    expect(ctx.actors.remove).toHaveBeenCalledWith(eid(5));
-    expect(ctx.groundItems.remove).toHaveBeenCalledWith(eid(5));
+    expect(ctx.store.getEntity(10)).toBeDefined();
+    expect(ctx.store.getEntity(10)!.kind).toBe("npc");
   });
 
-  it("applyTickDelta updates actor position and facing", () => {
+  it("applyTickDelta emits actor position and facing events", () => {
     const ctx = createMockContext();
     const applier = new ClientPacketApplier(ctx);
-    applier.applyFullState(fullStatePacket({ selfEntityId: eid(1) }));
+    applier.applyFullState(fullStatePacket({ selfEntityId: eid(1), entities: [spawnNpc(5, { x: 0, y: 0, plane: 0 })] }));
 
-    vi.mocked(ctx.actors.getActorState).mockReturnValue({
-      serverTile: { x: 0, y: 0, plane: 0 },
-      visualPosition: new Vector3(0, 0, 0),
-    });
-
-    applier.applyTickDelta(
+    const result = applier.applyTickDelta(
       tickDeltaPacket({
         entityUpdates: [
           {
@@ -376,16 +348,46 @@ describe("ClientPacketApplier", () => {
       1,
     );
 
-    expect(ctx.actors.updateTile).toHaveBeenCalledWith(eid(5), { x: 1, y: 0, plane: 0 });
-    expect(ctx.actors.updateFacing).toHaveBeenCalledWith(eid(5), Direction.East);
+    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    expect(ctx.store.getEntity(5)).toBeDefined();
+    expect(eventTypes).toContain("actors.updateTile");
+    expect(eventTypes).toContain("actors.updateFacing");
   });
 
-  it("applyTickDelta transforms object definitions", () => {
+  it("applyTickDelta updates store on position change", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(
+      fullStatePacket({ selfEntityId: eid(1), entities: [spawnNpc(5, { x: 0, y: 0, plane: 0 })] }),
+    );
+
+    applier.applyTickDelta(
+      tickDeltaPacket({
+        entityUpdates: [
+          {
+            entityId: eid(5),
+            mask: 0,
+            changes: {
+              position: { x: 1, y: 0, plane: 0 },
+            },
+          },
+        ],
+      }),
+      1,
+    );
+
+    const entity = ctx.store.getEntity(5);
+    expect(entity).toBeDefined();
+    expect(entity!.tile).toEqual({ x: 1, y: 0, plane: 0 });
+    expect(entity!.previousTile).toEqual({ x: 0, y: 0, plane: 0 });
+  });
+
+  it("applyTickDelta emits object transform event", () => {
     const ctx = createMockContext();
     const applier = new ClientPacketApplier(ctx);
     applier.applyFullState(fullStatePacket({ selfEntityId: eid(1) }));
 
-    applier.applyTickDelta(
+    const result = applier.applyTickDelta(
       tickDeltaPacket({
         entityUpdates: [
           {
@@ -398,15 +400,17 @@ describe("ClientPacketApplier", () => {
       1,
     );
 
-    expect(ctx.objects.transform).toHaveBeenCalledWith(eid(5), "dry_tree_depleted");
+    const event = result!.presentationEvents.find((e) => e.type === "objects.transform");
+    expect(event).toBeDefined();
+    expect(event!.payload).toEqual({ entityId: eid(5), defId: "dry_tree_depleted" });
   });
 
-  it("applyTickDelta shows hitsplats and syncs equipment for self", () => {
+  it("applyTickDelta emits hitsplats and syncs equipment for self", () => {
     const ctx = createMockContext();
     const applier = new ClientPacketApplier(ctx);
     applier.applyFullState(fullStatePacket({ selfEntityId: eid(42) }));
 
-    applier.applyTickDelta(
+    const result = applier.applyTickDelta(
       tickDeltaPacket({
         entityUpdates: [
           {
@@ -422,16 +426,18 @@ describe("ClientPacketApplier", () => {
       1,
     );
 
-    expect(ctx.hitsplats.show).toHaveBeenCalledWith(eid(42), 5, "damage", 1);
-    expect(ctx.uiState.setEquipment).toHaveBeenCalledWith(["helm"]);
+    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    expect(eventTypes).toContain("hitsplats.show");
+    expect(eventTypes).toContain("actors.notifyHit");
+    expect(ctx.uiState.equipment.get(0)).toBe("helm");
   });
 
-  it("applyTickDelta shows XP drops for self", () => {
+  it("applyTickDelta emits XP drop events", () => {
     const ctx = createMockContext();
     const applier = new ClientPacketApplier(ctx);
     applier.applyFullState(fullStatePacket({ selfEntityId: eid(42) }));
 
-    applier.applyTickDelta(
+    const result = applier.applyTickDelta(
       tickDeltaPacket({
         xpDrops: [
           { skillId: "woodcutting", amount: 25 },
@@ -441,25 +447,28 @@ describe("ClientPacketApplier", () => {
       1,
     );
 
-    expect(ctx.xpDrops.show).toHaveBeenCalledWith(eid(42), "woodcutting", 25, 1);
-    expect(ctx.xpDrops.show).toHaveBeenCalledWith(eid(42), "mining", 15, 1);
+    const xpEvents = result!.presentationEvents.filter((e) => e.type === "xpDrops.show");
+    expect(xpEvents.length).toBe(2);
   });
 
-  it("applyFullState clears xp drops", () => {
+  it("applyFullState emits xpDrops.clear event", () => {
     const ctx = createMockContext();
     const applier = new ClientPacketApplier(ctx);
 
-    applier.applyFullState(fullStatePacket({ entities: [spawnPlayer(1, { x: 0, y: 0, plane: 0 })] }));
+    const result = applier.applyFullState(
+      fullStatePacket({ entities: [spawnPlayer(1, { x: 0, y: 0, plane: 0 })] }),
+    );
 
-    expect(ctx.xpDrops.clear).toHaveBeenCalled();
+    const eventTypes = result.presentationEvents.map((e) => e.type);
+    expect(eventTypes).toContain("xpDrops.clear");
   });
 
-  it("applyTickDelta spawns projectile visual events", () => {
+  it("applyTickDelta emits projectile events", () => {
     const ctx = createMockContext();
     const applier = new ClientPacketApplier(ctx);
     applier.applyFullState(fullStatePacket({ selfEntityId: eid(42) }));
 
-    applier.applyTickDelta(
+    const result = applier.applyTickDelta(
       tickDeltaPacket({
         projectiles: [
           {
@@ -477,20 +486,23 @@ describe("ClientPacketApplier", () => {
       1,
     );
 
-    expect(ctx.projectiles.spawn).toHaveBeenCalledWith(
-      "proj-1",
-      { x: 1, y: 1, plane: 0 },
-      { x: 3, y: 1, plane: 0 },
-      2,
-    );
+    const event = result!.presentationEvents.find((e) => e.type === "projectiles.spawn");
+    expect(event).toBeDefined();
+    expect(event!.payload).toEqual({
+      id: "proj-1",
+      startTile: { x: 1, y: 1, plane: 0 },
+      endTile: { x: 3, y: 1, plane: 0 },
+      startTick: 10,
+      hitTick: 12,
+    });
   });
 
-  it("applyTickDelta updates actor health bars", () => {
+  it("applyTickDelta emits health bar update events", () => {
     const ctx = createMockContext();
     const applier = new ClientPacketApplier(ctx);
     applier.applyFullState(fullStatePacket({ selfEntityId: eid(42) }));
 
-    applier.applyTickDelta(
+    const result = applier.applyTickDelta(
       tickDeltaPacket({
         entityUpdates: [
           {
@@ -503,7 +515,9 @@ describe("ClientPacketApplier", () => {
       1,
     );
 
-    expect(ctx.actors.updateHealthBar).toHaveBeenCalledWith(eid(7), 3, 10);
+    const event = result!.presentationEvents.find((e) => e.type === "actors.updateHealthBar");
+    expect(event).toBeDefined();
+    expect(event!.payload).toEqual({ entityId: eid(7), health: 3, maxHealth: 10 });
   });
 
   it("applyTickDelta ignores equipment for non-self entity", () => {
@@ -526,7 +540,7 @@ describe("ClientPacketApplier", () => {
       1,
     );
 
-    expect(ctx.uiState.setEquipment).not.toHaveBeenCalled();
+    expect(ctx.uiState.equipment.size).toBe(0);
   });
 
   it("applyTickDelta applies UI deltas and chat", () => {
@@ -537,12 +551,8 @@ describe("ClientPacketApplier", () => {
     const chat = [
       { text: "Hello", channel: "public" as const, entityId: eid(5), serverTime: 1000 },
     ];
-    vi.mocked(ctx.actors.getActorState).mockReturnValue({
-      serverTile: { x: 0, y: 0, plane: 0 },
-      visualPosition: new Vector3(0, 0, 0),
-    });
 
-    applier.applyTickDelta(
+    const result = applier.applyTickDelta(
       tickDeltaPacket({
         inventoryDeltas: [{ containerId: "inventory", changes: [] }],
         skillDelta: [{ skillId: "attack", level: 2, xp: 100, effectiveLevel: 2 }],
@@ -565,36 +575,29 @@ describe("ClientPacketApplier", () => {
       1,
     );
 
-    expect(ctx.uiState.applyInventoryDelta).toHaveBeenCalled();
-    expect(ctx.uiState.applySkillDelta).toHaveBeenCalledWith([
-      { skillId: "attack", level: 2, xp: 100, effectiveLevel: 2 },
-    ]);
-    expect(ctx.uiState.applyVarbitDelta).toHaveBeenCalledWith([{ varId: "flag", value: 1 }]);
-    expect(ctx.uiState.addChat).toHaveBeenCalledWith(chat);
-    expect(ctx.chatOverhead.show).toHaveBeenCalledWith(eid(5), "Hello", new Vector3(0, 0, 0));
-    expect(ctx.uiState.setDialogue).toHaveBeenCalledWith({
-      dialogueId: "dialogue_1",
-      nodeId: "start",
-      speakerName: "Baker",
-      npcText: "Hello.",
-      options: [{ index: 0, text: "Continue" }],
-    });
-    expect(ctx.uiState.clearDialogue).toHaveBeenCalled();
+    expect(ctx.uiState.chat.length).toBeGreaterThan(0);
+    expect(ctx.uiState.skills.get("attack")?.level).toBe(2);
+    expect(ctx.uiState.vars.get("flag")).toBe(1);
+    expect(ctx.uiState.dialogue).toBeUndefined();
+
+    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    expect(eventTypes).toContain("chatOverhead.show");
   });
 
-  it("does not show chat overhead for system messages", () => {
+  it("does not emit chatOverhead for system messages", () => {
     const ctx = createMockContext();
     const applier = new ClientPacketApplier(ctx);
     applier.applyFullState(fullStatePacket({ selfEntityId: eid(1) }));
 
-    applier.applyTickDelta(
+    const result = applier.applyTickDelta(
       tickDeltaPacket({
         chat: [{ text: "System msg", channel: "system" as const, serverTime: 1000 }],
       }),
       1,
     );
 
-    expect(ctx.chatOverhead.show).not.toHaveBeenCalled();
+    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    expect(eventTypes).not.toContain("chatOverhead.show");
   });
 
   it("logs unknown entity kind instead of silently dropping", () => {
@@ -624,13 +627,14 @@ describe("ClientPacketApplier", () => {
     applier.recordClickTile({ x: 10, y: 20, plane: 0 }, 5);
     const result = applier.applyTickDelta(
       tickDeltaPacket({
+        tick: 6,
         debug: { paths: [{ entityId: eid(42), path: [] }] },
       }),
-      6,
+      5,
     );
 
     expect(ctx.logDebug).toHaveBeenCalledWith("Move rejected: no path to (10, 20)");
-    expect(result.rejectedMoves).toEqual([{ tile: { x: 10, y: 20, plane: 0 }, tick: 5 }]);
+    expect(result!.rejectedMoves).toEqual([{ tile: { x: 10, y: 20, plane: 0 }, tick: 5 }]);
   });
 
   it("reports rejected move when no self path is present", () => {
@@ -641,13 +645,14 @@ describe("ClientPacketApplier", () => {
     applier.recordClickTile({ x: 5, y: 5, plane: 0 }, 5);
     const result = applier.applyTickDelta(
       tickDeltaPacket({
+        tick: 6,
         debug: { paths: [{ entityId: eid(99), path: [{ x: 0, y: 0, plane: 0 }] }] },
       }),
-      6,
+      5,
     );
 
     expect(ctx.logDebug).toHaveBeenCalledWith("Move rejected: no path to (5, 5)");
-    expect(result.rejectedMoves).toEqual([{ tile: { x: 5, y: 5, plane: 0 }, tick: 5 }]);
+    expect(result!.rejectedMoves).toEqual([{ tile: { x: 5, y: 5, plane: 0 }, tick: 5 }]);
   });
 
   it("does not report rejected move when click is too old", () => {
@@ -658,20 +663,21 @@ describe("ClientPacketApplier", () => {
     applier.recordClickTile({ x: 5, y: 5, plane: 0 }, 1);
     const result = applier.applyTickDelta(
       tickDeltaPacket({
+        tick: 6,
         debug: { paths: [{ entityId: eid(42), path: [] }] },
       }),
-      6,
+      5,
     );
 
-    expect(result.rejectedMoves).toEqual([]);
+    expect(result!.rejectedMoves).toEqual([]);
   });
 
-  it("marks debug path tiles for self entity", () => {
+  it("emits debug path tiles for self entity", () => {
     const ctx = createMockContext();
     const applier = new ClientPacketApplier(ctx);
     applier.applyFullState(fullStatePacket({ selfEntityId: eid(42) }));
 
-    applier.applyTickDelta(
+    const result = applier.applyTickDelta(
       tickDeltaPacket({
         debug: {
           paths: [
@@ -688,16 +694,16 @@ describe("ClientPacketApplier", () => {
       1,
     );
 
-    expect(ctx.debug?.markPathTile).toHaveBeenCalledWith({ x: 1, y: 0, plane: 0 });
-    expect(ctx.debug?.markPathTile).toHaveBeenCalledWith({ x: 2, y: 0, plane: 0 });
+    const debugEvents = result!.debugEvents.filter((e) => e.type === "debug.markPathTile");
+    expect(debugEvents.length).toBe(2);
   });
 
-  it("applies all debug overlays", () => {
+  it("emits all debug overlay events", () => {
     const ctx = createMockContext();
     const applier = new ClientPacketApplier(ctx);
     applier.applyFullState(fullStatePacket({ selfEntityId: eid(1) }));
 
-    applier.applyTickDelta(
+    const result = applier.applyTickDelta(
       tickDeltaPacket({
         debug: {
           trueTiles: [{ entityId: eid(1), tile: { x: 0, y: 0, plane: 0 } }],
@@ -715,16 +721,18 @@ describe("ClientPacketApplier", () => {
       1,
     );
 
-    expect(ctx.debug?.markTrueTile).toHaveBeenCalledWith({ x: 0, y: 0, plane: 0 }, eid(1));
-    expect(ctx.debug?.markCollisionTile).toHaveBeenCalledWith({ x: 1, y: 1, plane: 0 });
-    expect(ctx.debug?.markFootprint).toHaveBeenCalledWith({ x: 2, y: 2, plane: 0 });
-    expect(ctx.debug?.markReachTiles).toHaveBeenCalledWith({ x: 3, y: 3, plane: 0 }, 2);
-    expect(ctx.debug?.markLoSRay).toHaveBeenCalled();
-    expect(ctx.debug?.setActionQueue).toHaveBeenCalledWith(["move", "attack"]);
-    expect(ctx.debug?.setCombatCooldown).toHaveBeenCalledWith(3);
-    expect(ctx.debug?.setPendingHits).toHaveBeenCalledWith(new Map([["5", 10]]));
-    expect(ctx.debug?.setNpcLeash).toHaveBeenCalledWith({ x: 4, y: 4, plane: 0 });
-    expect(ctx.debug?.setVarbits).toHaveBeenCalledWith(new Map([["q1", 1]]));
+    const debugEvents = result!.debugEvents;
+    const types = debugEvents.map((e) => e.type);
+    expect(types).toContain("debug.markTrueTile");
+    expect(types).toContain("debug.markCollisionTile");
+    expect(types).toContain("debug.markFootprint");
+    expect(types).toContain("debug.markReachTiles");
+    expect(types).toContain("debug.markLoSRay");
+    expect(types).toContain("debug.setActionQueue");
+    expect(types).toContain("debug.setCombatCooldown");
+    expect(types).toContain("debug.setPendingHits");
+    expect(types).toContain("debug.setNpcLeash");
+    expect(types).toContain("debug.setVarbits");
   });
 
   it("applies recipeLists from tick delta", () => {
@@ -739,12 +747,8 @@ describe("ClientPacketApplier", () => {
       recipes: [],
     };
 
-    applier.applyTickDelta(
-      tickDeltaPacket({ recipeLists: [recipeList] }),
-      1,
-    );
-
-    expect(ctx.uiState.setRecipeList).toHaveBeenCalledWith(recipeList);
+    applier.applyTickDelta(tickDeltaPacket({ recipeLists: [recipeList] }), 1);
+    expect(ctx.uiState.recipeList).toEqual(recipeList);
   });
 
   it("applies recipeResults from tick delta", () => {
@@ -757,12 +761,8 @@ describe("ClientPacketApplier", () => {
       { recipeId: "r2", success: false, message: "Failed" },
     ];
 
-    applier.applyTickDelta(
-      tickDeltaPacket({ recipeResults: results }),
-      1,
-    );
-
-    expect(ctx.uiState.setRecipeResult).toHaveBeenCalledWith(results[results.length - 1]);
+    applier.applyTickDelta(tickDeltaPacket({ recipeResults: results }), 1);
+    expect(ctx.uiState.recipeResult).toEqual(results[results.length - 1]);
   });
 
   it("opens recipe via interfaceOpens", () => {
@@ -783,8 +783,7 @@ describe("ClientPacketApplier", () => {
       }),
       1,
     );
-
-    expect(ctx.uiState.setRecipeList).toHaveBeenCalledWith(recipeList);
+    expect(ctx.uiState.recipeList).toEqual(recipeList);
   });
 
   it("closes recipe via interfaceCloses", () => {
@@ -798,7 +797,170 @@ describe("ClientPacketApplier", () => {
       }),
       1,
     );
+    expect(ctx.uiState.recipeList).toBeUndefined();
+  });
 
-    expect(ctx.uiState.clearRecipeList).toHaveBeenCalled();
+  it("applyTickDelta inserts snapshot into buffer", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(fullStatePacket({ tick: 1 }));
+
+    applier.applyTickDelta(tickDeltaPacket({ tick: 2 }), 1);
+    expect(ctx.snapshotBuffer.depth).toBe(2);
+  });
+
+  it("applyTickDelta snapshot contains entities from store", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(
+      fullStatePacket({ tick: 1, entities: [spawnPlayer(1, { x: 0, y: 0, plane: 0 })] }),
+    );
+
+    const result = applier.applyTickDelta(
+      tickDeltaPacket({
+        tick: 2,
+        entityUpdates: [
+          {
+            entityId: eid(1),
+            mask: 0,
+            changes: { position: { x: 1, y: 0, plane: 0 } },
+          },
+        ],
+      }),
+      1,
+    );
+
+    expect(result!.snapshot.entities.length).toBe(1);
+    expect(result!.snapshot.entities[0]!.tile).toEqual({ x: 1, y: 0, plane: 0 });
+  });
+
+  it("applyTickDelta returns null for stale tick", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(fullStatePacket({ tick: 5 }));
+
+    const result = applier.applyTickDelta(tickDeltaPacket({ tick: 4 }), 5);
+    expect(result).toBeNull();
+  });
+
+  it("applyTickDelta returns null for duplicate tick", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(fullStatePacket({ tick: 1 }));
+
+    applier.applyTickDelta(tickDeltaPacket({ tick: 2 }), 1);
+    const result = applier.applyTickDelta(tickDeltaPacket({ tick: 2 }), 1);
+    expect(result).toBeNull();
+  });
+
+  it("applyFullState snapshot contains regionLoads", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+
+    const result = applier.applyFullState(
+      fullStatePacket({
+        tick: 1,
+        regionLoads: [{ regionId: rid("r1"), chunks: [{ cx: 0, cy: 0, tiles: [] }] }],
+      }),
+    );
+
+    expect(result.snapshot.regionLoads.length).toBe(1);
+    expect(result.snapshot.regionUnloads.length).toBe(0);
+  });
+
+  it("applyTickDelta snapshot contains regionLoads and regionUnloads", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(fullStatePacket({ tick: 1 }));
+
+    const result = applier.applyTickDelta(
+      tickDeltaPacket({
+        tick: 2,
+        regionLoads: [{ regionId: rid("r1"), chunks: [{ cx: 0, cy: 0, tiles: [] }] }],
+        regionUnloads: [{ regionId: rid("r0") }],
+      }),
+      1,
+    );
+
+    expect(result!.snapshot.regionLoads.length).toBe(1);
+    expect(result!.snapshot.regionUnloads.length).toBe(1);
+  });
+
+  it("applyTickDelta handles death and respawn notices", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(
+      fullStatePacket({ tick: 1, entities: [spawnPlayer(1, { x: 0, y: 0, plane: 0 })] }),
+    );
+
+    const deathResult = applier.applyTickDelta(
+      tickDeltaPacket({
+        tick: 2,
+        deathNotices: [{ entityId: eid(1) }],
+      }),
+      1,
+    );
+    expect(ctx.uiState.deathScreen).toBe(true);
+    expect(ctx.store.getEntity(1)!.hidden).toBe(true);
+    const deathEventTypes = deathResult!.presentationEvents.map((e) => e.type);
+    expect(deathEventTypes).toContain("actors.hide");
+
+    const respawnResult = applier.applyTickDelta(
+      tickDeltaPacket({
+        tick: 3,
+        respawnNotices: [{ entityId: eid(1), tile: { x: 10, y: 10, plane: 0 } }],
+      }),
+      2,
+    );
+    expect(ctx.uiState.deathScreen).toBe(false);
+    expect(ctx.store.getEntity(1)!.hidden).toBe(false);
+    expect(ctx.store.getEntity(1)!.tile).toEqual({ x: 10, y: 10, plane: 0 });
+    const respawnEventTypes = respawnResult!.presentationEvents.map((e) => e.type);
+    expect(respawnEventTypes).toContain("actors.show");
+    expect(respawnEventTypes).toContain("actors.updateTile");
+  });
+
+  it("applyTickDelta emits events in correct order", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(fullStatePacket({ tick: 1, selfEntityId: eid(1) }));
+
+    const result = applier.applyTickDelta(
+      tickDeltaPacket({
+        tick: 2,
+        entityAdds: [spawnNpc(10, { x: 0, y: 0, plane: 0 })],
+        entityUpdates: [
+          {
+            entityId: eid(10),
+            mask: 0,
+            changes: {
+              position: { x: 1, y: 0, plane: 0 },
+            },
+          },
+        ],
+      }),
+      1,
+    );
+
+    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    const spawnIndex = eventTypes.indexOf("actors.spawn");
+    const updateIndex = eventTypes.indexOf("actors.updateTile");
+    expect(spawnIndex).toBeLessThan(updateIndex);
+  });
+
+  it("applyFullState emits clear events before spawn events", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+
+    const result = applier.applyFullState(
+      fullStatePacket({
+        entities: [spawnPlayer(1, { x: 0, y: 0, plane: 0 })],
+      }),
+    );
+
+    const eventTypes = result.presentationEvents.map((e) => e.type);
+    const clearIndex = eventTypes.indexOf("actors.clear");
+    const spawnIndex = eventTypes.indexOf("actors.spawn");
+    expect(clearIndex).toBeLessThan(spawnIndex);
   });
 });

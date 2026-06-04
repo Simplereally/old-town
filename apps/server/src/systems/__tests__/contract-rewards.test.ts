@@ -1,6 +1,6 @@
 import {
-  entityId,
   type ContractDef,
+  entityId,
   type ItemDef,
   type ObjectDef,
   type SkillDef,
@@ -9,7 +9,7 @@ import { describe, expect, it } from "vitest";
 import { createWorld } from "../../ecs/world";
 import { addItem, catalogFromItems, createInventory } from "../../items/inventory";
 import { ItemAuditLog } from "../../items/item-audit";
-import { ActionRuntime } from "../../sim/action-runtime";
+import { ActionQueue } from "../../sim/action-queue";
 import { DeltaAccumulator } from "../../sim/delta-accumulator";
 import { makeRegistries } from "../../test-support/registries";
 import { CollisionMap } from "../../world/collision";
@@ -159,8 +159,8 @@ function setup() {
 
   const itemAudit = new ItemAuditLog();
   const collision = new CollisionMap(createRuntimeMap());
-  const actionRuntime = new ActionRuntime();
-  const ctx = { world, registries, deltas, itemAudit, collision, actionRuntime };
+  const actionQueue = new ActionQueue();
+  const ctx = { world, registries, deltas, itemAudit, collision, actionQueue };
   return { world, deltas, ctx, registries, itemAudit };
 }
 
@@ -168,7 +168,13 @@ describe("contract reward distribution", () => {
   it("applies XP rewards on contract completion", () => {
     const { world, ctx } = setup();
 
-    handleContractAcceptIntent(ctx, PLAYER, { objectEntityId: CONTRACT_BOARD, actionId: "accept" }, 600, 1);
+    handleContractAcceptIntent(
+      ctx,
+      PLAYER,
+      { objectEntityId: CONTRACT_BOARD, actionId: "accept" },
+      600,
+      1,
+    );
     updateContractObjective(ctx, PLAYER, CONTRACT_BOARD, "kill", "mud_goblin", 10);
     checkContractCompletion(ctx, PLAYER, CONTRACT_BOARD, 600, 1);
 
@@ -178,7 +184,13 @@ describe("contract reward distribution", () => {
   it("applies item rewards on contract completion", () => {
     const { world, ctx } = setup();
 
-    handleContractAcceptIntent(ctx, PLAYER, { objectEntityId: CONTRACT_BOARD, actionId: "accept" }, 600, 1);
+    handleContractAcceptIntent(
+      ctx,
+      PLAYER,
+      { objectEntityId: CONTRACT_BOARD, actionId: "accept" },
+      600,
+      1,
+    );
     updateContractObjective(ctx, PLAYER, CONTRACT_BOARD, "kill", "mud_goblin", 10);
     checkContractCompletion(ctx, PLAYER, CONTRACT_BOARD, 600, 1);
 
@@ -191,7 +203,13 @@ describe("contract reward distribution", () => {
   it("updates reputation and standing on contract completion", () => {
     const { world, ctx } = setup();
 
-    handleContractAcceptIntent(ctx, PLAYER, { objectEntityId: CONTRACT_BOARD, actionId: "accept" }, 600, 1);
+    handleContractAcceptIntent(
+      ctx,
+      PLAYER,
+      { objectEntityId: CONTRACT_BOARD, actionId: "accept" },
+      600,
+      1,
+    );
     updateContractObjective(ctx, PLAYER, CONTRACT_BOARD, "kill", "mud_goblin", 10);
     checkContractCompletion(ctx, PLAYER, CONTRACT_BOARD, 600, 1);
 
@@ -201,7 +219,13 @@ describe("contract reward distribution", () => {
   it("sends contract completion packet to client", () => {
     const { ctx, deltas } = setup();
 
-    handleContractAcceptIntent(ctx, PLAYER, { objectEntityId: CONTRACT_BOARD, actionId: "accept" }, 600, 1);
+    handleContractAcceptIntent(
+      ctx,
+      PLAYER,
+      { objectEntityId: CONTRACT_BOARD, actionId: "accept" },
+      600,
+      1,
+    );
     updateContractObjective(ctx, PLAYER, CONTRACT_BOARD, "kill", "mud_goblin", 10);
     checkContractCompletion(ctx, PLAYER, CONTRACT_BOARD, 600, 1);
 
@@ -226,7 +250,13 @@ describe("contract reward distribution", () => {
       addItem(inventory, catalogFromItems(registries.item), "reward_badge", 1);
     }
 
-    handleContractAcceptIntent(ctx, PLAYER, { objectEntityId: CONTRACT_BOARD, actionId: "accept" }, 600, 1);
+    handleContractAcceptIntent(
+      ctx,
+      PLAYER,
+      { objectEntityId: CONTRACT_BOARD, actionId: "accept" },
+      600,
+      1,
+    );
     updateContractObjective(ctx, PLAYER, CONTRACT_BOARD, "kill", "mud_goblin", 10);
 
     // checkContractCompletion applies rewards internally, so we should verify no rewards
@@ -241,7 +271,13 @@ describe("contract reward distribution", () => {
   it("is idempotent — does not reward twice", () => {
     const { world, ctx } = setup();
 
-    handleContractAcceptIntent(ctx, PLAYER, { objectEntityId: CONTRACT_BOARD, actionId: "accept" }, 600, 1);
+    handleContractAcceptIntent(
+      ctx,
+      PLAYER,
+      { objectEntityId: CONTRACT_BOARD, actionId: "accept" },
+      600,
+      1,
+    );
     updateContractObjective(ctx, PLAYER, CONTRACT_BOARD, "kill", "mud_goblin", 10);
     checkContractCompletion(ctx, PLAYER, CONTRACT_BOARD, 600, 1);
 
@@ -292,10 +328,19 @@ describe("contract reward distribution", () => {
         contract: new Map([[NO_ITEM_CONTRACT.id, NO_ITEM_CONTRACT]]),
       }),
     };
-    // Add collision and actionRuntime to satisfy ContractSystemContext type
-    Object.assign(ctxWithNoItemContract, { collision: ctx.collision, actionRuntime: ctx.actionRuntime });
+    // Add collision and actionQueue to satisfy ContractSystemContext type
+    Object.assign(ctxWithNoItemContract, {
+      collision: ctx.collision,
+      actionQueue: ctx.actionQueue,
+    });
 
-    handleContractAcceptIntent(ctxWithNoItemContract, PLAYER, { objectEntityId: CONTRACT_BOARD, actionId: "accept" }, 600, 1);
+    handleContractAcceptIntent(
+      ctxWithNoItemContract,
+      PLAYER,
+      { objectEntityId: CONTRACT_BOARD, actionId: "accept" },
+      600,
+      1,
+    );
     updateContractObjective(ctxWithNoItemContract, PLAYER, CONTRACT_BOARD, "kill", "stray_dog", 5);
     checkContractCompletion(ctxWithNoItemContract, PLAYER, CONTRACT_BOARD, 600, 1);
 

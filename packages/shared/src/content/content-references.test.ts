@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { validateContentGraph } from "./content-references";
-import type { ContentRegistries } from "./content-registry";
+import type { ContentRegistries } from "./content-registries";
 
 function buildRegistries(overrides: Partial<ContentRegistries> = {}): ContentRegistries {
   return {
@@ -23,6 +23,7 @@ function buildRegistries(overrides: Partial<ContentRegistries> = {}): ContentReg
     statusEffect: new Map(),
     contract: new Map(),
     property: new Map(),
+    charter: new Map(),
     ...overrides,
   };
 }

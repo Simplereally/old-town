@@ -43,16 +43,39 @@ export class EntityPicker {
     if (!closest) return null;
     const mesh = closest.object as Mesh;
     const userData = mesh.userData;
-    if (!userData || typeof userData.entityId !== "number") return null;
 
-    return {
-      entityId: userData.entityId,
-      kind: userData.kind,
-      defId: userData.defId,
-      itemId: userData.itemId,
-      quantity: userData.quantity,
+    let entityId: number | undefined;
+    let kind: PickedEntity["kind"] | undefined;
+    let defId: string | undefined;
+    let itemId: string | undefined;
+    let quantity: number | undefined;
+
+    if (closest.instanceId !== undefined && userData?.instanceMap) {
+      const meta = userData.instanceMap[closest.instanceId];
+      if (meta) {
+        entityId = meta.entityId;
+        kind = userData.kind;
+        defId = meta.defId;
+      }
+    } else if (userData && typeof userData.entityId === "number") {
+      entityId = userData.entityId;
+      kind = userData.kind;
+      defId = userData.defId;
+      itemId = userData.itemId;
+      quantity = userData.quantity;
+    }
+
+    if (entityId === undefined || kind === undefined) return null;
+
+    const result: PickedEntity = {
+      entityId,
+      kind,
       distance: closest.distance,
     };
+    if (defId !== undefined) (result as unknown as Record<string, unknown>).defId = defId;
+    if (itemId !== undefined) (result as unknown as Record<string, unknown>).itemId = itemId;
+    if (quantity !== undefined) (result as unknown as Record<string, unknown>).quantity = quantity;
+    return result;
   }
 
   private _screenToNDC(screenX: number, screenY: number): Vector2 {

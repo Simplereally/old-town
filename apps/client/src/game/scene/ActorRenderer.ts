@@ -1,4 +1,10 @@
-import { Direction, GAME_TICK_MS, TILE_SIZE_WORLD_UNITS, type TileCoord } from "@old-town/shared";
+import {
+  Direction,
+  GAME_TICK_MS,
+  TILE_SIZE_WORLD_UNITS,
+  type MoveSpeed,
+  type TileCoord,
+} from "@old-town/shared";
 import type { BufferGeometry, Scene } from "three";
 import {
   BoxGeometry,
@@ -13,9 +19,24 @@ import {
   SpriteMaterial,
   Vector3,
 } from "three";
+import { RenderResourceRegistry, type RenderResourceKey } from "../renderer/RenderResourceRegistry";
 import { compose, PALETTE, vertexColorMaterial } from "./lowpoly";
 
 export type AnimationState = "idle" | "walk" | "run" | "attack" | "cast" | "hit" | "die";
+
+/** Number of visual substeps per server tick for quantized animation. */
+export const ANIMATION_SUBSTEPS_PER_TICK = 4;
+/** Duration of one animation substep in milliseconds. */
+export const ANIMATION_SUBSTEP_MS = GAME_TICK_MS / ANIMATION_SUBSTEPS_PER_TICK;
+
+/** Lightweight render handle for an actor. Used by the transform cache and policy layer. */
+export interface ActorRenderHandle {
+  readonly entityId: number;
+  readonly kind: "player" | "npc";
+  readonly resourceKey: string;
+  readonly poolSlot: number;
+  bucketId?: string;
+}
 
 interface ActorState {
   readonly entityId: number;
@@ -30,9 +51,11 @@ interface ActorState {
   healthBar?: { current: number; max: number };
   lastHitTick: number;
   tickStartTime: number;
+  resourceKey: string;
+  poolSlot: number;
 }
 
-interface ActorMeshes {
+export interface ActorMeshes {
   readonly group: Group;
   readonly body: Mesh;
   readonly parts: Mesh[];
@@ -80,6 +103,11 @@ const HP_BAR_WIDTH = 1.2;
 const HP_BAR_HEIGHT = 0.18;
 const HP_BAR_FILL_HEIGHT = 0.15;
 const HP_BAR_EPSILON = 0.001;
+
+/** Default pre-warm count for actor pools. */
+const DEFAULT_POOL_SIZE = 8;
+
+const HUMANOID_RESOURCE_KEY = "humanoid";
 
 /**
  * Pick a non-humanoid body plan from a creature def. Keyword-based and purely
@@ -129,18 +157,10 @@ function resolveCreature(defId: string, kind: "player" | "npc"): CreatureSpec {
   return { archetype: "humanoid", body: PALETTE.clothBrown, accent: PALETTE.skin, scale: 1 };
 }
 
-const creatureTemplates = new Map<string, BufferGeometry>();
-
-function getCreatureTemplate(spec: CreatureSpec): BufferGeometry {
-  const key = `${spec.archetype}:${spec.body}:${spec.accent}`;
-  const cached = creatureTemplates.get(key);
-  if (cached) return cached;
-  const geometry = buildCreatureGeometry(spec);
-  creatureTemplates.set(key, geometry);
-  return geometry;
-}
-
-/** Build a creature's merged vertex-coloured body geometry, facing +Z (south). */
+/**
+ * Build a creature's merged vertex-coloured body geometry, facing +Z (south).
+ * Used by the registry factory and creature pool pre-warm.
+ */
 function buildCreatureGeometry(spec: CreatureSpec): BufferGeometry {
   const { archetype, body, accent } = spec;
   switch (archetype) {
@@ -300,51 +320,102 @@ function buildCreatureGeometry(spec: CreatureSpec): BufferGeometry {
 export interface ActorRendererOptions {
   readonly scene: Scene;
   readonly selfEntityId?: number;
+  /** Optional render resource registry. If not provided, a private registry is created. */
+  readonly registry?: RenderResourceRegistry;
+  /** Initial pool capacity for each archetype. */
+  readonly poolSize?: number;
 }
 
 /**
  * Actor renderer for players and NPCs. Maintains server tile truth and interpolates
  * visual position over the 600ms render window.
+ *
+ * Uses pooled presentation objects backed by registry-owned geometries and materials.
+ * Humanoid groups and creature body meshes are pooled by archetype. Actor visual
+ * positions are driven from RenderTransformCache presentation samples.
  */
 export class ActorRenderer {
   private readonly scene: Scene;
+  private readonly registry: RenderResourceRegistry;
   private selfEntityId: number;
   private readonly actors = new Map<number, ActorState>();
-  private readonly meshes = new Map<number, ActorMeshes>();
+  readonly meshes = new Map<number, ActorMeshes>();
   private readonly actorGroup = new Group();
+  private readonly poolSize: number;
+
   // Shared low-poly humanoid parts (flat-shaded for crisp faceted edges).
-  private readonly bodyGeometry = new BoxGeometry(0.52, TORSO_H, 0.34);
-  private readonly headGeometry = new BoxGeometry(HEAD_S, HEAD_S, HEAD_S);
-  private readonly legGeometry = new BoxGeometry(0.2, LEG_H, 0.24);
-  private readonly armGeometry = new BoxGeometry(0.16, LEG_H, 0.22);
-  private readonly playerMaterial = new MeshLambertMaterial({
-    color: 0x3a6ea5,
-    flatShading: true,
-  });
-  private readonly npcMaterial = new MeshLambertMaterial({ color: 0x8b4513, flatShading: true });
-  private readonly localPlayerMaterial = new MeshLambertMaterial({
-    color: 0x4caf50,
-    flatShading: true,
-  });
-  private readonly skinMaterial = new MeshLambertMaterial({ color: 0xe0ac69, flatShading: true });
-  private readonly legMaterial = new MeshLambertMaterial({ color: 0x394a63, flatShading: true });
-  private readonly markerGeometry = new SphereGeometry(0.14, 8, 6);
-  private readonly markerMaterial = new MeshLambertMaterial({ color: 0xffd23f, flatShading: true });
+  private readonly bodyGeometry: BufferGeometry;
+  private readonly headGeometry: BufferGeometry;
+  private readonly legGeometry: BufferGeometry;
+  private readonly armGeometry: BufferGeometry;
+  private readonly playerMaterial: MeshLambertMaterial;
+  private readonly npcMaterial: MeshLambertMaterial;
+  private readonly localPlayerMaterial: MeshLambertMaterial;
+  private readonly skinMaterial: MeshLambertMaterial;
+  private readonly legMaterial: MeshLambertMaterial;
+  private readonly markerGeometry: SphereGeometry;
+  private readonly markerMaterial: MeshLambertMaterial;
   // One shared material for every non-humanoid creature; colour lives in the geometry.
-  private readonly creatureMaterial = vertexColorMaterial();
+  private readonly creatureMaterial: MeshLambertMaterial;
   // Shared health-bar materials (tinted white squares; scale and position drive the bar).
-  private readonly healthBarBgMaterial = new SpriteMaterial({ color: 0x400000, depthTest: false });
-  private readonly healthBarFillMaterial = new SpriteMaterial({ color: 0x10c010, depthTest: false });
+  private readonly healthBarBgMaterial: SpriteMaterial;
+  private readonly healthBarFillMaterial: SpriteMaterial;
+
+  // --- Pools ---
+  private readonly humanoidPool: ActorMeshes[] = [];
+  private readonly humanoidFreeList: ActorMeshes[] = [];
+  private readonly humanoidActive = new Set<ActorMeshes>();
+  private readonly creaturePools = new Map<string, ActorMeshes[]>();
+  private readonly creatureFreeLists = new Map<string, ActorMeshes[]>();
+  private readonly creatureActive = new Map<string, Set<ActorMeshes>>();
+  private readonly registeredArchetypes = new Set<string>();
+  private _nextPoolSlot = 0;
 
   constructor(options: ActorRendererOptions) {
     this.scene = options.scene;
+    this.registry = options.registry ?? new RenderResourceRegistry();
     this.selfEntityId = options.selfEntityId ?? 0;
+    this.poolSize = options.poolSize ?? DEFAULT_POOL_SIZE;
     this.actorGroup.name = "actors";
     this.scene.add(this.actorGroup);
+
+    // Register and acquire shared humanoid geometries
+    this._ensureHumanoidResourcesRegistered();
+    this.bodyGeometry = this.registry.getGeometry({ type: "actor", contentId: "humanoid", variant: "body" });
+    this.headGeometry = this.registry.getGeometry({ type: "actor", contentId: "humanoid", variant: "head" });
+    this.legGeometry = this.registry.getGeometry({ type: "actor", contentId: "humanoid", variant: "leg" });
+    this.armGeometry = this.registry.getGeometry({ type: "actor", contentId: "humanoid", variant: "arm" });
+    this.markerGeometry = this.registry.getGeometry({ type: "actor", contentId: "humanoid", variant: "marker" }) as SphereGeometry;
+
+    // Register and acquire shared materials
+    this.playerMaterial = this.registry.getMaterial({ type: "actor", contentId: "player" }) as MeshLambertMaterial;
+    this.npcMaterial = this.registry.getMaterial({ type: "actor", contentId: "npc" }) as MeshLambertMaterial;
+    this.localPlayerMaterial = this.registry.getMaterial({ type: "actor", contentId: "localPlayer" }) as MeshLambertMaterial;
+    this.skinMaterial = this.registry.getMaterial({ type: "actor", contentId: "skin" }) as MeshLambertMaterial;
+    this.legMaterial = this.registry.getMaterial({ type: "actor", contentId: "leg" }) as MeshLambertMaterial;
+    this.markerMaterial = this.registry.getMaterial({ type: "actor", contentId: "marker" }) as MeshLambertMaterial;
+    this.creatureMaterial = this.registry.getMaterial({ type: "actor", contentId: "creature", materialId: "default" }) as MeshLambertMaterial;
+    this.healthBarBgMaterial = this.registry.getMaterial({ type: "actor", contentId: "healthBar", materialId: "bg" }) as SpriteMaterial;
+    this.healthBarFillMaterial = this.registry.getMaterial({ type: "actor", contentId: "healthBar", materialId: "fill" }) as SpriteMaterial;
+
+    // Prewarm humanoid pool
+    this._prewarmHumanoidPool();
   }
 
   setSelfEntityId(id: number): void {
     this.selfEntityId = id;
+  }
+
+  /** Return the render handle for an actor, if present. */
+  getRenderHandle(entityId: number): ActorRenderHandle | undefined {
+    const actor = this.actors.get(entityId);
+    if (!actor) return undefined;
+    return {
+      entityId: actor.entityId,
+      kind: actor.kind,
+      resourceKey: actor.resourceKey,
+      poolSlot: actor.poolSlot,
+    };
   }
 
   /** Spawn an actor. */
@@ -359,6 +430,12 @@ export class ActorRenderer {
       this.remove(entityId);
     }
 
+    const spec = resolveCreature(defId ?? "Actor", kind);
+    const resourceKey = spec.archetype === "humanoid"
+      ? `${HUMANOID_RESOURCE_KEY}:${kind}`
+      : `creature:${spec.archetype}`;
+    const poolSlot = this._nextPoolSlot++;
+
     const state: ActorState = {
       entityId,
       serverTile: tile,
@@ -371,18 +448,20 @@ export class ActorRenderer {
       kind,
       lastHitTick: -Infinity,
       tickStartTime: performance.now(),
+      resourceKey,
+      poolSlot,
     };
 
     this.actors.set(entityId, state);
-    this._createMeshes(state);
+    const meshes = this._acquireMeshes(state, spec);
+    this.meshes.set(entityId, meshes);
   }
 
   /** Remove an actor. */
   remove(entityId: number): void {
     const meshes = this.meshes.get(entityId);
     if (meshes) {
-      this.actorGroup.remove(meshes.group);
-      meshes.group.clear();
+      this._releaseMeshes(meshes);
       this.meshes.delete(entityId);
     }
     this.actors.delete(entityId);
@@ -409,6 +488,30 @@ export class ActorRenderer {
     const actor = this.actors.get(entityId);
     if (!actor) return;
     actor.animationState = state;
+  }
+
+  /** Update animation state from movement speed. */
+  updateMoveSpeed(entityId: number, speed: MoveSpeed): void {
+    const actor = this.actors.get(entityId);
+    if (!actor) return;
+    const state: AnimationState = speed === "stationary" ? "idle" : speed;
+    actor.animationState = state;
+  }
+
+  /** Hide an actor (e.g. on death). */
+  hide(entityId: number): void {
+    const meshes = this.meshes.get(entityId);
+    if (meshes) {
+      meshes.group.visible = false;
+    }
+  }
+
+  /** Show an actor (e.g. on respawn). */
+  show(entityId: number): void {
+    const meshes = this.meshes.get(entityId);
+    if (meshes) {
+      meshes.group.visible = true;
+    }
   }
 
   /** Update health bar and make it visible. */
@@ -479,9 +582,52 @@ export class ActorRenderer {
     }
   }
 
+  /** Update actor visual positions from RenderTransformCache. Call every frame. */
+  updateFromCache(
+    cache: import("../renderer/RenderTransformCache").RenderTransformCache,
+    currentTick: number,
+  ): void {
+    for (const actor of this.actors.values()) {
+      const presentation = cache.getPresentation(actor.entityId);
+      const meshes = this.meshes.get(actor.entityId);
+      if (!presentation || !meshes) continue;
+
+      actor.visualPosition.set(presentation.renderX, presentation.renderY, presentation.renderZ);
+      meshes.group.position.copy(actor.visualPosition);
+      meshes.group.position.y += GROUND_OFFSET;
+      meshes.group.rotation.y = this._directionToRotation(presentation.heading as Direction);
+
+      // Drive animation state from movement presentation kind
+      const movementKind = presentation.movementKind;
+      let animState: AnimationState;
+      switch (movementKind) {
+        case 0: animState = "idle"; break;
+        case 1: animState = "walk"; break;
+        case 2: animState = "run"; break;
+        default: animState = "idle"; break;
+      }
+      actor.animationState = animState;
+
+      // Apply quantized CPU-side animation pose
+      this._sampleAnimation(actor, meshes, performance.now());
+
+      if (meshes.healthBar) {
+        const elapsed = currentTick - actor.lastHitTick;
+        meshes.healthBar.group.visible = elapsed <= HP_BAR_LIFETIME_TICKS && !!actor.healthBar;
+      }
+
+      // Update appearance metadata if cache provides it
+      if (presentation.appearance) {
+        if (presentation.appearance.name) {
+          actor.name = presentation.appearance.name;
+        }
+      }
+    }
+  }
+
   /** Clear all actors. */
   clear(): void {
-    for (const id of this.actors.keys()) {
+    for (const id of Array.from(this.actors.keys())) {
       this.remove(id);
     }
   }
@@ -490,24 +636,44 @@ export class ActorRenderer {
     this.clear();
     this.actorGroup.clear();
     this.scene.remove(this.actorGroup);
-    this.bodyGeometry.dispose();
-    this.headGeometry.dispose();
-    this.legGeometry.dispose();
-    this.armGeometry.dispose();
-    this.playerMaterial.dispose();
-    this.npcMaterial.dispose();
-    this.localPlayerMaterial.dispose();
-    this.skinMaterial.dispose();
-    this.legMaterial.dispose();
-    this.markerGeometry.dispose();
-    this.markerMaterial.dispose();
-    this.creatureMaterial.dispose();
-    this.healthBarBgMaterial.dispose();
-    this.healthBarFillMaterial.dispose();
-    for (const geometry of creatureTemplates.values()) {
-      geometry.dispose();
+
+    // Release all humanoid pool objects
+    for (const meshes of this.humanoidPool) {
+      this._disposeMeshes(meshes);
     }
-    creatureTemplates.clear();
+    this.humanoidPool.length = 0;
+    this.humanoidFreeList.length = 0;
+    this.humanoidActive.clear();
+
+    // Release all creature pool objects
+    for (const [, pool] of this.creaturePools) {
+      for (const meshes of pool) {
+        this._disposeMeshes(meshes);
+      }
+    }
+    this.creaturePools.clear();
+    this.creatureFreeLists.clear();
+    this.creatureActive.clear();
+
+    // Release shared geometries and materials via registry
+    this.registry.releaseGeometry({ type: "actor", contentId: "humanoid", variant: "body" });
+    this.registry.releaseGeometry({ type: "actor", contentId: "humanoid", variant: "head" });
+    this.registry.releaseGeometry({ type: "actor", contentId: "humanoid", variant: "leg" });
+    this.registry.releaseGeometry({ type: "actor", contentId: "humanoid", variant: "arm" });
+    this.registry.releaseGeometry({ type: "actor", contentId: "humanoid", variant: "marker" });
+
+    this.registry.releaseMaterial({ type: "actor", contentId: "player" });
+    this.registry.releaseMaterial({ type: "actor", contentId: "npc" });
+    this.registry.releaseMaterial({ type: "actor", contentId: "localPlayer" });
+    this.registry.releaseMaterial({ type: "actor", contentId: "skin" });
+    this.registry.releaseMaterial({ type: "actor", contentId: "leg" });
+    this.registry.releaseMaterial({ type: "actor", contentId: "marker" });
+    this.registry.releaseMaterial({ type: "actor", contentId: "creature", materialId: "default" });
+    this.registry.releaseMaterial({ type: "actor", contentId: "healthBar", materialId: "bg" });
+    this.registry.releaseMaterial({ type: "actor", contentId: "healthBar", materialId: "fill" });
+
+    // If we created a private registry, dispose it too
+    this.registry.dispose();
   }
 
   /** Number of rendered actors. */
@@ -532,51 +698,206 @@ export class ActorRenderer {
     return targets;
   }
 
-  private _createMeshes(state: ActorState): void {
-    const spec = resolveCreature(state.name, state.kind);
-    const meshes =
-      spec.archetype === "humanoid"
-        ? this._buildHumanoid(state)
-        : this._buildCreature(state, spec);
-    this.meshes.set(state.entityId, meshes);
+  /** Return pool statistics for diagnostics. */
+  poolStats(): {
+    humanoidPoolSize: number;
+    humanoidActive: number;
+    humanoidFree: number;
+    creatureArchetypes: number;
+  } {
+    let creatureArchetypes = 0;
+    for (const [archetype, activeSet] of this.creatureActive) {
+      if (activeSet.size > 0 || (this.creaturePools.get(archetype)?.length ?? 0) > 0) {
+        creatureArchetypes++;
+      }
+    }
+    return {
+      humanoidPoolSize: this.humanoidPool.length,
+      humanoidActive: this.humanoidActive.size,
+      humanoidFree: this.humanoidFreeList.length,
+      creatureArchetypes,
+    };
   }
 
-  /** Build the shared-material blocky humanoid used for players and townsfolk. */
-  private _buildHumanoid(state: ActorState): ActorMeshes {
-    const entityId = state.entityId;
-    const kind = state.kind;
+  // --- Private ---
+
+  private _ensureHumanoidResourcesRegistered(): void {
+    this.registry.registerGeometry({ type: "actor", contentId: "humanoid", variant: "body" }, () => new BoxGeometry(0.52, TORSO_H, 0.34));
+    this.registry.registerGeometry({ type: "actor", contentId: "humanoid", variant: "head" }, () => new BoxGeometry(HEAD_S, HEAD_S, HEAD_S));
+    this.registry.registerGeometry({ type: "actor", contentId: "humanoid", variant: "leg" }, () => new BoxGeometry(0.2, LEG_H, 0.24));
+    this.registry.registerGeometry({ type: "actor", contentId: "humanoid", variant: "arm" }, () => new BoxGeometry(0.16, LEG_H, 0.22));
+    this.registry.registerGeometry({ type: "actor", contentId: "humanoid", variant: "marker" }, () => new SphereGeometry(0.14, 8, 6));
+
+    this.registry.registerMaterial({ type: "actor", contentId: "player" }, () => new MeshLambertMaterial({ color: 0x3a6ea5, flatShading: true }));
+    this.registry.registerMaterial({ type: "actor", contentId: "npc" }, () => new MeshLambertMaterial({ color: 0x8b4513, flatShading: true }));
+    this.registry.registerMaterial({ type: "actor", contentId: "localPlayer" }, () => new MeshLambertMaterial({ color: 0x4caf50, flatShading: true }));
+    this.registry.registerMaterial({ type: "actor", contentId: "skin" }, () => new MeshLambertMaterial({ color: 0xe0ac69, flatShading: true }));
+    this.registry.registerMaterial({ type: "actor", contentId: "leg" }, () => new MeshLambertMaterial({ color: 0x394a63, flatShading: true }));
+    this.registry.registerMaterial({ type: "actor", contentId: "marker" }, () => new MeshLambertMaterial({ color: 0xffd23f, flatShading: true }));
+    this.registry.registerMaterial({ type: "actor", contentId: "creature", materialId: "default" }, () => vertexColorMaterial());
+    this.registry.registerMaterial({ type: "actor", contentId: "healthBar", materialId: "bg" }, () => new SpriteMaterial({ color: 0x400000, depthTest: false }));
+    this.registry.registerMaterial({ type: "actor", contentId: "healthBar", materialId: "fill" }, () => new SpriteMaterial({ color: 0x10c010, depthTest: false }));
+  }
+
+  private _prewarmHumanoidPool(): void {
+    for (let i = 0; i < this.poolSize; i++) {
+      const meshes = this._createHumanoidMeshes();
+      this.humanoidPool.push(meshes);
+      this.humanoidFreeList.push(meshes);
+    }
+  }
+
+  private _ensureCreaturePool(archetype: string, spec: CreatureSpec): void {
+    if (this.registeredArchetypes.has(archetype)) return;
+    this.registeredArchetypes.add(archetype);
+
+    const geometryKey: RenderResourceKey = { type: "actor", contentId: archetype };
+    this.registry.registerGeometry(geometryKey, () => buildCreatureGeometry(spec));
+    const geometry = this.registry.getGeometry(geometryKey);
+
+    const pool: ActorMeshes[] = [];
+    const freeList: ActorMeshes[] = [];
+    for (let i = 0; i < this.poolSize; i++) {
+      const meshes = this._createCreatureMeshes(geometry, spec, archetype);
+      pool.push(meshes);
+      freeList.push(meshes);
+    }
+    this.creaturePools.set(archetype, pool);
+    this.creatureFreeLists.set(archetype, freeList);
+    this.creatureActive.set(archetype, new Set());
+  }
+
+  private _acquireMeshes(state: ActorState, spec: CreatureSpec): ActorMeshes {
+    if (spec.archetype === "humanoid") {
+      return this._acquireHumanoidMeshes(state);
+    }
+    return this._acquireCreatureMeshes(spec);
+  }
+
+  private _releaseMeshes(meshes: ActorMeshes): void {
+    const archetype = meshes.group.userData.archetype as string | undefined;
+    if (archetype === undefined || archetype === HUMANOID_RESOURCE_KEY) {
+      // Humanoid
+      if (this.humanoidActive.has(meshes)) {
+        this.humanoidActive.delete(meshes);
+        this._resetMeshes(meshes);
+        this.humanoidFreeList.push(meshes);
+      }
+    } else {
+      // Creature
+      const activeSet = this.creatureActive.get(archetype);
+      if (activeSet && activeSet.has(meshes)) {
+        activeSet.delete(meshes);
+        this._resetMeshes(meshes);
+        const freeList = this.creatureFreeLists.get(archetype);
+        if (freeList) freeList.push(meshes);
+      }
+    }
+  }
+
+  private _resetMeshes(meshes: ActorMeshes): void {
+    this.actorGroup.remove(meshes.group);
+    meshes.group.visible = false;
+    meshes.group.position.set(0, 0, 0);
+    meshes.group.rotation.set(0, 0, 0);
+    meshes.group.scale.set(1, 1, 1);
+    if (meshes.healthBar) {
+      meshes.healthBar.group.visible = false;
+    }
+    // Reset body userData
+    meshes.body.userData = {};
+  }
+
+  private _disposeMeshes(meshes: ActorMeshes): void {
+    this.actorGroup.remove(meshes.group);
+    meshes.group.clear();
+    // Do not dispose shared geometry or materials
+  }
+
+  private _acquireHumanoidMeshes(state: ActorState): ActorMeshes {
+    let meshes = this.humanoidFreeList.pop();
+    if (!meshes) {
+      meshes = this._createHumanoidMeshes();
+      this.humanoidPool.push(meshes);
+    }
+    this.humanoidActive.add(meshes);
+
     const isLocalPlayer = state.isLocalPlayer;
-
-    const group = new Group();
-    group.name = `actor_${entityId}`;
-
-    // Local player reads green, NPCs brown, remote players blue.
+    const kind = state.kind;
     const tunicMaterial = isLocalPlayer
       ? this.localPlayerMaterial
       : kind === "npc"
         ? this.npcMaterial
         : this.playerMaterial;
 
-    // The torso doubles as the click/raycast target, so it keeps the per-kind
-    // shared material that the picker and tests depend on.
-    const body = new Mesh(this.bodyGeometry, tunicMaterial);
+    meshes.body.material = tunicMaterial;
+    for (let i = 2; i < meshes.parts.length; i++) {
+      // arms use tunicMaterial
+      meshes.parts[i]!.material = tunicMaterial;
+    }
+
+    meshes.body.userData = { entityId: state.entityId, kind };
+    if (meshes.marker) {
+      meshes.marker.visible = isLocalPlayer;
+    }
+    meshes.group.visible = true;
+    meshes.group.position.copy(state.visualPosition);
+    meshes.group.position.y += GROUND_OFFSET;
+    this.actorGroup.add(meshes.group);
+    return meshes;
+  }
+
+  private _acquireCreatureMeshes(spec: CreatureSpec): ActorMeshes {
+    const archetype = spec.archetype;
+    this._ensureCreaturePool(archetype, spec);
+
+    const freeList = this.creatureFreeLists.get(archetype)!;
+    const activeSet = this.creatureActive.get(archetype)!;
+
+    let meshes = freeList.pop();
+    if (!meshes) {
+      const geometryKey: RenderResourceKey = { type: "actor", contentId: archetype };
+      const geometry = this.registry.getGeometry(geometryKey);
+      meshes = this._createCreatureMeshes(geometry, spec, archetype);
+      const pool = this.creaturePools.get(archetype)!;
+      pool.push(meshes);
+    }
+    activeSet.add(meshes);
+
+    meshes.group.scale.setScalar(spec.scale);
+    meshes.group.visible = true;
+    this.actorGroup.add(meshes.group);
+    return meshes;
+  }
+
+  private _createHumanoidMeshes(): ActorMeshes {
+    const group = new Group();
+    group.name = "humanoid";
+    group.userData = { archetype: HUMANOID_RESOURCE_KEY };
+
+    const body = new Mesh(this.bodyGeometry, this.playerMaterial);
+    body.name = "body";
     body.position.y = TORSO_Y;
     body.castShadow = false;
     body.receiveShadow = false;
-    body.userData = { entityId, kind };
     group.add(body);
 
     const head = new Mesh(this.headGeometry, this.skinMaterial);
+    head.name = "head";
     head.position.y = HEAD_Y;
 
     const leftLeg = new Mesh(this.legGeometry, this.legMaterial);
+    leftLeg.name = "leftLeg";
     leftLeg.position.set(-0.13, LEG_Y, 0);
     const rightLeg = new Mesh(this.legGeometry, this.legMaterial);
+    rightLeg.name = "rightLeg";
     rightLeg.position.set(0.13, LEG_Y, 0);
 
-    const leftArm = new Mesh(this.armGeometry, tunicMaterial);
+    const leftArm = new Mesh(this.armGeometry, this.playerMaterial);
+    leftArm.name = "leftArm";
     leftArm.position.set(-0.34, ARM_Y, 0);
-    const rightArm = new Mesh(this.armGeometry, tunicMaterial);
+    const rightArm = new Mesh(this.armGeometry, this.playerMaterial);
+    rightArm.name = "rightArm";
     rightArm.position.set(0.34, ARM_Y, 0);
 
     const parts = [head, leftLeg, rightLeg, leftArm, rightArm];
@@ -584,40 +905,36 @@ export class ActorRenderer {
       group.add(part);
     }
 
-    let marker: Mesh | undefined;
-    if (isLocalPlayer) {
-      marker = new Mesh(this.markerGeometry, this.markerMaterial);
-      marker.position.y = HEAD_Y + 0.45;
-      group.add(marker);
-    }
+    const marker = new Mesh(this.markerGeometry, this.markerMaterial);
+    marker.name = "marker";
+    marker.position.y = HEAD_Y + 0.45;
+    group.add(marker);
+    // marker is always present but hidden for non-local players via visibility
+    marker.visible = false;
 
     const healthBar = this._createHealthBarGroup();
+    healthBar.group.name = "healthBar";
     group.add(healthBar.group);
 
-    group.position.copy(state.visualPosition);
-    group.position.y += GROUND_OFFSET;
-    this.actorGroup.add(group);
     return { group, body, parts, marker, healthBar };
   }
 
-  /** Build a non-humanoid creature as a single merged vertex-coloured mesh. */
-  private _buildCreature(state: ActorState, spec: CreatureSpec): ActorMeshes {
+  private _createCreatureMeshes(geometry: BufferGeometry, spec: CreatureSpec, archetype: string): ActorMeshes {
     const group = new Group();
-    group.name = `actor_${state.entityId}`;
+    group.name = `creature_${archetype}`;
+    group.userData = { archetype };
 
-    const body = new Mesh(getCreatureTemplate(spec), this.creatureMaterial);
+    const body = new Mesh(geometry, this.creatureMaterial);
+    body.name = "body";
     body.castShadow = false;
     body.receiveShadow = false;
-    body.userData = { entityId: state.entityId, kind: state.kind };
     group.add(body);
 
     const healthBar = this._createHealthBarGroup();
+    healthBar.group.name = "healthBar";
     group.add(healthBar.group);
 
     group.scale.setScalar(spec.scale);
-    group.position.copy(state.visualPosition);
-    group.position.y += GROUND_OFFSET;
-    this.actorGroup.add(group);
     return { group, body, parts: [], marker: undefined, healthBar };
   }
 
@@ -656,9 +973,6 @@ export class ActorRenderer {
   }
 
   private _directionToRotation(direction: Direction): number {
-    // Direction 0 = North, 2 = East, 4 = South, 6 = West
-    // Map to radians: North = -Z, East = +X, South = +Z, West = -X
-    // Rotation is around Y axis
     const rotationMap: Record<Direction, number> = {
       [Direction.North]: Math.PI,
       [Direction.NorthEast]: Math.PI * 0.75,
@@ -670,5 +984,108 @@ export class ActorRenderer {
       [Direction.NorthWest]: -Math.PI * 0.75,
     };
     return rotationMap[direction] ?? 0;
+  }
+
+  /**
+   * CPU-side quantized animation sampling.
+   * Updates actor part transforms at four substeps per 600ms tick.
+   * No shader skinning or GPU deformation is used.
+   */
+  private _sampleAnimation(state: ActorState, meshes: ActorMeshes, nowMs: number): void {
+    const quantizedSubstep = Math.floor(nowMs / ANIMATION_SUBSTEP_MS) % ANIMATION_SUBSTEPS_PER_TICK;
+    const t = (nowMs % ANIMATION_SUBSTEP_MS) / ANIMATION_SUBSTEP_MS;
+
+    // Reset parts to default positions first
+    if (meshes.parts.length > 0) {
+      // Humanoid parts: head, leftLeg, rightLeg, leftArm, rightArm
+      const head = meshes.parts[0];
+      const leftLeg = meshes.parts[1];
+      const rightLeg = meshes.parts[2];
+      const leftArm = meshes.parts[3];
+      const rightArm = meshes.parts[4];
+
+      if (head) head.position.y = HEAD_Y;
+      if (leftLeg) leftLeg.position.set(-0.13, LEG_Y, 0);
+      if (rightLeg) rightLeg.position.set(0.13, LEG_Y, 0);
+      if (leftArm) leftArm.position.set(-0.34, ARM_Y, 0);
+      if (rightArm) rightArm.position.set(0.34, ARM_Y, 0);
+    }
+
+    switch (state.animationState) {
+      case "idle": {
+        // Subtle breathing: slight torso bob
+        const breathe = Math.sin(quantizedSubstep * Math.PI / 2) * 0.015;
+        meshes.group.position.y += breathe;
+        break;
+      }
+      case "walk": {
+        // Bobbing and leg swing
+        const bob = Math.sin(quantizedSubstep * Math.PI / 2) * 0.04;
+        meshes.group.position.y += bob;
+        if (meshes.parts.length > 0) {
+          const leftLeg = meshes.parts[1];
+          const rightLeg = meshes.parts[2];
+          const leftArm = meshes.parts[3];
+          const rightArm = meshes.parts[4];
+          const swing = Math.sin(quantizedSubstep * Math.PI / 2) * 0.08;
+          if (leftLeg) leftLeg.position.z = swing;
+          if (rightLeg) rightLeg.position.z = -swing;
+          if (leftArm) leftArm.position.z = -swing;
+          if (rightArm) rightArm.position.z = swing;
+        }
+        break;
+      }
+      case "run": {
+        // Faster bobbing and larger leg swing
+        const bob = Math.sin(quantizedSubstep * Math.PI / 2) * 0.07;
+        meshes.group.position.y += bob;
+        if (meshes.parts.length > 0) {
+          const leftLeg = meshes.parts[1];
+          const rightLeg = meshes.parts[2];
+          const leftArm = meshes.parts[3];
+          const rightArm = meshes.parts[4];
+          const swing = Math.sin(quantizedSubstep * Math.PI / 2) * 0.14;
+          if (leftLeg) leftLeg.position.z = swing;
+          if (rightLeg) rightLeg.position.z = -swing;
+          if (leftArm) leftArm.rotation.z = swing;
+          if (rightArm) rightArm.rotation.z = -swing;
+        }
+        break;
+      }
+      case "attack": {
+        // Arm swing forward
+        if (meshes.parts.length > 0) {
+          const rightArm = meshes.parts[4];
+          if (rightArm) rightArm.rotation.x = Math.sin(quantizedSubstep * Math.PI / 2) * 0.6;
+        }
+        break;
+      }
+      case "cast": {
+        // Arm raise
+        if (meshes.parts.length > 0) {
+          const leftArm = meshes.parts[3];
+          if (leftArm) leftArm.rotation.x = -Math.PI / 2 + Math.sin(quantizedSubstep * Math.PI / 2) * 0.2;
+        }
+        break;
+      }
+      case "hit": {
+        // Flash red via material tint (temporary, reverted next frame)
+        const flash = Math.sin(quantizedSubstep * Math.PI / 2) > 0;
+        if (flash) {
+          const originalColor = meshes.body.material instanceof MeshLambertMaterial ? meshes.body.material.color.getHex() : undefined;
+          meshes.body.userData._originalColor = originalColor;
+          if (meshes.body.material instanceof MeshLambertMaterial) {
+            meshes.body.material.color.setHex(0xff0000);
+          }
+        }
+        break;
+      }
+      case "die": {
+        // Collapse
+        meshes.group.rotation.x = Math.PI / 2 * Math.min(1, t);
+        meshes.group.scale.y = Math.max(0.1, 1 - t);
+        break;
+      }
+    }
   }
 }

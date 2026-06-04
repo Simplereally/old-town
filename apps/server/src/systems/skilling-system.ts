@@ -83,7 +83,18 @@ export interface GatherValidationResult {
 }
 
 const GATHER_ACTION_IDS = new Set(["chop", "woodcut", "mine", "fish"]);
-const PROCESS_ACTION_IDS = new Set(["cook", "use", "smelt", "smith", "craft", "fire", "weave", "tan", "dye", "mix"]);
+const PROCESS_ACTION_IDS = new Set([
+  "cook",
+  "use",
+  "smelt",
+  "smith",
+  "craft",
+  "fire",
+  "weave",
+  "tan",
+  "dye",
+  "mix",
+]);
 
 function actionId(prefix: string, owner: EntityId): string {
   return `${prefix}:${owner}`;
@@ -244,7 +255,7 @@ function gatherSuccessChance(
 
 function enqueueBeginGather(ctx: SkillingContext, owner: EntityId, nodeEntityId: EntityId): void {
   const payload: BeginGatherActionPayload = { kind: "begin_gather", nodeEntityId };
-  ctx.actionRuntime.enqueue({
+  ctx.actionQueue.enqueue({
     id: actionId("begin-gather", owner),
     owner,
     type: ActionQueueType.Weak,
@@ -266,7 +277,7 @@ function enqueueGather(
     ctx.deltas.markEntityUpdate(owner, { facingTile: targetTile });
   }
   const payload: GatherActionPayload = { kind: "gather", nodeEntityId };
-  ctx.actionRuntime.enqueue({
+  ctx.actionQueue.enqueue({
     id: actionId("gather", owner),
     owner,
     type: ActionQueueType.Weak,
@@ -318,7 +329,14 @@ export function handleObjectSkillingIntent(
   }
 
   if (PROCESS_ACTION_IDS.has(intent.actionId)) {
-    return handleProcessingIntent(ctx, owner, intent.objectEntityId, serverTime, tick, intent.actionId);
+    return handleProcessingIntent(
+      ctx,
+      owner,
+      intent.objectEntityId,
+      serverTime,
+      tick,
+      intent.actionId,
+    );
   }
 
   return false;
@@ -402,7 +420,7 @@ function enqueueBeginProcess(
   recipeId: string,
 ): void {
   const payload: BeginProcessActionPayload = { kind: "begin_process", stationEntityId, recipeId };
-  ctx.actionRuntime.enqueue({
+  ctx.actionQueue.enqueue({
     id: actionId("begin-process", owner),
     owner,
     type: ActionQueueType.Weak,
@@ -420,7 +438,7 @@ function enqueueProcess(
   recipe: ProcessingRecipeDef,
 ): void {
   const payload: ProcessActionPayload = { kind: "process", stationEntityId, recipeId: recipe.id };
-  ctx.actionRuntime.enqueue({
+  ctx.actionQueue.enqueue({
     id: actionId("process", owner),
     owner,
     type: ActionQueueType.Weak,
@@ -485,10 +503,14 @@ function handleProcessingIntent(
 
   ctx.deltas.markRecipeList({
     interfaceId: "recipe",
+    stationEntityId: stationEntityId,
+    stationName: station.objectId,
     recipes: recipes.map((recipe) => ({
       recipeId: recipe.id,
       name: recipe.name,
+      skillId: recipe.skill,
       levelRequired: recipe.requiredLevel,
+      xp: recipe.xp,
       ingredients: [{ itemId: recipe.inputItemId, quantity: recipe.inputQuantity }],
       productId: recipe.successItemId,
       productQuantity: recipe.successQuantity,
@@ -553,14 +575,14 @@ export function handleBeginGather(
 ): void {
   const validation = validateGatherAction(ctx, action.entry.owner, payload.nodeEntityId);
   if (validation.ok && validation.nodeDef) {
-    ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
+    ctx.actionQueue.cancel(action.entry.owner, { id: action.entry.id });
     enqueueGather(ctx, action.entry.owner, payload.nodeEntityId, validation.nodeDef);
     return;
   }
   if (validation.reason === "out_of_range") {
     return;
   }
-  ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
+  ctx.actionQueue.cancel(action.entry.owner, { id: action.entry.id });
   systemMessage(
     ctx.deltas,
     action.entry.owner,
@@ -578,7 +600,7 @@ export function handleGather(
 ): void {
   const validation = validateGatherAction(ctx, action.entry.owner, payload.nodeEntityId);
   if (!validation.ok || !validation.nodeDef) {
-    ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
+    ctx.actionQueue.cancel(action.entry.owner, { id: action.entry.id });
     systemMessage(
       ctx.deltas,
       action.entry.owner,
@@ -645,7 +667,7 @@ export function handleGather(
   }
   if (ctx.rng.nextFloat() < nodeDef.depletionChance) {
     depleteResourceNode(ctx, payload.nodeEntityId, tick);
-    ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
+    ctx.actionQueue.cancel(action.entry.owner, { id: action.entry.id });
   }
 }
 
@@ -660,14 +682,14 @@ export function handleBeginProcess(
     ? validateProcessAction(ctx, action.entry.owner, payload.stationEntityId, recipe)
     : "You cannot do that.";
   if (!error && recipe) {
-    ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
+    ctx.actionQueue.cancel(action.entry.owner, { id: action.entry.id });
     enqueueProcess(ctx, action.entry.owner, payload.stationEntityId, recipe);
     return;
   }
   if (error === "You need to get closer.") {
     return;
   }
-  ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
+  ctx.actionQueue.cancel(action.entry.owner, { id: action.entry.id });
   systemMessage(ctx.deltas, action.entry.owner, error ?? "You cannot do that.", serverTime);
 }
 
@@ -683,7 +705,7 @@ export function handleProcess(
     ? validateProcessAction(ctx, action.entry.owner, payload.stationEntityId, recipe)
     : "You cannot do that.";
   if (error || !recipe) {
-    ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
+    ctx.actionQueue.cancel(action.entry.owner, { id: action.entry.id });
     systemMessage(ctx.deltas, action.entry.owner, error ?? "You cannot do that.", serverTime);
     return;
   }
@@ -695,7 +717,7 @@ export function handleProcess(
   const beforeInputQuantity = count(inventory, recipe.inputItemId);
   const removed = removeItem(inventory, recipe.inputItemId, recipe.inputQuantity);
   if (removed.removed < recipe.inputQuantity) {
-    ctx.actionRuntime.cancel(action.entry.owner, { id: action.entry.id });
+    ctx.actionQueue.cancel(action.entry.owner, { id: action.entry.id });
     return;
   }
   const afterInputQuantity = count(inventory, recipe.inputItemId);

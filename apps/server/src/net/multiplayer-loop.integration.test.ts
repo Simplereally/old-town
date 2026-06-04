@@ -284,6 +284,24 @@ describe("multiplayer loop integration", () => {
     expect(selfUpdate(delta, self)?.changes.moveSpeed).toBe("walk");
   });
 
+  it("broadcasts one player's movement to another socket client", async () => {
+    harness = await startHarness();
+    const first = await connectClient("movement-watch-a");
+    const second = await connectClient("movement-watch-b");
+    const secondSelf = fullState(second).selfEntityId;
+
+    const firstJoinDelta = deltaAt(await runTick([first]), 0);
+    expect(firstJoinDelta.entityAdds.some((entity) => entity.entityId === secondSelf)).toBe(true);
+
+    await sendMove(second, 1, tile(31, 32));
+    const firstMovementDelta = deltaAt(await runTick([first]), 0);
+
+    expect(selfUpdate(firstMovementDelta, secondSelf)?.changes).toMatchObject({
+      position: tile(31, 32),
+      moveSpeed: "walk",
+    });
+  });
+
   it("does not move a player into a blocked object tile", async () => {
     harness = await startHarness();
     const client = await connectClient("blocked-smoke");

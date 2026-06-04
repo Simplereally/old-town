@@ -63,6 +63,7 @@ function setupTestEnv(): void {
     <button class="ui-bar-btn" data-panel="quest-panel"></button>
     <button class="ui-bar-btn" data-panel="chat-box"></button>
     <button class="ui-bar-btn" data-panel="recipe-panel"></button>
+    <button class="ui-bar-btn" data-panel="contract-panel"></button>
     <div id="dialogue-box" class="hidden"></div>
     <div id="dialogue-npc"></div>
     <div id="dialogue-text"></div>
@@ -85,6 +86,18 @@ function setupTestEnv(): void {
         <div id="recipe-feedback" class="recipe-feedback hidden"></div>
       </div>
     </div>
+    <div id="minimap-panel" class="hidden">
+      <div class="ui-panel-body">
+        <canvas id="minimap-canvas" width="160" height="120"></canvas>
+      </div>
+    </div>
+    <div id="contract-panel" class="hidden">
+      <div class="ui-panel-body" id="contract-body"></div>
+      <div id="contract-progress-bar"><div id="contract-progress-fill"></div></div>
+    </div>
+    <div id="status-effects-panel" class="hidden"></div>
+    <div id="death-screen" class="hidden"></div>
+    <div id="notification-toast" class="hidden"></div>
   `;
 }
 

@@ -1,5 +1,6 @@
 import {
   ACTIVE_SCENE_SIZE,
+  type EntityId,
   EntityUpdateMask,
   hasFlag,
   ServerPacketType,
@@ -8,7 +9,6 @@ import {
 } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { createWorld, type World } from "../ecs/world";
-import { DeltaBroadcaster } from "../net/delta-broadcaster";
 import { InterestManager } from "../net/interest-manager";
 import type { TransportSession } from "../net/websocket-transport";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
@@ -48,6 +48,14 @@ function spawn(world: World, entityId: ReturnType<World["createEntity"]>) {
   };
 }
 
+function positionTile(world: World, entityId: EntityId): TileCoord {
+  const position = world.getComponent(entityId, "position");
+  if (!position) {
+    throw new Error(`Missing position for ${entityId}`);
+  }
+  return tile(position.x, position.y);
+}
+
 describe("ChatSystem", () => {
   it("emits nearby chat and overhead text while filtering distant listeners", () => {
     const world = createWorld();
@@ -63,24 +71,11 @@ describe("ChatSystem", () => {
       [nearSession.id, near],
       [farSession.id, far],
     ]);
-    const broadcaster = new DeltaBroadcaster({
-      world,
-      deltas,
-      interestManager: new InterestManager(),
-      transport: {
-        sessions: new Map([
-          [nearSession.id, nearSession],
-          [farSession.id, farSession],
-        ]),
-        send: (sessionId, packet) => {
-          sent.set(sessionId, packet);
-          return true;
-        },
-      },
-      getEntityId: (session) => entityBySession.get(session.id),
-    });
-    broadcaster.primeSession(nearSession, [spawn(world, speaker), spawn(world, near)]);
-    broadcaster.primeSession(farSession, [spawn(world, far)]);
+    const interestManager = new InterestManager();
+    interestManager.updateInterest(near, positionTile(world, near));
+    interestManager.primeKnownEntities(near, [spawn(world, speaker), spawn(world, near)]);
+    interestManager.updateInterest(far, positionTile(world, far));
+    interestManager.primeKnownEntities(far, [spawn(world, far)]);
 
     const result = new ChatSystem().submit(
       { world, deltas },
@@ -90,7 +85,17 @@ describe("ChatSystem", () => {
       600,
     );
     expect(result).toMatchObject({ ok: true });
-    broadcaster.broadcastTick(1, 600);
+    const delta = deltas.consume(1, 600);
+    for (const session of [nearSession, farSession]) {
+      const entityId = entityBySession.get(session.id);
+      if (entityId === undefined) {
+        throw new Error(`Missing entity for ${session.id}`);
+      }
+      sent.set(
+        session.id,
+        interestManager.filterDelta(entityId, positionTile(world, entityId), delta, world),
+      );
+    }
 
     const nearPacket = sent.get(nearSession.id);
     const farPacket = sent.get(farSession.id);

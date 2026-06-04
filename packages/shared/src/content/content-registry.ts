@@ -9,30 +9,32 @@
  * No filesystem access here, so this module stays usable from any environment.
  */
 import type { ZodError } from "zod";
-import {
-  type AnimationDef,
-  type BankDef,
-  type ContentKind,
-  contentSchemas,
-  type DialogueDef,
-  type DropTableDef,
-  type ItemDef,
-  type MaterialDef,
-  type NpcDef,
-  type ObjectDef,
-  type ProcessingRecipeDef,
-  type QuestDef,
-  type RegionMapDef,
-  type ResourceNodeDef,
-  type ShopDef,
-  type ServiceFeeDef,
-  type ContractDef,
-  type PropertyDef,
-  type SkillDef,
-  type SpellDef,
-  type StatusEffectDef,
-} from "../content-schemas";
+import type { ContentKind } from "../content/content-kind";
+import type { AnimationDef } from "../content-schemas/animation";
+import type { BankDef } from "../content-schemas/bank";
+import type { CharterDef } from "../content-schemas/charter";
+import type { ContractDef } from "../content-schemas/contract";
+import type { DialogueDef } from "../content-schemas/dialogue";
+import type { DropTableDef } from "../content-schemas/drop-table";
+import type { ItemDef } from "../content-schemas/item";
+import type { MaterialDef } from "../content-schemas/material";
+import type { NpcDef } from "../content-schemas/npc";
+import type { ObjectDef } from "../content-schemas/object";
+import type { ProcessingRecipeDef } from "../content-schemas/processing-recipe";
+import type { PropertyDef } from "../content-schemas/property";
+import type { QuestDef } from "../content-schemas/quest";
+import type { RegionMapDef } from "../content-schemas/region-map";
+import type { ResourceNodeDef } from "../content-schemas/resource-node";
+import { contentSchemas } from "../content-schemas/schemas";
+import type { ServiceFeeDef } from "../content-schemas/service-fee";
+import type { ShopDef } from "../content-schemas/shop";
+import type { SkillDef } from "../content-schemas/skill";
+import type { SpellDef } from "../content-schemas/spell";
+import type { StatusEffectDef } from "../content-schemas/status-effect";
 import { validateContentGraph } from "./content-references";
+import type { ContentRegistries } from "./content-registries";
+
+export type { ContentRegistries } from "./content-registries";
 
 /** A single content file's parsed JSON, tagged with the kind its directory implies. */
 export interface LoadedContentFile {
@@ -49,29 +51,6 @@ export interface ContentIssue {
   readonly dependency?: readonly string[] | undefined;
   readonly suggestion?: string | undefined;
   readonly message: string;
-}
-
-/** Typed per-kind registries keyed by content id (region maps keyed by `rx:ry:plane`). */
-export interface ContentRegistries {
-  readonly item: ReadonlyMap<string, ItemDef>;
-  readonly npc: ReadonlyMap<string, NpcDef>;
-  readonly object: ReadonlyMap<string, ObjectDef>;
-  readonly processingRecipe: ReadonlyMap<string, ProcessingRecipeDef>;
-  readonly skill: ReadonlyMap<string, SkillDef>;
-  readonly resourceNode: ReadonlyMap<string, ResourceNodeDef>;
-  readonly spell: ReadonlyMap<string, SpellDef>;
-  readonly dropTable: ReadonlyMap<string, DropTableDef>;
-  readonly quest: ReadonlyMap<string, QuestDef>;
-  readonly dialogue: ReadonlyMap<string, DialogueDef>;
-  readonly regionMap: ReadonlyMap<string, RegionMapDef>;
-  readonly material: ReadonlyMap<string, MaterialDef>;
-  readonly animation: ReadonlyMap<string, AnimationDef>;
-  readonly shop: ReadonlyMap<string, ShopDef>;
-  readonly bank: ReadonlyMap<string, BankDef>;
-  readonly serviceFee: ReadonlyMap<string, ServiceFeeDef>;
-  readonly statusEffect: ReadonlyMap<string, StatusEffectDef>;
-  readonly contract: ReadonlyMap<string, ContractDef>;
-  readonly property: ReadonlyMap<string, PropertyDef>;
 }
 
 export interface ContentValidationResult {
@@ -101,6 +80,7 @@ const CONTENT_KINDS: readonly ContentKind[] = [
   "statusEffect",
   "contract",
   "property",
+  "charter",
 ];
 
 function jsonPointer(path: readonly (string | number)[]): string {
@@ -209,6 +189,7 @@ export function validateContent(files: readonly LoadedContentFile[]): ContentVal
     statusEffect: maps.get("statusEffect") as Map<string, StatusEffectDef>,
     contract: maps.get("contract") as Map<string, ContractDef>,
     property: maps.get("property") as Map<string, PropertyDef>,
+    charter: maps.get("charter") as Map<string, CharterDef>,
   };
 
   const graphResult = validateContentGraph(registries, sources);

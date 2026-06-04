@@ -10,11 +10,19 @@ import {
   type TileCoord,
 } from "@old-town/shared";
 import type { World } from "../ecs/world";
-import { addItem, buildDelta, catalogFromItems, count, hasAll, removeFromSlot, removeItem } from "../items/inventory";
+import {
+  addItem,
+  buildDelta,
+  catalogFromItems,
+  count,
+  hasAll,
+  removeFromSlot,
+  removeItem,
+} from "../items/inventory";
 import type { ItemAuditLog } from "../items/item-audit";
 import type { ActionHandler } from "../sim/action-executor";
+import type { ActionQueue } from "../sim/action-queue";
 import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
-import type { ActionRuntime } from "../sim/action-runtime";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { addXp, getCurrentLevel } from "../skills/skill-state";
 import type { CollisionMap } from "../world/collision";
@@ -43,7 +51,7 @@ export interface SpellSystemContext {
   readonly collision: CollisionMap;
   readonly deltas: DeltaAccumulator;
   readonly registries: ContentRegistries;
-  readonly actionRuntime: ActionRuntime;
+  readonly actionQueue: ActionQueue;
   readonly rng: Rng;
   readonly itemAudit?: ItemAuditLog | undefined;
 }
@@ -260,8 +268,8 @@ function startTeleportSpell(
   }
   const id = teleportActionId(owner, spell.id);
   const payload: TeleportActionPayload = { kind: "teleport", spellId: spell.id, destination };
-  ctx.actionRuntime.cancel(owner, { id });
-  ctx.actionRuntime.enqueue({
+  ctx.actionQueue.cancel(owner, { id });
+  ctx.actionQueue.enqueue({
     id,
     owner,
     type: spell.effect.interruptible ? ActionQueueType.Weak : ActionQueueType.Normal,
@@ -537,7 +545,12 @@ export function handleSpellIntent(
     const fromItemId = spell.effect.fromItemId;
     if (!inventory.slots.some((s) => s?.itemId === fromItemId)) {
       const fromDef = ctx.registries.item.get(fromItemId);
-      systemMessage(ctx.deltas, owner, `You need a ${fromDef?.name ?? fromItemId} to enchant.`, serverTime);
+      systemMessage(
+        ctx.deltas,
+        owner,
+        `You need a ${fromDef?.name ?? fromItemId} to enchant.`,
+        serverTime,
+      );
       return true;
     }
   }

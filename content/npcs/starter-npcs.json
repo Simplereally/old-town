@@ -19,7 +19,8 @@
     "dialogueId": "tomas_tally_rats_under_tallys",
     "options": [
       { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
-      { "label": "Bank", "actionId": "bank", "priority": 5, "requiredDistance": 1 }
+      { "label": "Bank", "actionId": "bank", "priority": 5, "requiredDistance": 1 },
+      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
     ]
   },
   {
@@ -82,7 +83,10 @@
     "respawnTicks": 1,
     "wanderRadius": 0,
     "dialogueId": "warden_holt_contracts",
-    "options": [{ "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 }]
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
+      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
+    ]
   },
   {
     "id": "sister_writ",
@@ -92,7 +96,10 @@
     "respawnTicks": 1,
     "wanderRadius": 0,
     "dialogueId": "sister_writ_favour_intro",
-    "options": [{ "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 }]
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
+      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
+    ]
   },
   {
     "id": "finch_quill",
@@ -482,5 +489,41 @@
     "aggressionMode": "peaceful",
     "creatureKind": "passive",
     "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "general_stall_keeper",
+    "name": "General Stall Keeper",
+    "examine": "The keeper of the general stall. They sell a little of everything.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
+      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
+    ]
+  },
+  {
+    "id": "river_stoop_keeper",
+    "name": "River Stoop Keeper",
+    "examine": "The keeper of the river stoop. They know the catch of the day.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
+      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
+    ]
+  },
+  {
+    "id": "blacksealed_merchant",
+    "name": "Blacksealed Merchant",
+    "examine": "A merchant with a black seal on their collar and quick hands.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
+      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
+    ]
   }
 ]

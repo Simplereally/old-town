@@ -12,8 +12,12 @@ import { describe, expect, it } from "vitest";
 import { createWorld, type World } from "../ecs/world";
 import { addItem, catalogFromItems, count, createInventory } from "../items/inventory";
 import { ItemAuditLog } from "../items/item-audit";
-import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
-import { ActionRuntime } from "../sim/action-runtime";
+import {
+  type ActionExecution,
+  ActionQueue,
+  ActionQueueType,
+  InterruptGroup,
+} from "../sim/action-queue";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { makeRegistries } from "../test-support/registries";
 import { CollisionFlag, CollisionMap } from "../world/collision";
@@ -226,7 +230,7 @@ function setup(
   readonly map: RuntimeMap;
   readonly player: EntityId;
   readonly target: EntityId;
-  readonly actionRuntime: ActionRuntime;
+  readonly actionQueue: ActionQueue;
   readonly deltas: DeltaAccumulator;
   readonly itemAudit: ItemAuditLog;
 } {
@@ -235,7 +239,7 @@ function setup(
   addOpenTiles(map);
   const player = addPlayer(world);
   const target = addTarget(world);
-  const actionRuntime = new ActionRuntime();
+  const actionQueue = new ActionQueue();
   const deltas = new DeltaAccumulator();
   const itemAudit = new ItemAuditLog();
   const ctx: SpellSystemContext = {
@@ -243,11 +247,11 @@ function setup(
     collision: new CollisionMap(map),
     deltas,
     registries: registries(spells),
-    actionRuntime,
+    actionQueue,
     rng: roll,
     itemAudit,
   };
-  return { ctx, world, map, player, target, actionRuntime, deltas, itemAudit };
+  return { ctx, world, map, player, target, actionQueue, deltas, itemAudit };
 }
 
 function cast(
@@ -273,10 +277,10 @@ function firstEntityUpdate(
   return deltas.peek().entityUpdates.find((update) => update.entityId === entityId)?.changes;
 }
 
-function executeQueuedTeleport(ctx: SpellSystemContext, actionRuntime: ActionRuntime): void {
+function executeQueuedTeleport(ctx: SpellSystemContext, actionQueue: ActionQueue): void {
   let executions: readonly ActionExecution[] = [];
   for (let i = 0; i < HOME_DELAY_TICKS; i += 1) {
-    executions = actionRuntime.advanceTick();
+    executions = actionQueue.advanceTick();
   }
   const execution = executions[0];
   if (!execution) {
@@ -286,7 +290,7 @@ function executeQueuedTeleport(ctx: SpellSystemContext, actionRuntime: ActionRun
     tick: 13,
     serverTime: 7_800,
     execution,
-    selfCancel: (id) => actionRuntime.cancel(execution.entry.owner, { id }),
+    selfCancel: (id) => actionQueue.cancel(execution.entry.owner, { id }),
   });
 }
 
@@ -338,7 +342,9 @@ describe("SpellSystem", () => {
       animation: { id: SPELL_CAST_ANIMATION_ID, startTick: 10 },
       graphic: { id: "ember_flick_cast" },
     });
-    expect(deltas.peek().skillDelta).toEqual([{ skillId: "magic", level: 1, xp: 5.5, effectiveLevel: 1 }]);
+    expect(deltas.peek().skillDelta).toEqual([
+      { skillId: "magic", level: 1, xp: 5.5, effectiveLevel: 1 },
+    ]);
 
     deltas.consume(10, 6_000);
     processDamageResolutionEvents(ctx, 11);
@@ -473,11 +479,13 @@ describe("SpellSystem", () => {
       animation: { id: SPELL_CAST_ANIMATION_ID, startTick: 10 },
       graphic: { id: "bone_bind_cast" },
     });
-    expect(deltas.peek().skillDelta).toEqual([{ skillId: "magic", level: 1, xp: 6, effectiveLevel: 1 }]);
+    expect(deltas.peek().skillDelta).toEqual([
+      { skillId: "magic", level: 1, xp: 6, effectiveLevel: 1 },
+    ]);
   });
 
   it("queues and completes home teleport through the action runtime", () => {
-    const { ctx, world, player, actionRuntime, deltas } = setup([HOMEWARD_MURMUR]);
+    const { ctx, world, player, actionQueue, deltas } = setup([HOMEWARD_MURMUR]);
 
     expect(
       handleSpellIntent(
@@ -489,7 +497,7 @@ describe("SpellSystem", () => {
       ),
     ).toBe(true);
 
-    expect(actionRuntime.getDebugState()).toMatchObject([
+    expect(actionQueue.getDebugState()).toMatchObject([
       {
         id: `teleport:${player}:homeward_murmur`,
         owner: player,
@@ -505,7 +513,7 @@ describe("SpellSystem", () => {
     });
     deltas.consume(10, 6_000);
 
-    executeQueuedTeleport(ctx, actionRuntime);
+    executeQueuedTeleport(ctx, actionQueue);
 
     expect(world.getComponent(player, "position")).toMatchObject({ x: 6, y: 2, plane: 0 });
     expect(world.getComponent(player, "movement")).toMatchObject({ path: [] });
@@ -517,7 +525,7 @@ describe("SpellSystem", () => {
   });
 
   it("cancels home teleport on movement without refunding consumed beads", () => {
-    const { ctx, world, player, actionRuntime } = setup([HOMEWARD_MURMUR]);
+    const { ctx, world, player, actionQueue } = setup([HOMEWARD_MURMUR]);
 
     handleSpellIntent(
       ctx,
@@ -526,9 +534,9 @@ describe("SpellSystem", () => {
       10,
       6_000,
     );
-    actionRuntime.cancel(player, { type: ActionQueueType.Weak });
+    actionQueue.cancel(player, { type: ActionQueueType.Weak });
     for (let i = 0; i < HOME_DELAY_TICKS; i += 1) {
-      expect(actionRuntime.advanceTick()).toEqual([]);
+      expect(actionQueue.advanceTick()).toEqual([]);
     }
 
     const inventory = world.getComponent(player, "inventory");
@@ -538,7 +546,7 @@ describe("SpellSystem", () => {
   });
 
   it("cancels home teleport when combat damage lands", () => {
-    const { ctx, world, player, target, actionRuntime, deltas } = setup([HOMEWARD_MURMUR]);
+    const { ctx, world, player, target, actionQueue, deltas } = setup([HOMEWARD_MURMUR]);
     handleSpellIntent(
       ctx,
       player,
@@ -562,7 +570,7 @@ describe("SpellSystem", () => {
     });
     processDamageResolutionEvents(ctx, 11);
 
-    expect(actionRuntime.getDebugState()).toEqual([]);
+    expect(actionQueue.getDebugState()).toEqual([]);
     expect(world.getComponent(player, "position")).toMatchObject({ x: 1, y: 1, plane: 0 });
     expect(deltas.peek().hitsplats).toEqual([
       { entityId: player, hitsplat: { amount: 1, type: "damage" } },

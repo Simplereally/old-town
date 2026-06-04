@@ -8,8 +8,10 @@
  * `validateContentGraph` receives the already-built registries and source map, and
  * returns issues for every dangling reference, broken dialogue link, or missing material.
  */
-import type { ContentKind, Effect, Requirement } from "../content-schemas";
-import type { ContentRegistries } from "./content-registry";
+
+import type { Effect, Requirement } from "../content-schemas/common";
+import type { ContentKind } from "./content-kind";
+import type { ContentRegistries } from "./content-registries";
 
 export interface ContentIssue {
   readonly path?: string | undefined;
@@ -257,16 +259,34 @@ export function validateContentGraph(
       requireRef("item", spawn.itemId, "regionMap", id, "groundItemSpawns.itemId");
     }
     for (const spawn of def.resourceNodeSpawns) {
-      requireRef("resourceNode", spawn.resourceNodeId, "regionMap", id, "resourceNodeSpawns.resourceNodeId");
+      requireRef(
+        "resourceNode",
+        spawn.resourceNodeId,
+        "regionMap",
+        id,
+        "resourceNodeSpawns.resourceNodeId",
+      );
     }
     for (const spawn of def.playerSpawnPoints) {
       if (spawn.requiresQuest !== undefined) {
-        requireRef("quest", spawn.requiresQuest, "regionMap", id, "playerSpawnPoints.requiresQuest");
+        requireRef(
+          "quest",
+          spawn.requiresQuest,
+          "regionMap",
+          id,
+          "playerSpawnPoints.requiresQuest",
+        );
       }
     }
     for (const spawn of def.deathRespawnPoints) {
       if (spawn.requiresQuest !== undefined) {
-        requireRef("quest", spawn.requiresQuest, "regionMap", id, "deathRespawnPoints.requiresQuest");
+        requireRef(
+          "quest",
+          spawn.requiresQuest,
+          "regionMap",
+          id,
+          "deathRespawnPoints.requiresQuest",
+        );
       }
     }
   }
@@ -294,13 +314,25 @@ export function validateContentGraph(
 
   for (const [id, def] of registries.item) {
     if (def.consumable?.statusEffectId !== undefined) {
-      requireRef("statusEffect", def.consumable.statusEffectId, "item", id, "consumable.statusEffectId");
+      requireRef(
+        "statusEffect",
+        def.consumable.statusEffectId,
+        "item",
+        id,
+        "consumable.statusEffectId",
+      );
     }
     if (def.consumable?.curesStatus !== undefined) {
       requireRef("statusEffect", def.consumable.curesStatus, "item", id, "consumable.curesStatus");
     }
     if (def.consumable?.boostsSkill !== undefined) {
-      requireRef("skill", def.consumable.boostsSkill.skillId, "item", id, "consumable.boostsSkill.skillId");
+      requireRef(
+        "skill",
+        def.consumable.boostsSkill.skillId,
+        "item",
+        id,
+        "consumable.boostsSkill.skillId",
+      );
     }
   }
 

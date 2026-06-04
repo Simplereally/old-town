@@ -6,7 +6,7 @@ Implemented
 
 ## Context
 
-ADR-003 established the intent-to-action spine: `IntentDispatcher` routes all consumed intents, and `ActionRuntime` owns the single canonical queue. ADR-003's consequences state that future systems "use `actionRuntime.enqueue` with a **typed** `ActionQueueEntry`." That intent was never realized in the implementation.
+ADR-003 established the intent-to-action spine: `IntentDispatcher` routes all consumed intents, and the `SimulationKernel` owns the single canonical `ActionQueue`. ADR-003's consequences state that future systems "use the kernel-owned `actionQueue.enqueue` with a typed `ActionQueueEntry`." That intent was never realized in the implementation.
 
 The `ActionQueueEntry` generic parameter defaults to `TPayload = unknown`, and the `payload` field is `unknown` at every boundary — queue storage, `ActionExecution`, and `ActionQueueDebugEntry`. The only connection between the producer that enqueues an action and the consumer that executes it is a runtime string check on `payload.kind` with `as` casts.
 
@@ -23,13 +23,13 @@ This is a **type erasure problem**, not a dispatch-pattern problem. The systems 
 
 ## Decision
 
-1. **`ActionPayload` is a closed discriminated union composed from each system's payload types.** The union is assembled via **type-only imports** (`import type`) from the system modules that own each payload definition. Systems contribute their payload types; a composition module in `sim/` (consumed by the kernel) assembles the union. The `ActionKind` type is derived as `ActionPayload["kind"]` — never hand-maintained.
+1. **Each system owns its action payload and handler-table slice types.** The kernel imports those slice types with `import type` and composes the concrete `ActionHandlerTable` at the same site that constructs the action table. No separate payload-union module is required unless a future runtime codec or schema needs one.
 
-2. **`ActionQueueEntry` stays content-agnostic.** The generic parameter is widened to `TPayload extends { kind: string }`, never constrained to the full `ActionPayload` union. The queue is a low-level primitive and must not depend on skilling, combat, or any game system. The `satisfies` annotations at current enqueue call sites become real type contracts through the narrowed `TPayload` bound.
+2. **`ActionQueueEntry` stays content-agnostic.** The generic parameter is widened to `TPayload extends { kind: string }`, never constrained to a global payload union. The queue is a low-level primitive and must not depend on skilling, combat, or any game system. The `satisfies` annotations at current enqueue call sites become real type contracts through the narrowed `TPayload` bound.
 
-3. **`ActionExecutor` stays content-agnostic, symmetric to the queue.** The executor is generic over its table shape: `TTable extends Record<string, ActionHandler<never>>`. It imports only `ActionContext` and `ActionExecution` (low-level, content-free) and does nothing but `table[payload.kind](payload, ctx)` inside a per-action try/catch. The concrete `{ [K in ActionKind]: ActionHandler<K> }` table is built at the kernel/composition layer and passed to `new ActionExecutor(table)`. The executor is a leaf; `ActionKind` is named only at composition + kernel.
+3. **`ActionExecutor` stays content-agnostic, symmetric to the queue.** The executor is generic over its table shape: `TTable extends Record<string, ActionHandler<never>>`. It imports only `ActionContext` and `ActionExecution` (low-level, content-free) and does nothing but `table[payload.kind](payload, ctx)` inside a per-action try/catch. The concrete intersection of per-system handler-table slices is built in the kernel and passed to `new ActionExecutor(table)`. The executor is a leaf; action kinds are named only by system payload definitions and the kernel table type.
 
-4. **The executor dispatches via a mapped-type handler table at the composition layer.** The kernel constructs the concrete `{ [K in ActionKind]: ActionHandler<K> }` table from per-system slices. Each system contributes a slice factory: `createSkillingActionHandlers(deps): SkillingSlice`, `createResourceNodeActionHandlers(deps): ResourceNodeSlice`. The kernel composes the slices at construction time. Dispatch is `table[payload.kind](payload, ctx)` — O(1), exhaustive, no casts. A missing kind is a **compile error**, not a runtime "unhandled" report.
+4. **The executor dispatches via a typed handler table at the kernel composition site.** Each system contributes a slice factory: `createSkillingActionHandlers(deps): SkillingSlice`, `createResourceNodeActionHandlers(deps): ResourceNodeSlice`. The kernel composes the slices at construction time and annotates the result with the private `ActionHandlerTable` type. Dispatch is `table[payload.kind](payload, ctx)` — O(1), exhaustive for the composed table, no caller-side casts. A missing kind is a **compile error**, not a runtime "unhandled" report.
 
 5. **`ActionContext` is the minimal execution envelope.** It contains only: `tick`, `serverTime`, `execution: ActionExecution`, and `selfCancel: (id: ActionId) => void`. No system-specific dependencies (world, collision, registries, rng). Per-system dependencies are **closure-captured** inside the slice factories — each system keeps its narrow deps; the table signature stays uniform.
 
@@ -52,20 +52,20 @@ This is a **type erasure problem**, not a dispatch-pattern problem. The systems 
 ## Consequences
 
 - `ActionQueueEntry` is no longer `unknown` at the payload boundary. The type system guarantees that every enqueued action carries a payload with a `kind: string` discriminant.
-- `ActionExecutor` no longer holds a `readonly ActionExecutionHandler[]`. It is generic over a `TTable` and performs keyed dispatch via `table[payload.kind](payload, ctx)`. The concrete `{ [K in ActionKind]: ActionHandler<K> }` table is built at the composition layer and passed in.
+- `ActionExecutor` no longer holds a `readonly ActionExecutionHandler[]`. It is generic over a `TTable` and performs keyed dispatch via `table[payload.kind](payload, ctx)`. The concrete table is typed as the intersection of per-system handler-table slices at the kernel composition site and passed in.
 - `ActionExecutionReport`, `handled`, `unhandled`, and `lastReport` are deleted. The concept of "unhandled action" is promoted from runtime to compile-time.
 - `action-executor.test.ts` is rewritten: partition assertions become tests for keyed dispatch correctness and per-action fault isolation.
 - `simulation-kernel.ts` shrinks: the inline closure (lines 113–128) is replaced by a table composition call.
 - `skilling-system.ts` shrinks: `handleSkillingAction` (the wrapper function, lines 569–588) is deleted; the four `handleX` functions remain exported, repurposed via a slice factory to feed the table.
-- `SkillingPayload` is **repurposed**, not deleted: it types the skilling system's slice of the table (`{ [K in SkillingActionKind]: ... }`) and feeds into the global `ActionPayload` union.
+- `SkillingPayload` is **repurposed**, not deleted: it types the skilling system's slice of the table (`{ [K in SkillingActionKind]: ... }`).
 - Test blast radius: `intent-dispatcher.test.ts` enqueues `{ action: "woodcut" }` payloads **without a `kind` field** — these must be rewritten to use a real discriminant, or they become a type error. The test payloads are currently synthetic (not testing real execution), so they should adopt a `kind` value.
 - The import graph is a DAG:
   ```
   kernel → systems → queue (leaf)
-  kernel → composition module (type-only from systems)
+  kernel → system handler table slice types (type-only)
   kernel → action-executor (leaf; depends only on ActionContext/ActionExecution)
   ```
-  Both queue and executor are content-agnostic leaves; the union lives at the composition layer; type-only imports add no runtime coupling and no cycle.
+  Both queue and executor are content-agnostic leaves; the composed table type lives at the kernel composition site; type-only imports add no runtime coupling and no cycle.
 
 ## Related
 
@@ -73,7 +73,6 @@ This is a **type erasure problem**, not a dispatch-pattern problem. The systems 
 - `ADR-003_intent-to-action-spine.md` — Intent-side routing, deferred plugin registry
 - `apps/server/src/sim/action-queue.ts`
 - `apps/server/src/sim/action-executor.ts`
-- `apps/server/src/sim/action-runtime.ts`
 - `apps/server/src/sim/simulation-kernel.ts`
 - `apps/server/src/systems/skilling-system.ts`
 - `apps/server/src/systems/resource-node-system.ts`

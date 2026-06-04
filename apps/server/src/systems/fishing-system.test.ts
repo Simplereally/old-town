@@ -1,14 +1,14 @@
+import { tileKey } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { createWorld, type World } from "../ecs/world";
-import { createInventory, addItem, catalogFromItems } from "../items/inventory";
-import { ActionRuntime } from "../sim/action-runtime";
+import { addItem, catalogFromItems, createInventory } from "../items/inventory";
+import { ActionQueue } from "../sim/action-queue";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
-import { handleObjectSkillingIntent, handleGather } from "./skilling-system";
 import type { GatherActionPayload } from "./skilling-system";
-import { tileKey } from "@old-town/shared";
+import { handleGather, handleObjectSkillingIntent } from "./skilling-system";
 
 const FISHING_SPOT_DEF = {
   id: "fishing_spot",
@@ -137,7 +137,7 @@ function setup() {
   addOpenTiles(map);
   const collision = new CollisionMap(map);
   const deltas = new DeltaAccumulator();
-  const actionRuntime = new ActionRuntime();
+  const actionQueue = new ActionQueue();
   const registries = makeRegistries({
     object: new Map([[FISHING_SPOT_DEF.id, FISHING_SPOT_DEF]]),
     item: new Map([
@@ -151,7 +151,7 @@ function setup() {
     world,
     collision,
     deltas,
-    actionRuntime,
+    actionQueue,
     registries,
     rng: { nextFloat: () => 0, nextInt: () => 0, chanceOneIn: () => false },
     itemAudit: undefined,
@@ -165,7 +165,12 @@ describe("fishing action support", () => {
     const player = addPlayer(world, 1, 1);
     const spot = addFishingSpot(world, 2, 1);
 
-    const result = handleObjectSkillingIntent(ctx, player, { actionId: "fish", objectEntityId: spot }, 0);
+    const result = handleObjectSkillingIntent(
+      ctx,
+      player,
+      { actionId: "fish", objectEntityId: spot },
+      0,
+    );
     expect(result).toBe(true);
 
     const chat = deltas.peek().chat;
@@ -182,10 +187,15 @@ describe("fishing action support", () => {
 
     addItem(inventory, catalogFromItems(ctx.registries.item), "fishing_rod", 1);
 
-    const result = handleObjectSkillingIntent(ctx, player, { actionId: "fish", objectEntityId: spot }, 0);
+    const result = handleObjectSkillingIntent(
+      ctx,
+      player,
+      { actionId: "fish", objectEntityId: spot },
+      0,
+    );
     expect(result).toBe(true);
 
-    const debugState = ctx.actionRuntime.getDebugState();
+    const debugState = ctx.actionQueue.getDebugState();
     const queued = debugState.filter((entry) => entry.owner === player);
     expect(queued.length).toBeGreaterThan(0);
     expect((queued[0]?.payload as { kind: string }).kind).toBe("gather");
@@ -202,18 +212,24 @@ describe("fishing action support", () => {
     addItem(inventory, catalogFromItems(ctx.registries.item), "fishing_rod", 1);
 
     const gatherPayload: GatherActionPayload = { kind: "gather", nodeEntityId: spot };
-    handleGather(ctx, {
-      entry: {
-        id: "gather:1",
-        owner: player,
-        type: "weak" as const,
-        delayTicks: 5,
-        interruptGroup: "skilling" as const,
-        payload: gatherPayload,
-        repeat: { intervalTicks: 5 },
+    handleGather(
+      ctx,
+      {
+        entry: {
+          id: "gather:1",
+          owner: player,
+          type: "weak" as const,
+          delayTicks: 5,
+          interruptGroup: "skilling" as const,
+          payload: gatherPayload,
+          repeat: { intervalTicks: 5 },
+        },
+        executionCount: 1,
       },
-      executionCount: 1,
-    }, gatherPayload, 1, 0);
+      gatherPayload,
+      1,
+      0,
+    );
 
     const fishCount = inventory.slots.reduce((sum, slot) => {
       if (slot?.itemId === "raw_fish") {
@@ -250,23 +266,29 @@ describe("fishing action support", () => {
     };
 
     const depletingPayload: GatherActionPayload = { kind: "gather", nodeEntityId: spot };
-    handleGather(depletingCtx, {
-      entry: {
-        id: "gather:1",
-        owner: player,
-        type: "weak" as const,
-        delayTicks: 5,
-        interruptGroup: "skilling" as const,
-        payload: depletingPayload,
-        repeat: { intervalTicks: 5 },
+    handleGather(
+      depletingCtx,
+      {
+        entry: {
+          id: "gather:1",
+          owner: player,
+          type: "weak" as const,
+          delayTicks: 5,
+          interruptGroup: "skilling" as const,
+          payload: depletingPayload,
+          repeat: { intervalTicks: 5 },
+        },
+        executionCount: 1,
       },
-      executionCount: 1,
-    }, depletingPayload, 1, 0);
+      depletingPayload,
+      1,
+      0,
+    );
 
     const node = world.getComponent(spot, "resourceNode");
     expect(node?.depleted).toBe(true);
 
-    const debugState = depletingCtx.actionRuntime.getDebugState();
+    const debugState = depletingCtx.actionQueue.getDebugState();
     const cancelled = !debugState.some(
       (entry) => entry.owner === player && (entry.payload as { kind: string }).kind === "gather",
     );

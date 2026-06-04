@@ -53,9 +53,8 @@
     "serviceType": "tanning",
     "baseFee": 3,
     "levelMultiplier": 0.1,
-    "materialCost": [{ "itemId": "cow_hide", "quantity": 1 }],
+    "materialCost": [{ "itemId": "rabbit_hide", "quantity": 1 }],
     "currency": "coin",
-    "outputItemId": "leather",
     "outputQuantity": 1
   },
   {
@@ -64,9 +63,8 @@
     "serviceType": "smelting",
     "baseFee": 5,
     "levelMultiplier": 0.2,
-    "materialCost": [{ "itemId": "copper_ore", "quantity": 1 }, { "itemId": "tin_ore", "quantity": 1 }],
+    "materialCost": [{ "itemId": "copper_ore", "quantity": 1 }, { "itemId": "tinstone", "quantity": 1 }],
     "currency": "coin",
-    "outputItemId": "bronze_bar",
     "outputQuantity": 1
   },
   {
@@ -75,9 +73,8 @@
     "serviceType": "bead_firing",
     "baseFee": 15,
     "levelMultiplier": 0.5,
-    "materialCost": [{ "itemId": "raw_bead", "quantity": 1 }],
+    "materialCost": [{ "itemId": "bead_clay", "quantity": 1 }],
     "currency": "coin",
-    "outputItemId": "fired_bead",
     "outputQuantity": 1
   },
   {
@@ -86,7 +83,7 @@
     "serviceType": "blessing",
     "baseFee": 30,
     "levelMultiplier": 1.0,
-    "materialCost": [{ "itemId": "prayer_bead", "quantity": 1 }],
+    "materialCost": [{ "itemId": "prayer_knot", "quantity": 1 }],
     "currency": "coin"
   },
   {
@@ -123,9 +120,8 @@
     "serviceType": "map_copy",
     "baseFee": 5,
     "levelMultiplier": 0.1,
-    "materialCost": [{ "itemId": "blank_parchment", "quantity": 1 }],
+    "materialCost": [],
     "currency": "coin",
-    "outputItemId": "old_town_map",
     "outputQuantity": 1
   },
   {

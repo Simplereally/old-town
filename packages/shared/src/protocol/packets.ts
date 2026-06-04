@@ -182,6 +182,8 @@ export interface RecipeListEntry {
 
 export interface RecipeListPacket {
   readonly interfaceId: string;
+  readonly stationEntityId: number;
+  readonly stationName: string;
   readonly recipes: readonly RecipeListEntry[];
 }
 

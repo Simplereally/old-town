@@ -58,6 +58,42 @@ export function addXp(
   return { skillId, oldLevel, newLevel, oldXp, newXp, levelUp };
 }
 
+export function deductXp(
+  ctx: SkillStateContext,
+  entityId: EntityId,
+  skillId: string,
+  amount: number,
+): AddXpResult | undefined {
+  if (amount <= 0) {
+    return undefined;
+  }
+
+  const skills = ctx.world.getComponent(entityId, "skills");
+  if (!skills) {
+    return undefined;
+  }
+
+  const skill = skills.skills[skillId];
+  if (!skill) {
+    return undefined;
+  }
+
+  const oldXp = skill.xp;
+  const oldLevel = skill.level;
+  const newXp = Math.max(0, oldXp - amount);
+  const newLevel = levelForXp(newXp);
+
+  skill.xp = newXp;
+  skill.level = newLevel;
+
+  const levelUp = newLevel > oldLevel;
+
+  ctx.deltas.markSkillDelta({ skillId, level: newLevel, xp: newXp, effectiveLevel: getEffectiveLevel(skill) });
+  ctx.deltas.markXpDrop({ skillId, amount: -amount });
+
+  return { skillId, oldLevel, newLevel, oldXp, newXp, levelUp };
+}
+
 export function getBaseLevel(skills: SkillsComponent, skillId: string): number {
   const skill = skills.skills[skillId];
   if (!skill) {

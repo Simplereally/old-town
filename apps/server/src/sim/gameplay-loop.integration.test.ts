@@ -13,7 +13,7 @@ import { createWorld, type World } from "../ecs/world";
 import { addItem, catalogFromItems, count, createInventory } from "../items/inventory";
 import { ItemAuditLog } from "../items/item-audit";
 import type { Logger } from "../logger";
-import { MemoryPersistenceAdapter } from "../persistence";
+import { MemoryPersistenceAdapter } from "../persistence/adapter";
 import {
   handleNpcCombatIntent,
   processCombatStartEvents,
@@ -32,7 +32,7 @@ import { CollisionMap, objectCollisionFlags } from "../world/collision";
 import { loadAllRegionMapsIntoWorld } from "../world/region-loader";
 import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
 import { ActionExecutor } from "./action-executor";
-import { ActionRuntime } from "./action-runtime";
+import { ActionQueue } from "./action-queue";
 import { DeltaAccumulator } from "./delta-accumulator";
 import { createSimulationKernel } from "./simulation-kernel";
 
@@ -41,7 +41,7 @@ interface GameplayHarness {
   readonly map: RuntimeMap;
   readonly collision: CollisionMap;
   readonly deltas: DeltaAccumulator;
-  readonly actionRuntime: ActionRuntime;
+  readonly actionQueue: ActionQueue;
   readonly itemAudit: ItemAuditLog;
   readonly rng: Rng;
   readonly ctx: GameplayContext;
@@ -53,7 +53,7 @@ interface GameplayContext {
   readonly collision: CollisionMap;
   readonly deltas: DeltaAccumulator;
   readonly registries: ContentRegistries;
-  readonly actionRuntime: ActionRuntime;
+  readonly actionQueue: ActionQueue;
   readonly rng: Rng;
   readonly itemAudit: ItemAuditLog;
 }
@@ -116,14 +116,14 @@ function makeHarness(rng: Rng = fixedRng()): GameplayHarness {
   addOpenTiles(map);
   const collision = new CollisionMap(map);
   const deltas = new DeltaAccumulator();
-  const actionRuntime = new ActionRuntime();
+  const actionQueue = new ActionQueue();
   const itemAudit = new ItemAuditLog();
   const ctx: GameplayContext = {
     world,
     collision,
     deltas,
     registries,
-    actionRuntime,
+    actionQueue,
     rng,
     itemAudit,
   };
@@ -132,9 +132,9 @@ function makeHarness(rng: Rng = fixedRng()): GameplayHarness {
       ...createSkillingActionHandlers(ctx),
       ...createResourceNodeActionHandlers(ctx),
     },
-    actionRuntime.cancel.bind(actionRuntime),
+    (owner, filter) => actionQueue.cancel(owner, filter),
   );
-  return { world, map, collision, deltas, actionRuntime, itemAudit, rng, ctx, executor };
+  return { world, map, collision, deltas, actionQueue, itemAudit, rng, ctx, executor };
 }
 
 function addPlayer(
@@ -294,7 +294,7 @@ function addNpc(harness: GameplayHarness, npcId: string, coord: TileCoord): Enti
 
 function runActions(harness: GameplayHarness, startTick: number, endTick: number): void {
   for (let tick = startTick; tick <= endTick; tick += 1) {
-    harness.executor.execute(harness.actionRuntime.advanceTick(), {
+    harness.executor.execute(harness.actionQueue.advanceTick(), {
       tick,
       serverTime: tick * 600,
     });

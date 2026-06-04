@@ -25,6 +25,9 @@ export const shopDefSchema = z
     sellMultiplier: z.number().min(0).default(0.6),
     buyMultiplier: z.number().min(0).default(1.0),
     restockTicks: positiveInt.default(100),
+    buyPolicy: z.enum(["always", "quest_gated", "skill_gated", "reputation_gated", "rotating", "never"]).default("always"),
+    sellPolicy: z.enum(["buys_category", "buys_exact_list", "buys_junk", "refuses_stolen", "fences_stolen", "does_not_buy"]).default("does_not_buy"),
+    unlockCondition: z.string().optional(),
   })
   .strict();
 

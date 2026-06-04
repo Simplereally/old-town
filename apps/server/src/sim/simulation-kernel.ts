@@ -3,26 +3,28 @@ import {
   type ClientCommand,
   type ContentRegistries,
   createRng,
+  type EntityId,
   type FullStatePacket,
   GAME_TICK_MS,
   type ItemTransactionAuditRecord,
+  type TileCoord,
 } from "@old-town/shared";
-import { createDialogueActionHandlers } from "../dialogue/dialogue-engine";
+import {
+  createDialogueActionHandlers,
+  type DialogueHandlerTable,
+} from "../dialogue/dialogue-engine";
 import { createWorld, type World } from "../ecs/world";
 import { ItemAuditLog } from "../items/item-audit";
 import type { Logger } from "../logger";
-import { type CommandRouteResult, CommandRouter } from "../net/command-router";
-import type { DeltaTransport } from "../net/delta-broadcaster";
-import { DeltaBroadcaster } from "../net/delta-broadcaster";
+import type { DeltaTransport } from "../net/delta-transport";
 import { DevSessionManager } from "../net/dev-session";
 import { InterestManager } from "../net/interest-manager";
 import type { TransportSession } from "../net/websocket-transport";
-import {
-  CharacterSaveQueue,
-  createPersistenceDirtyObserver,
-  DisabledPersistenceAdapter,
-  type PersistenceAdapter,
-} from "../persistence";
+import { DisabledPersistenceAdapter, type PersistenceAdapter } from "../persistence/adapter";
+import { createPersistenceDirtyObserver } from "../persistence/dirty-triggers";
+import { CharacterSaveQueue } from "../persistence/save-queue";
+import { processQuestTriggers } from "../quests/quest-engine";
+import { processAppearanceUpdates } from "../systems/appearance-system";
 import { ChatSystem } from "../systems/chat-system";
 import {
   processCombatStartEvents,
@@ -30,25 +32,35 @@ import {
   processDamageResolutionEvents,
 } from "../systems/combat-system";
 import { ConsumableSystem } from "../systems/consumable-system";
-import { processPlayerRespawn } from "../systems/death-system";
 import { processContractLifecycle } from "../systems/contract-system";
-import { processDeathResolution, processGraveLifecycle, processGroundItemLifecycle } from "../systems/ground-item-system";
-import { npcFootprintResolver, processNpcAiPhase, syncNpcOccupancy } from "../systems/npc-system";
-import { createResourceNodeActionHandlers } from "../systems/resource-node-system";
-import { createSkillingActionHandlers } from "../systems/skilling-system";
+import { processPlayerRespawn } from "../systems/death-system";
+import {
+  processDeathResolution,
+  processGraveLifecycle,
+  processGroundItemLifecycle,
+} from "../systems/ground-item-system";
 import type { NookDef } from "../systems/nook-system";
-import { handleBeginInteract } from "../systems/object-interaction-router";
-import { processAppearanceUpdates } from "../systems/appearance-system";
+import { npcFootprintResolver, processNpcAiPhase, syncNpcOccupancy } from "../systems/npc-system";
+import {
+  type BeginInteractPayload,
+  handleBeginInteract,
+} from "../systems/object-interaction-router";
+import {
+  createResourceNodeActionHandlers,
+  type ResourceNodeHandlerTable,
+} from "../systems/resource-node-system";
 import { processShopRestockPhase } from "../systems/shop-system";
+import {
+  createSkillingActionHandlers,
+  type SkillingHandlerTable,
+} from "../systems/skilling-system";
+import { createSpellActionHandlers, type SpellHandlerTable } from "../systems/spell-system";
 import { processStatusEffects } from "../systems/status-system";
-import { createSpellActionHandlers } from "../systems/spell-system";
-import { processQuestTriggers } from "../quests/quest-engine";
 import { applyObjectCollision, CollisionMap } from "../world/collision";
 import { loadAllRegionMapsIntoWorld } from "../world/region-loader";
 import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
-import { ActionExecutor } from "./action-executor";
-import type { ActionHandlerTable } from "./action-payloads";
-import { ActionRuntime } from "./action-runtime";
+import { ActionExecutor, type ActionHandler } from "./action-executor";
+import { ActionQueue } from "./action-queue";
 import { CommandBuffer } from "./command-buffer";
 import { DeltaAccumulator } from "./delta-accumulator";
 import {
@@ -69,6 +81,11 @@ export interface SimulationKernel {
   detachDeltaTransport(): void;
   recentItemTransactions(limit?: number): readonly ItemTransactionAuditRecord[];
   stats(): KernelStats;
+}
+
+export interface CommandRouteResult {
+  readonly ok: boolean;
+  readonly reason?: string;
 }
 
 export interface KernelStats {
@@ -96,17 +113,27 @@ export interface SimulationKernelOptions {
   readonly nooks?: readonly NookDef[];
 }
 
+const DEFAULT_SPAM_CAP_PER_TICK = 8;
+
+type CommandCountsByTick = Map<number, Map<string, number>>;
+
+type ActionHandlerTable = SkillingHandlerTable &
+  ResourceNodeHandlerTable &
+  SpellHandlerTable &
+  DialogueHandlerTable & {
+    begin_interact: ActionHandler<BeginInteractPayload>;
+  };
+
 interface SimulationDeps {
   readonly world: World;
   readonly map: RuntimeMap;
   readonly tickLoop: TickLoop;
   readonly commandBuffer: CommandBuffer;
   readonly deltas: DeltaAccumulator;
-  readonly commandRouter: CommandRouter;
   readonly devSessions: DevSessionManager;
   readonly chatSystem: ChatSystem;
   readonly consumableSystem: ConsumableSystem;
-  readonly actionRuntime: ActionRuntime;
+  readonly actionQueue: ActionQueue;
   readonly actionExecutor: ActionExecutor<ActionHandlerTable>;
   readonly interestManager: InterestManager;
   readonly itemAudit: ItemAuditLog;
@@ -123,6 +150,17 @@ interface KernelMetrics {
   lastTickDurationMs: number;
   lastCommandsProcessed: number;
   lastDeltaSizeBytes: number;
+}
+
+function positionTile(world: World, entityId: EntityId): TileCoord | undefined {
+  const position = world.getComponent(entityId, "position");
+  return position
+    ? { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] }
+    : undefined;
+}
+
+function clearCommandCountsForTick(countsByTargetTick: CommandCountsByTick, tick: number): void {
+  countsByTargetTick.delete(tick);
 }
 
 function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps {
@@ -165,13 +203,13 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
   );
   const chatSystem = new ChatSystem();
   const consumableSystem = new ConsumableSystem();
-  const actionRuntime = new ActionRuntime();
+  const actionQueue = new ActionQueue();
   const rng = createRng(0x1d70a0d);
   const skillingContext = {
     world,
     collision,
     deltas,
-    actionRuntime,
+    actionQueue,
     registries,
     rng,
     itemAudit,
@@ -184,7 +222,7 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
     world,
     collision,
     deltas,
-    actionRuntime,
+    actionQueue,
     registries,
     itemAudit,
   });
@@ -204,7 +242,7 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
   };
   const actionExecutor = new ActionExecutor(
     actionTable,
-    actionRuntime.cancel.bind(actionRuntime),
+    (owner, filter) => actionQueue.cancel(owner, filter),
     (kind, action) =>
       logger.error("action", "No handler for action kind", {
         kind,
@@ -212,11 +250,6 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
         id: action.entry.id,
       }),
   );
-  const commandRouter = new CommandRouter({
-    commandBuffer,
-    getEntityId: (session) => devSessions.getEntityId(session),
-    getCurrentTick: () => tickLoop.currentTick,
-  });
 
   logger.info("kernel", "Simulation kernel initialized", {
     objects: world.componentCount("object"),
@@ -231,11 +264,10 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
     tickLoop,
     commandBuffer,
     deltas,
-    commandRouter,
     devSessions,
     chatSystem,
     consumableSystem,
-    actionRuntime,
+    actionQueue,
     actionExecutor,
     interestManager,
     itemAudit,
@@ -245,13 +277,14 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
     registries,
     logger,
     rng,
-    nooks: options.nooks,
+    ...(options.nooks !== undefined ? { nooks: options.nooks } : {}),
   };
 }
 
 function wireTickPhases(
   deps: SimulationDeps,
-  deltaBroadcasterRef: { current: DeltaBroadcaster | undefined },
+  deltaTransportRef: { current: DeltaTransport | undefined },
+  countsByTargetTick: CommandCountsByTick,
   metrics: KernelMetrics,
 ): void {
   const {
@@ -259,23 +292,25 @@ function wireTickPhases(
     map,
     collision,
     deltas,
-    commandRouter,
+    commandBuffer,
+    devSessions,
     chatSystem,
     consumableSystem,
-    actionRuntime,
+    actionQueue,
     actionExecutor,
     tickLoop,
     registries,
     rng,
     itemAudit,
     saveQueue,
+    interestManager,
   } = deps;
 
   const dispatchContext = {
     world,
     collision,
     deltas,
-    actionRuntime,
+    actionQueue,
     registries,
     rng,
     chatSystem,
@@ -297,11 +332,12 @@ function wireTickPhases(
     registries,
     rng,
     itemAudit,
-    actionRuntime,
+    actionQueue,
   };
 
   tickLoop.registerPhase(TickPhase.InputClose, ({ tick, serverTime }) => {
-    const commands = commandRouter.consumeTick(tick);
+    clearCommandCountsForTick(countsByTargetTick, tick);
+    const commands = commandBuffer.consumeTick(tick);
     metrics.lastCommandsProcessed = commands.groups.reduce(
       (count, group) => count + group.intents.length,
       0,
@@ -312,7 +348,7 @@ function wireTickPhases(
   });
 
   tickLoop.registerPhase(TickPhase.ActionQueueTimers, ({ tick, serverTime }) => {
-    const executions = actionRuntime.advanceTick();
+    const executions = actionQueue.advanceTick();
     actionExecutor.execute(executions, { tick, serverTime });
   });
 
@@ -369,11 +405,7 @@ function wireTickPhases(
   });
 
   tickLoop.registerPhase(TickPhase.ContractLifecycle, ({ tick, serverTime }) => {
-    processContractLifecycle(
-      { world, deltas, registries, itemAudit },
-      tick,
-      serverTime,
-    );
+    processContractLifecycle({ world, deltas, registries, itemAudit }, tick, serverTime);
   });
 
   tickLoop.registerPhase(TickPhase.AppearanceUpdate, () => {
@@ -381,14 +413,29 @@ function wireTickPhases(
   });
 
   tickLoop.registerPhase(TickPhase.SnapshotDeltaBuild, ({ tick, serverTime }) => {
-    const delta = deltaBroadcasterRef.current?.broadcastTick(tick, serverTime);
-    metrics.lastDeltaSizeBytes = delta === undefined ? 0 : JSON.stringify(delta).length;
+    const transport = deltaTransportRef.current;
+    if (!transport) {
+      metrics.lastDeltaSizeBytes = 0;
+      return;
+    }
+
+    const delta = deltas.consume(tick, serverTime);
+    for (const session of transport.sessions.values()) {
+      const entityId = devSessions.getEntityId(session);
+      const center = entityId === undefined ? undefined : positionTile(world, entityId);
+      if (!center || entityId === undefined) {
+        continue;
+      }
+      transport.send(session.id, interestManager.filterDelta(entityId, center, delta, world));
+    }
+    metrics.lastDeltaSizeBytes = JSON.stringify(delta).length;
   });
 }
 
 function createKernelInterface(
   deps: SimulationDeps,
-  deltaBroadcasterRef: { current: DeltaBroadcaster | undefined },
+  deltaTransportRef: { current: DeltaTransport | undefined },
+  countsByTargetTick: CommandCountsByTick,
   metrics: KernelMetrics,
 ): SimulationKernel {
   const {
@@ -397,7 +444,6 @@ function createKernelInterface(
     tickLoop,
     commandBuffer,
     deltas,
-    commandRouter,
     devSessions,
     interestManager,
     logger,
@@ -406,6 +452,19 @@ function createKernelInterface(
   } = deps;
   const connectedSessions = new Set<string>();
 
+  function primeSessionInterest(
+    session: TransportSession,
+    entities: FullStatePacket["entities"],
+  ): void {
+    const entityId = devSessions.getEntityId(session);
+    const center = entityId === undefined ? undefined : positionTile(world, entityId);
+    if (!center || entityId === undefined) {
+      return;
+    }
+    interestManager.updateInterest(entityId, center);
+    interestManager.primeKnownEntities(entityId, entities);
+  }
+
   function primeSessionOnAttach(session: TransportSession): void {
     const fullState = devSessions.fullStateForSession(
       session,
@@ -413,9 +472,27 @@ function createKernelInterface(
       tickLoop.currentServerTime,
     );
     if (fullState) {
-      deltaBroadcasterRef.current?.primeSession(session, fullState.entities);
+      primeSessionInterest(session, fullState.entities);
     }
   }
+
+  const runOneTick = (): number => {
+    const startedAt = performance.now();
+    try {
+      return tickLoop.runOneTick();
+    } finally {
+      metrics.lastTickDurationMs = performance.now() - startedAt;
+    }
+  };
+
+  const runDueTicks = (nowMs: number): number => {
+    let ran = 0;
+    while (tickLoop.currentServerTime + GAME_TICK_MS <= nowMs) {
+      runOneTick();
+      ran += 1;
+    }
+    return ran;
+  };
 
   return {
     async connectSession(session) {
@@ -425,7 +502,12 @@ function createKernelInterface(
         tickLoop.currentServerTime,
       );
       connectedSessions.add(session.id);
-      deltaBroadcasterRef.current?.primeSession(session, fullState.entities);
+      // If no transport is attached yet, attachDeltaTransport primes from a fresh
+      // full state later. With a live transport, prime now so the first delta after
+      // connect does not echo entities the client already received in full state.
+      if (deltaTransportRef.current) {
+        primeSessionInterest(session, fullState.entities);
+      }
       const entityById = new Map(fullState.entities.map((e) => [e.entityId, e]));
       const selfSpawn = entityById.get(fullState.selfEntityId);
       if (selfSpawn) {
@@ -456,42 +538,48 @@ function createKernelInterface(
     },
 
     routeCommand(session, command) {
-      const result = commandRouter.route(session, command);
+      const ownerEntityId = devSessions.getEntityId(session);
+      let result: CommandRouteResult;
+      if (ownerEntityId === undefined) {
+        result = { ok: false, reason: "no_session_entity" };
+      } else {
+        const receivedTick = tickLoop.currentTick;
+        const targetTick = receivedTick + 1;
+        const countsBySession = countsByTargetTick.get(targetTick) ?? new Map<string, number>();
+        const count = countsBySession.get(session.id) ?? 0;
+        if (count >= DEFAULT_SPAM_CAP_PER_TICK) {
+          result = { ok: false, reason: "spam_cap" };
+        } else {
+          const accepted = commandBuffer.accept(command, {
+            ownerEntityId,
+            connectionId: session.id,
+            receivedTick,
+            targetTick,
+          });
+          if (accepted.ok) {
+            countsBySession.set(session.id, count + 1);
+            countsByTargetTick.set(targetTick, countsBySession);
+            result = { ok: true };
+          } else {
+            result = { ok: false, reason: accepted.reason };
+          }
+        }
+      }
       if (!result.ok) {
         logger.warn("kernel", "Command rejected", { sessionId: session.id, reason: result.reason });
       }
       return result;
     },
 
-    runOneTick() {
-      const startedAt = performance.now();
-      try {
-        return tickLoop.runOneTick();
-      } finally {
-        metrics.lastTickDurationMs = performance.now() - startedAt;
-      }
-    },
+    runOneTick,
 
-    runDueTicks(nowMs) {
-      let ran = 0;
-      while (tickLoop.currentServerTime + GAME_TICK_MS <= nowMs) {
-        this.runOneTick();
-        ran += 1;
-      }
-      return ran;
-    },
+    runDueTicks,
 
     attachDeltaTransport(transport) {
-      if (deltaBroadcasterRef.current) {
+      if (deltaTransportRef.current) {
         logger.warn("kernel", "Delta transport already attached; replacing");
       }
-      deltaBroadcasterRef.current = new DeltaBroadcaster({
-        world,
-        deltas,
-        interestManager,
-        transport,
-        getEntityId: (session) => devSessions.getEntityId(session),
-      });
+      deltaTransportRef.current = transport;
       // Prime existing sessions if transport is attached after connections
       for (const sessionId of connectedSessions) {
         const session = transport.sessions.get(sessionId);
@@ -502,7 +590,7 @@ function createKernelInterface(
     },
 
     detachDeltaTransport() {
-      deltaBroadcasterRef.current = undefined;
+      deltaTransportRef.current = undefined;
     },
 
     async flushPersistence() {
@@ -535,12 +623,13 @@ function createKernelInterface(
 
 export function createSimulationKernel(options: SimulationKernelOptions): SimulationKernel {
   const deps = createSimulationDeps(options);
-  const deltaBroadcasterRef: { current: DeltaBroadcaster | undefined } = { current: undefined };
+  const deltaTransportRef: { current: DeltaTransport | undefined } = { current: undefined };
+  const countsByTargetTick: CommandCountsByTick = new Map();
   const metrics: KernelMetrics = {
     lastTickDurationMs: 0,
     lastCommandsProcessed: 0,
     lastDeltaSizeBytes: 0,
   };
-  wireTickPhases(deps, deltaBroadcasterRef, metrics);
-  return createKernelInterface(deps, deltaBroadcasterRef, metrics);
+  wireTickPhases(deps, deltaTransportRef, countsByTargetTick, metrics);
+  return createKernelInterface(deps, deltaTransportRef, countsByTargetTick, metrics);
 }

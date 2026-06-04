@@ -23,9 +23,15 @@ import {
 import type { InventoryComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
 import { createEquipment, equipmentUpdate } from "../items/equipment";
-import { addItem, catalogFromItems, createBank, createInventory, toInventoryDelta } from "../items/inventory";
+import {
+  addItem,
+  catalogFromItems,
+  createBank,
+  createInventory,
+  toInventoryDelta,
+} from "../items/inventory";
 import type { ItemAuditLog } from "../items/item-audit";
-import { DisabledPersistenceAdapter, type PersistenceAdapter } from "../persistence";
+import { DisabledPersistenceAdapter, type PersistenceAdapter } from "../persistence/adapter";
 import { applyCharacterSnapshot, snapshotCharacter } from "../persistence/character-state";
 import { computeCombatLevel } from "../skills/combat-level";
 import { maxHealthForHitpointsLevel } from "../skills/skill-state";

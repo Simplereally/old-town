@@ -792,7 +792,7 @@
     {
       "id": "E27",
       "title": "Recipe Selection and Crafting",
-      "file": "epics/E27_recipe-selection-and-crafting.md",
+      "file": "completed/epics/E27_recipe-selection-and-crafting.md",
       "stories": [
         {
           "id": "E27-S01",
@@ -802,19 +802,19 @@
         {
           "id": "E27-S02",
           "title": "Server-Side Recipe Selection Handler",
-          "file": "stories/E27/E27-S02_server-side-recipe-selection-handler.md"
+          "file": "completed/stories/E27/E27-S02_server-side-recipe-selection-handler.md"
         },
         {
           "id": "E27-S03",
           "title": "Recipe UI Client Rendering",
-          "file": "stories/E27/E27-S03_recipe-ui-client-rendering.md"
+          "file": "completed/stories/E27/E27-S03_recipe-ui-client-rendering.md"
         }
       ]
     },
     {
       "id": "E28",
       "title": "Client UI and Visual Polish",
-      "file": "epics/E28_client-ui-and-visual-polish.md",
+      "file": "completed/epics/E28_client-ui-and-visual-polish.md",
       "stories": [
         {
           "id": "E28-S01",
@@ -824,93 +824,93 @@
         {
           "id": "E28-S02",
           "title": "Minimap Rendering",
-          "file": "stories/E28/E28-S02_minimap-rendering.md"
+          "file": "completed/stories/E28/E28-S02_minimap-rendering.md"
         },
         {
           "id": "E28-S03",
           "title": "XP Drop Visualization",
-          "file": "stories/E28/E28-S03_xp-drop-visualization.md"
+          "file": "completed/stories/E28/E28-S03_xp-drop-visualization.md"
         }
       ]
     },
     {
       "id": "E29",
       "title": "Advanced Status Effects and Combat",
-      "file": "epics/E29_advanced-status-effects-and-combat.md",
+      "file": "completed/epics/E29_advanced-status-effects-and-combat.md",
       "stories": [
         {
           "id": "E29-S01",
           "title": "Advanced Status Effect System",
-          "file": "stories/E29/E29-S01_advanced-status-effect-system.md"
+          "file": "completed/stories/E29/E29-S01_advanced-status-effect-system.md"
         },
         {
           "id": "E29-S02",
           "title": "Drop Table Rarity and Conditionals",
-          "file": "stories/E29/E29-S02_drop-table-rarity-and-conditionals.md"
+          "file": "completed/stories/E29/E29-S02_drop-table-rarity-and-conditionals.md"
         }
       ]
     },
     {
       "id": "E30",
       "title": "World Expansion Systems",
-      "file": "epics/E30_world-expansion-systems.md",
+      "file": "completed/epics/E30_world-expansion-systems.md",
       "stories": [
         {
           "id": "E30-S01",
           "title": "Ledger Deed System",
-          "file": "stories/E30/E30-S01_ledger-deed-system.md"
+          "file": "completed/stories/E30/E30-S01_ledger-deed-system.md"
         },
         {
           "id": "E30-S02",
           "title": "Oldroad Trails and Discovery",
-          "file": "stories/E30/E30-S02_oldroad-trails-and-discovery.md"
+          "file": "completed/stories/E30/E30-S02_oldroad-trails-and-discovery.md"
         },
         {
           "id": "E30-S03",
           "title": "Nooks and Hidden Areas",
-          "file": "stories/E30/E30-S03_nooks-and-hidden-areas.md"
+          "file": "completed/stories/E30/E30-S03_nooks-and-hidden-areas.md"
         },
         {
           "id": "E30-S04",
           "title": "Charters and Permits",
-          "file": "stories/E30/E30-S04_charters-and-permits.md"
+          "file": "completed/stories/E30/E30-S04_charters-and-permits.md"
         },
         {
           "id": "E30-S05",
           "title": "Public Works System",
-          "file": "stories/E30/E30-S05_public-works-system.md"
+          "file": "completed/stories/E30/E30-S05_public-works-system.md"
         },
         {
           "id": "E30-S06",
           "title": "Full Favour Boons, Oaths, and Rites",
-          "file": "stories/E30/E30-S06_full-favour-boons-oaths-and-rites.md"
+          "file": "completed/stories/E30/E30-S06_full-favour-boons-oaths-and-rites.md"
         }
       ]
     },
     {
       "id": "E31",
       "title": "Render Architecture Contracts",
-      "file": "epics/E31_render-architecture-contracts.md",
+      "file": "completed/epics/E31_render-architecture-contracts.md",
       "stories": [
         {
           "id": "E31-S01",
           "title": "Render ECS Architecture Decision",
-          "file": "stories/E31/E31-S01_render-ecs-architecture-decision.md"
+          "file": "completed/stories/E31/E31-S01_render-ecs-architecture-decision.md"
         },
         {
           "id": "E31-S02",
           "title": "Snapshot Interpolation Contract",
-          "file": "stories/E31/E31-S02_snapshot-interpolation-contract.md"
+          "file": "completed/stories/E31/E31-S02_snapshot-interpolation-contract.md"
         },
         {
           "id": "E31-S03",
           "title": "Asset Baking and Instancing Contract",
-          "file": "stories/E31/E31-S03_asset-baking-and-instancing-contract.md"
+          "file": "completed/stories/E31/E31-S03_asset-baking-and-instancing-contract.md"
         },
         {
           "id": "E31-S04",
           "title": "Performance Budgets and Diagnostics Contract",
-          "file": "stories/E31/E31-S04_performance-budgets-and-diagnostics-contract.md"
+          "file": "completed/stories/E31/E31-S04_performance-budgets-and-diagnostics-contract.md"
         }
       ]
     },

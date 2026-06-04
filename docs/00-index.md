@@ -310,6 +310,11 @@ docs/
       ammunition.md    ← Ammunition (9 types × 13 tiers)
       special.md       ← Keys, maps, tokens
   ui-inspiration.md    ← UI visual reference
+  technical/
+    render-ecs-architecture.md ← Render ECS architecture and module ownership
+    snapshot-interpolation.md ← Snapshot interpolation contract
+    asset-baking-and-instancing.md ← Asset baking and instancing contract
+    performance-budgets.md ← Performance budgets, diagnostics, and stress harness contract
 ```
 
 ## Quick Navigation
@@ -380,6 +385,15 @@ docs/
 | See Wardenry quest hooks | [`wardenry/00-index.md`](wardenry/00-index.md) → [`wardenry-quest-hooks.md`](wardenry/wardenry-quest-hooks.md) |
 | See Wardenry balance rules | [`wardenry/00-index.md`](wardenry/00-index.md) → [`wardenry-balance-rules.md`](wardenry/wardenry-balance-rules.md) |
 
+### Technical Documentation
+
+| What you want | Go to |
+|--------------|-------|
+| Render ECS architecture and module ownership | [`technical/render-ecs-architecture.md`](technical/render-ecs-architecture.md) |
+| Snapshot interpolation contract | [`technical/snapshot-interpolation.md`](technical/snapshot-interpolation.md) |
+| Asset baking and instancing contract | [`technical/asset-baking-and-instancing.md`](technical/asset-baking-and-instancing.md) |
+| Performance budgets and diagnostics | [`technical/performance-budgets.md`](technical/performance-budgets.md) |
+
 ### Non-Item Documentation
 
 | What you want | Go to |
@@ -414,4 +428,4 @@ docs/
 
 ---
 
-*Last updated: 2026-05-31*
+*Last updated: 2026-06-04*

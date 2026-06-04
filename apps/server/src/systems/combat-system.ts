@@ -9,22 +9,22 @@ import type {
 } from "@old-town/shared";
 import type { CombatantComponent, CombatHitStyle, PendingHit } from "../ecs/components";
 import type { World } from "../ecs/world";
+import type { ActionQueue } from "../sim/action-queue";
 import { InterruptGroup } from "../sim/action-queue";
-import type { ActionRuntime } from "../sim/action-runtime";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { addXp, getCurrentLevel } from "../skills/skill-state";
 import type { CollisionMap, Footprint } from "../world/collision";
+import { trackContractObjective } from "./contract-system";
 import { type InteractionTarget, resolveInteraction } from "./interaction-reach";
 import { handleMoveIntent } from "./movement-system";
 import { npcFootprint } from "./npc-system";
-import { trackContractObjective } from "./contract-system";
 
 export interface CombatSystemContext {
   readonly world: World;
   readonly collision: CollisionMap;
   readonly deltas: DeltaAccumulator;
   readonly registries: ContentRegistries;
-  readonly actionRuntime?: ActionRuntime;
+  readonly actionQueue?: ActionQueue;
 }
 
 export interface CombatAttackContext extends CombatSystemContext {
@@ -618,7 +618,7 @@ function applyPendingHit(
   ctx.world.setComponent(targetId, "combatant", next);
   ctx.deltas.markHitsplat({ entityId: targetId, hitsplat });
   if (damage > 0) {
-    ctx.actionRuntime?.interrupt(targetId, InterruptGroup.Combat);
+    ctx.actionQueue?.interrupt(targetId, InterruptGroup.Combat);
     ctx.deltas.markEntityUpdate(targetId, {
       healthBar: { current: after, max: combatant.maxHealth },
     });

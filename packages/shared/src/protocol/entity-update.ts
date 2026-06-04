@@ -43,6 +43,15 @@ export interface GraphicPlay {
   readonly height?: number;
 }
 
+/** A single active status effect on an entity. */
+export interface StatusEffectUpdate {
+  readonly effectId: string;
+  readonly durationTicks: number;
+  readonly damagePerTick?: number;
+  readonly healPerTick?: number;
+  readonly statModifiers?: Record<string, number>;
+}
+
 /** Renderable identity of a player/NPC. */
 export interface AppearanceUpdate {
   readonly bodyId?: string;
@@ -74,6 +83,7 @@ export interface EntityUpdatePayload {
   /** NPC transform/morph target (content id). */
   readonly transform?: string;
   readonly moveSpeed?: MoveSpeed;
+  readonly statusEffects?: readonly StatusEffectUpdate[];
 }
 
 /** A masked update for one already-known entity. */

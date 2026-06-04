@@ -1,13 +1,13 @@
+import { tileKey } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { createWorld, type World } from "../ecs/world";
-import { createInventory, addItem, catalogFromItems } from "../items/inventory";
-import { ActionRuntime } from "../sim/action-runtime";
+import { addItem, catalogFromItems, createInventory } from "../items/inventory";
+import { ActionQueue } from "../sim/action-queue";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
 import { handleObjectIntent } from "./object-interaction-router";
-import { tileKey } from "@old-town/shared";
 
 const SHRINE_HEARTH_DEF = {
   id: "shrine_hearth",
@@ -86,7 +86,12 @@ function addPlayer(world: World, x = 1, y = 1): import("@old-town/shared").Entit
   return entityId;
 }
 
-function addObject(world: World, objectId: string, x = 2, y = 1): import("@old-town/shared").EntityId {
+function addObject(
+  world: World,
+  objectId: string,
+  x = 2,
+  y = 1,
+): import("@old-town/shared").EntityId {
   const entityId = world.createEntity();
   world.setComponent(entityId, "position", { entityId, x, y, plane: 0 });
   world.setComponent(entityId, "object", {
@@ -119,7 +124,7 @@ function setup() {
   addOpenTiles(map);
   const collision = new CollisionMap(map);
   const deltas = new DeltaAccumulator();
-  const actionRuntime = new ActionRuntime();
+  const actionQueue = new ActionQueue();
   const registries = makeRegistries({
     object: new Map([
       [SHRINE_HEARTH_DEF.id, SHRINE_HEARTH_DEF],
@@ -135,7 +140,7 @@ function setup() {
     world,
     collision,
     deltas,
-    actionRuntime,
+    actionQueue,
     registries,
     rng: { nextFloat: () => 0, nextInt: () => 0, chanceOneIn: () => false },
     itemAudit: undefined,
@@ -195,7 +200,12 @@ describe("favour system", () => {
       variant: 0,
     });
 
-    const result = handleObjectIntent(ctx, player, { actionId: "pray", objectEntityId: nonShrine }, 0);
+    const result = handleObjectIntent(
+      ctx,
+      player,
+      { actionId: "pray", objectEntityId: nonShrine },
+      0,
+    );
     expect(result).toBe(true);
 
     const chat = deltas.peek().chat;

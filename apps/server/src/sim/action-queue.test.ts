@@ -46,6 +46,16 @@ describe("ActionQueue", () => {
     expect(queue.getDebugState().map((entry) => entry.id)).toEqual(["combat"]);
   });
 
+  it("cancels actions by owner and type filter", () => {
+    const queue = new ActionQueue();
+    queue.enqueue(action({ id: "weak-1", type: ActionQueueType.Weak }));
+    queue.enqueue(action({ id: "normal-1", type: ActionQueueType.Normal }));
+
+    expect(queue.cancel(owner, { type: ActionQueueType.Weak })).toBe(1);
+
+    expect(queue.getDebugState().map((entry) => entry.id)).toEqual(["normal-1"]);
+  });
+
   it("strong actions clear weak actions for the same owner", () => {
     const queue = new ActionQueue();
     queue.enqueue(action({ id: "weak-1", type: ActionQueueType.Weak }));

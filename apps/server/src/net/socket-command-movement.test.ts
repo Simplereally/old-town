@@ -15,7 +15,6 @@ import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { handleMoveIntent, processMovementPhase } from "../systems/movement-system";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
-import { CommandRouter } from "./command-router";
 import { createWebSocketTransport } from "./websocket-transport";
 
 let cleanup: (() => Promise<void>) | undefined;
@@ -68,11 +67,6 @@ async function startHarness() {
   const collision = new CollisionMap(map);
   const deltas = new DeltaAccumulator();
   const commandBuffer = new CommandBuffer();
-  const router = new CommandRouter({
-    commandBuffer,
-    getEntityId: () => player,
-    getCurrentTick: () => 0,
-  });
   const httpServer = createServer();
   let resolveCommand: (() => void) | undefined;
   const commandSeen = new Promise<void>((resolve) => {
@@ -90,9 +84,14 @@ async function startHarness() {
       entities: [{ entityId: player, kind: "player", tile: tile(30, 32) }],
     }),
     onCommand: (session, command) => {
-      const result = router.route(session, command);
+      const accepted = commandBuffer.accept(command, {
+        ownerEntityId: player,
+        connectionId: session.id,
+        receivedTick: 0,
+        targetTick: 1,
+      });
       resolveCommand?.();
-      return result;
+      return accepted.ok ? { ok: true } : { ok: false, reason: accepted.reason };
     },
   });
   await new Promise<void>((resolve) => httpServer.listen(0, "127.0.0.1", resolve));
@@ -111,7 +110,7 @@ async function startHarness() {
     player,
     collision,
     deltas,
-    router,
+    commandBuffer,
     commandSeen,
   };
 }
@@ -144,7 +143,7 @@ describe("socket command movement integration", () => {
 
     expect(harness.world.getComponent(harness.player, "position")).toMatchObject({ x: 30, y: 32 });
 
-    const consumed = harness.router.consumeTick(1);
+    const consumed = harness.commandBuffer.consumeTick(1);
     const move = consumed.groups[0]?.intents[0];
     if (move?.kind === "move") {
       handleMoveIntent(

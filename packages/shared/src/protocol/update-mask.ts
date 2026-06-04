@@ -22,6 +22,7 @@ export enum EntityUpdateMask {
   HEALTH_BAR = 512, // 1 << 9
   TRANSFORM = 1024, // 1 << 10
   MOVE_SPEED = 2048, // 1 << 11
+  STATUS_EFFECTS = 4096, // 1 << 12
 }
 
 /**
@@ -42,6 +43,7 @@ export const MASK_FIELDS: ReadonlyArray<readonly [EntityUpdateMask, keyof Entity
   [EntityUpdateMask.HEALTH_BAR, "healthBar"],
   [EntityUpdateMask.TRANSFORM, "transform"],
   [EntityUpdateMask.MOVE_SPEED, "moveSpeed"],
+  [EntityUpdateMask.STATUS_EFFECTS, "statusEffects"],
 ];
 
 /** All defined mask bits OR'd together. */

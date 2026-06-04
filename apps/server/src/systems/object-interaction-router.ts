@@ -1,17 +1,18 @@
 import type { EntityId, ObjectDef, ObjectIntent, Rng, TileCoord } from "@old-town/shared";
+import { openDialogueNode } from "../dialogue/dialogue-engine";
 import type { World } from "../ecs/world";
 import type { ItemAuditLog } from "../items/item-audit";
-import { openDialogueNode } from "../dialogue/dialogue-engine";
+import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
-import { handleMoveIntent } from "./movement-system";
-import type { ResourceNodeContext } from "./resource-node-system";
-import { handleObjectSkillingIntent } from "./skilling-system";
-import { handlePrayIntent } from "./favour-system";
-import { handleTrappingIntent, isTrappingAction } from "./trapping-system";
 import { handleSurveyIntent } from "./cartography-system";
 import { handleContractAcceptIntent } from "./contract-system";
+import { handleDoorOpenIntent } from "./door-system";
+import { handlePrayIntent } from "./favour-system";
+import { handleMoveIntent } from "./movement-system";
 import { enterNook, type NookDef } from "./nook-system";
-import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
+import type { ResourceNodeContext } from "./resource-node-system";
+import { handleObjectSkillingIntent } from "./skilling-system";
+import { handleTrappingIntent, isTrappingAction } from "./trapping-system";
 
 export interface ObjectInteractionContext extends ResourceNodeContext {
   readonly rng: Rng;
@@ -48,12 +49,46 @@ function chebyshev(a: TileCoord, b: TileCoord): number {
   return a.plane === b.plane ? Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y)) : Infinity;
 }
 
-const GATHER_ACTION_IDS = new Set(["chop", "woodcut", "mine", "fish"]);
-const PROCESS_ACTION_IDS = new Set(["cook", "use", "smelt", "smith", "craft", "fire", "weave", "tan", "dye", "mix"]);
-
-function needsBeginInteract(actionId: string): boolean {
-  return !GATHER_ACTION_IDS.has(actionId) && !PROCESS_ACTION_IDS.has(actionId);
+interface ObjectInteractionTarget {
+  readonly object: { readonly objectId: string };
+  readonly objectDef: ObjectDef;
+  readonly actorTile: TileCoord;
+  readonly objectTile: TileCoord;
 }
+
+interface ObjectOptionInvocation extends ObjectInteractionTarget {
+  readonly owner: EntityId;
+  readonly intent: ObjectIntent;
+  readonly serverTime: number;
+  readonly tick?: number;
+  readonly nooks?: readonly NookDef[];
+}
+
+type ObjectOptionHandler = (
+  ctx: ObjectInteractionContext,
+  invocation: ObjectOptionInvocation,
+) => boolean;
+
+type AdjacentObjectOptionRoute = {
+  readonly kind: "adjacent";
+  readonly handler: ObjectOptionHandler;
+};
+
+type ObjectOptionRoute = { readonly kind: "skilling" } | AdjacentObjectOptionRoute;
+
+const GATHER_ACTION_IDS = new Set(["chop", "woodcut", "mine", "fish"]);
+const PROCESS_ACTION_IDS = new Set([
+  "cook",
+  "use",
+  "smelt",
+  "smith",
+  "craft",
+  "fire",
+  "weave",
+  "tan",
+  "dye",
+  "mix",
+]);
 
 function enqueueBeginInteract(
   ctx: ObjectInteractionContext,
@@ -65,7 +100,7 @@ function enqueueBeginInteract(
     objectEntityId: intent.objectEntityId,
     actionId: intent.actionId,
   };
-  ctx.actionRuntime.enqueue({
+  ctx.actionQueue.enqueue({
     id: `begin-interact:${owner}`,
     owner,
     type: ActionQueueType.Weak,
@@ -76,105 +111,254 @@ function enqueueBeginInteract(
   });
 }
 
-function handleObjectInteract(
+function loadObjectInteractionTarget(
   ctx: ObjectInteractionContext,
   owner: EntityId,
+  objectEntityId: EntityId,
+): ObjectInteractionTarget | undefined {
+  const object = ctx.world.getComponent(objectEntityId, "object");
+  if (!object) {
+    return undefined;
+  }
+  const objectDef = ctx.registries.object.get(object.objectId);
+  if (!objectDef) {
+    return undefined;
+  }
+
+  const actorTile = tileOf(ctx.world, owner);
+  const objectTile = tileOf(ctx.world, objectEntityId);
+  if (!actorTile || !objectTile) {
+    return undefined;
+  }
+
+  return { object, objectDef, actorTile, objectTile };
+}
+
+function createObjectOptionInvocation(
+  target: ObjectInteractionTarget,
+  owner: EntityId,
   intent: ObjectIntent,
-  object: { readonly objectId: string },
-  objectDef: ObjectDef,
-  objectTile: TileCoord,
   serverTime: number,
   tick?: number,
   nooks?: readonly NookDef[],
+): ObjectOptionInvocation {
+  return {
+    ...target,
+    owner,
+    intent,
+    serverTime,
+    ...(tick !== undefined ? { tick } : {}),
+    ...(nooks !== undefined ? { nooks } : {}),
+  };
+}
+
+function handleInspectOption(
+  ctx: ObjectInteractionContext,
+  invocation: ObjectOptionInvocation,
 ): boolean {
-  switch (intent.actionId) {
-    case "inspect": {
-      const text = objectDef.examine ?? "You see nothing special.";
-      systemMessage(ctx.deltas, owner, text, serverTime);
-      return true;
-    }
-    case "read": {
-      if (objectDef.text) {
-        systemMessage(ctx.deltas, owner, objectDef.text, serverTime);
-        return true;
-      }
-      if (objectDef.dialogueId) {
-        const dialogue = ctx.registries.dialogue.get(objectDef.dialogueId);
-        if (dialogue) {
-          openDialogueNode(
-            ctx,
-            owner,
-            dialogue,
-            dialogue.root,
-            objectDef.name,
-            serverTime,
-            tick,
-            intent.objectEntityId,
-          );
-          return true;
-        }
-      }
-      systemMessage(ctx.deltas, owner, "There is nothing to read.", serverTime);
-      return true;
-    }
-    case "enter": {
-      if (objectDef.nookId && nooks) {
-        const nook = nooks.find((n) => n.id === objectDef.nookId);
-        if (nook) {
-          const result = enterNook({ world: ctx.world, deltas: ctx.deltas }, owner, nook, serverTime);
-          if (result.ok) {
-            return true;
-          }
-          systemMessage(ctx.deltas, owner, result.reason ?? "You cannot enter.", serverTime);
-          return true;
-        }
-      }
-      if (objectDef.transitionDestination) {
-        const movement = ctx.world.getComponent(owner, "movement");
-        ctx.world.setComponent(owner, "position", {
-          entityId: owner,
-          x: objectDef.transitionDestination.x,
-          y: objectDef.transitionDestination.y,
-          plane: objectDef.transitionDestination.plane,
-        });
-        ctx.world.setComponent(owner, "movement", {
-          entityId: owner,
-          mode: movement?.mode ?? "walk",
-          path: [],
-          ...(movement?.lastStepDirection !== undefined
-            ? { lastStepDirection: movement.lastStepDirection }
-            : {}),
-        });
-        ctx.deltas.markEntityUpdate(owner, {
-          position: objectDef.transitionDestination,
-          moveSpeed: "stationary",
-        });
-        ctx.deltas.markDebugPath(owner, []);
-        return true;
-      }
-      systemMessage(ctx.deltas, owner, "You cannot enter that.", serverTime);
-      return true;
-    }
-    case "ring": {
-      ctx.deltas.markSound({ soundId: "bell_ring", tile: objectTile, volume: 1 });
-      systemMessage(ctx.deltas, owner, "You ring the bell.", serverTime);
-      return true;
-    }
-    case "pray": {
-      return handlePrayIntent(ctx, owner, intent, serverTime, tick);
-    }
-    case "survey": {
-      return handleSurveyIntent(ctx, owner, intent, serverTime, tick);
-    }
-    case "accept": {
-      return handleContractAcceptIntent(ctx, owner, intent, serverTime, tick);
-    }
-    default:
-      if (isTrappingAction(intent.actionId)) {
-        return handleTrappingIntent(ctx, owner, intent, serverTime, tick);
-      }
-      return false;
+  const text = invocation.objectDef.examine ?? "You see nothing special.";
+  systemMessage(ctx.deltas, invocation.owner, text, invocation.serverTime);
+  return true;
+}
+
+function handleReadOption(
+  ctx: ObjectInteractionContext,
+  invocation: ObjectOptionInvocation,
+): boolean {
+  if (invocation.objectDef.text) {
+    systemMessage(ctx.deltas, invocation.owner, invocation.objectDef.text, invocation.serverTime);
+    return true;
   }
+  if (invocation.objectDef.dialogueId) {
+    const dialogue = ctx.registries.dialogue.get(invocation.objectDef.dialogueId);
+    if (dialogue) {
+      openDialogueNode(
+        ctx,
+        invocation.owner,
+        dialogue,
+        dialogue.root,
+        invocation.objectDef.name,
+        invocation.serverTime,
+        invocation.tick,
+        invocation.intent.objectEntityId,
+      );
+      return true;
+    }
+  }
+  systemMessage(ctx.deltas, invocation.owner, "There is nothing to read.", invocation.serverTime);
+  return true;
+}
+
+function handleEnterOption(
+  ctx: ObjectInteractionContext,
+  invocation: ObjectOptionInvocation,
+): boolean {
+  if (invocation.objectDef.nookId && invocation.nooks) {
+    const nook = invocation.nooks.find((n) => n.id === invocation.objectDef.nookId);
+    if (nook) {
+      const result = enterNook(
+        { world: ctx.world, deltas: ctx.deltas },
+        invocation.owner,
+        nook,
+        invocation.serverTime,
+      );
+      if (result.ok) {
+        return true;
+      }
+      systemMessage(
+        ctx.deltas,
+        invocation.owner,
+        result.reason ?? "You cannot enter.",
+        invocation.serverTime,
+      );
+      return true;
+    }
+  }
+  if (invocation.objectDef.transitionDestination) {
+    const movement = ctx.world.getComponent(invocation.owner, "movement");
+    ctx.world.setComponent(invocation.owner, "position", {
+      entityId: invocation.owner,
+      x: invocation.objectDef.transitionDestination.x,
+      y: invocation.objectDef.transitionDestination.y,
+      plane: invocation.objectDef.transitionDestination.plane,
+    });
+    ctx.world.setComponent(invocation.owner, "movement", {
+      entityId: invocation.owner,
+      mode: movement?.mode ?? "walk",
+      path: [],
+      ...(movement?.lastStepDirection !== undefined
+        ? { lastStepDirection: movement.lastStepDirection }
+        : {}),
+    });
+    ctx.deltas.markEntityUpdate(invocation.owner, {
+      position: invocation.objectDef.transitionDestination,
+      moveSpeed: "stationary",
+    });
+    ctx.deltas.markDebugPath(invocation.owner, []);
+    return true;
+  }
+  systemMessage(ctx.deltas, invocation.owner, "You cannot enter that.", invocation.serverTime);
+  return true;
+}
+
+function handleRingOption(
+  ctx: ObjectInteractionContext,
+  invocation: ObjectOptionInvocation,
+): boolean {
+  ctx.deltas.markSound({ soundId: "bell_ring", tile: invocation.objectTile, volume: 1 });
+  systemMessage(ctx.deltas, invocation.owner, "You ring the bell.", invocation.serverTime);
+  return true;
+}
+
+function handleOpenOption(
+  ctx: ObjectInteractionContext,
+  invocation: ObjectOptionInvocation,
+): boolean {
+  return handleDoorOpenIntent(
+    {
+      world: ctx.world,
+      collision: ctx.collision,
+      deltas: ctx.deltas,
+      registries: ctx.registries,
+      rng: ctx.rng,
+    },
+    invocation.owner,
+    invocation.intent.objectEntityId,
+    invocation.objectDef,
+    invocation.serverTime,
+    invocation.tick,
+  );
+}
+
+function handlePrayOption(
+  ctx: ObjectInteractionContext,
+  invocation: ObjectOptionInvocation,
+): boolean {
+  return handlePrayIntent(
+    ctx,
+    invocation.owner,
+    invocation.intent,
+    invocation.serverTime,
+    invocation.tick,
+  );
+}
+
+function handleSurveyOption(
+  ctx: ObjectInteractionContext,
+  invocation: ObjectOptionInvocation,
+): boolean {
+  return handleSurveyIntent(
+    ctx,
+    invocation.owner,
+    invocation.intent,
+    invocation.serverTime,
+    invocation.tick,
+  );
+}
+
+function handleContractAcceptOption(
+  ctx: ObjectInteractionContext,
+  invocation: ObjectOptionInvocation,
+): boolean {
+  return handleContractAcceptIntent(
+    ctx,
+    invocation.owner,
+    invocation.intent,
+    invocation.serverTime,
+    invocation.tick,
+  );
+}
+
+function handleTrappingOption(
+  ctx: ObjectInteractionContext,
+  invocation: ObjectOptionInvocation,
+): boolean {
+  return handleTrappingIntent(
+    ctx,
+    invocation.owner,
+    invocation.intent,
+    invocation.serverTime,
+    invocation.tick,
+  );
+}
+
+const OBJECT_OPTION_ROUTES = new Map<string, AdjacentObjectOptionRoute>([
+  ["inspect", { kind: "adjacent", handler: handleInspectOption }],
+  ["read", { kind: "adjacent", handler: handleReadOption }],
+  ["enter", { kind: "adjacent", handler: handleEnterOption }],
+  ["ring", { kind: "adjacent", handler: handleRingOption }],
+  ["open", { kind: "adjacent", handler: handleOpenOption }],
+  ["pray", { kind: "adjacent", handler: handlePrayOption }],
+  ["survey", { kind: "adjacent", handler: handleSurveyOption }],
+  ["accept", { kind: "adjacent", handler: handleContractAcceptOption }],
+]);
+
+const SKILLING_OBJECT_ROUTE: ObjectOptionRoute = { kind: "skilling" };
+const TRAPPING_OBJECT_ROUTE: AdjacentObjectOptionRoute = {
+  kind: "adjacent",
+  handler: handleTrappingOption,
+};
+
+function resolveObjectOptionRoute(actionId: string): ObjectOptionRoute | undefined {
+  if (GATHER_ACTION_IDS.has(actionId) || PROCESS_ACTION_IDS.has(actionId)) {
+    return SKILLING_OBJECT_ROUTE;
+  }
+  const route = OBJECT_OPTION_ROUTES.get(actionId);
+  if (route) {
+    return route;
+  }
+  if (isTrappingAction(actionId)) {
+    return TRAPPING_OBJECT_ROUTE;
+  }
+  return undefined;
+}
+
+function invokeAdjacentObjectOption(
+  ctx: ObjectInteractionContext,
+  route: AdjacentObjectOptionRoute,
+  invocation: ObjectOptionInvocation,
+): boolean {
+  return route.handler(ctx, invocation);
 }
 
 export function handleBeginInteract(
@@ -185,39 +369,34 @@ export function handleBeginInteract(
   tick?: number,
 ): void {
   const owner = action.entry.owner;
-  const object = ctx.world.getComponent(payload.objectEntityId, "object");
-  if (!object) {
-    ctx.actionRuntime.cancel(owner, { id: action.entry.id });
-    return;
-  }
-  const objectDef = ctx.registries.object.get(object.objectId);
-  if (!objectDef) {
-    ctx.actionRuntime.cancel(owner, { id: action.entry.id });
+  const route = resolveObjectOptionRoute(payload.actionId);
+  if (!route || route.kind === "skilling") {
+    ctx.actionQueue.cancel(owner, { id: action.entry.id });
+    systemMessage(ctx.deltas, owner, "You cannot do that.", serverTime);
     return;
   }
 
-  const actorTile = tileOf(ctx.world, owner);
-  const objectTile = tileOf(ctx.world, payload.objectEntityId);
-  if (!actorTile || !objectTile) {
-    ctx.actionRuntime.cancel(owner, { id: action.entry.id });
+  const target = loadObjectInteractionTarget(ctx, owner, payload.objectEntityId);
+  if (!target) {
+    ctx.actionQueue.cancel(owner, { id: action.entry.id });
+    return;
+  }
+  if (chebyshev(target.actorTile, target.objectTile) > 1) {
     return;
   }
 
-  if (chebyshev(actorTile, objectTile) > 1) {
-    return;
-  }
-
-  ctx.actionRuntime.cancel(owner, { id: action.entry.id });
-  const result = handleObjectInteract(
+  ctx.actionQueue.cancel(owner, { id: action.entry.id });
+  const result = invokeAdjacentObjectOption(
     ctx,
-    owner,
-    { actionId: payload.actionId, objectEntityId: payload.objectEntityId },
-    object,
-    objectDef,
-    objectTile,
-    serverTime,
-    tick,
-    ctx.nooks,
+    route,
+    createObjectOptionInvocation(
+      target,
+      owner,
+      { actionId: payload.actionId, objectEntityId: payload.objectEntityId },
+      serverTime,
+      tick,
+      ctx.nooks,
+    ),
   );
   if (!result) {
     systemMessage(ctx.deltas, owner, "You cannot do that.", serverTime);
@@ -232,36 +411,32 @@ export function handleObjectIntent(
   tick?: number,
   nooks?: readonly NookDef[],
 ): boolean {
-  if (GATHER_ACTION_IDS.has(intent.actionId) || PROCESS_ACTION_IDS.has(intent.actionId)) {
+  const route = resolveObjectOptionRoute(intent.actionId);
+  if (!route) {
+    return false;
+  }
+  if (route.kind === "skilling") {
     return handleObjectSkillingIntent(ctx, owner, intent, serverTime, tick);
   }
 
-  const object = ctx.world.getComponent(intent.objectEntityId, "object");
-  if (!object) {
+  const target = loadObjectInteractionTarget(ctx, owner, intent.objectEntityId);
+  if (!target) {
     return false;
   }
-  const objectDef = ctx.registries.object.get(object.objectId);
-  if (!objectDef) {
-    return false;
-  }
-
-  const actorTile = tileOf(ctx.world, owner);
-  const objectTile = tileOf(ctx.world, intent.objectEntityId);
-  if (!actorTile || !objectTile) {
-    return false;
-  }
-  if (chebyshev(actorTile, objectTile) > 1) {
+  if (chebyshev(target.actorTile, target.objectTile) > 1) {
     handleMoveIntent(
       { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
       owner,
-      { dest: objectTile },
+      { dest: target.objectTile },
       tick !== undefined ? { tick } : {},
     );
-    if (needsBeginInteract(intent.actionId)) {
-      enqueueBeginInteract(ctx, owner, intent);
-    }
+    enqueueBeginInteract(ctx, owner, intent);
     return true;
   }
 
-  return handleObjectInteract(ctx, owner, intent, object, objectDef, objectTile, serverTime, tick, nooks);
+  return invokeAdjacentObjectOption(
+    ctx,
+    route,
+    createObjectOptionInvocation(target, owner, intent, serverTime, tick, nooks),
+  );
 }

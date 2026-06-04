@@ -26,6 +26,7 @@ const fullPayload: Required<EntityUpdatePayload> = {
   healthBar: { current: 10, max: 30 },
   transform: "guard_angry",
   moveSpeed: "walk",
+  statusEffects: [],
 };
 
 describe("mask composition/decomposition", () => {

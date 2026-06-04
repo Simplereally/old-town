@@ -34,10 +34,10 @@ Move terrain/static-scene preparation into an asynchronous chunk lifecycle with 
 
 ## Ordered stories
 
-- [ ] `E34-S01` - [Chunk Lifecycle and Bake Queue](stories/E34/E34-S01_chunk-lifecycle-and-bake-queue.md)
-- [ ] `E34-S02` - [Worker Bake Pipeline with Transferables](stories/E34/E34-S02_worker-bake-pipeline-with-transferables.md)
-- [ ] `E34-S03` - [Budgeted GPU Upload Path](stories/E34/E34-S03_budgeted-gpu-upload-path.md)
-- [ ] `E34-S04` - [Chunk Residency and LRU Eviction](stories/E34/E34-S04_chunk-residency-and-lru-eviction.md)
+- [X] `E34-S01` - [Chunk Lifecycle and Bake Queue](stories/E34/E34-S01_chunk-lifecycle-and-bake-queue.md)
+- [X] `E34-S02` - [Worker Bake Pipeline with Transferables](stories/E34/E34-S02_worker-bake-pipeline-with-transferables.md)
+- [X] `E34-S03` - [Budgeted GPU Upload Path](stories/E34/E34-S03_budgeted-gpu-upload-path.md)
+- [X] `E34-S04` - [Chunk Residency and LRU Eviction](stories/E34/E34-S04_chunk-residency-and-lru-eviction.md)
 - [ ] `E34-S05` - [Region Crossing Integration](stories/E34/E34-S05_region-crossing-integration.md)
 - [ ] `E34-S06` - [Asset Failure and Context Recovery](stories/E34/E34-S06_asset-failure-and-context-recovery.md)
 

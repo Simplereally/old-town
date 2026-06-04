@@ -2,10 +2,12 @@ import type { EntityId } from "@old-town/shared";
 import type {
   ActorComponent,
   BankComponent,
+  CharterComponent,
   CombatantComponent,
   ContractComponent,
   DeedComponent,
   DialogueComponent,
+  DoorStateComponent,
   EquipmentComponent,
   GraveComponent,
   GroundItemComponent,
@@ -15,9 +17,11 @@ import type {
   ObjectComponent,
   PlayerComponent,
   PositionComponent,
+  PublicWorkComponent,
   ResourceNodeComponent,
   ShopComponent,
   SkillsComponent,
+  StatusEffectComponent,
   StatusEffectsComponent,
   VarComponent,
 } from "./components";
@@ -32,6 +36,7 @@ export type WorldComponentMap = {
   object: ObjectComponent;
   groundItem: GroundItemComponent;
   grave: GraveComponent;
+  doorState: DoorStateComponent;
   inventory: InventoryComponent;
   bank: BankComponent;
   equipment: EquipmentComponent;
@@ -43,7 +48,10 @@ export type WorldComponentMap = {
   shop: ShopComponent;
   contract: ContractComponent;
   deed: DeedComponent;
+  charter: CharterComponent;
+  publicWork: PublicWorkComponent;
   statusEffects: StatusEffectsComponent;
+  statusEffect: StatusEffectComponent;
 };
 
 export type WorldComponentKind = keyof WorldComponentMap;
@@ -96,6 +104,7 @@ export function createWorld(): World {
     object: new Map(),
     groundItem: new Map(),
     grave: new Map(),
+    doorState: new Map(),
     inventory: new Map(),
     bank: new Map(),
     equipment: new Map(),
@@ -107,7 +116,10 @@ export function createWorld(): World {
     shop: new Map(),
     contract: new Map(),
     deed: new Map(),
+    charter: new Map(),
+    publicWork: new Map(),
     statusEffects: new Map(),
+    statusEffect: new Map(),
   };
 
   const createEntity = (): EntityId => {

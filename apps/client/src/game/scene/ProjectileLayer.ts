@@ -7,8 +7,8 @@ interface Projectile {
   readonly id: string;
   startTile: TileCoord;
   endTile: TileCoord;
-  startTime: number;
-  durationMs: number;
+  startTick: number;
+  hitTick: number;
   mesh: Mesh;
 }
 
@@ -30,11 +30,12 @@ export class ProjectileLayer {
       geometry: new SphereGeometry(0.15, 8, 8),
       material: new MeshBasicMaterial({ color: 0xff6600 }),
       initialSize: 8,
+      maxSize: 64,
     });
   }
 
   /** Spawn a projectile from start to end tile. */
-  spawn(id: string, startTile: TileCoord, endTile: TileCoord, durationTicks = 1): void {
+  spawn(id: string, startTile: TileCoord, endTile: TileCoord, startTick: number, hitTick: number): void {
     if (this.projectiles.has(id)) {
       this.remove(id);
     }
@@ -49,8 +50,8 @@ export class ProjectileLayer {
       id,
       startTile,
       endTile,
-      startTime: performance.now(),
-      durationMs: Math.max(1, durationTicks) * GAME_TICK_MS,
+      startTick,
+      hitTick,
       mesh,
     });
   }
@@ -65,16 +66,17 @@ export class ProjectileLayer {
   }
 
   /** Update projectile positions (call every frame). */
-  update(): void {
-    const now = performance.now();
+  update(renderServerTimeMs: number): void {
+    const now = renderServerTimeMs;
     for (const proj of this.projectiles.values()) {
       const startTile = proj.startTile;
       const endTile = proj.endTile;
-      const startTime = proj.startTime;
+      const startTimeMs = proj.startTick * GAME_TICK_MS;
+      const totalDurationMs = Math.max(1, proj.hitTick - proj.startTick) * GAME_TICK_MS;
       const mesh = proj.mesh;
       const id = proj.id;
 
-      const progress = Math.min((now - startTime) / proj.durationMs, 1);
+      const progress = Math.min((now - startTimeMs) / totalDurationMs, 1);
       const startWorld = this._tileToWorld(startTile);
       const endWorld = this._tileToWorld(endTile);
       mesh.position.lerpVectors(startWorld, endWorld, progress);
@@ -96,6 +98,16 @@ export class ProjectileLayer {
     this.clear();
     this.meshPool.dispose();
     this.scene.remove(this.group);
+  }
+
+  /** Number of active projectiles. */
+  get activeProjectiles(): number {
+    return this.projectiles.size;
+  }
+
+  /** Total pool size (active + idle). */
+  get poolSize(): number {
+    return this.meshPool.poolSize;
   }
 
   private _tileToWorld(tile: TileCoord): Vector3 {

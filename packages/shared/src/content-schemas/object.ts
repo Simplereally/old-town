@@ -31,6 +31,8 @@ export const objectDefSchema = z
     model: contentIdSchema.optional(),
     /** Rotation in 0..3 quarter-turns. */
     defaultRotation: nonNegInt.max(3).default(0),
+    /** Drop table id for chest contents, rolled when opened. */
+    dropTableId: contentIdSchema.optional(),
   })
   .strict();
 

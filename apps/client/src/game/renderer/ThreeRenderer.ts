@@ -52,8 +52,12 @@ export class ThreeRenderer {
   private _dpr = 1;
   private _pixelRatioCap = 2;
 
-  onFrame?: (deltaTime: number, elapsedTime: number) => void;
+  onFrame?: (deltaTime: number, elapsedTime: number, rafNowMs?: number) => void;
   onResize?: (width: number, height: number) => void;
+  onContextLost?: () => void;
+  onContextRestored?: () => void;
+
+  private _contextLost = false;
 
   constructor(options: ThreeRendererOptions) {
     const { canvas, initialWidth, initialHeight } = options;
@@ -68,6 +72,10 @@ export class ThreeRenderer {
     this.renderer.setPixelRatio(1);
     this.renderer.setClearColor(new Color(0x87ceeb), 1);
     this.renderer.shadowMap.enabled = false;
+
+    // Context loss / restore
+    canvas.addEventListener("webglcontextlost", this._handleContextLost);
+    canvas.addEventListener("webglcontextrestored", this._handleContextRestored);
 
     // Scene
     this.scene = new Scene();
@@ -152,6 +160,19 @@ export class ThreeRenderer {
     }, this._resizeDebounceMs);
   };
 
+  private _handleContextLost = (event: Event): void => {
+    event.preventDefault();
+    this._contextLost = true;
+    this.stop();
+    this.onContextLost?.();
+  };
+
+  private _handleContextRestored = (): void => {
+    this._contextLost = false;
+    this.onContextRestored?.();
+    this.start();
+  };
+
   private _updateSize(): void {
     const dpr = Math.min(window.devicePixelRatio, this._pixelRatioCap);
     if (dpr !== this._dpr) {
@@ -189,6 +210,10 @@ export class ThreeRenderer {
     return this._running;
   }
 
+  get contextLost(): boolean {
+    return this._contextLost;
+  }
+
   start(): void {
     if (this._running) return;
     this._running = true;
@@ -220,7 +245,7 @@ export class ThreeRenderer {
     }
 
     this.cameraController.controls.update();
-    this.onFrame?.(deltaTime, time / 1000);
+    this.onFrame?.(deltaTime, time / 1000, time);
     this.renderer.render(this.scene, this.camera);
     this._lastFrameDurationMs = performance.now() - frameStart;
 
@@ -248,6 +273,9 @@ export class ThreeRenderer {
   dispose(): void {
     this.stop();
     window.removeEventListener("resize", this._handleResize);
+    const canvas = this.renderer.domElement;
+    canvas.removeEventListener("webglcontextlost", this._handleContextLost);
+    canvas.removeEventListener("webglcontextrestored", this._handleContextRestored);
     if (this._resizeTimeoutId !== null) {
       clearTimeout(this._resizeTimeoutId);
       this._resizeTimeoutId = null;
