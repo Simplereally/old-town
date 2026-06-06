@@ -118,9 +118,20 @@ function setup(inventorySeed: readonly { itemId: string; quantity: number }[] = 
   const inventory = createInventory(owner, `inventory:${owner}`, 28);
   world.setComponent(owner, "inventory", inventory);
   world.setComponent(owner, "position", { entityId: owner, x: 30, y: 30, plane: 0 });
-  world.setComponent(owner, "actor", { entityId: owner, name: "Player", level: 10, appearanceId: "player" });
+  world.setComponent(owner, "actor", {
+    entityId: owner,
+    name: "Player",
+    level: 10,
+    appearanceId: "player",
+  });
   world.setComponent(npc, "position", { entityId: npc, x: 30, y: 31, plane: 0 });
-  world.setComponent(npc, "npc", { entityId: npc, npcId: "test_smith", brainState: "idle", respawnTick: 0, wanderRadius: 0 });
+  world.setComponent(npc, "npc", {
+    entityId: npc,
+    npcId: "test_smith",
+    brainState: "idle",
+    respawnTick: 0,
+    wanderRadius: 0,
+  });
 
   const catalog = catalogFromItems(ITEMS);
   for (const { itemId, quantity } of inventorySeed) {
@@ -260,7 +271,9 @@ describe("handleServiceFeeIntent — teleport", () => {
     );
 
     expect(result).toBe(true);
-    expect(ctx.deltas.peek().chat?.[0]?.text).toBe("You don't have the required materials for that service.");
+    expect(ctx.deltas.peek().chat?.[0]?.text).toBe(
+      "You don't have the required materials for that service.",
+    );
   });
 });
 

@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  SnapshotBuffer,
-  type RenderSnapshot,
-  type SnapshotBufferOptions,
-} from "./SnapshotBuffer";
+import { type RenderSnapshot, SnapshotBuffer, type SnapshotBufferOptions } from "./SnapshotBuffer";
 
 const defaultOptions: SnapshotBufferOptions = {
   tickMs: 600,
@@ -13,7 +9,11 @@ const defaultOptions: SnapshotBufferOptions = {
   snapAfterMissingTicks: 6,
 };
 
-function makeSnapshot(tick: number, sequence: number = tick, extra?: Partial<RenderSnapshot>): RenderSnapshot {
+function makeSnapshot(
+  tick: number,
+  sequence: number = tick,
+  extra?: Partial<RenderSnapshot>,
+): RenderSnapshot {
   return {
     tick,
     sequence,

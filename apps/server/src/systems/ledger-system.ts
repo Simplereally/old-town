@@ -111,12 +111,7 @@ export function createDeed(
     });
   }
 
-  systemMessage(
-    ctx,
-    owner,
-    `You receive a deed for ${propertyDef.name}.`,
-    serverTime,
-  );
+  systemMessage(ctx, owner, `You receive a deed for ${propertyDef.name}.`, serverTime);
   return true;
 }
 
@@ -275,12 +270,7 @@ export function redeemDeed(
   });
 
   // Grant property rights via player var
-  setVar(
-    { world: ctx.world, deltas: ctx.deltas },
-    owner,
-    `property.${propertyId}.owner`,
-    owner,
-  );
+  setVar({ world: ctx.world, deltas: ctx.deltas }, owner, `property.${propertyId}.owner`, owner);
 
   const propertyDef = ctx.registries.property.get(propertyId);
   systemMessage(
@@ -341,7 +331,9 @@ export function processDeedExpiry(
       }
 
       // Clear property rights if this entity was the owner
-      const ownerVar = ctx.world.getComponent(entityId, "vars")?.values[`property.${deed.propertyId}.owner`];
+      const ownerVar = ctx.world.getComponent(entityId, "vars")?.values[
+        `property.${deed.propertyId}.owner`
+      ];
       if (ownerVar === entityId) {
         setVar(
           { world: ctx.world, deltas: ctx.deltas },

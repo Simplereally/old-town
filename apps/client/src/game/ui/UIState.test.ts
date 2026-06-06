@@ -44,7 +44,12 @@ describe("UIState", () => {
       { skillId: "mining", level: 5, xp: 388, effectiveLevel: 5 },
     ]);
 
-    expect(state.skills.get("woodcutting")).toEqual({ skillId: "woodcutting", level: 1, xp: 0, effectiveLevel: 1 });
+    expect(state.skills.get("woodcutting")).toEqual({
+      skillId: "woodcutting",
+      level: 1,
+      xp: 0,
+      effectiveLevel: 1,
+    });
     expect(state.skills.get("mining")?.xp).toBe(388);
   });
 
@@ -53,7 +58,12 @@ describe("UIState", () => {
     state.setSkills([{ skillId: "woodcutting", level: 1, xp: 0, effectiveLevel: 1 }]);
     state.applySkillDelta([{ skillId: "woodcutting", level: 2, xp: 83, effectiveLevel: 2 }]);
 
-    expect(state.skills.get("woodcutting")).toEqual({ skillId: "woodcutting", level: 2, xp: 83, effectiveLevel: 2 });
+    expect(state.skills.get("woodcutting")).toEqual({
+      skillId: "woodcutting",
+      level: 2,
+      xp: 83,
+      effectiveLevel: 2,
+    });
   });
 
   it("sets vars from full snapshot", () => {

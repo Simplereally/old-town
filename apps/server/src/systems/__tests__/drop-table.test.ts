@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { createWorld, type World } from "../../ecs/world";
 import { createInventory } from "../../items/inventory";
 import { makeRegistries } from "../../test-support/registries";
-import { rollDropTable, type RollDropTableContext } from "../ground-item-system";
+import { type RollDropTableContext, rollDropTable } from "../ground-item-system";
 
 function fixedRng(values: readonly number[]): Rng {
   let index = 0;
@@ -47,7 +47,11 @@ function registries(dropTable: DropTableDef): ContentRegistries {
   });
 }
 
-function makeCtx(world: World, registries: ContentRegistries, playerId: EntityId): RollDropTableContext {
+function makeCtx(
+  world: World,
+  registries: ContentRegistries,
+  playerId: EntityId,
+): RollDropTableContext {
   return { world, registries, entityId: playerId };
 }
 
@@ -59,9 +63,23 @@ describe("drop table rarity and conditionals", () => {
       alwaysDrops: [],
       entries: [
         { itemId: "common_item", min: 1, max: 1, weight: 100, rarity: "common", requirements: [] },
-        { itemId: "uncommon_item", min: 1, max: 1, weight: 100, rarity: "uncommon", requirements: [] },
+        {
+          itemId: "uncommon_item",
+          min: 1,
+          max: 1,
+          weight: 100,
+          rarity: "uncommon",
+          requirements: [],
+        },
         { itemId: "rare_item", min: 1, max: 1, weight: 100, rarity: "rare", requirements: [] },
-        { itemId: "very_rare_item", min: 1, max: 1, weight: 100, rarity: "very_rare", requirements: [] },
+        {
+          itemId: "very_rare_item",
+          min: 1,
+          max: 1,
+          weight: 100,
+          rarity: "very_rare",
+          requirements: [],
+        },
       ],
     };
 
@@ -182,7 +200,14 @@ describe("drop table rarity and conditionals", () => {
       rolls: 1,
       alwaysDrops: [],
       entries: [
-        { itemId: "always_available", min: 1, max: 1, weight: 10, rarity: "common", requirements: [] },
+        {
+          itemId: "always_available",
+          min: 1,
+          max: 1,
+          weight: 10,
+          rarity: "common",
+          requirements: [],
+        },
         {
           itemId: "level_gated",
           min: 1,
@@ -210,7 +235,14 @@ describe("drop table rarity and conditionals", () => {
       rolls: 1,
       alwaysDrops: [],
       entries: [
-        { itemId: "always_available", min: 1, max: 1, weight: 10, rarity: "common", requirements: [] },
+        {
+          itemId: "always_available",
+          min: 1,
+          max: 1,
+          weight: 10,
+          rarity: "common",
+          requirements: [],
+        },
         {
           itemId: "level_gated",
           min: 1,

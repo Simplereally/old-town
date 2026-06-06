@@ -1,11 +1,6 @@
 import type { RegionLoadPacket, RegionUnloadPacket, TileCoord } from "@old-town/shared";
 
-export type PresentationSampleMode =
-  | "interpolate"
-  | "hold_latest"
-  | "freeze"
-  | "snap"
-  | "empty";
+export type PresentationSampleMode = "interpolate" | "hold_latest" | "freeze" | "snap" | "empty";
 
 export interface RenderEntitySnapshot {
   readonly entityId: number;
@@ -14,7 +9,11 @@ export interface RenderEntitySnapshot {
   readonly previousTile: TileCoord | null;
   readonly moveSpeed: "walk" | "run" | "idle" | "teleport";
   readonly facing: number;
-  readonly appearance: { readonly name?: string; readonly bodyId?: string; readonly colors?: readonly number[] };
+  readonly appearance: {
+    readonly name?: string;
+    readonly bodyId?: string;
+    readonly colors?: readonly number[];
+  };
   readonly healthBar: { readonly current: number; readonly max: number } | null;
   readonly defId: string;
   readonly presentationFlags?: number;
@@ -98,7 +97,8 @@ export class SnapshotBuffer {
   insert(snapshot: RenderSnapshot): boolean {
     if (
       snapshot.tick < this._latestAcceptedTick ||
-      (snapshot.tick === this._latestAcceptedTick && snapshot.sequence <= this._latestAcceptedSequence)
+      (snapshot.tick === this._latestAcceptedTick &&
+        snapshot.sequence <= this._latestAcceptedSequence)
     ) {
       return false;
     }
@@ -107,8 +107,11 @@ export class SnapshotBuffer {
     const idx = this._findInsertIndex(snapshot);
     this._snapshots.splice(idx, 0, snapshot);
 
-    if (snapshot.tick > this._latestAcceptedTick ||
-      (snapshot.tick === this._latestAcceptedTick && snapshot.sequence > this._latestAcceptedSequence)) {
+    if (
+      snapshot.tick > this._latestAcceptedTick ||
+      (snapshot.tick === this._latestAcceptedTick &&
+        snapshot.sequence > this._latestAcceptedSequence)
+    ) {
       this._latestAcceptedTick = snapshot.tick;
       this._latestAcceptedSequence = snapshot.sequence;
     }
@@ -259,8 +262,14 @@ export class SnapshotBuffer {
   }
 
   private _trim(): void {
-    const minToKeep = Math.max(2, Math.ceil(this._options.interpolationDelayMs / this._options.tickMs) + 1);
-    while (this._snapshots.length > this._options.maxSnapshots && this._snapshots.length > minToKeep) {
+    const minToKeep = Math.max(
+      2,
+      Math.ceil(this._options.interpolationDelayMs / this._options.tickMs) + 1,
+    );
+    while (
+      this._snapshots.length > this._options.maxSnapshots &&
+      this._snapshots.length > minToKeep
+    ) {
       this._snapshots.shift();
     }
   }

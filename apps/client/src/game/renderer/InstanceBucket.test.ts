@@ -1,4 +1,3 @@
-import { beforeEach, describe, expect, it } from "vitest";
 import {
   BoxGeometry,
   DynamicDrawUsage,
@@ -7,6 +6,7 @@ import {
   MeshBasicMaterial,
   Vector3,
 } from "three";
+import { beforeEach, describe, expect, it } from "vitest";
 import {
   InstanceBucket,
   type InstanceBucketKey,
@@ -129,12 +129,7 @@ describe("InstanceBucket", () => {
   it("writes a Matrix4 transform without allocating per call", () => {
     bucket.acquire(100);
     const matrix = new Matrix4();
-    matrix.set(
-      1, 0, 0, 10,
-      0, 1, 0, 20,
-      0, 0, 1, 30,
-      0, 0, 0, 1,
-    );
+    matrix.set(1, 0, 0, 10, 0, 1, 0, 20, 0, 0, 1, 30, 0, 0, 0, 1);
     bucket.writeTransform(100, matrix);
     const arr = bucket.mesh.instanceMatrix.array as Float32Array;
     expect(arr[12]).toBe(10);
@@ -144,12 +139,7 @@ describe("InstanceBucket", () => {
 
   it("writes a Float32Array transform without allocating per call", () => {
     bucket.acquire(100);
-    const elements = new Float32Array([
-      1, 0, 0, 0,
-      0, 1, 0, 0,
-      0, 0, 1, 0,
-      5, 6, 7, 1,
-    ]);
+    const elements = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5, 6, 7, 1]);
     bucket.writeTransform(100, elements);
     const arr = bucket.mesh.instanceMatrix.array as Float32Array;
     expect(arr[12]).toBe(5);

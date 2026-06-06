@@ -35,7 +35,13 @@ export class ProjectileLayer {
   }
 
   /** Spawn a projectile from start to end tile. */
-  spawn(id: string, startTile: TileCoord, endTile: TileCoord, startTick: number, hitTick: number): void {
+  spawn(
+    id: string,
+    startTile: TileCoord,
+    endTile: TileCoord,
+    startTick: number,
+    hitTick: number,
+  ): void {
     if (this.projectiles.has(id)) {
       this.remove(id);
     }

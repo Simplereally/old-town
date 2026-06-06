@@ -484,7 +484,13 @@ function buildDependencyEdges(registries: ContentRegistries): readonly Dependenc
       add("regionMap", id, "item", spawn.itemId, "groundItemSpawns.itemId");
     }
     for (const spawn of def.resourceNodeSpawns) {
-      add("regionMap", id, "resourceNode", spawn.resourceNodeId, "resourceNodeSpawns.resourceNodeId");
+      add(
+        "regionMap",
+        id,
+        "resourceNode",
+        spawn.resourceNodeId,
+        "resourceNodeSpawns.resourceNodeId",
+      );
     }
   }
   return edges.toSorted((a, b) =>

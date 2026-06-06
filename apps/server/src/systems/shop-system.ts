@@ -71,7 +71,10 @@ function getOrCreateShop(ctx: ShopSystemContext, npcEntityId: EntityId): ShopCom
   return shop;
 }
 
-function buildShopView(shop: ShopComponent, shopDef: ShopDef): import("@old-town/shared").ShopViewPacket {
+function buildShopView(
+  shop: ShopComponent,
+  shopDef: ShopDef,
+): import("@old-town/shared").ShopViewPacket {
   return {
     shopId: shop.shopId,
     name: shopDef.name,
@@ -151,7 +154,10 @@ export function handleShopIntent(
       }
 
       const itemDef = ctx.registries.item.get(intent.itemId);
-      const unitPrice = Math.max(1, Math.floor((stockEntry.price ?? itemDef?.value ?? 1) * shopDef.buyMultiplier));
+      const unitPrice = Math.max(
+        1,
+        Math.floor((stockEntry.price ?? itemDef?.value ?? 1) * shopDef.buyMultiplier),
+      );
       const totalPrice = unitPrice * intent.quantity;
 
       if (count(inventory, shopDef.currency) < totalPrice) {
@@ -169,7 +175,9 @@ export function handleShopIntent(
       const itemAddResult = addItem(inventory, catalog, intent.itemId, intent.quantity);
       stockEntry.quantity -= intent.quantity;
 
-      ctx.deltas.markInventoryDelta(buildDelta(inventory, [...currencyRemoveResult.changes, ...itemAddResult.changes]));
+      ctx.deltas.markInventoryDelta(
+        buildDelta(inventory, [...currencyRemoveResult.changes, ...itemAddResult.changes]),
+      );
       ctx.deltas.markInterfaceOpen({
         interfaceId: SHOP_INTERFACE_ID,
         shop: buildShopView(shop, shopDef),
@@ -214,7 +222,10 @@ export function handleShopIntent(
       }
 
       const itemDef = ctx.registries.item.get(intent.itemId);
-      const unitPrice = Math.max(1, Math.floor((stockEntry.price ?? itemDef?.value ?? 1) * shopDef.sellMultiplier));
+      const unitPrice = Math.max(
+        1,
+        Math.floor((stockEntry.price ?? itemDef?.value ?? 1) * shopDef.sellMultiplier),
+      );
       const totalPrice = unitPrice * intent.quantity;
 
       const catalog = catalogFromItems(ctx.registries.item);
@@ -222,7 +233,9 @@ export function handleShopIntent(
       const currencyAddResult = addItem(inventory, catalog, shopDef.currency, totalPrice);
       stockEntry.quantity = Math.min(stockEntry.maxQuantity, stockEntry.quantity + intent.quantity);
 
-      ctx.deltas.markInventoryDelta(buildDelta(inventory, [...itemRemoveResult.changes, ...currencyAddResult.changes]));
+      ctx.deltas.markInventoryDelta(
+        buildDelta(inventory, [...itemRemoveResult.changes, ...currencyAddResult.changes]),
+      );
       ctx.deltas.markInterfaceOpen({
         interfaceId: SHOP_INTERFACE_ID,
         shop: buildShopView(shop, shopDef),
@@ -253,10 +266,7 @@ function findNearestShop(ctx: ShopSystemContext, owner: EntityId): ShopComponent
   for (const [entityId, shop] of ctx.world.componentEntries("shop")) {
     const pos = ctx.world.getComponent(entityId, "position");
     if (!pos || pos.plane !== playerPos.plane) continue;
-    const distance = Math.max(
-      Math.abs(playerPos.x - pos.x),
-      Math.abs(playerPos.y - pos.y),
-    );
+    const distance = Math.max(Math.abs(playerPos.x - pos.x), Math.abs(playerPos.y - pos.y));
     if (!nearest || distance < nearest.distance) {
       nearest = { shop, distance };
     }

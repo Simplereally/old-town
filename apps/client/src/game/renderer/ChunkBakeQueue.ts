@@ -1,10 +1,4 @@
-import {
-  CHUNK_SIZE,
-  type ChunkId,
-  type RegionId,
-  type TileCoord,
-  chunkId,
-} from "@old-town/shared";
+import { CHUNK_SIZE, type ChunkId, chunkId, type RegionId, type TileCoord } from "@old-town/shared";
 
 export type ChunkLifecycleState =
   | "unseen"
@@ -81,10 +75,7 @@ interface ChunkRecord {
 
 const MAX_BAKE_RETRIES = 3;
 
-function computeChunkDistance(
-  chunk: ChunkMetadata,
-  focus: TileCoord,
-): number {
+function computeChunkDistance(chunk: ChunkMetadata, focus: TileCoord): number {
   const centerX = chunk.cx * CHUNK_SIZE + CHUNK_SIZE / 2;
   const centerY = chunk.cy * CHUNK_SIZE + CHUNK_SIZE / 2;
   const dx = focus.x - centerX;
@@ -275,9 +266,7 @@ export class ChunkBakeQueue {
     if (this._queue.length === 0) return null;
 
     this._refreshPriorities();
-    this._queue.sort((a, b) =>
-      comparePriority(a.priority, b.priority, a.sequence, b.sequence),
-    );
+    this._queue.sort((a, b) => comparePriority(a.priority, b.priority, a.sequence, b.sequence));
 
     const job = this._queue.shift()!;
     const record = this._chunks.get(job.chunkId);
@@ -495,13 +484,12 @@ export class ChunkBakeQueue {
     for (const job of this._queue) {
       const record = this._chunks.get(job.chunkId);
       if (record && record.metadata) {
-        (job as unknown as { priority: ChunkBakePriority }).priority =
-          makePriority(
-            record.metadata,
-            this._focusTile,
-            record.isVisible,
-            record.retryCount,
-          );
+        (job as unknown as { priority: ChunkBakePriority }).priority = makePriority(
+          record.metadata,
+          this._focusTile,
+          record.isVisible,
+          record.retryCount,
+        );
       }
     }
   }

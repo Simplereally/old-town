@@ -106,7 +106,9 @@ export class GameSocket {
 
       socket.onclose = (event) => {
         if (!settled) {
-          fail(new Error(`GameSocket closed before bootstrap: ${event.code} ${event.reason}`.trim()));
+          fail(
+            new Error(`GameSocket closed before bootstrap: ${event.code} ${event.reason}`.trim()),
+          );
         }
         this.onClose?.();
       };

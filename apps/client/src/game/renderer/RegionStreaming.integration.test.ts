@@ -1,31 +1,26 @@
-import { describe, expect, it, beforeEach, vi } from "vitest";
-import { Scene } from "three";
 import {
-  chunkId,
-  type ChunkId,
-  type RegionId,
-  type TileCoord,
   type ChunkData,
+  type ChunkId,
+  chunkId,
+  type RegionId,
   type RegionLoadPacket,
   type RegionUnloadPacket,
+  type TileCoord,
 } from "@old-town/shared";
-import {
-  ChunkBakeQueue,
-  type ChunkMetadata,
-} from "./ChunkBakeQueue";
-import {
-  ChunkBakeWorkerClient,
-  createSynchronousTestClient,
-  type BakedChunkPayload,
-} from "./ChunkBakeWorkerClient";
-import { ChunkUploadQueue } from "./ChunkUploadQueue";
-import { RenderResourceRegistry } from "./RenderResourceRegistry";
-import {
-  ChunkResidencyManager,
-} from "./ChunkResidencyManager";
+import { Scene } from "three";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ClientPacketApplier } from "../net/ClientPacketApplier";
 import { ClientWorldStore } from "../net/ClientWorldStore";
 import { SnapshotBuffer } from "../net/SnapshotBuffer";
+import { ChunkBakeQueue, type ChunkMetadata } from "./ChunkBakeQueue";
+import {
+  type BakedChunkPayload,
+  type ChunkBakeWorkerClient,
+  createSynchronousTestClient,
+} from "./ChunkBakeWorkerClient";
+import { ChunkResidencyManager } from "./ChunkResidencyManager";
+import { ChunkUploadQueue } from "./ChunkUploadQueue";
+import { RenderResourceRegistry } from "./RenderResourceRegistry";
 
 function makeChunkId(cx: number, cy: number, plane = 0): ChunkId {
   return chunkId({ cx, cy, plane: plane as 0 | 1 | 2 | 3 });
@@ -60,11 +55,7 @@ function makeRegionLoadPacket(
   };
 }
 
-function makeRegionUnloadPacket(
-  rx: number,
-  ry: number,
-  plane: number,
-): RegionUnloadPacket {
+function makeRegionUnloadPacket(rx: number, ry: number, plane: number): RegionUnloadPacket {
   return {
     regionId: makeRegionId(rx, ry, plane),
   };
@@ -266,9 +257,7 @@ describe("RegionStreaming integration", () => {
       serverTime: 600,
       selfEntityId: 42,
       entities: [],
-      regionLoads: [
-        makeRegionLoadPacket(0, 0, 0, [makeChunkData(0, 0), makeChunkData(0, 1)]),
-      ],
+      regionLoads: [makeRegionLoadPacket(0, 0, 0, [makeChunkData(0, 0), makeChunkData(0, 1)])],
       inventory: null,
       equipment: null,
       skills: null,
@@ -280,8 +269,8 @@ describe("RegionStreaming integration", () => {
 
     const regionLoads = result.presentationEvents.filter((e) => e.type === "region.load");
     const regionUnloads = result.presentationEvents.filter((e) => e.type === "region.unload");
-    const terrainEvents = result.presentationEvents.filter((e) =>
-      e.type === "terrain.loadChunk" || e.type === "terrain.unloadRegion",
+    const terrainEvents = result.presentationEvents.filter(
+      (e) => e.type === "terrain.loadChunk" || e.type === "terrain.unloadRegion",
     );
 
     expect(regionLoads.length).toBe(1);
@@ -302,12 +291,8 @@ describe("RegionStreaming integration", () => {
       entityAdds: [],
       entityRemoves: [],
       entityUpdates: [],
-      regionLoads: [
-        makeRegionLoadPacket(1, 0, 0, [makeChunkData(8, 0)]),
-      ],
-      regionUnloads: [
-        makeRegionUnloadPacket(0, 0, 0),
-      ],
+      regionLoads: [makeRegionLoadPacket(1, 0, 0, [makeChunkData(8, 0)])],
+      regionUnloads: [makeRegionUnloadPacket(0, 0, 0)],
     };
 
     const result = applier.applyTickDelta(delta as any, 1);
@@ -332,10 +317,7 @@ describe("RegionStreaming integration", () => {
 
     const beforeCount = scene.children.length;
 
-    orchestrator.queueRegionLoad(makeRegionId(0, 0, 0), [
-      makeMeta(0, 0),
-      makeMeta(0, 1),
-    ]);
+    orchestrator.queueRegionLoad(makeRegionId(0, 0, 0), [makeMeta(0, 0), makeMeta(0, 1)]);
 
     // Immediately after queuing (simulating packet callback), no scene mutation.
     expect(scene.children.length).toBe(beforeCount);

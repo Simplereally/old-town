@@ -7,7 +7,7 @@ import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
-import { handleBankIntent, type BankSystemContext } from "./bank-system";
+import { type BankSystemContext, handleBankIntent } from "./bank-system";
 
 const COIN: ItemDef = {
   id: "coin",
@@ -88,13 +88,7 @@ describe("handleBankIntent — open", () => {
   it("opens the bank interface and sends bank inventory delta", () => {
     const { ctx, owner } = setup();
 
-    const result = handleBankIntent(
-      ctx,
-      owner,
-      { action: "open" },
-      TICK,
-      SERVER_TIME,
-    );
+    const result = handleBankIntent(ctx, owner, { action: "open" }, TICK, SERVER_TIME);
 
     expect(result).toBe(true);
     expect(ctx.deltas.peek().interfaceOpens).toEqual([{ interfaceId: "bank" }]);
@@ -116,13 +110,7 @@ describe("handleBankIntent — close", () => {
   it("closes the bank interface", () => {
     const { ctx, owner } = setup();
 
-    const result = handleBankIntent(
-      ctx,
-      owner,
-      { action: "close" },
-      TICK,
-      SERVER_TIME,
-    );
+    const result = handleBankIntent(ctx, owner, { action: "close" }, TICK, SERVER_TIME);
 
     expect(result).toBe(true);
     expect(ctx.deltas.peek().interfaceCloses).toEqual([{ interfaceId: "bank" }]);

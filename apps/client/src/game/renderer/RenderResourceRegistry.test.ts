@@ -1,4 +1,3 @@
-import { describe, expect, it } from "vitest";
 import {
   BoxGeometry,
   MeshBasicMaterial,
@@ -7,10 +6,11 @@ import {
   ShaderMaterial,
   Texture,
 } from "three";
+import { describe, expect, it } from "vitest";
 import {
   BuiltInMaterials,
-  RenderResourceRegistry,
   type RenderResourceKey,
+  RenderResourceRegistry,
 } from "./RenderResourceRegistry";
 
 function makeKey(partial: Partial<RenderResourceKey> & { contentId: string }): RenderResourceKey {
@@ -63,8 +63,16 @@ describe("RenderResourceRegistry", () => {
 
   it("normalises keys so case and whitespace differences collide", () => {
     const registry = new RenderResourceRegistry();
-    const keyA = makeKey({ contentId: "PROP:STONE_WALL", variant: "DAMAGED", materialId: "DEFAULT" });
-    const keyB = makeKey({ contentId: "prop:stone_wall", variant: "damaged", materialId: "default" });
+    const keyA = makeKey({
+      contentId: "PROP:STONE_WALL",
+      variant: "DAMAGED",
+      materialId: "DEFAULT",
+    });
+    const keyB = makeKey({
+      contentId: "prop:stone_wall",
+      variant: "damaged",
+      materialId: "default",
+    });
     registry.registerGeometry(keyA, () => new BoxGeometry(1, 1, 1));
 
     const g1 = registry.getGeometry(keyA);
@@ -427,33 +435,27 @@ describe("RenderResourceRegistry", () => {
   it("accepts built-in MeshLambertMaterial without justification", () => {
     const registry = new RenderResourceRegistry();
     const key = makeKey({ contentId: "prop:stone_wall" });
-    expect(() =>
-      registry.registerMaterial(key, () => new MeshLambertMaterial()),
-    ).not.toThrow();
+    expect(() => registry.registerMaterial(key, () => new MeshLambertMaterial())).not.toThrow();
   });
 
   it("accepts built-in MeshToonMaterial without justification", () => {
     const registry = new RenderResourceRegistry();
     const key = makeKey({ contentId: "actor:guard" });
-    expect(() =>
-      registry.registerMaterial(key, () => new MeshToonMaterial()),
-    ).not.toThrow();
+    expect(() => registry.registerMaterial(key, () => new MeshToonMaterial())).not.toThrow();
   });
 
   it("accepts built-in MeshBasicMaterial without justification", () => {
     const registry = new RenderResourceRegistry();
     const key = makeKey({ contentId: "projectile:arrow" });
-    expect(() =>
-      registry.registerMaterial(key, () => new MeshBasicMaterial()),
-    ).not.toThrow();
+    expect(() => registry.registerMaterial(key, () => new MeshBasicMaterial())).not.toThrow();
   });
 
   it("rejects custom ShaderMaterial without justification", () => {
     const registry = new RenderResourceRegistry();
     const key = makeKey({ contentId: "prop:stone_wall" });
-    expect(() =>
-      registry.registerMaterial(key, () => new ShaderMaterial({})),
-    ).toThrow("requires an explicit justification");
+    expect(() => registry.registerMaterial(key, () => new ShaderMaterial({}))).toThrow(
+      "requires an explicit justification",
+    );
   });
 
   it("accepts custom ShaderMaterial with justification", () => {

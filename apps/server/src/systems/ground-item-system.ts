@@ -7,21 +7,26 @@ import type {
   Rng,
 } from "@old-town/shared";
 import { GAME_TICK_MS, RARITY_MULTIPLIERS, type TileCoord } from "@old-town/shared";
-import type { CombatantComponent, GraveComponent, GroundItemComponent, InventorySlot } from "../ecs/components";
+import type {
+  CombatantComponent,
+  GraveComponent,
+  GroundItemComponent,
+  InventorySlot,
+} from "../ecs/components";
 import type { World } from "../ecs/world";
 import { addItem, buildDelta, catalogFromItems, count, hasSpaceFor } from "../items/inventory";
 import type { ItemAuditLog } from "../items/item-audit";
 import { projectEntity } from "../net/entity-spawn-projector";
-import { meetsAllRequirements } from "../quests/requirements";
 import { dispatchQuestEvent } from "../quests/quest-engine";
+import { meetsAllRequirements } from "../quests/requirements";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import type { CollisionMap } from "../world/collision";
-import { syncNpcOccupancy } from "./npc-system";
 import {
   checkContractCompletion,
   findActiveContractEntity,
   trackContractItemGain,
 } from "./contract-system";
+import { syncNpcOccupancy } from "./npc-system";
 
 export interface GroundItemSystemContext {
   readonly world: World;
@@ -213,12 +218,7 @@ export function processDeathResolution(
     const tile = tileFromPosition(position);
     const ownerId = eligibleOwner(ctx, combatant.lastDamageSourceId);
     if (ownerId !== undefined) {
-      dispatchQuestEvent(
-        ctx,
-        ownerId,
-        { kind: "npc_killed", npcId: npc.npcId },
-        serverTime,
-      );
+      dispatchQuestEvent(ctx, ownerId, { kind: "npc_killed", npcId: npc.npcId }, serverTime);
       const contractEntityId = findActiveContractEntity(ctx.world, ownerId);
       if (contractEntityId !== undefined) {
         checkContractCompletion(ctx, ownerId, contractEntityId, serverTime, tick);
@@ -226,7 +226,10 @@ export function processDeathResolution(
     }
     const drops = def.drops ? ctx.registries.dropTable.get(def.drops) : undefined;
     if (drops) {
-      const rollCtx = ownerId !== undefined ? { world: ctx.world, registries: ctx.registries, entityId: ownerId } : undefined;
+      const rollCtx =
+        ownerId !== undefined
+          ? { world: ctx.world, registries: ctx.registries, entityId: ownerId }
+          : undefined;
       for (const drop of rollDropTable(drops, ctx.rng, rollCtx)) {
         spawnGroundItem(ctx, drop.itemId, drop.quantity, tile, {
           tick,
@@ -334,7 +337,10 @@ export function createGraveOnDeath(
       slot,
       value: item ? (ctx.registries.item.get(item.itemId)?.value ?? 0) : 0,
     }))
-    .filter((entry): entry is { item: InventorySlot; slot: number; value: number } => entry.item !== undefined);
+    .filter(
+      (entry): entry is { item: InventorySlot; slot: number; value: number } =>
+        entry.item !== undefined,
+    );
 
   // Sort by value descending, keep top 3
   occupiedSlots.sort((a, b) => b.value - a.value);
@@ -436,7 +442,12 @@ export function processGraveLifecycle(
       ctx.world.destroyEntity(entityId);
       ctx.deltas.markEntityRemove(entityId);
       if (reclaimedAny) {
-        systemMessage(ctx.deltas, grave.playerId, "You reclaim all your items from the grave.", serverTime);
+        systemMessage(
+          ctx.deltas,
+          grave.playerId,
+          "You reclaim all your items from the grave.",
+          serverTime,
+        );
       }
     } else {
       ctx.world.setComponent(entityId, "grave", {
@@ -444,7 +455,12 @@ export function processGraveLifecycle(
         items: remainingItems,
       });
       if (reclaimedAny) {
-        systemMessage(ctx.deltas, grave.playerId, "You reclaim some items from the grave.", serverTime);
+        systemMessage(
+          ctx.deltas,
+          grave.playerId,
+          "You reclaim some items from the grave.",
+          serverTime,
+        );
       }
     }
   }

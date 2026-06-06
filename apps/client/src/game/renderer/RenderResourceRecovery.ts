@@ -97,11 +97,7 @@ export class RenderResourceRecovery {
   /**
    * Record a worker bake failure and schedule a retry with render-frame backoff.
    */
-  onWorkerFailure(
-    chunkId: ChunkId,
-    errorCode: RenderResourceErrorCode,
-    message: string,
-  ): void {
+  onWorkerFailure(chunkId: ChunkId, errorCode: RenderResourceErrorCode, message: string): void {
     if (this._contextLost) return;
     const record = this._recordFailure(chunkId, errorCode, message);
     const backoff = this._computeBackoff(record.retryCount);
@@ -113,11 +109,7 @@ export class RenderResourceRecovery {
    * Record an upload failure. The upload queue handles its own retry via
    * `processFrame` with the current frame id.
    */
-  onUploadFailure(
-    chunkId: ChunkId,
-    errorCode: RenderResourceErrorCode,
-    message: string,
-  ): void {
+  onUploadFailure(chunkId: ChunkId, errorCode: RenderResourceErrorCode, message: string): void {
     if (this._contextLost) return;
     this._recordFailure(chunkId, errorCode, message);
   }

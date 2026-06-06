@@ -134,7 +134,10 @@ export type ChatCommand = ClientCommandBase<typeof ClientCommandType.Chat, ChatI
 export type UiActionCommand = ClientCommandBase<typeof ClientCommandType.UiAction, UiActionIntent>;
 export type BankActionCommand = ClientCommandBase<typeof ClientCommandType.BankAction, BankIntent>;
 export type ShopActionCommand = ClientCommandBase<typeof ClientCommandType.ShopAction, ShopIntent>;
-export type RecipeSelectCommand = ClientCommandBase<typeof ClientCommandType.RecipeSelect, RecipeSelectIntent>;
+export type RecipeSelectCommand = ClientCommandBase<
+  typeof ClientCommandType.RecipeSelect,
+  RecipeSelectIntent
+>;
 export type PingCommand = ClientCommandBase<typeof ClientCommandType.Ping, PingIntent>;
 
 /** The discriminated union of every client → server command. */

@@ -1,8 +1,4 @@
-import {
-  PROTOCOL_VERSION,
-  ServerPacketType,
-  TransportClientMessageType,
-} from "@old-town/shared";
+import { PROTOCOL_VERSION, ServerPacketType, TransportClientMessageType } from "@old-town/shared";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GameSocket } from "./GameSocket";
 

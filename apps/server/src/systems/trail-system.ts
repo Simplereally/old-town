@@ -1,9 +1,8 @@
-import type { EntityId, TileCoord } from "@old-town/shared";
+import type { ContentRegistries, EntityId, TileCoord } from "@old-town/shared";
 import type { World } from "../ecs/world";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
-import type { ContentRegistries } from "@old-town/shared";
-import { applyStatusEffect } from "./status-system";
 import type { StatusEffectContext } from "./status-system";
+import { applyStatusEffect } from "./status-system";
 
 export interface TrailDef {
   readonly id: string;
@@ -54,7 +53,7 @@ function isBetweenTiles(playerTile: TileCoord, start: TileCoord, end: TileCoord)
     playerTile.y <= maxY &&
     ((start.x === end.x && playerTile.x === start.x) ||
       (start.y === end.y && playerTile.y === start.y) ||
-      (Math.abs(playerTile.x - start.x) === Math.abs(playerTile.y - start.y)))
+      Math.abs(playerTile.x - start.x) === Math.abs(playerTile.y - start.y))
   );
 }
 
@@ -156,7 +155,10 @@ export function processTrailBuffs(
   }
 }
 
-export function getTrailShortcutPath(playerTile: TileCoord, trail: TrailDef): TileCoord[] | undefined {
+export function getTrailShortcutPath(
+  playerTile: TileCoord,
+  trail: TrailDef,
+): TileCoord[] | undefined {
   if (!isPlayerOnTrail(playerTile, trail)) return undefined;
 
   const dest = isOnTile(playerTile, trail.startTile) ? trail.endTile : trail.startTile;

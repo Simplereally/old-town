@@ -35,7 +35,9 @@ export const consumableDefSchema = z
     /** Ticks the eat/drink action occupies (default 1). */
     consumeTicks: positiveInt.default(1),
     /** Expanded effect types (E19-S01). */
-    effectType: z.enum(["heal", "restore", "boost", "cure", "apply_status", "remove_status"]).optional(),
+    effectType: z
+      .enum(["heal", "restore", "boost", "cure", "apply_status", "remove_status"])
+      .optional(),
     effectValue: nonNegInt.optional(),
     durationTicks: nonNegInt.optional(),
     statusEffectId: contentIdSchema.optional(),

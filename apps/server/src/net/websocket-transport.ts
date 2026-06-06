@@ -134,9 +134,10 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
           return;
         }
 
-        const characterId = typeof auth.characterId === "string" && auth.characterId.length > 0
-          ? auth.characterId
-          : "dev-character";
+        const characterId =
+          typeof auth.characterId === "string" && auth.characterId.length > 0
+            ? auth.characterId
+            : "dev-character";
         const session: TransportSession = {
           id: `dev-${nextSessionId}`,
           characterId,

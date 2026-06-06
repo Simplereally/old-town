@@ -3,12 +3,12 @@ import { createWorld, type World } from "../../ecs/world";
 import { DeltaAccumulator } from "../../sim/delta-accumulator";
 import { makeRegistries } from "../../test-support/registries";
 import {
+  applyTrailBuff,
   checkTrailDiscovery,
+  getTrailShortcutPath,
+  handleTrailShortcut,
   isPlayerOnTrail,
   isTrailDiscovered,
-  applyTrailBuff,
-  handleTrailShortcut,
-  getTrailShortcutPath,
   type TrailDef,
 } from "../trail-system";
 
@@ -44,7 +44,12 @@ const STATUS_EFFECT_DEF = {
   cureItems: [],
 };
 
-function addPlayer(world: World, x: number, y: number, plane: number = 0): import("@old-town/shared").EntityId {
+function addPlayer(
+  world: World,
+  x: number,
+  y: number,
+  plane: number = 0,
+): import("@old-town/shared").EntityId {
   const entityId = world.createEntity();
   world.setComponent(entityId, "position", { entityId, x, y, plane });
   world.setComponent(entityId, "vars", {

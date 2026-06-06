@@ -17,7 +17,10 @@ import { GameSocket } from "./net/GameSocket";
 import { SnapshotBuffer } from "./net/SnapshotBuffer";
 import { EntityPicker } from "./picking/EntityPicker";
 import { ChunkBakeQueue } from "./renderer/ChunkBakeQueue";
-import { createSynchronousTestClient, ChunkBakeWorkerClient } from "./renderer/ChunkBakeWorkerClient";
+import {
+  ChunkBakeWorkerClient,
+  createSynchronousTestClient,
+} from "./renderer/ChunkBakeWorkerClient";
 import { ChunkResidencyManager } from "./renderer/ChunkResidencyManager";
 import { ChunkUploadQueue } from "./renderer/ChunkUploadQueue";
 import { RenderClock } from "./renderer/RenderClock";
@@ -106,7 +109,10 @@ export class GameEngine {
   private readonly _chunkUploadQueue: ChunkUploadQueue;
   private readonly _chunkResidency: ChunkResidencyManager;
   private readonly _registry: RenderResourceRegistry;
-  private readonly _pendingRegionLoads: Array<{ regionId: string; chunks: readonly import("@old-town/shared").ChunkData[] }> = [];
+  private readonly _pendingRegionLoads: Array<{
+    regionId: string;
+    chunks: readonly import("@old-town/shared").ChunkData[];
+  }> = [];
   private readonly _pendingRegionUnloads: Array<{ regionId: string }> = [];
   private _frameId = 0;
 
@@ -149,27 +155,31 @@ export class GameEngine {
         }
       },
     });
-    this._chunkBakeWorker = import.meta.env.DEV && import.meta.env.VITEST
-      ? createSynchronousTestClient(
-          (jobId, regionId, chunkCoord, payload) => {
-            const cid = `${chunkCoord.cx}:${chunkCoord.cy}:${chunkCoord.plane}` as import("@old-town/shared").ChunkId;
-            this._chunkUploadQueue.enqueueBakedChunk(cid, payload);
-          },
-          () => {
-            this._chunkBakeQueue.onWorkerFailed("0:0:0" as import("@old-town/shared").ChunkId);
-          },
-        )
-      : new ChunkBakeWorkerClient({
-          poolSize: 2,
-          onSuccess: (jobId, regionId, chunkCoord, payload) => {
-            const cid = `${chunkCoord.cx}:${chunkCoord.cy}:${chunkCoord.plane}` as import("@old-town/shared").ChunkId;
-            this._chunkUploadQueue.enqueueBakedChunk(cid, payload);
-          },
-          onFailure: (jobId, regionId, chunkCoord, errorCode, message) => {
-            const cid = `${chunkCoord.cx}:${chunkCoord.cy}:${chunkCoord.plane}` as import("@old-town/shared").ChunkId;
-            this._chunkBakeQueue.onWorkerFailed(cid);
-          },
-        });
+    this._chunkBakeWorker =
+      import.meta.env.DEV && import.meta.env.VITEST
+        ? createSynchronousTestClient(
+            (jobId, regionId, chunkCoord, payload) => {
+              const cid =
+                `${chunkCoord.cx}:${chunkCoord.cy}:${chunkCoord.plane}` as import("@old-town/shared").ChunkId;
+              this._chunkUploadQueue.enqueueBakedChunk(cid, payload);
+            },
+            () => {
+              this._chunkBakeQueue.onWorkerFailed("0:0:0" as import("@old-town/shared").ChunkId);
+            },
+          )
+        : new ChunkBakeWorkerClient({
+            poolSize: 2,
+            onSuccess: (jobId, regionId, chunkCoord, payload) => {
+              const cid =
+                `${chunkCoord.cx}:${chunkCoord.cy}:${chunkCoord.plane}` as import("@old-town/shared").ChunkId;
+              this._chunkUploadQueue.enqueueBakedChunk(cid, payload);
+            },
+            onFailure: (jobId, regionId, chunkCoord, errorCode, message) => {
+              const cid =
+                `${chunkCoord.cx}:${chunkCoord.cy}:${chunkCoord.plane}` as import("@old-town/shared").ChunkId;
+              this._chunkBakeQueue.onWorkerFailed(cid);
+            },
+          });
     this.socket = new GameSocket(serverUrl, { characterId });
     this._dispatcher = new ClientCommandDispatcher(this.socket);
     this._inputInterpreter = new InputInterpreter(this.content);
@@ -589,7 +599,9 @@ export class GameEngine {
     }
     this._pendingRegionLoads.length = 0;
     for (const unload of this._pendingRegionUnloads) {
-      this._chunkResidency.ingestRegionUnload(unload.regionId as import("@old-town/shared").RegionId);
+      this._chunkResidency.ingestRegionUnload(
+        unload.regionId as import("@old-town/shared").RegionId,
+      );
     }
     this._pendingRegionUnloads.length = 0;
 
@@ -1018,7 +1030,9 @@ export class GameEngine {
           if (residencyStats) {
             lines.push(`Residency visible: ${residencyStats.visible}`);
             lines.push(`Residency hidden: ${residencyStats.hiddenResident}`);
-            lines.push(`Residency GPU: ${(residencyStats.approximateGpuBytes / 1024 / 1024).toFixed(1)}MB`);
+            lines.push(
+              `Residency GPU: ${(residencyStats.approximateGpuBytes / 1024 / 1024).toFixed(1)}MB`,
+            );
           }
           if (this.debug) {
             const queue = this.debug.getActionQueue();

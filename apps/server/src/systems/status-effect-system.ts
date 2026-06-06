@@ -18,10 +18,7 @@ export interface StatusEffectContext {
   readonly deltas: DeltaAccumulator;
 }
 
-function getOrCreateComponent(
-  world: World,
-  entityId: EntityId,
-): StatusEffectComponent {
+function getOrCreateComponent(world: World, entityId: EntityId): StatusEffectComponent {
   const existing = world.getComponent(entityId, "statusEffect");
   if (existing) {
     return existing;
@@ -79,11 +76,23 @@ function recomputeStats(
 
   for (const effect of effects) {
     for (const [stat, value] of Object.entries(effect.statModifiers ?? {})) {
-      if (stat === "attackLevel" || stat === "attack" || stat === "stabAttack" || stat === "slashAttack" || stat === "crushAttack") {
+      if (
+        stat === "attackLevel" ||
+        stat === "attack" ||
+        stat === "stabAttack" ||
+        stat === "slashAttack" ||
+        stat === "crushAttack"
+      ) {
         attackMod += value;
       } else if (stat === "strengthLevel" || stat === "strength" || stat === "meleeStrength") {
         strengthMod += value;
-      } else if (stat === "defenceLevel" || stat === "defence" || stat === "stabDefence" || stat === "slashDefence" || stat === "crushDefence") {
+      } else if (
+        stat === "defenceLevel" ||
+        stat === "defence" ||
+        stat === "stabDefence" ||
+        stat === "slashDefence" ||
+        stat === "crushDefence"
+      ) {
         defenceMod += value;
       }
     }
@@ -104,14 +113,9 @@ export function applyStatusEffect(
   effect: ActiveEffect,
 ): void {
   const component = getOrCreateComponent(ctx.world, entityId);
-  const existing = component.activeEffects.find(
-    (e) => e.effectId === effect.effectId,
-  );
+  const existing = component.activeEffects.find((e) => e.effectId === effect.effectId);
   if (existing) {
-    existing.durationTicks = Math.max(
-      existing.durationTicks,
-      effect.durationTicks,
-    );
+    existing.durationTicks = Math.max(existing.durationTicks, effect.durationTicks);
     if (effect.damagePerTick !== undefined) {
       existing.damagePerTick = effect.damagePerTick;
     }
@@ -159,10 +163,7 @@ export function cureStatusEffect(
 }
 
 /** Tick-phase entry: process all active effects. */
-export function processStatusEffectTick(
-  ctx: StatusEffectContext,
-  _tick: number,
-): void {
+export function processStatusEffectTick(ctx: StatusEffectContext, _tick: number): void {
   for (const [entityId, component] of ctx.world.componentEntries("statusEffect")) {
     const activeEffects = [...component.activeEffects];
     const activeThisTick: ActiveEffect[] = [];

@@ -14,8 +14,8 @@ import {
   count,
   hasAll,
   hasSpaceFor,
-  removeItem,
   type ItemRequirement,
+  removeItem,
 } from "../items/inventory";
 import type { ItemAuditLog } from "../items/item-audit";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
@@ -85,7 +85,11 @@ function calculateFee(feeDef: ServiceFeeDef, level: number): number {
   return Math.max(0, Math.floor(feeDef.baseFee + feeDef.levelMultiplier * level));
 }
 
-function getPlayerLevelForFee(ctx: ServiceFeeSystemContext, owner: EntityId, feeDef: ServiceFeeDef): number {
+function getPlayerLevelForFee(
+  ctx: ServiceFeeSystemContext,
+  owner: EntityId,
+  feeDef: ServiceFeeDef,
+): number {
   if (feeDef.skillId) {
     const skills = ctx.world.getComponent(owner, "skills");
     const skill = skills?.skills[feeDef.skillId];
@@ -152,11 +156,7 @@ function deductFee(
   return changes;
 }
 
-function applyRepair(
-  ctx: ServiceFeeSystemContext,
-  owner: EntityId,
-  feeDef: ServiceFeeDef,
-): string {
+function applyRepair(ctx: ServiceFeeSystemContext, owner: EntityId, feeDef: ServiceFeeDef): string {
   const inventory = ctx.world.getComponent(owner, "inventory");
   if (!inventory) return "Nothing needed repair.";
 
@@ -182,7 +182,11 @@ function applyTeleport(
   const pos = ctx.world.getComponent(owner, "position");
   if (!pos) return "You could not be teleported.";
 
-  const dest: TileCoord = feeDef.destination ?? { x: 0, y: 0, plane: 0 as import("@old-town/shared/types/coords").Plane };
+  const dest: TileCoord = feeDef.destination ?? {
+    x: 0,
+    y: 0,
+    plane: 0 as import("@old-town/shared/types/coords").Plane,
+  };
   pos.x = dest.x;
   pos.y = dest.y;
   pos.plane = dest.plane;
@@ -191,11 +195,7 @@ function applyTeleport(
   return "You are teleported away.";
 }
 
-function applyCraft(
-  ctx: ServiceFeeSystemContext,
-  owner: EntityId,
-  feeDef: ServiceFeeDef,
-): string {
+function applyCraft(ctx: ServiceFeeSystemContext, owner: EntityId, feeDef: ServiceFeeDef): string {
   if (!feeDef.outputItemId) return "Nothing to craft.";
 
   const inventory = ctx.world.getComponent(owner, "inventory");
@@ -214,10 +214,7 @@ function applyCraft(
   return `Crafted ${quantity} ${feeDef.outputItemId}.`;
 }
 
-function applyCleanse(
-  ctx: ServiceFeeSystemContext,
-  owner: EntityId,
-): string {
+function applyCleanse(ctx: ServiceFeeSystemContext, owner: EntityId): string {
   const statusEffects = ctx.world.getComponent(owner, "statusEffects");
   if (statusEffects && statusEffects.effects.length > 0) {
     statusEffects.effects = [];

@@ -1,8 +1,8 @@
 /** World object definitions (POC_SPEC §5.3, §12). */
 import { z } from "zod";
+import { tileCoordSchema } from "../protocol/schema-primitives";
 import { contentIdSchema, nonNegInt, positiveInt } from "./common";
 import { interactionOptionDefSchema } from "./npc";
-import { tileCoordSchema } from "../protocol/schema-primitives";
 
 export const objectDefSchema = z
   .object({

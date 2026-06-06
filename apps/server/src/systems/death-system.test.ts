@@ -6,7 +6,10 @@ import { CollisionMap } from "../world/collision";
 import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
 import { processPlayerRespawn } from "./death-system";
 
-function getCombatant(world: World, entityId: import("@old-town/shared").EntityId): import("../ecs/components").CombatantComponent {
+function getCombatant(
+  world: World,
+  entityId: import("@old-town/shared").EntityId,
+): import("../ecs/components").CombatantComponent {
   const c = world.getComponent(entityId, "combatant");
   if (!c) throw new Error("combatant missing");
   return c;

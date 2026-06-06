@@ -195,7 +195,14 @@ describe("contentSchemas — one entry point validates every kind", () => {
           { itemId: "bronze_sword", min: 1, max: 1, weight: 5, rarity: "uncommon" },
           { itemId: "iron_helm", min: 1, max: 1, weight: 2, rarity: "rare" },
           { itemId: "rune_scim", min: 1, max: 1, weight: 1, rarity: "very_rare" },
-          { itemId: "quest_token", min: 1, max: 1, weight: 1, rarity: "guaranteed", requirements: [{ kind: "quest_stage", questId: "test_quest", minStage: 1 }] },
+          {
+            itemId: "quest_token",
+            min: 1,
+            max: 1,
+            weight: 1,
+            rarity: "guaranteed",
+            requirements: [{ kind: "quest_stage", questId: "test_quest", minStage: 1 }],
+          },
         ],
       }).success,
     ).toBe(true);

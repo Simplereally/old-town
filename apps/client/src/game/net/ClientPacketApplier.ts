@@ -41,7 +41,12 @@ export interface IUIState {
   setDeathScreen(active: boolean): void;
   setStatusEffects(effects: readonly StatusEffectUpdate[]): void;
   setContract(contract: import("@old-town/shared").ContractCompletePacket): void;
-  addNotification(notification: { id: string; text: string; type: "success" | "failure" | "info"; createdAt: number }): void;
+  addNotification(notification: {
+    id: string;
+    text: string;
+    type: "success" | "failure" | "info";
+    createdAt: number;
+  }): void;
 }
 
 export interface PresentationEvent {
@@ -427,7 +432,12 @@ export class ClientPacketApplier {
         });
         const entity = store.getEntity(notice.entityId);
         if (entity) {
-          const updated = { ...entity, tile: notice.tile, previousTile: entity.tile, hidden: false };
+          const updated = {
+            ...entity,
+            tile: notice.tile,
+            previousTile: entity.tile,
+            hidden: false,
+          };
           store.setEntity(updated);
         }
       }
@@ -798,7 +808,9 @@ export class ClientPacketApplier {
     return dx > 0 ? Direction.East : Direction.West;
   }
 
-  private _mapMoveSpeed(speed: "stationary" | "walk" | "run"): "idle" | "walk" | "run" | "teleport" {
+  private _mapMoveSpeed(
+    speed: "stationary" | "walk" | "run",
+  ): "idle" | "walk" | "run" | "teleport" {
     if (speed === "stationary") return "idle";
     return speed;
   }
@@ -823,7 +835,12 @@ export class ClientPacketApplier {
   ): RenderSnapshot {
     const entities = this.ctx.store.getAllEntities().map((e) => ({
       entityId: e.entityId,
-      kind: e.kind === "groundItem" ? "groundItem" : e.kind === "grave" ? "object" : (e.kind as "player" | "npc" | "object" | "groundItem"),
+      kind:
+        e.kind === "groundItem"
+          ? "groundItem"
+          : e.kind === "grave"
+            ? "object"
+            : (e.kind as "player" | "npc" | "object" | "groundItem"),
       tile: e.tile,
       previousTile: e.previousTile,
       moveSpeed: e.moveSpeed,

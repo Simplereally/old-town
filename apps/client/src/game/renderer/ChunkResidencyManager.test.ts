@@ -1,20 +1,10 @@
-import { describe, expect, it, beforeEach, vi } from "vitest";
+import { type ChunkId, chunkId, type RegionId, type TileCoord } from "@old-town/shared";
 import { Scene } from "three";
-import {
-  chunkId,
-  type ChunkId,
-  type RegionId,
-  type TileCoord,
-} from "@old-town/shared";
-import {
-  ChunkBakeQueue,
-  type ChunkMetadata,
-} from "./ChunkBakeQueue";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ChunkBakeQueue, type ChunkMetadata } from "./ChunkBakeQueue";
+import { ChunkResidencyManager } from "./ChunkResidencyManager";
 import { ChunkUploadQueue } from "./ChunkUploadQueue";
 import { RenderResourceRegistry } from "./RenderResourceRegistry";
-import {
-  ChunkResidencyManager,
-} from "./ChunkResidencyManager";
 
 function makeChunkId(cx: number, cy: number, plane = 0): ChunkId {
   return chunkId({ cx, cy, plane: plane as 0 | 1 | 2 | 3 });
@@ -185,11 +175,7 @@ describe("ChunkResidencyManager", () => {
   // ---------------------------------------------------------------------------
 
   it("visibility decisions are deterministic from focus tile and frame id", () => {
-    manager.ingestRegionLoad(makeRegionId(0, 0), [
-      makeMeta(0, 0),
-      makeMeta(2, 0),
-      makeMeta(4, 0),
-    ]);
+    manager.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0), makeMeta(2, 0), makeMeta(4, 0)]);
     manager.onGpuResident(makeChunkId(0, 0), 1000);
     manager.onGpuResident(makeChunkId(2, 0), 1000);
     manager.onGpuResident(makeChunkId(4, 0), 1000);
@@ -233,11 +219,7 @@ describe("ChunkResidencyManager", () => {
       maxGpuBytes: 3000,
     });
 
-    manager.ingestRegionLoad(makeRegionId(0, 0), [
-      makeMeta(0, 0),
-      makeMeta(1, 0),
-      makeMeta(2, 0),
-    ]);
+    manager.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0), makeMeta(1, 0), makeMeta(2, 0)]);
     manager.onGpuResident(makeChunkId(0, 0), 1000);
     manager.onGpuResident(makeChunkId(1, 0), 1000);
     manager.onGpuResident(makeChunkId(2, 0), 1000);
@@ -262,11 +244,7 @@ describe("ChunkResidencyManager", () => {
       maxGpuBytes: 2000,
     });
 
-    manager.ingestRegionLoad(makeRegionId(0, 0), [
-      makeMeta(0, 0),
-      makeMeta(1, 0),
-      makeMeta(2, 0),
-    ]);
+    manager.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0), makeMeta(1, 0), makeMeta(2, 0)]);
     manager.onGpuResident(makeChunkId(0, 0), 1000);
     manager.onGpuResident(makeChunkId(1, 0), 1000);
     manager.onGpuResident(makeChunkId(2, 0), 1000);
@@ -297,10 +275,7 @@ describe("ChunkResidencyManager", () => {
       maxGpuBytes: 1000,
     });
 
-    manager.ingestRegionLoad(makeRegionId(0, 0), [
-      makeMeta(0, 0),
-      makeMeta(1, 0),
-    ]);
+    manager.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0), makeMeta(1, 0)]);
     manager.onGpuResident(makeChunkId(0, 0), 1000);
     manager.onGpuResident(makeChunkId(1, 0), 1000);
 
@@ -326,10 +301,7 @@ describe("ChunkResidencyManager", () => {
     });
 
     // Two chunks at the same distance (symmetric around focus).
-    manager.ingestRegionLoad(makeRegionId(0, 0), [
-      makeMeta(0, 1),
-      makeMeta(1, 0),
-    ]);
+    manager.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 1), makeMeta(1, 0)]);
     manager.onGpuResident(makeChunkId(0, 1), 1000);
     manager.onGpuResident(makeChunkId(1, 0), 1000);
 
@@ -355,10 +327,7 @@ describe("ChunkResidencyManager", () => {
       maxGpuBytes: 1000,
     });
 
-    manager.ingestRegionLoad(makeRegionId(0, 0), [
-      makeMeta(0, 0),
-      makeMeta(1, 0),
-    ]);
+    manager.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0), makeMeta(1, 0)]);
     manager.onGpuResident(makeChunkId(0, 0), 1000);
     manager.onGpuResident(makeChunkId(1, 0), 1000);
 
@@ -509,10 +478,7 @@ describe("ChunkResidencyManager", () => {
   });
 
   it("ingestRegionLoad delegates to chunkBakeQueue and tracks chunks", () => {
-    manager.ingestRegionLoad(makeRegionId(0, 0), [
-      makeMeta(0, 0),
-      makeMeta(1, 0),
-    ]);
+    manager.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0), makeMeta(1, 0)]);
     expect(bakeQueue.getStats().queued).toBe(2);
     expect(manager.getChunkMetadata(makeChunkId(0, 0))).toEqual(makeMeta(0, 0));
     expect(manager.getChunkMetadata(makeChunkId(1, 0))).toEqual(makeMeta(1, 0));
@@ -536,10 +502,7 @@ describe("ChunkResidencyManager", () => {
   });
 
   it("dispose transitions all tracked chunks to disposed", () => {
-    manager.ingestRegionLoad(makeRegionId(0, 0), [
-      makeMeta(0, 0),
-      makeMeta(1, 0),
-    ]);
+    manager.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0), makeMeta(1, 0)]);
     manager.onGpuResident(makeChunkId(0, 0), 1000);
     manager.onGpuResident(makeChunkId(1, 0), 1000);
     manager.setFocusTile(makeTile(0, 0));

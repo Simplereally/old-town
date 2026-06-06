@@ -188,7 +188,11 @@ export class HitsplatLayer {
    * @param renderServerTimeMs  The render server time in milliseconds.
    * @param entityPositions     Map of entity IDs to their interpolated world positions.
    */
-  update(currentTick: number, renderServerTimeMs: number, entityPositions: Map<number, Vector3>): void {
+  update(
+    currentTick: number,
+    renderServerTimeMs: number,
+    entityPositions: Map<number, Vector3>,
+  ): void {
     for (const [id, hitsplat] of this.hitsplats) {
       const tickAge = currentTick - hitsplat.startTick;
 

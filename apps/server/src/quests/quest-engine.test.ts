@@ -241,14 +241,26 @@ describe("quest engine", () => {
     expect(inventory).toBeDefined();
     if (!inventory) return;
     addItem(inventory, catalogFromItems(registries.item), "dry_logs", 3);
-    dispatchQuestEvent(ctx, PLAYER, { kind: "item_gained", itemId: "dry_logs", quantity: 3 }, 600, 1);
+    dispatchQuestEvent(
+      ctx,
+      PLAYER,
+      { kind: "item_gained", itemId: "dry_logs", quantity: 3 },
+      600,
+      1,
+    );
     expect(world.getComponent(PLAYER, "vars")?.values["quest.smoke_over_old_town.stage"]).toBe(2);
 
-    const result = dispatchQuestEvent(ctx, PLAYER, {
-      kind: "object_interacted",
-      objectId: "bakery_oven",
-      option: "light",
-    }, 600, 1);
+    const result = dispatchQuestEvent(
+      ctx,
+      PLAYER,
+      {
+        kind: "object_interacted",
+        objectId: "bakery_oven",
+        option: "light",
+      },
+      600,
+      1,
+    );
     expect(result.progressedQuestIds).toEqual(["smoke_over_old_town"]);
     expect(world.getComponent(PLAYER, "vars")?.values).toMatchObject({
       "quest.smoke_over_old_town.stage": 3,
@@ -266,18 +278,30 @@ describe("quest engine", () => {
     addItem(inventory, catalogFromItems(registries.item), "dry_logs", 1);
 
     expect(
-      dispatchQuestEvent(ctx, PLAYER, {
-        kind: "item_removed",
-        itemId: "dry_logs",
-        quantity: 1,
-      }, 600, 1).progressedQuestIds,
+      dispatchQuestEvent(
+        ctx,
+        PLAYER,
+        {
+          kind: "item_removed",
+          itemId: "dry_logs",
+          quantity: 1,
+        },
+        600,
+        1,
+      ).progressedQuestIds,
     ).toEqual([]);
     expect(
-      dispatchQuestEvent(ctx, PLAYER, {
-        kind: "skill_xp_gained",
-        skillId: "cooking",
-        amount: 5,
-      }, 600, 1).progressedQuestIds,
+      dispatchQuestEvent(
+        ctx,
+        PLAYER,
+        {
+          kind: "skill_xp_gained",
+          skillId: "cooking",
+          amount: 5,
+        },
+        600,
+        1,
+      ).progressedQuestIds,
     ).toEqual([]);
     dispatchQuestEvent(ctx, PLAYER, { kind: "area_entered", areaId: "bakery_cellar" }, 600, 1);
 

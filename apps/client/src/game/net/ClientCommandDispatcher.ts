@@ -100,8 +100,16 @@ export class ClientCommandDispatcher {
     });
   }
 
-  bankAction(action: "deposit" | "withdraw" | "open" | "close", itemUid?: number, quantity?: number): void {
-    const payload = { action, ...(itemUid !== undefined && { itemUid }), ...(quantity !== undefined && { quantity }) } as const;
+  bankAction(
+    action: "deposit" | "withdraw" | "open" | "close",
+    itemUid?: number,
+    quantity?: number,
+  ): void {
+    const payload = {
+      action,
+      ...(itemUid !== undefined && { itemUid }),
+      ...(quantity !== undefined && { quantity }),
+    } as const;
     this._sendCommand({
       type: ClientCommandType.BankAction,
       commandId: ++this._commandId,
@@ -111,7 +119,11 @@ export class ClientCommandDispatcher {
   }
 
   shopAction(action: "buy" | "sell" | "open" | "close", itemId?: string, quantity?: number): void {
-    const payload = { action, ...(itemId !== undefined && { itemId }), ...(quantity !== undefined && { quantity }) } as const;
+    const payload = {
+      action,
+      ...(itemId !== undefined && { itemId }),
+      ...(quantity !== undefined && { quantity }),
+    } as const;
     this._sendCommand({
       type: ClientCommandType.ShopAction,
       commandId: ++this._commandId,

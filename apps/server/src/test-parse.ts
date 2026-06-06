@@ -1,4 +1,8 @@
-import { parseClientCommand, ClientCommandType, TransportClientMessageType } from "@old-town/shared";
+import {
+  ClientCommandType,
+  parseClientCommand,
+  TransportClientMessageType,
+} from "@old-town/shared";
 
 const ping = {
   type: ClientCommandType.Ping,

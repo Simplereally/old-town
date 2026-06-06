@@ -2,8 +2,15 @@ import type { ContentRegistries } from "@old-town/shared/content/content-registr
 import type { EntityId } from "@old-town/shared/types/ids";
 import type { CharterComponent, Permit } from "../ecs/components";
 import type { World } from "../ecs/world";
+import {
+  addItem,
+  buildDelta,
+  catalogFromItems,
+  count,
+  hasItem,
+  removeItem,
+} from "../items/inventory";
 import type { ItemAuditLog } from "../items/item-audit";
-import { addItem, buildDelta, catalogFromItems, count, hasItem, removeItem } from "../items/inventory";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { getNumberVar } from "../vars/player-vars";
 
@@ -116,21 +123,11 @@ export function issueCharter(
   charterComponent.permits.push(permit);
   ctx.world.setComponent(owner, "charter", charterComponent);
 
-  systemMessage(
-    ctx,
-    owner,
-    `You receive a permit: ${charterDef.name}.`,
-    serverTime,
-  );
+  systemMessage(ctx, owner, `You receive a permit: ${charterDef.name}.`, serverTime);
   return true;
 }
 
-export function hasPermit(
-  world: World,
-  owner: EntityId,
-  charterId: string,
-  tick: number,
-): boolean {
+export function hasPermit(world: World, owner: EntityId, charterId: string, tick: number): boolean {
   const charterComponent = world.getComponent(owner, "charter");
   if (!charterComponent) {
     return false;

@@ -2,12 +2,7 @@
 import { z } from "zod";
 import { contentIdSchema, itemQuantitySchema, nonNegInt, positiveInt } from "./common";
 
-export const contractTypeSchema = z.enum([
-  "bounty",
-  "extermination",
-  "collection",
-  "escort",
-]);
+export const contractTypeSchema = z.enum(["bounty", "extermination", "collection", "escort"]);
 
 export const contractDefSchema = z
   .object({
@@ -18,7 +13,9 @@ export const contractDefSchema = z
     targetCreatureIds: z.array(contentIdSchema).default([]),
     targetCount: positiveInt.default(1),
     rewardItems: z.array(itemQuantitySchema).default([]),
-    rewardXp: z.array(z.object({ skillId: contentIdSchema, amount: positiveInt }).strict()).default([]),
+    rewardXp: z
+      .array(z.object({ skillId: contentIdSchema, amount: positiveInt }).strict())
+      .default([]),
     rewardReputation: z
       .object({
         factionId: contentIdSchema,

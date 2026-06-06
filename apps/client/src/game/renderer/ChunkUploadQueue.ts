@@ -1,25 +1,15 @@
-import type {
-  BufferAttribute,
-  BufferGeometry,
-  Group,
-  Material,
-  Mesh,
-  Scene,
-} from "three";
+import type { ChunkId } from "@old-town/shared";
+import type { BufferAttribute, BufferGeometry, Group, Material, Mesh, Scene } from "three";
 import {
+  MeshLambertMaterial,
+  StaticDrawUsage,
   BufferAttribute as ThreeBufferAttribute,
   BufferGeometry as ThreeBufferGeometry,
   Group as ThreeGroup,
   Mesh as ThreeMesh,
-  MeshLambertMaterial,
-  StaticDrawUsage,
 } from "three";
-import type { ChunkId } from "@old-town/shared";
 import type { ChunkBakeQueue } from "./ChunkBakeQueue";
-import type {
-  BakedChunkPayload,
-  MaterialGroup,
-} from "./ChunkBakeWorkerClient";
+import type { BakedChunkPayload, MaterialGroup } from "./ChunkBakeWorkerClient";
 import type { RenderResourceKey, RenderResourceRegistry } from "./RenderResourceRegistry";
 
 /** Per-frame budget for GPU upload work. */
@@ -161,7 +151,11 @@ export class ChunkUploadQueue {
         continue;
       }
 
-      if (item.state === "retry_pending" && currentFrame !== undefined && item.retryAfterFrame > currentFrame) {
+      if (
+        item.state === "retry_pending" &&
+        currentFrame !== undefined &&
+        item.retryAfterFrame > currentFrame
+      ) {
         i++;
         continue;
       }
@@ -255,34 +249,23 @@ export class ChunkUploadQueue {
       const geometry = new ThreeBufferGeometry();
 
       // Positions
-      geometry.setAttribute(
-        "position",
-        new ThreeBufferAttribute(payload.positions, 3),
-      );
+      geometry.setAttribute("position", new ThreeBufferAttribute(payload.positions, 3));
       (geometry.attributes.position as BufferAttribute).setUsage(StaticDrawUsage);
 
       // Normals
       if (payload.normals && payload.normals.length > 0) {
-        geometry.setAttribute(
-          "normal",
-          new ThreeBufferAttribute(payload.normals, 3),
-        );
+        geometry.setAttribute("normal", new ThreeBufferAttribute(payload.normals, 3));
         (geometry.attributes.normal as BufferAttribute).setUsage(StaticDrawUsage);
       }
 
       // Colors (vertex colors)
       if (payload.colors && payload.colors.length > 0) {
-        geometry.setAttribute(
-          "color",
-          new ThreeBufferAttribute(payload.colors, 3),
-        );
+        geometry.setAttribute("color", new ThreeBufferAttribute(payload.colors, 3));
         (geometry.attributes.color as BufferAttribute).setUsage(StaticDrawUsage);
       }
 
       // Index buffer
-      geometry.setIndex(
-        new ThreeBufferAttribute(payload.indices, 1),
-      );
+      geometry.setIndex(new ThreeBufferAttribute(payload.indices, 1));
       (geometry.index as BufferAttribute).setUsage(StaticDrawUsage);
 
       // Material groups: one draw call per material layer
@@ -309,10 +292,16 @@ export class ChunkUploadQueue {
 
       if (materials.length === 0) {
         // Defensive: at least one material so the mesh is valid
-        const fallbackKey = this._materialKeyFor({ materialId: "default", startIndex: 0, count: 0 });
+        const fallbackKey = this._materialKeyFor({
+          materialId: "default",
+          startIndex: 0,
+          count: 0,
+        });
         materialKeys.push(fallbackKey);
         if (!this._registry.hasMaterialFactory(fallbackKey)) {
-          this._registry.registerMaterial(fallbackKey, () => this._createTerrainMaterial("default"));
+          this._registry.registerMaterial(fallbackKey, () =>
+            this._createTerrainMaterial("default"),
+          );
         }
         materials.push(this._registry.getMaterial(fallbackKey));
       }

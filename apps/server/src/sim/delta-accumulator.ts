@@ -258,15 +258,11 @@ export class DeltaAccumulator {
       ...(this.interfaceClosePackets.length > 0
         ? { interfaceCloses: [...this.interfaceClosePackets] }
         : {}),
-      ...(this.recipeListPackets.length > 0
-        ? { recipeLists: [...this.recipeListPackets] }
-        : {}),
+      ...(this.recipeListPackets.length > 0 ? { recipeLists: [...this.recipeListPackets] } : {}),
       ...(this.recipeResultPackets.length > 0
         ? { recipeResults: [...this.recipeResultPackets] }
         : {}),
-      ...(this.deathNoticePackets.length > 0
-        ? { deathNotices: [...this.deathNoticePackets] }
-        : {}),
+      ...(this.deathNoticePackets.length > 0 ? { deathNotices: [...this.deathNoticePackets] } : {}),
       ...(this.respawnNoticePackets.length > 0
         ? { respawnNotices: [...this.respawnNoticePackets] }
         : {}),

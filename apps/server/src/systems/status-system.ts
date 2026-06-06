@@ -1,4 +1,9 @@
-import { tileKey, type ContentRegistries, type EntityId, type StatusEffectDef } from "@old-town/shared";
+import {
+  type ContentRegistries,
+  type EntityId,
+  type StatusEffectDef,
+  tileKey,
+} from "@old-town/shared";
 import type {
   ActiveStatusEffect,
   CombatantComponent,
@@ -19,10 +24,7 @@ const DEFAULT_DOT_DAMAGE = 2;
 const BURN_WATER_REDUCTION = 0.5;
 const FREEZE_BLOCK_EXTRA_TICKS = 1;
 
-function getOrCreateStatusEffects(
-  world: World,
-  entityId: EntityId,
-): StatusEffectsComponent {
+function getOrCreateStatusEffects(world: World, entityId: EntityId): StatusEffectsComponent {
   const existing = world.getComponent(entityId, "statusEffects");
   if (existing) {
     return existing;
@@ -32,10 +34,7 @@ function getOrCreateStatusEffects(
   return created;
 }
 
-function captureBaseStats(
-  world: World,
-  statusEffects: StatusEffectsComponent,
-): void {
+function captureBaseStats(world: World, statusEffects: StatusEffectsComponent): void {
   const combatant = world.getComponent(statusEffects.entityId, "combatant");
   if (!combatant) return;
   if (statusEffects.baseAttackLevel === undefined) {
@@ -67,14 +66,13 @@ function isOnWater(world: World, map: RuntimeMap | undefined, entityId: EntityId
   if (!map) return false;
   const position = world.getComponent(entityId, "position");
   if (!position) return false;
-  const tile = map.tiles.get(tileKey({ x: position.x, y: position.y, plane: position.plane as 0 | 1 | 2 | 3 }));
+  const tile = map.tiles.get(
+    tileKey({ x: position.x, y: position.y, plane: position.plane as 0 | 1 | 2 | 3 }),
+  );
   return tile?.water === true;
 }
 
-function tookFireDamageThisTick(
-  world: World,
-  entityId: EntityId,
-): boolean {
+function tookFireDamageThisTick(world: World, entityId: EntityId): boolean {
   const combatant = world.getComponent(entityId, "combatant");
   if (!combatant || !combatant.pendingHits) return false;
   const now = combatant.pendingHits.some(
@@ -130,9 +128,7 @@ export function cureStatusEffect(
   if (!statusEffects) return false;
 
   const beforeLength = statusEffects.effects.length;
-  const nextEffects = statusEffects.effects.filter(
-    (e) => e.statusEffectId !== statusEffectId,
-  );
+  const nextEffects = statusEffects.effects.filter((e) => e.statusEffectId !== statusEffectId);
   if (nextEffects.length === beforeLength) return false;
 
   const next: StatusEffectsComponent = {
@@ -149,11 +145,7 @@ export function cureStatusEffect(
   return true;
 }
 
-export function cureByItem(
-  ctx: StatusEffectContext,
-  entityId: EntityId,
-  itemId: string,
-): string[] {
+export function cureByItem(ctx: StatusEffectContext, entityId: EntityId, itemId: string): string[] {
   const statusEffects = ctx.world.getComponent(entityId, "statusEffects");
   if (!statusEffects) return [];
 
@@ -229,11 +221,21 @@ function recomputeCombatStats(
     const stackMult = effect.stacks;
     for (const mod of def.statModifiers) {
       const value = mod.value * stackMult;
-      if (mod.stat === "attack" || mod.stat === "stabAttack" || mod.stat === "slashAttack" || mod.stat === "crushAttack") {
+      if (
+        mod.stat === "attack" ||
+        mod.stat === "stabAttack" ||
+        mod.stat === "slashAttack" ||
+        mod.stat === "crushAttack"
+      ) {
         attackMod += value;
       } else if (mod.stat === "strength" || mod.stat === "meleeStrength") {
         strengthMod += value;
-      } else if (mod.stat === "defence" || mod.stat === "stabDefence" || mod.stat === "slashDefence" || mod.stat === "crushDefence") {
+      } else if (
+        mod.stat === "defence" ||
+        mod.stat === "stabDefence" ||
+        mod.stat === "slashDefence" ||
+        mod.stat === "crushDefence"
+      ) {
         defenceMod += value;
       }
     }
@@ -274,9 +276,7 @@ function applyDotDamage(
   const next: CombatantComponent = {
     ...combatant,
     health: after,
-    ...(effect.sourceEntityId !== undefined
-      ? { lastDamageSourceId: effect.sourceEntityId }
-      : {}),
+    ...(effect.sourceEntityId !== undefined ? { lastDamageSourceId: effect.sourceEntityId } : {}),
   };
   ctx.world.setComponent(entityId, "combatant", next);
   ctx.deltas.markHitsplat({
@@ -320,12 +320,9 @@ function applyFreeze(
   }
 }
 
-export function processStatusEffects(
-  ctx: StatusEffectContext,
-  tick: number,
-): void {
+export function processStatusEffects(ctx: StatusEffectContext, tick: number): void {
   for (const [entityId, statusEffects] of ctx.world.componentEntries("statusEffects")) {
-    let effects = [...statusEffects.effects];
+    const effects = [...statusEffects.effects];
     const activeThisTick: ActiveStatusEffect[] = [];
     const remaining: ActiveStatusEffect[] = [];
 

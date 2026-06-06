@@ -1,8 +1,8 @@
 import {
   Direction,
   GAME_TICK_MS,
-  TILE_SIZE_WORLD_UNITS,
   type MoveSpeed,
+  TILE_SIZE_WORLD_UNITS,
   type TileCoord,
 } from "@old-town/shared";
 import type { BufferGeometry, Scene } from "three";
@@ -19,7 +19,7 @@ import {
   SpriteMaterial,
   Vector3,
 } from "three";
-import { RenderResourceRegistry, type RenderResourceKey } from "../renderer/RenderResourceRegistry";
+import { type RenderResourceKey, RenderResourceRegistry } from "../renderer/RenderResourceRegistry";
 import { compose, PALETTE, vertexColorMaterial } from "./lowpoly";
 
 export type AnimationState = "idle" | "walk" | "run" | "attack" | "cast" | "hit" | "die";
@@ -137,7 +137,12 @@ function resolveCreature(defId: string, kind: "player" | "npc"): CreatureSpec {
     return { archetype: "canine", body: PALETTE.furBrown, accent: PALETTE.barkDark, scale: 0.82 };
   }
   if (has("goblin", "imp")) {
-    return { archetype: "goblinoid", body: PALETTE.clothBrown, accent: PALETTE.goblinSkin, scale: 0.88 };
+    return {
+      archetype: "goblinoid",
+      body: PALETTE.clothBrown,
+      accent: PALETTE.goblinSkin,
+      scale: 0.88,
+    };
   }
   if (has("bat")) {
     return { archetype: "bat", body: PALETTE.furBlack, accent: PALETTE.drakeHide, scale: 0.72 };
@@ -175,7 +180,13 @@ function buildCreatureGeometry(spec: CreatureSpec): BufferGeometry {
       return compose([
         { geometry: new BoxGeometry(0.24, 0.2, 0.46), color: body, y: 0.22 },
         { geometry: new BoxGeometry(0.18, 0.18, 0.18), color: body, y: 0.26, z: 0.3 },
-        { geometry: new ConeGeometry(0.08, 0.16, 4), color: accent, y: 0.24, z: 0.45, rotX: Math.PI / 2 },
+        {
+          geometry: new ConeGeometry(0.08, 0.16, 4),
+          color: accent,
+          y: 0.24,
+          z: 0.45,
+          rotX: Math.PI / 2,
+        },
         { geometry: new IcosahedronGeometry(0.06, 0), color: body, x: -0.07, y: 0.4, z: 0.27 },
         { geometry: new IcosahedronGeometry(0.06, 0), color: body, x: 0.07, y: 0.4, z: 0.27 },
         leg(-0.09, 0.16),
@@ -209,7 +220,13 @@ function buildCreatureGeometry(spec: CreatureSpec): BufferGeometry {
         leg(0.11, 0.22),
         leg(-0.11, -0.22),
         leg(0.11, -0.22),
-        { geometry: new BoxGeometry(0.09, 0.09, 0.32), color: accent, y: 0.58, z: -0.48, rotX: -0.6 },
+        {
+          geometry: new BoxGeometry(0.09, 0.09, 0.32),
+          color: accent,
+          y: 0.58,
+          z: -0.48,
+          rotX: -0.6,
+        },
       ]);
     }
     case "goblinoid": {
@@ -222,14 +239,32 @@ function buildCreatureGeometry(spec: CreatureSpec): BufferGeometry {
         { geometry: new BoxGeometry(0.27, 0.26, 0.26), color: accent, y: 0.8 },
         { geometry: new ConeGeometry(0.06, 0.16, 4), color: accent, x: -0.17, y: 0.84, rotZ: 1.1 },
         { geometry: new ConeGeometry(0.06, 0.16, 4), color: accent, x: 0.17, y: 0.84, rotZ: -1.1 },
-        { geometry: new ConeGeometry(0.05, 0.12, 4), color: accent, y: 0.78, z: 0.16, rotX: Math.PI / 2 },
+        {
+          geometry: new ConeGeometry(0.05, 0.12, 4),
+          color: accent,
+          y: 0.78,
+          z: 0.16,
+          rotX: Math.PI / 2,
+        },
       ]);
     }
     case "bat": {
       return compose([
         { geometry: new IcosahedronGeometry(0.15, 0), color: body, y: 0.55 },
-        { geometry: new BoxGeometry(0.36, 0.03, 0.22), color: accent, x: -0.28, y: 0.56, rotZ: 0.25 },
-        { geometry: new BoxGeometry(0.36, 0.03, 0.22), color: accent, x: 0.28, y: 0.56, rotZ: -0.25 },
+        {
+          geometry: new BoxGeometry(0.36, 0.03, 0.22),
+          color: accent,
+          x: -0.28,
+          y: 0.56,
+          rotZ: 0.25,
+        },
+        {
+          geometry: new BoxGeometry(0.36, 0.03, 0.22),
+          color: accent,
+          x: 0.28,
+          y: 0.56,
+          rotZ: -0.25,
+        },
         { geometry: new ConeGeometry(0.04, 0.1, 4), color: body, x: -0.06, y: 0.68 },
         { geometry: new ConeGeometry(0.04, 0.1, 4), color: body, x: 0.06, y: 0.68 },
       ]);
@@ -244,7 +279,13 @@ function buildCreatureGeometry(spec: CreatureSpec): BufferGeometry {
       return compose([
         { geometry: new IcosahedronGeometry(0.16, 0), color: body, y: 0.32, sz: 1.3 },
         { geometry: new BoxGeometry(0.15, 0.16, 0.14), color: body, y: 0.46, z: 0.05 },
-        { geometry: new ConeGeometry(0.05, 0.14, 4), color: accent, y: 0.44, z: 0.18, rotX: Math.PI / 2 },
+        {
+          geometry: new ConeGeometry(0.05, 0.14, 4),
+          color: accent,
+          y: 0.44,
+          z: 0.18,
+          rotX: Math.PI / 2,
+        },
         { geometry: new BoxGeometry(0.12, 0.04, 0.24), color: body, y: 0.3, z: -0.18 },
         { geometry: new BoxGeometry(0.05, 0.18, 0.28), color: body, x: -0.14, y: 0.34 },
         { geometry: new BoxGeometry(0.05, 0.18, 0.28), color: body, x: 0.14, y: 0.34 },
@@ -266,13 +307,33 @@ function buildCreatureGeometry(spec: CreatureSpec): BufferGeometry {
         { geometry: new BoxGeometry(0.24, 0.22, 0.26), color: body, y: 0.66, z: 0.6 },
         { geometry: new ConeGeometry(0.05, 0.16, 4), color: accent, x: -0.08, y: 0.84, z: 0.56 },
         { geometry: new ConeGeometry(0.05, 0.16, 4), color: accent, x: 0.08, y: 0.84, z: 0.56 },
-        { geometry: new BoxGeometry(0.5, 0.03, 0.34), color: accent, x: -0.42, y: 0.72, z: -0.05, rotZ: 0.3 },
-        { geometry: new BoxGeometry(0.5, 0.03, 0.34), color: accent, x: 0.42, y: 0.72, z: -0.05, rotZ: -0.3 },
+        {
+          geometry: new BoxGeometry(0.5, 0.03, 0.34),
+          color: accent,
+          x: -0.42,
+          y: 0.72,
+          z: -0.05,
+          rotZ: 0.3,
+        },
+        {
+          geometry: new BoxGeometry(0.5, 0.03, 0.34),
+          color: accent,
+          x: 0.42,
+          y: 0.72,
+          z: -0.05,
+          rotZ: -0.3,
+        },
         leg(-0.15, 0.22),
         leg(0.15, 0.22),
         leg(-0.15, -0.22),
         leg(0.15, -0.22),
-        { geometry: new ConeGeometry(0.1, 0.6, 5), color: body, y: 0.5, z: -0.62, rotX: -Math.PI / 2 },
+        {
+          geometry: new ConeGeometry(0.1, 0.6, 5),
+          color: body,
+          y: 0.5,
+          z: -0.62,
+          rotX: -Math.PI / 2,
+        },
       ]);
     }
     case "wisp": {
@@ -300,7 +361,13 @@ function buildCreatureGeometry(spec: CreatureSpec): BufferGeometry {
         leg(0.22, 0.18),
         leg(-0.22, -0.18),
         leg(0.22, -0.18),
-        { geometry: new ConeGeometry(0.06, 0.2, 4), color: body, y: 0.16, z: -0.4, rotX: -Math.PI / 2 },
+        {
+          geometry: new ConeGeometry(0.06, 0.2, 4),
+          color: body,
+          y: 0.16,
+          z: -0.4,
+          rotX: -Math.PI / 2,
+        },
       ]);
     }
     default: {
@@ -308,8 +375,18 @@ function buildCreatureGeometry(spec: CreatureSpec): BufferGeometry {
       // routes here. The shared-material humanoid build is preferred (see
       // _buildHumanoid); this keeps the function total.
       return compose([
-        { geometry: new BoxGeometry(0.2, LEG_H, 0.24), color: PALETTE.clothGrey, x: -0.13, y: LEG_Y },
-        { geometry: new BoxGeometry(0.2, LEG_H, 0.24), color: PALETTE.clothGrey, x: 0.13, y: LEG_Y },
+        {
+          geometry: new BoxGeometry(0.2, LEG_H, 0.24),
+          color: PALETTE.clothGrey,
+          x: -0.13,
+          y: LEG_Y,
+        },
+        {
+          geometry: new BoxGeometry(0.2, LEG_H, 0.24),
+          color: PALETTE.clothGrey,
+          x: 0.13,
+          y: LEG_Y,
+        },
         { geometry: new BoxGeometry(0.52, TORSO_H, 0.34), color: body, y: TORSO_Y },
         { geometry: new BoxGeometry(HEAD_S, HEAD_S, HEAD_S), color: accent, y: HEAD_Y },
       ]);
@@ -381,22 +458,72 @@ export class ActorRenderer {
 
     // Register and acquire shared humanoid geometries
     this._ensureHumanoidResourcesRegistered();
-    this.bodyGeometry = this.registry.getGeometry({ type: "actor", contentId: "humanoid", variant: "body" });
-    this.headGeometry = this.registry.getGeometry({ type: "actor", contentId: "humanoid", variant: "head" });
-    this.legGeometry = this.registry.getGeometry({ type: "actor", contentId: "humanoid", variant: "leg" });
-    this.armGeometry = this.registry.getGeometry({ type: "actor", contentId: "humanoid", variant: "arm" });
-    this.markerGeometry = this.registry.getGeometry({ type: "actor", contentId: "humanoid", variant: "marker" }) as SphereGeometry;
+    this.bodyGeometry = this.registry.getGeometry({
+      type: "actor",
+      contentId: "humanoid",
+      variant: "body",
+    });
+    this.headGeometry = this.registry.getGeometry({
+      type: "actor",
+      contentId: "humanoid",
+      variant: "head",
+    });
+    this.legGeometry = this.registry.getGeometry({
+      type: "actor",
+      contentId: "humanoid",
+      variant: "leg",
+    });
+    this.armGeometry = this.registry.getGeometry({
+      type: "actor",
+      contentId: "humanoid",
+      variant: "arm",
+    });
+    this.markerGeometry = this.registry.getGeometry({
+      type: "actor",
+      contentId: "humanoid",
+      variant: "marker",
+    }) as SphereGeometry;
 
     // Register and acquire shared materials
-    this.playerMaterial = this.registry.getMaterial({ type: "actor", contentId: "player" }) as MeshLambertMaterial;
-    this.npcMaterial = this.registry.getMaterial({ type: "actor", contentId: "npc" }) as MeshLambertMaterial;
-    this.localPlayerMaterial = this.registry.getMaterial({ type: "actor", contentId: "localPlayer" }) as MeshLambertMaterial;
-    this.skinMaterial = this.registry.getMaterial({ type: "actor", contentId: "skin" }) as MeshLambertMaterial;
-    this.legMaterial = this.registry.getMaterial({ type: "actor", contentId: "leg" }) as MeshLambertMaterial;
-    this.markerMaterial = this.registry.getMaterial({ type: "actor", contentId: "marker" }) as MeshLambertMaterial;
-    this.creatureMaterial = this.registry.getMaterial({ type: "actor", contentId: "creature", materialId: "default" }) as MeshLambertMaterial;
-    this.healthBarBgMaterial = this.registry.getMaterial({ type: "actor", contentId: "healthBar", materialId: "bg" }) as SpriteMaterial;
-    this.healthBarFillMaterial = this.registry.getMaterial({ type: "actor", contentId: "healthBar", materialId: "fill" }) as SpriteMaterial;
+    this.playerMaterial = this.registry.getMaterial({
+      type: "actor",
+      contentId: "player",
+    }) as MeshLambertMaterial;
+    this.npcMaterial = this.registry.getMaterial({
+      type: "actor",
+      contentId: "npc",
+    }) as MeshLambertMaterial;
+    this.localPlayerMaterial = this.registry.getMaterial({
+      type: "actor",
+      contentId: "localPlayer",
+    }) as MeshLambertMaterial;
+    this.skinMaterial = this.registry.getMaterial({
+      type: "actor",
+      contentId: "skin",
+    }) as MeshLambertMaterial;
+    this.legMaterial = this.registry.getMaterial({
+      type: "actor",
+      contentId: "leg",
+    }) as MeshLambertMaterial;
+    this.markerMaterial = this.registry.getMaterial({
+      type: "actor",
+      contentId: "marker",
+    }) as MeshLambertMaterial;
+    this.creatureMaterial = this.registry.getMaterial({
+      type: "actor",
+      contentId: "creature",
+      materialId: "default",
+    }) as MeshLambertMaterial;
+    this.healthBarBgMaterial = this.registry.getMaterial({
+      type: "actor",
+      contentId: "healthBar",
+      materialId: "bg",
+    }) as SpriteMaterial;
+    this.healthBarFillMaterial = this.registry.getMaterial({
+      type: "actor",
+      contentId: "healthBar",
+      materialId: "fill",
+    }) as SpriteMaterial;
 
     // Prewarm humanoid pool
     this._prewarmHumanoidPool();
@@ -431,9 +558,10 @@ export class ActorRenderer {
     }
 
     const spec = resolveCreature(defId ?? "Actor", kind);
-    const resourceKey = spec.archetype === "humanoid"
-      ? `${HUMANOID_RESOURCE_KEY}:${kind}`
-      : `creature:${spec.archetype}`;
+    const resourceKey =
+      spec.archetype === "humanoid"
+        ? `${HUMANOID_RESOURCE_KEY}:${kind}`
+        : `creature:${spec.archetype}`;
     const poolSlot = this._nextPoolSlot++;
 
     const state: ActorState = {
@@ -601,10 +729,18 @@ export class ActorRenderer {
       const movementKind = presentation.movementKind;
       let animState: AnimationState;
       switch (movementKind) {
-        case 0: animState = "idle"; break;
-        case 1: animState = "walk"; break;
-        case 2: animState = "run"; break;
-        default: animState = "idle"; break;
+        case 0:
+          animState = "idle";
+          break;
+        case 1:
+          animState = "walk";
+          break;
+        case 2:
+          animState = "run";
+          break;
+        default:
+          animState = "idle";
+          break;
       }
       actor.animationState = animState;
 
@@ -722,21 +858,63 @@ export class ActorRenderer {
   // --- Private ---
 
   private _ensureHumanoidResourcesRegistered(): void {
-    this.registry.registerGeometry({ type: "actor", contentId: "humanoid", variant: "body" }, () => new BoxGeometry(0.52, TORSO_H, 0.34));
-    this.registry.registerGeometry({ type: "actor", contentId: "humanoid", variant: "head" }, () => new BoxGeometry(HEAD_S, HEAD_S, HEAD_S));
-    this.registry.registerGeometry({ type: "actor", contentId: "humanoid", variant: "leg" }, () => new BoxGeometry(0.2, LEG_H, 0.24));
-    this.registry.registerGeometry({ type: "actor", contentId: "humanoid", variant: "arm" }, () => new BoxGeometry(0.16, LEG_H, 0.22));
-    this.registry.registerGeometry({ type: "actor", contentId: "humanoid", variant: "marker" }, () => new SphereGeometry(0.14, 8, 6));
+    this.registry.registerGeometry(
+      { type: "actor", contentId: "humanoid", variant: "body" },
+      () => new BoxGeometry(0.52, TORSO_H, 0.34),
+    );
+    this.registry.registerGeometry(
+      { type: "actor", contentId: "humanoid", variant: "head" },
+      () => new BoxGeometry(HEAD_S, HEAD_S, HEAD_S),
+    );
+    this.registry.registerGeometry(
+      { type: "actor", contentId: "humanoid", variant: "leg" },
+      () => new BoxGeometry(0.2, LEG_H, 0.24),
+    );
+    this.registry.registerGeometry(
+      { type: "actor", contentId: "humanoid", variant: "arm" },
+      () => new BoxGeometry(0.16, LEG_H, 0.22),
+    );
+    this.registry.registerGeometry(
+      { type: "actor", contentId: "humanoid", variant: "marker" },
+      () => new SphereGeometry(0.14, 8, 6),
+    );
 
-    this.registry.registerMaterial({ type: "actor", contentId: "player" }, () => new MeshLambertMaterial({ color: 0x3a6ea5, flatShading: true }));
-    this.registry.registerMaterial({ type: "actor", contentId: "npc" }, () => new MeshLambertMaterial({ color: 0x8b4513, flatShading: true }));
-    this.registry.registerMaterial({ type: "actor", contentId: "localPlayer" }, () => new MeshLambertMaterial({ color: 0x4caf50, flatShading: true }));
-    this.registry.registerMaterial({ type: "actor", contentId: "skin" }, () => new MeshLambertMaterial({ color: 0xe0ac69, flatShading: true }));
-    this.registry.registerMaterial({ type: "actor", contentId: "leg" }, () => new MeshLambertMaterial({ color: 0x394a63, flatShading: true }));
-    this.registry.registerMaterial({ type: "actor", contentId: "marker" }, () => new MeshLambertMaterial({ color: 0xffd23f, flatShading: true }));
-    this.registry.registerMaterial({ type: "actor", contentId: "creature", materialId: "default" }, () => vertexColorMaterial());
-    this.registry.registerMaterial({ type: "actor", contentId: "healthBar", materialId: "bg" }, () => new SpriteMaterial({ color: 0x400000, depthTest: false }));
-    this.registry.registerMaterial({ type: "actor", contentId: "healthBar", materialId: "fill" }, () => new SpriteMaterial({ color: 0x10c010, depthTest: false }));
+    this.registry.registerMaterial(
+      { type: "actor", contentId: "player" },
+      () => new MeshLambertMaterial({ color: 0x3a6ea5, flatShading: true }),
+    );
+    this.registry.registerMaterial(
+      { type: "actor", contentId: "npc" },
+      () => new MeshLambertMaterial({ color: 0x8b4513, flatShading: true }),
+    );
+    this.registry.registerMaterial(
+      { type: "actor", contentId: "localPlayer" },
+      () => new MeshLambertMaterial({ color: 0x4caf50, flatShading: true }),
+    );
+    this.registry.registerMaterial(
+      { type: "actor", contentId: "skin" },
+      () => new MeshLambertMaterial({ color: 0xe0ac69, flatShading: true }),
+    );
+    this.registry.registerMaterial(
+      { type: "actor", contentId: "leg" },
+      () => new MeshLambertMaterial({ color: 0x394a63, flatShading: true }),
+    );
+    this.registry.registerMaterial(
+      { type: "actor", contentId: "marker" },
+      () => new MeshLambertMaterial({ color: 0xffd23f, flatShading: true }),
+    );
+    this.registry.registerMaterial(
+      { type: "actor", contentId: "creature", materialId: "default" },
+      () => vertexColorMaterial(),
+    );
+    this.registry.registerMaterial(
+      { type: "actor", contentId: "healthBar", materialId: "bg" },
+      () => new SpriteMaterial({ color: 0x400000, depthTest: false }),
+    );
+    this.registry.registerMaterial(
+      { type: "actor", contentId: "healthBar", materialId: "fill" },
+      () => new SpriteMaterial({ color: 0x10c010, depthTest: false }),
+    );
   }
 
   private _prewarmHumanoidPool(): void {
@@ -919,7 +1097,11 @@ export class ActorRenderer {
     return { group, body, parts, marker, healthBar };
   }
 
-  private _createCreatureMeshes(geometry: BufferGeometry, spec: CreatureSpec, archetype: string): ActorMeshes {
+  private _createCreatureMeshes(
+    geometry: BufferGeometry,
+    spec: CreatureSpec,
+    archetype: string,
+  ): ActorMeshes {
     const group = new Group();
     group.name = `creature_${archetype}`;
     group.userData = { archetype };
@@ -1014,20 +1196,20 @@ export class ActorRenderer {
     switch (state.animationState) {
       case "idle": {
         // Subtle breathing: slight torso bob
-        const breathe = Math.sin(quantizedSubstep * Math.PI / 2) * 0.015;
+        const breathe = Math.sin((quantizedSubstep * Math.PI) / 2) * 0.015;
         meshes.group.position.y += breathe;
         break;
       }
       case "walk": {
         // Bobbing and leg swing
-        const bob = Math.sin(quantizedSubstep * Math.PI / 2) * 0.04;
+        const bob = Math.sin((quantizedSubstep * Math.PI) / 2) * 0.04;
         meshes.group.position.y += bob;
         if (meshes.parts.length > 0) {
           const leftLeg = meshes.parts[1];
           const rightLeg = meshes.parts[2];
           const leftArm = meshes.parts[3];
           const rightArm = meshes.parts[4];
-          const swing = Math.sin(quantizedSubstep * Math.PI / 2) * 0.08;
+          const swing = Math.sin((quantizedSubstep * Math.PI) / 2) * 0.08;
           if (leftLeg) leftLeg.position.z = swing;
           if (rightLeg) rightLeg.position.z = -swing;
           if (leftArm) leftArm.position.z = -swing;
@@ -1037,14 +1219,14 @@ export class ActorRenderer {
       }
       case "run": {
         // Faster bobbing and larger leg swing
-        const bob = Math.sin(quantizedSubstep * Math.PI / 2) * 0.07;
+        const bob = Math.sin((quantizedSubstep * Math.PI) / 2) * 0.07;
         meshes.group.position.y += bob;
         if (meshes.parts.length > 0) {
           const leftLeg = meshes.parts[1];
           const rightLeg = meshes.parts[2];
           const leftArm = meshes.parts[3];
           const rightArm = meshes.parts[4];
-          const swing = Math.sin(quantizedSubstep * Math.PI / 2) * 0.14;
+          const swing = Math.sin((quantizedSubstep * Math.PI) / 2) * 0.14;
           if (leftLeg) leftLeg.position.z = swing;
           if (rightLeg) rightLeg.position.z = -swing;
           if (leftArm) leftArm.rotation.z = swing;
@@ -1056,7 +1238,7 @@ export class ActorRenderer {
         // Arm swing forward
         if (meshes.parts.length > 0) {
           const rightArm = meshes.parts[4];
-          if (rightArm) rightArm.rotation.x = Math.sin(quantizedSubstep * Math.PI / 2) * 0.6;
+          if (rightArm) rightArm.rotation.x = Math.sin((quantizedSubstep * Math.PI) / 2) * 0.6;
         }
         break;
       }
@@ -1064,15 +1246,19 @@ export class ActorRenderer {
         // Arm raise
         if (meshes.parts.length > 0) {
           const leftArm = meshes.parts[3];
-          if (leftArm) leftArm.rotation.x = -Math.PI / 2 + Math.sin(quantizedSubstep * Math.PI / 2) * 0.2;
+          if (leftArm)
+            leftArm.rotation.x = -Math.PI / 2 + Math.sin((quantizedSubstep * Math.PI) / 2) * 0.2;
         }
         break;
       }
       case "hit": {
         // Flash red via material tint (temporary, reverted next frame)
-        const flash = Math.sin(quantizedSubstep * Math.PI / 2) > 0;
+        const flash = Math.sin((quantizedSubstep * Math.PI) / 2) > 0;
         if (flash) {
-          const originalColor = meshes.body.material instanceof MeshLambertMaterial ? meshes.body.material.color.getHex() : undefined;
+          const originalColor =
+            meshes.body.material instanceof MeshLambertMaterial
+              ? meshes.body.material.color.getHex()
+              : undefined;
           meshes.body.userData._originalColor = originalColor;
           if (meshes.body.material instanceof MeshLambertMaterial) {
             meshes.body.material.color.setHex(0xff0000);
@@ -1082,7 +1268,7 @@ export class ActorRenderer {
       }
       case "die": {
         // Collapse
-        meshes.group.rotation.x = Math.PI / 2 * Math.min(1, t);
+        meshes.group.rotation.x = (Math.PI / 2) * Math.min(1, t);
         meshes.group.scale.y = Math.max(0.1, 1 - t);
         break;
       }

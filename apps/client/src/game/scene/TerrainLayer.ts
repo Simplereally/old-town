@@ -3,11 +3,11 @@ import type { Group, Scene } from "three";
 import {
   BoxGeometry,
   DoubleSide,
-  Group as ThreeGroup,
   Mesh,
   MeshBasicMaterial,
   MeshLambertMaterial,
   PlaneGeometry,
+  Group as ThreeGroup,
 } from "three";
 
 function materialIdToColor(id: string): number {

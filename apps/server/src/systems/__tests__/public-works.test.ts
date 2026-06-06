@@ -3,15 +3,15 @@ import type { SkillDef } from "@old-town/shared/content-schemas/skill";
 import { entityId } from "@old-town/shared/types/ids";
 import { describe, expect, it } from "vitest";
 import { createWorld } from "../../ecs/world";
-import { addItem, catalogFromItems, createInventory, count } from "../../items/inventory";
+import { addItem, catalogFromItems, count, createInventory } from "../../items/inventory";
 import { ItemAuditLog } from "../../items/item-audit";
 import { DeltaAccumulator } from "../../sim/delta-accumulator";
 import { makeRegistries } from "../../test-support/registries";
 import {
-  contributeToPublicWork,
   checkPublicWorkCompletion,
-  distributePublicWorkRewards,
+  contributeToPublicWork,
   createPublicWork,
+  distributePublicWorkRewards,
   type PublicWorkSystemContext,
 } from "../public-works-system";
 
@@ -120,15 +120,19 @@ describe("public work contribution", () => {
     if (!inventory) return;
     addItem(inventory, catalogFromItems(ITEMS), "wood", 10);
 
-    createPublicWork(
-      world,
-      PUBLIC_WORK_ENTITY,
-      "town_well",
-      "Town Well",
-      [{ itemId: "wood", quantity: 5 }],
-    );
+    createPublicWork(world, PUBLIC_WORK_ENTITY, "town_well", "Town Well", [
+      { itemId: "wood", quantity: 5 },
+    ]);
 
-    const result = contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "wood", 5, TICK, SERVER_TIME);
+    const result = contributeToPublicWork(
+      ctx,
+      PLAYER,
+      PUBLIC_WORK_ENTITY,
+      "wood",
+      5,
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result).toBe(true);
     const publicWork = world.getComponent(PUBLIC_WORK_ENTITY, "publicWork");
@@ -139,15 +143,19 @@ describe("public work contribution", () => {
   it("rejects contribution when player lacks resources", () => {
     const { world, ctx } = setup();
 
-    createPublicWork(
-      world,
-      PUBLIC_WORK_ENTITY,
-      "town_well",
-      "Town Well",
-      [{ itemId: "wood", quantity: 5 }],
-    );
+    createPublicWork(world, PUBLIC_WORK_ENTITY, "town_well", "Town Well", [
+      { itemId: "wood", quantity: 5 },
+    ]);
 
-    const result = contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "wood", 5, TICK, SERVER_TIME);
+    const result = contributeToPublicWork(
+      ctx,
+      PLAYER,
+      PUBLIC_WORK_ENTITY,
+      "wood",
+      5,
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result).toBe(false);
     expect(ctx.deltas.peek().chat?.[0]?.text).toBe("You do not have enough of that resource.");
@@ -160,15 +168,19 @@ describe("public work contribution", () => {
     if (!inventory) return;
     addItem(inventory, catalogFromItems(ITEMS), "coin", 10);
 
-    createPublicWork(
-      world,
-      PUBLIC_WORK_ENTITY,
-      "town_well",
-      "Town Well",
-      [{ itemId: "wood", quantity: 5 }],
-    );
+    createPublicWork(world, PUBLIC_WORK_ENTITY, "town_well", "Town Well", [
+      { itemId: "wood", quantity: 5 },
+    ]);
 
-    const result = contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "coin", 5, TICK, SERVER_TIME);
+    const result = contributeToPublicWork(
+      ctx,
+      PLAYER,
+      PUBLIC_WORK_ENTITY,
+      "coin",
+      5,
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result).toBe(false);
     expect(ctx.deltas.peek().chat?.[0]?.text).toBe("That item is not required for this project.");
@@ -182,22 +194,26 @@ describe("public work contribution", () => {
     addItem(inventory, catalogFromItems(ITEMS), "wood", 10);
     addItem(inventory, catalogFromItems(ITEMS), "stone", 10);
 
-    createPublicWork(
-      world,
-      PUBLIC_WORK_ENTITY,
-      "town_well",
-      "Town Well",
-      [
-        { itemId: "wood", quantity: 10 },
-        { itemId: "stone", quantity: 5 },
-      ],
-    );
+    createPublicWork(world, PUBLIC_WORK_ENTITY, "town_well", "Town Well", [
+      { itemId: "wood", quantity: 10 },
+      { itemId: "stone", quantity: 5 },
+    ]);
 
     contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "wood", 10, TICK, SERVER_TIME);
-    const result = contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "wood", 1, TICK, SERVER_TIME);
+    const result = contributeToPublicWork(
+      ctx,
+      PLAYER,
+      PUBLIC_WORK_ENTITY,
+      "wood",
+      1,
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result).toBe(false);
-    expect(ctx.deltas.peek().chat?.at(-1)?.text).toBe("That resource requirement has already been met.");
+    expect(ctx.deltas.peek().chat?.at(-1)?.text).toBe(
+      "That resource requirement has already been met.",
+    );
   });
 
   it("rejects contribution when public work is already completed", () => {
@@ -207,19 +223,25 @@ describe("public work contribution", () => {
     if (!inventory) return;
     addItem(inventory, catalogFromItems(ITEMS), "wood", 10);
 
-    createPublicWork(
-      world,
-      PUBLIC_WORK_ENTITY,
-      "town_well",
-      "Town Well",
-      [{ itemId: "wood", quantity: 5 }],
-    );
+    createPublicWork(world, PUBLIC_WORK_ENTITY, "town_well", "Town Well", [
+      { itemId: "wood", quantity: 5 },
+    ]);
 
     contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "wood", 5, TICK, SERVER_TIME);
-    const result = contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "wood", 1, TICK, SERVER_TIME);
+    const result = contributeToPublicWork(
+      ctx,
+      PLAYER,
+      PUBLIC_WORK_ENTITY,
+      "wood",
+      1,
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result).toBe(false);
-    expect(ctx.deltas.peek().chat?.at(-1)?.text).toBe("This public work has already been completed.");
+    expect(ctx.deltas.peek().chat?.at(-1)?.text).toBe(
+      "This public work has already been completed.",
+    );
   });
 
   it("partially accepts contribution when only part is needed", () => {
@@ -229,15 +251,19 @@ describe("public work contribution", () => {
     if (!inventory) return;
     addItem(inventory, catalogFromItems(ITEMS), "wood", 10);
 
-    createPublicWork(
-      world,
-      PUBLIC_WORK_ENTITY,
-      "town_well",
-      "Town Well",
-      [{ itemId: "wood", quantity: 5 }],
-    );
+    createPublicWork(world, PUBLIC_WORK_ENTITY, "town_well", "Town Well", [
+      { itemId: "wood", quantity: 5 },
+    ]);
 
-    const result = contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "wood", 10, TICK, SERVER_TIME);
+    const result = contributeToPublicWork(
+      ctx,
+      PLAYER,
+      PUBLIC_WORK_ENTITY,
+      "wood",
+      10,
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result).toBe(true);
     expect(count(inventory, "wood")).toBe(5);
@@ -252,13 +278,9 @@ describe("public work contribution", () => {
     if (!inventory) return;
     addItem(inventory, catalogFromItems(ITEMS), "wood", 10);
 
-    createPublicWork(
-      world,
-      PUBLIC_WORK_ENTITY,
-      "town_well",
-      "Town Well",
-      [{ itemId: "wood", quantity: 5 }],
-    );
+    createPublicWork(world, PUBLIC_WORK_ENTITY, "town_well", "Town Well", [
+      { itemId: "wood", quantity: 5 },
+    ]);
 
     contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "wood", 5, TICK, SERVER_TIME);
 
@@ -283,16 +305,10 @@ describe("public work completion", () => {
     addItem(inventory, catalogFromItems(ITEMS), "wood", 5);
     addItem(inventory, catalogFromItems(ITEMS), "stone", 5);
 
-    createPublicWork(
-      world,
-      PUBLIC_WORK_ENTITY,
-      "town_well",
-      "Town Well",
-      [
-        { itemId: "wood", quantity: 5 },
-        { itemId: "stone", quantity: 3 },
-      ],
-    );
+    createPublicWork(world, PUBLIC_WORK_ENTITY, "town_well", "Town Well", [
+      { itemId: "wood", quantity: 5 },
+      { itemId: "stone", quantity: 3 },
+    ]);
 
     contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "wood", 5, TICK, SERVER_TIME);
     contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "stone", 3, TICK, SERVER_TIME);
@@ -308,13 +324,9 @@ describe("public work completion", () => {
     if (!inventory) return;
     addItem(inventory, catalogFromItems(ITEMS), "wood", 5);
 
-    createPublicWork(
-      world,
-      PUBLIC_WORK_ENTITY,
-      "town_well",
-      "Town Well",
-      [{ itemId: "wood", quantity: 5 }],
-    );
+    createPublicWork(world, PUBLIC_WORK_ENTITY, "town_well", "Town Well", [
+      { itemId: "wood", quantity: 5 },
+    ]);
 
     contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "wood", 5, TICK, SERVER_TIME);
 
@@ -353,16 +365,10 @@ describe("public work completion", () => {
     if (!inventory) return;
     addItem(inventory, catalogFromItems(ITEMS), "wood", 5);
 
-    createPublicWork(
-      world,
-      PUBLIC_WORK_ENTITY,
-      "town_well",
-      "Town Well",
-      [
-        { itemId: "wood", quantity: 5 },
-        { itemId: "stone", quantity: 3 },
-      ],
-    );
+    createPublicWork(world, PUBLIC_WORK_ENTITY, "town_well", "Town Well", [
+      { itemId: "wood", quantity: 5 },
+      { itemId: "stone", quantity: 3 },
+    ]);
 
     contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "wood", 5, TICK, SERVER_TIME);
 
@@ -380,24 +386,26 @@ describe("public work contributor tracking", () => {
     addItem(inventory, catalogFromItems(ITEMS), "wood", 10);
     addItem(inventory, catalogFromItems(ITEMS), "stone", 10);
 
-    createPublicWork(
-      world,
-      PUBLIC_WORK_ENTITY,
-      "town_well",
-      "Town Well",
-      [
-        { itemId: "wood", quantity: 5 },
-        { itemId: "stone", quantity: 3 },
-      ],
-    );
+    createPublicWork(world, PUBLIC_WORK_ENTITY, "town_well", "Town Well", [
+      { itemId: "wood", quantity: 5 },
+      { itemId: "stone", quantity: 3 },
+    ]);
 
     contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "wood", 5, TICK, SERVER_TIME);
     contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "stone", 3, TICK, SERVER_TIME);
 
     const publicWork = world.getComponent(PUBLIC_WORK_ENTITY, "publicWork");
     expect(publicWork?.contributors).toHaveLength(2);
-    expect(publicWork?.contributors[0]).toMatchObject({ playerId: PLAYER, itemId: "wood", quantity: 5 });
-    expect(publicWork?.contributors[1]).toMatchObject({ playerId: PLAYER, itemId: "stone", quantity: 3 });
+    expect(publicWork?.contributors[0]).toMatchObject({
+      playerId: PLAYER,
+      itemId: "wood",
+      quantity: 5,
+    });
+    expect(publicWork?.contributors[1]).toMatchObject({
+      playerId: PLAYER,
+      itemId: "stone",
+      quantity: 3,
+    });
   });
 
   it("tracks multiple contributions from the same player", () => {
@@ -407,27 +415,35 @@ describe("public work contributor tracking", () => {
     if (!inventory) return;
     addItem(inventory, catalogFromItems(ITEMS), "wood", 10);
 
-    createPublicWork(
-      world,
-      PUBLIC_WORK_ENTITY,
-      "town_well",
-      "Town Well",
-      [{ itemId: "wood", quantity: 10 }],
-    );
+    createPublicWork(world, PUBLIC_WORK_ENTITY, "town_well", "Town Well", [
+      { itemId: "wood", quantity: 10 },
+    ]);
 
     contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "wood", 5, TICK, SERVER_TIME);
     contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "wood", 5, TICK, SERVER_TIME);
 
     const publicWork = world.getComponent(PUBLIC_WORK_ENTITY, "publicWork");
     expect(publicWork?.contributors).toHaveLength(2);
-    expect(publicWork?.contributors[0]).toMatchObject({ playerId: PLAYER, itemId: "wood", quantity: 5 });
-    expect(publicWork?.contributors[1]).toMatchObject({ playerId: PLAYER, itemId: "wood", quantity: 5 });
+    expect(publicWork?.contributors[0]).toMatchObject({
+      playerId: PLAYER,
+      itemId: "wood",
+      quantity: 5,
+    });
+    expect(publicWork?.contributors[1]).toMatchObject({
+      playerId: PLAYER,
+      itemId: "wood",
+      quantity: 5,
+    });
   });
 
   it("tracks contributions from multiple players", () => {
     const { world, ctx } = setup();
     const otherPlayer = world.createEntity();
-    world.setComponent(otherPlayer, "inventory", createInventory(otherPlayer, `inventory:${otherPlayer}`, 28));
+    world.setComponent(
+      otherPlayer,
+      "inventory",
+      createInventory(otherPlayer, `inventory:${otherPlayer}`, 28),
+    );
     world.setComponent(otherPlayer, "vars", { entityId: otherPlayer, values: {} });
 
     const playerInventory = world.getComponent(PLAYER, "inventory");
@@ -438,21 +454,25 @@ describe("public work contributor tracking", () => {
     addItem(playerInventory, catalogFromItems(ITEMS), "wood", 10);
     addItem(otherInventory, catalogFromItems(ITEMS), "wood", 10);
 
-    createPublicWork(
-      world,
-      PUBLIC_WORK_ENTITY,
-      "town_well",
-      "Town Well",
-      [{ itemId: "wood", quantity: 10 }],
-    );
+    createPublicWork(world, PUBLIC_WORK_ENTITY, "town_well", "Town Well", [
+      { itemId: "wood", quantity: 10 },
+    ]);
 
     contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "wood", 5, TICK, SERVER_TIME);
     contributeToPublicWork(ctx, otherPlayer, PUBLIC_WORK_ENTITY, "wood", 5, TICK, SERVER_TIME);
 
     const publicWork = world.getComponent(PUBLIC_WORK_ENTITY, "publicWork");
     expect(publicWork?.contributors).toHaveLength(2);
-    expect(publicWork?.contributors[0]).toMatchObject({ playerId: PLAYER, itemId: "wood", quantity: 5 });
-    expect(publicWork?.contributors[1]).toMatchObject({ playerId: otherPlayer, itemId: "wood", quantity: 5 });
+    expect(publicWork?.contributors[0]).toMatchObject({
+      playerId: PLAYER,
+      itemId: "wood",
+      quantity: 5,
+    });
+    expect(publicWork?.contributors[1]).toMatchObject({
+      playerId: otherPlayer,
+      itemId: "wood",
+      quantity: 5,
+    });
   });
 });
 
@@ -534,7 +554,11 @@ describe("public work reward distribution", () => {
   it("distributes rewards to all contributors", () => {
     const { world, ctx } = setup();
     const otherPlayer = world.createEntity();
-    world.setComponent(otherPlayer, "inventory", createInventory(otherPlayer, `inventory:${otherPlayer}`, 28));
+    world.setComponent(
+      otherPlayer,
+      "inventory",
+      createInventory(otherPlayer, `inventory:${otherPlayer}`, 28),
+    );
     world.setComponent(otherPlayer, "skills", {
       entityId: otherPlayer,
       skills: { attack: { level: 1, xp: 0, boost: 0, drain: 0 } },
@@ -562,8 +586,12 @@ describe("public work reward distribution", () => {
     contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "wood", 5, TICK, SERVER_TIME);
     contributeToPublicWork(ctx, otherPlayer, PUBLIC_WORK_ENTITY, "wood", 5, TICK, SERVER_TIME);
 
-    const playerCoins = world.getComponent(PLAYER, "inventory")?.slots.find((s) => s?.itemId === "coin");
-    const otherCoins = world.getComponent(otherPlayer, "inventory")?.slots.find((s) => s?.itemId === "coin");
+    const playerCoins = world
+      .getComponent(PLAYER, "inventory")
+      ?.slots.find((s) => s?.itemId === "coin");
+    const otherCoins = world
+      .getComponent(otherPlayer, "inventory")
+      ?.slots.find((s) => s?.itemId === "coin");
     expect(playerCoins?.quantity).toBe(100);
     expect(otherCoins?.quantity).toBe(100);
 

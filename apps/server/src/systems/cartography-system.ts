@@ -1,9 +1,9 @@
 import type { EntityId, ObjectIntent, TileCoord } from "@old-town/shared";
 import type { World } from "../ecs/world";
-import type { ItemAuditLog } from "../items/item-audit";
 import { hasItem } from "../items/inventory";
-import type { ResourceNodeContext } from "./resource-node-system";
+import type { ItemAuditLog } from "../items/item-audit";
 import { addXp } from "../skills/skill-state";
+import type { ResourceNodeContext } from "./resource-node-system";
 
 export interface CartographySystemContext extends ResourceNodeContext {
   readonly itemAudit?: ItemAuditLog | undefined;
@@ -59,8 +59,7 @@ function revealTiles(
 
   const revealed: string[] = [];
   const existingKey = vars.values.map_revealed_tiles;
-  const existing: string[] =
-    typeof existingKey === "string" ? JSON.parse(existingKey) : [];
+  const existing: string[] = typeof existingKey === "string" ? JSON.parse(existingKey) : [];
   const existingSet = new Set(existing);
 
   for (let dx = -radius; dx <= radius; dx += 1) {

@@ -1,4 +1,4 @@
-import { GAME_TICK_MS, type EntityId, type TileCoord } from "@old-town/shared";
+import { type EntityId, GAME_TICK_MS, type TileCoord } from "@old-town/shared";
 import type { CombatantComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";

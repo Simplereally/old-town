@@ -155,9 +155,7 @@ describe("ClientPacketApplier (pure)", () => {
       fullStatePacket({ regionLoads: [{ regionId: rid("r1"), chunks: [chunk] }] }),
     );
 
-    const loadEvents = result.presentationEvents.filter(
-      (e) => e.type === "region.load",
-    );
+    const loadEvents = result.presentationEvents.filter((e) => e.type === "region.load");
     expect(loadEvents.length).toBe(1);
     expect(loadEvents[0]!.payload).toEqual({ regionId: rid("r1"), chunks: [chunk] });
   });
@@ -330,7 +328,9 @@ describe("ClientPacketApplier (pure)", () => {
   it("applyTickDelta emits actor position and facing events", () => {
     const ctx = createMockContext();
     const applier = new ClientPacketApplier(ctx);
-    applier.applyFullState(fullStatePacket({ selfEntityId: eid(1), entities: [spawnNpc(5, { x: 0, y: 0, plane: 0 })] }));
+    applier.applyFullState(
+      fullStatePacket({ selfEntityId: eid(1), entities: [spawnNpc(5, { x: 0, y: 0, plane: 0 })] }),
+    );
 
     const result = applier.applyTickDelta(
       tickDeltaPacket({

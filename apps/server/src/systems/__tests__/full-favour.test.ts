@@ -5,17 +5,17 @@ import { DeltaAccumulator } from "../../sim/delta-accumulator";
 import { makeRegistries } from "../../test-support/registries";
 import {
   activateBoon,
+  type BoonDef,
   bindOath,
   breakOath,
   deductFavourXp,
+  type FavourAdvancedContext,
   getActiveOathId,
   getFavourLevel,
   hasActiveOath,
   hasFavour,
-  performRite,
-  type BoonDef,
-  type FavourAdvancedContext,
   type OathDef,
+  performRite,
   type RiteDef,
 } from "../favour-advanced-system";
 import { processStatusEffectTick } from "../status-effect-system";
@@ -133,7 +133,11 @@ function addPlayer(
     },
   });
   if (hasInventory) {
-    world.setComponent(entityId, "inventory", createInventory(entityId, `inventory:${entityId}`, 28));
+    world.setComponent(
+      entityId,
+      "inventory",
+      createInventory(entityId, `inventory:${entityId}`, 28),
+    );
   }
   world.setComponent(entityId, "combatant", {
     entityId,
@@ -354,7 +358,9 @@ describe("performRite", () => {
     expect(statusEffects!.activeEffects[0]!.effectId).toBe("strength_boost");
 
     expect(deltas.peek().xpDrops).toBeDefined();
-    expect(deltas.peek().xpDrops!.some((d) => d.skillId === "favour" && d.amount === 25)).toBe(true);
+    expect(deltas.peek().xpDrops!.some((d) => d.skillId === "favour" && d.amount === 25)).toBe(
+      true,
+    );
   });
 
   it("fails when the player is missing required items", () => {

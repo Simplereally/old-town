@@ -1,9 +1,9 @@
 import type { EntityId, ObjectIntent, TileCoord } from "@old-town/shared";
 import type { World } from "../ecs/world";
-import type { ItemAuditLog } from "../items/item-audit";
 import { count, removeItem } from "../items/inventory";
-import type { ResourceNodeContext } from "./resource-node-system";
+import type { ItemAuditLog } from "../items/item-audit";
 import { addXp } from "../skills/skill-state";
+import type { ResourceNodeContext } from "./resource-node-system";
 
 export interface FavourSystemContext extends ResourceNodeContext {
   readonly itemAudit?: ItemAuditLog | undefined;
@@ -151,12 +151,7 @@ export function handlePrayIntent(
       serverTime,
     );
   } else {
-    systemMessage(
-      ctx,
-      owner,
-      `You offer ${offering.itemName} at the shrine.`,
-      serverTime,
-    );
+    systemMessage(ctx, owner, `You offer ${offering.itemName} at the shrine.`, serverTime);
   }
 
   ctx.itemAudit?.recordForEntity(owner, {

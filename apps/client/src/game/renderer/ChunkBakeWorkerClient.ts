@@ -1,4 +1,4 @@
-import type { ChunkCoord, RegionTileData, RegionId } from "@old-town/shared";
+import type { ChunkCoord, RegionId, RegionTileData } from "@old-town/shared";
 
 export interface ObjectRef {
   readonly objectId: string;

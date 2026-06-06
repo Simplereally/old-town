@@ -48,13 +48,19 @@ const SHOP_DEF: ShopDef = {
 
 const ITEMS = new Map([COIN, BLADE].map((d) => [d.id, d]));
 
-function getShop(world: ReturnType<typeof setup>["world"], npc: import("@old-town/shared").EntityId) {
+function getShop(
+  world: ReturnType<typeof setup>["world"],
+  npc: import("@old-town/shared").EntityId,
+) {
   const shop = world.getComponent(npc, "shop");
   if (!shop) throw new Error("Shop component missing");
   return shop;
 }
 
-function getNpc(world: ReturnType<typeof setup>["world"], npc: import("@old-town/shared").EntityId) {
+function getNpc(
+  world: ReturnType<typeof setup>["world"],
+  npc: import("@old-town/shared").EntityId,
+) {
   const npcComp = world.getComponent(npc, "npc");
   if (!npcComp) throw new Error("NPC component missing");
   return npcComp;
@@ -74,7 +80,13 @@ function setup(inventorySeed: readonly { itemId: string; quantity: number }[] = 
   world.setComponent(owner, "inventory", inventory);
   world.setComponent(owner, "position", { entityId: owner, x: 30, y: 30, plane: 0 });
   world.setComponent(npc, "position", { entityId: npc, x: 30, y: 31, plane: 0 });
-  world.setComponent(npc, "npc", { entityId: npc, npcId: "test_merchant", brainState: "idle", respawnTick: 0, wanderRadius: 0 });
+  world.setComponent(npc, "npc", {
+    entityId: npc,
+    npcId: "test_merchant",
+    brainState: "idle",
+    respawnTick: 0,
+    wanderRadius: 0,
+  });
 
   const catalog = catalogFromItems(ITEMS);
   for (const { itemId, quantity } of inventorySeed) {
@@ -93,7 +105,15 @@ function setup(inventorySeed: readonly { itemId: string; quantity: number }[] = 
           size: 1,
           combatLevel: 1,
           maxHp: 10,
-          stats: { attack: 1, strength: 1, defence: 1, ranged: 1, magic: 1, prayer: 1, hitpoints: 10 },
+          stats: {
+            attack: 1,
+            strength: 1,
+            defence: 1,
+            ranged: 1,
+            magic: 1,
+            prayer: 1,
+            hitpoints: 10,
+          },
           attackSpeedTicks: 5,
           attackRangeTiles: 1,
           wanderRadius: 0,
@@ -155,7 +175,13 @@ describe("handleShopIntent — open", () => {
 
     expect(ctx.world.getComponent(npc, "shop")).toBeUndefined();
 
-    handleShopIntent(ctx, getNpc(ctx.world, npc).entityId, { action: "open", targetEntityId: npc }, TICK, SERVER_TIME);
+    handleShopIntent(
+      ctx,
+      getNpc(ctx.world, npc).entityId,
+      { action: "open", targetEntityId: npc },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(ctx.world.getComponent(npc, "shop")).toBeDefined();
   });
@@ -164,7 +190,13 @@ describe("handleShopIntent — open", () => {
     const { ctx, owner, npc } = setup();
     ctx.world.setComponent(owner, "position", { entityId: owner, x: 0, y: 0, plane: 0 });
 
-    const result = handleShopIntent(ctx, owner, { action: "open", targetEntityId: npc }, TICK, SERVER_TIME);
+    const result = handleShopIntent(
+      ctx,
+      owner,
+      { action: "open", targetEntityId: npc },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result).toBe(true);
     expect(ctx.deltas.peek().chat?.[0]?.text).toBe("You are too far away from the shop.");
@@ -175,9 +207,21 @@ describe("handleShopIntent — open", () => {
     const { ctx, owner } = setup();
     const noShopNpc = ctx.world.createEntity();
     ctx.world.setComponent(noShopNpc, "position", { entityId: noShopNpc, x: 30, y: 31, plane: 0 });
-    ctx.world.setComponent(noShopNpc, "npc", { entityId: noShopNpc, npcId: "no_shop_npc", brainState: "idle", respawnTick: 0, wanderRadius: 0 });
+    ctx.world.setComponent(noShopNpc, "npc", {
+      entityId: noShopNpc,
+      npcId: "no_shop_npc",
+      brainState: "idle",
+      respawnTick: 0,
+      wanderRadius: 0,
+    });
 
-    const result = handleShopIntent(ctx, owner, { action: "open", targetEntityId: noShopNpc }, TICK, SERVER_TIME);
+    const result = handleShopIntent(
+      ctx,
+      owner,
+      { action: "open", targetEntityId: noShopNpc },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result).toBe(true);
     expect(ctx.deltas.peek().chat?.[0]?.text).toBe("This NPC does not run a shop.");
@@ -194,7 +238,13 @@ describe("handleShopIntent — buy", () => {
     handleShopIntent(ctx, owner, { action: "open", targetEntityId: shopNpc }, TICK, SERVER_TIME);
     ctx.deltas.consume(0, 0);
 
-    const result = handleShopIntent(ctx, owner, { action: "buy", itemId: "test_blade", quantity: 1 }, TICK, SERVER_TIME);
+    const result = handleShopIntent(
+      ctx,
+      owner,
+      { action: "buy", itemId: "test_blade", quantity: 1 },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result).toBe(true);
     expect(count(inventory, "coin")).toBe(80); // 100 - 20
@@ -213,11 +263,23 @@ describe("handleShopIntent — buy", () => {
     ctx.deltas.consume(0, 0);
 
     // Buy all 5 blades
-    handleShopIntent(ctx, owner, { action: "buy", itemId: "test_blade", quantity: 5 }, TICK, SERVER_TIME);
+    handleShopIntent(
+      ctx,
+      owner,
+      { action: "buy", itemId: "test_blade", quantity: 5 },
+      TICK,
+      SERVER_TIME,
+    );
     ctx.deltas.consume(0, 0);
 
     // Try to buy one more
-    const result = handleShopIntent(ctx, owner, { action: "buy", itemId: "test_blade", quantity: 1 }, TICK, SERVER_TIME);
+    const result = handleShopIntent(
+      ctx,
+      owner,
+      { action: "buy", itemId: "test_blade", quantity: 1 },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result).toBe(true);
     expect(ctx.deltas.peek().chat?.[0]?.text).toBe("The shop is out of stock.");
@@ -230,7 +292,13 @@ describe("handleShopIntent — buy", () => {
     handleShopIntent(ctx, owner, { action: "open", targetEntityId: shopNpc }, TICK, SERVER_TIME);
     ctx.deltas.consume(0, 0);
 
-    const result = handleShopIntent(ctx, owner, { action: "buy", itemId: "test_blade", quantity: 1 }, TICK, SERVER_TIME);
+    const result = handleShopIntent(
+      ctx,
+      owner,
+      { action: "buy", itemId: "test_blade", quantity: 1 },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result).toBe(true);
     expect(ctx.deltas.peek().chat?.[0]?.text).toBe("You don't have enough coins.");
@@ -247,7 +315,13 @@ describe("handleShopIntent — buy", () => {
     handleShopIntent(ctx, owner, { action: "open", targetEntityId: shopNpc }, TICK, SERVER_TIME);
     ctx.deltas.consume(0, 0);
 
-    const result = handleShopIntent(ctx, owner, { action: "buy", itemId: "test_blade", quantity: 1 }, TICK, SERVER_TIME);
+    const result = handleShopIntent(
+      ctx,
+      owner,
+      { action: "buy", itemId: "test_blade", quantity: 1 },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result).toBe(true);
     expect(ctx.deltas.peek().chat?.[0]?.text).toBe("Your inventory is full.");
@@ -260,7 +334,13 @@ describe("handleShopIntent — buy", () => {
     handleShopIntent(ctx, owner, { action: "open", targetEntityId: shopNpc }, TICK, SERVER_TIME);
     ctx.deltas.consume(0, 0);
 
-    const result = handleShopIntent(ctx, owner, { action: "buy", itemId: "nonexistent", quantity: 1 }, TICK, SERVER_TIME);
+    const result = handleShopIntent(
+      ctx,
+      owner,
+      { action: "buy", itemId: "nonexistent", quantity: 1 },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result).toBe(true);
     expect(ctx.deltas.peek().chat?.[0]?.text).toBe("This item is not sold here.");
@@ -273,7 +353,13 @@ describe("handleShopIntent — buy", () => {
     handleShopIntent(ctx, owner, { action: "open", targetEntityId: shopNpc }, TICK, SERVER_TIME);
     ctx.deltas.consume(0, 0);
 
-    handleShopIntent(ctx, owner, { action: "buy", itemId: "test_blade", quantity: 1 }, TICK, SERVER_TIME);
+    handleShopIntent(
+      ctx,
+      owner,
+      { action: "buy", itemId: "test_blade", quantity: 1 },
+      TICK,
+      SERVER_TIME,
+    );
 
     const records = itemAudit.recent();
     expect(records.length).toBeGreaterThan(0);
@@ -295,7 +381,13 @@ describe("handleShopIntent — sell", () => {
     handleShopIntent(ctx, owner, { action: "open", targetEntityId: shopNpc }, TICK, SERVER_TIME);
     ctx.deltas.consume(0, 0);
 
-    const result = handleShopIntent(ctx, owner, { action: "sell", itemId: "test_blade", quantity: 1 }, TICK, SERVER_TIME);
+    const result = handleShopIntent(
+      ctx,
+      owner,
+      { action: "sell", itemId: "test_blade", quantity: 1 },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result).toBe(true);
     expect(count(inventory, "test_blade")).toBe(0);
@@ -315,7 +407,13 @@ describe("handleShopIntent — sell", () => {
     handleShopIntent(ctx, owner, { action: "open", targetEntityId: shopNpc }, TICK, SERVER_TIME);
     ctx.deltas.consume(0, 0);
 
-    const result = handleShopIntent(ctx, owner, { action: "sell", itemId: "unwanted_item", quantity: 1 }, TICK, SERVER_TIME);
+    const result = handleShopIntent(
+      ctx,
+      owner,
+      { action: "sell", itemId: "unwanted_item", quantity: 1 },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result).toBe(true);
     expect(ctx.deltas.peek().chat?.[0]?.text).toBe("The shop isn't interested in that.");
@@ -328,7 +426,13 @@ describe("handleShopIntent — sell", () => {
     handleShopIntent(ctx, owner, { action: "open", targetEntityId: shopNpc }, TICK, SERVER_TIME);
     ctx.deltas.consume(0, 0);
 
-    const result = handleShopIntent(ctx, owner, { action: "sell", itemId: "test_blade", quantity: 5 }, TICK, SERVER_TIME);
+    const result = handleShopIntent(
+      ctx,
+      owner,
+      { action: "sell", itemId: "test_blade", quantity: 5 },
+      TICK,
+      SERVER_TIME,
+    );
 
     expect(result).toBe(true);
     expect(ctx.deltas.peek().chat?.[0]?.text).toBe("You don't have enough items to sell.");
@@ -347,7 +451,13 @@ describe("handleShopIntent — sell", () => {
     handleShopIntent(ctx, owner, { action: "open", targetEntityId: shopNpc }, TICK, SERVER_TIME);
     ctx.deltas.consume(0, 0);
 
-    handleShopIntent(ctx, owner, { action: "sell", itemId: "test_blade", quantity: 1 }, TICK, SERVER_TIME);
+    handleShopIntent(
+      ctx,
+      owner,
+      { action: "sell", itemId: "test_blade", quantity: 1 },
+      TICK,
+      SERVER_TIME,
+    );
 
     const records = itemAudit.recent();
     expect(records.length).toBeGreaterThan(0);
@@ -371,7 +481,13 @@ describe("processShopRestockPhase", () => {
     const { ctx, npc } = setup();
 
     // Create shop component
-    handleShopIntent(ctx, getNpc(ctx.world, npc).entityId, { action: "open", targetEntityId: npc }, TICK, SERVER_TIME);
+    handleShopIntent(
+      ctx,
+      getNpc(ctx.world, npc).entityId,
+      { action: "open", targetEntityId: npc },
+      TICK,
+      SERVER_TIME,
+    );
     const shop = getShop(ctx.world, npc);
     getStockEntry(shop, 0).quantity = 0; // Deplete blades
     shop.lastRestockTick = 0;
@@ -387,7 +503,13 @@ describe("processShopRestockPhase", () => {
   it("does not restock before interval has passed", () => {
     const { ctx, npc } = setup();
 
-    handleShopIntent(ctx, getNpc(ctx.world, npc).entityId, { action: "open", targetEntityId: npc }, TICK, SERVER_TIME);
+    handleShopIntent(
+      ctx,
+      getNpc(ctx.world, npc).entityId,
+      { action: "open", targetEntityId: npc },
+      TICK,
+      SERVER_TIME,
+    );
     const shop = getShop(ctx.world, npc);
     getStockEntry(shop, 0).quantity = 0;
     shop.lastRestockTick = 150;
@@ -403,7 +525,13 @@ describe("processShopRestockPhase", () => {
   it("caps restock at maxQuantity", () => {
     const { ctx, npc } = setup();
 
-    handleShopIntent(ctx, getNpc(ctx.world, npc).entityId, { action: "open", targetEntityId: npc }, TICK, SERVER_TIME);
+    handleShopIntent(
+      ctx,
+      getNpc(ctx.world, npc).entityId,
+      { action: "open", targetEntityId: npc },
+      TICK,
+      SERVER_TIME,
+    );
     const shop = getShop(ctx.world, npc);
     getStockEntry(shop, 0).quantity = 9; // 1 below max
     shop.lastRestockTick = 0;

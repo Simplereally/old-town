@@ -1,6 +1,5 @@
 import { createServer } from "node:http";
-import { WebSocketServer } from "ws";
-import WebSocket from "ws";
+import WebSocket, { WebSocketServer } from "ws";
 
 const server = createServer();
 const wss = new WebSocketServer({ noServer: true });
@@ -14,7 +13,7 @@ const port = (server.address() as { port: number }).port;
 
 wss.on("connection", (socket) => {
   console.log("server: connection");
-  let state = { session: false };
+  const state = { session: false };
   socket.on("message", async (data, isBinary) => {
     console.log("server: message", data.toString(), isBinary);
     if (!state.session) {

@@ -1,10 +1,4 @@
-import {
-  CHUNK_SIZE,
-  type ChunkId,
-  type RegionId,
-  type TileCoord,
-  chunkId,
-} from "@old-town/shared";
+import { CHUNK_SIZE, type ChunkId, chunkId, type RegionId, type TileCoord } from "@old-town/shared";
 import type { ChunkBakeQueue, ChunkLifecycleState, ChunkMetadata } from "./ChunkBakeQueue";
 import type { ChunkUploadQueue } from "./ChunkUploadQueue";
 
@@ -196,7 +190,9 @@ export class ChunkResidencyManager {
   }
 
   /** Iterate over all tracked chunks. */
-  forEachChunk(callback: (chunkId: ChunkId, state: ChunkLifecycleState, metadata: ChunkMetadata) => void): void {
+  forEachChunk(
+    callback: (chunkId: ChunkId, state: ChunkLifecycleState, metadata: ChunkMetadata) => void,
+  ): void {
     for (const record of this._chunks.values()) {
       callback(record.chunkId, record.state, record.metadata);
     }
@@ -210,7 +206,11 @@ export class ChunkResidencyManager {
   /** Reset all resident chunks to unseen so they are re-baked after context loss. */
   invalidateAllResident(): void {
     for (const record of this._chunks.values()) {
-      if (record.state === "visible" || record.state === "hidden_resident" || record.state === "gpu_resident") {
+      if (
+        record.state === "visible" ||
+        record.state === "hidden_resident" ||
+        record.state === "gpu_resident"
+      ) {
         record.state = "unseen";
         record.approximateGpuBytes = 0;
         record.disposedOnce = false;
@@ -230,7 +230,11 @@ export class ChunkResidencyManager {
     this._stats = this._makeEmptyStats();
   }
 
-  private _registerChunkInternal(chunkId: ChunkId, regionId: RegionId, metadata: ChunkMetadata): void {
+  private _registerChunkInternal(
+    chunkId: ChunkId,
+    regionId: RegionId,
+    metadata: ChunkMetadata,
+  ): void {
     const existing = this._chunks.get(chunkId);
     if (existing) {
       existing.metadata = metadata;
@@ -318,9 +322,7 @@ export class ChunkResidencyManager {
     const residentBytes = this._sumResidentBytes();
     if (residentBytes <= this._maxGpuBytes) return;
 
-    const hidden = Array.from(this._chunks.values()).filter(
-      (r) => r.state === "hidden_resident",
-    );
+    const hidden = Array.from(this._chunks.values()).filter((r) => r.state === "hidden_resident");
 
     // LRU eviction tie-breakers:
     // 1. Oldest lastAccessedFrame (ascending) — least recently used first.

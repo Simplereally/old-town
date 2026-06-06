@@ -152,7 +152,9 @@ describe("handleItemIntent — drop", () => {
 
     expect(result.outcome).toBe("dropped");
     expect(count(inventory, "test_axe")).toBe(0);
-    expect(deltas.peek().inventoryDeltas?.[0]?.changes).toEqual([{ slot: 0, itemId: null, quantity: 0 }]);
+    expect(deltas.peek().inventoryDeltas?.[0]?.changes).toEqual([
+      { slot: 0, itemId: null, quantity: 0 },
+    ]);
     expect(itemAudit.snapshot()[0]).toMatchObject({
       tick: TICK,
       characterId: `entity:${owner}`,

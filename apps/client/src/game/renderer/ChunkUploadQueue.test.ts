@@ -1,15 +1,15 @@
-import { describe, expect, it, beforeEach, vi } from "vitest";
-import { Scene, Group, Mesh, BufferGeometry, MeshLambertMaterial, Material } from "three";
-import { chunkId, type ChunkId } from "@old-town/shared";
+import { type ChunkId, chunkId } from "@old-town/shared";
+import { BufferGeometry, Group, type Material, Mesh, MeshLambertMaterial, Scene } from "three";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ChunkBakeQueue } from "./ChunkBakeQueue";
+import type { BakedChunkPayload, MaterialGroup } from "./ChunkBakeWorkerClient";
 import {
   ChunkUploadQueue,
-  DEFAULT_UPLOAD_BUDGET,
   type ChunkUploadStats,
+  DEFAULT_UPLOAD_BUDGET,
   type QueuedChunkUpload,
 } from "./ChunkUploadQueue";
-import { ChunkBakeQueue } from "./ChunkBakeQueue";
 import { RenderResourceRegistry } from "./RenderResourceRegistry";
-import type { BakedChunkPayload, MaterialGroup } from "./ChunkBakeWorkerClient";
 
 function makeChunkId(cx: number, cy: number, plane = 0): ChunkId {
   return chunkId({ cx, cy, plane: plane as 0 | 1 | 2 | 3 });
@@ -106,7 +106,7 @@ describe("ChunkUploadQueue", () => {
     q.enqueueBakedChunk(id4, makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]));
 
     const start = 0;
-    let now = 0;
+    const now = 0;
     const nowFn = () => now;
     q.processFrame(start, nowFn);
     // Custom budget allows 3 chunks per frame
@@ -124,7 +124,10 @@ describe("ChunkUploadQueue", () => {
       { cx: 0, cy: 0, plane: 0 },
     ]);
     const job = chunkBakeQueue.dequeueJob()!;
-    queue.enqueueBakedChunk(job.chunkId, makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]));
+    queue.enqueueBakedChunk(
+      job.chunkId,
+      makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
+    );
     const stats = chunkBakeQueue.getStats();
     expect(stats.waitingUpload).toBe(1);
   });
@@ -135,7 +138,10 @@ describe("ChunkUploadQueue", () => {
       { cx: 0, cy: 0, plane: 0 },
     ]);
     const job = chunkBakeQueue.dequeueJob()!;
-    queue.enqueueBakedChunk(job.chunkId, makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]));
+    queue.enqueueBakedChunk(
+      job.chunkId,
+      makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
+    );
     queue.processFrame(0, () => 0);
     const stats = chunkBakeQueue.getStats();
     expect(stats.waitingUpload).toBe(0);
@@ -152,8 +158,14 @@ describe("ChunkUploadQueue", () => {
     ]);
     const job1 = chunkBakeQueue.dequeueJob()!;
     const job2 = chunkBakeQueue.dequeueJob()!;
-    queue.enqueueBakedChunk(job1.chunkId, makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]));
-    queue.enqueueBakedChunk(job2.chunkId, makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]));
+    queue.enqueueBakedChunk(
+      job1.chunkId,
+      makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
+    );
+    queue.enqueueBakedChunk(
+      job2.chunkId,
+      makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
+    );
 
     // Budget is 2ms. Start at 0, but after 3ms elapsed, second upload is skipped.
     let now = 0;
@@ -180,8 +192,14 @@ describe("ChunkUploadQueue", () => {
     ]);
     const job1 = chunkBakeQueue.dequeueJob()!;
     const job2 = chunkBakeQueue.dequeueJob()!;
-    q.enqueueBakedChunk(job1.chunkId, makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]));
-    q.enqueueBakedChunk(job2.chunkId, makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]));
+    q.enqueueBakedChunk(
+      job1.chunkId,
+      makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
+    );
+    q.enqueueBakedChunk(
+      job2.chunkId,
+      makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
+    );
     q.processFrame(0, () => 0);
     expect(q.stats().totalUploads).toBe(1);
     expect(q.stats().queueDepth).toBe(1);
@@ -202,8 +220,14 @@ describe("ChunkUploadQueue", () => {
     ]);
     const job1 = chunkBakeQueue.dequeueJob()!;
     const job2 = chunkBakeQueue.dequeueJob()!;
-    q.enqueueBakedChunk(job1.chunkId, makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]));
-    q.enqueueBakedChunk(job2.chunkId, makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]));
+    q.enqueueBakedChunk(
+      job1.chunkId,
+      makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
+    );
+    q.enqueueBakedChunk(
+      job2.chunkId,
+      makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
+    );
     q.processFrame(0, () => 0);
     q.processFrame(0, () => 0);
     expect(q.stats().totalUploads).toBe(2);
@@ -244,9 +268,15 @@ describe("ChunkUploadQueue", () => {
     queue.processFrame(0, () => 0);
     const group = queue.getChunkGroup(job.chunkId);
     const mesh = group!.children[0] as Mesh;
-    expect((mesh.geometry.attributes.position as import("three").BufferAttribute).usage).toBeGreaterThan(0);
-    expect((mesh.geometry.attributes.normal as import("three").BufferAttribute).usage).toBeGreaterThan(0);
-    expect((mesh.geometry.attributes.color as import("three").BufferAttribute).usage).toBeGreaterThan(0);
+    expect(
+      (mesh.geometry.attributes.position as import("three").BufferAttribute).usage,
+    ).toBeGreaterThan(0);
+    expect(
+      (mesh.geometry.attributes.normal as import("three").BufferAttribute).usage,
+    ).toBeGreaterThan(0);
+    expect(
+      (mesh.geometry.attributes.color as import("three").BufferAttribute).usage,
+    ).toBeGreaterThan(0);
     expect((mesh.geometry.index as import("three").BufferAttribute).usage).toBeGreaterThan(0);
   });
 
@@ -261,8 +291,14 @@ describe("ChunkUploadQueue", () => {
     ]);
     const job1 = chunkBakeQueue.dequeueJob()!;
     const job2 = chunkBakeQueue.dequeueJob()!;
-    queue.enqueueBakedChunk(job1.chunkId, makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]));
-    queue.enqueueBakedChunk(job2.chunkId, makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]));
+    queue.enqueueBakedChunk(
+      job1.chunkId,
+      makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
+    );
+    queue.enqueueBakedChunk(
+      job2.chunkId,
+      makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
+    );
     queue.processFrame(0, () => 0);
     queue.processFrame(0, () => 0);
     const group1 = queue.getChunkGroup(job1.chunkId);
@@ -359,7 +395,10 @@ describe("ChunkUploadQueue", () => {
       { cx: 0, cy: 0, plane: 0 },
     ]);
     const job = chunkBakeQueue.dequeueJob()!;
-    queue.enqueueBakedChunk(job.chunkId, makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]));
+    queue.enqueueBakedChunk(
+      job.chunkId,
+      makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
+    );
     queue.processFrame(0, () => 0);
     expect(queue.stats().lastUploadDurationMs).toBeGreaterThanOrEqual(0);
   });
@@ -370,7 +409,10 @@ describe("ChunkUploadQueue", () => {
       { cx: 0, cy: 0, plane: 0 },
     ]);
     const job = chunkBakeQueue.dequeueJob()!;
-    queue.enqueueBakedChunk(job.chunkId, makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]));
+    queue.enqueueBakedChunk(
+      job.chunkId,
+      makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
+    );
     queue.processFrame(0, () => 0);
     const stats = queue.stats();
     expect(stats.totalUploads).toBe(1);
@@ -412,7 +454,10 @@ describe("ChunkUploadQueue", () => {
       { cx: 0, cy: 0, plane: 0 },
     ]);
     const job = chunkBakeQueue.dequeueJob()!;
-    queue.enqueueBakedChunk(job.chunkId, makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]));
+    queue.enqueueBakedChunk(
+      job.chunkId,
+      makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
+    );
     queue.processFrame(0, () => 0);
     const group = queue.getChunkGroup(job.chunkId);
     expect(group).toBeDefined();
@@ -432,7 +477,10 @@ describe("ChunkUploadQueue", () => {
       { cx: 0, cy: 0, plane: 0 },
     ]);
     const job = chunkBakeQueue.dequeueJob()!;
-    queue.enqueueBakedChunk(job.chunkId, makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]));
+    queue.enqueueBakedChunk(
+      job.chunkId,
+      makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
+    );
     queue.processFrame(0, () => 0);
     const group = queue.getChunkGroup(job.chunkId);
     expect(group).toBeDefined();
@@ -445,7 +493,10 @@ describe("ChunkUploadQueue", () => {
       { cx: 0, cy: 0, plane: 0 },
     ]);
     const job = chunkBakeQueue.dequeueJob()!;
-    queue.enqueueBakedChunk(job.chunkId, makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]));
+    queue.enqueueBakedChunk(
+      job.chunkId,
+      makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
+    );
     queue.processFrame(0, () => 0);
     const group = queue.getChunkGroup(job.chunkId);
     expect(group!.children.length).toBeGreaterThan(0);
@@ -465,8 +516,14 @@ describe("ChunkUploadQueue", () => {
     ]);
     const job1 = chunkBakeQueue.dequeueJob()!;
     const job2 = chunkBakeQueue.dequeueJob()!;
-    queue.enqueueBakedChunk(job1.chunkId, makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]));
-    queue.enqueueBakedChunk(job2.chunkId, makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]));
+    queue.enqueueBakedChunk(
+      job1.chunkId,
+      makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
+    );
+    queue.enqueueBakedChunk(
+      job2.chunkId,
+      makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
+    );
     queue.processFrame(0, () => 0);
     queue.processFrame(0, () => 0);
     expect(scene.children.length).toBeGreaterThanOrEqual(2);
@@ -485,7 +542,10 @@ describe("ChunkUploadQueue", () => {
   it("throws after dispose", () => {
     queue.dispose();
     expect(() =>
-      queue.enqueueBakedChunk(makeChunkId(0, 0), makePayload([{ materialId: "grass", startIndex: 0, count: 3 }])),
+      queue.enqueueBakedChunk(
+        makeChunkId(0, 0),
+        makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
+      ),
     ).toThrow("ChunkUploadQueue has been disposed.");
   });
 

@@ -160,12 +160,18 @@ describe("ClientPacketIngestor", () => {
 
   it("ingestFullState clears prior store and resets snapshot buffer", () => {
     const { ingestor, store, snapshotBuffer } = createTestSetup();
-    ingestor.ingestFullState(fullStatePacket({ tick: 5, entities: [spawnPlayer(1, { x: 0, y: 0, plane: 0 })] }), 0);
+    ingestor.ingestFullState(
+      fullStatePacket({ tick: 5, entities: [spawnPlayer(1, { x: 0, y: 0, plane: 0 })] }),
+      0,
+    );
     expect(store.getEntity(1)).toBeDefined();
     expect(snapshotBuffer.latestAcceptedTick).toBe(5);
     expect(snapshotBuffer.depth).toBe(1);
 
-    ingestor.ingestFullState(fullStatePacket({ tick: 10, entities: [spawnPlayer(2, { x: 1, y: 1, plane: 0 })] }), 0);
+    ingestor.ingestFullState(
+      fullStatePacket({ tick: 10, entities: [spawnPlayer(2, { x: 1, y: 1, plane: 0 })] }),
+      0,
+    );
     expect(store.getEntity(1)).toBeUndefined();
     expect(store.getEntity(2)).toBeDefined();
     expect(snapshotBuffer.latestAcceptedTick).toBe(10);
@@ -255,10 +261,7 @@ describe("ClientPacketIngestor", () => {
     const vars = [{ varId: "quest", value: 1 }];
     const equipment = { slots: ["helm", null, "amulet"] };
 
-    ingestor.ingestFullState(
-      fullStatePacket({ inventory, equipment, skills, vars }),
-      0,
-    );
+    ingestor.ingestFullState(fullStatePacket({ inventory, equipment, skills, vars }), 0);
 
     expect(uiState.inventory.get(0)?.itemId).toBe("coin");
     expect(uiState.skills.get("attack")?.level).toBe(1);
@@ -332,7 +335,11 @@ describe("ClientPacketIngestor", () => {
   it("ingestTickDelta emits actor update events", () => {
     const { ingestor } = createTestSetup();
     ingestor.ingestFullState(
-      fullStatePacket({ tick: 1, selfEntityId: eid(1), entities: [spawnNpc(5, { x: 0, y: 0, plane: 0 })] }),
+      fullStatePacket({
+        tick: 1,
+        selfEntityId: eid(1),
+        entities: [spawnNpc(5, { x: 0, y: 0, plane: 0 })],
+      }),
       0,
     );
     const result = ingestor.ingestTickDelta(
@@ -623,11 +630,7 @@ describe("ClientPacketIngestor", () => {
       recipes: [],
     };
 
-    ingestor.ingestTickDelta(
-      tickDeltaPacket({ tick: 2, recipeLists: [recipeList] }),
-      1,
-      0,
-    );
+    ingestor.ingestTickDelta(tickDeltaPacket({ tick: 2, recipeLists: [recipeList] }), 1, 0);
     expect(uiState.recipeList).toEqual(recipeList);
   });
 
@@ -639,11 +642,7 @@ describe("ClientPacketIngestor", () => {
       { recipeId: "r2", success: false, message: "Failed" },
     ];
 
-    ingestor.ingestTickDelta(
-      tickDeltaPacket({ tick: 2, recipeResults: results }),
-      1,
-      0,
-    );
+    ingestor.ingestTickDelta(tickDeltaPacket({ tick: 2, recipeResults: results }), 1, 0);
     expect(uiState.recipeResult).toEqual(results[results.length - 1]);
   });
 

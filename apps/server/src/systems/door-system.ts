@@ -1,14 +1,14 @@
-import type { ObjectDef } from "@old-town/shared/content-schemas/object";
 import type { ContentRegistries } from "@old-town/shared/content/content-registries";
+import type { ObjectDef } from "@old-town/shared/content-schemas/object";
+import type { Rng } from "@old-town/shared/math/rng";
 import type { TileCoord } from "@old-town/shared/types/coords";
 import type { EntityId } from "@old-town/shared/types/ids";
 import type { DoorStateComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
-import { rollDropTable, spawnGroundItem } from "./ground-item-system";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
-import { objectCollisionFlags } from "../world/collision";
 import type { CollisionMap } from "../world/collision";
-import type { Rng } from "@old-town/shared/math/rng";
+import { objectCollisionFlags } from "../world/collision";
+import { rollDropTable, spawnGroundItem } from "./ground-item-system";
 
 export interface DoorSystemContext {
   readonly world: World;

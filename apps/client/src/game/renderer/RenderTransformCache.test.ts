@@ -1,14 +1,11 @@
 import { describe, expect, it } from "vitest";
+import type { RenderEntitySnapshot, RenderSnapshot } from "../net/SnapshotBuffer";
 import {
   MovementPresentationKind,
   RenderTransformCache,
   type RenderTransformCacheOptions,
   type RenderTransformSample,
 } from "./RenderTransformCache";
-import type {
-  RenderEntitySnapshot,
-  RenderSnapshot,
-} from "../net/SnapshotBuffer";
 
 const defaultOptions: RenderTransformCacheOptions = {
   initialCapacity: 4,
@@ -34,10 +31,7 @@ function makeEntity(
   } as RenderEntitySnapshot;
 }
 
-function makeSnapshot(
-  tick: number,
-  entities: RenderEntitySnapshot[],
-): RenderSnapshot {
+function makeSnapshot(tick: number, entities: RenderEntitySnapshot[]): RenderSnapshot {
   return {
     tick,
     sequence: tick,
@@ -90,24 +84,20 @@ describe("RenderTransformCache", () => {
 
   it("walk interpolation moves tile centre to tile centre", () => {
     const cache = new RenderTransformCache(defaultOptions);
-    const older = makeSnapshot(
-      1,
-      [makeEntity(1, { x: 10, y: 20, plane: 0 }, { moveSpeed: "idle" })],
-    );
-    const newer = makeSnapshot(
-      2,
-      [
-        makeEntity(
-          1,
-          { x: 11, y: 20, plane: 0 },
-          {
-            moveSpeed: "walk",
-            previousTile: { x: 10, y: 20, plane: 0 },
-            facing: 90,
-          },
-        ),
-      ],
-    );
+    const older = makeSnapshot(1, [
+      makeEntity(1, { x: 10, y: 20, plane: 0 }, { moveSpeed: "idle" }),
+    ]);
+    const newer = makeSnapshot(2, [
+      makeEntity(
+        1,
+        { x: 11, y: 20, plane: 0 },
+        {
+          moveSpeed: "walk",
+          previousTile: { x: 10, y: 20, plane: 0 },
+          facing: 90,
+        },
+      ),
+    ]);
 
     cache.applySample(makeSample("interpolate", 0, older));
     cache.applySample(makeSample("interpolate", 0.5, newer, older));
@@ -122,24 +112,20 @@ describe("RenderTransformCache", () => {
 
   it("run interpolation when snapshot proves two-tile move", () => {
     const cache = new RenderTransformCache(defaultOptions);
-    const older = makeSnapshot(
-      1,
-      [makeEntity(1, { x: 10, y: 20, plane: 0 }, { moveSpeed: "idle" })],
-    );
-    const newer = makeSnapshot(
-      2,
-      [
-        makeEntity(
-          1,
-          { x: 12, y: 20, plane: 0 },
-          {
-            moveSpeed: "run",
-            previousTile: { x: 10, y: 20, plane: 0 },
-            facing: 90,
-          },
-        ),
-      ],
-    );
+    const older = makeSnapshot(1, [
+      makeEntity(1, { x: 10, y: 20, plane: 0 }, { moveSpeed: "idle" }),
+    ]);
+    const newer = makeSnapshot(2, [
+      makeEntity(
+        1,
+        { x: 12, y: 20, plane: 0 },
+        {
+          moveSpeed: "run",
+          previousTile: { x: 10, y: 20, plane: 0 },
+          facing: 90,
+        },
+      ),
+    ]);
 
     cache.applySample(makeSample("interpolate", 0, older));
     cache.applySample(makeSample("interpolate", 0.5, newer, older));
@@ -153,23 +139,17 @@ describe("RenderTransformCache", () => {
 
   it("run with less than two-tile distance falls back to walk", () => {
     const cache = new RenderTransformCache(defaultOptions);
-    const older = makeSnapshot(
-      1,
-      [makeEntity(1, { x: 10, y: 20, plane: 0 })],
-    );
-    const newer = makeSnapshot(
-      2,
-      [
-        makeEntity(
-          1,
-          { x: 11, y: 20, plane: 0 },
-          {
-            moveSpeed: "run",
-            previousTile: { x: 10, y: 20, plane: 0 },
-          },
-        ),
-      ],
-    );
+    const older = makeSnapshot(1, [makeEntity(1, { x: 10, y: 20, plane: 0 })]);
+    const newer = makeSnapshot(2, [
+      makeEntity(
+        1,
+        { x: 11, y: 20, plane: 0 },
+        {
+          moveSpeed: "run",
+          previousTile: { x: 10, y: 20, plane: 0 },
+        },
+      ),
+    ]);
 
     cache.applySample(makeSample("interpolate", 0.5, newer, older));
 
@@ -180,23 +160,17 @@ describe("RenderTransformCache", () => {
 
   it("teleport snaps to tile without interpolation", () => {
     const cache = new RenderTransformCache(defaultOptions);
-    const older = makeSnapshot(
-      1,
-      [makeEntity(1, { x: 10, y: 20, plane: 0 })],
-    );
-    const newer = makeSnapshot(
-      2,
-      [
-        makeEntity(
-          1,
-          { x: 50, y: 50, plane: 0 },
-          {
-            moveSpeed: "teleport",
-            previousTile: { x: 10, y: 20, plane: 0 },
-          },
-        ),
-      ],
-    );
+    const older = makeSnapshot(1, [makeEntity(1, { x: 10, y: 20, plane: 0 })]);
+    const newer = makeSnapshot(2, [
+      makeEntity(
+        1,
+        { x: 50, y: 50, plane: 0 },
+        {
+          moveSpeed: "teleport",
+          previousTile: { x: 10, y: 20, plane: 0 },
+        },
+      ),
+    ]);
 
     cache.applySample(makeSample("interpolate", 0.5, newer, older));
 
@@ -208,23 +182,17 @@ describe("RenderTransformCache", () => {
 
   it("teleport on previousTile null even in interpolate mode", () => {
     const cache = new RenderTransformCache(defaultOptions);
-    const older = makeSnapshot(
-      1,
-      [makeEntity(1, { x: 10, y: 20, plane: 0 })],
-    );
-    const newer = makeSnapshot(
-      2,
-      [
-        makeEntity(
-          1,
-          { x: 11, y: 20, plane: 0 },
-          {
-            moveSpeed: "walk",
-            previousTile: null,
-          },
-        ),
-      ],
-    );
+    const older = makeSnapshot(1, [makeEntity(1, { x: 10, y: 20, plane: 0 })]);
+    const newer = makeSnapshot(2, [
+      makeEntity(
+        1,
+        { x: 11, y: 20, plane: 0 },
+        {
+          moveSpeed: "walk",
+          previousTile: null,
+        },
+      ),
+    ]);
 
     cache.applySample(makeSample("interpolate", 0.5, newer, older));
 
@@ -235,14 +203,14 @@ describe("RenderTransformCache", () => {
 
   it("snap mode renders at current tile", () => {
     const cache = new RenderTransformCache(defaultOptions);
-    const older = makeSnapshot(
-      1,
-      [makeEntity(1, { x: 10, y: 20, plane: 0 })],
-    );
-    const newer = makeSnapshot(
-      2,
-      [makeEntity(1, { x: 15, y: 25, plane: 0 }, { moveSpeed: "walk", previousTile: { x: 10, y: 20, plane: 0 } })],
-    );
+    const older = makeSnapshot(1, [makeEntity(1, { x: 10, y: 20, plane: 0 })]);
+    const newer = makeSnapshot(2, [
+      makeEntity(
+        1,
+        { x: 15, y: 25, plane: 0 },
+        { moveSpeed: "walk", previousTile: { x: 10, y: 20, plane: 0 } },
+      ),
+    ]);
 
     cache.applySample(makeSample("snap", 0, newer, older, "Missing ticks"));
 
@@ -254,14 +222,10 @@ describe("RenderTransformCache", () => {
 
   it("hold_latest renders at current tile without movement", () => {
     const cache = new RenderTransformCache(defaultOptions);
-    const older = makeSnapshot(
-      1,
-      [makeEntity(1, { x: 10, y: 20, plane: 0 })],
-    );
-    const newer = makeSnapshot(
-      2,
-      [makeEntity(1, { x: 10, y: 20, plane: 0 }, { previousTile: { x: 10, y: 20, plane: 0 } })],
-    );
+    const older = makeSnapshot(1, [makeEntity(1, { x: 10, y: 20, plane: 0 })]);
+    const newer = makeSnapshot(2, [
+      makeEntity(1, { x: 10, y: 20, plane: 0 }, { previousTile: { x: 10, y: 20, plane: 0 } }),
+    ]);
 
     cache.applySample(makeSample("hold_latest", 0, newer, older));
 
@@ -273,10 +237,7 @@ describe("RenderTransformCache", () => {
 
   it("freeze mode renders at current tile", () => {
     const cache = new RenderTransformCache(defaultOptions);
-    const snapshot = makeSnapshot(
-      1,
-      [makeEntity(1, { x: 10, y: 20, plane: 0 })],
-    );
+    const snapshot = makeSnapshot(1, [makeEntity(1, { x: 10, y: 20, plane: 0 })]);
 
     cache.applySample(makeSample("freeze", 0, snapshot));
 
@@ -287,10 +248,7 @@ describe("RenderTransformCache", () => {
 
   it("empty mode removes all entities", () => {
     const cache = new RenderTransformCache(defaultOptions);
-    const snapshot = makeSnapshot(
-      1,
-      [makeEntity(1, { x: 10, y: 20, plane: 0 })],
-    );
+    const snapshot = makeSnapshot(1, [makeEntity(1, { x: 10, y: 20, plane: 0 })]);
     cache.applySample(makeSample("interpolate", 0, snapshot));
     expect(cache.count).toBe(1);
 
@@ -404,12 +362,7 @@ describe("RenderTransformCache", () => {
   it("newer entity without previousTile and no older entity snaps to tile", () => {
     const cache = new RenderTransformCache(defaultOptions);
     const older = makeSnapshot(1, [makeEntity(1, { x: 10, y: 20, plane: 0 })]);
-    const newer = makeSnapshot(
-      2,
-      [
-        makeEntity(2, { x: 5, y: 5, plane: 0 }, { moveSpeed: "walk" }),
-      ],
-    );
+    const newer = makeSnapshot(2, [makeEntity(2, { x: 5, y: 5, plane: 0 }, { moveSpeed: "walk" })]);
 
     cache.applySample(makeSample("interpolate", 0.5, newer, older));
 
@@ -423,19 +376,16 @@ describe("RenderTransformCache", () => {
   it("older snapshot tile is used when previousTile is null but older entity exists", () => {
     const cache = new RenderTransformCache(defaultOptions);
     const older = makeSnapshot(1, [makeEntity(1, { x: 10, y: 20, plane: 0 })]);
-    const newer = makeSnapshot(
-      2,
-      [
-        makeEntity(
-          1,
-          { x: 11, y: 20, plane: 0 },
-          {
-            moveSpeed: "walk",
-            previousTile: null,
-          },
-        ),
-      ],
-    );
+    const newer = makeSnapshot(2, [
+      makeEntity(
+        1,
+        { x: 11, y: 20, plane: 0 },
+        {
+          moveSpeed: "walk",
+          previousTile: null,
+        },
+      ),
+    ]);
 
     cache.applySample(makeSample("interpolate", 0.5, newer, older));
 

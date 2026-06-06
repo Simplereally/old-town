@@ -28,13 +28,7 @@ export interface RenderEntityPresentation {
   readonly heading: number;
   readonly movementKind: MovementPresentationKind;
   readonly renderHandleId: number;
-  readonly kind:
-    | "player"
-    | "npc"
-    | "creature"
-    | "projectile"
-    | "object"
-    | "groundItem";
+  readonly kind: "player" | "npc" | "creature" | "projectile" | "object" | "groundItem";
   readonly defId: string;
   readonly appearance:
     | { readonly name?: string; readonly bodyId?: string; readonly colors?: readonly number[] }
@@ -297,11 +291,7 @@ export class RenderTransformCache {
     this._computeRenderPosition(index, mode, alpha);
   }
 
-  private _computeRenderPosition(
-    index: number,
-    mode: PresentationSampleMode,
-    alpha: number,
-  ): void {
+  private _computeRenderPosition(index: number, mode: PresentationSampleMode, alpha: number): void {
     const halfTile = this._tileSize * 0.5;
 
     if (

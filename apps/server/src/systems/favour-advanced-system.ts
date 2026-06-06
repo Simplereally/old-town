@@ -1,10 +1,10 @@
 import type { ContentRegistries } from "@old-town/shared/content/content-registries";
 import type { EntityId } from "@old-town/shared/types/ids";
 import type { World } from "../ecs/world";
-import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { count, removeItem } from "../items/inventory";
-import { applyStatusEffect, type StatusEffectContext } from "./status-effect-system";
+import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { deductXp } from "../skills/skill-state";
+import { applyStatusEffect, type StatusEffectContext } from "./status-effect-system";
 
 export interface BoonDef {
   id: string;
@@ -95,13 +95,23 @@ export function activateBoon(
   serverTime: number,
 ): boolean {
   if (!hasFavour(ctx.world, entityId, boon.requiredFavour)) {
-    systemMessage(ctx, entityId, `You need Favour level ${boon.requiredFavour} to activate ${boon.name}.`, serverTime);
+    systemMessage(
+      ctx,
+      entityId,
+      `You need Favour level ${boon.requiredFavour} to activate ${boon.name}.`,
+      serverTime,
+    );
     return false;
   }
 
   const success = deductFavourXp(ctx, entityId, boon.favourCost);
   if (!success) {
-    systemMessage(ctx, entityId, "You do not have enough Favour to activate this boon.", serverTime);
+    systemMessage(
+      ctx,
+      entityId,
+      "You do not have enough Favour to activate this boon.",
+      serverTime,
+    );
     return false;
   }
 
@@ -126,13 +136,23 @@ export function bindOath(
   serverTime: number,
 ): boolean {
   if (!hasFavour(ctx.world, entityId, oath.requiredFavour)) {
-    systemMessage(ctx, entityId, `You need Favour level ${oath.requiredFavour} to bind the ${oath.name}.`, serverTime);
+    systemMessage(
+      ctx,
+      entityId,
+      `You need Favour level ${oath.requiredFavour} to bind the ${oath.name}.`,
+      serverTime,
+    );
     return false;
   }
 
   const currentOath = getActiveOathId(ctx.world, entityId);
   if (currentOath) {
-    systemMessage(ctx, entityId, "You are already bound to an oath. You must break it first.", serverTime);
+    systemMessage(
+      ctx,
+      entityId,
+      "You are already bound to an oath. You must break it first.",
+      serverTime,
+    );
     return false;
   }
 
@@ -202,7 +222,12 @@ export function performRite(
   serverTime: number,
 ): boolean {
   if (!hasFavour(ctx.world, entityId, rite.requiredFavour)) {
-    systemMessage(ctx, entityId, `You need Favour level ${rite.requiredFavour} to perform ${rite.name}.`, serverTime);
+    systemMessage(
+      ctx,
+      entityId,
+      `You need Favour level ${rite.requiredFavour} to perform ${rite.name}.`,
+      serverTime,
+    );
     return false;
   }
 
@@ -214,7 +239,12 @@ export function performRite(
 
   for (const req of rite.requiredItems) {
     if (count(inventory, req.itemId) < req.quantity) {
-      systemMessage(ctx, entityId, `You need ${req.quantity} ${req.itemId} to perform ${rite.name}.`, serverTime);
+      systemMessage(
+        ctx,
+        entityId,
+        `You need ${req.quantity} ${req.itemId} to perform ${rite.name}.`,
+        serverTime,
+      );
       return false;
     }
   }

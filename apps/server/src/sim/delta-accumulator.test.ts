@@ -91,7 +91,9 @@ describe("DeltaAccumulator", () => {
         changes: [{ slot: 1, itemId: "logs", quantity: 2 }],
       },
     ]);
-    expect(packet.skillDelta).toEqual([{ skillId: "woodcutting", level: 2, xp: 100, effectiveLevel: 2 }]);
+    expect(packet.skillDelta).toEqual([
+      { skillId: "woodcutting", level: 2, xp: 100, effectiveLevel: 2 },
+    ]);
     expect(packet.varbitDelta).toEqual([
       { varId: "quest.stage", value: 1 },
       { varId: "quest.started", value: true },

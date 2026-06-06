@@ -1,13 +1,6 @@
-import {
-  GAME_TICK_MS,
-  type HitsplatType,
-  type TileCoord,
-} from "@old-town/shared";
+import { GAME_TICK_MS, type HitsplatType, type TileCoord } from "@old-town/shared";
 import type { RenderClockSample } from "./RenderClock";
-import {
-  RenderTransformCache,
-  type RenderTransformSample,
-} from "./RenderTransformCache";
+import { RenderTransformCache, type RenderTransformSample } from "./RenderTransformCache";
 
 export interface PresentationMovementPoliciesOptions {
   /** Server tick duration in milliseconds. */
@@ -187,11 +180,7 @@ export class PresentationMovementPolicies {
   }
 
   /** Show an overhead chat bubble with server-time origin and a visual duration. */
-  showChat(
-    entityId: number,
-    text: string,
-    serverTimeMs: number,
-  ): number {
+  showChat(entityId: number, text: string, serverTimeMs: number): number {
     const id = this._chatBubbleId++;
     this._chatBubbles.set(id, { entityId, text, serverTimeMs });
     return id;
@@ -292,8 +281,7 @@ export class PresentationMovementPolicies {
     for (const [id, proj] of this._projectiles) {
       const durationMs = (proj.hitTick - proj.startTick) * this._options.tickMs;
       const elapsedMs = this._effectiveTimeMs - proj.startTick * this._options.tickMs;
-      const progress =
-        durationMs > 0 ? Math.min(1, Math.max(0, elapsedMs / durationMs)) : 1;
+      const progress = durationMs > 0 ? Math.min(1, Math.max(0, elapsedMs / durationMs)) : 1;
       result.push({
         id,
         startTile: proj.startTile,
@@ -312,10 +300,7 @@ export class PresentationMovementPolicies {
     const result: HitsplatPresentation[] = [];
     for (const [id, hitsplat] of this._hitsplats) {
       const elapsedMs = this._effectiveTimeMs - hitsplat.startServerTimeMs;
-      const progress = Math.min(
-        1,
-        Math.max(0, elapsedMs / this._options.hitsplatDurationMs),
-      );
+      const progress = Math.min(1, Math.max(0, elapsedMs / this._options.hitsplatDurationMs));
       result.push({
         id,
         entityId: hitsplat.entityId,
@@ -335,10 +320,7 @@ export class PresentationMovementPolicies {
     const result: ChatBubblePresentation[] = [];
     for (const [id, bubble] of this._chatBubbles) {
       const elapsedMs = this._effectiveTimeMs - bubble.serverTimeMs;
-      const progress = Math.min(
-        1,
-        Math.max(0, elapsedMs / this._options.chatDurationMs),
-      );
+      const progress = Math.min(1, Math.max(0, elapsedMs / this._options.chatDurationMs));
       result.push({
         id,
         entityId: bubble.entityId,
@@ -356,10 +338,7 @@ export class PresentationMovementPolicies {
     const result: ClickMarkerPresentation[] = [];
     for (const [id, marker] of this._clickMarkers) {
       const elapsedMs = this._effectiveTimeMs - marker.startRenderServerTimeMs;
-      const progress = Math.min(
-        1,
-        Math.max(0, elapsedMs / this._options.clickMarkerDurationMs),
-      );
+      const progress = Math.min(1, Math.max(0, elapsedMs / this._options.clickMarkerDurationMs));
       result.push({
         id,
         tile: marker.tile,

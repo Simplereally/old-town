@@ -1,5 +1,4 @@
-import { entityId } from "@old-town/shared";
-import { GAME_TICK_MS } from "@old-town/shared";
+import { entityId, GAME_TICK_MS } from "@old-town/shared";
 import { Scene, Vector3 } from "three";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HitsplatLayer } from "./HitsplatLayer";

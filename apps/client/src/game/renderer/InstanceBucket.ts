@@ -1,3 +1,4 @@
+import type { BufferGeometry, Material } from "three";
 import {
   DynamicDrawUsage,
   InstancedBufferAttribute,
@@ -7,7 +8,6 @@ import {
   Sphere,
   Vector3,
 } from "three";
-import type { BufferGeometry, Material } from "three";
 
 /** Key that uniquely identifies an instance bucket. */
 export interface InstanceBucketKey {
@@ -47,7 +47,12 @@ export interface InstanceBucketStats {
 /** Input that can be a full Matrix4, a Float32Array of 16 elements, or decomposed components. */
 export interface TransformComponents {
   readonly position?: { readonly x: number; readonly y: number; readonly z: number };
-  readonly rotation?: { readonly x: number; readonly y: number; readonly z: number; readonly w: number };
+  readonly rotation?: {
+    readonly x: number;
+    readonly y: number;
+    readonly z: number;
+    readonly w: number;
+  };
   readonly scale?: { readonly x: number; readonly y: number; readonly z: number };
 }
 
@@ -272,11 +277,7 @@ export class InstanceBucket {
   /** Deterministic capacity growth. Not for hot loops; call during load or prewarm. */
   growCapacity(targetCapacity: number): void {
     if (targetCapacity <= this._capacity) return;
-    const newMesh = new InstancedMesh(
-      this.mesh.geometry,
-      this.mesh.material,
-      targetCapacity,
-    );
+    const newMesh = new InstancedMesh(this.mesh.geometry, this.mesh.material, targetCapacity);
     newMesh.instanceMatrix.setUsage(DynamicDrawUsage);
     newMesh.count = this.mesh.count;
     if (this.mesh.boundingSphere) {
@@ -297,11 +298,16 @@ export class InstanceBucket {
 
     // Also migrate custom aSeed attribute if present
     if (this._ownsGeometry) {
-      const oldSeed = this.mesh.geometry.getAttribute("aSeed") as InstancedBufferAttribute | undefined;
+      const oldSeed = this.mesh.geometry.getAttribute("aSeed") as
+        | InstancedBufferAttribute
+        | undefined;
       if (oldSeed) {
         const newSeedArray = new Float32Array(targetCapacity * this._colorOrSeedItemSize);
         newSeedArray.set(oldSeed.array as Float32Array);
-        newMesh.geometry.setAttribute("aSeed", new InstancedBufferAttribute(newSeedArray, this._colorOrSeedItemSize));
+        newMesh.geometry.setAttribute(
+          "aSeed",
+          new InstancedBufferAttribute(newSeedArray, this._colorOrSeedItemSize),
+        );
       }
     }
 
@@ -321,7 +327,9 @@ export class InstanceBucket {
     if (newMesh.instanceColor) {
       this.instanceColorOrSeedArray = newMesh.instanceColor.array as Float32Array;
     } else if (this._ownsGeometry) {
-      const seedAttr = newMesh.geometry.getAttribute("aSeed") as InstancedBufferAttribute | undefined;
+      const seedAttr = newMesh.geometry.getAttribute("aSeed") as
+        | InstancedBufferAttribute
+        | undefined;
       if (seedAttr) {
         this.instanceColorOrSeedArray = seedAttr.array as Float32Array;
       }
@@ -425,9 +433,6 @@ export class InstanceBucket {
     );
 
     this._scratchSphereCenter.set(centerX, centerY, centerZ);
-    this.mesh.boundingSphere = new Sphere(
-      this._scratchSphereCenter.clone(),
-      radius,
-    );
+    this.mesh.boundingSphere = new Sphere(this._scratchSphereCenter.clone(), radius);
   }
 }

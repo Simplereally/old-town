@@ -142,7 +142,11 @@ export class RenderResourceRegistry {
           );
         }
         const geometry = factory();
-        const entry: ResourceEntry<BufferGeometry> = { resource: geometry, refCount: 1, disposed: false };
+        const entry: ResourceEntry<BufferGeometry> = {
+          resource: geometry,
+          refCount: 1,
+          disposed: false,
+        };
         this.geometries.set(k, entry);
         return geometry;
       }
@@ -151,12 +155,14 @@ export class RenderResourceRegistry {
     }
     const factory = this.geometryFactories.get(k);
     if (!factory) {
-      throw new Error(
-        `RenderResourceRegistry: no geometry factory registered for key "${k}".`,
-      );
+      throw new Error(`RenderResourceRegistry: no geometry factory registered for key "${k}".`);
     }
     const geometry = factory();
-    const entry: ResourceEntry<BufferGeometry> = { resource: geometry, refCount: 1, disposed: false };
+    const entry: ResourceEntry<BufferGeometry> = {
+      resource: geometry,
+      refCount: 1,
+      disposed: false,
+    };
     this.geometries.set(k, entry);
     return geometry;
   }
@@ -185,9 +191,7 @@ export class RenderResourceRegistry {
     }
     const factory = this.materialFactories.get(k);
     if (!factory) {
-      throw new Error(
-        `RenderResourceRegistry: no material factory registered for key "${k}".`,
-      );
+      throw new Error(`RenderResourceRegistry: no material factory registered for key "${k}".`);
     }
     const material = factory();
     const entry: ResourceEntry<Material> = { resource: material, refCount: 1, disposed: false };
@@ -218,9 +222,7 @@ export class RenderResourceRegistry {
     }
     const factory = this.textureFactories.get(k);
     if (!factory) {
-      throw new Error(
-        `RenderResourceRegistry: no texture factory registered for key "${k}".`,
-      );
+      throw new Error(`RenderResourceRegistry: no texture factory registered for key "${k}".`);
     }
     const texture = factory();
     const entry: ResourceEntry<Texture> = { resource: texture, refCount: 1, disposed: false };

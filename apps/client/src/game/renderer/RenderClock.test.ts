@@ -83,9 +83,7 @@ describe("RenderClock", () => {
     const sample = clock.sample(1000 + 1200); // 1200 ms = 2 ticks
     // Estimated server time should be continuous, not tick-quantised.
     expect(sample.estimatedServerTimeMs).toBe(2000 + 1200);
-    expect(sample.renderServerTimeMs).toBe(
-      2000 + 1200 - defaultOptions.interpolationDelayMs,
-    );
+    expect(sample.renderServerTimeMs).toBe(2000 + 1200 - defaultOptions.interpolationDelayMs);
   });
 
   it("repeated sync smooths offset forward without moving backwards", () => {
@@ -111,9 +109,7 @@ describe("RenderClock", () => {
     clock.syncToServer(2, 2500, 1600);
     const sample = clock.sample(2000);
     expect(sample.estimatedServerTimeMs).toBe(3000);
-    expect(sample.renderServerTimeMs).toBe(
-      3000 - defaultOptions.interpolationDelayMs,
-    );
+    expect(sample.renderServerTimeMs).toBe(3000 - defaultOptions.interpolationDelayMs);
   });
 
   it("returns zero frameDeltaMs on the very first sample", () => {

@@ -32,10 +32,7 @@ function systemMessage(
   ctx.deltas.markChat({ entityId: owner, channel: "system", text, serverTime });
 }
 
-function getOrCreatePublicWorkComponent(
-  world: World,
-  entityId: EntityId,
-): PublicWorkComponent {
+function getOrCreatePublicWorkComponent(world: World, entityId: EntityId): PublicWorkComponent {
   const existing = world.getComponent(entityId, "publicWork");
   if (existing) return existing;
   const component: PublicWorkComponent = {
@@ -180,12 +177,7 @@ export function checkPublicWorkCompletion(
   // Notify all contributors
   const contributorIds = [...new Set(publicWork.contributors.map((c) => c.playerId))];
   for (const contributorId of contributorIds) {
-    systemMessage(
-      ctx,
-      contributorId,
-      `${publicWork.name} has been completed!`,
-      serverTime,
-    );
+    systemMessage(ctx, contributorId, `${publicWork.name} has been completed!`, serverTime);
   }
 
   // Apply world change via global var on all players

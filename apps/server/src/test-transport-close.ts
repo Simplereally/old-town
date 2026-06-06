@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
-import { createWebSocketTransport } from "./net/websocket-transport";
 import WebSocket from "ws";
+import { createWebSocketTransport } from "./net/websocket-transport";
 
 const httpServer = createServer();
 const transport = createWebSocketTransport({
@@ -30,7 +30,8 @@ client.close();
 await new Promise<void>((resolve) => client.once("close", resolve));
 console.log("client closed");
 
-const timeout = (ms: number) => new Promise<void>((_, reject) => setTimeout(() => reject(new Error(`timeout ${ms}ms`)), ms));
+const timeout = (ms: number) =>
+  new Promise<void>((_, reject) => setTimeout(() => reject(new Error(`timeout ${ms}ms`)), ms));
 
 try {
   await Promise.race([transport.close(), timeout(2000)]);
@@ -40,7 +41,10 @@ try {
 }
 
 try {
-  await Promise.race([new Promise<void>((resolve) => httpServer.close(() => resolve())), timeout(2000)]);
+  await Promise.race([
+    new Promise<void>((resolve) => httpServer.close(() => resolve())),
+    timeout(2000),
+  ]);
   console.log("httpServer.close resolved");
 } catch (e) {
   console.log("httpServer.close failed", e);

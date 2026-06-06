@@ -1,18 +1,15 @@
 import { describe, expect, it } from "vitest";
+import type { RenderEntitySnapshot, RenderSnapshot } from "../net/SnapshotBuffer";
+import {
+  PresentationMovementPolicies,
+  type PresentationMovementPoliciesOptions,
+} from "./PresentationMovementPolicies";
+import { RenderClock, type RenderClockOptions } from "./RenderClock";
 import {
   MovementPresentationKind,
   RenderTransformCache,
   type RenderTransformSample,
 } from "./RenderTransformCache";
-import type {
-  RenderEntitySnapshot,
-  RenderSnapshot,
-} from "../net/SnapshotBuffer";
-import { RenderClock, type RenderClockOptions } from "./RenderClock";
-import {
-  PresentationMovementPolicies,
-  type PresentationMovementPoliciesOptions,
-} from "./PresentationMovementPolicies";
 
 const defaultOptions: PresentationMovementPoliciesOptions = {
   tickMs: 600,
@@ -49,10 +46,7 @@ function makeEntity(
   } as RenderEntitySnapshot;
 }
 
-function makeSnapshot(
-  tick: number,
-  entities: RenderEntitySnapshot[],
-): RenderSnapshot {
+function makeSnapshot(tick: number, entities: RenderEntitySnapshot[]): RenderSnapshot {
   return {
     tick,
     sequence: tick,
@@ -138,9 +132,7 @@ describe("PresentationMovementPolicies", () => {
 
   it("run with less than two-tile distance falls back to walk", () => {
     const policies = new PresentationMovementPolicies(defaultOptions);
-    const older = makeSnapshot(1, [
-      makeEntity(1, { x: 10, y: 20, plane: 0 }),
-    ]);
+    const older = makeSnapshot(1, [makeEntity(1, { x: 10, y: 20, plane: 0 })]);
     const newer = makeSnapshot(2, [
       makeEntity(
         1,
@@ -161,9 +153,7 @@ describe("PresentationMovementPolicies", () => {
 
   it("teleport snaps to tile without interpolation through blocked tiles", () => {
     const policies = new PresentationMovementPolicies(defaultOptions);
-    const older = makeSnapshot(1, [
-      makeEntity(1, { x: 10, y: 20, plane: 0 }),
-    ]);
+    const older = makeSnapshot(1, [makeEntity(1, { x: 10, y: 20, plane: 0 })]);
     const newer = makeSnapshot(2, [
       makeEntity(
         1,
@@ -190,9 +180,7 @@ describe("PresentationMovementPolicies", () => {
 
   it("teleport on previousTile null even in interpolate mode", () => {
     const policies = new PresentationMovementPolicies(defaultOptions);
-    const older = makeSnapshot(1, [
-      makeEntity(1, { x: 10, y: 20, plane: 0 }),
-    ]);
+    const older = makeSnapshot(1, [makeEntity(1, { x: 10, y: 20, plane: 0 })]);
     const newer = makeSnapshot(2, [
       makeEntity(
         1,
@@ -226,15 +214,12 @@ describe("PresentationMovementPolicies", () => {
     policies.update(sample1);
     let projs = policies.getProjectiles();
     expect(projs).toHaveLength(1);
-    expect(projs[0]!.progress).toBeCloseTo(
-      (1400 - 1 * 600) / ((3 - 1) * 600),
-      5,
-    );
+    expect(projs[0]!.progress).toBeCloseTo((1400 - 1 * 600) / ((3 - 1) * 600), 5);
     expect(projs[0]!.isDone).toBe(false);
 
     // At renderServerTimeMs = 2000 (tick 2), projectile is halfway
     clock.sample(1000 + 1000 / 60);
-    const sample2 = clock.sample(1000 + (2000 / 60));
+    const sample2 = clock.sample(1000 + 2000 / 60);
     policies.update(sample2);
     projs = policies.getProjectiles();
     expect(projs[0]!.progress).toBeCloseTo(
@@ -264,8 +249,7 @@ describe("PresentationMovementPolicies", () => {
     let hitsplats = policies.getHitsplats();
     expect(hitsplats).toHaveLength(1);
     expect(hitsplats[0]!.progress).toBeCloseTo(
-      (sample1.renderServerTimeMs - startServerTimeMs) /
-        defaultOptions.hitsplatDurationMs,
+      (sample1.renderServerTimeMs - startServerTimeMs) / defaultOptions.hitsplatDurationMs,
       5,
     );
     expect(hitsplats[0]!.isDone).toBe(false);
@@ -291,8 +275,7 @@ describe("PresentationMovementPolicies", () => {
     let chats = policies.getChatBubbles();
     expect(chats).toHaveLength(1);
     expect(chats[0]!.progress).toBeCloseTo(
-      (sample1.renderServerTimeMs - chatServerTimeMs) /
-        defaultOptions.chatDurationMs,
+      (sample1.renderServerTimeMs - chatServerTimeMs) / defaultOptions.chatDurationMs,
       5,
     );
     expect(chats[0]!.isDone).toBe(false);
@@ -460,7 +443,13 @@ describe("PresentationMovementPolicies", () => {
   it("clear methods remove all tracked effects", () => {
     const policies = new PresentationMovementPolicies(defaultOptions);
 
-    policies.spawnProjectile("p1", { x: 0, y: 0, plane: 0 } as const, { x: 1, y: 1, plane: 0 } as const, 1, 2);
+    policies.spawnProjectile(
+      "p1",
+      { x: 0, y: 0, plane: 0 } as const,
+      { x: 1, y: 1, plane: 0 } as const,
+      1,
+      2,
+    );
     policies.showHitsplat(1, 5, "damage", 1, 600);
     policies.showChat(1, "Hi", 600);
     policies.recordClick({ x: 0, y: 0, plane: 0 } as const, 600);
@@ -482,7 +471,13 @@ describe("PresentationMovementPolicies", () => {
   it("remove methods remove individual effects", () => {
     const policies = new PresentationMovementPolicies(defaultOptions);
 
-    policies.spawnProjectile("p1", { x: 0, y: 0, plane: 0 } as const, { x: 1, y: 1, plane: 0 } as const, 1, 2);
+    policies.spawnProjectile(
+      "p1",
+      { x: 0, y: 0, plane: 0 } as const,
+      { x: 1, y: 1, plane: 0 } as const,
+      1,
+      2,
+    );
     const hitId = policies.showHitsplat(1, 5, "damage", 1, 600);
     const chatId = policies.showChat(1, "Hi", 600);
     const markerId = policies.recordClick({ x: 0, y: 0, plane: 0 } as const, 600);

@@ -18,9 +18,9 @@ import { CollisionMap } from "../world/collision";
 import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
 import {
   DROP_PRIVATE_TICKS,
+  dropInventoryOnDeath,
   GROUND_ITEM_DESPAWN_TICKS,
   type GroundItemSystemContext,
-  dropInventoryOnDeath,
   handleGroundItemIntent,
   processDeathResolution,
   processGroundItemLifecycle,
@@ -355,8 +355,12 @@ describe("ground item and drop system", () => {
     const groundItems = Array.from(world.componentEntries("groundItem"));
     expect(groundItems).toHaveLength(2);
     const items = groundItems.map(([, g]) => g);
-    expect(items.some((g) => g.itemId === "coin" && g.quantity === 10 && g.ownerId === player)).toBe(true);
-    expect(items.some((g) => g.itemId === "small_bones" && g.quantity === 3 && g.ownerId === player)).toBe(true);
+    expect(
+      items.some((g) => g.itemId === "coin" && g.quantity === 10 && g.ownerId === player),
+    ).toBe(true);
+    expect(
+      items.some((g) => g.itemId === "small_bones" && g.quantity === 3 && g.ownerId === player),
+    ).toBe(true);
   });
 
   it("grave items expire after despawn ticks", () => {

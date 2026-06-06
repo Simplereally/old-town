@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { createWorld, type World } from "../../ecs/world";
-import { createInventory, addItem, catalogFromItems } from "../../items/inventory";
+import { addItem, catalogFromItems, createInventory } from "../../items/inventory";
 import { ItemAuditLog } from "../../items/item-audit";
 import { DeltaAccumulator } from "../../sim/delta-accumulator";
 import { makeRegistries } from "../../test-support/registries";
-import { issueCharter, validateCharter, processCharterExpiry, hasPermit } from "../charter-system";
 import { setVar } from "../../vars/player-vars";
+import { hasPermit, issueCharter, processCharterExpiry, validateCharter } from "../charter-system";
 
 const PLAYER = 0 as import("@old-town/shared/types/ids").EntityId;
 

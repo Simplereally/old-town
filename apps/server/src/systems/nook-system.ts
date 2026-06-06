@@ -1,7 +1,7 @@
 import type { EntityId, TileCoord } from "@old-town/shared";
 import type { World } from "../ecs/world";
-import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { hasItem } from "../items/inventory";
+import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { getQuestStage } from "../vars/player-vars";
 
 export interface NookDef {

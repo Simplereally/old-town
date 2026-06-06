@@ -1,6 +1,6 @@
 /** Charter definitions for permits that gate access to areas, activities, or content. */
 import { z } from "zod";
-import { contentIdSchema, nonNegInt, itemQuantitySchema } from "./common";
+import { contentIdSchema, itemQuantitySchema, nonNegInt } from "./common";
 
 export const charterTypeSchema = z.enum(["area", "activity", "content"]);
 

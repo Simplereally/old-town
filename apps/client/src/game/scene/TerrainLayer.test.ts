@@ -1,5 +1,5 @@
 import type { ChunkData } from "@old-town/shared";
-import { Mesh, Scene, Group } from "three";
+import { Group, Mesh, Scene } from "three";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { TerrainLayer } from "./TerrainLayer";
 

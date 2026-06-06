@@ -1,12 +1,8 @@
 import { describe, expect, it } from "vitest";
-import {
-  type RecipeListPacket,
-  type RecipeResultPacket,
-  ServerPacketType,
-} from "../packets";
-import { ClientCommandType, type RecipeSelectCommand } from "../commands";
-import { parseClientCommand } from "../command-schemas";
 import { entityId } from "../../types/ids";
+import { parseClientCommand } from "../command-schemas";
+import { ClientCommandType, type RecipeSelectCommand } from "../commands";
+import { type RecipeListPacket, type RecipeResultPacket, ServerPacketType } from "../packets";
 
 describe("recipe protocol", () => {
   it("round-trips a RecipeListPacket through a TickDelta", () => {

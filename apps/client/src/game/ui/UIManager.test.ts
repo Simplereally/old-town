@@ -306,7 +306,8 @@ describe("UIManager", () => {
   it("shows detail panel and Make button on selection", () => {
     uiState.setSkills([{ skillId: "cooking", level: 10, xp: 1000, effectiveLevel: 10 }]);
     content.getItem.mockImplementation((itemId: string) => {
-      if (itemId === "cooked_fish") return { name: "Cooked Fish" } as unknown as ReturnType<typeof content.getItem>;
+      if (itemId === "cooked_fish")
+        return { name: "Cooked Fish" } as unknown as ReturnType<typeof content.getItem>;
       return undefined;
     });
     uiState.setRecipeList({

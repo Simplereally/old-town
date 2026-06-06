@@ -1,5 +1,4 @@
-import { Vector3, type Scene } from "three";
-import { Mesh, MeshBasicMaterial, RingGeometry } from "three";
+import { Mesh, MeshBasicMaterial, RingGeometry, type Scene, Vector3 } from "three";
 
 export interface HoverHighlighterOptions {
   readonly scene: Scene;
@@ -78,7 +77,11 @@ export class HoverHighlighter {
     if (!this._targetPosition) {
       this._targetPosition = new Vector3();
     }
-    this._targetPosition.set(presentation.renderX, presentation.renderY + this._targetY, presentation.renderZ);
+    this._targetPosition.set(
+      presentation.renderX,
+      presentation.renderY + this._targetY,
+      presentation.renderZ,
+    );
     this._updatePosition();
   }
 

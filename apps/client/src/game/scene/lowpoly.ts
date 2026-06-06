@@ -1,10 +1,4 @@
-import {
-  BufferAttribute,
-  type BufferGeometry,
-  Color,
-  MeshLambertMaterial,
-  Vector3,
-} from "three";
+import { BufferAttribute, type BufferGeometry, Color, MeshLambertMaterial, Vector3 } from "three";
 import { mergeGeometries, mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 /**

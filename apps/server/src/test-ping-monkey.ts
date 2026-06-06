@@ -1,9 +1,9 @@
 import { createServer } from "node:http";
 import {
-  TransportClientMessageType,
+  ClientCommandType,
   PROTOCOL_VERSION,
   ServerPacketType,
-  ClientCommandType,
+  TransportClientMessageType,
   TransportServerMessageType,
 } from "@old-town/shared";
 import WebSocket from "ws";

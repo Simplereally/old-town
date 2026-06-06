@@ -40,7 +40,13 @@ vi.mock("./renderer/ThreeRenderer", () => {
     running: false,
     onFrame: undefined,
     onResize: undefined,
-    debugCounters: vi.fn(() => ({ fps: 60, frameTimeMs: 16, drawCalls: 10, geometries: 5, textures: 2 })),
+    debugCounters: vi.fn(() => ({
+      fps: 60,
+      frameTimeMs: 16,
+      drawCalls: 10,
+      geometries: 5,
+      textures: 2,
+    })),
     tileToWorld: vi.fn((x: number, y: number) => ({ x, y: 0, z: -y })),
     worldToTile: vi.fn((x: number, z: number) => ({ x: Math.floor(x), y: Math.floor(-z) })),
   };
@@ -200,7 +206,9 @@ describe("GameEngine snapshot playout", () => {
     asEngine(engine)._connected = true;
 
     const sampleSpy = vi.spyOn(engine.renderClock, "sample");
-    const onFrame = (asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }).onFrame;
+    const onFrame = (
+      asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }
+    ).onFrame;
     onFrame(16, 1, 1500);
 
     expect(sampleSpy).toHaveBeenCalledWith(1500);
@@ -218,7 +226,9 @@ describe("GameEngine snapshot playout", () => {
     };
     const sampleSpy = vi.spyOn(snapshotBuffer, "sample");
 
-    const onFrame = (asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }).onFrame;
+    const onFrame = (
+      asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }
+    ).onFrame;
     onFrame(16, 1, 1500);
 
     expect(sampleSpy).toHaveBeenCalled();
@@ -237,7 +247,9 @@ describe("GameEngine snapshot playout", () => {
     };
     const applySpy = vi.spyOn(cache, "applySample");
 
-    const onFrame = (asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }).onFrame;
+    const onFrame = (
+      asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }
+    ).onFrame;
     onFrame(16, 1, 1500);
 
     expect(applySpy).toHaveBeenCalled();
@@ -253,7 +265,9 @@ describe("GameEngine snapshot playout", () => {
     (asEngine(engine)._handleFullState as (s: FullStatePacket) => void)(createFullStatePacket());
     asEngine(engine)._connected = true;
 
-    const onFrame = (asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }).onFrame;
+    const onFrame = (
+      asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }
+    ).onFrame;
 
     // Render 5 frames between packets
     onFrame(16, 1, 1000);
@@ -291,7 +305,9 @@ describe("GameEngine snapshot playout", () => {
     cache.forEachPresentation = (cb) => cb(mockPresentation);
     (cache as unknown as Record<string, unknown>).getPresentation = vi.fn(() => mockPresentation);
 
-    const onFrame = (asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }).onFrame;
+    const onFrame = (
+      asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }
+    ).onFrame;
     onFrame(16, 1, 1000);
 
     const actor = engine.actors.getActorState(42);
@@ -323,10 +339,13 @@ describe("GameEngine snapshot playout", () => {
     cache.forEachPresentation = (cb) => cb(mockPresentation);
     (cache as unknown as Record<string, unknown>).getPresentation = vi.fn(() => mockPresentation);
 
-    const followSpy = (asEngine(engine).renderer as { cameraController: { followTarget: ReturnType<typeof vi.fn> } })
-      .cameraController.followTarget;
+    const followSpy = (
+      asEngine(engine).renderer as { cameraController: { followTarget: ReturnType<typeof vi.fn> } }
+    ).cameraController.followTarget;
 
-    const onFrame = (asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }).onFrame;
+    const onFrame = (
+      asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }
+    ).onFrame;
     onFrame(16, 1, 1000);
 
     expect(followSpy).toHaveBeenCalled();
@@ -349,7 +368,9 @@ describe("GameEngine snapshot playout", () => {
     };
     const updateSpy = vi.spyOn(projectileLayer, "update");
 
-    const onFrame = (asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }).onFrame;
+    const onFrame = (
+      asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }
+    ).onFrame;
     onFrame(16, 1, 2000);
 
     // Verify the renderServerTimeMs passed to projectiles.update matches the clock sample
@@ -374,8 +395,13 @@ describe("GameEngine snapshot playout", () => {
     debugOverlay.appendChild(debugStats);
     document.body.appendChild(debugOverlay);
 
-    const onFrame = (asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }).onFrame;
-    const updateOverlaySpy = vi.spyOn(asEngine(engine) as { _updateOverlay: () => void }, "_updateOverlay");
+    const onFrame = (
+      asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }
+    ).onFrame;
+    const updateOverlaySpy = vi.spyOn(
+      asEngine(engine) as { _updateOverlay: () => void },
+      "_updateOverlay",
+    );
     expect(() => onFrame(16, 1, 1000)).not.toThrow();
 
     // Verify _updateOverlay was actually invoked
@@ -386,7 +412,9 @@ describe("GameEngine snapshot playout", () => {
     expect(asEngine(engine)._debugOverlayUpdatePending).toBe(true);
 
     // Verify _updateOverlay was called with the snapshot/playout parameters
-    const lastCall = (updateOverlaySpy.mock.calls as unknown[][])[updateOverlaySpy.mock.calls.length - 1];
+    const lastCall = (updateOverlaySpy.mock.calls as unknown[][])[
+      updateOverlaySpy.mock.calls.length - 1
+    ];
     expect(lastCall).toBeDefined();
     // _updateOverlay now takes 4 args: clockSample, presentationSample, queueStats, residencyStats
     expect(lastCall!.length).toBe(4);
@@ -482,7 +510,9 @@ describe("GameEngine snapshot playout", () => {
     (asEngine(engine)._applyPresentationEvents as () => void)();
 
     // Now simulate multiple render frames
-    const onFrame = (asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }).onFrame;
+    const onFrame = (
+      asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }
+    ).onFrame;
 
     // Sync clock first
     engine.renderClock.syncToServer(1, 600, 0);
@@ -520,7 +550,9 @@ describe("GameEngine snapshot playout", () => {
     };
     const updateSpy = vi.spyOn(hoverHighlighter, "updateFromCache");
 
-    const onFrame = (asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }).onFrame;
+    const onFrame = (
+      asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }
+    ).onFrame;
     onFrame(16, 1, 1000);
 
     expect(updateSpy).toHaveBeenCalled();
@@ -538,7 +570,9 @@ describe("GameEngine snapshot playout", () => {
     };
     const applySpy = vi.spyOn(cache, "applySample");
 
-    const onFrame = (asEngine(freshEngine).renderer as { onFrame: (d: number, e: number, t: number) => void }).onFrame;
+    const onFrame = (
+      asEngine(freshEngine).renderer as { onFrame: (d: number, e: number, t: number) => void }
+    ).onFrame;
     onFrame(16, 1, 1000);
 
     expect(applySpy).toHaveBeenCalled();

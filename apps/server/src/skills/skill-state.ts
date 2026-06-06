@@ -52,7 +52,12 @@ export function addXp(
 
   const levelUp = newLevel > oldLevel;
 
-  ctx.deltas.markSkillDelta({ skillId, level: newLevel, xp: newXp, effectiveLevel: getEffectiveLevel(skill) });
+  ctx.deltas.markSkillDelta({
+    skillId,
+    level: newLevel,
+    xp: newXp,
+    effectiveLevel: getEffectiveLevel(skill),
+  });
   ctx.deltas.markXpDrop({ skillId, amount });
 
   return { skillId, oldLevel, newLevel, oldXp, newXp, levelUp };
@@ -88,7 +93,12 @@ export function deductXp(
 
   const levelUp = newLevel > oldLevel;
 
-  ctx.deltas.markSkillDelta({ skillId, level: newLevel, xp: newXp, effectiveLevel: getEffectiveLevel(skill) });
+  ctx.deltas.markSkillDelta({
+    skillId,
+    level: newLevel,
+    xp: newXp,
+    effectiveLevel: getEffectiveLevel(skill),
+  });
   ctx.deltas.markXpDrop({ skillId, amount: -amount });
 
   return { skillId, oldLevel, newLevel, oldXp, newXp, levelUp };

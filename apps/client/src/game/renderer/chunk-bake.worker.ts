@@ -1,18 +1,17 @@
+import type { RegionTileData } from "@old-town/shared";
 import type {
+  BakeChunkFailure,
   BakeChunkRequest,
   BakeChunkSuccess,
-  BakeChunkFailure,
-  CancelBakeChunk,
   BakedChunkPayload,
-  ObjectRef,
-  MaterialGroup,
+  CancelBakeChunk,
   ChunkBounds,
-  TileMetadata,
   CollisionDebugData,
+  MaterialGroup,
   ObjectInstanceDescriptor,
+  ObjectRef,
+  TileMetadata,
 } from "./ChunkBakeWorkerClient";
-
-import type { RegionTileData } from "@old-town/shared";
 
 export function buildBakedChunkPayload(
   chunkCoord: { cx: number; cy: number; plane: number },

@@ -1,3 +1,4 @@
+import { tileKey } from "@old-town/shared/types/coords";
 import { describe, expect, it } from "vitest";
 import { createWorld, type World } from "../ecs/world";
 import { createInventory } from "../items/inventory";
@@ -7,7 +8,6 @@ import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
 import { handleDoorOpenIntent } from "./door-system";
-import { tileKey } from "@old-town/shared/types/coords";
 
 const WOODEN_DOOR_DEF = {
   id: "wooden_door",
@@ -60,7 +60,12 @@ function addPlayer(world: World, x = 1, y = 1): import("@old-town/shared/types/i
   return entityId;
 }
 
-function addObject(world: World, objectId: string, x = 2, y = 1): import("@old-town/shared/types/ids").EntityId {
+function addObject(
+  world: World,
+  objectId: string,
+  x = 2,
+  y = 1,
+): import("@old-town/shared/types/ids").EntityId {
   const entityId = world.createEntity();
   world.setComponent(entityId, "position", { entityId, x, y, plane: 0 });
   world.setComponent(entityId, "object", {
@@ -148,7 +153,11 @@ describe("door system", () => {
 
     const peek = deltas.peek();
     expect(peek.sounds?.[0]?.soundId).toBe("door_open");
-    expect(peek.entityUpdates?.some((u) => u.entityId === door && u.changes.animation?.id === "door_open")).toBe(true);
+    expect(
+      peek.entityUpdates?.some(
+        (u) => u.entityId === door && u.changes.animation?.id === "door_open",
+      ),
+    ).toBe(true);
     expect(peek.chat?.[0]?.text).toBe("You open the door.");
   });
 
@@ -197,7 +206,11 @@ describe("door system", () => {
 
     const peek = deltas.peek();
     expect(peek.sounds?.[0]?.soundId).toBe("chest_open");
-    expect(peek.entityUpdates?.some((u) => u.entityId === chest && u.changes.animation?.id === "chest_open")).toBe(true);
+    expect(
+      peek.entityUpdates?.some(
+        (u) => u.entityId === chest && u.changes.animation?.id === "chest_open",
+      ),
+    ).toBe(true);
     expect(peek.chat?.[0]?.text).toBe("You open the chest and find some items.");
 
     // Ground item should be spawned on the chest tile

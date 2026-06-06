@@ -1,5 +1,5 @@
 import type { TileCoord } from "@old-town/shared";
-import type { Scene, BufferGeometry, MeshLambertMaterial } from "three";
+import type { BufferGeometry, MeshLambertMaterial, Scene } from "three";
 import {
   BoxGeometry,
   ConeGeometry,
@@ -12,10 +12,7 @@ import {
   Vector3,
 } from "three";
 import { InstanceBucket, type InstanceBucketKey } from "../renderer/InstanceBucket";
-import {
-  RenderResourceRegistry,
-  type RenderResourceKey,
-} from "../renderer/RenderResourceRegistry";
+import { type RenderResourceKey, RenderResourceRegistry } from "../renderer/RenderResourceRegistry";
 import { compose, PALETTE, vertexColorMaterial } from "./lowpoly";
 
 interface ObjectInstance {
@@ -81,8 +78,20 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
       if (dead) {
         return compose([
           { geometry: new CylinderGeometry(0.12, 0.18, 1.6, 5), color: trunk, y: 0.8 },
-          { geometry: new CylinderGeometry(0.05, 0.08, 0.7, 4), color: trunk, x: 0.2, y: 1.4, rotZ: -0.7 },
-          { geometry: new CylinderGeometry(0.05, 0.08, 0.6, 4), color: trunk, x: -0.18, y: 1.5, rotZ: 0.8 },
+          {
+            geometry: new CylinderGeometry(0.05, 0.08, 0.7, 4),
+            color: trunk,
+            x: 0.2,
+            y: 1.4,
+            rotZ: -0.7,
+          },
+          {
+            geometry: new CylinderGeometry(0.05, 0.08, 0.6, 4),
+            color: trunk,
+            x: -0.18,
+            y: 1.5,
+            rotZ: 0.8,
+          },
         ]);
       }
       return compose([
@@ -105,7 +114,13 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
     case "furnace": {
       return compose([
         { geometry: new BoxGeometry(1.0, 1.0, 1.0), color: PALETTE.stoneDark, y: 0.5 },
-        { geometry: new BoxGeometry(0.34, 0.7, 0.34), color: PALETTE.stoneMid, x: 0.0, y: 1.3, z: -0.2 },
+        {
+          geometry: new BoxGeometry(0.34, 0.7, 0.34),
+          color: PALETTE.stoneMid,
+          x: 0.0,
+          y: 1.3,
+          z: -0.2,
+        },
         { geometry: new BoxGeometry(0.46, 0.42, 0.16), color: PALETTE.ember, y: 0.42, z: 0.5 },
         { geometry: new BoxGeometry(0.3, 0.26, 0.12), color: PALETTE.flame, y: 0.4, z: 0.55 },
       ]);
@@ -132,7 +147,13 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
         { geometry: new CylinderGeometry(0.26, 0.3, 0.5, 7), color: PALETTE.barkMid, y: 0.25 },
         { geometry: new BoxGeometry(0.6, 0.18, 0.28), color: PALETTE.iron, y: 0.6 },
         { geometry: new BoxGeometry(0.3, 0.16, 0.24), color: PALETTE.iron, y: 0.76 },
-        { geometry: new ConeGeometry(0.13, 0.34, 4), color: PALETTE.iron, x: -0.36, y: 0.76, rotZ: Math.PI / 2 },
+        {
+          geometry: new ConeGeometry(0.13, 0.34, 4),
+          color: PALETTE.iron,
+          x: -0.36,
+          y: 0.76,
+          rotZ: Math.PI / 2,
+        },
       ]);
     }
     case "vat": {
@@ -152,8 +173,20 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
     }
     case "frame": {
       return compose([
-        { geometry: new BoxGeometry(0.1, 1.0, 0.1), color: PALETTE.barkMid, x: -0.45, y: 0.5, rotZ: 0.18 },
-        { geometry: new BoxGeometry(0.1, 1.0, 0.1), color: PALETTE.barkMid, x: 0.45, y: 0.5, rotZ: -0.18 },
+        {
+          geometry: new BoxGeometry(0.1, 1.0, 0.1),
+          color: PALETTE.barkMid,
+          x: -0.45,
+          y: 0.5,
+          rotZ: 0.18,
+        },
+        {
+          geometry: new BoxGeometry(0.1, 1.0, 0.1),
+          color: PALETTE.barkMid,
+          x: 0.45,
+          y: 0.5,
+          rotZ: -0.18,
+        },
         { geometry: new BoxGeometry(0.72, 0.66, 0.04), color: PALETTE.leather, y: 0.62 },
       ]);
     }
@@ -191,7 +224,13 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
     case "door": {
       return compose([
         { geometry: new BoxGeometry(0.85, 1.5, 0.16), color: PALETTE.barkMid, y: 0.75 },
-        { geometry: new BoxGeometry(0.1, 0.1, 0.12), color: PALETTE.goldMetal, x: 0.28, y: 0.75, z: 0.1 },
+        {
+          geometry: new BoxGeometry(0.1, 0.1, 0.12),
+          color: PALETTE.goldMetal,
+          x: 0.28,
+          y: 0.75,
+          z: 0.1,
+        },
       ]);
     }
     case "bell": {
@@ -225,7 +264,12 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
     case "building": {
       return compose([
         { geometry: new BoxGeometry(1.0, 1.3, 1.0), color: PALETTE.clothCream, y: 0.65 },
-        { geometry: new ConeGeometry(0.85, 0.7, 4), color: PALETTE.clothRed, rotY: Math.PI / 4, y: 1.62 },
+        {
+          geometry: new ConeGeometry(0.85, 0.7, 4),
+          color: PALETTE.clothRed,
+          rotY: Math.PI / 4,
+          y: 1.62,
+        },
       ]);
     }
     case "rock": {
@@ -399,7 +443,11 @@ export class ObjectRenderer {
 
     for (const archetypeId of this._registeredArchetypes) {
       this.registry.releaseGeometry({ type: "prop", contentId: archetypeId });
-      this.registry.releaseMaterial({ type: "prop", contentId: archetypeId, materialId: "default" });
+      this.registry.releaseMaterial({
+        type: "prop",
+        contentId: archetypeId,
+        materialId: "default",
+      });
     }
     this._registeredArchetypes.clear();
 
@@ -477,7 +525,11 @@ export class ObjectRenderer {
     this._registeredArchetypes.add(archetypeId);
 
     const geometryKey: RenderResourceKey = { type: "prop", contentId: archetypeId };
-    const materialKey: RenderResourceKey = { type: "prop", contentId: archetypeId, materialId: "default" };
+    const materialKey: RenderResourceKey = {
+      type: "prop",
+      contentId: archetypeId,
+      materialId: "default",
+    };
 
     this.registry.registerGeometry(geometryKey, () => {
       return buildGeometry(archetypeId, `${archetypeId}_default`);

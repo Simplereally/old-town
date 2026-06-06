@@ -1,17 +1,16 @@
+import type { RegionId, RegionTileData } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import {
-  ChunkBakeWorkerClient,
-  createSynchronousTestClient,
-  createDefaultWorkerPoolSize,
+  type BakeChunkFailure,
   type BakeChunkRequest,
   type BakeChunkSuccess,
-  type BakeChunkFailure,
-  type CancelBakeChunk,
   type BakedChunkPayload,
+  type CancelBakeChunk,
+  ChunkBakeWorkerClient,
+  createDefaultWorkerPoolSize,
+  createSynchronousTestClient,
   type WorkerLike,
 } from "./ChunkBakeWorkerClient";
-
-import type { RegionId, RegionTileData } from "@old-town/shared";
 
 function makeRequest(
   overrides: Partial<Omit<BakeChunkRequest, "jobId" | "type">> = {},
@@ -595,19 +594,28 @@ describe("ChunkBakeWorkerClient", () => {
   // ---------------------------------------------------------------------------
 
   it("throws when submitting after dispose", () => {
-    const client = createSynchronousTestClient(() => {}, () => {});
+    const client = createSynchronousTestClient(
+      () => {},
+      () => {},
+    );
     client.dispose();
     expect(() => client.submit(makeRequest())).toThrow("ChunkBakeWorkerClient has been disposed.");
   });
 
   it("throws when cancelling after dispose", () => {
-    const client = createSynchronousTestClient(() => {}, () => {});
+    const client = createSynchronousTestClient(
+      () => {},
+      () => {},
+    );
     client.dispose();
     expect(() => client.cancel("job-1")).toThrow("ChunkBakeWorkerClient has been disposed.");
   });
 
   it("dispose is idempotent", () => {
-    const client = createSynchronousTestClient(() => {}, () => {});
+    const client = createSynchronousTestClient(
+      () => {},
+      () => {},
+    );
     client.dispose();
     client.dispose(); // should not throw
     expect(true).toBe(true);

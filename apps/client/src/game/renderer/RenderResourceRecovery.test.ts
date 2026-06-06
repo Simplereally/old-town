@@ -1,22 +1,11 @@
-import { describe, expect, it, beforeEach } from "vitest";
+import { type ChunkId, chunkId, type RegionId, type TileCoord } from "@old-town/shared";
 import { BoxGeometry, Scene } from "three";
-import {
-  chunkId,
-  type ChunkId,
-  type RegionId,
-  type TileCoord,
-} from "@old-town/shared";
-import {
-  ChunkBakeQueue,
-  type ChunkMetadata,
-} from "./ChunkBakeQueue";
-import { ChunkUploadQueue } from "./ChunkUploadQueue";
-import { RenderResourceRegistry } from "./RenderResourceRegistry";
+import { beforeEach, describe, expect, it } from "vitest";
+import { ChunkBakeQueue, type ChunkMetadata } from "./ChunkBakeQueue";
 import { ChunkResidencyManager } from "./ChunkResidencyManager";
-import {
-  RenderResourceRecovery,
-  type RenderResourceErrorCode,
-} from "./RenderResourceRecovery";
+import { ChunkUploadQueue } from "./ChunkUploadQueue";
+import { type RenderResourceErrorCode, RenderResourceRecovery } from "./RenderResourceRecovery";
+import { RenderResourceRegistry } from "./RenderResourceRegistry";
 
 function makeChunkId(cx: number, cy: number, plane = 0): ChunkId {
   return chunkId({ cx, cy, plane: plane as 0 | 1 | 2 | 3 });
@@ -386,10 +375,7 @@ describe("RenderResourceRecovery", () => {
   // ---------------------------------------------------------------------------
 
   it("advanceFrame processes due retries across multiple chunks", () => {
-    bakeQueue.ingestRegionLoad(makeRegionId(0, 0), [
-      makeMeta(0, 0),
-      makeMeta(1, 0),
-    ]);
+    bakeQueue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0), makeMeta(1, 0)]);
     const job1 = bakeQueue.dequeueJob()!;
     const job2 = bakeQueue.dequeueJob()!;
     recovery.advanceFrame(0);

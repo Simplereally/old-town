@@ -78,9 +78,7 @@ const DEFENCE_DEBUFF_DEF: StatusEffectDef = {
   cureItems: [],
 };
 
-function registries(
-  effects: readonly StatusEffectDef[] = [],
-): ContentRegistries {
+function registries(effects: readonly StatusEffectDef[] = []): ContentRegistries {
   return makeRegistries({
     statusEffect: new Map(effects.map((e) => [e.id, e])),
   });
@@ -297,10 +295,7 @@ describe("processStatusEffects — burn", () => {
   });
 
   it("reduces burn damage when the entity is on water", () => {
-    const { ctx, world, owner, deltas } = setupWithWater(
-      { health: 10, maxHealth: 10 },
-      [BURN_DEF],
-    );
+    const { ctx, world, owner, deltas } = setupWithWater({ health: 10, maxHealth: 10 }, [BURN_DEF]);
     applyStatusEffect(ctx, owner, "burn");
 
     processStatusEffects(ctx, 1);
@@ -472,7 +467,10 @@ describe("tick phase ordering", () => {
         const before = combatant.health;
         const after = Math.min(combatant.maxHealth, before + 5);
         combatant.health = after;
-        deltas.markHitsplat({ entityId: owner, hitsplat: { amount: after - before, type: "heal" } });
+        deltas.markHitsplat({
+          entityId: owner,
+          hitsplat: { amount: after - before, type: "heal" },
+        });
       }
     });
 

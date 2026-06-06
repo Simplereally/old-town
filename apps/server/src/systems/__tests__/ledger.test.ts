@@ -8,10 +8,10 @@ import { makeRegistries } from "../../test-support/registries";
 import {
   createDeed,
   DEED_ITEM_ID,
+  type LedgerSystemContext,
   processDeedExpiry,
   redeemDeed,
   transferDeed,
-  type LedgerSystemContext,
 } from "../ledger-system";
 
 const LEDGER_DEED: ItemDef = {

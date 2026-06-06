@@ -110,7 +110,13 @@ export class Minimap {
     }
 
     for (const entity of this.data.entities.values()) {
-      if (entity.tile.x < minX || entity.tile.x > maxX || entity.tile.y < minY || entity.tile.y > maxY) continue;
+      if (
+        entity.tile.x < minX ||
+        entity.tile.x > maxX ||
+        entity.tile.y < minY ||
+        entity.tile.y > maxY
+      )
+        continue;
       const screenX = (entity.tile.x - minX) * this._tileSize;
       const screenY = (maxY - entity.tile.y) * this._tileSize;
 

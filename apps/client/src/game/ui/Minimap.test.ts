@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { Minimap } from "./Minimap";
 import type { MinimapData } from "./Minimap";
+import { Minimap } from "./Minimap";
 import type { MinimapEntity, MinimapTile } from "./UIState";
 
 function createMockCanvasContext(): CanvasRenderingContext2D {

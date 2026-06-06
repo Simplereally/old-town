@@ -7,8 +7,16 @@ export interface UIManagerCallbacks {
   sendChatCommand(text: string): void;
   enterSpellTargetMode(spellId: string): void;
   sendUiActionCommand(action: string, targetId?: string, value?: number): void;
-  sendBankCommand(action: "deposit" | "withdraw" | "open" | "close", itemUid?: number, quantity?: number): void;
-  sendShopCommand(action: "buy" | "sell" | "open" | "close", itemId?: string, quantity?: number): void;
+  sendBankCommand(
+    action: "deposit" | "withdraw" | "open" | "close",
+    itemUid?: number,
+    quantity?: number,
+  ): void;
+  sendShopCommand(
+    action: "buy" | "sell" | "open" | "close",
+    itemId?: string,
+    quantity?: number,
+  ): void;
   sendRecipeCommand(recipeId: string, stationEntityId: number): void;
 }
 
@@ -573,94 +581,97 @@ export class UIManager {
 
       listEl.innerHTML = "";
       for (const entry of list.recipes) {
-      const row = document.createElement("div");
-      row.classList.add("recipe-row");
-      if (this._selectedRecipeId === entry.recipeId) {
-        row.classList.add("selected");
-      }
-
-      const nameSpan = document.createElement("span");
-      nameSpan.classList.add("recipe-name");
-      nameSpan.textContent = entry.name;
-
-      const levelSpan = document.createElement("span");
-      levelSpan.classList.add("recipe-level");
-      const skill = this.uiState.skills.get(entry.skillId);
-      const playerLevel = skill?.level ?? 1;
-      levelSpan.textContent = `Lvl ${entry.levelRequired}`;
-      if (playerLevel < entry.levelRequired) {
-        levelSpan.classList.add("too-high");
-        row.classList.add("unmet");
-      }
-
-      row.appendChild(nameSpan);
-      row.appendChild(levelSpan);
-
-      const clickHandler = () => {
-        this._selectedRecipeId = entry.recipeId;
-        this._renderRecipes();
-      };
-      row.addEventListener("click", clickHandler);
-      this._recipeClickListeners.push(() => row.removeEventListener("click", clickHandler));
-
-      listEl.appendChild(row);
-    }
-
-    const selected = list.recipes.find((r) => r.recipeId === this._selectedRecipeId);
-    if (selected) {
-      detailEl.classList.remove("hidden");
-
-      const ingredientsEl = document.getElementById("recipe-ingredients");
-      if (ingredientsEl) {
-        ingredientsEl.innerHTML = "";
-        for (const ing of selected.ingredients) {
-          const ingRow = document.createElement("div");
-          ingRow.classList.add("ingredient-row");
-          const def = this.content.getItem(ing.itemId);
-          const name = def?.name ?? ing.itemId;
-          ingRow.textContent = `${name} x${ing.quantity}`;
-          ingredientsEl.appendChild(ingRow);
+        const row = document.createElement("div");
+        row.classList.add("recipe-row");
+        if (this._selectedRecipeId === entry.recipeId) {
+          row.classList.add("selected");
         }
+
+        const nameSpan = document.createElement("span");
+        nameSpan.classList.add("recipe-name");
+        nameSpan.textContent = entry.name;
+
+        const levelSpan = document.createElement("span");
+        levelSpan.classList.add("recipe-level");
+        const skill = this.uiState.skills.get(entry.skillId);
+        const playerLevel = skill?.level ?? 1;
+        levelSpan.textContent = `Lvl ${entry.levelRequired}`;
+        if (playerLevel < entry.levelRequired) {
+          levelSpan.classList.add("too-high");
+          row.classList.add("unmet");
+        }
+
+        row.appendChild(nameSpan);
+        row.appendChild(levelSpan);
+
+        const clickHandler = () => {
+          this._selectedRecipeId = entry.recipeId;
+          this._renderRecipes();
+        };
+        row.addEventListener("click", clickHandler);
+        this._recipeClickListeners.push(() => row.removeEventListener("click", clickHandler));
+
+        listEl.appendChild(row);
       }
 
-      const outputEl = document.getElementById("recipe-output");
-      if (outputEl) {
-        const def = this.content.getItem(selected.productId);
-        const name = def?.name ?? selected.productId;
-        outputEl.textContent = `Makes: ${name} x${selected.productQuantity} (+${selected.xp} XP)`;
+      const selected = list.recipes.find((r) => r.recipeId === this._selectedRecipeId);
+      if (selected) {
+        detailEl.classList.remove("hidden");
+
+        const ingredientsEl = document.getElementById("recipe-ingredients");
+        if (ingredientsEl) {
+          ingredientsEl.innerHTML = "";
+          for (const ing of selected.ingredients) {
+            const ingRow = document.createElement("div");
+            ingRow.classList.add("ingredient-row");
+            const def = this.content.getItem(ing.itemId);
+            const name = def?.name ?? ing.itemId;
+            ingRow.textContent = `${name} x${ing.quantity}`;
+            ingredientsEl.appendChild(ingRow);
+          }
+        }
+
+        const outputEl = document.getElementById("recipe-output");
+        if (outputEl) {
+          const def = this.content.getItem(selected.productId);
+          const name = def?.name ?? selected.productId;
+          outputEl.textContent = `Makes: ${name} x${selected.productQuantity} (+${selected.xp} XP)`;
+        }
+
+        const qtyEl = document.getElementById("recipe-quantity");
+        if (qtyEl) {
+          const qtyBtns = qtyEl.querySelectorAll(".qty-btn");
+          qtyBtns.forEach((btn) => {
+            btn.classList.remove("active");
+          });
+          const activeBtn = qtyEl.querySelector(`[data-qty="${this._selectedQuantity ?? 1}"]`);
+          if (activeBtn) activeBtn.classList.add("active");
+        }
+
+        const skill = this.uiState.skills.get(selected.skillId);
+        const canMake = (skill?.level ?? 1) >= selected.levelRequired;
+        makeBtn.disabled = !canMake;
+        makeBtn.textContent = canMake ? "Make" : "Level too low";
+      } else {
+        detailEl.classList.add("hidden");
+        makeBtn.disabled = true;
       }
-
-      const qtyEl = document.getElementById("recipe-quantity");
-      if (qtyEl) {
-        const qtyBtns = qtyEl.querySelectorAll(".qty-btn");
-        qtyBtns.forEach((btn) => {
-          btn.classList.remove("active");
-        });
-        const activeBtn = qtyEl.querySelector(`[data-qty="${this._selectedQuantity ?? 1}"]`);
-        if (activeBtn) activeBtn.classList.add("active");
-      }
-
-      const skill = this.uiState.skills.get(selected.skillId);
-      const canMake = (skill?.level ?? 1) >= selected.levelRequired;
-      makeBtn.disabled = !canMake;
-      makeBtn.textContent = canMake ? "Make" : "Level too low";
-    } else {
-      detailEl.classList.add("hidden");
-      makeBtn.disabled = true;
-    }
-
     }
 
     if (result) {
       feedbackEl.classList.remove("hidden");
       feedbackEl.classList.remove("success", "failure");
       feedbackEl.classList.add(result.success ? "success" : "failure");
-      const productDef = result.productItemId ? this.content.getItem(result.productItemId) : undefined;
+      const productDef = result.productItemId
+        ? this.content.getItem(result.productItemId)
+        : undefined;
       const productName = productDef?.name ?? result.productItemId ?? "unknown";
       const xpText = result.xpReward ? ` (+${result.xpReward} XP)` : "";
-      feedbackEl.textContent = result.message
-        ?? (result.success ? `You made ${productName} x${result.productQuantity ?? 1}${xpText}.`
-                           : `You failed to make ${productName}.`);
+      feedbackEl.textContent =
+        result.message ??
+        (result.success
+          ? `You made ${productName} x${result.productQuantity ?? 1}${xpText}.`
+          : `You failed to make ${productName}.`);
     } else {
       feedbackEl.classList.add("hidden");
     }
@@ -695,7 +706,8 @@ export class UIManager {
       for (const [, entity] of entities) {
         const dx = entity.tile.x * tileSize - baseX;
         const dy = entity.tile.y * tileSize - baseY;
-        const color = entity.kind === "player" ? "#ffcc00" : entity.kind === "npc" ? "#ff4444" : "#888888";
+        const color =
+          entity.kind === "player" ? "#ffcc00" : entity.kind === "npc" ? "#ff4444" : "#888888";
         ctx.fillStyle = color;
         ctx.fillRect(offsetX + dx, offsetY + dy, tileSize, tileSize);
       }
@@ -719,7 +731,8 @@ export class UIManager {
     }
 
     bar.style.display = "block";
-    const pct = contract.required > 0 ? Math.min(100, (contract.current / contract.required) * 100) : 0;
+    const pct =
+      contract.required > 0 ? Math.min(100, (contract.current / contract.required) * 100) : 0;
     fill.style.width = `${pct}%`;
 
     body.innerHTML = `

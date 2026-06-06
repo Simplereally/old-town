@@ -2,7 +2,7 @@ import type { TileCoord } from "@old-town/shared";
 import { Direction, entityId } from "@old-town/shared";
 import { Scene } from "three";
 import { beforeEach, describe, expect, it } from "vitest";
-import { ActorRenderer, ANIMATION_SUBSTEPS_PER_TICK, ANIMATION_SUBSTEP_MS } from "./ActorRenderer";
+import { ActorRenderer, ANIMATION_SUBSTEP_MS, ANIMATION_SUBSTEPS_PER_TICK } from "./ActorRenderer";
 
 const TILE: TileCoord = { x: 5, y: 5, plane: 0 };
 const ID1 = entityId(1);
@@ -254,6 +254,6 @@ describe("ActorRenderer pooling", () => {
   });
 });
 
+import type { MeshLambertMaterial } from "three";
 // Need to import vi for the spy test
 import { vi } from "vitest";
-import type { MeshLambertMaterial } from "three";

@@ -1,6 +1,6 @@
 import type { FullStatePacket, TickDeltaPacket, TileCoord } from "@old-town/shared";
 import type { RenderClock } from "../renderer/RenderClock";
-import { ClientPacketApplier, type PurePacketApplierResult } from "./ClientPacketApplier";
+import type { ClientPacketApplier, PurePacketApplierResult } from "./ClientPacketApplier";
 
 /**
  * Orchestrates pure packet ingestion. Wraps ClientPacketApplier (pure reducer)

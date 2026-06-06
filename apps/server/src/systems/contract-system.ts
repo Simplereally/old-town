@@ -1,8 +1,8 @@
 import type { ContentRegistries, EntityId, ObjectIntent, TileCoord } from "@old-town/shared";
 import type { ContractComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
-import type { ItemAuditLog } from "../items/item-audit";
 import { addItem, buildDelta, catalogFromItems, count, hasSpaceFor } from "../items/inventory";
+import type { ItemAuditLog } from "../items/item-audit";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { addXp, getCurrentLevel } from "../skills/skill-state";
 import { setVar } from "../vars/player-vars";
@@ -126,10 +126,7 @@ export function handleContractAcceptIntent(
   return true;
 }
 
-export function findActiveContractEntity(
-  world: World,
-  owner: EntityId,
-): EntityId | undefined {
+export function findActiveContractEntity(world: World, owner: EntityId): EntityId | undefined {
   const activeContractId = world.getComponent(owner, "vars")?.values.active_contract;
   if (!activeContractId || typeof activeContractId !== "string" || activeContractId === "") {
     return undefined;
@@ -238,7 +235,12 @@ export function trackContractObjective(
       });
 
       const contractDef = ctx.registries.contract.get(contract.contractId);
-      systemMessage(ctx, playerId, `Contract ready for completion: ${contractDef?.name ?? contract.contractId}`, 0);
+      systemMessage(
+        ctx,
+        playerId,
+        `Contract ready for completion: ${contractDef?.name ?? contract.contractId}`,
+        0,
+      );
     }
   }
 }
