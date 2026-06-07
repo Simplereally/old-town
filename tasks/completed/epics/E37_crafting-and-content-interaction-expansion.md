@@ -19,20 +19,20 @@ Implement recipe selection UI, extend object interaction routing for all remaini
 
 ## Completion checklist
 
-- [ ] Complete the stories below in exact order.
-- [ ] Run all validation commands listed by completed stories.
-- [ ] Confirm no unchecked acceptance criteria remain in this epic's stories.
-- [ ] Move completed story files into `tasks/completed/stories/E37/`.
-- [ ] Move this epic file into `tasks/completed/epics/` after all stories are complete.
+- [X] Complete the stories below in exact order.
+- [X] Run all validation commands listed by completed stories.
+- [X] Confirm no unchecked acceptance criteria remain in this epic's stories.
+- [X] Move completed story files into `tasks/completed/stories/E37/`.
+- [X] Move this epic file into `tasks/completed/epics/` after all stories are complete.
 
 ## Ordered stories
 
-- [ ] `E37-S01` — [Recipe Selection Packet and UI](stories/E37/E37-S01_recipe-selection-packet-and-ui.md)
-- [ ] `E37-S02` — [Extended Object Interaction Routing](stories/E37/E37-S02_extended-object-interaction-routing.md)
-- [ ] `E37-S03` — [Trapping Action and Content Wiring](stories/E37/E37-S03_trapping-action-and-content-wiring.md)
+- [X] `E37-S01` — [Recipe Selection Packet and UI](stories/E37/E37-S01_recipe-selection-packet-and-ui.md)
+- [X] `E37-S02` — [Extended Object Interaction Routing](stories/E37/E37-S02_extended-object-interaction-routing.md)
+- [X] `E37-S03` — [Trapping Action and Content Wiring](stories/E37/E37-S03_trapping-action-and-content-wiring.md)
 
 ## Epic acceptance criteria
 
-- [ ] All listed story files are complete and moved to the completed folder.
-- [ ] The implementation still preserves server authority, integer tile truth, 600ms tick semantics, content-driven definitions, and client-only presentation.
-- [ ] No later epic has been implemented in a way that bypasses this epic's contracts.
+- [X] All listed story files are complete and moved to the completed folder.
+- [X] The implementation still preserves server authority, integer tile truth, 600ms tick semantics, content-driven definitions, and client-only presentation.
+- [X] No later epic has been implemented in a way that bypasses this epic's contracts.

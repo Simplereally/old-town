@@ -20,27 +20,27 @@ E40 — Oldroad Trails and Exploration
 Create trail schema (trail_id, steps, rewards, difficulty), implement trail discovery mechanic (clue items trigger trail start), and wire trail step completion.
 
 ## Implementation checklist
-- [ ] Create/modify: content/trails/starter-trails.json
-- [ ] Create/modify: apps/server/src/systems/trail-system.ts
-- [ ] Create/modify: packages/shared/src/content-schemas/trail.ts
-- [ ] Write test: Trail discovery test
-- [ ] Write test: Step completion test
-- [ ] Write test: Reward test
+- [X] Create/modify: content/trails/starter-trails.json
+- [X] Create/modify: apps/server/src/systems/trail-system.ts
+- [X] Create/modify: packages/shared/src/content-schemas/trail.ts
+- [X] Write test: Trail discovery test
+- [X] Write test: Step completion test
+- [X] Write test: Reward test
 
 ## Acceptance criteria
-- [ ] Trail discovery test passes
-- [ ] Step completion test passes
-- [ ] Reward test passes
+- [X] Trail discovery test passes
+- [X] Step completion test passes
+- [X] Reward test passes
 
 ## Validation commands
-- [ ] `bun run test`
-- [ ] `bun run typecheck`
-- [ ] `bun run lint`
+- [X] `bun run test`
+- [X] `bun run typecheck`
+- [X] `bun run lint`
 
 ## Agent completion protocol
 
-- [ ] Re-read the objective and acceptance criteria before final validation.
-- [ ] Run every validation command listed above.
-- [ ] Mark every completed checkbox in this file as `[X]`.
-- [ ] Move this story file to `tasks/completed/stories/E40/` only after all criteria pass.
-- [ ] Update the parent epic checklist if this story completes an ordered item.
+- [X] Re-read the objective and acceptance criteria before final validation.
+- [X] Run every validation command listed above.
+- [X] Mark every completed checkbox in this file as `[X]`.
+- [X] Move this story file to `tasks/completed/stories/E40/` only after all criteria pass.
+- [X] Update the parent epic checklist if this story completes an ordered item.

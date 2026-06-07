@@ -21,19 +21,19 @@ World Expansion and Exploration Systems. This epic addresses the remaining gaps 
 
 ## Completion checklist
 
-- [ ] Complete the stories below in exact order.
-- [ ] Run all validation commands listed by completed stories.
-- [ ] Confirm no unchecked acceptance criteria remain in this epic's stories.
-- [ ] Move completed story files into `tasks/completed/stories/E39/`.
-- [ ] Move this epic file into `tasks/completed/epics/` after all stories are complete.
+- [X] Complete the stories below in exact order.
+- [X] Run all validation commands listed by completed stories.
+- [X] Confirm no unchecked acceptance criteria remain in this epic's stories.
+- [X] Move completed story files into `tasks/completed/stories/E39/`.
+- [X] Move this epic file into `tasks/completed/epics/` after all stories are complete.
 
 ## Ordered stories
-- [ ] `E39-S01` — [Equipment Appearance System](stories/E39/E39-S01_equipment-appearance-system.md)
-- [ ] `E39-S02` — [Drop Table Rarity and Conditional Drops](stories/E39/E39-S02_drop-table-rarity-and-conditional-drops.md)
-- [ ] `E39-S03` — [Ledger Deed and Nook System](stories/E39/E39-S03_ledger-deed-and-nook-system.md)
+- [X] `E39-S01` — [Equipment Appearance System](stories/E39/E39-S01_equipment-appearance-system.md)
+- [X] `E39-S02` — [Drop Table Rarity and Conditional Drops](stories/E39/E39-S02_drop-table-rarity-and-conditional-drops.md)
+- [X] `E39-S03` — [Ledger Deed and Nook System](stories/E39/E39-S03_ledger-deed-and-nook-system.md)
 
 ## Epic acceptance criteria
 
-- [ ] All listed story files are complete and moved to the completed folder.
-- [ ] The implementation still preserves server authority, integer tile truth, 600ms tick semantics, content-driven definitions, and client-only presentation.
-- [ ] No later epic has been implemented in a way that bypasses this epic's contracts.
+- [X] All listed story files are complete and moved to the completed folder.
+- [X] The implementation still preserves server authority, integer tile truth, 600ms tick semantics, content-driven definitions, and client-only presentation.
+- [X] No later epic has been implemented in a way that bypasses this epic's contracts.

@@ -51,4 +51,4 @@ Implement the Oldroad Trails system. Hidden trails can be discovered by walking 
 - [X] Run every validation command listed above.
 - [X] Mark every completed checkbox in this file as `[X]`.
 - [X] Move this story file to `tasks/completed/stories/E30/` only after all criteria pass.
-- [ ] Update the parent epic checklist if this story completes an ordered item.
+- [X] Update the parent epic checklist if this story completes an ordered item.

@@ -19,20 +19,20 @@ Implement economy runtime systems: bank inventory/storage, player death and resp
 
 ## Completion checklist
 
-- [ ] Complete the stories below in exact order.
-- [ ] Run all validation commands listed by completed stories.
-- [ ] Confirm no unchecked acceptance criteria remain in this epic's stories.
-- [ ] Move completed story files into `tasks/completed/stories/E36/`.
-- [ ] Move this epic file into `tasks/completed/epics/` after all stories are complete.
+- [X] Complete the stories below in exact order.
+- [X] Run all validation commands listed by completed stories.
+- [X] Confirm no unchecked acceptance criteria remain in this epic's stories.
+- [X] Move completed story files into `tasks/completed/stories/E36/`.
+- [X] Move this epic file into `tasks/completed/epics/` after all stories are complete.
 
 ## Ordered stories
 
-- [ ] `E36-S01` — [Player Death and Respawn System](stories/E36/E36-S01_player-death-and-respawn-system.md)
-- [ ] `E36-S02` — [Bank Inventory and Storage System](stories/E36/E36-S02_bank-inventory-and-storage-system.md)
-- [ ] `E36-S03` — [Shop Stock Schema and Transaction Runtime](stories/E36/E36-S03_shop-stock-schema-and-transaction-runtime.md)
+- [X] `E36-S01` — [Player Death and Respawn System](stories/E36/E36-S01_player-death-and-respawn-system.md)
+- [X] `E36-S02` — [Bank Inventory and Storage System](stories/E36/E36-S02_bank-inventory-and-storage-system.md)
+- [X] `E36-S03` — [Shop Stock Schema and Transaction Runtime](stories/E36/E36-S03_shop-stock-schema-and-transaction-runtime.md)
 
 ## Epic acceptance criteria
 
-- [ ] All listed story files are complete and moved to the completed folder.
-- [ ] The implementation still preserves server authority, integer tile truth, 600ms tick semantics, content-driven definitions, and client-only presentation.
-- [ ] No later epic has been implemented in a way that bypasses this epic's contracts.
+- [X] All listed story files are complete and moved to the completed folder.
+- [X] The implementation still preserves server authority, integer tile truth, 600ms tick semantics, content-driven definitions, and client-only presentation.
+- [X] No later epic has been implemented in a way that bypasses this epic's contracts.

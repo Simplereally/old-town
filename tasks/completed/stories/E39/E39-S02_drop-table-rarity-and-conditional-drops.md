@@ -21,27 +21,27 @@ E39 — World Expansion and Exploration Systems
 Extend drop table system with rarity tiers, conditional drops, and luck modifiers. Update rollDropTable logic.
 
 ## Implementation checklist
-- [ ] Create/modify: apps/server/src/systems/drop-table.ts
-- [ ] Create/modify: content/drops/starter-drops.json
-- [ ] Create/modify: packages/shared/src/content-schemas/drop-table.ts
-- [ ] Write test: Rarity tier test
-- [ ] Write test: Conditional drop test
-- [ ] Write test: Luck modifier test
+- [X] Create/modify: apps/server/src/systems/drop-table.ts
+- [X] Create/modify: content/drops/starter-drops.json
+- [X] Create/modify: packages/shared/src/content-schemas/drop-table.ts
+- [X] Write test: Rarity tier test
+- [X] Write test: Conditional drop test
+- [X] Write test: Luck modifier test
 
 ## Acceptance criteria
-- [ ] Rarity tier test passes
-- [ ] Conditional drop test passes
-- [ ] Luck modifier test passes
+- [X] Rarity tier test passes
+- [X] Conditional drop test passes
+- [X] Luck modifier test passes
 
 ## Validation commands
-- [ ] `bun run test`
-- [ ] `bun run typecheck`
-- [ ] `bun run lint`
+- [X] `bun run test`
+- [X] `bun run typecheck`
+- [X] `bun run lint`
 
 ## Agent completion protocol
 
-- [ ] Re-read the objective and acceptance criteria before final validation.
-- [ ] Run every validation command listed above.
-- [ ] Mark every completed checkbox in this file as `[X]`.
-- [ ] Move this story file to `tasks/completed/stories/E39/` only after all criteria pass.
-- [ ] Update the parent epic checklist if this story completes an ordered item.
+- [X] Re-read the objective and acceptance criteria before final validation.
+- [X] Run every validation command listed above.
+- [X] Mark every completed checkbox in this file as `[X]`.
+- [X] Move this story file to `tasks/completed/stories/E39/` only after all criteria pass.
+- [X] Update the parent epic checklist if this story completes an ordered item.

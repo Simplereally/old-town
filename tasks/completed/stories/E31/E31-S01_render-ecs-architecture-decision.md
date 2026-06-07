@@ -37,36 +37,36 @@ Create `docs/technical/render-ecs-architecture.md`, the authoritative architectu
 
 ## Implementation checklist
 
-- [ ] Create `docs/technical/` if it does not exist.
-- [ ] Create `docs/technical/render-ecs-architecture.md`.
-- [ ] Add an "Authority Boundaries" section that explicitly states server truth, integer tile truth, 600ms tick semantics, and render-only float positions.
-- [ ] Add a "Client Module Ownership" table with rows for `GameSocket`, `ClientPacketApplier` or its replacement, `ClientWorldStore`, `SnapshotBuffer`, `RenderClock`, `RenderTransformCache`, `RenderPresentationSystem`, scene layers, UI state, and debug overlays.
-- [ ] Add a "Forbidden Imports and Mutations" section listing exactly where `three` imports are allowed: `apps/client/src/game/renderer/**`, `apps/client/src/game/scene/**`, and client test/support files that explicitly test render modules.
-- [ ] Add a "Render Handle" section defining a handle shape with `kind`, `bucketId`, `slotIndex`, `resourceKey`, and optional `debugName`; state that gameplay stores IDs and content IDs, not handles.
-- [ ] Add a "Hot Path Allocation Standard" section requiring no app-level allocations in `onFrame`, snapshot sampling, bucket flush, projectile update, hitsplat update, actor transform update, picking target refresh, or chunk visibility update loops.
-- [ ] Add a "Current Code Refactor Targets" section naming current modules that violate or will be changed by later epics: `GameEngine`, `ClientPacketApplier`, `ActorRenderer`, `ObjectRenderer`, `TerrainLayer`, `ProjectileLayer`, `HitsplatLayer`, `GroundItemLayer`, and `MeshPool`.
-- [ ] Add a "Deferred Backends" section stating that `SharedArrayBuffer`, OffscreenCanvas renderer movement, and WebGPU are non-production until E35 metrics prove need and a future ADR is created.
-- [ ] Update `docs/00-index.md` with a link to `docs/technical/render-ecs-architecture.md`.
+- [X] Create `docs/technical/` if it does not exist.
+- [X] Create `docs/technical/render-ecs-architecture.md`.
+- [X] Add an "Authority Boundaries" section that explicitly states server truth, integer tile truth, 600ms tick semantics, and render-only float positions.
+- [X] Add a "Client Module Ownership" table with rows for `GameSocket`, `ClientPacketApplier` or its replacement, `ClientWorldStore`, `SnapshotBuffer`, `RenderClock`, `RenderTransformCache`, `RenderPresentationSystem`, scene layers, UI state, and debug overlays.
+- [X] Add a "Forbidden Imports and Mutations" section listing exactly where `three` imports are allowed: `apps/client/src/game/renderer/**`, `apps/client/src/game/scene/**`, and client test/support files that explicitly test render modules.
+- [X] Add a "Render Handle" section defining a handle shape with `kind`, `bucketId`, `slotIndex`, `resourceKey`, and optional `debugName`; state that gameplay stores IDs and content IDs, not handles.
+- [X] Add a "Hot Path Allocation Standard" section requiring no app-level allocations in `onFrame`, snapshot sampling, bucket flush, projectile update, hitsplat update, actor transform update, picking target refresh, or chunk visibility update loops.
+- [X] Add a "Current Code Refactor Targets" section naming current modules that violate or will be changed by later epics: `GameEngine`, `ClientPacketApplier`, `ActorRenderer`, `ObjectRenderer`, `TerrainLayer`, `ProjectileLayer`, `HitsplatLayer`, `GroundItemLayer`, and `MeshPool`.
+- [X] Add a "Deferred Backends" section stating that `SharedArrayBuffer`, OffscreenCanvas renderer movement, and WebGPU are non-production until E35 metrics prove need and a future ADR is created.
+- [X] Update `docs/00-index.md` with a link to `docs/technical/render-ecs-architecture.md`.
 
 ## Acceptance criteria
 
-- [ ] `docs/technical/render-ecs-architecture.md` exists and contains every section listed above.
-- [ ] The document gives exact allowed/disallowed module ownership, not general advice.
-- [ ] The document explicitly states that packet arrival time is not simulation time and network callbacks are not render systems.
-- [ ] The document names concrete repo modules that later stories must refactor.
-- [ ] The document contains no requirement to implement `SharedArrayBuffer`, OffscreenCanvas renderer movement, WebGPU, or broad shader deformation.
-- [ ] `docs/00-index.md` links to the new document.
+- [X] `docs/technical/render-ecs-architecture.md` exists and contains every section listed above.
+- [X] The document gives exact allowed/disallowed module ownership, not general advice.
+- [X] The document explicitly states that packet arrival time is not simulation time and network callbacks are not render systems.
+- [X] The document names concrete repo modules that later stories must refactor.
+- [X] The document contains no requirement to implement `SharedArrayBuffer`, OffscreenCanvas renderer movement, WebGPU, or broad shader deformation.
+- [X] `docs/00-index.md` links to the new document.
 
 ## Validation commands
 
-- [ ] `bun run lint`
-- [ ] `bun run typecheck`
-- [ ] `bun run tasks:status`
+- [X] `bun run lint`
+- [X] `bun run typecheck`
+- [X] `bun run tasks:status`
 
 ## Agent completion protocol
 
-- [ ] Re-read the objective and acceptance criteria before final validation.
-- [ ] Run every validation command listed above.
-- [ ] Mark every completed checkbox in this file as `[X]`.
-- [ ] Move this story file to `tasks/completed/stories/E31/` only after all criteria pass.
-- [ ] Update the parent epic checklist if this story completes an ordered item.
+- [X] Re-read the objective and acceptance criteria before final validation.
+- [X] Run every validation command listed above.
+- [X] Mark every completed checkbox in this file as `[X]`.
+- [X] Move this story file to `tasks/completed/stories/E31/` only after all criteria pass.
+- [X] Update the parent epic checklist if this story completes an ordered item.

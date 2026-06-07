@@ -21,28 +21,28 @@ E39 — World Expansion and Exploration Systems
 Create ledger deed schema (deed_type, location, owner, build_materials), implement nook discovery (hidden area objects with storage flag), and wire ledger UI.
 
 ## Implementation checklist
-- [ ] Create/modify: apps/server/src/systems/ledger-system.ts
-- [ ] Create/modify: apps/server/src/ecs/components.ts
-- [ ] Create/modify: content/ledger/starter-ledger.json
-- [ ] Create/modify: content/objects/starter-objects.json
-- [ ] Write test: Deed creation test
-- [ ] Write test: Nook discovery test
-- [ ] Write test: Storage access test
+- [X] Create/modify: apps/server/src/systems/ledger-system.ts
+- [X] Create/modify: apps/server/src/ecs/components.ts
+- [X] Create/modify: content/ledger/starter-ledger.json
+- [X] Create/modify: content/objects/starter-objects.json
+- [X] Write test: Deed creation test
+- [X] Write test: Nook discovery test
+- [X] Write test: Storage access test
 
 ## Acceptance criteria
-- [ ] Deed creation test passes
-- [ ] Nook discovery test passes
-- [ ] Storage access test passes
+- [X] Deed creation test passes
+- [X] Nook discovery test passes
+- [X] Storage access test passes
 
 ## Validation commands
-- [ ] `bun run test`
-- [ ] `bun run typecheck`
-- [ ] `bun run lint`
+- [X] `bun run test`
+- [X] `bun run typecheck`
+- [X] `bun run lint`
 
 ## Agent completion protocol
 
-- [ ] Re-read the objective and acceptance criteria before final validation.
-- [ ] Run every validation command listed above.
-- [ ] Mark every completed checkbox in this file as `[X]`.
-- [ ] Move this story file to `tasks/completed/stories/E39/` only after all criteria pass.
-- [ ] Update the parent epic checklist if this story completes an ordered item.
+- [X] Re-read the objective and acceptance criteria before final validation.
+- [X] Run every validation command listed above.
+- [X] Mark every completed checkbox in this file as `[X]`.
+- [X] Move this story file to `tasks/completed/stories/E39/` only after all criteria pass.
+- [X] Update the parent epic checklist if this story completes an ordered item.

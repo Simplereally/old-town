@@ -19,19 +19,19 @@ Wardenry Contracts and Identity Systems. This epic addresses the remaining gaps 
 
 ## Completion checklist
 
-- [ ] Complete the stories below in exact order.
-- [ ] Run all validation commands listed by completed stories.
-- [ ] Confirm no unchecked acceptance criteria remain in this epic's stories.
-- [ ] Move completed story files into `tasks/completed/stories/E38/`.
-- [ ] Move this epic file into `tasks/completed/epics/` after all stories are complete.
+- [X] Complete the stories below in exact order.
+- [X] Run all validation commands listed by completed stories.
+- [X] Confirm no unchecked acceptance criteria remain in this epic's stories.
+- [X] Move completed story files into `tasks/completed/stories/E38/`.
+- [X] Move this epic file into `tasks/completed/epics/` after all stories are complete.
 
 ## Ordered stories
-- [ ] `E38-S01` — [Wardenry Contract Schema and Runtime](stories/E38/E38-S01_wardenry-contract-schema-and-runtime.md)
-- [ ] `E38-S02` — [Combat Contract Kill Tracking](stories/E38/E38-S02_combat-contract-kill-tracking.md)
-- [ ] `E38-S03` — [Advanced Status Effects System](stories/E38/E38-S03_advanced-status-effects-system.md)
+- [X] `E38-S01` — [Wardenry Contract Schema and Runtime](stories/E38/E38-S01_wardenry-contract-schema-and-runtime.md)
+- [X] `E38-S02` — [Combat Contract Kill Tracking](stories/E38/E38-S02_combat-contract-kill-tracking.md)
+- [X] `E38-S03` — [Advanced Status Effects System](stories/E38/E38-S03_advanced-status-effects-system.md)
 
 ## Epic acceptance criteria
 
-- [ ] All listed story files are complete and moved to the completed folder.
-- [ ] The implementation still preserves server authority, integer tile truth, 600ms tick semantics, content-driven definitions, and client-only presentation.
-- [ ] No later epic has been implemented in a way that bypasses this epic's contracts.
+- [X] All listed story files are complete and moved to the completed folder.
+- [X] The implementation still preserves server authority, integer tile truth, 600ms tick semantics, content-driven definitions, and client-only presentation.
+- [X] No later epic has been implemented in a way that bypasses this epic's contracts.

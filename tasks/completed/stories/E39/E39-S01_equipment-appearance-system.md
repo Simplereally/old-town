@@ -21,28 +21,28 @@ E39 — World Expansion and Exploration Systems
 Map equipment items to appearance IDs. Client should render correct model when item is equipped. Update ClientPacketApplier to apply appearance changes.
 
 ## Implementation checklist
-- [ ] Create/modify: apps/server/src/systems/appearance-system.ts
-- [ ] Create/modify: apps/client/src/game/net/ClientPacketApplier.ts
-- [ ] Create/modify: apps/client/src/game/renderer/ThreeRenderer.ts
-- [ ] Create/modify: content/items/*.json
-- [ ] Write test: Equipment appearance mapping test
-- [ ] Write test: Appearance packet test
-- [ ] Write test: Model render test
+- [X] Create/modify: apps/server/src/systems/appearance-system.ts
+- [X] Create/modify: apps/client/src/game/net/ClientPacketApplier.ts
+- [X] Create/modify: apps/client/src/game/renderer/ThreeRenderer.ts
+- [X] Create/modify: content/items/*.json
+- [X] Write test: Equipment appearance mapping test
+- [X] Write test: Appearance packet test
+- [X] Write test: Model render test
 
 ## Acceptance criteria
-- [ ] Equipment appearance mapping test passes
-- [ ] Appearance packet test passes
-- [ ] Model render test passes
+- [X] Equipment appearance mapping test passes
+- [X] Appearance packet test passes
+- [X] Model render test passes
 
 ## Validation commands
-- [ ] `bun run test`
-- [ ] `bun run typecheck`
-- [ ] `bun run lint`
+- [X] `bun run test`
+- [X] `bun run typecheck`
+- [X] `bun run lint`
 
 ## Agent completion protocol
 
-- [ ] Re-read the objective and acceptance criteria before final validation.
-- [ ] Run every validation command listed above.
-- [ ] Mark every completed checkbox in this file as `[X]`.
-- [ ] Move this story file to `tasks/completed/stories/E39/` only after all criteria pass.
-- [ ] Update the parent epic checklist if this story completes an ordered item.
+- [X] Re-read the objective and acceptance criteria before final validation.
+- [X] Run every validation command listed above.
+- [X] Mark every completed checkbox in this file as `[X]`.
+- [X] Move this story file to `tasks/completed/stories/E39/` only after all criteria pass.
+- [X] Update the parent epic checklist if this story completes an ordered item.

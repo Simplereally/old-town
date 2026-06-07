@@ -48,7 +48,7 @@ Replace ad hoc transient mesh allocation with reusable pools or instanced bucket
 - [X] `bun run test -- apps/client/src/game/scene/GroundItemLayer.test.ts`
 - [X] `bun run test`
 - [X] `bun run typecheck` (pre-existing errors only; no new errors introduced)
-- [ ] `bun run lint` (no lint script in client package)
+- [X] `bun run lint` (no lint script in client package)
 
 ## Agent completion protocol
 

@@ -20,27 +20,27 @@ E37 — Crafting and Content Interaction Expansion
 Implement RecipeSelectCommand in command-buffer, wire RecipeSelect intent in intent-dispatcher, validate recipe against station, check materials/levels, and enqueue process action with selected recipe ID.
 
 ## Implementation checklist
-- [ ] Create/modify: apps/server/src/sim/command-buffer.ts
-- [ ] Create/modify: apps/server/src/sim/intent-dispatcher.ts
-- [ ] Create/modify: apps/server/src/systems/skilling-system.ts
-- [ ] Write test: RecipeSelect command parsing test
-- [ ] Write test: Recipe validation test
-- [ ] Write test: Process with selected recipe test
+- [X] Create/modify: apps/server/src/sim/command-buffer.ts
+- [X] Create/modify: apps/server/src/sim/intent-dispatcher.ts
+- [X] Create/modify: apps/server/src/systems/skilling-system.ts
+- [X] Write test: RecipeSelect command parsing test
+- [X] Write test: Recipe validation test
+- [X] Write test: Process with selected recipe test
 
 ## Acceptance criteria
-- [ ] RecipeSelect command parsing test passes
-- [ ] Recipe validation test passes
-- [ ] Process with selected recipe test passes
+- [X] RecipeSelect command parsing test passes
+- [X] Recipe validation test passes
+- [X] Process with selected recipe test passes
 
 ## Validation commands
-- [ ] `bun run test`
-- [ ] `bun run typecheck`
-- [ ] `bun run lint`
+- [X] `bun run test`
+- [X] `bun run typecheck`
+- [X] `bun run lint`
 
 ## Agent completion protocol
 
-- [ ] Re-read the objective and acceptance criteria before final validation.
-- [ ] Run every validation command listed above.
-- [ ] Mark every completed checkbox in this file as `[X]`.
-- [ ] Move this story file to `tasks/completed/stories/E37/` only after all criteria pass.
-- [ ] Update the parent epic checklist if this story completes an ordered item.
+- [X] Re-read the objective and acceptance criteria before final validation.
+- [X] Run every validation command listed above.
+- [X] Mark every completed checkbox in this file as `[X]`.
+- [X] Move this story file to `tasks/completed/stories/E37/` only after all criteria pass.
+- [X] Update the parent epic checklist if this story completes an ordered item.

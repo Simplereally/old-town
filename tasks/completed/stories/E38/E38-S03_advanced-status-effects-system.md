@@ -20,33 +20,33 @@ E38 — Wardenry Contracts and Identity Systems
 Create status-effect-system.ts with tick phase. Implement StatusEffectComponent: activeEffects with effectId, durationTicks, damagePerTick, healPerTick, statModifiers. Wire consumables.
 
 ## Implementation checklist
-- [ ] Create/modify: apps/server/src/systems/status-effect-system.ts
-- [ ] Create/modify: apps/server/src/ecs/components.ts
-- [ ] Create/modify: apps/server/src/sim/simulation-kernel.ts
-- [ ] Create/modify: apps/server/src/systems/consumable-system.ts
-- [ ] Create/modify: content/status-effects/starter-status-effects.json
-- [ ] Write test: DOT application test
-- [ ] Write test: HOT application test
-- [ ] Write test: Buff stat modifier test
-- [ ] Write test: Effect expiration test
-- [ ] Write test: Consumable effect test
+- [X] Create/modify: apps/server/src/systems/status-effect-system.ts
+- [X] Create/modify: apps/server/src/ecs/components.ts
+- [X] Create/modify: apps/server/src/sim/simulation-kernel.ts
+- [X] Create/modify: apps/server/src/systems/consumable-system.ts
+- [X] Create/modify: content/status-effects/starter-status-effects.json
+- [X] Write test: DOT application test
+- [X] Write test: HOT application test
+- [X] Write test: Buff stat modifier test
+- [X] Write test: Effect expiration test
+- [X] Write test: Consumable effect test
 
 ## Acceptance criteria
-- [ ] DOT application test passes
-- [ ] HOT application test passes
-- [ ] Buff stat modifier test passes
-- [ ] Effect expiration test passes
-- [ ] Consumable effect test passes
+- [X] DOT application test passes
+- [X] HOT application test passes
+- [X] Buff stat modifier test passes
+- [X] Effect expiration test passes
+- [X] Consumable effect test passes
 
 ## Validation commands
-- [ ] `bun run test`
-- [ ] `bun run typecheck`
-- [ ] `bun run lint`
+- [X] `bun run test`
+- [X] `bun run typecheck`
+- [X] `bun run lint`
 
 ## Agent completion protocol
 
-- [ ] Re-read the objective and acceptance criteria before final validation.
-- [ ] Run every validation command listed above.
-- [ ] Mark every completed checkbox in this file as `[X]`.
-- [ ] Move this story file to `tasks/completed/stories/E38/` only after all criteria pass.
-- [ ] Update the parent epic checklist if this story completes an ordered item.
+- [X] Re-read the objective and acceptance criteria before final validation.
+- [X] Run every validation command listed above.
+- [X] Mark every completed checkbox in this file as `[X]`.
+- [X] Move this story file to `tasks/completed/stories/E38/` only after all criteria pass.
+- [X] Update the parent epic checklist if this story completes an ordered item.
