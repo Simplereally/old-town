@@ -917,148 +917,253 @@
     {
       "id": "E32",
       "title": "Snapshot Playout and Render State",
-      "file": "epics/E32_snapshot-playout-and-render-state.md",
+      "file": "completed/epics/E32_snapshot-playout-and-render-state.md",
       "stories": [
         {
           "id": "E32-S01",
           "title": "Snapshot Buffer",
-          "file": "stories/E32/E32-S01_snapshot-buffer.md"
+          "file": "completed/stories/E32/E32-S01_snapshot-buffer.md"
         },
         {
           "id": "E32-S02",
           "title": "Render Clock",
-          "file": "stories/E32/E32-S02_render-clock.md"
+          "file": "completed/stories/E32/E32-S02_render-clock.md"
         },
         {
           "id": "E32-S03",
           "title": "Render Transform Cache",
-          "file": "stories/E32/E32-S03_render-transform-cache.md"
+          "file": "completed/stories/E32/E32-S03_render-transform-cache.md"
         },
         {
           "id": "E32-S04",
           "title": "Pure Packet Ingestion",
-          "file": "stories/E32/E32-S04_pure-packet-ingestion.md"
+          "file": "completed/stories/E32/E32-S04_pure-packet-ingestion.md"
         },
         {
           "id": "E32-S05",
           "title": "Presentation Movement Policies",
-          "file": "stories/E32/E32-S05_presentation-movement-policies.md"
+          "file": "completed/stories/E32/E32-S05_presentation-movement-policies.md"
         },
         {
           "id": "E32-S06",
           "title": "Render Frame Integration",
-          "file": "stories/E32/E32-S06_render-frame-integration.md"
+          "file": "completed/stories/E32/E32-S06_render-frame-integration.md"
         }
       ]
     },
     {
       "id": "E33",
       "title": "Render Resource Registry, Instancing, and Pools",
-      "file": "epics/E33_render-resource-registry-instancing-and-pools.md",
+      "file": "completed/epics/E33_render-resource-registry-instancing-and-pools.md",
       "stories": [
         {
           "id": "E33-S01",
           "title": "Render Resource Registry",
-          "file": "stories/E33/E33-S01_render-resource-registry.md"
+          "file": "completed/stories/E33/E33-S01_render-resource-registry.md"
         },
         {
           "id": "E33-S02",
           "title": "Instance Bucket Core",
-          "file": "stories/E33/E33-S02_instance-bucket-core.md"
+          "file": "completed/stories/E33/E33-S02_instance-bucket-core.md"
         },
         {
           "id": "E33-S03",
           "title": "Static Object Instancing",
-          "file": "stories/E33/E33-S03_static-object-instancing.md"
+          "file": "completed/stories/E33/E33-S03_static-object-instancing.md"
         },
         {
           "id": "E33-S04",
           "title": "Transient Effect Pools",
-          "file": "stories/E33/E33-S04_transient-effect-pools.md"
+          "file": "completed/stories/E33/E33-S04_transient-effect-pools.md"
         },
         {
           "id": "E33-S05",
           "title": "Actor Presentation Pool",
-          "file": "stories/E33/E33-S05_actor-presentation-pool.md"
+          "file": "completed/stories/E33/E33-S05_actor-presentation-pool.md"
         },
         {
           "id": "E33-S06",
           "title": "Render Mutation Boundary Enforcement",
-          "file": "stories/E33/E33-S06_render-mutation-boundary-enforcement.md"
+          "file": "completed/stories/E33/E33-S06_render-mutation-boundary-enforcement.md"
         }
       ]
     },
     {
       "id": "E34",
       "title": "Worker Chunk Baking and Scene Residency",
-      "file": "epics/E34_worker-chunk-baking-and-scene-residency.md",
+      "file": "completed/epics/E34_worker-chunk-baking-and-scene-residency.md",
       "stories": [
         {
           "id": "E34-S01",
           "title": "Chunk Lifecycle and Bake Queue",
-          "file": "stories/E34/E34-S01_chunk-lifecycle-and-bake-queue.md"
+          "file": "completed/stories/E34/E34-S01_chunk-lifecycle-and-bake-queue.md"
         },
         {
           "id": "E34-S02",
           "title": "Worker Bake Pipeline with Transferables",
-          "file": "stories/E34/E34-S02_worker-bake-pipeline-with-transferables.md"
+          "file": "completed/stories/E34/E34-S02_worker-bake-pipeline-with-transferables.md"
         },
         {
           "id": "E34-S03",
           "title": "Budgeted GPU Upload Path",
-          "file": "stories/E34/E34-S03_budgeted-gpu-upload-path.md"
+          "file": "completed/stories/E34/E34-S03_budgeted-gpu-upload-path.md"
         },
         {
           "id": "E34-S04",
           "title": "Chunk Residency and LRU Eviction",
-          "file": "stories/E34/E34-S04_chunk-residency-and-lru-eviction.md"
+          "file": "completed/stories/E34/E34-S04_chunk-residency-and-lru-eviction.md"
         },
         {
           "id": "E34-S05",
           "title": "Region Crossing Integration",
-          "file": "stories/E34/E34-S05_region-crossing-integration.md"
+          "file": "completed/stories/E34/E34-S05_region-crossing-integration.md"
         },
         {
           "id": "E34-S06",
           "title": "Asset Failure and Context Recovery",
-          "file": "stories/E34/E34-S06_asset-failure-and-context-recovery.md"
+          "file": "completed/stories/E34/E34-S06_asset-failure-and-context-recovery.md"
         }
       ]
     },
     {
       "id": "E35",
       "title": "Rendering Diagnostics and Stress Gates",
-      "file": "epics/E35_rendering-diagnostics-and-stress-gates.md",
+      "file": "completed/epics/E35_rendering-diagnostics-and-stress-gates.md",
       "stories": [
         {
           "id": "E35-S01",
           "title": "Renderer Metrics HUD and Budget Constants",
-          "file": "stories/E35/E35-S01_renderer-metrics-hud-and-budget-constants.md"
+          "file": "completed/stories/E35/E35-S01_renderer-metrics-hud-and-budget-constants.md"
         },
         {
           "id": "E35-S02",
           "title": "Snapshot Jitter Stress Harness",
-          "file": "stories/E35/E35-S02_snapshot-jitter-stress-harness.md"
+          "file": "completed/stories/E35/E35-S02_snapshot-jitter-stress-harness.md"
         },
         {
           "id": "E35-S03",
           "title": "Region Crossing Stress Harness",
-          "file": "stories/E35/E35-S03_region-crossing-stress-harness.md"
+          "file": "completed/stories/E35/E35-S03_region-crossing-stress-harness.md"
         },
         {
           "id": "E35-S04",
           "title": "Entity Scale Stress Harness",
-          "file": "stories/E35/E35-S04_entity-scale-stress-harness.md"
+          "file": "completed/stories/E35/E35-S04_entity-scale-stress-harness.md"
         },
         {
           "id": "E35-S05",
           "title": "Instanced Prop Scale Stress Harness",
-          "file": "stories/E35/E35-S05_instanced-prop-scale-stress-harness.md"
+          "file": "completed/stories/E35/E35-S05_instanced-prop-scale-stress-harness.md"
         },
         {
           "id": "E35-S06",
           "title": "Heap and Draw-Call Gate",
-          "file": "stories/E35/E35-S06_heap-and-draw-call-gate.md"
+          "file": "completed/stories/E35/E35-S06_heap-and-draw-call-gate.md"
+        }
+      ]
+    },
+    {
+      "id": "E36",
+      "title": "Economy Runtime: Bank, Shop, and Death",
+      "file": "completed/epics/E36_economy-runtime-bank-shop-and-death.md",
+      "stories": [
+        {
+          "id": "E36-S01",
+          "title": "Player Death and Respawn System",
+          "file": "completed/stories/E36/E36-S01_player-death-and-respawn-system.md"
+        },
+        {
+          "id": "E36-S02",
+          "title": "Bank Inventory and Storage System",
+          "file": "completed/stories/E36/E36-S02_bank-inventory-and-storage-system.md"
+        },
+        {
+          "id": "E36-S03",
+          "title": "Shop Stock Schema and Transaction Runtime",
+          "file": "completed/stories/E36/E36-S03_shop-stock-schema-and-transaction-runtime.md"
+        }
+      ]
+    },
+    {
+      "id": "E37",
+      "title": "Crafting and Content Interaction Expansion",
+      "file": "completed/epics/E37_crafting-and-content-interaction-expansion.md",
+      "stories": [
+        {
+          "id": "E37-S01",
+          "title": "Recipe Selection Packet and UI",
+          "file": "completed/stories/E37/E37-S01_recipe-selection-packet-and-ui.md"
+        },
+        {
+          "id": "E37-S02",
+          "title": "Extended Object Interaction Routing",
+          "file": "completed/stories/E37/E37-S02_extended-object-interaction-routing.md"
+        },
+        {
+          "id": "E37-S03",
+          "title": "Trapping Action and Content Wiring",
+          "file": "completed/stories/E37/E37-S03_trapping-action-and-content-wiring.md"
+        }
+      ]
+    },
+    {
+      "id": "E38",
+      "title": "Wardenry Contracts and Identity Systems",
+      "file": "completed/epics/E38_wardenry-contracts-and-identity-systems.md",
+      "stories": [
+        {
+          "id": "E38-S01",
+          "title": "Wardenry Contract Schema and Runtime",
+          "file": "completed/stories/E38/E38-S01_wardenry-contract-schema-and-runtime.md"
+        },
+        {
+          "id": "E38-S02",
+          "title": "Combat Contract Kill Tracking",
+          "file": "completed/stories/E38/E38-S02_combat-contract-kill-tracking.md"
+        },
+        {
+          "id": "E38-S03",
+          "title": "Advanced Status Effects System",
+          "file": "completed/stories/E38/E38-S03_advanced-status-effects-system.md"
+        }
+      ]
+    },
+    {
+      "id": "E39",
+      "title": "World Expansion and Exploration Systems",
+      "file": "completed/epics/E39_world-expansion-and-exploration-systems.md",
+      "stories": [
+        {
+          "id": "E39-S01",
+          "title": "Equipment Appearance System",
+          "file": "completed/stories/E39/E39-S01_equipment-appearance-system.md"
+        },
+        {
+          "id": "E39-S02",
+          "title": "Drop Table Rarity and Conditional Drops",
+          "file": "completed/stories/E39/E39-S02_drop-table-rarity-and-conditional-drops.md"
+        },
+        {
+          "id": "E39-S03",
+          "title": "Ledger Deed and Nook System",
+          "file": "completed/stories/E39/E39-S03_ledger-deed-and-nook-system.md"
+        }
+      ]
+    },
+    {
+      "id": "E40",
+      "title": "Oldroad Trails and Exploration",
+      "file": "completed/epics/E40_oldroad-trails-and-exploration.md",
+      "stories": [
+        {
+          "id": "E40-S01",
+          "title": "Oldroad Trail Schema and Discovery",
+          "file": "completed/stories/E40/E40-S01_oldroad-trail-schema-and-discovery.md"
+        },
+        {
+          "id": "E40-S02",
+          "title": "Charter and Permit System",
+          "file": "completed/stories/E40/E40-S02_charter-and-permit-system.md"
         }
       ]
     }

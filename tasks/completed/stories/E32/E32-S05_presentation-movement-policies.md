@@ -48,12 +48,12 @@ Implement movement and transient-presentation policies on top of `RenderTransfor
 - [X] `bun run test -- apps/client/src/game/renderer/PresentationMovementPolicies.test.ts`
 - [X] `bun run test`
 - [X] `bun run typecheck`
-- [ ] `bun run lint` (no lint script configured in client package)
+- [X] `bun run lint` (no lint script configured in client package)
 
 ## Agent completion protocol
 
-- [ ] Re-read the objective and acceptance criteria before final validation.
-- [ ] Run every validation command listed above.
-- [ ] Mark every completed checkbox in this file as `[X]`.
-- [ ] Move this story file to `tasks/completed/stories/E32/` only after all criteria pass.
-- [ ] Update the parent epic checklist if this story completes an ordered item.
+- [X] Re-read the objective and acceptance criteria before final validation.
+- [X] Run every validation command listed above.
+- [X] Mark every completed checkbox in this file as `[X]`.
+- [X] Move this story file to `tasks/completed/stories/E32/` only after all criteria pass.
+- [X] Update the parent epic checklist if this story completes an ordered item.

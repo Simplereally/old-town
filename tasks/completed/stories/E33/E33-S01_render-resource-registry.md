@@ -22,38 +22,38 @@ Implement a render-only resource registry for reusable geometries, materials, te
 
 ## Implementation checklist
 
-- [ ] Write failing tests in `apps/client/src/game/renderer/RenderResourceRegistry.test.ts`.
-- [ ] Create `apps/client/src/game/renderer/RenderResourceRegistry.ts`.
-- [ ] Export `RenderResourceKey`, `RenderResourceRegistry`, `RenderGeometryFactory`, `RenderMaterialFactory`, and `RenderResourceStats`.
-- [ ] Implement key normalization for `type`, `contentId`, `variant`, and `materialId` so equivalent keys reuse resources.
-- [ ] Move low-poly object geometry/material template creation behind the registry without changing the visual output.
-- [ ] Move actor shared base geometry/material creation behind the registry where it does not conflict with E33-S05 pooling.
-- [ ] Encode the material standard from `docs/technical/asset-baking-and-instancing.md`: built-in Three materials are the default; custom `ShaderMaterial` requires an explicit registry entry and documented justification.
-- [ ] Track reference counts or explicit ownership so resources are disposed exactly once.
-- [ ] Expose stats for geometry count, material count, texture count, and live resource keys.
-- [ ] Reject resource creation from packet-ingestion modules by keeping the registry under `apps/client/src/game/renderer/`.
-- [ ] Add tests proving duplicate keys return the same resource handles and disposal is idempotent.
+- [X] Write failing tests in `apps/client/src/game/renderer/RenderResourceRegistry.test.ts`.
+- [X] Create `apps/client/src/game/renderer/RenderResourceRegistry.ts`.
+- [X] Export `RenderResourceKey`, `RenderResourceRegistry`, `RenderGeometryFactory`, `RenderMaterialFactory`, and `RenderResourceStats`.
+- [X] Implement key normalization for `type`, `contentId`, `variant`, and `materialId` so equivalent keys reuse resources.
+- [X] Move low-poly object geometry/material template creation behind the registry without changing the visual output.
+- [X] Move actor shared base geometry/material creation behind the registry where it does not conflict with E33-S05 pooling.
+- [X] Encode the material standard from `docs/technical/asset-baking-and-instancing.md`: built-in Three materials are the default; custom `ShaderMaterial` requires an explicit registry entry and documented justification.
+- [X] Track reference counts or explicit ownership so resources are disposed exactly once.
+- [X] Expose stats for geometry count, material count, texture count, and live resource keys.
+- [X] Reject resource creation from packet-ingestion modules by keeping the registry under `apps/client/src/game/renderer/`.
+- [X] Add tests proving duplicate keys return the same resource handles and disposal is idempotent.
 
 ## Acceptance criteria
 
-- [ ] Shared geometries/materials are obtained through `RenderResourceRegistry`.
-- [ ] Registry keys are deterministic and content-id based, not raw filenames.
-- [ ] Default registered gameplay materials are built-in Three materials, not ad hoc custom shader materials.
-- [ ] Disposal does not double-dispose shared resources.
-- [ ] Resource stats can feed E35 diagnostics.
-- [ ] No server/shared module imports the registry.
+- [X] Shared geometries/materials are obtained through `RenderResourceRegistry`.
+- [X] Registry keys are deterministic and content-id based, not raw filenames.
+- [X] Default registered gameplay materials are built-in Three materials, not ad hoc custom shader materials.
+- [X] Disposal does not double-dispose shared resources.
+- [X] Resource stats can feed E35 diagnostics.
+- [X] No server/shared module imports the registry.
 
 ## Validation commands
 
-- [ ] `bun run test -- apps/client/src/game/renderer/RenderResourceRegistry.test.ts`
-- [ ] `bun run test`
-- [ ] `bun run typecheck`
-- [ ] `bun run lint`
+- [X] `bun run test -- apps/client/src/game/renderer/RenderResourceRegistry.test.ts`
+- [X] `bun run test`
+- [X] `bun run typecheck`
+- [X] `bun run lint`
 
 ## Agent completion protocol
 
-- [ ] Re-read the objective and acceptance criteria before final validation.
-- [ ] Run every validation command listed above.
-- [ ] Mark every completed checkbox in this file as `[X]`.
-- [ ] Move this story file to `tasks/completed/stories/E33/` only after all criteria pass.
-- [ ] Update the parent epic checklist if this story completes an ordered item.
+- [X] Re-read the objective and acceptance criteria before final validation.
+- [X] Run every validation command listed above.
+- [X] Mark every completed checkbox in this file as `[X]`.
+- [X] Move this story file to `tasks/completed/stories/E33/` only after all criteria pass.
+- [X] Update the parent epic checklist if this story completes an ordered item.

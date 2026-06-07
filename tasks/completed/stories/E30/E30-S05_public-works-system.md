@@ -20,36 +20,36 @@ Implement the Public works system. Collective building projects that require com
 
 ## Implementation checklist
 
-- [ ] Write a failing test for public works in `apps/server/src/systems/__tests__/public-works.test.ts`.
-- [ ] Create `public-works-system.ts` in `apps/server/src/systems/`.
-- [ ] Define public work schema: `id`, `name`, `requiredResources`, `currentResources`, `contributors`, `completed`.
-- [ ] Implement contribution: player donates resources, progress increments.
-- [ ] Implement completion: when all resources met, mark completed, apply world change.
-- [ ] Implement contributor tracking: record who contributed what.
-- [ ] Implement reward: distribute rewards to contributors on completion.
-- [ ] Write a passing test for contribution.
-- [ ] Write a passing test for completion.
-- [ ] Write a passing test for contributor tracking.
-- [ ] Write a passing test for reward distribution.
+- [X] Write a failing test for public works in `apps/server/src/systems/__tests__/public-works.test.ts`.
+- [X] Create `public-works-system.ts` in `apps/server/src/systems/`.
+- [X] Define public work schema: `id`, `name`, `requiredResources`, `currentResources`, `contributors`, `completed`.
+- [X] Implement contribution: player donates resources, progress increments.
+- [X] Implement completion: when all resources met, mark completed, apply world change.
+- [X] Implement contributor tracking: record who contributed what.
+- [X] Implement reward: distribute rewards to contributors on completion.
+- [X] Write a passing test for contribution.
+- [X] Write a passing test for completion.
+- [X] Write a passing test for contributor tracking.
+- [X] Write a passing test for reward distribution.
 
 ## Acceptance criteria
 
-- [ ] Contributions increment progress.
-- [ ] Completion triggers world change.
-- [ ] Contributors are tracked and rewarded.
-- [ ] All tests pass.
-- [ ] `bun run typecheck` passes.
+- [X] Contributions increment progress.
+- [X] Completion triggers world change.
+- [X] Contributors are tracked and rewarded.
+- [X] All tests pass.
+- [X] `bun run typecheck` passes.
 
 ## Validation commands
 
-- [ ] `bun run test`
-- [ ] `bun run typecheck`
-- [ ] `bun run lint`
+- [X] `bun run test`
+- [X] `bun run typecheck`
+- [X] `bun run lint`
 
 ## Agent completion protocol
 
-- [ ] Re-read the objective and acceptance criteria before final validation.
-- [ ] Run every validation command listed above.
-- [ ] Mark every completed checkbox in this file as `[X]`.
-- [ ] Move this story file to `tasks/completed/stories/E30/` only after all criteria pass.
-- [ ] Update the parent epic checklist if this story completes an ordered item.
+- [X] Re-read the objective and acceptance criteria before final validation.
+- [X] Run every validation command listed above.
+- [X] Mark every completed checkbox in this file as `[X]`.
+- [X] Move this story file to `tasks/completed/stories/E30/` only after all criteria pass.
+- [X] Update the parent epic checklist if this story completes an ordered item.

@@ -20,35 +20,35 @@ Implement the Charters and permits system. Players can obtain permits that gate 
 
 ## Implementation checklist
 
-- [ ] Write a failing test for charters in `apps/server/src/systems/__tests__/charters.test.ts`.
-- [ ] Create `charter-system.ts` in `apps/server/src/systems/`.
-- [ ] Define charter schema: `id`, `name`, `type` (`area`, `activity`, `content`), `requiredStanding`, `cost`, `duration`.
-- [ ] Implement charter issuance: validate standing, deduct cost, grant permit.
-- [ ] Implement charter validation: check permit before gated action.
-- [ ] Implement charter expiry: remove permit after duration.
-- [ ] Write a passing test for charter issuance.
-- [ ] Write a passing test for charter validation.
-- [ ] Write a passing test for charter expiry.
-- [ ] Write a passing test for charter cost deduction.
+- [X] Write a failing test for charters in `apps/server/src/systems/__tests__/charters.test.ts`.
+- [X] Create `charter-system.ts` in `apps/server/src/systems/`.
+- [X] Define charter schema: `id`, `name`, `type` (`area`, `activity`, `content`), `requiredStanding`, `cost`, `duration`.
+- [X] Implement charter issuance: validate standing, deduct cost, grant permit.
+- [X] Implement charter validation: check permit before gated action.
+- [X] Implement charter expiry: remove permit after duration.
+- [X] Write a passing test for charter issuance.
+- [X] Write a passing test for charter validation.
+- [X] Write a passing test for charter expiry.
+- [X] Write a passing test for charter cost deduction.
 
 ## Acceptance criteria
 
-- [ ] Charters are issued with validation.
-- [ ] Charter validation gates access correctly.
-- [ ] Charter expiry removes permits.
-- [ ] All tests pass.
-- [ ] `bun run typecheck` passes.
+- [X] Charters are issued with validation.
+- [X] Charter validation gates access correctly.
+- [X] Charter expiry removes permits.
+- [X] All tests pass.
+- [X] `bun run typecheck` passes.
 
 ## Validation commands
 
-- [ ] `bun run test`
-- [ ] `bun run typecheck`
-- [ ] `bun run lint`
+- [X] `bun run test`
+- [X] `bun run typecheck`
+- [X] `bun run lint`
 
 ## Agent completion protocol
 
-- [ ] Re-read the objective and acceptance criteria before final validation.
-- [ ] Run every validation command listed above.
-- [ ] Mark every completed checkbox in this file as `[X]`.
-- [ ] Move this story file to `tasks/completed/stories/E30/` only after all criteria pass.
-- [ ] Update the parent epic checklist if this story completes an ordered item.
+- [X] Re-read the objective and acceptance criteria before final validation.
+- [X] Run every validation command listed above.
+- [X] Mark every completed checkbox in this file as `[X]`.
+- [X] Move this story file to `tasks/completed/stories/E30/` only after all criteria pass.
+- [X] Update the parent epic checklist if this story completes an ordered item.
