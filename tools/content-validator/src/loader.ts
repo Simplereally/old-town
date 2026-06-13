@@ -39,8 +39,8 @@ export async function loadContentDir(contentDir: string): Promise<LoadResult> {
       if (!entry.name.endsWith(".json")) {
         continue;
       }
-      const rel = relative(contentDir, full);
-      const topDir = rel.split(sep)[0];
+      const rel = relative(contentDir, full).replace(/\\/g, "/");
+      const topDir = rel.split("/")[0];
       const kind = topDir ? kindForContentDir(topDir) : undefined;
       if (!kind) {
         issues.push({

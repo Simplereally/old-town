@@ -1,9 +1,12 @@
 import type { RegionMapDef } from "@old-town/shared";
 import { JSDOM } from "jsdom";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import type { PlacementSelection } from "./editor-model";
 import { exportRegionJson } from "./editor-model";
 import type { EditorState } from "./main";
+
+// Mock import.meta.glob (Vite feature) before importing main.ts
+vi.stubGlobal("import.meta.glob", vi.fn(() => ({})));
 
 let commitPlacementMutation: (
   state: EditorState,
@@ -53,6 +56,7 @@ function setupDom() {
 
   // Create all elements needed by main.ts
   const elements: Array<{ id: string; tag: string; type?: string }> = [
+    { id: "app", tag: "div" },
     { id: "validity-pill", tag: "div" },
     { id: "stat-region", tag: "span" },
     { id: "stat-overrides", tag: "span" },

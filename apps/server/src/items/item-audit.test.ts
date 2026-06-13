@@ -91,7 +91,7 @@ describe("ItemAuditLog", () => {
     for (const file of productionFiles) {
       const source = await readFile(file, "utf8");
       if (mutatorPattern.test(source)) {
-        filesWithMutators.push(relative(srcRoot, file));
+        filesWithMutators.push(relative(srcRoot, file).replace(/\\/g, "/"));
       }
     }
 

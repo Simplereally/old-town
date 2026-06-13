@@ -980,6 +980,8 @@ function commitPlacementMutation(
   setStatus("placement saved", "ok");
 }
 
+export { commitPlacementMutation };
+
 function currentPlacementDraft(state: EditorState, x: number, y: number): PlacementDraft {
   const kind = placementKindForBrush(state.brushMode);
   switch (kind) {

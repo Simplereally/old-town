@@ -119,6 +119,10 @@ function mockCanvasContext(): void {
 // Now import GameEngine
 const { GameEngine } = await import("./GameEngine");
 
+beforeEach(() => {
+  document.body.innerHTML = "";
+});
+
 function createOverlays(): { status: HTMLDivElement; debug: HTMLDivElement } {
   const status = document.createElement("div");
   status.innerHTML = `
@@ -140,6 +144,7 @@ function createEngine(): {
   canvas.width = 800;
   canvas.height = 600;
   const overlays = createOverlays();
+  document.body.innerHTML = "";
   document.body.appendChild(overlays.status);
   document.body.appendChild(overlays.debug);
 
