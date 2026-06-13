@@ -738,7 +738,7 @@
     {
       "id": "E25",
       "title": "Object Interaction and Content Routing",
-      "file": "epics/E25_object-interaction-and-content-routing.md",
+      "file": "completed/epics/E25_object-interaction-and-content-routing.md",
       "stories": [
         {
           "id": "E25-S01",
@@ -748,44 +748,44 @@
         {
           "id": "E25-S02",
           "title": "Favour Offering Action",
-          "file": "stories/E25/E25-S02_favour-offering-action.md"
+          "file": "completed/stories/E25/E25-S02_favour-offering-action.md"
         },
         {
           "id": "E25-S03",
           "title": "Fishing Action Support",
-          "file": "stories/E25/E25-S03_fishing-action-support.md"
+          "file": "completed/stories/E25/E25-S03_fishing-action-support.md"
         },
         {
           "id": "E25-S04",
           "title": "Trapping Action Runtime",
-          "file": "stories/E25/E25-S04_trapping-action-runtime.md"
+          "file": "completed/stories/E25/E25-S04_trapping-action-runtime.md"
         },
         {
           "id": "E25-S05",
           "title": "Map Table Survey Action",
-          "file": "stories/E25/E25-S05_map-table-survey-action.md"
+          "file": "completed/stories/E25/E25-S05_map-table-survey-action.md"
         }
       ]
     },
     {
       "id": "E26",
       "title": "Wardenry Contracts",
-      "file": "epics/E26_wardenry-contracts.md",
+      "file": "completed/epics/E26_wardenry-contracts.md",
       "stories": [
         {
           "id": "E26-S01",
           "title": "Contract Runtime State Machine",
-          "file": "stories/E26/E26-S01_contract-runtime-state-machine.md"
+          "file": "completed/stories/E26/E26-S01_contract-runtime-state-machine.md"
         },
         {
           "id": "E26-S02",
           "title": "Contract Objective Tracking and Completion",
-          "file": "stories/E26/E26-S02_contract-objective-tracking-and-completion.md"
+          "file": "completed/stories/E26/E26-S02_contract-objective-tracking-and-completion.md"
         },
         {
           "id": "E26-S03",
           "title": "Contract Reward Distribution",
-          "file": "stories/E26/E26-S03_contract-reward-distribution.md"
+          "file": "completed/stories/E26/E26-S03_contract-reward-distribution.md"
         }
       ]
     },
