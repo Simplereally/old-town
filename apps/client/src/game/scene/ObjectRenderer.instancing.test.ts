@@ -7,7 +7,7 @@ import { ObjectRenderer } from "./ObjectRenderer";
 const TILE: TileCoord = { x: 5, y: 5, plane: 0 };
 const ID1 = entityId(1);
 const ID2 = entityId(2);
-const ID3 = entityId(3);
+const _ID3 = entityId(3);
 const ID999 = entityId(999);
 
 describe("ObjectRenderer instancing", () => {
@@ -26,8 +26,8 @@ describe("ObjectRenderer instancing", () => {
     expect(renderer.objectCount).toBe(100);
     const group = scene.children[0];
     expect(group).toBeDefined();
-    expect(group!.children.length).toBe(1);
-    const mesh = group!.children[0] as import("three").InstancedMesh;
+    expect(group?.children.length).toBe(1);
+    const mesh = group?.children[0] as import("three").InstancedMesh;
     expect(mesh).toBeDefined();
     expect(mesh.count).toBe(0); // before flush
     renderer.flush(1);
@@ -42,8 +42,9 @@ describe("ObjectRenderer instancing", () => {
 
     const targets = renderer.getRaycastTargets();
     expect(targets.length).toBe(1);
-    const mesh = targets[0]!;
-    const instanceMap = mesh.userData.instanceMap as { entityId: number; defId: string }[];
+    const mesh = targets[0];
+    expect(mesh).toBeDefined();
+    const instanceMap = (mesh as import("three").InstancedMesh).userData.instanceMap as { entityId: number; defId: string }[];
     expect(instanceMap).toBeDefined();
 
     // ID1 should be gone from instanceMap
@@ -53,7 +54,7 @@ describe("ObjectRenderer instancing", () => {
     // ID2 should still be there
     const found2 = instanceMap.find((m) => m && m.entityId === ID2);
     expect(found2).toBeDefined();
-    expect(found2!.defId).toBe("tree_oak");
+    expect(found2?.defId).toBe("tree_oak");
   });
 
   it("transform to different archetype releases old slot and acquires new bucket slot", () => {
@@ -65,7 +66,7 @@ describe("ObjectRenderer instancing", () => {
     const group = scene.children[0];
     expect(group).toBeDefined();
     // tree and rock are different archetypes => two buckets
-    expect(group!.children.length).toBe(2);
+    expect(group?.children.length).toBe(2);
 
     // Check raycast metadata: ID1 must be in the rock bucket
     let foundId1 = false;
@@ -85,7 +86,7 @@ describe("ObjectRenderer instancing", () => {
     renderer.spawn(ID1, TILE, "tree_oak");
     const group = scene.children[0];
     expect(group).toBeDefined();
-    const mesh = group!.children[0] as import("three").InstancedMesh;
+    const mesh = group?.children[0] as import("three").InstancedMesh;
     expect(mesh.count).toBe(0); // no flush yet
     renderer.flush(1);
     expect(mesh.count).toBe(1);
@@ -98,17 +99,18 @@ describe("ObjectRenderer instancing", () => {
 
     const targets = renderer.getRaycastTargets();
     expect(targets.length).toBe(1);
-    const mesh = targets[0]!;
-    const instanceMap = mesh.userData.instanceMap as { entityId: number; defId: string }[];
+    const mesh = targets[0];
+    expect(mesh).toBeDefined();
+    const instanceMap = (mesh as import("three").InstancedMesh).userData.instanceMap as { entityId: number; defId: string }[];
     expect(instanceMap).toBeDefined();
 
     const meta1 = instanceMap.find((m) => m && m.entityId === ID1);
     expect(meta1).toBeDefined();
-    expect(meta1!.defId).toBe("tree_oak");
+    expect(meta1?.defId).toBe("tree_oak");
 
     const meta2 = instanceMap.find((m) => m && m.entityId === ID2);
     expect(meta2).toBeDefined();
-    expect(meta2!.defId).toBe("tree_oak");
+    expect(meta2?.defId).toBe("tree_oak");
   });
 
   it("clear removes all objects and flushes", () => {
@@ -143,8 +145,8 @@ describe("ObjectRenderer instancing", () => {
 
     renderer.setRegionVisible("r0:0:0", false);
     const targets = renderer.getRaycastTargets();
-    expect(targets[0]!.visible).toBe(false);
-    expect(targets[1]!.visible).toBe(true);
+    expect(targets[0]?.visible).toBe(false);
+    expect(targets[1]?.visible).toBe(true);
   });
 
   it("updateTransform writes rotation to bucket", () => {

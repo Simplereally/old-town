@@ -120,7 +120,7 @@ export class TerrainLayer {
         this.unloadChunk(key);
       }
     }
-    for (const [key, group] of this.bakedChunks) {
+    for (const [key, _group] of this.bakedChunks) {
       // Baked chunk keys are `${regionId}:${cx}:${cy}`; parse region prefix
       if (key.startsWith(`${regionId}:`)) {
         this.unloadChunk(key);

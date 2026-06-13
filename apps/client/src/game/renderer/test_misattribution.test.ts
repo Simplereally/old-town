@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { RegionId } from "@old-town/shared";
 import {
   type BakeChunkRequest,
   type CancelBakeChunk,
@@ -11,7 +12,7 @@ function makeRequest(
 ): Omit<BakeChunkRequest, "jobId"> {
   return {
     type: "bake_chunk",
-    regionId: "0:0:0" as any,
+    regionId: "0:0:0" as RegionId,
     chunkCoord: { cx: 0, cy: 0, plane: 0 as 0 },
     tiles: [],
     objectRefs: [],
@@ -69,6 +70,6 @@ describe("misattribution", () => {
 
     // The bug: job B is blamed, not job A.
     expect(failures.length).toBe(1);
-    expect(failures[0]!.jobId).toBe(jobIdB); // demonstrates misattribution
+    expect(failures[0]?.jobId).toBe(jobIdB); // demonstrates misattribution
   });
 });

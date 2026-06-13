@@ -1,5 +1,5 @@
 [
-    {
+  {
     "id": "tin_rock_node",
     "name": "Tin Rock",
     "skill": "mining",
@@ -27,7 +27,7 @@
     "baseChance": 0.45,
     "levelScale": 0.01
   },
-    {
+  {
     "id": "willow_tree_node",
     "name": "Willow Tree",
     "skill": "woodcutting",

@@ -123,7 +123,12 @@ export class InstancedPropHarness {
   }
 
   private _randomKey(): InstanceBucketKey {
-    return this._keys[Math.floor(this._rand() * this._keys.length)]!;
+    const index = Math.floor(this._rand() * this._keys.length);
+    const key = this._keys[index];
+    if (!key) {
+      throw new Error("Unexpected empty key array in InstancedPropHarness");
+    }
+    return key;
   }
 
   private _randomTransform(): TransformInput {
@@ -197,7 +202,7 @@ export class InstancedPropHarness {
   /** Update transform for an existing prop. */
   updateTransform(entityId: number): void {
     const prop = this.props.get(entityId);
-    if (!prop || !prop.active) return;
+    if (!prop?.active) return;
     const bucket = this._getOrCreateBucket(prop.bucketKey);
     bucket.writeTransform(entityId, this._randomTransform());
   }
@@ -205,7 +210,7 @@ export class InstancedPropHarness {
   /** Update color for an existing prop. */
   updateColor(entityId: number): void {
     const prop = this.props.get(entityId);
-    if (!prop || !prop.active) return;
+    if (!prop?.active) return;
     const bucket = this._getOrCreateBucket(prop.bucketKey);
     bucket.writeColorOrSeed(entityId, this._randomColor());
   }
@@ -213,7 +218,7 @@ export class InstancedPropHarness {
   /** Update seed for an existing prop (requires seed-supporting bucket). */
   updateSeed(entityId: number): void {
     const prop = this.props.get(entityId);
-    if (!prop || !prop.active) return;
+    if (!prop?.active) return;
     const bucket = this._getOrCreateBucket(prop.bucketKey);
     bucket.writeColorOrSeed(entityId, this._randomSeed());
   }
@@ -221,7 +226,7 @@ export class InstancedPropHarness {
   /** Release a prop back to its bucket. */
   release(entityId: number): void {
     const prop = this.props.get(entityId);
-    if (!prop || !prop.active) return;
+    if (!prop?.active) return;
     const bucket = this._getOrCreateBucket(prop.bucketKey);
     bucket.release(entityId);
     prop.active = false;

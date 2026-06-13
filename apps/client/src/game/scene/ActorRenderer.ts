@@ -964,7 +964,7 @@ export class ActorRenderer {
     } else {
       // Creature
       const activeSet = this.creatureActive.get(archetype);
-      if (activeSet && activeSet.has(meshes)) {
+      if (activeSet?.has(meshes)) {
         activeSet.delete(meshes);
         this._resetMeshes(meshes);
         const freeList = this.creatureFreeLists.get(archetype);
@@ -1011,7 +1011,8 @@ export class ActorRenderer {
     meshes.body.material = tunicMaterial;
     for (let i = 2; i < meshes.parts.length; i++) {
       // arms use tunicMaterial
-      meshes.parts[i]!.material = tunicMaterial;
+      const part = meshes.parts[i];
+      if (part) part.material = tunicMaterial;
     }
 
     meshes.body.userData = { entityId: state.entityId, kind };
@@ -1029,15 +1030,21 @@ export class ActorRenderer {
     const archetype = spec.archetype;
     this._ensureCreaturePool(archetype, spec);
 
-    const freeList = this.creatureFreeLists.get(archetype)!;
-    const activeSet = this.creatureActive.get(archetype)!;
+    const freeList = this.creatureFreeLists.get(archetype);
+    const activeSet = this.creatureActive.get(archetype);
+    if (!freeList || !activeSet) {
+      throw new Error(`Creature pool for ${archetype} not found after prewarm`);
+    }
 
     let meshes = freeList.pop();
     if (!meshes) {
       const geometryKey: RenderResourceKey = { type: "actor", contentId: archetype };
       const geometry = this.registry.getGeometry(geometryKey);
       meshes = this._createCreatureMeshes(geometry, spec, archetype);
-      const pool = this.creaturePools.get(archetype)!;
+      const pool = this.creaturePools.get(archetype);
+      if (!pool) {
+        throw new Error(`Creature pool for ${archetype} not found after prewarm`);
+      }
       pool.push(meshes);
     }
     activeSet.add(meshes);

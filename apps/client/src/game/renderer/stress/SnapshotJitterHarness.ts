@@ -141,7 +141,7 @@ export class SnapshotJitterHarness {
     const arrivals: PacketArrival[] = [];
 
     for (let tick = 1; tick <= this.options.tickCount; tick++) {
-      const curr = path[tick]!;
+      const curr = path[tick] as TileCoord;
       const packet: TickDeltaPacket = {
         type: ServerPacketType.TickDelta,
         tick,
@@ -187,8 +187,8 @@ export class SnapshotJitterHarness {
     for (let i = 0; i < arrivals.length - 1; i++) {
       const reorderRoll = this.rng.nextFloat();
       if (reorderRoll < this.options.reorderRate) {
-        const temp = arrivals[i]!;
-        arrivals[i] = arrivals[i + 1]!;
+        const temp = arrivals[i] as PacketArrival;
+        arrivals[i] = arrivals[i + 1] as PacketArrival;
         arrivals[i + 1] = temp;
       }
     }
@@ -219,7 +219,7 @@ export class SnapshotJitterHarness {
         {
           entityId: selfEntityId,
           kind: "player",
-          tile: path[0]!,
+          tile: path[0] as TileCoord,
           moveSpeed: "stationary",
           appearance: { name: "Hero", bodyId: "dev" },
         },
@@ -246,8 +246,8 @@ export class SnapshotJitterHarness {
       const rejectedPacketTicks: number[] = [];
 
       // Ingest all packets that have arrived by this frame
-      while (arrivalIndex < arrivals.length && arrivals[arrivalIndex]!.arrivalTimeMs <= frameTime) {
-        const arrival = arrivals[arrivalIndex]!;
+      while (arrivalIndex < arrivals.length && (arrivals[arrivalIndex] as PacketArrival).arrivalTimeMs <= frameTime) {
+        const arrival = arrivals[arrivalIndex] as PacketArrival;
         if (arrival.kind !== "dropped") {
           const currentTick = this.snapshotBuffer.latestAcceptedTick;
           const result = this.ingestor.ingestTickDelta(

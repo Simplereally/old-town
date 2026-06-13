@@ -6,9 +6,10 @@ describe("SnapshotJitterHarness", () => {
     const harness = new SnapshotJitterHarness({ seed: 42, tickCount: 120 });
     harness.run();
     expect(harness.path.length).toBe(121); // 0..120 inclusive
-    const start = harness.path[0]!;
+    const start = harness.path[0];
+    expect(start).toBeDefined();
     expect(start).toEqual({ x: 0, y: 0, plane: 0 });
-    const end = harness.path[harness.path.length - 1]!;
+    const end = harness.path[harness.path.length - 1];
     expect(end).toBeDefined();
   });
 
@@ -49,17 +50,19 @@ describe("Snapshot Jitter Stress", () => {
 
     // latestAcceptedTick must never decrease
     for (let i = 1; i < harness.records.length; i++) {
-      const prev = harness.records[i - 1]!;
-      const curr = harness.records[i]!;
+      const prev = harness.records[i - 1];
+      const curr = harness.records[i];
+      if (prev === undefined || curr === undefined) continue;
       expect(curr.latestAcceptedTick).toBeGreaterThanOrEqual(prev.latestAcceptedTick);
     }
 
     // When a packet is rejected in a frame, the accepted tick must not change
     // because that frame (unless another packet in the same frame was accepted)
     for (let i = 0; i < harness.records.length; i++) {
-      const record = harness.records[i]!;
+      const record = harness.records[i];
+      if (!record) continue;
       if (record.rejectedPacketTicks.length > 0 && record.acceptedPacketTicks.length === 0) {
-        const prev = i > 0 ? harness.records[i - 1]! : null;
+        const prev = i > 0 ? harness.records[i - 1] : null;
         if (prev) {
           expect(record.latestAcceptedTick).toBe(prev.latestAcceptedTick);
         }
@@ -144,9 +147,10 @@ describe("Snapshot Jitter Stress", () => {
     harness.run();
 
     for (let i = 0; i < harness.records.length; i++) {
-      const record = harness.records[i]!;
+      const record = harness.records[i];
+      if (!record) continue;
       if (record.acceptedPacketTicks.length === 0) {
-        const prev = i > 0 ? harness.records[i - 1]! : null;
+        const prev = i > 0 ? harness.records[i - 1] : null;
         if (prev) {
           // When no packet arrives, lastSyncTick must stay the same
           expect(record.lastSyncTick).toBe(prev.lastSyncTick);
@@ -156,8 +160,9 @@ describe("Snapshot Jitter Stress", () => {
 
     // Also verify that lastSyncTick only advances to accepted packet ticks
     for (let i = 1; i < harness.records.length; i++) {
-      const prev = harness.records[i - 1]!;
-      const curr = harness.records[i]!;
+      const prev = harness.records[i - 1];
+      const curr = harness.records[i];
+      if (prev === undefined || curr === undefined) continue;
       if (curr.lastSyncTick > prev.lastSyncTick) {
         expect(curr.acceptedPacketTicks.length).toBeGreaterThan(0);
       }

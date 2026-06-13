@@ -75,7 +75,7 @@ function runVitest(): VitestJsonOutput {
   return parsed;
 }
 
-function buildGates(output: VitestJsonOutput, ciOnly: boolean): Report {
+function buildGates(output: VitestJsonOutput, _ciOnly: boolean): Report {
   const ciGates: Gate[] = [];
   const manualGates: Gate[] = [];
 

@@ -54,10 +54,10 @@ describe("ActorRenderer pooling", () => {
 
     const handle = renderer.getRenderHandle(ID1);
     expect(handle).toBeDefined();
-    expect(handle!.entityId).toBe(ID1);
-    expect(handle!.kind).toBe("player");
-    expect(handle!.resourceKey).toBe("humanoid:player");
-    expect(handle!.poolSlot).toBeGreaterThanOrEqual(0);
+    expect(handle?.entityId).toBe(ID1);
+    expect(handle?.kind).toBe("player");
+    expect(handle?.resourceKey).toBe("humanoid:player");
+    expect(handle?.poolSlot).toBeGreaterThanOrEqual(0);
   });
 
   it("spawns a remote actor with correct handle", () => {
@@ -66,8 +66,8 @@ describe("ActorRenderer pooling", () => {
 
     const handle = renderer.getRenderHandle(ID2);
     expect(handle).toBeDefined();
-    expect(handle!.kind).toBe("npc");
-    expect(handle!.resourceKey).toBe("creature:goblinoid");
+    expect(handle?.kind).toBe("npc");
+    expect(handle?.resourceKey).toBe("creature:goblinoid");
   });
 
   it("removes an actor and clears handle", () => {
@@ -89,7 +89,11 @@ describe("ActorRenderer pooling", () => {
     const group2 = renderer.meshes.get(ID2)?.group;
 
     expect(group2).toBe(group1);
-    expect(handle2!.poolSlot).toBe(handle1!.poolSlot + 1);
+    expect(handle2).toBeDefined();
+    expect(handle1).toBeDefined();
+    expect((handle2 as NonNullable<typeof handle2>).poolSlot).toBe(
+      (handle1 as NonNullable<typeof handle1>).poolSlot + 1,
+    );
   });
 
   it("reuses pooled creature mesh after remove", () => {
@@ -121,7 +125,7 @@ describe("ActorRenderer pooling", () => {
     expect(meshes).toBeDefined();
     // facing is applied during interpolate or updateFromCache
     renderer.interpolate(1);
-    expect(meshes!.group.rotation.y).toBeCloseTo(Math.PI * 0.5, 3);
+    expect(meshes?.group.rotation.y).toBeCloseTo(Math.PI * 0.5, 3);
   });
 
   it("updates health bar and keeps it hidden until hit", () => {
@@ -129,7 +133,7 @@ describe("ActorRenderer pooling", () => {
     renderer.updateHealthBar(ID1, 10, 10);
     const meshes = renderer.meshes.get(ID1);
     expect(meshes).toBeDefined();
-    expect(meshes!.healthBar!.group.visible).toBe(false);
+    expect(meshes?.healthBar?.group.visible).toBe(false);
   });
 
   it("shows health bar after hit and renders partial fill", () => {
@@ -137,8 +141,8 @@ describe("ActorRenderer pooling", () => {
     renderer.notifyHit(ID1, 5);
     renderer.updateHealthBar(ID1, 5, 10);
     const meshes = renderer.meshes.get(ID1);
-    expect(meshes!.healthBar!.group.visible).toBe(true);
-    expect(meshes!.healthBar!.fill.scale.x).toBeCloseTo(0.6, 2);
+    expect(meshes?.healthBar?.group.visible).toBe(true);
+    expect(meshes?.healthBar?.fill.scale.x).toBeCloseTo(0.6, 2);
   });
 
   it("drives position from RenderTransformCache", () => {
@@ -153,10 +157,10 @@ describe("ActorRenderer pooling", () => {
     renderer.updateFromCache(cache, 1);
     const meshes = renderer.meshes.get(ID1);
     expect(meshes).toBeDefined();
-    expect(meshes!.group.position.x).toBeCloseTo(12.0, 2);
-    expect(meshes!.group.position.y).toBeCloseTo(0.5 + 0.1, 1); // GROUND_OFFSET + possible animation offset
-    expect(meshes!.group.position.z).toBeCloseTo(-8.0, 2);
-    expect(meshes!.group.rotation.y).toBeCloseTo(Math.PI * 0.5, 3);
+    expect(meshes?.group.position.x).toBeCloseTo(12.0, 2);
+    expect(meshes?.group.position.y).toBeCloseTo(0.5 + 0.1, 1); // GROUND_OFFSET + possible animation offset
+    expect(meshes?.group.position.z).toBeCloseTo(-8.0, 2);
+    expect(meshes?.group.rotation.y).toBeCloseTo(Math.PI * 0.5, 3);
   });
 
   it("updates animation state from cache movement kind", () => {
@@ -192,16 +196,16 @@ describe("ActorRenderer pooling", () => {
     renderer.spawn(ID1, TILE, "player", true);
     const meshes = renderer.meshes.get(ID1);
     expect(meshes).toBeDefined();
-    expect(meshes!.marker).toBeDefined();
-    expect(meshes!.marker!.visible).toBe(true);
+    expect(meshes?.marker).toBeDefined();
+    expect(meshes?.marker?.visible).toBe(true);
   });
 
   it("does not show marker for non-local player", () => {
     renderer.spawn(ID1, TILE, "player", false);
     const meshes = renderer.meshes.get(ID1);
     expect(meshes).toBeDefined();
-    expect(meshes!.marker).toBeDefined();
-    expect(meshes!.marker!.visible).toBe(false);
+    expect(meshes?.marker).toBeDefined();
+    expect(meshes?.marker?.visible).toBe(false);
   });
 
   it("returns pool stats after spawn and remove", () => {

@@ -145,14 +145,16 @@ export class RenderResourceRecovery {
     message: string,
   ): ChunkFailureRecord {
     const existing = this._failures.get(chunkId);
+    const isUpload = errorCode === "upload_failure";
+    const maxRetries = isUpload ? this._maxUploadRetries : this._maxBakeRetries;
     const updated: ChunkFailureRecord = {
       chunkId,
       errorCode,
       message,
       retryCount: (existing?.retryCount ?? 0) + 1,
       retryAfterFrame: this._currentFrame + this._computeBackoff((existing?.retryCount ?? 0) + 1),
-      maxRetries: this._maxBakeRetries,
-      permanent: (existing?.retryCount ?? 0) + 1 > this._maxBakeRetries,
+      maxRetries,
+      permanent: (existing?.retryCount ?? 0) + 1 > maxRetries,
     };
     this._failures.set(chunkId, updated);
     return updated;

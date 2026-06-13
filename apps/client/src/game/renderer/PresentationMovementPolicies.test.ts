@@ -97,10 +97,10 @@ describe("PresentationMovementPolicies", () => {
 
     const p = policies.transformCache.getPresentation(1);
     expect(p).toBeDefined();
-    expect(p!.movementKind).toBe(MovementPresentationKind.Walk);
-    expect(p!.renderX).toBeCloseTo(10.5 + 0.5 * 1, 5);
-    expect(p!.renderZ).toBe(20.5);
-    expect(p!.heading).toBe(90);
+    expect(p?.movementKind).toBe(MovementPresentationKind.Walk);
+    expect(p?.renderX).toBeCloseTo(10.5 + 0.5 * 1, 5);
+    expect(p?.renderZ).toBe(20.5);
+    expect(p?.heading).toBe(90);
   });
 
   it("run presentation as two-tile visual motion when snapshot delta supports two tiles", () => {
@@ -125,9 +125,9 @@ describe("PresentationMovementPolicies", () => {
 
     const p = policies.transformCache.getPresentation(1);
     expect(p).toBeDefined();
-    expect(p!.movementKind).toBe(MovementPresentationKind.Run);
+    expect(p?.movementKind).toBe(MovementPresentationKind.Run);
     // Visual distance is 2 tiles over the same tick, so midpoint is 1 tile from start
-    expect(p!.renderX).toBeCloseTo(10.5 + 0.5 * 2, 5);
+    expect(p?.renderX).toBeCloseTo(10.5 + 0.5 * 2, 5);
   });
 
   it("run with less than two-tile distance falls back to walk", () => {
@@ -147,8 +147,8 @@ describe("PresentationMovementPolicies", () => {
     policies.applySnapshot(makeSample("interpolate", 0.5, newer, older));
 
     const p = policies.transformCache.getPresentation(1);
-    expect(p!.movementKind).toBe(MovementPresentationKind.Walk);
-    expect(p!.renderX).toBeCloseTo(10.5 + 0.5 * 1, 5);
+    expect(p?.movementKind).toBe(MovementPresentationKind.Walk);
+    expect(p?.renderX).toBeCloseTo(10.5 + 0.5 * 1, 5);
   });
 
   it("teleport snaps to tile without interpolation through blocked tiles", () => {
@@ -168,14 +168,14 @@ describe("PresentationMovementPolicies", () => {
     policies.applySnapshot(makeSample("interpolate", 0.5, newer, older));
 
     const p = policies.transformCache.getPresentation(1);
-    expect(p!.movementKind).toBe(MovementPresentationKind.Teleport);
-    expect(p!.renderX).toBe(50.5);
-    expect(p!.renderZ).toBe(50.5);
+    expect(p?.movementKind).toBe(MovementPresentationKind.Teleport);
+    expect(p?.renderX).toBe(50.5);
+    expect(p?.renderZ).toBe(50.5);
     // No interpolation through intermediate tiles: prevTile stays the old tile
-    expect(p!.prevTileX).toBe(10);
-    expect(p!.prevTileY).toBe(20);
-    expect(p!.currTileX).toBe(50);
-    expect(p!.currTileY).toBe(50);
+    expect(p?.prevTileX).toBe(10);
+    expect(p?.prevTileY).toBe(20);
+    expect(p?.currTileX).toBe(50);
+    expect(p?.currTileY).toBe(50);
   });
 
   it("teleport on previousTile null even in interpolate mode", () => {
@@ -195,8 +195,8 @@ describe("PresentationMovementPolicies", () => {
     policies.applySnapshot(makeSample("interpolate", 0.5, newer, older));
 
     const p = policies.transformCache.getPresentation(1);
-    expect(p!.movementKind).toBe(MovementPresentationKind.Teleport);
-    expect(p!.renderX).toBe(11.5);
+    expect(p?.movementKind).toBe(MovementPresentationKind.Teleport);
+    expect(p?.renderX).toBe(11.5);
   });
 
   it("projectile lifetime uses startTick, hitTick, and renderServerTimeMs", () => {
@@ -214,15 +214,15 @@ describe("PresentationMovementPolicies", () => {
     policies.update(sample1);
     let projs = policies.getProjectiles();
     expect(projs).toHaveLength(1);
-    expect(projs[0]!.progress).toBeCloseTo((1400 - 1 * 600) / ((3 - 1) * 600), 5);
-    expect(projs[0]!.isDone).toBe(false);
+    expect(projs[0]?.progress).toBeCloseTo((1400 - 1 * 600) / ((3 - 1) * 600), 5);
+    expect(projs[0]?.isDone).toBe(false);
 
     // At renderServerTimeMs = 2000 (tick 2), projectile is halfway
     clock.sample(1000 + 1000 / 60);
     const sample2 = clock.sample(1000 + 2000 / 60);
     policies.update(sample2);
     projs = policies.getProjectiles();
-    expect(projs[0]!.progress).toBeCloseTo(
+    expect(projs[0]?.progress).toBeCloseTo(
       (sample2.renderServerTimeMs - 1 * 600) / ((3 - 1) * 600),
       2,
     );
@@ -248,11 +248,11 @@ describe("PresentationMovementPolicies", () => {
     policies.update(sample1);
     let hitsplats = policies.getHitsplats();
     expect(hitsplats).toHaveLength(1);
-    expect(hitsplats[0]!.progress).toBeCloseTo(
+    expect(hitsplats[0]?.progress).toBeCloseTo(
       (sample1.renderServerTimeMs - startServerTimeMs) / defaultOptions.hitsplatDurationMs,
       5,
     );
-    expect(hitsplats[0]!.isDone).toBe(false);
+    expect(hitsplats[0]?.isDone).toBe(false);
 
     // At renderServerTimeMs = 2600, hitsplat is 2000ms old > 1200ms duration
     const sample2 = clock.sample(2000);
@@ -274,11 +274,11 @@ describe("PresentationMovementPolicies", () => {
     policies.update(sample1);
     let chats = policies.getChatBubbles();
     expect(chats).toHaveLength(1);
-    expect(chats[0]!.progress).toBeCloseTo(
+    expect(chats[0]?.progress).toBeCloseTo(
       (sample1.renderServerTimeMs - chatServerTimeMs) / defaultOptions.chatDurationMs,
       5,
     );
-    expect(chats[0]!.isDone).toBe(false);
+    expect(chats[0]?.isDone).toBe(false);
 
     // At renderServerTimeMs = 5600, chat is 5000ms old > 4000ms duration
     const sample2 = clock.sample(5000);
@@ -299,8 +299,8 @@ describe("PresentationMovementPolicies", () => {
     // Click marker is tracked
     let markers = policies.getClickMarkers();
     expect(markers).toHaveLength(1);
-    expect(markers[0]!.tile).toEqual(tile);
-    expect(markers[0]!.id).toBe(markerId);
+    expect(markers[0]?.tile).toEqual(tile);
+    expect(markers[0]?.id).toBe(markerId);
 
     // RenderTransformCache is untouched
     expect(policies.transformCache.count).toBe(0);
@@ -320,8 +320,8 @@ describe("PresentationMovementPolicies", () => {
 
     const rejected = policies.getRejectedMoves();
     expect(rejected).toHaveLength(1);
-    expect(rejected[0]!.tile).toEqual(tile);
-    expect(rejected[0]!.tick).toBe(5);
+    expect(rejected[0]?.tile).toEqual(tile);
+    expect(rejected[0]?.tick).toBe(5);
 
     policies.clearRejectedMoves();
     expect(policies.getRejectedMoves()).toHaveLength(0);
@@ -342,7 +342,7 @@ describe("PresentationMovementPolicies", () => {
     policies.update(sample1);
     let projs = policies.getProjectiles();
     expect(projs).toHaveLength(1);
-    expect(projs[0]!.isDone).toBe(false);
+    expect(projs[0]?.isDone).toBe(false);
 
     // Simulate a 5-second background-tab pause (t=6000)
     const sample2 = clock.sample(6000);
@@ -372,7 +372,7 @@ describe("PresentationMovementPolicies", () => {
     policies.update(sample1);
     let hitsplats = policies.getHitsplats();
     expect(hitsplats).toHaveLength(1);
-    expect(hitsplats[0]!.isDone).toBe(false);
+    expect(hitsplats[0]?.isDone).toBe(false);
 
     // 5-second pause
     const sample2 = clock.sample(6000);
@@ -397,7 +397,7 @@ describe("PresentationMovementPolicies", () => {
     policies.update(sample1);
     let chats = policies.getChatBubbles();
     expect(chats).toHaveLength(1);
-    expect(chats[0]!.isDone).toBe(false);
+    expect(chats[0]?.isDone).toBe(false);
 
     // 5-second pause
     const sample2 = clock.sample(6000);
@@ -421,13 +421,13 @@ describe("PresentationMovementPolicies", () => {
     policies.update(sample1);
     let markers = policies.getClickMarkers();
     expect(markers).toHaveLength(1);
-    expect(markers[0]!.progress).toBe(0);
+    expect(markers[0]?.progress).toBe(0);
 
     // After 750ms, marker is halfway
     const sample2 = clock.sample(1750);
     policies.update(sample2);
     markers = policies.getClickMarkers();
-    expect(markers[0]!.progress).toBeCloseTo(
+    expect(markers[0]?.progress).toBeCloseTo(
       (sample2.renderServerTimeMs - sample1.renderServerTimeMs) /
         defaultOptions.clickMarkerDurationMs,
       2,

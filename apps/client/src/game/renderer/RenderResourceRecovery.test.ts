@@ -1,13 +1,13 @@
 import { type ChunkId, chunkId, type RegionId, type TileCoord } from "@old-town/shared";
 import { BoxGeometry, Scene } from "three";
 import { beforeEach, describe, expect, it } from "vitest";
-import { ChunkBakeQueue, type ChunkMetadata } from "./ChunkBakeQueue";
+import { ChunkBakeQueue, type ChunkBakeJob, type ChunkMetadata } from "./ChunkBakeQueue";
 import { ChunkResidencyManager } from "./ChunkResidencyManager";
 import { ChunkUploadQueue } from "./ChunkUploadQueue";
 import { type RenderResourceErrorCode, RenderResourceRecovery } from "./RenderResourceRecovery";
 import { RenderResourceRegistry } from "./RenderResourceRegistry";
 
-function makeChunkId(cx: number, cy: number, plane = 0): ChunkId {
+function _makeChunkId(cx: number, cy: number, plane = 0): ChunkId {
   return chunkId({ cx, cy, plane: plane as 0 | 1 | 2 | 3 });
 }
 
@@ -21,6 +21,12 @@ function makeTile(x: number, y: number, plane = 0): TileCoord {
 
 function makeRegionId(rx: number, ry: number, plane = 0): RegionId {
   return `${rx}:${ry}:${plane}` as RegionId;
+}
+
+function expectJob(queue: ChunkBakeQueue): ChunkBakeJob {
+  const job = queue.dequeueJob();
+  expect(job).toBeDefined();
+  return job as NonNullable<typeof job>;
 }
 
 function makePayload(vertexCount = 4) {
@@ -110,20 +116,20 @@ describe("RenderResourceRecovery", () => {
 
   it("records a worker failure and schedules retry with frame backoff", () => {
     bakeQueue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = bakeQueue.dequeueJob()!;
+    const job = expectJob(bakeQueue);
     recovery.advanceFrame(10);
     recovery.onWorkerFailure(job.chunkId, "bake_failure", "worker crashed");
     const debug = recovery.debugStatus();
     expect(debug.failedChunks.length).toBe(1);
-    expect(debug.failedChunks[0]!.errorCode).toBe("bake_failure");
-    expect(debug.failedChunks[0]!.retryCount).toBe(1);
-    expect(debug.failedChunks[0]!.retryAfterFrame).toBe(10 + 5);
+    expect(debug.failedChunks[0]?.errorCode).toBe("bake_failure");
+    expect(debug.failedChunks[0]?.retryCount).toBe(1);
+    expect(debug.failedChunks[0]?.retryAfterFrame).toBe(10 + 5);
     expect(debug.totalRetries).toBe(1);
   });
 
   it("does not immediately requeue a failed chunk when backoff is set", () => {
     bakeQueue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = bakeQueue.dequeueJob()!;
+    const job = expectJob(bakeQueue);
     recovery.advanceFrame(10);
     recovery.onWorkerFailure(job.chunkId, "bake_failure", "worker crashed");
     const stats = bakeQueue.getStats();
@@ -134,7 +140,7 @@ describe("RenderResourceRecovery", () => {
 
   it("requeues a retry-pending chunk after the backoff frame is reached", () => {
     bakeQueue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = bakeQueue.dequeueJob()!;
+    const job = expectJob(bakeQueue);
     recovery.advanceFrame(10);
     recovery.onWorkerFailure(job.chunkId, "bake_failure", "worker crashed");
     expect(bakeQueue.getStats().retryPending).toBe(1);
@@ -147,46 +153,46 @@ describe("RenderResourceRecovery", () => {
 
   it("increases backoff with each retry attempt", () => {
     bakeQueue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = bakeQueue.dequeueJob()!;
+    const job = expectJob(bakeQueue);
     recovery.advanceFrame(0);
     recovery.onWorkerFailure(job.chunkId, "bake_failure", "crash 1");
-    expect(recovery.debugStatus().failedChunks[0]!.retryAfterFrame).toBe(5);
+    expect(recovery.debugStatus().failedChunks[0]?.retryAfterFrame).toBe(5);
 
     recovery.advanceFrame(5);
-    const job2 = bakeQueue.dequeueJob()!;
+    const job2 = expectJob(bakeQueue);
     recovery.advanceFrame(5);
     recovery.onWorkerFailure(job2.chunkId, "bake_failure", "crash 2");
-    expect(recovery.debugStatus().failedChunks[0]!.retryAfterFrame).toBe(15);
+    expect(recovery.debugStatus().failedChunks[0]?.retryAfterFrame).toBe(15);
 
     recovery.advanceFrame(15);
-    const job3 = bakeQueue.dequeueJob()!;
+    const job3 = expectJob(bakeQueue);
     recovery.advanceFrame(15);
     recovery.onWorkerFailure(job3.chunkId, "bake_failure", "crash 3");
-    expect(recovery.debugStatus().failedChunks[0]!.retryAfterFrame).toBe(30);
+    expect(recovery.debugStatus().failedChunks[0]?.retryAfterFrame).toBe(30);
   });
 
   it("marks a chunk as permanently failed after max retries", () => {
     bakeQueue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = bakeQueue.dequeueJob()!;
+    const job = expectJob(bakeQueue);
     recovery.advanceFrame(0);
     recovery.onWorkerFailure(job.chunkId, "bake_failure", "crash 1");
     recovery.advanceFrame(5);
-    const job2 = bakeQueue.dequeueJob()!;
+    const job2 = expectJob(bakeQueue);
     recovery.advanceFrame(5);
     recovery.onWorkerFailure(job2.chunkId, "bake_failure", "crash 2");
     recovery.advanceFrame(15);
-    const job3 = bakeQueue.dequeueJob()!;
+    const job3 = expectJob(bakeQueue);
     recovery.advanceFrame(15);
     recovery.onWorkerFailure(job3.chunkId, "bake_failure", "crash 3");
     recovery.advanceFrame(30);
-    const job4 = bakeQueue.dequeueJob()!;
+    const job4 = expectJob(bakeQueue);
     recovery.advanceFrame(30);
     recovery.onWorkerFailure(job4.chunkId, "bake_failure", "crash 4");
 
     const stats = bakeQueue.getStats();
     expect(stats.disposed).toBe(1);
     expect(stats.failed).toBe(1);
-    expect(recovery.debugStatus().failedChunks[0]!.permanent).toBe(true);
+    expect(recovery.debugStatus().failedChunks[0]?.permanent).toBe(true);
   });
 
   // ---------------------------------------------------------------------------
@@ -195,7 +201,7 @@ describe("RenderResourceRecovery", () => {
 
   it("records an upload failure and retries with frame backoff", () => {
     bakeQueue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = bakeQueue.dequeueJob()!;
+    const job = expectJob(bakeQueue);
     const badPayload = makePayload(1);
     (badPayload as unknown as Record<string, unknown>).positions = null;
     uploadQueue.enqueueBakedChunk(job.chunkId, badPayload);
@@ -216,7 +222,7 @@ describe("RenderResourceRecovery", () => {
 
   it("debugStatus does not cause additional state mutations", () => {
     bakeQueue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = bakeQueue.dequeueJob()!;
+    const job = expectJob(bakeQueue);
     recovery.advanceFrame(0);
     recovery.onWorkerFailure(job.chunkId, "bake_failure", "crash");
     const after = bakeQueue.getStats();
@@ -230,7 +236,7 @@ describe("RenderResourceRecovery", () => {
 
   it("stops GPU uploads and marks resources invalid on context loss", () => {
     bakeQueue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = bakeQueue.dequeueJob()!;
+    const job = expectJob(bakeQueue);
     bakeQueue.onWorkerComplete(job.chunkId);
     uploadQueue.enqueueBakedChunk(job.chunkId, makePayload());
     uploadQueue.processFrame(0, () => 0, 1);
@@ -246,7 +252,7 @@ describe("RenderResourceRecovery", () => {
   it("keeps pure client world / snapshot state intact on context loss", () => {
     bakeQueue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
     residencyManager.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = bakeQueue.dequeueJob()!;
+    const job = expectJob(bakeQueue);
     bakeQueue.onWorkerComplete(job.chunkId);
     uploadQueue.enqueueBakedChunk(job.chunkId, makePayload());
     uploadQueue.processFrame(0, () => 0, 1);
@@ -263,7 +269,7 @@ describe("RenderResourceRecovery", () => {
   it("ignores worker failures while context is lost", () => {
     recovery.onContextLost();
     bakeQueue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = bakeQueue.dequeueJob()!;
+    const job = expectJob(bakeQueue);
     recovery.onWorkerFailure(job.chunkId, "bake_failure", "crash");
     expect(recovery.debugStatus().totalRetries).toBe(0);
   });
@@ -275,7 +281,7 @@ describe("RenderResourceRecovery", () => {
   it("recreates registry resources and requeues resident chunks on context restore", () => {
     bakeQueue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
     residencyManager.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = bakeQueue.dequeueJob()!;
+    const job = expectJob(bakeQueue);
     bakeQueue.onWorkerComplete(job.chunkId);
     uploadQueue.enqueueBakedChunk(job.chunkId, makePayload());
     uploadQueue.processFrame(0, () => 0, 1);
@@ -303,7 +309,7 @@ describe("RenderResourceRecovery", () => {
 
   it("ChunkUploadQueue evictChunk is idempotent", () => {
     bakeQueue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = bakeQueue.dequeueJob()!;
+    const job = expectJob(bakeQueue);
     bakeQueue.onWorkerComplete(job.chunkId);
     uploadQueue.enqueueBakedChunk(job.chunkId, makePayload());
     uploadQueue.processFrame(0, () => 0, 1);
@@ -346,7 +352,7 @@ describe("RenderResourceRecovery", () => {
   it("ChunkResidencyManager invalidateAllResident is idempotent", () => {
     bakeQueue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
     residencyManager.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = bakeQueue.dequeueJob()!;
+    const job = expectJob(bakeQueue);
     bakeQueue.onWorkerComplete(job.chunkId);
     uploadQueue.enqueueBakedChunk(job.chunkId, makePayload());
     uploadQueue.processFrame(0, () => 0, 1);
@@ -376,8 +382,8 @@ describe("RenderResourceRecovery", () => {
 
   it("advanceFrame processes due retries across multiple chunks", () => {
     bakeQueue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0), makeMeta(1, 0)]);
-    const job1 = bakeQueue.dequeueJob()!;
-    const job2 = bakeQueue.dequeueJob()!;
+    const job1 = expectJob(bakeQueue);
+    const job2 = expectJob(bakeQueue);
     recovery.advanceFrame(0);
     recovery.onWorkerFailure(job1.chunkId, "bake_failure", "crash 1");
     recovery.onWorkerFailure(job2.chunkId, "bake_failure", "crash 2");
@@ -391,19 +397,19 @@ describe("RenderResourceRecovery", () => {
 
   it("does not double-count retries when the same chunk fails again", () => {
     bakeQueue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = bakeQueue.dequeueJob()!;
+    const job = expectJob(bakeQueue);
     recovery.advanceFrame(0);
     recovery.onWorkerFailure(job.chunkId, "bake_failure", "crash 1");
     recovery.advanceFrame(5);
-    const job2 = bakeQueue.dequeueJob()!;
+    const job2 = expectJob(bakeQueue);
     recovery.advanceFrame(5);
     recovery.onWorkerFailure(job2.chunkId, "bake_failure", "crash 2");
-    expect(recovery.debugStatus().failedChunks[0]!.retryCount).toBe(2);
+    expect(recovery.debugStatus().failedChunks[0]?.retryCount).toBe(2);
   });
 
   it("debug status returns a snapshot, not a live reference", () => {
     bakeQueue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = bakeQueue.dequeueJob()!;
+    const job = expectJob(bakeQueue);
     recovery.advanceFrame(0);
     recovery.onWorkerFailure(job.chunkId, "bake_failure", "crash");
     const status = recovery.debugStatus();
@@ -416,7 +422,7 @@ describe("RenderResourceRecovery", () => {
   it("residencyManager stats reflect reset after invalidateAllResident", () => {
     bakeQueue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
     residencyManager.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = bakeQueue.dequeueJob()!;
+    const job = expectJob(bakeQueue);
     bakeQueue.onWorkerComplete(job.chunkId);
     uploadQueue.enqueueBakedChunk(job.chunkId, makePayload());
     uploadQueue.processFrame(0, () => 0, 1);

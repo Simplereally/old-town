@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { CombatantComponent } from "../ecs/components";
+import type { ActiveEffect, CombatantComponent, StatusEffectComponent } from "../ecs/components";
 import { createWorld } from "../ecs/world";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import {
@@ -37,8 +37,8 @@ describe("applyStatusEffect", () => {
 
     const component = world.getComponent(owner, "statusEffect");
     expect(component).toBeDefined();
-    expect(component!.activeEffects).toHaveLength(1);
-    expect(component!.activeEffects[0]).toMatchObject({
+    expect(component?.activeEffects).toHaveLength(1);
+    expect(component?.activeEffects[0]).toMatchObject({
       effectId: "poison",
       durationTicks: 4,
       damagePerTick: 2,
@@ -48,11 +48,14 @@ describe("applyStatusEffect", () => {
   it("refreshes duration when re-applied", () => {
     const { ctx, world, owner } = setup({ health: 10, maxHealth: 10 });
     applyStatusEffect(ctx, owner, { effectId: "poison", durationTicks: 4 });
-    const component = world.getComponent(owner, "statusEffect")!;
-    component.activeEffects[0]!.durationTicks = 1;
+    const component = world.getComponent(owner, "statusEffect");
+    expect(component).toBeDefined();
+    const effect = (component as StatusEffectComponent).activeEffects[0];
+    expect(effect).toBeDefined();
+    (effect as ActiveEffect).durationTicks = 1;
     applyStatusEffect(ctx, owner, { effectId: "poison", durationTicks: 4 });
 
-    expect(component.activeEffects[0]!.durationTicks).toBe(4);
+    expect((component as StatusEffectComponent).activeEffects[0]?.durationTicks).toBe(4);
   });
 
   it("captures base stats when applying a buff", () => {

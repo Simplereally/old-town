@@ -1,4 +1,4 @@
-import { GAME_TICK_MS, type TileCoord } from "@old-town/shared";
+import type { TileCoord } from "@old-town/shared";
 import { Scene } from "three";
 import { beforeEach, describe, expect, it } from "vitest";
 import { ClickMarkerLayer } from "./ClickMarkerLayer";

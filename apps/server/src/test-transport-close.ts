@@ -1,5 +1,6 @@
 import { createServer } from "node:http";
 import WebSocket from "ws";
+import { ServerPacketType } from "@old-town/shared";
 import { createWebSocketTransport } from "./net/websocket-transport";
 
 const httpServer = createServer();
@@ -7,7 +8,7 @@ const transport = createWebSocketTransport({
   httpServer,
   logger: { debug: () => {}, warn: () => {} },
   getFullState: () => ({
-    type: "FullState" as any,
+    type: ServerPacketType.FullState,
     protocolVersion: 1,
     tick: 0,
     serverTime: 0,

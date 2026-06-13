@@ -295,31 +295,31 @@ export class RenderTransformCache {
     const halfTile = this._tileSize * 0.5;
 
     if (
-      this._movementKind[index] === MovementPresentationKind.Teleport ||
+      RenderTransformCache._readTypedArray(this._movementKind, index) === MovementPresentationKind.Teleport ||
       mode === "snap" ||
       mode === "empty"
     ) {
-      this._renderX[index] = this._currTileX[index]! * this._tileSize + halfTile;
-      this._renderY[index] = this._currTilePlane[index]!;
-      this._renderZ[index] = this._currTileY[index]! * this._tileSize + halfTile;
+      this._renderX[index] = RenderTransformCache._readTypedArray(this._currTileX, index) * this._tileSize + halfTile;
+      this._renderY[index] = RenderTransformCache._readTypedArray(this._currTilePlane, index);
+      this._renderZ[index] = RenderTransformCache._readTypedArray(this._currTileY, index) * this._tileSize + halfTile;
       return;
     }
 
     if (mode === "hold_latest" || mode === "freeze") {
-      this._renderX[index] = this._currTileX[index]! * this._tileSize + halfTile;
-      this._renderY[index] = this._currTilePlane[index]!;
-      this._renderZ[index] = this._currTileY[index]! * this._tileSize + halfTile;
+      this._renderX[index] = RenderTransformCache._readTypedArray(this._currTileX, index) * this._tileSize + halfTile;
+      this._renderY[index] = RenderTransformCache._readTypedArray(this._currTilePlane, index);
+      this._renderZ[index] = RenderTransformCache._readTypedArray(this._currTileY, index) * this._tileSize + halfTile;
       return;
     }
 
     // interpolate
-    const prevX = this._prevTileX[index]! * this._tileSize + halfTile;
-    const prevY = this._prevTilePlane[index]!;
-    const prevZ = this._prevTileY[index]! * this._tileSize + halfTile;
+    const prevX = RenderTransformCache._readTypedArray(this._prevTileX, index) * this._tileSize + halfTile;
+    const prevY = RenderTransformCache._readTypedArray(this._prevTilePlane, index);
+    const prevZ = RenderTransformCache._readTypedArray(this._prevTileY, index) * this._tileSize + halfTile;
 
-    const currX = this._currTileX[index]! * this._tileSize + halfTile;
-    const currY = this._currTilePlane[index]!;
-    const currZ = this._currTileY[index]! * this._tileSize + halfTile;
+    const currX = RenderTransformCache._readTypedArray(this._currTileX, index) * this._tileSize + halfTile;
+    const currY = RenderTransformCache._readTypedArray(this._currTilePlane, index);
+    const currZ = RenderTransformCache._readTypedArray(this._currTileY, index) * this._tileSize + halfTile;
 
     this._renderX[index] = prevX + alpha * (currX - prevX);
     this._renderY[index] = prevY + alpha * (currY - prevY);
@@ -329,7 +329,7 @@ export class RenderTransformCache {
   private _removeAbsentEntities(): void {
     // Iterate backwards so removal (swap-to-end) does not disturb unvisited indices.
     for (let i = this._count - 1; i >= 0; i--) {
-      const entityId = this._entityIds[i]!;
+      const entityId = RenderTransformCache._readTypedArray(this._entityIds, i);
       if (!this._newerSeen.has(entityId)) {
         this._removeEntityAtIndex(i);
       }
@@ -338,11 +338,11 @@ export class RenderTransformCache {
 
   private _removeEntityAtIndex(index: number): void {
     const lastIndex = this._count - 1;
-    const removedId = this._entityIds[index]!;
+    const removedId = RenderTransformCache._readTypedArray(this._entityIds, index);
 
     if (index !== lastIndex) {
       this._swapAt(index, lastIndex);
-      const swappedId = this._entityIds[index]!;
+      const swappedId = RenderTransformCache._readTypedArray(this._entityIds, index);
       this._entityIdToIndex.set(swappedId, index);
     }
 
@@ -370,56 +370,56 @@ export class RenderTransformCache {
   }
 
   private _swapAt(a: number, b: number): void {
-    const tmpId = this._entityIds[a]!;
-    this._entityIds[a] = this._entityIds[b]!;
+    const tmpId = RenderTransformCache._readTypedArray(this._entityIds, a);
+    this._entityIds[a] = RenderTransformCache._readTypedArray(this._entityIds, b);
     this._entityIds[b] = tmpId;
 
-    const tmpPrevX = this._prevTileX[a]!;
-    this._prevTileX[a] = this._prevTileX[b]!;
+    const tmpPrevX = RenderTransformCache._readTypedArray(this._prevTileX, a);
+    this._prevTileX[a] = RenderTransformCache._readTypedArray(this._prevTileX, b);
     this._prevTileX[b] = tmpPrevX;
 
-    const tmpPrevY = this._prevTileY[a]!;
-    this._prevTileY[a] = this._prevTileY[b]!;
+    const tmpPrevY = RenderTransformCache._readTypedArray(this._prevTileY, a);
+    this._prevTileY[a] = RenderTransformCache._readTypedArray(this._prevTileY, b);
     this._prevTileY[b] = tmpPrevY;
 
-    const tmpPrevPlane = this._prevTilePlane[a]!;
-    this._prevTilePlane[a] = this._prevTilePlane[b]!;
+    const tmpPrevPlane = RenderTransformCache._readTypedArray(this._prevTilePlane, a);
+    this._prevTilePlane[a] = RenderTransformCache._readTypedArray(this._prevTilePlane, b);
     this._prevTilePlane[b] = tmpPrevPlane;
 
-    const tmpCurrX = this._currTileX[a]!;
-    this._currTileX[a] = this._currTileX[b]!;
+    const tmpCurrX = RenderTransformCache._readTypedArray(this._currTileX, a);
+    this._currTileX[a] = RenderTransformCache._readTypedArray(this._currTileX, b);
     this._currTileX[b] = tmpCurrX;
 
-    const tmpCurrY = this._currTileY[a]!;
-    this._currTileY[a] = this._currTileY[b]!;
+    const tmpCurrY = RenderTransformCache._readTypedArray(this._currTileY, a);
+    this._currTileY[a] = RenderTransformCache._readTypedArray(this._currTileY, b);
     this._currTileY[b] = tmpCurrY;
 
-    const tmpCurrPlane = this._currTilePlane[a]!;
-    this._currTilePlane[a] = this._currTilePlane[b]!;
+    const tmpCurrPlane = RenderTransformCache._readTypedArray(this._currTilePlane, a);
+    this._currTilePlane[a] = RenderTransformCache._readTypedArray(this._currTilePlane, b);
     this._currTilePlane[b] = tmpCurrPlane;
 
-    const tmpRenderX = this._renderX[a]!;
-    this._renderX[a] = this._renderX[b]!;
+    const tmpRenderX = RenderTransformCache._readTypedArray(this._renderX, a);
+    this._renderX[a] = RenderTransformCache._readTypedArray(this._renderX, b);
     this._renderX[b] = tmpRenderX;
 
-    const tmpRenderY = this._renderY[a]!;
-    this._renderY[a] = this._renderY[b]!;
+    const tmpRenderY = RenderTransformCache._readTypedArray(this._renderY, a);
+    this._renderY[a] = RenderTransformCache._readTypedArray(this._renderY, b);
     this._renderY[b] = tmpRenderY;
 
-    const tmpRenderZ = this._renderZ[a]!;
-    this._renderZ[a] = this._renderZ[b]!;
+    const tmpRenderZ = RenderTransformCache._readTypedArray(this._renderZ, a);
+    this._renderZ[a] = RenderTransformCache._readTypedArray(this._renderZ, b);
     this._renderZ[b] = tmpRenderZ;
 
-    const tmpHeading = this._heading[a]!;
-    this._heading[a] = this._heading[b]!;
+    const tmpHeading = RenderTransformCache._readTypedArray(this._heading, a);
+    this._heading[a] = RenderTransformCache._readTypedArray(this._heading, b);
     this._heading[b] = tmpHeading;
 
-    const tmpMovement = this._movementKind[a]!;
-    this._movementKind[a] = this._movementKind[b]!;
+    const tmpMovement = RenderTransformCache._readTypedArray(this._movementKind, a);
+    this._movementKind[a] = RenderTransformCache._readTypedArray(this._movementKind, b);
     this._movementKind[b] = tmpMovement;
 
-    const tmpHandle = this._renderHandleId[a]!;
-    this._renderHandleId[a] = this._renderHandleId[b]!;
+    const tmpHandle = RenderTransformCache._readTypedArray(this._renderHandleId, a);
+    this._renderHandleId[a] = RenderTransformCache._readTypedArray(this._renderHandleId, b);
     this._renderHandleId[b] = tmpHandle;
   }
 
@@ -466,6 +466,12 @@ export class RenderTransformCache {
     return next;
   }
 
+  private static _readTypedArray<T extends Int32Array | Float32Array | Uint8Array>(arr: T, index: number): number {
+    const val = arr[index];
+    if (val === undefined) throw new Error("Invariant: index out of bounds");
+    return val;
+  }
+
   private _createPresentationScratch(): MutablePresentation {
     return {
       entityId: 0,
@@ -490,20 +496,20 @@ export class RenderTransformCache {
 
   private _fillPresentationScratch(index: number): void {
     const s = this._presentationScratch;
-    const entityId = this._entityIds[index]!;
+    const entityId = RenderTransformCache._readTypedArray(this._entityIds, index);
     s.entityId = entityId;
-    s.prevTileX = this._prevTileX[index]!;
-    s.prevTileY = this._prevTileY[index]!;
-    s.prevTilePlane = this._prevTilePlane[index]!;
-    s.currTileX = this._currTileX[index]!;
-    s.currTileY = this._currTileY[index]!;
-    s.currTilePlane = this._currTilePlane[index]!;
-    s.renderX = this._renderX[index]!;
-    s.renderY = this._renderY[index]!;
-    s.renderZ = this._renderZ[index]!;
-    s.heading = this._heading[index]!;
-    s.movementKind = this._movementKind[index]! as MovementPresentationKind;
-    s.renderHandleId = this._renderHandleId[index]!;
+    s.prevTileX = RenderTransformCache._readTypedArray(this._prevTileX, index);
+    s.prevTileY = RenderTransformCache._readTypedArray(this._prevTileY, index);
+    s.prevTilePlane = RenderTransformCache._readTypedArray(this._prevTilePlane, index);
+    s.currTileX = RenderTransformCache._readTypedArray(this._currTileX, index);
+    s.currTileY = RenderTransformCache._readTypedArray(this._currTileY, index);
+    s.currTilePlane = RenderTransformCache._readTypedArray(this._currTilePlane, index);
+    s.renderX = RenderTransformCache._readTypedArray(this._renderX, index);
+    s.renderY = RenderTransformCache._readTypedArray(this._renderY, index);
+    s.renderZ = RenderTransformCache._readTypedArray(this._renderZ, index);
+    s.heading = RenderTransformCache._readTypedArray(this._heading, index);
+    s.movementKind = RenderTransformCache._readTypedArray(this._movementKind, index) as MovementPresentationKind;
+    s.renderHandleId = RenderTransformCache._readTypedArray(this._renderHandleId, index);
     s.kind = this._kind.get(entityId) ?? "npc";
     s.defId = this._defId.get(entityId) ?? "";
     s.appearance = this._appearance.get(entityId);
@@ -511,21 +517,21 @@ export class RenderTransformCache {
   }
 
   private _buildPresentation(index: number): RenderEntityPresentation {
-    const entityId = this._entityIds[index]!;
+    const entityId = RenderTransformCache._readTypedArray(this._entityIds, index);
     return {
       entityId,
-      prevTileX: this._prevTileX[index]!,
-      prevTileY: this._prevTileY[index]!,
-      prevTilePlane: this._prevTilePlane[index]!,
-      currTileX: this._currTileX[index]!,
-      currTileY: this._currTileY[index]!,
-      currTilePlane: this._currTilePlane[index]!,
-      renderX: this._renderX[index]!,
-      renderY: this._renderY[index]!,
-      renderZ: this._renderZ[index]!,
-      heading: this._heading[index]!,
-      movementKind: this._movementKind[index]! as MovementPresentationKind,
-      renderHandleId: this._renderHandleId[index]!,
+      prevTileX: RenderTransformCache._readTypedArray(this._prevTileX, index),
+      prevTileY: RenderTransformCache._readTypedArray(this._prevTileY, index),
+      prevTilePlane: RenderTransformCache._readTypedArray(this._prevTilePlane, index),
+      currTileX: RenderTransformCache._readTypedArray(this._currTileX, index),
+      currTileY: RenderTransformCache._readTypedArray(this._currTileY, index),
+      currTilePlane: RenderTransformCache._readTypedArray(this._currTilePlane, index),
+      renderX: RenderTransformCache._readTypedArray(this._renderX, index),
+      renderY: RenderTransformCache._readTypedArray(this._renderY, index),
+      renderZ: RenderTransformCache._readTypedArray(this._renderZ, index),
+      heading: RenderTransformCache._readTypedArray(this._heading, index),
+      movementKind: RenderTransformCache._readTypedArray(this._movementKind, index) as MovementPresentationKind,
+      renderHandleId: RenderTransformCache._readTypedArray(this._renderHandleId, index),
       kind: this._kind.get(entityId) ?? "npc",
       defId: this._defId.get(entityId) ?? "",
       appearance: this._appearance.get(entityId),

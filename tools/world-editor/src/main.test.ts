@@ -32,9 +32,13 @@ function makeElement<T extends HTMLElement>(
 
 function setupDom() {
   const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
-  (global as any).document = dom.window.document;
-  (global as any).window = dom.window;
-  (global as any).window.devicePixelRatio = 1;
+  const g = global as unknown as typeof globalThis & {
+    document: Document;
+    window: Window & typeof globalThis;
+  };
+  g.document = dom.window.document;
+  g.window = dom.window;
+  g.window.devicePixelRatio = 1;
 
   // Mock URL.createObjectURL / revokeObjectURL
   const blobUrls = new Map<string, Blob>();
@@ -116,7 +120,10 @@ function setupDom() {
       y: 0,
       toJSON: () => "",
     }) as DOMRect;
-  (canvas as any).getContext = (ctxId: string) => {
+  const mockCanvas = canvas as unknown as {
+    getContext: (ctxId: string) => CanvasRenderingContext2D | null;
+  };
+  mockCanvas.getContext = (ctxId: string) => {
     if (ctxId === "2d") {
       return {
         setTransform: () => {},
@@ -209,9 +216,12 @@ function makeState(region: RegionMapDef = baseRegion): EditorState {
 
 beforeAll(async () => {
   setupDom();
-  (globalThis as any).URL.createObjectURL = (blob: Blob) =>
+  const gt = globalThis as unknown as typeof globalThis & {
+    URL: { createObjectURL: (_blob: Blob) => string; revokeObjectURL: () => void };
+  };
+  gt.URL.createObjectURL = (_blob: Blob) =>
     `blob:mock-${Math.random().toString(36).slice(2)}`;
-  (globalThis as any).URL.revokeObjectURL = () => {};
+  gt.URL.revokeObjectURL = () => {};
   const mod = await import("./main");
   commitPlacementMutation = mod.commitPlacementMutation;
 });
@@ -346,7 +356,7 @@ describe("commitPlacementMutation", () => {
     // After mutation, the undo entry should be a clone of the original region
     const undoEntry = state.history.undo[0];
     expect(undoEntry).toBeDefined();
-    expect(undoEntry!.objects.length).toBe(0);
+    expect(undoEntry?.objects.length).toBe(0);
     expect(state.selected.region.objects.length).toBe(1);
     expect(undoEntry).not.toBe(state.selected.region);
   });
@@ -427,8 +437,8 @@ describe("commitPlacementMutation", () => {
 
     expect(state.history.undo.length).toBe(3);
     expect(state.selected.region.objects.length).toBe(3);
-    expect(state.selected.region.objects[0]!.objectId).toBe("tree_0");
-    expect(state.selected.region.objects[1]!.objectId).toBe("tree_1");
-    expect(state.selected.region.objects[2]!.objectId).toBe("tree_2");
+    expect(state.selected.region.objects[0]?.objectId).toBe("tree_0");
+    expect(state.selected.region.objects[1]?.objectId).toBe("tree_1");
+    expect(state.selected.region.objects[2]?.objectId).toBe("tree_2");
   });
 });

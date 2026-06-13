@@ -101,7 +101,8 @@ async function startHarness() {
   }
   cleanup = async () => {
     await transport.close();
-    (httpServer as any).closeAllConnections?.();
+    const server = httpServer as unknown as { closeAllConnections?: () => void };
+    server.closeAllConnections?.();
     await new Promise<void>((resolve) => httpServer.close(() => resolve()));
   };
   return {

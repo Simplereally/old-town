@@ -16,11 +16,11 @@ describe("RendererMetrics", () => {
     const sorted = Array.from({ length: windowSize }, (_, j) => 21 + j);
 
     // p50 at index 0.5 * 179 = 89.5 => 110 * 0.5 + 111 * 0.5 = 110.5
-    const expectedP50 = sorted[89]! * 0.5 + sorted[90]! * 0.5;
+    const expectedP50 = (sorted[89] as number) * 0.5 + (sorted[90] as number) * 0.5;
     // p95 at index 0.95 * 179 = 170.05 => 191 * 0.95 + 192 * 0.05 = 191.05
-    const expectedP95 = sorted[170]! * 0.95 + sorted[171]! * 0.05;
+    const expectedP95 = (sorted[170] as number) * 0.95 + (sorted[171] as number) * 0.05;
     // p99 at index 0.99 * 179 = 177.21 => 198 * 0.79 + 199 * 0.21 = 198.21
-    const expectedP99 = sorted[177]! * 0.79 + sorted[178]! * 0.21;
+    const expectedP99 = (sorted[177] as number) * 0.79 + (sorted[178] as number) * 0.21;
 
     expect(stats.frameTimeP50).toBeCloseTo(expectedP50, 10);
     expect(stats.frameTimeP95).toBeCloseTo(expectedP95, 10);
@@ -29,7 +29,7 @@ describe("RendererMetrics", () => {
 
   it("does not allocate in recordFrame across 1000 calls", () => {
     const metrics = new RendererMetrics();
-    const originalArray = (metrics as any).frameTimes;
+    const originalArray = (metrics as unknown as { frameTimes: Float64Array }).frameTimes;
     expect(originalArray).toBeInstanceOf(Float64Array);
 
     let allocationCount = 0;
@@ -51,13 +51,13 @@ describe("RendererMetrics", () => {
       },
     });
 
-    const countingObjectCreate = (...args: any[]) => {
+    const countingObjectCreate = (...args: unknown[]) => {
       allocationCount++;
-      return OriginalObjectCreate.apply(Object, args as any);
+      return (OriginalObjectCreate as unknown as typeof Object.create).apply(Object, args as unknown as [object | null, PropertyDescriptorMap & ThisType<unknown>]);
     };
 
-    globalThis.Float64Array = countingFloat64Array as any;
-    globalThis.Array = countingArray as any;
+    globalThis.Float64Array = countingFloat64Array as unknown as Float64ArrayConstructor;
+    globalThis.Array = countingArray as unknown as ArrayConstructor;
     Object.create = countingObjectCreate;
 
     try {
@@ -71,7 +71,7 @@ describe("RendererMetrics", () => {
     }
 
     expect(allocationCount).toBe(0);
-    expect((metrics as any).frameTimes).toBe(originalArray);
+    expect((metrics as unknown as { frameTimes: Float64Array }).frameTimes).toBe(originalArray);
   });
 
   it("returns all expected fields from computeStats", () => {
@@ -151,7 +151,7 @@ describe("GpuTimingAdapter", () => {
 
     const beginQuery = vi.fn();
     const endQuery = vi.fn();
-    const getQueryParameter = vi.fn((query, param) => {
+    const getQueryParameter = vi.fn((_query, param) => {
       if (param === QUERY_RESULT_AVAILABLE) return true;
       if (param === QUERY_RESULT) return 4_500_000; // 4.5ms in nanoseconds
       return null;
@@ -182,21 +182,21 @@ describe("GpuTimingAdapter", () => {
     expect(query).toBe(mockQuery);
     expect(createQuery).toHaveBeenCalled();
 
-    adapter.beginQuery(query!);
+    adapter.beginQuery(query as WebGLQuery);
     expect(beginQuery).toHaveBeenCalledWith(mockExt.TIME_ELAPSED_EXT, query);
 
     adapter.endQuery();
     expect(endQuery).toHaveBeenCalledWith(mockExt.TIME_ELAPSED_EXT);
 
-    expect(adapter.getResultAvailable(query!)).toBe(true);
+    expect(adapter.getResultAvailable(query as WebGLQuery)).toBe(true);
     expect(getQueryParameter).toHaveBeenCalledWith(query, QUERY_RESULT_AVAILABLE);
 
-    const result = adapter.getResult(query!);
+    const result = adapter.getResult(query as WebGLQuery);
     expect(result).toBe(4.5); // converted from nanoseconds to milliseconds
     expect(getQueryParameter).toHaveBeenCalledWith(query, QUERY_RESULT);
     expect(getParameter).toHaveBeenCalledWith(mockExt.GPU_DISJOINT_EXT);
 
-    adapter.deleteQuery(query!);
+    adapter.deleteQuery(query as WebGLQuery);
     expect(deleteQuery).toHaveBeenCalledWith(query);
   });
 });

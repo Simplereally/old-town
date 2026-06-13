@@ -69,17 +69,17 @@ describe("RenderTransformCache", () => {
     expect(cache.count).toBe(1);
     const p = cache.getPresentation(1);
     expect(p).toBeDefined();
-    expect(p!.entityId).toBe(1);
-    expect(p!.currTileX).toBe(10);
-    expect(p!.currTileY).toBe(20);
-    expect(p!.currTilePlane).toBe(0);
-    expect(p!.renderX).toBe(10.5);
-    expect(p!.renderZ).toBe(20.5);
-    expect(p!.renderY).toBe(0);
-    expect(p!.movementKind).toBe(MovementPresentationKind.Teleport);
-    expect(p!.renderHandleId).toBe(-1);
-    expect(p!.kind).toBe("player");
-    expect(p!.defId).toBe("player:guard");
+    expect(p?.entityId).toBe(1);
+    expect(p?.currTileX).toBe(10);
+    expect(p?.currTileY).toBe(20);
+    expect(p?.currTilePlane).toBe(0);
+    expect(p?.renderX).toBe(10.5);
+    expect(p?.renderZ).toBe(20.5);
+    expect(p?.renderY).toBe(0);
+    expect(p?.movementKind).toBe(MovementPresentationKind.Teleport);
+    expect(p?.renderHandleId).toBe(-1);
+    expect(p?.kind).toBe("player");
+    expect(p?.defId).toBe("player:guard");
   });
 
   it("walk interpolation moves tile centre to tile centre", () => {
@@ -104,10 +104,10 @@ describe("RenderTransformCache", () => {
 
     const p = cache.getPresentation(1);
     expect(p).toBeDefined();
-    expect(p!.movementKind).toBe(MovementPresentationKind.Walk);
-    expect(p!.renderX).toBeCloseTo(10.5 + 0.5 * 1, 5);
-    expect(p!.renderZ).toBe(20.5);
-    expect(p!.heading).toBe(90);
+    expect(p?.movementKind).toBe(MovementPresentationKind.Walk);
+    expect(p?.renderX).toBeCloseTo(10.5 + 0.5 * 1, 5);
+    expect(p?.renderZ).toBe(20.5);
+    expect(p?.heading).toBe(90);
   });
 
   it("run interpolation when snapshot proves two-tile move", () => {
@@ -132,9 +132,9 @@ describe("RenderTransformCache", () => {
 
     const p = cache.getPresentation(1);
     expect(p).toBeDefined();
-    expect(p!.movementKind).toBe(MovementPresentationKind.Run);
+    expect(p?.movementKind).toBe(MovementPresentationKind.Run);
     // Visual distance is 2 tiles over the same tick, so midpoint is 1 tile from start
-    expect(p!.renderX).toBeCloseTo(10.5 + 0.5 * 2, 5);
+    expect(p?.renderX).toBeCloseTo(10.5 + 0.5 * 2, 5);
   });
 
   it("run with less than two-tile distance falls back to walk", () => {
@@ -154,8 +154,8 @@ describe("RenderTransformCache", () => {
     cache.applySample(makeSample("interpolate", 0.5, newer, older));
 
     const p = cache.getPresentation(1);
-    expect(p!.movementKind).toBe(MovementPresentationKind.Walk);
-    expect(p!.renderX).toBeCloseTo(10.5 + 0.5 * 1, 5);
+    expect(p?.movementKind).toBe(MovementPresentationKind.Walk);
+    expect(p?.renderX).toBeCloseTo(10.5 + 0.5 * 1, 5);
   });
 
   it("teleport snaps to tile without interpolation", () => {
@@ -175,9 +175,9 @@ describe("RenderTransformCache", () => {
     cache.applySample(makeSample("interpolate", 0.5, newer, older));
 
     const p = cache.getPresentation(1);
-    expect(p!.movementKind).toBe(MovementPresentationKind.Teleport);
-    expect(p!.renderX).toBe(50.5);
-    expect(p!.renderZ).toBe(50.5);
+    expect(p?.movementKind).toBe(MovementPresentationKind.Teleport);
+    expect(p?.renderX).toBe(50.5);
+    expect(p?.renderZ).toBe(50.5);
   });
 
   it("teleport on previousTile null even in interpolate mode", () => {
@@ -197,8 +197,8 @@ describe("RenderTransformCache", () => {
     cache.applySample(makeSample("interpolate", 0.5, newer, older));
 
     const p = cache.getPresentation(1);
-    expect(p!.movementKind).toBe(MovementPresentationKind.Teleport);
-    expect(p!.renderX).toBe(11.5);
+    expect(p?.movementKind).toBe(MovementPresentationKind.Teleport);
+    expect(p?.renderX).toBe(11.5);
   });
 
   it("snap mode renders at current tile", () => {
@@ -215,9 +215,9 @@ describe("RenderTransformCache", () => {
     cache.applySample(makeSample("snap", 0, newer, older, "Missing ticks"));
 
     const p = cache.getPresentation(1);
-    expect(p!.renderX).toBe(15.5);
-    expect(p!.renderZ).toBe(25.5);
-    expect(p!.movementKind).toBe(MovementPresentationKind.Walk);
+    expect(p?.renderX).toBe(15.5);
+    expect(p?.renderZ).toBe(25.5);
+    expect(p?.movementKind).toBe(MovementPresentationKind.Walk);
   });
 
   it("hold_latest renders at current tile without movement", () => {
@@ -230,9 +230,9 @@ describe("RenderTransformCache", () => {
     cache.applySample(makeSample("hold_latest", 0, newer, older));
 
     const p = cache.getPresentation(1);
-    expect(p!.renderX).toBe(10.5);
-    expect(p!.renderZ).toBe(20.5);
-    expect(p!.movementKind).toBe(MovementPresentationKind.Idle);
+    expect(p?.renderX).toBe(10.5);
+    expect(p?.renderZ).toBe(20.5);
+    expect(p?.movementKind).toBe(MovementPresentationKind.Idle);
   });
 
   it("freeze mode renders at current tile", () => {
@@ -242,8 +242,8 @@ describe("RenderTransformCache", () => {
     cache.applySample(makeSample("freeze", 0, snapshot));
 
     const p = cache.getPresentation(1);
-    expect(p!.renderX).toBe(10.5);
-    expect(p!.renderZ).toBe(20.5);
+    expect(p?.renderX).toBe(10.5);
+    expect(p?.renderZ).toBe(20.5);
   });
 
   it("empty mode removes all entities", () => {
@@ -328,10 +328,10 @@ describe("RenderTransformCache", () => {
     expect(p2).toBeDefined();
     expect(p3).toBeDefined();
     expect(p4).toBeDefined();
-    expect(p1!.currTileX).toBe(11);
-    expect(p2!.currTileX).toBe(21);
-    expect(p3!.currTileX).toBe(30);
-    expect(p4!.currTileX).toBe(40);
+    expect(p1?.currTileX).toBe(11);
+    expect(p2?.currTileX).toBe(21);
+    expect(p3?.currTileX).toBe(30);
+    expect(p4?.currTileX).toBe(40);
   });
 
   it("does not expose stale removed entities after swap removal", () => {
@@ -356,7 +356,7 @@ describe("RenderTransformCache", () => {
     // Ensure the swapped-in entity 3 is at the correct index
     const p3 = cache.getPresentation(3);
     expect(p3).toBeDefined();
-    expect(p3!.currTileX).toBe(31);
+    expect(p3?.currTileX).toBe(31);
   });
 
   it("newer entity without previousTile and no older entity snaps to tile", () => {
@@ -368,9 +368,9 @@ describe("RenderTransformCache", () => {
 
     const p = cache.getPresentation(2);
     expect(p).toBeDefined();
-    expect(p!.movementKind).toBe(MovementPresentationKind.Teleport);
-    expect(p!.renderX).toBe(5.5);
-    expect(p!.renderZ).toBe(5.5);
+    expect(p?.movementKind).toBe(MovementPresentationKind.Teleport);
+    expect(p?.renderX).toBe(5.5);
+    expect(p?.renderZ).toBe(5.5);
   });
 
   it("older snapshot tile is used when previousTile is null but older entity exists", () => {
@@ -390,9 +390,9 @@ describe("RenderTransformCache", () => {
     cache.applySample(makeSample("interpolate", 0.5, newer, older));
 
     const p = cache.getPresentation(1);
-    expect(p!.movementKind).toBe(MovementPresentationKind.Teleport);
+    expect(p?.movementKind).toBe(MovementPresentationKind.Teleport);
     // Because previousTile is null, we treat it as teleport even though older entity exists
-    expect(p!.renderX).toBe(11.5);
+    expect(p?.renderX).toBe(11.5);
   });
 
   it("setRenderHandleId updates and returns true for existing entity", () => {
@@ -401,7 +401,7 @@ describe("RenderTransformCache", () => {
     cache.applySample(makeSample("interpolate", 0, snapshot));
 
     expect(cache.setRenderHandleId(1, 42)).toBe(true);
-    expect(cache.getPresentation(1)!.renderHandleId).toBe(42);
+    expect(cache.getPresentation(1)?.renderHandleId).toBe(42);
     expect(cache.setRenderHandleId(99, 42)).toBe(false);
   });
 
@@ -411,7 +411,7 @@ describe("RenderTransformCache", () => {
     cache.applySample(makeSample("interpolate", 0, snapshot));
 
     expect(cache.setDebugName(1, "Hero")).toBe(true);
-    expect(cache.getPresentation(1)!.debugName).toBe("Hero");
+    expect(cache.getPresentation(1)?.debugName).toBe("Hero");
     expect(cache.setDebugName(99, "Villain")).toBe(false);
   });
 
@@ -437,7 +437,7 @@ describe("RenderTransformCache", () => {
     cache.applySample(makeSample("interpolate", 0, snapshot));
 
     const p = cache.getPresentation(1);
-    expect(p!.renderX).toBe(10 * 2 + 1);
-    expect(p!.renderZ).toBe(20 * 2 + 1);
+    expect(p?.renderX).toBe(10 * 2 + 1);
+    expect(p?.renderZ).toBe(20 * 2 + 1);
   });
 });

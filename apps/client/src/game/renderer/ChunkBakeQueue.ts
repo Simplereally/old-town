@@ -165,27 +165,27 @@ export class ChunkBakeQueue {
         regionSet.add(id);
       }
 
-      const existing = this._chunks.get(id);
-      if (existing) {
+      let record = this._chunks.get(id);
+      if (record) {
         // If chunk was tracked under a different region, remove from old set.
-        if (existing.regionId !== regionId) {
-          const oldSet = this._regionChunks.get(existing.regionId);
+        if (record.regionId !== regionId) {
+          const oldSet = this._regionChunks.get(record.regionId);
           if (oldSet) {
             oldSet.delete(id);
           }
         }
-        existing.metadata = metadata;
-        existing.regionId = regionId;
-        if (existing.state === "disposed") {
-          existing.state = "unseen";
-          existing.retryCount = 0;
-          existing.retryAfterFrame = 0;
-          existing.isVisible = false;
-          existing.job = null;
+        record.metadata = metadata;
+        record.regionId = regionId;
+        if (record.state === "disposed") {
+          record.state = "unseen";
+          record.retryCount = 0;
+          record.retryAfterFrame = 0;
+          record.isVisible = false;
+          record.job = null;
           this._failed.delete(id);
         }
       } else {
-        this._chunks.set(id, {
+        record = {
           chunkId: id,
           regionId,
           state: "unseen",
@@ -195,10 +195,10 @@ export class ChunkBakeQueue {
           sequence: 0,
           isVisible: false,
           job: null,
-        });
+        };
+        this._chunks.set(id, record);
       }
 
-      const record = this._chunks.get(id)!;
       if (record.state === "unseen") {
         record.state = "metadata_loaded";
       }
@@ -268,9 +268,10 @@ export class ChunkBakeQueue {
     this._refreshPriorities();
     this._queue.sort((a, b) => comparePriority(a.priority, b.priority, a.sequence, b.sequence));
 
-    const job = this._queue.shift()!;
+    const job = this._queue.shift();
+    if (!job) return null;
     const record = this._chunks.get(job.chunkId);
-    if (!record || record.state !== "bake_requested") {
+    if (record?.state !== "bake_requested") {
       return this.dequeueJob();
     }
 
@@ -291,7 +292,7 @@ export class ChunkBakeQueue {
   /** Signal that a worker has failed to bake a chunk. */
   onWorkerFailed(chunkId: ChunkId, retryAfterFrame = 0): void {
     const record = this._chunks.get(chunkId);
-    if (!record || record.state !== "baking_worker") return;
+    if (record?.state !== "baking_worker") return;
 
     record.retryCount++;
     if (record.retryCount > MAX_BAKE_RETRIES) {
@@ -483,7 +484,7 @@ export class ChunkBakeQueue {
   private _refreshPriorities(): void {
     for (const job of this._queue) {
       const record = this._chunks.get(job.chunkId);
-      if (record && record.metadata) {
+      if (record?.metadata) {
         (job as unknown as { priority: ChunkBakePriority }).priority = makePriority(
           record.metadata,
           this._focusTile,
@@ -499,7 +500,7 @@ export class ChunkBakeQueue {
       const job = this._queue[i];
       if (!job) continue;
       const record = this._chunks.get(job.chunkId);
-      if (!record || record.state !== "bake_requested") {
+      if (record?.state !== "bake_requested") {
         this._queue.splice(i, 1);
       }
     }

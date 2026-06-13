@@ -35,7 +35,7 @@ describe("RegionCrossingHarness", () => {
     expect(visibleFrames.length).toBeGreaterThan(0);
 
     // Verify that the upload queue processed uploads (normal pipeline, not packet callback).
-    const totalUploads = diagnostics[diagnostics.length - 1]!.uploadStats.totalUploads;
+    const totalUploads = diagnostics[diagnostics.length - 1]?.uploadStats.totalUploads;
     expect(totalUploads).toBeGreaterThan(0);
 
     // Every chunk that is currently visible should have been uploaded via the queue.
@@ -55,8 +55,8 @@ describe("RegionCrossingHarness", () => {
     let sawDisposed = false;
 
     for (let i = 1; i < diagnostics.length; i++) {
-      const prev = diagnostics[i - 1]!;
-      const curr = diagnostics[i]!;
+      const prev = diagnostics[i - 1] as (typeof diagnostics)[number];
+      const curr = diagnostics[i] as (typeof diagnostics)[number];
 
       // Queued work was cancelled: queued count dropped and disposed count rose.
       if (
@@ -118,7 +118,8 @@ describe("RegionCrossingHarness", () => {
     // After running the full path, the final diagnostics should show that
     // region (0,0) chunks are either queued, baking, waiting upload, or visible
     // because they were re-entered.
-    const finalBakeStats = diagnostics[diagnostics.length - 1]!.bakeStats;
+    const finalDiagnostic = diagnostics[diagnostics.length - 1] as NonNullable<typeof diagnostics[number]>;
+    const finalBakeStats = finalDiagnostic.bakeStats;
     const activeBakeCount =
       finalBakeStats.queued +
       finalBakeStats.baking +
@@ -196,15 +197,19 @@ describe("RegionCrossingHarness", () => {
 
     // The exhaustion frames should be consecutive.
     for (let i = 1; i < exhaustedFrames.length; i++) {
-      expect(exhaustedFrames[i]!.frameId).toBe(exhaustedFrames[i - 1]!.frameId + 1);
+      expect(exhaustedFrames[i]).toBeDefined();
+      expect(exhaustedFrames[i - 1]).toBeDefined();
+      expect((exhaustedFrames[i] as NonNullable<typeof exhaustedFrames[number]>).frameId).toBe(
+        (exhaustedFrames[i - 1] as NonNullable<typeof exhaustedFrames[number]>).frameId + 1,
+      );
     }
 
     // During exhausted frames, no uploads should happen (or at least queue depth should not decrease).
     for (let i = 0; i < diagnostics.length; i++) {
-      if (diagnostics[i]!.uploadExhausted) {
+      if (diagnostics[i]?.uploadExhausted) {
         // totalUploads should not increase during an exhausted frame.
-        const prevUploads = i > 0 ? diagnostics[i - 1]!.uploadStats.totalUploads : 0;
-        expect(diagnostics[i]!.uploadStats.totalUploads).toBe(prevUploads);
+        const prevUploads = i > 0 ? diagnostics[i - 1]?.uploadStats.totalUploads : 0;
+        expect(diagnostics[i]?.uploadStats.totalUploads).toBe(prevUploads);
       }
     }
   });
@@ -226,7 +231,7 @@ describe("RegionCrossingHarness", () => {
 
     // Because out-of-order is enabled, the bakesInFlight should drop in a non-monotonic way.
     // We just verify that the harness ran with out-of-order enabled and produced uploads.
-    const totalUploads = diagnostics[diagnostics.length - 1]!.uploadStats.totalUploads;
+    const totalUploads = diagnostics[diagnostics.length - 1]?.uploadStats.totalUploads;
     expect(totalUploads).toBeGreaterThan(0);
   });
 });

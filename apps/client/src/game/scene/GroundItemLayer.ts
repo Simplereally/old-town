@@ -40,6 +40,7 @@ export class GroundItemLayer {
     }
 
     const mesh = this.meshPool.acquire();
+    if (!mesh) return;
     const world = this._tileToWorld(tile);
     mesh.position.copy(world);
     mesh.position.y = 0.28;

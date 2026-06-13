@@ -231,6 +231,8 @@ describe("Pool growth (MeshPool)", () => {
     const warmMeshes: Mesh[] = [];
     for (let i = 0; i < 4; i++) {
       const m = pool.acquire();
+      expect(m).toBeDefined();
+      if (!m) throw new Error("unreachable");
       warmMeshes.push(m);
     }
     for (const m of warmMeshes) {
@@ -242,6 +244,8 @@ describe("Pool growth (MeshPool)", () => {
     const meshes: Mesh[] = [];
     for (let i = 0; i < 4; i++) {
       const m = pool.acquire();
+      expect(m).toBeDefined();
+      if (!m) throw new Error("unreachable");
       meshes.push(m);
     }
     for (const m of meshes) {
@@ -386,7 +390,8 @@ describe("Packet-callback render mutation", () => {
     );
 
     expect(result).not.toBeNull();
-    const payloads = result!.presentationEvents.map((e) => e.payload);
+    if (!result) throw new Error("unexpected null");
+    const payloads = result.presentationEvents.map((e) => e.payload);
     for (const payload of payloads) {
       expect(payload).not.toBeInstanceOf(Mesh);
     }

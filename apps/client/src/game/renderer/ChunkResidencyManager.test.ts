@@ -1,7 +1,7 @@
 import { type ChunkId, chunkId, type RegionId, type TileCoord } from "@old-town/shared";
 import { Scene } from "three";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ChunkBakeQueue, type ChunkMetadata } from "./ChunkBakeQueue";
+import { ChunkBakeQueue, type ChunkBakeJob, type ChunkMetadata } from "./ChunkBakeQueue";
 import { ChunkResidencyManager } from "./ChunkResidencyManager";
 import { ChunkUploadQueue } from "./ChunkUploadQueue";
 import { RenderResourceRegistry } from "./RenderResourceRegistry";
@@ -487,9 +487,11 @@ describe("ChunkResidencyManager", () => {
   it("ingestRegionUnload delegates to chunkBakeQueue", () => {
     manager.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
     // Complete the bake pipeline so the bakeQueue state is resident.
-    const job = bakeQueue.dequeueJob()!;
-    bakeQueue.onWorkerComplete(job.chunkId);
-    bakeQueue.onGpuUploadComplete(job.chunkId);
+    const job = bakeQueue.dequeueJob();
+    expect(job).toBeDefined();
+    const safeJob = job as ChunkBakeJob;
+    bakeQueue.onWorkerComplete(safeJob.chunkId);
+    bakeQueue.onGpuUploadComplete(safeJob.chunkId);
     manager.onGpuResident(makeChunkId(0, 0), 1000);
     manager.setFocusTile(makeTile(0, 0));
     manager.evaluate(1);
@@ -556,9 +558,11 @@ describe("ChunkResidencyManager", () => {
 
   it("syncs chunkBakeQueue state on visible transitions", () => {
     manager.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = bakeQueue.dequeueJob()!;
-    bakeQueue.onWorkerComplete(job.chunkId);
-    bakeQueue.onGpuUploadComplete(job.chunkId);
+    const job = bakeQueue.dequeueJob();
+    expect(job).toBeDefined();
+    const safeJob = job as ChunkBakeJob;
+    bakeQueue.onWorkerComplete(safeJob.chunkId);
+    bakeQueue.onGpuUploadComplete(safeJob.chunkId);
     manager.onGpuResident(makeChunkId(0, 0), 1000);
     manager.setFocusTile(makeTile(0, 0));
     manager.evaluate(1);
@@ -567,9 +571,11 @@ describe("ChunkResidencyManager", () => {
 
   it("syncs chunkBakeQueue state on hidden transitions", () => {
     manager.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = bakeQueue.dequeueJob()!;
-    bakeQueue.onWorkerComplete(job.chunkId);
-    bakeQueue.onGpuUploadComplete(job.chunkId);
+    const job = bakeQueue.dequeueJob();
+    expect(job).toBeDefined();
+    const safeJob = job as ChunkBakeJob;
+    bakeQueue.onWorkerComplete(safeJob.chunkId);
+    bakeQueue.onGpuUploadComplete(safeJob.chunkId);
     manager.onGpuResident(makeChunkId(0, 0), 1000);
     manager.setFocusTile(makeTile(0, 0));
     manager.evaluate(1);
@@ -583,9 +589,11 @@ describe("ChunkResidencyManager", () => {
 
   it("syncs chunkBakeQueue state on eviction", () => {
     manager.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = bakeQueue.dequeueJob()!;
-    bakeQueue.onWorkerComplete(job.chunkId);
-    bakeQueue.onGpuUploadComplete(job.chunkId);
+    const job = bakeQueue.dequeueJob();
+    expect(job).toBeDefined();
+    const safeJob = job as ChunkBakeJob;
+    bakeQueue.onWorkerComplete(safeJob.chunkId);
+    bakeQueue.onGpuUploadComplete(safeJob.chunkId);
     manager.onGpuResident(makeChunkId(0, 0), 1000);
     manager.setFocusTile(makeTile(0, 0));
     manager.evaluate(1);
@@ -602,6 +610,6 @@ describe("ChunkResidencyManager", () => {
     manager.setFocusTile(makeTile(0, 0));
     const job = bakeQueue.dequeueJob();
     expect(job).not.toBeNull();
-    expect(job!.priority.distance).toBeLessThan(Infinity);
+    expect(job?.priority.distance).toBeLessThan(Infinity);
   });
 });

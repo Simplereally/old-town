@@ -2,14 +2,15 @@ import {
   type ChunkData,
   type ChunkId,
   chunkId,
+  type EntityId,
   type RegionId,
   type RegionLoadPacket,
   type RegionUnloadPacket,
   type TileCoord,
 } from "@old-town/shared";
 import { Scene } from "three";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ClientPacketApplier } from "../net/ClientPacketApplier";
+import { describe, expect, it, vi } from "vitest";
+import { ClientPacketApplier, type IUIState } from "../net/ClientPacketApplier";
 import { ClientWorldStore } from "../net/ClientWorldStore";
 import { SnapshotBuffer } from "../net/SnapshotBuffer";
 import { ChunkBakeQueue, type ChunkMetadata } from "./ChunkBakeQueue";
@@ -61,7 +62,7 @@ function makeRegionUnloadPacket(rx: number, ry: number, plane: number): RegionUn
   };
 }
 
-function makePayload(): BakedChunkPayload {
+function _makePayload(): BakedChunkPayload {
   const positions = new Float32Array([0, 0, 0]);
   const normals = new Float32Array([0, 1, 0]);
   const colors = new Float32Array([1, 1, 1]);
@@ -82,8 +83,17 @@ function makePayload(): BakedChunkPayload {
 /**
  * Minimal mock UI state that satisfies the pure packet applier interface.
  */
-function createMockUIState() {
+function createMockUIState(): IUIState {
   return {
+    inventory: new Map(),
+    equipment: new Map(),
+    skills: new Map(),
+    vars: new Map(),
+    chat: [],
+    dialogue: undefined,
+    recipeList: undefined,
+    recipeResult: undefined,
+    deathScreen: false,
     setInventory: vi.fn(),
     setSkills: vi.fn(),
     setVars: vi.fn(),
@@ -164,11 +174,11 @@ class FrameOrchestrator {
       maxGpuBytes: 1000000,
     });
     this.worker = createSynchronousTestClient(
-      (jobId, regionId, chunkCoord, payload, transferables) => {
+      (_jobId, _regionId, chunkCoord, payload, _transferables) => {
         const cid = `${chunkCoord.cx}:${chunkCoord.cy}:${chunkCoord.plane}` as ChunkId;
         this.uploadQueue.enqueueBakedChunk(cid, payload);
       },
-      (jobId, regionId, chunkCoord, errorCode, message) => {
+      (_jobId, _regionId, chunkCoord, _errorCode, _message) => {
         const cid = `${chunkCoord.cx}:${chunkCoord.cy}:${chunkCoord.plane}` as ChunkId;
         this.bakeQueue.onWorkerFailed(cid);
       },
@@ -212,8 +222,8 @@ class FrameOrchestrator {
           type: "bake_chunk",
           regionId: job.regionId,
           chunkCoord: {
-            cx: meta[0]!,
-            cy: meta[1]!,
+            cx: meta[0] as number,
+            cy: meta[1] as number,
             plane: (meta[2] ?? 0) as 0 | 1 | 2 | 3,
           },
           tiles: [],
@@ -253,19 +263,16 @@ describe("RegionStreaming integration", () => {
     const { applier } = buildApplier();
 
     const fullState = {
+      type: "S2C_FULL_STATE" as const,
+      protocolVersion: 1,
       tick: 1,
       serverTime: 600,
-      selfEntityId: 42,
+      selfEntityId: 42 as EntityId,
       entities: [],
       regionLoads: [makeRegionLoadPacket(0, 0, 0, [makeChunkData(0, 0), makeChunkData(0, 1)])],
-      inventory: null,
-      equipment: null,
-      skills: null,
-      vars: null,
-      bank: null,
     };
 
-    const result = applier.applyFullState(fullState as any);
+    const result = applier.applyFullState(fullState);
 
     const regionLoads = result.presentationEvents.filter((e) => e.type === "region.load");
     const regionUnloads = result.presentationEvents.filter((e) => e.type === "region.unload");
@@ -277,7 +284,7 @@ describe("RegionStreaming integration", () => {
     expect(regionUnloads.length).toBe(0);
     expect(terrainEvents.length).toBe(0);
 
-    const payload = regionLoads[0]!.payload as { regionId: string; chunks: ChunkData[] };
+    const payload = regionLoads[0]?.payload as { regionId: string; chunks: ChunkData[] };
     expect(payload.regionId).toBe("0:0:0");
     expect(payload.chunks).toHaveLength(2);
   });
@@ -286,6 +293,7 @@ describe("RegionStreaming integration", () => {
     const { applier } = buildApplier();
 
     const delta = {
+      type: "S2C_TICK_DELTA" as const,
       tick: 2,
       serverTime: 1200,
       entityAdds: [],
@@ -295,10 +303,13 @@ describe("RegionStreaming integration", () => {
       regionUnloads: [makeRegionUnloadPacket(0, 0, 0)],
     };
 
-    const result = applier.applyTickDelta(delta as any, 1);
+    const result = applier.applyTickDelta(delta, 1);
     expect(result).not.toBeNull();
+    if (!result) {
+      throw new Error("Expected result to be non-null");
+    }
 
-    const events = result!.presentationEvents;
+    const events = result.presentationEvents;
     const unloadIdx = events.findIndex((e) => e.type === "region.unload");
     const loadIdx = events.findIndex((e) => e.type === "region.load");
 
@@ -313,7 +324,7 @@ describe("RegionStreaming integration", () => {
 
   it("region load enqueues bake work but does not create scene meshes immediately", () => {
     const orchestrator = new FrameOrchestrator();
-    const scene = (orchestrator.uploadQueue as any)._scene as Scene;
+    const scene = (orchestrator.uploadQueue as unknown as { _scene: Scene })._scene;
 
     const beforeCount = scene.children.length;
 
@@ -337,7 +348,7 @@ describe("RegionStreaming integration", () => {
 
   it("frame tick drives bake -> upload -> residency without callback mutation", () => {
     const orchestrator = new FrameOrchestrator();
-    const scene = (orchestrator.uploadQueue as any)._scene as Scene;
+    const scene = (orchestrator.uploadQueue as unknown as { _scene: Scene })._scene;
 
     orchestrator.queueRegionLoad(makeRegionId(0, 0, 0), [makeMeta(0, 0)]);
     orchestrator.tick(makeTile(0, 0));
@@ -573,7 +584,7 @@ describe("RegionStreaming integration", () => {
     orchestrator.queueRegionLoad(regionId, [makeMeta(0, 0), makeMeta(0, 1)]);
     orchestrator.tick(makeTile(0, 0));
 
-    const stats1 = orchestrator.residency.getStats();
+    const _stats1 = orchestrator.residency.getStats();
     orchestrator.tick(makeTile(0, 0));
     const stats2 = orchestrator.residency.getStats();
 

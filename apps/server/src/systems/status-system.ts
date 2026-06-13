@@ -74,7 +74,7 @@ function isOnWater(world: World, map: RuntimeMap | undefined, entityId: EntityId
 
 function tookFireDamageThisTick(world: World, entityId: EntityId): boolean {
   const combatant = world.getComponent(entityId, "combatant");
-  if (!combatant || !combatant.pendingHits) return false;
+  if (!combatant?.pendingHits) return false;
   const now = combatant.pendingHits.some(
     (hit) => hit.targetId === entityId && hit.style === "magic" && hit.damage > 0,
   );
@@ -153,7 +153,7 @@ export function cureByItem(ctx: StatusEffectContext, entityId: EntityId, itemId:
   const remaining: ActiveStatusEffect[] = [];
   for (const effect of statusEffects.effects) {
     const def = effectDef(ctx.registries, effect.statusEffectId);
-    if (def && def.cureItems.includes(itemId)) {
+    if (def?.cureItems.includes(itemId)) {
       cured.push(effect.statusEffectId);
     } else {
       remaining.push(effect);
@@ -255,7 +255,7 @@ function applyDotDamage(
   entityId: EntityId,
   effect: ActiveStatusEffect,
   def: StatusEffectDef,
-  tick: number,
+  _tick: number,
 ): void {
   const combatant = ctx.world.getComponent(entityId, "combatant");
   if (!combatant || combatant.dead || combatant.health <= 0) return;

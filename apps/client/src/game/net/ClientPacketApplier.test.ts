@@ -1,5 +1,4 @@
 import {
-  Direction,
   type EntityId,
   type EntityKind,
   type EntitySpawnPacket,
@@ -157,7 +156,7 @@ describe("ClientPacketApplier (pure)", () => {
 
     const loadEvents = result.presentationEvents.filter((e) => e.type === "region.load");
     expect(loadEvents.length).toBe(1);
-    expect(loadEvents[0]!.payload).toEqual({ regionId: rid("r1"), chunks: [chunk] });
+    expect(loadEvents[0]?.payload).toEqual({ regionId: rid("r1"), chunks: [chunk] });
   });
 
   it("applyFullState emits player spawn event with self flag", () => {
@@ -171,7 +170,7 @@ describe("ClientPacketApplier (pure)", () => {
 
     const spawnEvent = result.presentationEvents.find((e) => e.type === "actors.spawn");
     expect(spawnEvent).toBeDefined();
-    expect(spawnEvent!.payload).toMatchObject({
+    expect(spawnEvent?.payload).toMatchObject({
       entityId: eid(42),
       tile: { x: 5, y: 5, plane: 0 },
       isLocalPlayer: true,
@@ -182,7 +181,7 @@ describe("ClientPacketApplier (pure)", () => {
       (e) => e.type === "actors.updateAppearance",
     );
     expect(appearanceEvent).toBeDefined();
-    expect(appearanceEvent!.payload).toEqual({
+    expect(appearanceEvent?.payload).toEqual({
       entityId: eid(42),
       appearance: { name: "Hero", bodyId: "dev" },
     });
@@ -222,9 +221,9 @@ describe("ClientPacketApplier (pure)", () => {
       }),
     );
 
-    expect(ctx.store.getEntity(1)!.kind).toBe("npc");
-    expect(ctx.store.getEntity(2)!.kind).toBe("object");
-    expect(ctx.store.getEntity(3)!.kind).toBe("groundItem");
+    expect(ctx.store.getEntity(1)?.kind).toBe("npc");
+    expect(ctx.store.getEntity(2)?.kind).toBe("object");
+    expect(ctx.store.getEntity(3)?.kind).toBe("groundItem");
   });
 
   it("applyFullState sets inventory, equipment, skills, and vars", () => {
@@ -267,7 +266,7 @@ describe("ClientPacketApplier (pure)", () => {
     applier.applyFullState(fullStatePacket({ selfEntityId: eid(42) }));
     const result = applier.applyTickDelta(tickDeltaPacket(), 1);
 
-    expect(result!.selfEntityId).toBe(42);
+    expect(result?.selfEntityId).toBe(42);
   });
 
   it("applyTickDelta emits region unloads and loads", () => {
@@ -283,7 +282,7 @@ describe("ClientPacketApplier (pure)", () => {
       1,
     );
 
-    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    const eventTypes = result?.presentationEvents.map((e) => e.type);
     expect(eventTypes).toContain("region.unload");
     expect(eventTypes).toContain("region.load");
   });
@@ -301,7 +300,7 @@ describe("ClientPacketApplier (pure)", () => {
       1,
     );
 
-    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    const eventTypes = result?.presentationEvents.map((e) => e.type);
     expect(eventTypes).toContain("actors.spawn");
     expect(eventTypes).toContain("objects.remove");
     expect(eventTypes).toContain("actors.remove");
@@ -322,7 +321,7 @@ describe("ClientPacketApplier (pure)", () => {
     );
 
     expect(ctx.store.getEntity(10)).toBeDefined();
-    expect(ctx.store.getEntity(10)!.kind).toBe("npc");
+    expect(ctx.store.getEntity(10)?.kind).toBe("npc");
   });
 
   it("applyTickDelta emits actor position and facing events", () => {
@@ -348,7 +347,7 @@ describe("ClientPacketApplier (pure)", () => {
       1,
     );
 
-    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    const eventTypes = result?.presentationEvents.map((e) => e.type);
     expect(ctx.store.getEntity(5)).toBeDefined();
     expect(eventTypes).toContain("actors.updateTile");
     expect(eventTypes).toContain("actors.updateFacing");
@@ -378,8 +377,8 @@ describe("ClientPacketApplier (pure)", () => {
 
     const entity = ctx.store.getEntity(5);
     expect(entity).toBeDefined();
-    expect(entity!.tile).toEqual({ x: 1, y: 0, plane: 0 });
-    expect(entity!.previousTile).toEqual({ x: 0, y: 0, plane: 0 });
+    expect(entity?.tile).toEqual({ x: 1, y: 0, plane: 0 });
+    expect(entity?.previousTile).toEqual({ x: 0, y: 0, plane: 0 });
   });
 
   it("applyTickDelta emits object transform event", () => {
@@ -400,9 +399,9 @@ describe("ClientPacketApplier (pure)", () => {
       1,
     );
 
-    const event = result!.presentationEvents.find((e) => e.type === "objects.transform");
+    const event = result?.presentationEvents.find((e) => e.type === "objects.transform");
     expect(event).toBeDefined();
-    expect(event!.payload).toEqual({ entityId: eid(5), defId: "dry_tree_depleted" });
+    expect(event?.payload).toEqual({ entityId: eid(5), defId: "dry_tree_depleted" });
   });
 
   it("applyTickDelta emits hitsplats and syncs equipment for self", () => {
@@ -426,7 +425,7 @@ describe("ClientPacketApplier (pure)", () => {
       1,
     );
 
-    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    const eventTypes = result?.presentationEvents.map((e) => e.type);
     expect(eventTypes).toContain("hitsplats.show");
     expect(eventTypes).toContain("actors.notifyHit");
     expect(ctx.uiState.equipment.get(0)).toBe("helm");
@@ -447,7 +446,9 @@ describe("ClientPacketApplier (pure)", () => {
       1,
     );
 
-    const xpEvents = result!.presentationEvents.filter((e) => e.type === "xpDrops.show");
+    expect(result).not.toBeNull();
+    if (!result) throw new Error("unexpected null");
+    const xpEvents = result.presentationEvents.filter((e) => e.type === "xpDrops.show");
     expect(xpEvents.length).toBe(2);
   });
 
@@ -486,9 +487,9 @@ describe("ClientPacketApplier (pure)", () => {
       1,
     );
 
-    const event = result!.presentationEvents.find((e) => e.type === "projectiles.spawn");
+    const event = result?.presentationEvents.find((e) => e.type === "projectiles.spawn");
     expect(event).toBeDefined();
-    expect(event!.payload).toEqual({
+    expect(event?.payload).toEqual({
       id: "proj-1",
       startTile: { x: 1, y: 1, plane: 0 },
       endTile: { x: 3, y: 1, plane: 0 },
@@ -515,9 +516,9 @@ describe("ClientPacketApplier (pure)", () => {
       1,
     );
 
-    const event = result!.presentationEvents.find((e) => e.type === "actors.updateHealthBar");
+    const event = result?.presentationEvents.find((e) => e.type === "actors.updateHealthBar");
     expect(event).toBeDefined();
-    expect(event!.payload).toEqual({ entityId: eid(7), health: 3, maxHealth: 10 });
+    expect(event?.payload).toEqual({ entityId: eid(7), health: 3, maxHealth: 10 });
   });
 
   it("applyTickDelta ignores equipment for non-self entity", () => {
@@ -580,7 +581,7 @@ describe("ClientPacketApplier (pure)", () => {
     expect(ctx.uiState.vars.get("flag")).toBe(1);
     expect(ctx.uiState.dialogue).toBeUndefined();
 
-    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    const eventTypes = result?.presentationEvents.map((e) => e.type);
     expect(eventTypes).toContain("chatOverhead.show");
   });
 
@@ -596,7 +597,7 @@ describe("ClientPacketApplier (pure)", () => {
       1,
     );
 
-    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    const eventTypes = result?.presentationEvents.map((e) => e.type);
     expect(eventTypes).not.toContain("chatOverhead.show");
   });
 
@@ -634,7 +635,7 @@ describe("ClientPacketApplier (pure)", () => {
     );
 
     expect(ctx.logDebug).toHaveBeenCalledWith("Move rejected: no path to (10, 20)");
-    expect(result!.rejectedMoves).toEqual([{ tile: { x: 10, y: 20, plane: 0 }, tick: 5 }]);
+    expect(result?.rejectedMoves).toEqual([{ tile: { x: 10, y: 20, plane: 0 }, tick: 5 }]);
   });
 
   it("reports rejected move when no self path is present", () => {
@@ -652,7 +653,7 @@ describe("ClientPacketApplier (pure)", () => {
     );
 
     expect(ctx.logDebug).toHaveBeenCalledWith("Move rejected: no path to (5, 5)");
-    expect(result!.rejectedMoves).toEqual([{ tile: { x: 5, y: 5, plane: 0 }, tick: 5 }]);
+    expect(result?.rejectedMoves).toEqual([{ tile: { x: 5, y: 5, plane: 0 }, tick: 5 }]);
   });
 
   it("does not report rejected move when click is too old", () => {
@@ -669,7 +670,7 @@ describe("ClientPacketApplier (pure)", () => {
       5,
     );
 
-    expect(result!.rejectedMoves).toEqual([]);
+    expect(result?.rejectedMoves).toEqual([]);
   });
 
   it("emits debug path tiles for self entity", () => {
@@ -694,7 +695,9 @@ describe("ClientPacketApplier (pure)", () => {
       1,
     );
 
-    const debugEvents = result!.debugEvents.filter((e) => e.type === "debug.markPathTile");
+    expect(result).not.toBeNull();
+    if (!result) throw new Error("unexpected null");
+    const debugEvents = result.debugEvents.filter((e) => e.type === "debug.markPathTile");
     expect(debugEvents.length).toBe(2);
   });
 
@@ -721,7 +724,9 @@ describe("ClientPacketApplier (pure)", () => {
       1,
     );
 
-    const debugEvents = result!.debugEvents;
+    expect(result).not.toBeNull();
+    if (!result) throw new Error("unexpected null");
+    const debugEvents = result.debugEvents;
     const types = debugEvents.map((e) => e.type);
     expect(types).toContain("debug.markTrueTile");
     expect(types).toContain("debug.markCollisionTile");
@@ -830,8 +835,8 @@ describe("ClientPacketApplier (pure)", () => {
       1,
     );
 
-    expect(result!.snapshot.entities.length).toBe(1);
-    expect(result!.snapshot.entities[0]!.tile).toEqual({ x: 1, y: 0, plane: 0 });
+    expect(result?.snapshot.entities.length).toBe(1);
+    expect(result?.snapshot.entities[0]?.tile).toEqual({ x: 1, y: 0, plane: 0 });
   });
 
   it("applyTickDelta returns null for stale tick", () => {
@@ -882,8 +887,8 @@ describe("ClientPacketApplier (pure)", () => {
       1,
     );
 
-    expect(result!.snapshot.regionLoads.length).toBe(1);
-    expect(result!.snapshot.regionUnloads.length).toBe(1);
+    expect(result?.snapshot.regionLoads.length).toBe(1);
+    expect(result?.snapshot.regionUnloads.length).toBe(1);
   });
 
   it("applyTickDelta handles death and respawn notices", () => {
@@ -901,8 +906,8 @@ describe("ClientPacketApplier (pure)", () => {
       1,
     );
     expect(ctx.uiState.deathScreen).toBe(true);
-    expect(ctx.store.getEntity(1)!.hidden).toBe(true);
-    const deathEventTypes = deathResult!.presentationEvents.map((e) => e.type);
+    expect(ctx.store.getEntity(1)?.hidden).toBe(true);
+    const deathEventTypes = deathResult?.presentationEvents.map((e) => e.type);
     expect(deathEventTypes).toContain("actors.hide");
 
     const respawnResult = applier.applyTickDelta(
@@ -913,9 +918,9 @@ describe("ClientPacketApplier (pure)", () => {
       2,
     );
     expect(ctx.uiState.deathScreen).toBe(false);
-    expect(ctx.store.getEntity(1)!.hidden).toBe(false);
-    expect(ctx.store.getEntity(1)!.tile).toEqual({ x: 10, y: 10, plane: 0 });
-    const respawnEventTypes = respawnResult!.presentationEvents.map((e) => e.type);
+    expect(ctx.store.getEntity(1)?.hidden).toBe(false);
+    expect(ctx.store.getEntity(1)?.tile).toEqual({ x: 10, y: 10, plane: 0 });
+    const respawnEventTypes = respawnResult?.presentationEvents.map((e) => e.type);
     expect(respawnEventTypes).toContain("actors.show");
     expect(respawnEventTypes).toContain("actors.updateTile");
   });
@@ -942,7 +947,9 @@ describe("ClientPacketApplier (pure)", () => {
       1,
     );
 
-    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    expect(result).not.toBeNull();
+    if (!result) throw new Error("unexpected null");
+    const eventTypes = result.presentationEvents.map((e) => e.type);
     const spawnIndex = eventTypes.indexOf("actors.spawn");
     const updateIndex = eventTypes.indexOf("actors.updateTile");
     expect(spawnIndex).toBeLessThan(updateIndex);

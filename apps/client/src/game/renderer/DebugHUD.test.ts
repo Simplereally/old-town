@@ -26,7 +26,7 @@ describe("DebugHUD", () => {
     const hud = new DebugHUD({ metrics, parent });
     hud.visible = true;
     expect(parent.children.length).toBe(1);
-    expect(parent.children[0]!.tagName).toBe("DIV");
+    expect(parent.children[0]?.tagName).toBe("DIV");
   });
 
   it("toggles visibility", () => {
@@ -53,8 +53,8 @@ describe("DebugHUD", () => {
     hud.visible = true;
     const el = parent.children[0] as HTMLElement;
     const fpsValue = Array.from(el.querySelectorAll("div")).find(
-      (row) => row.children[0]!.textContent === "FPS",
-    )!.children[1] as HTMLSpanElement;
+      (row) => row.children[0]?.textContent === "FPS",
+    )?.children[1] as HTMLSpanElement;
     expect(fpsValue.textContent).toBe("60");
     hud.dispose();
     vi.useRealTimers();
@@ -72,8 +72,8 @@ describe("DebugHUD", () => {
     hud.visible = true;
     const el = parent.children[0] as HTMLElement;
     const rows = Array.from(el.querySelectorAll("div")).map((row) => ({
-      label: row.children[0]!.textContent,
-      value: row.children[1]!.textContent,
+      label: row.children[0]?.textContent,
+      value: row.children[1]?.textContent,
     }));
     const labels = rows.map((r) => r.label);
     expect(labels).toEqual([
@@ -91,19 +91,19 @@ describe("DebugHUD", () => {
       "HEAP",
       "GPU",
     ]);
-    expect(rows.find((r) => r.label === "FPS")!.value).toBe("60");
-    expect(rows.find((r) => r.label === "FT")!.value).toBe("16.6");
-    expect(rows.find((r) => r.label === "DC")!.value).toBe("100");
-    expect(rows.find((r) => r.label === "GEO")!.value).toBe("200");
-    expect(rows.find((r) => r.label === "TEX")!.value).toBe("300");
-    expect(rows.find((r) => r.label === "ACT")!.value).toBe("10");
-    expect(rows.find((r) => r.label === "OBJ")!.value).toBe("20");
-    expect(rows.find((r) => r.label === "CHK")!.value).toBe("30");
-    expect(rows.find((r) => r.label === "SBF")!.value).toBe("4");
-    expect(rows.find((r) => r.label === "UQ")!.value).toBe("1");
-    expect(rows.find((r) => r.label === "WQ")!.value).toBe("2");
-    expect(rows.find((r) => r.label === "HEAP")!.value).toBe("42.1 MB");
-    expect(rows.find((r) => r.label === "GPU")!.value).toBe("4.2 ms");
+    expect(rows.find((r) => r.label === "FPS")?.value).toBe("60");
+    expect(rows.find((r) => r.label === "FT")?.value).toBe("16.6");
+    expect(rows.find((r) => r.label === "DC")?.value).toBe("100");
+    expect(rows.find((r) => r.label === "GEO")?.value).toBe("200");
+    expect(rows.find((r) => r.label === "TEX")?.value).toBe("300");
+    expect(rows.find((r) => r.label === "ACT")?.value).toBe("10");
+    expect(rows.find((r) => r.label === "OBJ")?.value).toBe("20");
+    expect(rows.find((r) => r.label === "CHK")?.value).toBe("30");
+    expect(rows.find((r) => r.label === "SBF")?.value).toBe("4");
+    expect(rows.find((r) => r.label === "UQ")?.value).toBe("1");
+    expect(rows.find((r) => r.label === "WQ")?.value).toBe("2");
+    expect(rows.find((r) => r.label === "HEAP")?.value).toBe("42.1 MB");
+    expect(rows.find((r) => r.label === "GPU")?.value).toBe("4.2 ms");
     hud.dispose();
   });
 
@@ -113,8 +113,8 @@ describe("DebugHUD", () => {
     hud.visible = true;
     const el = parent.children[0] as HTMLElement;
     const ftValue = Array.from(el.querySelectorAll("div")).find(
-      (row) => row.children[0]!.textContent === "FT",
-    )!.children[1] as HTMLSpanElement;
+      (row) => row.children[0]?.textContent === "FT",
+    )?.children[1] as HTMLSpanElement;
     expect(ftValue.style.color).toBe("rgb(248, 113, 113)");
     hud.dispose();
   });
@@ -125,8 +125,8 @@ describe("DebugHUD", () => {
     hud.visible = true;
     const el = parent.children[0] as HTMLElement;
     const ftValue = Array.from(el.querySelectorAll("div")).find(
-      (row) => row.children[0]!.textContent === "FT",
-    )!.children[1] as HTMLSpanElement;
+      (row) => row.children[0]?.textContent === "FT",
+    )?.children[1] as HTMLSpanElement;
     expect(ftValue.style.color).toBe("rgb(250, 204, 21)");
     hud.dispose();
   });
@@ -137,8 +137,8 @@ describe("DebugHUD", () => {
     hud.visible = true;
     const el = parent.children[0] as HTMLElement;
     const ftValue = Array.from(el.querySelectorAll("div")).find(
-      (row) => row.children[0]!.textContent === "FT",
-    )!.children[1] as HTMLSpanElement;
+      (row) => row.children[0]?.textContent === "FT",
+    )?.children[1] as HTMLSpanElement;
     expect(ftValue.style.color).toBe("rgb(74, 222, 128)");
     hud.dispose();
   });

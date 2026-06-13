@@ -3,9 +3,9 @@ import {
   Direction,
   type EntitySpawnPacket,
   type FullStatePacket,
-  type HitsplatType,
   type InventoryDelta,
-  type RegionId,
+  type InventorySlotChange,
+  type PlayerVarValue,
   type SkillDelta,
   type StatusEffectUpdate,
   type TickDeltaPacket,
@@ -18,6 +18,15 @@ import type { ClientWorldStore, WorldEntity } from "./ClientWorldStore";
 import type { RenderEvent, RenderSnapshot, SnapshotBuffer } from "./SnapshotBuffer";
 
 export interface IUIState {
+  readonly inventory: ReadonlyMap<number, InventorySlotChange>;
+  readonly equipment: ReadonlyMap<number, string>;
+  readonly skills: ReadonlyMap<string, SkillDelta>;
+  readonly vars: ReadonlyMap<string, PlayerVarValue>;
+  readonly chat: readonly ChatPacket[];
+  readonly dialogue: import("@old-town/shared").DialogueViewPacket | undefined;
+  readonly recipeList: import("@old-town/shared").RecipeListPacket | undefined;
+  readonly recipeResult: import("@old-town/shared").RecipeResultPacket | undefined;
+  readonly deathScreen: boolean;
   setInventory(delta: InventoryDelta): void;
   setSkills(skills: readonly SkillDelta[]): void;
   setVars(vars: readonly VarbitDelta[]): void;

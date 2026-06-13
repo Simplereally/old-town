@@ -12,11 +12,11 @@ export const meta = {
   ],
 };
 
-const root = (args && args.root) || "src";
-const include = (args && args.include) || "";
-const maxRounds = (args && args.maxRounds) || 6;
+const root = args?.root || "src";
+const include = args?.include || "";
+const maxRounds = args?.maxRounds || 6;
 const focus =
-  (args && args.focus) ||
+  args?.focus ||
   "logic errors, null/undefined handling, async/await mistakes, off-by-one, resource leaks, and unsafe input handling";
 
 const TARGETS_SCHEMA = {
@@ -84,7 +84,7 @@ const VERIFY_LENSES = ["is-it-reachable", "correctness", "security-or-data-loss"
 const key = (b) =>
   `${b.file}::${b.symbol}::${b.desc.slice(0, 60)}`.toLowerCase().replace(/\s+/g, " ");
 const budgetExhausted = () =>
-  !!(budget && budget.total && budget.total > 0 && budget.used >= budget.total * 0.85);
+  !!(budget?.total && budget.total > 0 && budget.used >= budget.total * 0.85);
 
 // 1. Map ---------------------------------------------------------------
 phase("Map");
@@ -93,7 +93,7 @@ const mapped = await agent(
     `(by directory or feature) so finders can divide and conquer. Exclude tests, generated, and vendored code.`,
   { phase: "Map", schema: TARGETS_SCHEMA, agentType: "general-purpose" },
 );
-const targets = (mapped && mapped.targets) || [root];
+const targets = mapped?.targets || [root];
 log(`Hunting across ${targets.length} targets`);
 
 // 2-3. Loop-until-dry: find -> verify, dedupe against everything SEEN ---
@@ -161,7 +161,7 @@ while (dry < 2 && round < maxRounds && !budgetExhausted()) {
           return {
             bug: b,
             real: yes.length * 2 > v.length,
-            fixSketch: (yes[0] || {}).fixSketch || "",
+            fixSketch: yes[0]?.fixSketch || "",
           };
         }),
     ),

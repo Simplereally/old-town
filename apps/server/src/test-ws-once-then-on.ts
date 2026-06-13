@@ -40,7 +40,7 @@ await new Promise((resolve) => setTimeout(resolve, 100));
 
 client.send(JSON.stringify({ type: "ping" }));
 const msg2 = await new Promise<unknown>((resolve) => {
-  const handler = (data: any) => {
+  const handler = (data: WebSocket.RawData) => {
     console.log("handler2 called");
     resolve(JSON.parse(data.toString()));
     client.removeListener("message", handler);

@@ -214,8 +214,8 @@ describe("InstanceBucket", () => {
     bucket.flush(1);
     expect(bucket.boundsDirty).toBe(false);
     expect(bucket.mesh.boundingSphere).toBeDefined();
-    expect(bucket.mesh.boundingSphere!.center).toBeInstanceOf(Vector3);
-    expect(bucket.mesh.boundingSphere!.radius).toBeGreaterThan(0);
+    expect(bucket.mesh.boundingSphere?.center).toBeInstanceOf(Vector3);
+    expect(bucket.mesh.boundingSphere?.radius).toBeGreaterThan(0);
   });
 
   it("does not recompute bounds when nothing is dirty", () => {
@@ -259,7 +259,7 @@ describe("InstanceBucket", () => {
     const colorBucket = new InstanceBucket(makeKey(), makeOptions({ supportsColor: true }));
     colorBucket.acquire(100);
     colorBucket.writeColorOrSeed(100, { r: 1, g: 0.5, b: 0.25, a: 1 });
-    const arr = colorBucket.mesh.instanceColor!.array as Float32Array;
+    const arr = colorBucket.mesh.instanceColor?.array as Float32Array;
     expect(arr[0]).toBe(1);
     expect(arr[1]).toBe(0.5);
     expect(arr[2]).toBe(0.25);
@@ -326,7 +326,7 @@ describe("InstanceBucket", () => {
     colorBucket.acquire(100);
     colorBucket.writeColorOrSeed(100, { r: 0.1, g: 0.2, b: 0.3, a: 0.4 });
     colorBucket.growCapacity(8);
-    const arr = colorBucket.mesh.instanceColor!.array as Float32Array;
+    const arr = colorBucket.mesh.instanceColor?.array as Float32Array;
     expect(arr[0]).toBeCloseTo(0.1);
     expect(arr[1]).toBeCloseTo(0.2);
     expect(arr[2]).toBeCloseTo(0.3);
@@ -383,7 +383,7 @@ describe("InstanceBucket", () => {
     colorBucket.writeTransform(100, new Matrix4().makeTranslation(1, 2, 3));
     colorBucket.writeColorOrSeed(100, { r: 1, g: 0, b: 0, a: 1 });
     colorBucket.flush(1);
-    expect(colorBucket.mesh.instanceColor!.version).toBeGreaterThan(0);
+    expect(colorBucket.mesh.instanceColor?.version).toBeGreaterThan(0);
     expect(colorBucket.mesh.instanceMatrix.version).toBeGreaterThan(0);
   });
 
@@ -395,6 +395,6 @@ describe("InstanceBucket", () => {
   it("bounds are zero when no active slots", () => {
     bucket.flush(1);
     expect(bucket.mesh.boundingSphere).toBeDefined();
-    expect(bucket.mesh.boundingSphere!.radius).toBe(0);
+    expect(bucket.mesh.boundingSphere?.radius).toBe(0);
   });
 });

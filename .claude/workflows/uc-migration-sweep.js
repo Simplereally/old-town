@@ -11,10 +11,10 @@ export const meta = {
   ],
 };
 
-const rule = (args && args.rule) || "Apply the migration described in the prompt";
-const root = (args && args.root) || "src";
-const include = (args && args.include) || "";
-const verifyCmd = (args && args.verifyCmd) || "the project typecheck/build command";
+const rule = args?.rule || "Apply the migration described in the prompt";
+const root = args?.root || "src";
+const include = args?.include || "";
+const verifyCmd = args?.verifyCmd || "the project typecheck/build command";
 
 const PLAN_SCHEMA = {
   type: "object",
@@ -64,8 +64,8 @@ const plan = await agent(
     `(grep for the old pattern; skip files that don't match). Exclude tests of the migration itself, generated, and vendored code.`,
   { phase: "Plan", schema: PLAN_SCHEMA, agentType: "general-purpose" },
 );
-const contract = (plan && plan.contract) || rule;
-const files = (plan && plan.files) || [];
+const contract = plan?.contract || rule;
+const files = plan?.files || [];
 log(`Migrating ${files.length} files under contract`);
 if (!files.length) return { summary: 'No files match the migration pattern.', results: [] }
 
@@ -91,7 +91,7 @@ const results = await pipeline(
 
   // Stage B: verify (receives stage A result + original item)
   (prev, file) => {
-    if (!prev || !prev.changed)
+    if (!prev?.changed)
       return { file, passed: true, behaviorPreserved: true, detail: "no change needed" };
     return agent(
       `Verify the migration of \`${file}\`. Run \`${verifyCmd}\` scoped to it and check the diff preserves behavior under the contract:\n${contract}\n\n` +

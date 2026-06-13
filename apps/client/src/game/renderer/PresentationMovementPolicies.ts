@@ -1,4 +1,4 @@
-import { GAME_TICK_MS, type HitsplatType, type TileCoord } from "@old-town/shared";
+import type { HitsplatType, TileCoord } from "@old-town/shared";
 import type { RenderClockSample } from "./RenderClock";
 import { RenderTransformCache, type RenderTransformSample } from "./RenderTransformCache";
 

@@ -4,7 +4,7 @@ import {
   PROTOCOL_VERSION,
   ServerPacketType,
   TransportClientMessageType,
-  TransportServerMessageType,
+  type TransportServerPacket,
 } from "@old-town/shared";
 import WebSocket from "ws";
 import { createWebSocketTransport } from "./net/websocket-transport";
@@ -45,8 +45,8 @@ const msg1 = await new Promise<unknown>((resolve) => {
 console.log("msg1", msg1);
 
 // Monkey-patch the transport's send function to log
-const origSend = (transport as any).send;
-(transport as any).send = (sessionId: string, packet: any) => {
+const origSend = transport.send;
+transport.send = (sessionId: string, packet: TransportServerPacket) => {
   console.log("transport.send", sessionId, packet);
   return origSend.call(transport, sessionId, packet);
 };

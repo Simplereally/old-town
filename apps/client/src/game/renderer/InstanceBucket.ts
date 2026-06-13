@@ -142,7 +142,11 @@ export class InstanceBucket {
 
     let slot: number;
     if (this.freeList.length > 0) {
-      slot = this.freeList.pop()!;
+      const popped = this.freeList.pop();
+      if (popped === undefined) {
+        return null;
+      }
+      slot = popped;
     } else if (this._highestActiveSlot + 1 < this._capacity) {
       slot = this._highestActiveSlot + 1;
     } else {
@@ -198,11 +202,11 @@ export class InstanceBucket {
     if (transform instanceof Matrix4) {
       const elements = transform.elements;
       for (let i = 0; i < 16; i++) {
-        this.instanceMatrixArray[offset + i] = elements[i]!;
+        this.instanceMatrixArray[offset + i] = elements[i] as number;
       }
     } else if (transform instanceof Float32Array) {
       for (let i = 0; i < 16; i++) {
-        this.instanceMatrixArray[offset + i] = transform[i]!;
+        this.instanceMatrixArray[offset + i] = transform[i] as number;
       }
     } else {
       const pos = transform.position;
@@ -214,7 +218,7 @@ export class InstanceBucket {
       this._scratchMatrix.compose(this._scratchPos, this._scratchQuat, this._scratchScale);
       const elements = this._scratchMatrix.elements;
       for (let i = 0; i < 16; i++) {
-        this.instanceMatrixArray[offset + i] = elements[i]!;
+        this.instanceMatrixArray[offset + i] = elements[i] as number;
       }
     }
 
@@ -407,9 +411,9 @@ export class InstanceBucket {
 
     for (const [slot] of this.slotToEntityId) {
       const offset = slot * 16;
-      const x = this.instanceMatrixArray[offset + 12]!;
-      const y = this.instanceMatrixArray[offset + 13]!;
-      const z = this.instanceMatrixArray[offset + 14]!;
+      const x = this.instanceMatrixArray[offset + 12] as number;
+      const y = this.instanceMatrixArray[offset + 13] as number;
+      const z = this.instanceMatrixArray[offset + 14] as number;
       if (x < minX) minX = x;
       if (y < minY) minY = y;
       if (z < minZ) minZ = z;

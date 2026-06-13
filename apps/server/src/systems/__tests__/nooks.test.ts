@@ -140,7 +140,7 @@ function addPlayer(
 function addNookDoor(
   world: World,
   objectId: string,
-  nookId: string | undefined,
+  _nookId: string | undefined,
   x: number,
   y: number,
 ): import("@old-town/shared").EntityId {
@@ -433,7 +433,7 @@ describe("nook discovery via proximity", () => {
   });
 
   it("does not re-discover already revealed nook", () => {
-    const { ctx, world } = setupNookCtx();
+    const { ctx } = setupNookCtx();
     const player = addPlayer(ctx.world, 5, 5);
 
     checkNookDiscovery(ctx, player, [HIDDEN_NOOK], 0);
@@ -502,7 +502,7 @@ describe("nook object interaction router", () => {
   });
 
   it("enter action falls back to transitionDestination when no nook", () => {
-    const { ctx, world, deltas } = setup();
+    const { ctx, world } = setup();
     const player = addPlayer(ctx.world, 1, 1);
     const door = world.createEntity();
     world.setComponent(door, "position", { entityId: door, x: 2, y: 1, plane: 0 });

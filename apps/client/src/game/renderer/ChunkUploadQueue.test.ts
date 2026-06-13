@@ -1,11 +1,10 @@
 import { type ChunkId, chunkId } from "@old-town/shared";
-import { BufferGeometry, Group, type Material, Mesh, MeshLambertMaterial, Scene } from "three";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ChunkBakeQueue } from "./ChunkBakeQueue";
+import { BufferGeometry, type Material, Mesh, Scene } from "three";
+import { beforeEach, describe, expect, it } from "vitest";
+import { ChunkBakeQueue, type ChunkBakeJob } from "./ChunkBakeQueue";
 import type { BakedChunkPayload, MaterialGroup } from "./ChunkBakeWorkerClient";
 import {
   ChunkUploadQueue,
-  type ChunkUploadStats,
   DEFAULT_UPLOAD_BUDGET,
   type QueuedChunkUpload,
 } from "./ChunkUploadQueue";
@@ -48,6 +47,12 @@ function makePayload(groups: MaterialGroup[], vertexCount = 4): BakedChunkPayloa
     collisionDebugData: [],
     objectInstanceDescriptors: [],
   };
+}
+
+function expectDequeueJob(queue: ChunkBakeQueue): ChunkBakeJob {
+  const job = queue.dequeueJob();
+  expect(job).toBeDefined();
+  return job as ChunkBakeJob;
 }
 
 describe("ChunkUploadQueue", () => {
@@ -119,11 +124,11 @@ describe("ChunkUploadQueue", () => {
   // ---------------------------------------------------------------------------
 
   it("enqueueBakedChunk marks lifecycle state baked_waiting_gpu_upload", () => {
-    const id = makeChunkId(0, 0);
+    const _id = makeChunkId(0, 0);
     chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
       { cx: 0, cy: 0, plane: 0 },
     ]);
-    const job = chunkBakeQueue.dequeueJob()!;
+    const job = expectDequeueJob(chunkBakeQueue);
     queue.enqueueBakedChunk(
       job.chunkId,
       makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
@@ -133,11 +138,11 @@ describe("ChunkUploadQueue", () => {
   });
 
   it("processFrame uploads a queued chunk and transitions to gpu_resident", () => {
-    const id = makeChunkId(0, 0);
+    const _id = makeChunkId(0, 0);
     chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
       { cx: 0, cy: 0, plane: 0 },
     ]);
-    const job = chunkBakeQueue.dequeueJob()!;
+    const job = expectDequeueJob(chunkBakeQueue);
     queue.enqueueBakedChunk(
       job.chunkId,
       makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
@@ -150,14 +155,14 @@ describe("ChunkUploadQueue", () => {
   });
 
   it("processFrame respects maxMsPerFrame budget", () => {
-    const id1 = makeChunkId(0, 0);
-    const id2 = makeChunkId(1, 0);
+    const _id1 = makeChunkId(0, 0);
+    const _id2 = makeChunkId(1, 0);
     chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
       { cx: 0, cy: 0, plane: 0 },
       { cx: 1, cy: 0, plane: 0 },
     ]);
-    const job1 = chunkBakeQueue.dequeueJob()!;
-    const job2 = chunkBakeQueue.dequeueJob()!;
+    const job1 = expectDequeueJob(chunkBakeQueue);
+    const job2 = expectDequeueJob(chunkBakeQueue);
     queue.enqueueBakedChunk(
       job1.chunkId,
       makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
@@ -184,14 +189,14 @@ describe("ChunkUploadQueue", () => {
       chunkBakeQueue,
       budget: { maxMsPerFrame: 100, maxChunksPerFrame: 1 },
     });
-    const id1 = makeChunkId(0, 0);
-    const id2 = makeChunkId(1, 0);
+    const _id1 = makeChunkId(0, 0);
+    const _id2 = makeChunkId(1, 0);
     chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
       { cx: 0, cy: 0, plane: 0 },
       { cx: 1, cy: 0, plane: 0 },
     ]);
-    const job1 = chunkBakeQueue.dequeueJob()!;
-    const job2 = chunkBakeQueue.dequeueJob()!;
+    const job1 = expectDequeueJob(chunkBakeQueue);
+    const job2 = expectDequeueJob(chunkBakeQueue);
     q.enqueueBakedChunk(
       job1.chunkId,
       makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
@@ -212,14 +217,14 @@ describe("ChunkUploadQueue", () => {
       chunkBakeQueue,
       budget: { maxMsPerFrame: 100, maxChunksPerFrame: 1 },
     });
-    const id1 = makeChunkId(0, 0);
-    const id2 = makeChunkId(1, 0);
+    const _id1 = makeChunkId(0, 0);
+    const _id2 = makeChunkId(1, 0);
     chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
       { cx: 0, cy: 0, plane: 0 },
       { cx: 1, cy: 0, plane: 0 },
     ]);
-    const job1 = chunkBakeQueue.dequeueJob()!;
-    const job2 = chunkBakeQueue.dequeueJob()!;
+    const job1 = expectDequeueJob(chunkBakeQueue);
+    const job2 = expectDequeueJob(chunkBakeQueue);
     q.enqueueBakedChunk(
       job1.chunkId,
       makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
@@ -239,17 +244,17 @@ describe("ChunkUploadQueue", () => {
   // ---------------------------------------------------------------------------
 
   it("builds BufferGeometry from transferred typed arrays", () => {
-    const id = makeChunkId(0, 0);
+    const _id = makeChunkId(0, 0);
     const payload = makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]);
     chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
       { cx: 0, cy: 0, plane: 0 },
     ]);
-    const job = chunkBakeQueue.dequeueJob()!;
+    const job = expectDequeueJob(chunkBakeQueue);
     queue.enqueueBakedChunk(job.chunkId, payload);
     queue.processFrame(0, () => 0);
     const group = queue.getChunkGroup(job.chunkId);
     expect(group).toBeDefined();
-    const mesh = group!.children[0] as Mesh;
+    const mesh = group?.children[0] as Mesh;
     expect(mesh.geometry).toBeInstanceOf(BufferGeometry);
     expect(mesh.geometry.attributes.position).toBeDefined();
     expect(mesh.geometry.attributes.normal).toBeDefined();
@@ -258,16 +263,16 @@ describe("ChunkUploadQueue", () => {
   });
 
   it("sets BufferAttribute usage before first render", () => {
-    const id = makeChunkId(0, 0);
+    const _id = makeChunkId(0, 0);
     const payload = makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]);
     chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
       { cx: 0, cy: 0, plane: 0 },
     ]);
-    const job = chunkBakeQueue.dequeueJob()!;
+    const job = expectDequeueJob(chunkBakeQueue);
     queue.enqueueBakedChunk(job.chunkId, payload);
     queue.processFrame(0, () => 0);
     const group = queue.getChunkGroup(job.chunkId);
-    const mesh = group!.children[0] as Mesh;
+    const mesh = group?.children[0] as Mesh;
     expect(
       (mesh.geometry.attributes.position as import("three").BufferAttribute).usage,
     ).toBeGreaterThan(0);
@@ -281,16 +286,16 @@ describe("ChunkUploadQueue", () => {
   });
 
   it("creates or reuses materials through RenderResourceRegistry", () => {
-    const id1 = makeChunkId(0, 0);
-    const id2 = makeChunkId(1, 0);
+    const _id1 = makeChunkId(0, 0);
+    const _id2 = makeChunkId(1, 0);
     chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
       { cx: 0, cy: 0, plane: 0 },
     ]);
     chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
       { cx: 1, cy: 0, plane: 0 },
     ]);
-    const job1 = chunkBakeQueue.dequeueJob()!;
-    const job2 = chunkBakeQueue.dequeueJob()!;
+    const job1 = expectDequeueJob(chunkBakeQueue);
+    const job2 = expectDequeueJob(chunkBakeQueue);
     queue.enqueueBakedChunk(
       job1.chunkId,
       makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
@@ -303,8 +308,8 @@ describe("ChunkUploadQueue", () => {
     queue.processFrame(0, () => 0);
     const group1 = queue.getChunkGroup(job1.chunkId);
     const group2 = queue.getChunkGroup(job2.chunkId);
-    const mesh1 = group1!.children[0] as Mesh;
-    const mesh2 = group2!.children[0] as Mesh;
+    const mesh1 = group1?.children[0] as Mesh;
+    const mesh2 = group2?.children[0] as Mesh;
     // Both meshes should share the same material instance
     if (Array.isArray(mesh1.material)) {
       expect(mesh1.material[0]).toBe((mesh2.material as Material[])[0]);
@@ -314,7 +319,7 @@ describe("ChunkUploadQueue", () => {
   });
 
   it("groups terrain geometry by material layer", () => {
-    const id = makeChunkId(0, 0);
+    const _id = makeChunkId(0, 0);
     const payload = makePayload(
       [
         { materialId: "grass", startIndex: 0, count: 3 },
@@ -325,20 +330,20 @@ describe("ChunkUploadQueue", () => {
     chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
       { cx: 0, cy: 0, plane: 0 },
     ]);
-    const job = chunkBakeQueue.dequeueJob()!;
+    const job = expectDequeueJob(chunkBakeQueue);
     queue.enqueueBakedChunk(job.chunkId, payload);
     queue.processFrame(0, () => 0);
     const group = queue.getChunkGroup(job.chunkId);
-    const mesh = group!.children[0] as Mesh;
+    const mesh = group?.children[0] as Mesh;
     expect(mesh.geometry.groups.length).toBe(2);
-    expect(mesh.geometry.groups[0]!.materialIndex).toBe(0);
-    expect(mesh.geometry.groups[1]!.materialIndex).toBe(1);
+    expect(mesh.geometry.groups[0]?.materialIndex).toBe(0);
+    expect(mesh.geometry.groups[1]?.materialIndex).toBe(1);
     expect(Array.isArray(mesh.material)).toBe(true);
     expect((mesh.material as Material[]).length).toBe(2);
   });
 
   it("does not create duplicate materials per chunk", () => {
-    const id = makeChunkId(0, 0);
+    const _id = makeChunkId(0, 0);
     const payload = makePayload(
       [
         { materialId: "grass", startIndex: 0, count: 3 },
@@ -349,15 +354,15 @@ describe("ChunkUploadQueue", () => {
     chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
       { cx: 0, cy: 0, plane: 0 },
     ]);
-    const job = chunkBakeQueue.dequeueJob()!;
+    const job = expectDequeueJob(chunkBakeQueue);
     queue.enqueueBakedChunk(job.chunkId, payload);
     queue.processFrame(0, () => 0);
     const group = queue.getChunkGroup(job.chunkId);
-    const mesh = group!.children[0] as Mesh;
+    const mesh = group?.children[0] as Mesh;
     expect(mesh.geometry.groups.length).toBe(2);
     // Both groups should use the same material index
-    expect(mesh.geometry.groups[0]!.materialIndex).toBe(0);
-    expect(mesh.geometry.groups[1]!.materialIndex).toBe(0);
+    expect(mesh.geometry.groups[0]?.materialIndex).toBe(0);
+    expect(mesh.geometry.groups[1]?.materialIndex).toBe(0);
     expect((mesh.material as Material[]).length).toBe(1);
   });
 
@@ -390,11 +395,11 @@ describe("ChunkUploadQueue", () => {
   });
 
   it("exposes last upload duration", () => {
-    const id = makeChunkId(0, 0);
+    const _id = makeChunkId(0, 0);
     chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
       { cx: 0, cy: 0, plane: 0 },
     ]);
-    const job = chunkBakeQueue.dequeueJob()!;
+    const job = expectDequeueJob(chunkBakeQueue);
     queue.enqueueBakedChunk(
       job.chunkId,
       makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
@@ -404,11 +409,11 @@ describe("ChunkUploadQueue", () => {
   });
 
   it("stats reflect total uploads and failures", () => {
-    const id = makeChunkId(0, 0);
+    const _id = makeChunkId(0, 0);
     chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
       { cx: 0, cy: 0, plane: 0 },
     ]);
-    const job = chunkBakeQueue.dequeueJob()!;
+    const job = expectDequeueJob(chunkBakeQueue);
     queue.enqueueBakedChunk(
       job.chunkId,
       makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
@@ -424,14 +429,14 @@ describe("ChunkUploadQueue", () => {
   // ---------------------------------------------------------------------------
 
   it("records failure state and disposes partial geometry on upload failure", () => {
-    const id = makeChunkId(0, 0);
+    const _id = makeChunkId(0, 0);
     const badPayload = makePayload([{ materialId: "grass", startIndex: 0, count: 3 }], 1);
     // Force a failure by passing an invalid typed array
     (badPayload as unknown as Record<string, unknown>).positions = null;
     chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
       { cx: 0, cy: 0, plane: 0 },
     ]);
-    const job = chunkBakeQueue.dequeueJob()!;
+    const job = expectDequeueJob(chunkBakeQueue);
     queue.enqueueBakedChunk(job.chunkId, badPayload);
     // With retry logic, the first failure is scheduled for retry.
     queue.processFrame(0, () => 0, 0);
@@ -449,11 +454,11 @@ describe("ChunkUploadQueue", () => {
   // ---------------------------------------------------------------------------
 
   it("evictChunk removes the group from the scene and releases materials", () => {
-    const id = makeChunkId(0, 0);
+    const _id = makeChunkId(0, 0);
     chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
       { cx: 0, cy: 0, plane: 0 },
     ]);
-    const job = chunkBakeQueue.dequeueJob()!;
+    const job = expectDequeueJob(chunkBakeQueue);
     queue.enqueueBakedChunk(
       job.chunkId,
       makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
@@ -472,11 +477,11 @@ describe("ChunkUploadQueue", () => {
   // ---------------------------------------------------------------------------
 
   it("adds the uploaded group to the scene", () => {
-    const id = makeChunkId(0, 0);
+    const _id = makeChunkId(0, 0);
     chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
       { cx: 0, cy: 0, plane: 0 },
     ]);
-    const job = chunkBakeQueue.dequeueJob()!;
+    const job = expectDequeueJob(chunkBakeQueue);
     queue.enqueueBakedChunk(
       job.chunkId,
       makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
@@ -488,19 +493,19 @@ describe("ChunkUploadQueue", () => {
   });
 
   it("uploaded group contains a mesh", () => {
-    const id = makeChunkId(0, 0);
+    const _id = makeChunkId(0, 0);
     chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
       { cx: 0, cy: 0, plane: 0 },
     ]);
-    const job = chunkBakeQueue.dequeueJob()!;
+    const job = expectDequeueJob(chunkBakeQueue);
     queue.enqueueBakedChunk(
       job.chunkId,
       makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
     );
     queue.processFrame(0, () => 0);
     const group = queue.getChunkGroup(job.chunkId);
-    expect(group!.children.length).toBeGreaterThan(0);
-    expect(group!.children[0]).toBeInstanceOf(Mesh);
+    expect(group?.children.length).toBeGreaterThan(0);
+    expect(group?.children[0]).toBeInstanceOf(Mesh);
   });
 
   // ---------------------------------------------------------------------------
@@ -508,14 +513,14 @@ describe("ChunkUploadQueue", () => {
   // ---------------------------------------------------------------------------
 
   it("dispose removes all uploaded groups and releases resources", () => {
-    const id1 = makeChunkId(0, 0);
-    const id2 = makeChunkId(1, 0);
+    const _id1 = makeChunkId(0, 0);
+    const _id2 = makeChunkId(1, 0);
     chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
       { cx: 0, cy: 0, plane: 0 },
       { cx: 1, cy: 0, plane: 0 },
     ]);
-    const job1 = chunkBakeQueue.dequeueJob()!;
-    const job2 = chunkBakeQueue.dequeueJob()!;
+    const job1 = expectDequeueJob(chunkBakeQueue);
+    const job2 = expectDequeueJob(chunkBakeQueue);
     queue.enqueueBakedChunk(
       job1.chunkId,
       makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
@@ -559,16 +564,16 @@ describe("ChunkUploadQueue", () => {
   // ---------------------------------------------------------------------------
 
   it("handles empty material groups with a fallback material", () => {
-    const id = makeChunkId(0, 0);
+    const _id = makeChunkId(0, 0);
     const payload = makePayload([], 4);
     chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
       { cx: 0, cy: 0, plane: 0 },
     ]);
-    const job = chunkBakeQueue.dequeueJob()!;
+    const job = expectDequeueJob(chunkBakeQueue);
     queue.enqueueBakedChunk(job.chunkId, payload);
     queue.processFrame(0, () => 0);
     const group = queue.getChunkGroup(job.chunkId);
-    const mesh = group!.children[0] as Mesh;
+    const mesh = group?.children[0] as Mesh;
     expect(mesh.material).toBeDefined();
   });
 
@@ -577,7 +582,9 @@ describe("ChunkUploadQueue", () => {
     queue.enqueueBakedChunk(id, makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]));
     // Manually mutate state to uploaded
     const internal = (queue as unknown as { _queue: QueuedChunkUpload[] })._queue;
-    internal[0]!.state = "uploaded";
+    const entry = internal[0];
+    expect(entry).toBeDefined();
+    (entry as QueuedChunkUpload).state = "uploaded";
     queue.processFrame(0, () => 0);
     expect(queue.stats().totalUploads).toBe(0);
   });

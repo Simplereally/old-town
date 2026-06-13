@@ -84,8 +84,10 @@ describe("EntityScaleHarness", () => {
     const harness = new EntityScaleHarness({ entityCount: 100, tickCount: 10 });
     const result = harness.run();
     for (let i = 1; i < result.frames.length; i++) {
-      const prev = result.frames[i - 1]!;
-      const curr = result.frames[i]!;
+      const prev = result.frames[i - 1] as typeof result.frames[number];
+      const curr = result.frames[i] as typeof result.frames[number];
+      expect(prev).toBeDefined();
+      expect(curr).toBeDefined();
       expect(curr.rafNowMs).toBeGreaterThan(prev.rafNowMs);
     }
   });

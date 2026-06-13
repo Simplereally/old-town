@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import WebSocket, { WebSocketServer } from "ws";
+import WebSocket, { WebSocketServer, type RawData } from "ws";
 
 const server = createServer();
 const wss = new WebSocketServer({ noServer: true });
@@ -34,7 +34,7 @@ console.log("client open");
 
 // Add listener before any messages
 const msgs: unknown[] = [];
-const handler = (data: any) => {
+const handler = (data: RawData) => {
   msgs.push(JSON.parse(data.toString()));
   console.log("client received", msgs.length, msgs);
 };
@@ -50,7 +50,7 @@ client.removeListener("message", handler);
 console.log("removed listener");
 
 const msgs2: unknown[] = [];
-const handler2 = (data: any) => {
+const handler2 = (data: RawData) => {
   msgs2.push(JSON.parse(data.toString()));
   console.log("client received2", msgs2.length, msgs2);
 };

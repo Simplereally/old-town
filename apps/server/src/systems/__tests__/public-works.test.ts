@@ -8,7 +8,6 @@ import { ItemAuditLog } from "../../items/item-audit";
 import { DeltaAccumulator } from "../../sim/delta-accumulator";
 import { makeRegistries } from "../../test-support/registries";
 import {
-  checkPublicWorkCompletion,
   contributeToPublicWork,
   createPublicWork,
   distributePublicWorkRewards,
@@ -546,9 +545,13 @@ describe("public work reward distribution", () => {
     contributeToPublicWork(ctx, PLAYER, PUBLIC_WORK_ENTITY, "wood", 5, TICK, SERVER_TIME);
 
     const updatedInventory = world.getComponent(PLAYER, "inventory");
-    const rewardBadgeSlot = updatedInventory?.slots.find((slot) => slot?.itemId === "reward_badge");
+    const _rewardBadgeSlot = updatedInventory?.slots.find(
+      (slot) => slot?.itemId === "reward_badge",
+    );
     // Should still have only 27 reward badges (1 slot freed by wood contribution, but 2 badges needed)
-    expect(count(updatedInventory!, "reward_badge")).toBe(27);
+    expect(updatedInventory).toBeDefined();
+    if (!updatedInventory) return;
+    expect(count(updatedInventory, "reward_badge")).toBe(27);
   });
 
   it("distributes rewards to all contributors", () => {

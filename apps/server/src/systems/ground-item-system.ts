@@ -7,12 +7,7 @@ import type {
   Rng,
 } from "@old-town/shared";
 import { GAME_TICK_MS, RARITY_MULTIPLIERS, type TileCoord } from "@old-town/shared";
-import type {
-  CombatantComponent,
-  GraveComponent,
-  GroundItemComponent,
-  InventorySlot,
-} from "../ecs/components";
+import type { CombatantComponent, GroundItemComponent, InventorySlot } from "../ecs/components";
 import type { World } from "../ecs/world";
 import { addItem, buildDelta, catalogFromItems, count, hasSpaceFor } from "../items/inventory";
 import type { ItemAuditLog } from "../items/item-audit";
@@ -345,7 +340,7 @@ export function createGraveOnDeath(
   // Sort by value descending, keep top 3
   occupiedSlots.sort((a, b) => b.value - a.value);
   const keepCount = 3;
-  const toKeep = occupiedSlots.slice(0, keepCount);
+  const _toKeep = occupiedSlots.slice(0, keepCount);
   const toDrop = occupiedSlots.slice(keepCount);
 
   const changes: import("@old-town/shared").InventorySlotChange[] = [];

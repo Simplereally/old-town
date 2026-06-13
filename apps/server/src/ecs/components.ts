@@ -235,7 +235,12 @@ export interface ContractObjective {
   readonly current: number;
 }
 
-export type ContractStatus = "available" | "accepted" | "ready-for-completion" | "completed" | "expired";
+export type ContractStatus =
+  | "available"
+  | "accepted"
+  | "ready-for-completion"
+  | "completed"
+  | "expired";
 
 export interface ActiveStatusEffect {
   statusEffectId: string;

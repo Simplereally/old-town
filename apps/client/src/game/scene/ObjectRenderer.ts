@@ -1,5 +1,5 @@
 import type { TileCoord } from "@old-town/shared";
-import type { BufferGeometry, MeshLambertMaterial, Scene } from "three";
+import type { BufferGeometry, Scene } from "three";
 import {
   BoxGeometry,
   ConeGeometry,

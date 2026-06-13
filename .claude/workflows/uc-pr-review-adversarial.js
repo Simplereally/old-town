@@ -12,10 +12,10 @@ export const meta = {
   ],
 };
 
-const base = (args && args.base) || "origin/main";
-const head = (args && args.head) || "HEAD";
-const pathFilter = (args && args.paths) || "";
-const focus = (args && args.focus) || "general correctness, security, and maintainability";
+const base = args?.base || "origin/main";
+const head = args?.head || "HEAD";
+const pathFilter = args?.paths || "";
+const focus = args?.focus || "general correctness, security, and maintainability";
 
 const FILE_SCHEMA = {
   type: "object",
@@ -76,7 +76,7 @@ const scoped = await agent(
     `Exclude lockfiles, generated code, vendored deps, and snapshots. Return the reviewable source files only.`,
   { phase: "Scope", schema: FILE_SCHEMA, agentType: "general-purpose" },
 );
-const files = (scoped && scoped.files) || [];
+const files = scoped?.files || [];
 log(`Reviewing ${files.length} changed files (${base}...${head})`);
 if (!files.length) return { summary: 'No reviewable files in this diff.', issues: [] }
 

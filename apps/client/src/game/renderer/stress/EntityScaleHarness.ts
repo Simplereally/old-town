@@ -104,8 +104,14 @@ export function generateEntityPath(
 /** Build a single entity snapshot for a given tick. */
 export function buildEntitySnapshot(entityId: number, tick: number): RenderEntitySnapshot {
   const path = generateEntityPath(entityId, tick + 1);
-  const tile = path[tick]!;
-  const previousTile = tick > 0 ? path[tick - 1]! : null;
+  const tile = path[tick];
+  if (tile === undefined) {
+    throw new Error(`Expected path[${tick}] to be defined`);
+  }
+  const previousTile = tick > 0 ? path[tick - 1] : null;
+  if (previousTile === undefined) {
+    throw new Error(`Expected path[${tick - 1}] to be defined`);
+  }
   const dx = previousTile ? Math.abs(tile.x - previousTile.x) : 0;
   const dy = previousTile ? Math.abs(tile.y - previousTile.y) : 0;
   let moveSpeed: RenderEntitySnapshot["moveSpeed"] = "idle";
@@ -166,7 +172,6 @@ export class EntityScaleHarness {
 
   private _frames: FrameMetrics[] = [];
   private _maxObservedCapacity = 0;
-  private _currentTick = 0;
 
   constructor(options: EntityScaleHarnessOptions = {}) {
     this._entityCount = options.entityCount ?? 1000;
@@ -211,12 +216,20 @@ export class EntityScaleHarness {
     }
 
     // Seed the buffer with the first snapshot
-    this.snapshotBuffer.reset(snapshots[0]!);
-    this.clock.syncToServer(snapshots[0]!.tick, snapshots[0]!.serverTimeMs, 0);
+    const firstSnapshot = snapshots[0];
+    if (firstSnapshot === undefined) {
+      throw new Error("Expected at least one snapshot");
+    }
+    this.snapshotBuffer.reset(firstSnapshot);
+    this.clock.syncToServer(firstSnapshot.tick, firstSnapshot.serverTimeMs, 0);
 
     // Feed remaining snapshots
     for (let i = 1; i < snapshots.length; i++) {
-      this.snapshotBuffer.insert(snapshots[i]!);
+      const snapshot = snapshots[i];
+      if (snapshot === undefined) {
+        throw new Error(`Expected snapshot[${i}] to be defined`);
+      }
+      this.snapshotBuffer.insert(snapshot);
     }
 
     // Simulate frames at fake RAF timestamps
@@ -241,7 +254,11 @@ export class EntityScaleHarness {
   stepFrame(rafNowMs: number): FrameMetrics {
     const frameIndex = this._frames.length;
     this._simulateFrame(frameIndex, rafNowMs);
-    return this._frames[this._frames.length - 1]!;
+    const lastFrame = this._frames[this._frames.length - 1];
+    if (lastFrame === undefined) {
+      throw new Error("Expected at least one frame after simulation");
+    }
+    return lastFrame;
   }
 
   /** Inject a snapshot at the current tick. */
@@ -287,7 +304,10 @@ export class EntityScaleHarness {
     this.metrics.recordFrame(clockSample.frameDeltaMs, 0, 0, 0);
 
     // Track capacity growth
-    const internalCapacity = (this.transformCache as any)._capacity as number;
+    interface CapacityAccessor {
+      readonly _capacity: number;
+    }
+    const internalCapacity = (this.transformCache as unknown as CapacityAccessor)._capacity;
     if (internalCapacity > this._maxObservedCapacity) {
       this._maxObservedCapacity = internalCapacity;
     }

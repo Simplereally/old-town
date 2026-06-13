@@ -22,13 +22,13 @@ export class MeshPool {
   constructor(options: MeshPoolOptions) {
     const geometry = options.geometry;
     const material = options.material;
-    const poolOptions: RenderObjectPoolOptions<Mesh> = {
+    const poolOptions = {
       create: () => {
         const mesh = new Mesh(geometry, material);
         mesh.visible = false;
         return mesh;
       },
-      reset: (mesh) => {
+      reset: (mesh: Mesh) => {
         mesh.visible = false;
         mesh.position.set(0, 0, 0);
         mesh.rotation.set(0, 0, 0);
@@ -37,23 +37,19 @@ export class MeshPool {
           mesh.parent.remove(mesh);
         }
       },
-    };
-    if (options.initialSize !== undefined) {
-      poolOptions.initialSize = options.initialSize;
-    }
-    if (options.maxSize !== undefined) {
-      poolOptions.maxSize = options.maxSize;
-    }
+      ...(options.initialSize !== undefined ? { initialSize: options.initialSize } : {}),
+      ...(options.maxSize !== undefined ? { maxSize: options.maxSize } : {}),
+    } as RenderObjectPoolOptions<Mesh>;
     this.pool = new RenderObjectPool<Mesh>(poolOptions);
   }
 
-  /** Acquire a mesh from the pool. */
-  acquire(): Mesh {
+  /** Acquire a mesh from the pool, or null if the pool is exhausted. */
+  acquire(): Mesh | null {
     const mesh = this.pool.acquire();
     if (mesh) {
       mesh.visible = true;
     }
-    return mesh!;
+    return mesh;
   }
 
   /** Release a mesh back to the pool. */

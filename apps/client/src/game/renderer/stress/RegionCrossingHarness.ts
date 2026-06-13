@@ -97,8 +97,8 @@ function deterministicShuffle<T>(arr: T[], seed: number): void {
   for (let i = arr.length - 1; i > 0; i--) {
     s = (s * 1664525 + 1013904223) >>> 0;
     const j = s % (i + 1);
-    const tmp = arr[i]!;
-    arr[i] = arr[j]!;
+    const tmp = arr[i] as T;
+    arr[i] = arr[j] as T;
     arr[j] = tmp;
   }
 }
@@ -301,8 +301,8 @@ export class RegionCrossingHarness {
 
     const path: TileCoord[] = [];
     for (let i = 0; i < waypoints.length - 1; i++) {
-      const [x1, y1] = waypoints[i]!;
-      const [x2, y2] = waypoints[i + 1]!;
+      const [x1, y1] = waypoints[i] as [number, number];
+      const [x2, y2] = waypoints[i + 1] as [number, number];
       const steps = 12;
       for (let s = 0; s < steps; s++) {
         const t = s / steps;
@@ -314,7 +314,7 @@ export class RegionCrossingHarness {
       }
     }
     // Final destination
-    const [lastX, lastY] = waypoints[waypoints.length - 1]!;
+    const [lastX, lastY] = waypoints[waypoints.length - 1] as [number, number];
     path.push({ x: lastX, y: lastY, plane });
     return path;
   }
@@ -354,7 +354,7 @@ export class RegionCrossingHarness {
 
   private _applyPendingLoads(): void {
     for (let i = this._pendingLoads.length - 1; i >= 0; i--) {
-      const pending = this._pendingLoads[i]!;
+      const pending = this._pendingLoads[i] as PendingLoad;
       if (pending.targetFrame <= this._frameId) {
         this._residencyManager.ingestRegionLoad(pending.regionId, pending.chunks);
         this._pendingLoads.splice(i, 1);
@@ -364,7 +364,7 @@ export class RegionCrossingHarness {
 
   private _applyPendingUnloads(): void {
     for (let i = this._pendingUnloads.length - 1; i >= 0; i--) {
-      const pending = this._pendingUnloads[i]!;
+      const pending = this._pendingUnloads[i] as PendingUnload;
       if (pending.targetFrame <= this._frameId) {
         this._residencyManager.ingestRegionUnload(pending.regionId);
         this._pendingUnloads.splice(i, 1);
@@ -388,7 +388,7 @@ export class RegionCrossingHarness {
   private _processWorkerCompletions(): void {
     const ready: PendingBake[] = [];
     for (let i = this._bakingJobs.length - 1; i >= 0; i--) {
-      const job = this._bakingJobs[i]!;
+      const job = this._bakingJobs[i] as PendingBake;
       if (job.readyFrame <= this._frameId) {
         ready.push(job);
         this._bakingJobs.splice(i, 1);

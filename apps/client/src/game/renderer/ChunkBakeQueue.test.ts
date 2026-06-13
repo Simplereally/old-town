@@ -1,6 +1,6 @@
 import { type ChunkId, chunkId, type RegionId, type TileCoord } from "@old-town/shared";
 import { beforeEach, describe, expect, it } from "vitest";
-import type { ChunkLifecycleState, ChunkMetadata } from "./ChunkBakeQueue";
+import type { ChunkBakeJob, ChunkLifecycleState, ChunkMetadata } from "./ChunkBakeQueue";
 import { ChunkBakeQueue } from "./ChunkBakeQueue";
 
 function makeMeta(cx: number, cy: number, plane = 0): ChunkMetadata {
@@ -17,6 +17,12 @@ function makeChunkId(cx: number, cy: number, plane = 0): ChunkId {
 
 function makeTile(x: number, y: number, plane = 0): TileCoord {
   return { x, y, plane: plane as 0 | 1 | 2 | 3 };
+}
+
+function dequeueJob(queue: ChunkBakeQueue): ChunkBakeJob {
+  const job = queue.dequeueJob();
+  expect(job).toBeDefined();
+  return job as ChunkBakeJob;
 }
 
 describe("ChunkBakeQueue", () => {
@@ -51,7 +57,7 @@ describe("ChunkBakeQueue", () => {
 
   it("transitions baking_worker -> baked_waiting_gpu_upload on worker complete", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     queue.onWorkerComplete(job.chunkId);
     const stats = queue.getStats();
     expect(stats.baking).toBe(0);
@@ -60,7 +66,7 @@ describe("ChunkBakeQueue", () => {
 
   it("transitions baked_waiting_gpu_upload -> gpu_resident on GPU upload complete", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     queue.onWorkerComplete(job.chunkId);
     queue.onGpuUploadComplete(job.chunkId);
     const stats = queue.getStats();
@@ -71,7 +77,7 @@ describe("ChunkBakeQueue", () => {
 
   it("transitions gpu_resident -> visible on markVisible", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     queue.onWorkerComplete(job.chunkId);
     queue.onGpuUploadComplete(job.chunkId);
     queue.markVisible(job.chunkId);
@@ -82,7 +88,7 @@ describe("ChunkBakeQueue", () => {
 
   it("transitions visible -> hidden_resident on markHidden", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     queue.onWorkerComplete(job.chunkId);
     queue.onGpuUploadComplete(job.chunkId);
     queue.markVisible(job.chunkId);
@@ -95,7 +101,7 @@ describe("ChunkBakeQueue", () => {
 
   it("transitions hidden_resident -> visible on markVisible", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     queue.onWorkerComplete(job.chunkId);
     queue.onGpuUploadComplete(job.chunkId);
     queue.markVisible(job.chunkId);
@@ -108,7 +114,7 @@ describe("ChunkBakeQueue", () => {
 
   it("transitions gpu_resident -> hidden_resident on markHidden", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     queue.onWorkerComplete(job.chunkId);
     queue.onGpuUploadComplete(job.chunkId);
     queue.markHidden(job.chunkId);
@@ -119,7 +125,7 @@ describe("ChunkBakeQueue", () => {
 
   it("transitions visible -> evict_pending on region unload", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     queue.onWorkerComplete(job.chunkId);
     queue.onGpuUploadComplete(job.chunkId);
     queue.markVisible(job.chunkId);
@@ -131,7 +137,7 @@ describe("ChunkBakeQueue", () => {
 
   it("transitions gpu_resident -> evict_pending on region unload", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     queue.onWorkerComplete(job.chunkId);
     queue.onGpuUploadComplete(job.chunkId);
     queue.ingestRegionUnload(makeRegionId(0, 0));
@@ -142,7 +148,7 @@ describe("ChunkBakeQueue", () => {
 
   it("transitions hidden_resident -> evict_pending on region unload", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     queue.onWorkerComplete(job.chunkId);
     queue.onGpuUploadComplete(job.chunkId);
     queue.markHidden(job.chunkId);
@@ -154,7 +160,7 @@ describe("ChunkBakeQueue", () => {
 
   it("transitions evict_pending -> disposed on evict complete", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     queue.onWorkerComplete(job.chunkId);
     queue.onGpuUploadComplete(job.chunkId);
     queue.ingestRegionUnload(makeRegionId(0, 0));
@@ -166,7 +172,7 @@ describe("ChunkBakeQueue", () => {
 
   it("transitions evict_pending -> visible on markVisible (re-shown before eviction)", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     queue.onWorkerComplete(job.chunkId);
     queue.onGpuUploadComplete(job.chunkId);
     queue.ingestRegionUnload(makeRegionId(0, 0));
@@ -178,7 +184,7 @@ describe("ChunkBakeQueue", () => {
 
   it("transitions disposed -> unseen on region revisit", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     queue.onWorkerComplete(job.chunkId);
     queue.onGpuUploadComplete(job.chunkId);
     queue.ingestRegionUnload(makeRegionId(0, 0));
@@ -203,7 +209,7 @@ describe("ChunkBakeQueue", () => {
 
   it("transitions baking_worker -> disposed on region unload", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const _job = dequeueJob(queue);
     queue.ingestRegionUnload(makeRegionId(0, 0));
     const stats = queue.getStats();
     expect(stats.baking).toBe(0);
@@ -212,7 +218,7 @@ describe("ChunkBakeQueue", () => {
 
   it("transitions baked_waiting_gpu_upload -> disposed on region unload", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     queue.onWorkerComplete(job.chunkId);
     queue.ingestRegionUnload(makeRegionId(0, 0));
     const stats = queue.getStats();
@@ -406,7 +412,7 @@ describe("ChunkBakeQueue", () => {
 
   it("ignores worker complete for a disposed chunk", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     queue.ingestRegionUnload(makeRegionId(0, 0));
     queue.onWorkerComplete(job.chunkId);
     const stats = queue.getStats();
@@ -416,7 +422,7 @@ describe("ChunkBakeQueue", () => {
 
   it("ignores GPU upload complete for a disposed chunk", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     queue.onWorkerComplete(job.chunkId);
     queue.ingestRegionUnload(makeRegionId(0, 0));
     queue.onGpuUploadComplete(job.chunkId);
@@ -427,7 +433,7 @@ describe("ChunkBakeQueue", () => {
 
   it("ignores eviction complete for non-evict-pending chunks", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     queue.onWorkerComplete(job.chunkId);
     queue.onGpuUploadComplete(job.chunkId);
     queue.onEvictComplete(job.chunkId);
@@ -442,7 +448,7 @@ describe("ChunkBakeQueue", () => {
 
   it("transitions baking_worker -> bake_requested on worker failure (retry)", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     queue.onWorkerFailed(job.chunkId);
     const stats = queue.getStats();
     expect(stats.baking).toBe(0);
@@ -451,7 +457,7 @@ describe("ChunkBakeQueue", () => {
 
   it("transitions baking_worker -> disposed after max retries", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     // Fail 4 times (max is 3)
     queue.onWorkerFailed(job.chunkId); // retry 1
     queue.dequeueJob();
@@ -468,9 +474,9 @@ describe("ChunkBakeQueue", () => {
   it("increments retry count in priority after failure", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
     queue.setFocusTile(makeTile(0, 0));
-    const job1 = queue.dequeueJob()!;
+    const job1 = dequeueJob(queue);
     queue.onWorkerFailed(job1.chunkId);
-    const job2 = queue.dequeueJob()!;
+    const job2 = dequeueJob(queue);
     expect(job2.priority.retryCount).toBe(1);
     expect(job1.priority.retryCount).toBe(0);
   });
@@ -483,16 +489,16 @@ describe("ChunkBakeQueue", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0), makeMeta(1, 0)]);
     queue.setChunkVisibility(makeChunkId(0, 0), true);
     queue.setChunkVisibility(makeChunkId(1, 0), false);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     expect(job.chunkId).toBe(makeChunkId(0, 0));
   });
 
   it("orders closer chunks before farther chunks", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0), makeMeta(10, 0), makeMeta(5, 0)]);
     queue.setFocusTile(makeTile(0, 0));
-    const job1 = queue.dequeueJob()!;
-    const job2 = queue.dequeueJob()!;
-    const job3 = queue.dequeueJob()!;
+    const job1 = dequeueJob(queue);
+    const job2 = dequeueJob(queue);
+    const job3 = dequeueJob(queue);
     expect(job1.chunkId).toBe(makeChunkId(0, 0));
     expect(job2.chunkId).toBe(makeChunkId(5, 0));
     expect(job3.chunkId).toBe(makeChunkId(10, 0));
@@ -503,12 +509,12 @@ describe("ChunkBakeQueue", () => {
     // so retry count becomes the tiebreaker.
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 1), makeMeta(1, 0)]);
     queue.setFocusTile(makeTile(0, 0));
-    const jobA = queue.dequeueJob()!;
+    const jobA = dequeueJob(queue);
     queue.onWorkerFailed(jobA.chunkId);
-    const jobB = queue.dequeueJob()!;
+    const jobB = dequeueJob(queue);
     expect(jobB.priority.retryCount).toBe(0);
     expect(jobB.chunkId).not.toBe(jobA.chunkId);
-    const jobA2 = queue.dequeueJob()!;
+    const jobA2 = dequeueJob(queue);
     expect(jobA2.chunkId).toBe(jobA.chunkId);
     expect(jobA2.priority.retryCount).toBe(1);
   });
@@ -516,20 +522,20 @@ describe("ChunkBakeQueue", () => {
   it("orders equal-priority jobs deterministically by sequence", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0), makeMeta(1, 0)]);
     // Same distance, same visibility, same retries
-    const job1 = queue.dequeueJob()!;
-    const job2 = queue.dequeueJob()!;
+    const job1 = dequeueJob(queue);
+    const job2 = dequeueJob(queue);
     expect(job1.sequence).toBeLessThan(job2.sequence);
   });
 
   it("re-sorts queue when focus tile changes", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0), makeMeta(10, 0)]);
     queue.setFocusTile(makeTile(0, 0));
-    const job1 = queue.dequeueJob()!;
+    const job1 = dequeueJob(queue);
     expect(job1.chunkId).toBe(makeChunkId(0, 0));
 
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0), makeMeta(10, 0)]);
     queue.setFocusTile(makeTile(10, 0));
-    const job2 = queue.dequeueJob()!;
+    const job2 = dequeueJob(queue);
     expect(job2.chunkId).toBe(makeChunkId(10, 0));
   });
 
@@ -545,19 +551,19 @@ describe("ChunkBakeQueue", () => {
       makeMeta(3, 0),
     ]);
     // Chunk 0: full pipeline -> visible
-    const j0 = queue.dequeueJob()!;
+    const j0 = dequeueJob(queue);
     queue.onWorkerComplete(j0.chunkId);
     queue.onGpuUploadComplete(j0.chunkId);
     queue.markVisible(j0.chunkId);
 
     // Chunk 1: full pipeline -> hidden
-    const j1 = queue.dequeueJob()!;
+    const j1 = dequeueJob(queue);
     queue.onWorkerComplete(j1.chunkId);
     queue.onGpuUploadComplete(j1.chunkId);
     queue.markHidden(j1.chunkId);
 
     // Chunk 2: baking
-    const j2 = queue.dequeueJob()!;
+    const _j2 = dequeueJob(queue);
 
     // Chunk 3: queued
     // (nothing)
@@ -620,7 +626,7 @@ describe("ChunkBakeQueue", () => {
 
   it("clears isVisible flag on resident chunks during region unload", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     queue.onWorkerComplete(job.chunkId);
     queue.onGpuUploadComplete(job.chunkId);
     queue.markVisible(job.chunkId);
@@ -634,7 +640,7 @@ describe("ChunkBakeQueue", () => {
 
   it("resets retry count and failed status on revisit", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
-    const job = queue.dequeueJob()!;
+    const job = dequeueJob(queue);
     queue.onWorkerFailed(job.chunkId);
     queue.dequeueJob();
     queue.onWorkerFailed(job.chunkId);
@@ -677,7 +683,9 @@ describe("ChunkBakeQueue", () => {
     // Manually reset state to metadata_loaded to test the defensive path
     const internal = (queue as unknown as { _chunks: Map<ChunkId, { state: ChunkLifecycleState }> })
       ._chunks;
-    const record = internal.get(makeChunkId(0, 0))!;
+    const maybeRecord = internal.get(makeChunkId(0, 0));
+    expect(maybeRecord).toBeDefined();
+    const record = maybeRecord as { state: ChunkLifecycleState };
     record.state = "metadata_loaded";
     queue.ingestRegionUnload(makeRegionId(0, 0));
     expect(queue.getStats().disposed).toBe(1);
@@ -687,7 +695,9 @@ describe("ChunkBakeQueue", () => {
     queue.ingestRegionLoad(makeRegionId(0, 0), [makeMeta(0, 0)]);
     const internal = (queue as unknown as { _chunks: Map<ChunkId, { state: ChunkLifecycleState }> })
       ._chunks;
-    const record = internal.get(makeChunkId(0, 0))!;
+    const maybeRecord = internal.get(makeChunkId(0, 0));
+    expect(maybeRecord).toBeDefined();
+    const record = maybeRecord as { state: ChunkLifecycleState };
     record.state = "unseen";
     queue.ingestRegionUnload(makeRegionId(0, 0));
     expect(queue.getStats().disposed).toBe(1);

@@ -4,7 +4,6 @@ import {
   PROTOCOL_VERSION,
   ServerPacketType,
   TransportClientMessageType,
-  TransportServerMessageType,
 } from "@old-town/shared";
 import WebSocket from "ws";
 import { createWebSocketTransport } from "./net/websocket-transport";

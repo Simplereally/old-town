@@ -1,6 +1,5 @@
 import {
   type ContentRegistries,
-  createRng,
   type EntityId,
   type StatusEffectDef,
   tileKey,
@@ -11,7 +10,6 @@ import { createWorld, type World } from "../../ecs/world";
 import { DeltaAccumulator } from "../../sim/delta-accumulator";
 import { TickLoop, TickPhase } from "../../sim/tick-loop";
 import { makeRegistries } from "../../test-support/registries";
-import { CollisionMap } from "../../world/collision";
 import { createRuntimeMap } from "../../world/runtime-map";
 import {
   applyStatusEffect,
@@ -156,8 +154,8 @@ describe("applyStatusEffect", () => {
 
     const statusEffects = world.getComponent(owner, "statusEffects");
     expect(statusEffects).toBeDefined();
-    expect(statusEffects!.effects).toHaveLength(1);
-    expect(statusEffects!.effects[0]).toMatchObject({
+    expect(statusEffects?.effects).toHaveLength(1);
+    expect(statusEffects?.effects[0]).toMatchObject({
       statusEffectId: "poison",
       stacks: 1,
       remainingTicks: 4,
@@ -173,18 +171,21 @@ describe("applyStatusEffect", () => {
     applyStatusEffect(ctx, owner, "poison");
 
     const statusEffects = world.getComponent(owner, "statusEffects");
-    expect(statusEffects!.effects[0]!.stacks).toBe(3);
+    expect(statusEffects?.effects[0]?.stacks).toBe(3);
   });
 
   it("refreshes duration when re-applied", () => {
     const { ctx, world, owner } = setup({ health: 10, maxHealth: 10 }, [POISON_DEF]);
 
     applyStatusEffect(ctx, owner, "poison");
-    const statusEffects = world.getComponent(owner, "statusEffects")!;
-    statusEffects.effects[0]!.remainingTicks = 1;
+    const statusEffects = world.getComponent(owner, "statusEffects");
+    expect(statusEffects).toBeDefined();
+    const effect = (statusEffects as NonNullable<typeof statusEffects>).effects[0];
+    expect(effect).toBeDefined();
+    (effect as NonNullable<typeof effect>).remainingTicks = 1;
     applyStatusEffect(ctx, owner, "poison");
 
-    expect(statusEffects.effects[0]!.remainingTicks).toBe(4);
+    expect((statusEffects as NonNullable<typeof statusEffects>).effects[0]?.remainingTicks).toBe(4);
   });
 
   it("returns false for unknown status effect ids", () => {
@@ -333,7 +334,9 @@ describe("processStatusEffects — freeze", () => {
   it("reduces freeze duration when fire damage is taken", () => {
     const { ctx, world, owner } = setup({ health: 10, maxHealth: 10 }, [FREEZE_DEF]);
     applyStatusEffect(ctx, owner, "freeze");
-    world.getComponent(owner, "combatant")!.pendingHits = [
+    const combatant = world.getComponent(owner, "combatant");
+    expect(combatant).toBeDefined();
+    (combatant as NonNullable<typeof combatant>).pendingHits = [
       {
         sourceId: 999 as EntityId,
         targetId: owner,

@@ -103,7 +103,7 @@ function checkRequirements(
   ctx: ServiceFeeSystemContext,
   owner: EntityId,
   feeDef: ServiceFeeDef,
-  serverTime: number,
+  _serverTime: number,
 ): { ok: true } | { ok: false; message: string } {
   if (feeDef.requiresQuest !== undefined) {
     const vars = ctx.world.getComponent(owner, "vars");
@@ -137,7 +137,7 @@ function checkRequirements(
 }
 
 function deductFee(
-  ctx: ServiceFeeSystemContext,
+  _ctx: ServiceFeeSystemContext,
   inventory: InventoryComponent,
   feeDef: ServiceFeeDef,
   level: number,
@@ -156,7 +156,11 @@ function deductFee(
   return changes;
 }
 
-function applyRepair(ctx: ServiceFeeSystemContext, owner: EntityId, feeDef: ServiceFeeDef): string {
+function applyRepair(
+  ctx: ServiceFeeSystemContext,
+  owner: EntityId,
+  _feeDef: ServiceFeeDef,
+): string {
   const inventory = ctx.world.getComponent(owner, "inventory");
   if (!inventory) return "Nothing needed repair.";
 
@@ -228,7 +232,7 @@ function applyServiceEffect(
   ctx: ServiceFeeSystemContext,
   owner: EntityId,
   feeDef: ServiceFeeDef,
-  serverTime: number,
+  _serverTime: number,
 ): string {
   switch (feeDef.serviceType) {
     case "repair":

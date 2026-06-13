@@ -1,11 +1,10 @@
-import {
-  type EntityId,
-  type ObjectIntent,
-  type ProcessingRecipeDef,
-  type ResourceNodeDef,
-  type Rng,
-  ServerPacketType,
-  type TileCoord,
+import type {
+  EntityId,
+  ObjectIntent,
+  ProcessingRecipeDef,
+  ResourceNodeDef,
+  Rng,
+  TileCoord,
 } from "@old-town/shared";
 import type { InventoryComponent } from "../ecs/components";
 import type { World } from "../ecs/world";

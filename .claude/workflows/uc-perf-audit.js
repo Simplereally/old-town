@@ -12,9 +12,9 @@ export const meta = {
   ],
 };
 
-const root = (args && args.root) || "src";
-const profileCmd = (args && args.profileCmd) || "";
-const focus = (args && args.focus) || "CPU time, allocations, and algorithmic complexity";
+const root = args?.root || "src";
+const profileCmd = args?.profileCmd || "";
+const focus = args?.focus || "CPU time, allocations, and algorithmic complexity";
 
 const HOTSPOTS_SCHEMA = {
   type: "object",
@@ -93,7 +93,7 @@ const prof = await agent(
     `Return the top ~10 hotspots with evidence — not stylistic nitpicks.`,
   { phase: "Profile", schema: HOTSPOTS_SCHEMA, agentType: "general-purpose" },
 );
-const hotspots = (prof && prof.hotspots) || [];
+const hotspots = prof?.hotspots || [];
 log(`Found ${hotspots.length} hotspots`);
 if (!hotspots.length) return { summary: 'No significant hotspots identified.', plan: '' }
 

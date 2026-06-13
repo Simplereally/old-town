@@ -158,7 +158,7 @@ export class GameEngine {
     this._chunkBakeWorker =
       import.meta.env.DEV && import.meta.env.VITEST
         ? createSynchronousTestClient(
-            (jobId, regionId, chunkCoord, payload) => {
+            (_jobId, _regionId, chunkCoord, payload) => {
               const cid =
                 `${chunkCoord.cx}:${chunkCoord.cy}:${chunkCoord.plane}` as import("@old-town/shared").ChunkId;
               this._chunkUploadQueue.enqueueBakedChunk(cid, payload);
@@ -169,12 +169,12 @@ export class GameEngine {
           )
         : new ChunkBakeWorkerClient({
             poolSize: 2,
-            onSuccess: (jobId, regionId, chunkCoord, payload) => {
+            onSuccess: (_jobId, _regionId, chunkCoord, payload) => {
               const cid =
                 `${chunkCoord.cx}:${chunkCoord.cy}:${chunkCoord.plane}` as import("@old-town/shared").ChunkId;
               this._chunkUploadQueue.enqueueBakedChunk(cid, payload);
             },
-            onFailure: (jobId, regionId, chunkCoord, errorCode, message) => {
+            onFailure: (_jobId, _regionId, chunkCoord, _errorCode, _message) => {
               const cid =
                 `${chunkCoord.cx}:${chunkCoord.cy}:${chunkCoord.plane}` as import("@old-town/shared").ChunkId;
               this._chunkBakeQueue.onWorkerFailed(cid);
@@ -621,8 +621,8 @@ export class GameEngine {
           type: "bake_chunk",
           regionId: job.regionId,
           chunkCoord: {
-            cx: metadata[0]!,
-            cy: metadata[1]!,
+            cx: metadata[0] as number,
+            cy: metadata[1] as number,
             plane: (metadata[2] ?? 0) as 0 | 1 | 2 | 3,
           },
           tiles: [],

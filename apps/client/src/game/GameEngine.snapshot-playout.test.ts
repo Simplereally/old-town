@@ -1,5 +1,4 @@
 import {
-  ClientCommandType,
   entityId,
   type FullStatePacket,
   ServerPacketType,
@@ -192,13 +191,13 @@ function spawnPlayerEntity(
 
 describe("GameEngine snapshot playout", () => {
   let engine: InstanceType<typeof GameEngine>;
-  let canvas: HTMLCanvasElement;
+  let _canvas: HTMLCanvasElement;
 
   beforeEach(() => {
     mockCanvasContext();
     const created = createEngine();
     engine = created.engine;
-    canvas = created.canvas;
+    _canvas = created.canvas;
   });
 
   it("_onFrame passes RAF timestamp to RenderClock.sample", () => {
@@ -232,7 +231,7 @@ describe("GameEngine snapshot playout", () => {
     onFrame(16, 1, 1500);
 
     expect(sampleSpy).toHaveBeenCalled();
-    const callArg = sampleSpy.mock.calls[0]![0] as number;
+    const callArg = sampleSpy.mock.calls[0]?.[0] as number;
     // Verify the call arg is the renderServerTimeMs from the clock sample
     const clockSample = engine.renderClock.sample(1500);
     expect(callArg).toBe(clockSample.renderServerTimeMs);
@@ -253,7 +252,7 @@ describe("GameEngine snapshot playout", () => {
     onFrame(16, 1, 1500);
 
     expect(applySpy).toHaveBeenCalled();
-    const sampleArg = applySpy.mock.calls[0]![0] as {
+    const sampleArg = applySpy.mock.calls[0]?.[0] as {
       mode: string;
       alpha: number;
     };
@@ -312,9 +311,9 @@ describe("GameEngine snapshot playout", () => {
 
     const actor = engine.actors.getActorState(42);
     expect(actor).toBeDefined();
-    expect(actor!.visualPosition.x).toBe(15.5);
-    expect(actor!.visualPosition.y).toBe(0);
-    expect(actor!.visualPosition.z).toBe(25.5);
+    expect(actor?.visualPosition.x).toBe(15.5);
+    expect(actor?.visualPosition.y).toBe(0);
+    expect(actor?.visualPosition.z).toBe(25.5);
   });
 
   it("camera follow uses RenderTransformCache position for self actor", () => {
@@ -349,7 +348,7 @@ describe("GameEngine snapshot playout", () => {
     onFrame(16, 1, 1000);
 
     expect(followSpy).toHaveBeenCalled();
-    const target = followSpy.mock.calls[followSpy.mock.calls.length - 1]![0] as {
+    const target = followSpy.mock.calls[followSpy.mock.calls.length - 1]?.[0] as {
       x: number;
       y: number;
       z: number;
@@ -417,12 +416,12 @@ describe("GameEngine snapshot playout", () => {
     ];
     expect(lastCall).toBeDefined();
     // _updateOverlay now takes 4 args: clockSample, presentationSample, queueStats, residencyStats
-    expect(lastCall!.length).toBe(4);
-    expect(lastCall![0]).toHaveProperty("renderServerTimeMs");
-    expect(lastCall![1]).toHaveProperty("mode");
-    expect(lastCall![1]).toHaveProperty("alpha");
-    expect(lastCall![2]).toHaveProperty("queued");
-    expect(lastCall![3]).toHaveProperty("visible");
+    expect(lastCall?.length).toBe(4);
+    expect(lastCall?.[0]).toHaveProperty("renderServerTimeMs");
+    expect(lastCall?.[1]).toHaveProperty("mode");
+    expect(lastCall?.[1]).toHaveProperty("alpha");
+    expect(lastCall?.[2]).toHaveProperty("queued");
+    expect(lastCall?.[3]).toHaveProperty("visible");
   });
 
   it("_onFrame does not call actor position updates from network callbacks", () => {
@@ -453,13 +452,13 @@ describe("GameEngine snapshot playout", () => {
     // Before applying presentation events, the actor should still be at the old tile
     const actorBefore = engine.actors.getActorState(42);
     expect(actorBefore).toBeDefined();
-    expect(actorBefore!.serverTile).toEqual({ x: 0, y: 0, plane: 0 });
+    expect(actorBefore?.serverTile).toEqual({ x: 0, y: 0, plane: 0 });
 
     // After applying presentation events
     (asEngine(engine)._applyPresentationEvents as () => void)();
     const actorAfter = engine.actors.getActorState(42);
     expect(actorAfter).toBeDefined();
-    expect(actorAfter!.serverTile).toEqual({ x: 1, y: 0, plane: 0 });
+    expect(actorAfter?.serverTile).toEqual({ x: 1, y: 0, plane: 0 });
   });
 
   it("renders smooth movement under jittered 600ms packet sequence", () => {
@@ -531,11 +530,11 @@ describe("GameEngine snapshot playout", () => {
 
     // Positions should be monotonically increasing (smooth movement)
     for (let i = 1; i < positions.length; i++) {
-      expect(positions[i]!).toBeGreaterThanOrEqual(positions[i - 1]!);
+      expect(positions[i] as number).toBeGreaterThanOrEqual(positions[i - 1] as number);
     }
 
     // Should not have snapped back to origin
-    expect(positions[positions.length - 1]!).toBeGreaterThan(0);
+    expect(positions[positions.length - 1] as number).toBeGreaterThan(0);
   });
 
   it("hover highlighter follows cached entity position", () => {
@@ -556,7 +555,7 @@ describe("GameEngine snapshot playout", () => {
     onFrame(16, 1, 1000);
 
     expect(updateSpy).toHaveBeenCalled();
-    const cacheArg = updateSpy.mock.calls[0]![0];
+    const cacheArg = updateSpy.mock.calls[0]?.[0];
     expect(cacheArg).toBe(asEngine(engine)._renderTransformCache);
   });
 
@@ -576,7 +575,7 @@ describe("GameEngine snapshot playout", () => {
     onFrame(16, 1, 1000);
 
     expect(applySpy).toHaveBeenCalled();
-    const sampleArg = applySpy.mock.calls[0]![0] as { mode: string };
+    const sampleArg = applySpy.mock.calls[0]?.[0] as { mode: string };
     expect(sampleArg.mode).toBe("empty");
   });
 });

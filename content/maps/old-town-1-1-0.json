@@ -424,12 +424,14 @@
     }
   ],
   "resourceNodeSpawns": [
-    { "resourceNodeId": "oak_tree_node", "x": 10, "y": 10, "respawnTicks": 100, "initialDepletion": false }
+    {
+      "resourceNodeId": "oak_tree_node",
+      "x": 10,
+      "y": 10,
+      "respawnTicks": 100,
+      "initialDepletion": false
+    }
   ],
-  "playerSpawnPoints": [
-    { "x": 32, "y": 32, "plane": 0, "spawnType": "default" }
-  ],
-  "deathRespawnPoints": [
-    { "x": 32, "y": 32, "plane": 0, "respawnType": "nearest" }
-  ]
+  "playerSpawnPoints": [{ "x": 32, "y": 32, "plane": 0, "spawnType": "default" }],
+  "deathRespawnPoints": [{ "x": 32, "y": 32, "plane": 0, "respawnType": "nearest" }]
 }

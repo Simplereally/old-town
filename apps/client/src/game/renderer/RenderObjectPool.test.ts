@@ -9,6 +9,12 @@ interface TestObj {
 
 let globalId = 0;
 
+function acquire(pool: RenderObjectPool<TestObj>): TestObj {
+  const obj = pool.acquire();
+  expect(obj).toBeDefined();
+  return obj as TestObj;
+}
+
 function makePool(
   partial?: Partial<{
     initialSize: number;
@@ -58,7 +64,7 @@ describe("RenderObjectPool", () => {
   });
 
   it("releases an object back to the pool", () => {
-    const obj = pool.acquire()!;
+    const obj = acquire(pool);
     obj.value = 42;
     pool.release(obj);
     expect(pool.activeCount).toBe(0);
@@ -67,15 +73,15 @@ describe("RenderObjectPool", () => {
   });
 
   it("reuses released objects", () => {
-    const obj1 = pool.acquire()!;
+    const obj1 = acquire(pool);
     pool.release(obj1);
-    const obj2 = pool.acquire()!;
+    const obj2 = acquire(pool);
     expect(obj2).toBe(obj1);
     expect(pool.poolSize).toBe(4);
   });
 
   it("ignores release of already-released object", () => {
-    const obj = pool.acquire()!;
+    const obj = acquire(pool);
     pool.release(obj);
     pool.release(obj);
     expect(pool.activeCount).toBe(0);
@@ -83,14 +89,14 @@ describe("RenderObjectPool", () => {
 
   it("ignores release of unknown object", () => {
     const otherPool = makePool({ initialSize: 1, maxSize: 1 });
-    const otherObj = otherPool.acquire()!;
+    const otherObj = acquire(otherPool);
     pool.release(otherObj);
     expect(pool.activeCount).toBe(0);
   });
 
   it("resets all active objects on reset()", () => {
-    const obj1 = pool.acquire()!;
-    const obj2 = pool.acquire()!;
+    const obj1 = acquire(pool);
+    const obj2 = acquire(pool);
     obj1.value = 10;
     obj2.value = 20;
     pool.reset();
@@ -128,7 +134,7 @@ describe("RenderObjectPool", () => {
   });
 
   it("disposes and clears all internal state", () => {
-    const obj = pool.acquire()!;
+    const obj = acquire(pool);
     pool.release(obj);
     pool.dispose();
     expect(pool.poolSize).toBe(0);
@@ -136,8 +142,8 @@ describe("RenderObjectPool", () => {
   });
 
   it("stats reflect current state accurately", () => {
-    const obj1 = pool.acquire()!;
-    const obj2 = pool.acquire()!;
+    const obj1 = acquire(pool);
+    const _obj2 = acquire(pool);
     pool.release(obj1);
     expect(pool.activeCount).toBe(1);
     expect(pool.poolSize).toBe(4);

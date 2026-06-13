@@ -13,7 +13,7 @@ const port = (server.address() as { port: number }).port;
 
 wss.on("connection", (socket) => {
   console.log("server: connection");
-  socket.on("message", async (data, isBinary) => {
+  socket.on("message", async (data, _isBinary) => {
     const msg = JSON.parse(data.toString());
     console.log("server: message", msg);
     if (msg.type === "auth") {

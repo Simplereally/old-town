@@ -61,7 +61,7 @@ function spawnChestContents(
   objectEntityId: EntityId,
   objectDef: ObjectDef,
   tick: number,
-  serverTime: number,
+  _serverTime: number,
 ): void {
   const tile = tileOf(ctx.world, objectEntityId);
   if (!tile) return;

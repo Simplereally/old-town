@@ -683,7 +683,7 @@ Rules:
 
   let winner;
 
-  if (scoring && scoring.winner) {
+  if (scoring?.winner) {
     winner = scoring.winner;
   } else {
     phase("Candidate Judging");
@@ -971,7 +971,7 @@ const extractedDomains = await pipeline(
     (a, b) => (a.extractionOrderHint || 0) - (b.extractionOrderHint || 0),
   ),
 
-  async (domain, originalDomain, index) => {
+  async (domain, _originalDomain, index) => {
     return agent(
       `Draft the extraction for one domain. Do not edit files.
 

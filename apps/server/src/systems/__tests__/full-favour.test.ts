@@ -18,7 +18,6 @@ import {
   performRite,
   type RiteDef,
 } from "../favour-advanced-system";
-import { processStatusEffectTick } from "../status-effect-system";
 
 const FAVOUR_SKILL_DEF = {
   id: "favour",
@@ -201,15 +200,21 @@ describe("hasFavour", () => {
 describe("deductFavourXp", () => {
   it("deducts Favour XP and updates the skill level", () => {
     const { ctx, world, player, deltas } = setup(10, 1000);
-    const before = world.getComponent(player, "skills")!.skills.favour!.xp;
+    const skills = world.getComponent(player, "skills");
+    expect(skills).toBeDefined();
+    if (!skills?.skills.favour) throw new Error("unreachable");
+    const before = skills.skills.favour.xp;
 
     const result = deductFavourXp(ctx, player, 200);
 
     expect(result).toBe(true);
-    const after = world.getComponent(player, "skills")!.skills.favour!.xp;
+    const afterSkills = world.getComponent(player, "skills");
+    expect(afterSkills).toBeDefined();
+    if (!afterSkills?.skills.favour) throw new Error("unreachable");
+    const after = afterSkills.skills.favour.xp;
     expect(after).toBe(before - 200);
     expect(deltas.peek().skillDelta).toBeDefined();
-    expect(deltas.peek().skillDelta!.some((d) => d.skillId === "favour")).toBe(true);
+    expect(deltas.peek().skillDelta?.some((d) => d.skillId === "favour")).toBe(true);
   });
 
   it("returns false when deduction amount is zero or negative", () => {
@@ -222,7 +227,7 @@ describe("deductFavourXp", () => {
     const { ctx, world, player } = setup(10, 50);
     const result = deductFavourXp(ctx, player, 100);
     expect(result).toBe(true);
-    const after = world.getComponent(player, "skills")!.skills.favour!.xp;
+    const after = world.getComponent(player, "skills")?.skills.favour?.xp;
     expect(after).toBe(0);
   });
 });
@@ -236,8 +241,8 @@ describe("activateBoon", () => {
     expect(result).toBe(true);
     const statusEffects = world.getComponent(player, "statusEffect");
     expect(statusEffects).toBeDefined();
-    expect(statusEffects!.activeEffects).toHaveLength(1);
-    expect(statusEffects!.activeEffects[0]).toMatchObject({
+    expect(statusEffects?.activeEffects).toHaveLength(1);
+    expect(statusEffects?.activeEffects[0]).toMatchObject({
       effectId: "strength_boost",
       durationTicks: 10,
     });
@@ -255,11 +260,17 @@ describe("activateBoon", () => {
 
   it("deducts favour cost on activation", () => {
     const { ctx, world, player } = setup(10, 1000);
-    const before = world.getComponent(player, "skills")!.skills.favour!.xp;
+    const skills = world.getComponent(player, "skills");
+    expect(skills).toBeDefined();
+    if (!skills?.skills.favour) throw new Error("unreachable");
+    const before = skills.skills.favour.xp;
 
     activateBoon(ctx, player, BOON_DEF, 0);
 
-    const after = world.getComponent(player, "skills")!.skills.favour!.xp;
+    const afterSkills = world.getComponent(player, "skills");
+    expect(afterSkills).toBeDefined();
+    if (!afterSkills?.skills.favour) throw new Error("unreachable");
+    const after = afterSkills.skills.favour.xp;
     expect(after).toBe(before - BOON_DEF.favourCost);
   });
 });
@@ -280,8 +291,9 @@ describe("bindOath", () => {
 
     bindOath(ctx, player, OATH_DEF, 0);
 
-    const skills = world.getComponent(player, "skills")!;
-    expect(skills.skills.strength!.boost).toBe(3);
+    const skills = world.getComponent(player, "skills");
+    expect(skills).toBeDefined();
+    expect((skills as NonNullable<typeof skills>).skills.strength?.boost).toBe(3);
   });
 
   it("fails when the player already has an active oath", () => {
@@ -307,11 +319,17 @@ describe("bindOath", () => {
 
   it("deducts favour cost on binding", () => {
     const { ctx, world, player } = setup(15, 2000);
-    const before = world.getComponent(player, "skills")!.skills.favour!.xp;
+    const skills = world.getComponent(player, "skills");
+    expect(skills).toBeDefined();
+    if (!skills?.skills.favour) throw new Error("unreachable");
+    const before = skills.skills.favour.xp;
 
     bindOath(ctx, player, OATH_DEF, 0);
 
-    const after = world.getComponent(player, "skills")!.skills.favour!.xp;
+    const afterSkills = world.getComponent(player, "skills");
+    expect(afterSkills).toBeDefined();
+    if (!afterSkills?.skills.favour) throw new Error("unreachable");
+    const after = afterSkills.skills.favour.xp;
     expect(after).toBe(before - OATH_DEF.favourCost);
   });
 });
@@ -342,31 +360,35 @@ describe("breakOath", () => {
 describe("performRite", () => {
   it("consumes required items and triggers outcome", () => {
     const { ctx, world, player, deltas } = setup(10, 1000);
-    const inventory = world.getComponent(player, "inventory")!;
-    addItem(inventory, catalogFromItems(ctx.registries.item), "ash", 5);
-    addItem(inventory, catalogFromItems(ctx.registries.item), "small_bones", 2);
+    const inventory = world.getComponent(player, "inventory");
+    expect(inventory).toBeDefined();
+    const inv = inventory as NonNullable<typeof inventory>;
+    addItem(inv, catalogFromItems(ctx.registries.item), "ash", 5);
+    addItem(inv, catalogFromItems(ctx.registries.item), "small_bones", 2);
 
     const result = performRite(ctx, player, RITE_DEF, 0);
 
     expect(result).toBe(true);
-    expect(count(inventory, "ash")).toBe(3);
-    expect(count(inventory, "small_bones")).toBe(1);
+    expect(count(inv, "ash")).toBe(3);
+    expect(count(inv, "small_bones")).toBe(1);
 
     const statusEffects = world.getComponent(player, "statusEffect");
     expect(statusEffects).toBeDefined();
-    expect(statusEffects!.activeEffects).toHaveLength(1);
-    expect(statusEffects!.activeEffects[0]!.effectId).toBe("strength_boost");
+    expect(statusEffects?.activeEffects).toHaveLength(1);
+    expect(statusEffects?.activeEffects[0]?.effectId).toBe("strength_boost");
 
     expect(deltas.peek().xpDrops).toBeDefined();
-    expect(deltas.peek().xpDrops!.some((d) => d.skillId === "favour" && d.amount === 25)).toBe(
+    expect(deltas.peek().xpDrops?.some((d) => d.skillId === "favour" && d.amount === 25)).toBe(
       true,
     );
   });
 
   it("fails when the player is missing required items", () => {
     const { ctx, world, player, deltas } = setup(10, 1000);
-    const inventory = world.getComponent(player, "inventory")!;
-    addItem(inventory, catalogFromItems(ctx.registries.item), "ash", 1);
+    const inventory = world.getComponent(player, "inventory");
+    expect(inventory).toBeDefined();
+    const inv = inventory as NonNullable<typeof inventory>;
+    addItem(inv, catalogFromItems(ctx.registries.item), "ash", 1);
 
     const result = performRite(ctx, player, RITE_DEF, 0);
 
@@ -377,9 +399,11 @@ describe("performRite", () => {
 
   it("fails when the player does not meet the required Favour level", () => {
     const { ctx, world, player, deltas } = setup(1, 50);
-    const inventory = world.getComponent(player, "inventory")!;
-    addItem(inventory, catalogFromItems(ctx.registries.item), "ash", 5);
-    addItem(inventory, catalogFromItems(ctx.registries.item), "small_bones", 2);
+    const inventory = world.getComponent(player, "inventory");
+    expect(inventory).toBeDefined();
+    const inv = inventory as NonNullable<typeof inventory>;
+    addItem(inv, catalogFromItems(ctx.registries.item), "ash", 5);
+    addItem(inv, catalogFromItems(ctx.registries.item), "small_bones", 2);
 
     const result = performRite(ctx, player, RITE_DEF, 0);
 
@@ -390,14 +414,22 @@ describe("performRite", () => {
 
   it("deducts favour cost on performance", () => {
     const { ctx, world, player } = setup(10, 1000);
-    const inventory = world.getComponent(player, "inventory")!;
-    addItem(inventory, catalogFromItems(ctx.registries.item), "ash", 5);
-    addItem(inventory, catalogFromItems(ctx.registries.item), "small_bones", 2);
-    const before = world.getComponent(player, "skills")!.skills.favour!.xp;
+    const inventory = world.getComponent(player, "inventory");
+    expect(inventory).toBeDefined();
+    const inv = inventory as NonNullable<typeof inventory>;
+    addItem(inv, catalogFromItems(ctx.registries.item), "ash", 5);
+    addItem(inv, catalogFromItems(ctx.registries.item), "small_bones", 2);
+    const skills = world.getComponent(player, "skills");
+    expect(skills).toBeDefined();
+    if (!skills?.skills.favour) throw new Error("unreachable");
+    const before = skills.skills.favour.xp;
 
     performRite(ctx, player, RITE_DEF, 0);
 
-    const after = world.getComponent(player, "skills")!.skills.favour!.xp;
+    const afterSkills = world.getComponent(player, "skills");
+    expect(afterSkills).toBeDefined();
+    if (!afterSkills?.skills.favour) throw new Error("unreachable");
+    const after = afterSkills.skills.favour.xp;
     // Cost is 30, but outcome grants 25 favour XP, so net change is -5
     expect(after).toBe(before - RITE_DEF.favourCost + 25);
   });

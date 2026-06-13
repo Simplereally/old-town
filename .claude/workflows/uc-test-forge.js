@@ -12,10 +12,10 @@ export const meta = {
   ],
 };
 
-const root = (args && args.root) || "src";
-const framework = (args && args.framework) || "the project test framework";
-const runner = (args && args.runner) || "the project test command";
-const target = (args && args.target) || root;
+const root = args?.root || "src";
+const framework = args?.framework || "the project test framework";
+const runner = args?.runner || "the project test command";
+const target = args?.target || root;
 
 const UNITS_SCHEMA = {
   type: "object",
@@ -79,7 +79,7 @@ const triage = await agent(
     `Return the top ~12 highest-leverage units to add tests for, with the gap level and why each matters.`,
   { phase: "Triage", schema: UNITS_SCHEMA, agentType: "general-purpose" },
 );
-const units = ((triage && triage.units) || [])
+const units = (triage?.units || [])
   .filter((u) => u.gap !== "none")
   .sort(
     (a, b) =>

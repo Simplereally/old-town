@@ -1,5 +1,5 @@
 import type { ChunkId } from "@old-town/shared";
-import type { BufferAttribute, BufferGeometry, Group, Material, Mesh, Scene } from "three";
+import type { BufferAttribute, BufferGeometry, Group, Material, Scene } from "three";
 import {
   MeshLambertMaterial,
   StaticDrawUsage,
@@ -314,7 +314,7 @@ export class ChunkUploadQueue {
       group.add(mesh);
 
       return { geometry, materials, materialKeys, group };
-    } catch (err) {
+    } catch (_err) {
       // Upload failure: ensure partial resources are cleaned up
       this._disposePayloadBuffers(payload);
       return null;
@@ -337,7 +337,7 @@ export class ChunkUploadQueue {
     group.clear();
   }
 
-  private _disposePayloadBuffers(payload: BakedChunkPayload): void {
+  private _disposePayloadBuffers(_payload: BakedChunkPayload): void {
     // Detached buffers are already owned by the typed arrays; no extra disposal needed.
     // The geometry disposal in _tryBuildUpload cleans up the BufferGeometry.
   }

@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { createWorld, type World } from "../../ecs/world";
+import { createWorld } from "../../ecs/world";
 import { addItem, catalogFromItems, createInventory } from "../../items/inventory";
 import { ItemAuditLog } from "../../items/item-audit";
 import { DeltaAccumulator } from "../../sim/delta-accumulator";
 import { makeRegistries } from "../../test-support/registries";
 import { setVar } from "../../vars/player-vars";
+import type { CharterDef } from "@old-town/shared/content-schemas/charter";
 import { hasPermit, issueCharter, processCharterExpiry, validateCharter } from "../charter-system";
 
 const PLAYER = 0 as import("@old-town/shared/types/ids").EntityId;
@@ -57,11 +58,11 @@ function setup() {
   world.setComponent(PLAYER, "vars", { entityId: PLAYER, values: {} });
 
   const deltas = new DeltaAccumulator();
-  const charterMap = new Map([
+  const charterMap = new Map<string, CharterDef>([
     [CHARTER_AREA_DEF.id, CHARTER_AREA_DEF],
     [CHARTER_ACTIVITY_DEF.id, CHARTER_ACTIVITY_DEF],
     [CHARTER_CONTENT_DEF.id, CHARTER_CONTENT_DEF],
-  ]) as Map<string, import("@old-town/shared/content-schemas/charter").CharterDef>;
+  ]);
   const registries = makeRegistries({
     item: new Map([[COIN_DEF.id, COIN_DEF]]),
     charter: charterMap,

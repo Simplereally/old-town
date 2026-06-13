@@ -142,7 +142,7 @@ class BakingWorker implements WorkerLike {
         [baseX, h, baseY + 1],
       ];
       for (let j = 0; j < 4; j++) {
-        const [qx, qy, qz] = quad[j]!;
+        const [qx, qy, qz] = quad[j] as [number, number, number];
         positions[v * 3 + 0] = qx;
         positions[v * 3 + 1] = qy;
         positions[v * 3 + 2] = qz;
@@ -275,8 +275,11 @@ describe("ChunkBakeWorkerClient", () => {
     const jobId = client.submit(makeRequest());
     expect(jobId).toBeDefined();
     expect(successes.length).toBe(1);
-    expect(successes[0]!.transferables.length).toBeGreaterThan(0);
-    for (const buffer of successes[0]!.transferables) {
+    const first = successes[0];
+    expect(first).toBeDefined();
+    if (!first) throw new Error("unreachable");
+    expect(first.transferables.length).toBeGreaterThan(0);
+    for (const buffer of first.transferables) {
       expect(buffer).toBeInstanceOf(ArrayBuffer);
     }
 
@@ -298,7 +301,10 @@ describe("ChunkBakeWorkerClient", () => {
 
     client.submit(makeRequest());
     expect(successes.length).toBe(1);
-    const { payload, transferables } = successes[0]!;
+    const first = successes[0];
+    expect(first).toBeDefined();
+    if (!first) throw new Error("unreachable");
+    const { payload, transferables } = first;
 
     expect(transferables.some((b: ArrayBuffer) => b === payload.positions.buffer)).toBe(true);
     expect(transferables.some((b: ArrayBuffer) => b === payload.normals.buffer)).toBe(true);
@@ -328,15 +334,15 @@ describe("ChunkBakeWorkerClient", () => {
     );
 
     expect(successes.length).toBe(1);
-    expect(successes[0]!.payload.positions).toBeInstanceOf(Float32Array);
-    expect(successes[0]!.payload.normals).toBeInstanceOf(Float32Array);
-    expect(successes[0]!.payload.colors).toBeInstanceOf(Float32Array);
-    expect(successes[0]!.payload.indices).toBeInstanceOf(Uint32Array);
-    expect(successes[0]!.payload.materialGroups.length).toBeGreaterThan(0);
-    expect(successes[0]!.payload.bounds).toBeDefined();
-    expect(successes[0]!.payload.tileMetadata.length).toBe(2);
-    expect(successes[0]!.payload.collisionDebugData.length).toBe(2);
-    expect(successes[0]!.payload.objectInstanceDescriptors.length).toBe(1);
+    expect(successes[0]?.payload.positions).toBeInstanceOf(Float32Array);
+    expect(successes[0]?.payload.normals).toBeInstanceOf(Float32Array);
+    expect(successes[0]?.payload.colors).toBeInstanceOf(Float32Array);
+    expect(successes[0]?.payload.indices).toBeInstanceOf(Uint32Array);
+    expect(successes[0]?.payload.materialGroups.length).toBeGreaterThan(0);
+    expect(successes[0]?.payload.bounds).toBeDefined();
+    expect(successes[0]?.payload.tileMetadata.length).toBe(2);
+    expect(successes[0]?.payload.collisionDebugData.length).toBe(2);
+    expect(successes[0]?.payload.objectInstanceDescriptors.length).toBe(1);
 
     client.dispose();
   });
@@ -364,8 +370,8 @@ describe("ChunkBakeWorkerClient", () => {
     worker.flush(jobId1);
 
     expect(failures.length).toBe(1);
-    expect(failures[0]!.jobId).toBe(jobId1);
-    expect(failures[0]!.errorCode).toBe("test_error");
+    expect(failures[0]?.jobId).toBe(jobId1);
+    expect(failures[0]?.errorCode).toBe("test_error");
 
     // Second job should succeed on the same worker after failure
     const jobId2 = client.submit(makeRequest());
@@ -394,8 +400,8 @@ describe("ChunkBakeWorkerClient", () => {
     worker.triggerError();
 
     expect(failures.length).toBe(1);
-    expect(failures[0]!.jobId).toBe(jobId);
-    expect(failures[0]!.errorCode).toBe("worker_error");
+    expect(failures[0]?.jobId).toBe(jobId);
+    expect(failures[0]?.errorCode).toBe("worker_error");
 
     client.dispose();
   });
@@ -684,8 +690,8 @@ describe("ChunkBakeWorkerClient", () => {
 
     client.submit(makeRequest({ tiles: [] }));
     expect(successes.length).toBe(1);
-    expect(successes[0]!.payload.positions.length).toBeGreaterThan(0);
-    expect(successes[0]!.payload.indices.length).toBeGreaterThan(0);
+    expect(successes[0]?.payload.positions.length).toBeGreaterThan(0);
+    expect(successes[0]?.payload.indices.length).toBeGreaterThan(0);
 
     client.dispose();
   });
@@ -711,8 +717,8 @@ describe("ChunkBakeWorkerClient", () => {
     );
 
     expect(successes.length).toBe(1);
-    expect(successes[0]!.regionId).toBe("1:2:3");
-    expect(successes[0]!.chunkCoord).toEqual({ cx: 5, cy: 6, plane: 1 });
+    expect(successes[0]?.regionId).toBe("1:2:3");
+    expect(successes[0]?.chunkCoord).toEqual({ cx: 5, cy: 6, plane: 1 });
 
     client.dispose();
   });

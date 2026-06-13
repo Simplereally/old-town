@@ -2,14 +2,7 @@ import type { ContentRegistries } from "@old-town/shared/content/content-registr
 import type { EntityId } from "@old-town/shared/types/ids";
 import type { CharterComponent, Permit } from "../ecs/components";
 import type { World } from "../ecs/world";
-import {
-  addItem,
-  buildDelta,
-  catalogFromItems,
-  count,
-  hasItem,
-  removeItem,
-} from "../items/inventory";
+import { buildDelta, catalogFromItems, count, hasItem, removeItem } from "../items/inventory";
 import type { ItemAuditLog } from "../items/item-audit";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { getNumberVar } from "../vars/player-vars";
@@ -89,7 +82,7 @@ export function issueCharter(
     if (!inventory) {
       return false;
     }
-    const catalog = catalogFromItems(ctx.registries.item);
+    const _catalog = catalogFromItems(ctx.registries.item);
     if (!hasItem(inventory, charterDef.cost.itemId, charterDef.cost.quantity)) {
       systemMessage(ctx, owner, "You cannot afford this charter.", serverTime);
       return false;

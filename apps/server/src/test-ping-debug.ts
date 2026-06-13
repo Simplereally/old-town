@@ -4,7 +4,6 @@ import {
   PROTOCOL_VERSION,
   ServerPacketType,
   TransportClientMessageType,
-  TransportServerMessageType,
 } from "@old-town/shared";
 import WebSocket from "ws";
 import { createWebSocketTransport } from "./net/websocket-transport";
@@ -13,8 +12,8 @@ const httpServer = createServer();
 const transport = createWebSocketTransport({
   httpServer,
   logger: {
-    debug: (...args: any[]) => console.log("[debug]", ...args),
-    warn: (...args: any[]) => console.log("[warn]", ...args),
+    debug: (...args: unknown[]) => console.log("[debug]", ...args),
+    warn: (...args: unknown[]) => console.log("[warn]", ...args),
   },
   getFullState: () => ({
     type: ServerPacketType.FullState,

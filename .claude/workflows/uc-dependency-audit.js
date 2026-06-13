@@ -12,9 +12,9 @@ export const meta = {
   ],
 };
 
-const manifest = (args && args.manifest) || "package.json";
-const ecosystem = (args && args.ecosystem) || "npm";
-const includeTransitive = !!(args && args.includeTransitive);
+const manifest = args?.manifest || "package.json";
+const ecosystem = args?.ecosystem || "npm";
+const includeTransitive = !!args?.includeTransitive;
 
 const DEPS_SCHEMA = {
   type: "object",
@@ -70,7 +70,7 @@ const inv = await agent(
     `${includeTransitive ? "Also include notable transitive deps from the lockfile." : "Direct dependencies only."}`,
   { phase: "Inventory", schema: DEPS_SCHEMA, agentType: "general-purpose" },
 );
-const deps = (inv && inv.deps) || [];
+const deps = inv?.deps || [];
 log(`Auditing ${deps.length} dependencies (${ecosystem})`);
 if (!deps.length) return { summary: 'No dependencies found.', findings: [] }
 
@@ -111,7 +111,7 @@ const score = (f) => {
 const ranked = findings.map((f) => ({ ...f, risk: score(f) })).sort((a, b) => b.risk - a.risk);
 const unused = ranked.filter((f) => !f.usedInRepo).map((f) => f.name);
 log(
-  `Ranked. ${ranked.filter((f) => f.cves && f.cves.length).length} with advisories, ${unused.length} unused`,
+  `Ranked. ${ranked.filter((f) => f.cves?.length).length} with advisories, ${unused.length} unused`,
 );
 
 // 4. Plan --------------------------------------------------------------
@@ -125,4 +125,4 @@ const plan = await agent(
   { phase: "Plan" },
 );
 
-return { plan, count: ranked.length, withCVEs: ranked.filter((f) => f.cves && f.cves.length).length, unused, ranked }
+return { plan, count: ranked.length, withCVEs: ranked.filter((f) => f.cves?.length).length, unused, ranked }

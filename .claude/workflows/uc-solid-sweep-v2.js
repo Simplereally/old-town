@@ -1065,7 +1065,7 @@ if (!canonicalTopology.responsibilities.length) {
   };
 }
 
-const topologyPacket = {
+const _topologyPacket = {
   targetName: canonicalTopology.targetName,
   publicApiLock: canonicalTopology.publicApiLock,
   behaviorInvariants: canonicalTopology.behaviorInvariants,
@@ -1391,7 +1391,7 @@ if (approvedPlan.decision === "abort") {
   };
 }
 
-const planGatePacket = {
+const _planGatePacket = {
   mode: approvedPlan.mode,
   decision: approvedPlan.decision,
   selectedResponsibilityIds: approvedPlan.selectedResponsibilityIds,

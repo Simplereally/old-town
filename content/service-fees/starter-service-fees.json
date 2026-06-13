@@ -63,7 +63,10 @@
     "serviceType": "smelting",
     "baseFee": 5,
     "levelMultiplier": 0.2,
-    "materialCost": [{ "itemId": "copper_ore", "quantity": 1 }, { "itemId": "tinstone", "quantity": 1 }],
+    "materialCost": [
+      { "itemId": "copper_ore", "quantity": 1 },
+      { "itemId": "tinstone", "quantity": 1 }
+    ],
     "currency": "coin",
     "outputQuantity": 1
   },

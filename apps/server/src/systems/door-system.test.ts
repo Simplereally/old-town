@@ -216,13 +216,16 @@ describe("door system", () => {
     // Ground item should be spawned on the chest tile
     const groundItems = Array.from(world.componentEntries("groundItem"));
     expect(groundItems.length).toBeGreaterThan(0);
-    const first = groundItems[0]!;
-    const [itemEntityId, item] = first;
-    expect(item.itemId).toBe("coin");
-    expect(item.quantity).toBe(5);
-    const pos = world.getComponent(itemEntityId, "position");
-    expect(pos?.x).toBe(2);
-    expect(pos?.y).toBe(1);
+    const first = groundItems[0];
+    expect(first).toBeDefined();
+    if (first) {
+      const [itemEntityId, item] = first;
+      expect(item.itemId).toBe("coin");
+      expect(item.quantity).toBe(5);
+      const pos = world.getComponent(itemEntityId, "position");
+      expect(pos?.x).toBe(2);
+      expect(pos?.y).toBe(1);
+    }
   });
 
   it("closes an open chest", () => {

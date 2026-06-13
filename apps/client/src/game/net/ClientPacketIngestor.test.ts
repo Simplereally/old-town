@@ -1,5 +1,4 @@
 import {
-  Direction,
   type EntityId,
   type EntitySpawnPacket,
   entityId,
@@ -154,8 +153,8 @@ describe("ClientPacketIngestor", () => {
       0,
     );
     expect(result).not.toBeNull();
-    expect(result!.presentationEvents.length).toBeGreaterThan(0);
-    expect(result!.snapshot).toBeDefined();
+    expect(result?.presentationEvents.length).toBeGreaterThan(0);
+    expect(result?.snapshot).toBeDefined();
   });
 
   it("ingestFullState clears prior store and resets snapshot buffer", () => {
@@ -195,26 +194,26 @@ describe("ClientPacketIngestor", () => {
 
     const player = store.getEntity(42);
     expect(player).toBeDefined();
-    expect(player!.kind).toBe("player");
-    expect(player!.isLocalPlayer).toBe(true);
-    expect(player!.defId).toBe("player");
+    expect(player?.kind).toBe("player");
+    expect(player?.isLocalPlayer).toBe(true);
+    expect(player?.defId).toBe("player");
 
     const npc = store.getEntity(1);
     expect(npc).toBeDefined();
-    expect(npc!.kind).toBe("npc");
-    expect(npc!.isLocalPlayer).toBe(false);
-    expect(npc!.defId).toBe("guard");
+    expect(npc?.kind).toBe("npc");
+    expect(npc?.isLocalPlayer).toBe(false);
+    expect(npc?.defId).toBe("guard");
 
     const obj = store.getEntity(2);
     expect(obj).toBeDefined();
-    expect(obj!.kind).toBe("object");
-    expect(obj!.defId).toBe("rock");
+    expect(obj?.kind).toBe("object");
+    expect(obj?.defId).toBe("rock");
 
     const item = store.getEntity(3);
     expect(item).toBeDefined();
-    expect(item!.kind).toBe("groundItem");
-    expect(item!.defId).toBe("sword");
-    expect(item!.quantity).toBe(1);
+    expect(item?.kind).toBe("groundItem");
+    expect(item?.defId).toBe("sword");
+    expect(item?.quantity).toBe(1);
   });
 
   it("ingestFullState returns correct tick, serverTime, and selfEntityId", () => {
@@ -288,7 +287,7 @@ describe("ClientPacketIngestor", () => {
       0,
     );
     expect(result).not.toBeNull();
-    expect(result!.tick).toBe(6);
+    expect(result?.tick).toBe(6);
     expect(store.getEntity(10)).toBeDefined();
     expect(snapshotBuffer.latestAcceptedTick).toBe(6);
   });
@@ -306,7 +305,7 @@ describe("ClientPacketIngestor", () => {
       0,
     );
     expect(result).not.toBeNull();
-    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    const eventTypes = result?.presentationEvents.map((e) => e.type);
     expect(eventTypes).toContain("region.unload");
     expect(eventTypes).toContain("region.load");
   });
@@ -325,7 +324,7 @@ describe("ClientPacketIngestor", () => {
     );
     expect(result).not.toBeNull();
     expect(store.getEntity(10)).toBeDefined();
-    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    const eventTypes = result?.presentationEvents.map((e) => e.type);
     expect(eventTypes).toContain("actors.spawn");
     expect(eventTypes).toContain("objects.remove");
     expect(eventTypes).toContain("actors.remove");
@@ -360,7 +359,7 @@ describe("ClientPacketIngestor", () => {
       0,
     );
     expect(result).not.toBeNull();
-    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    const eventTypes = result?.presentationEvents.map((e) => e.type);
     expect(eventTypes).toContain("actors.updateTile");
     expect(eventTypes).toContain("actors.updateFacing");
   });
@@ -385,7 +384,7 @@ describe("ClientPacketIngestor", () => {
       0,
     );
     expect(result).not.toBeNull();
-    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    const eventTypes = result?.presentationEvents.map((e) => e.type);
     expect(eventTypes).toContain("hitsplats.show");
     expect(eventTypes).toContain("actors.notifyHit");
   });
@@ -405,7 +404,8 @@ describe("ClientPacketIngestor", () => {
       0,
     );
     expect(result).not.toBeNull();
-    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    if (result === null) throw new Error("unexpected null");
+    const eventTypes = result.presentationEvents.map((e) => e.type);
     expect(eventTypes.filter((t) => t === "xpDrops.show").length).toBe(2);
   });
 
@@ -432,7 +432,7 @@ describe("ClientPacketIngestor", () => {
       0,
     );
     expect(result).not.toBeNull();
-    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    const eventTypes = result?.presentationEvents.map((e) => e.type);
     expect(eventTypes).toContain("projectiles.spawn");
   });
 
@@ -487,7 +487,7 @@ describe("ClientPacketIngestor", () => {
       0,
     );
     expect(result).not.toBeNull();
-    const eventTypes = result!.presentationEvents.map((e) => e.type);
+    const eventTypes = result?.presentationEvents.map((e) => e.type);
     expect(eventTypes).not.toContain("chatOverhead.show");
   });
 
@@ -521,7 +521,7 @@ describe("ClientPacketIngestor", () => {
       0,
     );
     expect(result).not.toBeNull();
-    expect(result!.rejectedMoves).toEqual([{ tile: { x: 10, y: 20, plane: 0 }, tick: 5 }]);
+    expect(result?.rejectedMoves).toEqual([{ tile: { x: 10, y: 20, plane: 0 }, tick: 5 }]);
   });
 
   it("reports rejected move when no self path is present", () => {
@@ -537,7 +537,7 @@ describe("ClientPacketIngestor", () => {
       0,
     );
     expect(result).not.toBeNull();
-    expect(result!.rejectedMoves).toEqual([{ tile: { x: 5, y: 5, plane: 0 }, tick: 5 }]);
+    expect(result?.rejectedMoves).toEqual([{ tile: { x: 5, y: 5, plane: 0 }, tick: 5 }]);
   });
 
   it("does not report rejected move when click is too old", () => {
@@ -553,7 +553,7 @@ describe("ClientPacketIngestor", () => {
       0,
     );
     expect(result).not.toBeNull();
-    expect(result!.rejectedMoves).toEqual([]);
+    expect(result?.rejectedMoves).toEqual([]);
   });
 
   it("emits debug path tiles for self entity", () => {
@@ -578,7 +578,8 @@ describe("ClientPacketIngestor", () => {
       0,
     );
     expect(result).not.toBeNull();
-    const debugEvents = result!.debugEvents;
+    if (result === null) throw new Error("unexpected null");
+    const debugEvents = result.debugEvents;
     const pathEvents = debugEvents.filter((e) => e.type === "debug.markPathTile");
     expect(pathEvents.length).toBe(2);
   });
@@ -606,7 +607,8 @@ describe("ClientPacketIngestor", () => {
       0,
     );
     expect(result).not.toBeNull();
-    const debugEvents = result!.debugEvents;
+    if (result === null) throw new Error("unexpected null");
+    const debugEvents = result.debugEvents;
     const types = debugEvents.map((e) => e.type);
     expect(types).toContain("debug.markTrueTile");
     expect(types).toContain("debug.markCollisionTile");
@@ -736,8 +738,8 @@ describe("ClientPacketIngestor", () => {
       1,
       0,
     );
-    expect(result!.snapshot.regionLoads.length).toBe(1);
-    expect(result!.snapshot.regionUnloads.length).toBe(1);
+    expect(result?.snapshot.regionLoads.length).toBe(1);
+    expect(result?.snapshot.regionUnloads.length).toBe(1);
   });
 
   it("ingestTickDelta snapshot contains updated entities", () => {
@@ -760,8 +762,8 @@ describe("ClientPacketIngestor", () => {
       1,
       0,
     );
-    expect(result!.snapshot.entities.length).toBe(1);
-    expect(result!.snapshot.entities[0]!.tile).toEqual({ x: 1, y: 0, plane: 0 });
+    expect(result?.snapshot.entities.length).toBe(1);
+    expect(result?.snapshot.entities[0]?.tile).toEqual({ x: 1, y: 0, plane: 0 });
   });
 
   it("ingestTickDelta handles death and respawn notices", () => {
@@ -779,8 +781,8 @@ describe("ClientPacketIngestor", () => {
       0,
     );
     expect(uiState.deathScreen).toBe(true);
-    expect(store.getEntity(1)!.hidden).toBe(true);
-    const deathEventTypes = deathResult!.presentationEvents.map((e) => e.type);
+    expect(store.getEntity(1)?.hidden).toBe(true);
+    const deathEventTypes = deathResult?.presentationEvents.map((e) => e.type);
     expect(deathEventTypes).toContain("actors.hide");
 
     const respawnResult = ingestor.ingestTickDelta(
@@ -792,9 +794,9 @@ describe("ClientPacketIngestor", () => {
       0,
     );
     expect(uiState.deathScreen).toBe(false);
-    expect(store.getEntity(1)!.hidden).toBe(false);
-    expect(store.getEntity(1)!.tile).toEqual({ x: 10, y: 10, plane: 0 });
-    const respawnEventTypes = respawnResult!.presentationEvents.map((e) => e.type);
+    expect(store.getEntity(1)?.hidden).toBe(false);
+    expect(store.getEntity(1)?.tile).toEqual({ x: 10, y: 10, plane: 0 });
+    const respawnEventTypes = respawnResult?.presentationEvents.map((e) => e.type);
     expect(respawnEventTypes).toContain("actors.show");
     expect(respawnEventTypes).toContain("actors.updateTile");
   });

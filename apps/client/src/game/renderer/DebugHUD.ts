@@ -115,7 +115,9 @@ export class DebugHUD {
     this._visible = value;
     if (value) {
       this._ensureElement();
-      this._element!.style.display = "block";
+      if (this._element) {
+        this._element.style.display = "block";
+      }
       this._scheduleUpdate();
     } else {
       if (this._element) {

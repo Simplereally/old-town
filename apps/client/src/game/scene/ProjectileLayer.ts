@@ -47,6 +47,7 @@ export class ProjectileLayer {
     }
 
     const mesh = this.meshPool.acquire();
+    if (!mesh) return;
     const startWorld = this._tileToWorld(startTile);
     mesh.position.copy(startWorld);
     mesh.position.y = 1.5;

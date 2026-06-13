@@ -14206,20 +14206,70 @@
     }
   ],
   "resourceNodeSpawns": [
-    { "resourceNodeId": "oak_tree_node", "x": 10, "y": 15, "respawnTicks": 100, "initialDepletion": false },
-    { "resourceNodeId": "dry_tree_node", "x": 20, "y": 25, "respawnTicks": 100, "initialDepletion": false },
-    { "resourceNodeId": "copper_rock_node", "x": 30, "y": 35, "respawnTicks": 100, "initialDepletion": false },
-    { "resourceNodeId": "scrub_tree", "x": 42, "y": 26, "respawnTicks": 100, "initialDepletion": false },
-    { "resourceNodeId": "oldroad_oak_tree", "x": 12, "y": 42, "respawnTicks": 100, "initialDepletion": false },
-    { "resourceNodeId": "ditch_shrimp_spot", "x": 58, "y": 26, "respawnTicks": 100, "initialDepletion": false },
-    { "resourceNodeId": "rabbit_snare_point", "x": 44, "y": 28, "respawnTicks": 100, "initialDepletion": false },
-    { "resourceNodeId": "bird_lure_spot", "x": 46, "y": 30, "respawnTicks": 100, "initialDepletion": false },
-    { "resourceNodeId": "grave_flower_patch", "x": 58, "y": 10, "respawnTicks": 100, "initialDepletion": false }
+    {
+      "resourceNodeId": "oak_tree_node",
+      "x": 10,
+      "y": 15,
+      "respawnTicks": 100,
+      "initialDepletion": false
+    },
+    {
+      "resourceNodeId": "dry_tree_node",
+      "x": 20,
+      "y": 25,
+      "respawnTicks": 100,
+      "initialDepletion": false
+    },
+    {
+      "resourceNodeId": "copper_rock_node",
+      "x": 30,
+      "y": 35,
+      "respawnTicks": 100,
+      "initialDepletion": false
+    },
+    {
+      "resourceNodeId": "scrub_tree",
+      "x": 42,
+      "y": 26,
+      "respawnTicks": 100,
+      "initialDepletion": false
+    },
+    {
+      "resourceNodeId": "oldroad_oak_tree",
+      "x": 12,
+      "y": 42,
+      "respawnTicks": 100,
+      "initialDepletion": false
+    },
+    {
+      "resourceNodeId": "ditch_shrimp_spot",
+      "x": 58,
+      "y": 26,
+      "respawnTicks": 100,
+      "initialDepletion": false
+    },
+    {
+      "resourceNodeId": "rabbit_snare_point",
+      "x": 44,
+      "y": 28,
+      "respawnTicks": 100,
+      "initialDepletion": false
+    },
+    {
+      "resourceNodeId": "bird_lure_spot",
+      "x": 46,
+      "y": 30,
+      "respawnTicks": 100,
+      "initialDepletion": false
+    },
+    {
+      "resourceNodeId": "grave_flower_patch",
+      "x": 58,
+      "y": 10,
+      "respawnTicks": 100,
+      "initialDepletion": false
+    }
   ],
-  "playerSpawnPoints": [
-    { "x": 32, "y": 32, "plane": 0, "spawnType": "default" }
-  ],
-  "deathRespawnPoints": [
-    { "x": 32, "y": 32, "plane": 0, "respawnType": "nearest" }
-  ]
+  "playerSpawnPoints": [{ "x": 32, "y": 32, "plane": 0, "spawnType": "default" }],
+  "deathRespawnPoints": [{ "x": 32, "y": 32, "plane": 0, "respawnType": "nearest" }]
 }

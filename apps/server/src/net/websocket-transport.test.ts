@@ -42,7 +42,7 @@ async function startHarness(onCommand = () => undefined) {
   }
   cleanup = async () => {
     await transport.close();
-    (httpServer as any).closeAllConnections?.();
+    (httpServer as unknown as { closeAllConnections?: () => void }).closeAllConnections?.();
     await new Promise<void>((resolve) => httpServer.close(() => resolve()));
   };
   return { url: `ws://127.0.0.1:${address.port}${transport.path}`, transport };

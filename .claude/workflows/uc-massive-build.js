@@ -44,7 +44,7 @@ const foundation = await parallel([
     ),
 ]);
 
-log("Phase 1 complete: " + foundation.filter(Boolean).length + " agents succeeded");
+log(`Phase 1 complete: ${foundation.filter(Boolean).length} agents succeeded`);
 
 // PHASE 2: SERVER ACTION ROUTING
 phase("Server Action Routing");
@@ -131,7 +131,7 @@ const routing = await parallel([
     ),
 ]);
 
-log("Phase 2 complete: " + routing.filter(Boolean).length + " agents succeeded");
+log(`Phase 2 complete: ${routing.filter(Boolean).length} agents succeeded`);
 
 // PHASE 3: SERVER SYSTEMS
 phase("Server Systems");
@@ -279,7 +279,7 @@ const systems = await parallel([
     ),
 ]);
 
-log("Phase 3 complete: " + systems.filter(Boolean).length + " agents succeeded");
+log(`Phase 3 complete: ${systems.filter(Boolean).length} agents succeeded`);
 
 // PHASE 4: CONTENT ALIGNMENT
 phase("Content Alignment");
@@ -392,7 +392,7 @@ const content = await parallel([
     ),
 ]);
 
-log("Phase 4 complete: " + content.filter(Boolean).length + " agents succeeded");
+log(`Phase 4 complete: ${content.filter(Boolean).length} agents succeeded`);
 
 // PHASE 5: CLIENT UI
 phase("Client UI");
@@ -519,7 +519,7 @@ const client = await parallel([
     ),
 ]);
 
-log("Phase 5 complete: " + client.filter(Boolean).length + " agents succeeded");
+log(`Phase 5 complete: ${client.filter(Boolean).length} agents succeeded`);
 
 // PHASE 6: VALIDATION AND DOCS
 phase("Validation and Docs");
@@ -578,7 +578,7 @@ const validation = await parallel([
     ),
 ]);
 
-log("Phase 6 complete: " + validation.filter(Boolean).length + " agents succeeded");
+log(`Phase 6 complete: ${validation.filter(Boolean).length} agents succeeded`);
 
 return {
   foundation: foundation.filter(Boolean),

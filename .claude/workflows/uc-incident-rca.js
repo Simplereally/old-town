@@ -12,11 +12,11 @@ export const meta = {
   ],
 };
 
-const symptom = (args && args.symptom) || "Unspecified failure — infer from logs/stack";
-const logs = (args && args.logs) || "";
-const stack = (args && args.stack) || "";
-const suspectRange = (args && args.suspectRange) || "";
-const repoRoot = (args && args.repoRoot) || ".";
+const symptom = args?.symptom || "Unspecified failure — infer from logs/stack";
+const logs = args?.logs || "";
+const stack = args?.stack || "";
+const suspectRange = args?.suspectRange || "";
+const repoRoot = args?.repoRoot || ".";
 
 const HYP_SCHEMA = {
   type: "object",
@@ -83,7 +83,7 @@ const framed = await agent(
     `For each, state the mechanism and exactly where to look to confirm or deny it. Make them genuinely different, not rephrasings.`,
   { phase: "Frame", schema: HYP_SCHEMA, agentType: "general-purpose" },
 );
-const hypotheses = (framed && framed.hypotheses) || [];
+const hypotheses = framed?.hypotheses || [];
 log(`Framed ${hypotheses.length} hypotheses`);
 if (!hypotheses.length)
   return { rca: 'Could not form hypotheses from the given evidence.', root: null }

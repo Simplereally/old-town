@@ -32,7 +32,7 @@ function systemMessage(
   ctx.deltas.markChat({ entityId: owner, channel: "system", text, serverTime });
 }
 
-function getOrCreatePublicWorkComponent(world: World, entityId: EntityId): PublicWorkComponent {
+function _getOrCreatePublicWorkComponent(world: World, entityId: EntityId): PublicWorkComponent {
   const existing = world.getComponent(entityId, "publicWork");
   if (existing) return existing;
   const component: PublicWorkComponent = {
@@ -108,7 +108,7 @@ export function contributeToPublicWork(
     return false;
   }
 
-  const catalog = catalogFromItems(ctx.registries.item);
+  const _catalog = catalogFromItems(ctx.registries.item);
   const beforeQuantity = count(inventory, itemId);
   const removeResult = removeItem(inventory, itemId, toTake);
   if (removeResult.removed < toTake) {
@@ -204,7 +204,7 @@ export function distributePublicWorkRewards(
   tick?: number,
 ): boolean {
   const publicWork = ctx.world.getComponent(publicWorkEntityId, "publicWork");
-  if (!publicWork || !publicWork.completed || publicWork.rewardsDistributed) {
+  if (!publicWork?.completed || publicWork.rewardsDistributed) {
     return false;
   }
 

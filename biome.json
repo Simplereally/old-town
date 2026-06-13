@@ -17,6 +17,7 @@
       "!!**/.vite",
       "!!**/.cache",
       "!!**/.omo",
+      "!!**/.claude",
       "!**/*.tsbuildinfo",
       "!**/bun.lock",
       "!**/bun.lockb"
