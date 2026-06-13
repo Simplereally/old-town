@@ -283,6 +283,7 @@ const TAN_RECIPE = {
   inputQuantity: 1,
   successItemId: "plain_leather",
   successQuantity: 1,
+  failureQuantity: 1,
   xp: 20,
   failureChance: 0,
 };
@@ -298,6 +299,7 @@ const DYE_RECIPE = {
   inputQuantity: 1,
   successItemId: "coloured_cloth",
   successQuantity: 1,
+  failureQuantity: 1,
   xp: 25,
   failureChance: 0,
 };
@@ -313,6 +315,7 @@ const WEAVE_RECIPE = {
   inputQuantity: 2,
   successItemId: "bead_strand",
   successQuantity: 1,
+  failureQuantity: 1,
   xp: 22,
   failureChance: 0,
 };
@@ -328,6 +331,7 @@ const MIX_RECIPE = {
   inputQuantity: 2,
   successItemId: "simple_remedy",
   successQuantity: 1,
+  failureQuantity: 1,
   xp: 30,
   failureChance: 0,
 };

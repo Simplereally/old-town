@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
 import WebSocket from "ws";
-import { ServerPacketType } from "@old-town/shared";
+import { ServerPacketType, entityId } from "@old-town/shared";
 import { createWebSocketTransport } from "./net/websocket-transport";
 
 const httpServer = createServer();
@@ -12,7 +12,7 @@ const transport = createWebSocketTransport({
     protocolVersion: 1,
     tick: 0,
     serverTime: 0,
-    selfEntityId: 1,
+    selfEntityId: entityId(1),
     entities: [],
   }),
 });

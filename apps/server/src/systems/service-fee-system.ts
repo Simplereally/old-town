@@ -2,6 +2,7 @@ import type {
   ContentRegistries,
   EntityId,
   NpcIntent,
+  Plane,
   ServiceFeeDef,
   TileCoord,
 } from "@old-town/shared";
@@ -186,11 +187,7 @@ function applyTeleport(
   const pos = ctx.world.getComponent(owner, "position");
   if (!pos) return "You could not be teleported.";
 
-  const dest: TileCoord = feeDef.destination ?? {
-    x: 0,
-    y: 0,
-    plane: 0 as import("@old-town/shared/types/coords").Plane,
-  };
+  const dest: TileCoord = feeDef.destination ?? { x: 0, y: 0, plane: 0 as Plane };
   pos.x = dest.x;
   pos.y = dest.y;
   pos.plane = dest.plane;

@@ -72,6 +72,7 @@ const REPAIR_FEE: ServiceFeeDef = {
   levelMultiplier: 1.0,
   materialCost: [],
   currency: "coin",
+  outputQuantity: 1,
 };
 
 const TELEPORT_FEE: ServiceFeeDef = {
@@ -82,6 +83,7 @@ const TELEPORT_FEE: ServiceFeeDef = {
   levelMultiplier: 0.5,
   materialCost: [{ itemId: "gust_bead", quantity: 1 }],
   currency: "coin",
+  outputQuantity: 1,
   destination: { x: 5, y: 5, plane: 0 },
 };
 

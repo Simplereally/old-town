@@ -89,7 +89,7 @@ const contentModules = import.meta.glob("../../../content/**/*.json", {
   import: "default",
 }) as Record<string, unknown>;
 
-interface EditorState {
+export interface EditorState {
   readonly registries: ContentRegistries;
   readonly regions: RegionSummary[];
   selected: RegionSummary;

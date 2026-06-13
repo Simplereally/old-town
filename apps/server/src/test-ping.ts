@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import {
   ClientCommandType,
+  entityId,
   PROTOCOL_VERSION,
   ServerPacketType,
   TransportClientMessageType,
@@ -17,7 +18,7 @@ const transport = createWebSocketTransport({
     protocolVersion: PROTOCOL_VERSION,
     tick: 0,
     serverTime: 0,
-    selfEntityId: 1,
+    selfEntityId: entityId(1),
     entities: [],
   }),
 });

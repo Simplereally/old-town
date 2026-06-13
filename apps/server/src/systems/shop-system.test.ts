@@ -44,6 +44,8 @@ const SHOP_DEF: ShopDef = {
   sellMultiplier: 0.6,
   buyMultiplier: 1.0,
   restockTicks: 100,
+  buyPolicy: "always",
+  sellPolicy: "does_not_buy",
 };
 
 const ITEMS = new Map([COIN, BLADE].map((d) => [d.id, d]));
