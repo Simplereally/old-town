@@ -55,6 +55,10 @@ import {
   type SkillingHandlerTable,
 } from "../systems/skilling-system";
 import { createSpellActionHandlers, type SpellHandlerTable } from "../systems/spell-system";
+import {
+  createActivityActionHandlers,
+  type ActivityHandlerTable,
+} from "../systems/activity-system";
 import { processStatusEffects } from "../systems/status-system";
 import { applyObjectCollision, CollisionMap } from "../world/collision";
 import { loadAllRegionMapsIntoWorld } from "../world/region-loader";
@@ -120,7 +124,8 @@ type CommandCountsByTick = Map<number, Map<string, number>>;
 type ActionHandlerTable = SkillingHandlerTable &
   ResourceNodeHandlerTable &
   SpellHandlerTable &
-  DialogueHandlerTable & {
+  DialogueHandlerTable &
+  ActivityHandlerTable & {
     begin_interact: ActionHandler<BeginInteractPayload>;
   };
 
@@ -226,11 +231,13 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
     registries,
     itemAudit,
   });
+  const activityHandlers = createActivityActionHandlers(skillingContext);
   const actionTable: ActionHandlerTable = {
     ...skillingHandlers,
     ...resourceNodeHandlers,
     ...spellHandlers,
     ...dialogueHandlers,
+    ...activityHandlers,
     begin_interact: (payload, actionCtx) =>
       handleBeginInteract(
         skillingContext,

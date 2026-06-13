@@ -4,6 +4,7 @@
  * file's directory. All inferred TypeScript types are exported alongside the schemas.
  */
 
+export * from "./activity";
 export * from "./animation";
 export * from "./bank";
 export * from "./common";
@@ -26,6 +27,7 @@ export * from "./spell";
 export * from "./status-effect";
 
 import type { z } from "zod";
+import { activityDefSchema } from "./activity";
 import { animationDefSchema } from "./animation";
 import { bankDefSchema } from "./bank";
 import { contractDefSchema } from "./contract";
@@ -70,6 +72,7 @@ export const contentSchemas = {
   statusEffect: statusEffectDefSchema,
   contract: contractDefSchema,
   property: propertyDefSchema,
+  activity: activityDefSchema,
 } as const;
 
 /** Discriminator for a content definition kind. */

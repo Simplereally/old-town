@@ -352,5 +352,49 @@ export function validateContentGraph(
     // rewardReputation.factionId intentionally not validated here — factions are not a registered ContentKind
   }
 
+  for (const [id, def] of registries.activity) {
+    requireRef("skill", def.entryRequirement.skillId, "activity", id, "entryRequirement.skillId");
+    for (const skillId of def.skills) {
+      requireRef("skill", skillId, "activity", id, "skills");
+    }
+    for (const step of def.steps) {
+      if (step.skillId !== undefined) {
+        requireRef("skill", step.skillId, "activity", id, `steps.${step.id}.skillId`);
+      }
+      for (const xp of step.xpReward) {
+        requireRef("skill", xp.skillId, "activity", id, `steps.${step.id}.xpReward.skillId`);
+      }
+      for (const input of step.inputs) {
+        requireRef("item", input.itemId, "activity", id, `steps.${step.id}.inputs.itemId`);
+      }
+      for (const output of step.outputs) {
+        requireRef("item", output.itemId, "activity", id, `steps.${step.id}.outputs.itemId`);
+      }
+    }
+    for (const reward of def.rewards) {
+      if (reward.skillId !== undefined) {
+        requireRef("skill", reward.skillId, "activity", id, "rewards.skillId");
+      }
+      if (reward.itemId !== undefined) {
+        requireRef("item", reward.itemId, "activity", id, "rewards.itemId");
+      }
+      if (reward.tokenId !== undefined) {
+        requireRef("item", reward.tokenId, "activity", id, "rewards.tokenId");
+      }
+    }
+    if (def.tokenId !== undefined) {
+      requireRef("item", def.tokenId, "activity", id, "tokenId");
+    }
+    for (const sink of def.tokenSink) {
+      requireRef("item", sink.itemId, "activity", id, "tokenSink.itemId");
+    }
+    for (const input of def.inputs) {
+      requireRef("item", input.itemId, "activity", id, "inputs.itemId");
+    }
+    for (const output of def.outputs) {
+      requireRef("item", output.itemId, "activity", id, "outputs.itemId");
+    }
+  }
+
   return { issues };
 }

@@ -1,0 +1,115 @@
+[
+  {
+    "id": "bell_run",
+    "name": "Bell Run",
+    "category": "course",
+    "risk": "safe",
+    "skills": ["wayfaring", "cartography"],
+    "entryRequirement": {
+      "skillId": "wayfaring",
+      "level": 1
+    },
+    "location": {
+      "description": "Market Bell to Oldroad Gate and back",
+      "x": 32,
+      "y": 32,
+      "plane": 0
+    },
+    "steps": [
+      {
+        "id": "receive_satchel",
+        "name": "Receive Message Satchel",
+        "description": "Receive a message satchel from the Market Bell keeper",
+        "actionTicks": 1
+      },
+      {
+        "id": "run_route",
+        "name": "Run the Route",
+        "description": "Carry the message to one of three district signposts",
+        "skillId": "wayfaring",
+        "requiredLevel": 1,
+        "actionTicks": 3,
+        "xpReward": [{ "skillId": "wayfaring", "amount": 15 }]
+      },
+      {
+        "id": "ring_bell",
+        "name": "Ring the Bell",
+        "description": "Ring the small bell at the destination signpost",
+        "actionTicks": 1
+      },
+      {
+        "id": "return",
+        "name": "Return to Market Bell",
+        "description": "Return before the message expires",
+        "skillId": "cartography",
+        "requiredLevel": 1,
+        "actionTicks": 3,
+        "xpReward": [{ "skillId": "cartography", "amount": 10 }]
+      }
+    ],
+    "rewards": [
+      { "type": "xp", "skillId": "wayfaring", "quantity": 15 },
+      { "type": "xp", "skillId": "cartography", "quantity": 10 },
+      { "type": "token", "tokenId": "bell_token", "quantity": 1 }
+    ],
+    "tokenId": "bell_token",
+    "loopDescription": "The player carries a message from the Market Bell to a district signpost, rings a bell, and returns before the message expires.",
+    "failureState": "If the player does not return before the message expires, the satchel disappears and the run fails. No penalty beyond lost time.",
+    "inputs": [],
+    "outputs": [
+      { "itemId": "bell_token", "quantity": 1 }
+    ]
+  },
+  {
+    "id": "soot_sweep",
+    "name": "Soot Sweep",
+    "category": "publicWork",
+    "risk": "safe",
+    "skills": ["arms", "guard", "sleight"],
+    "entryRequirement": {
+      "skillId": "arms",
+      "level": 1
+    },
+    "location": {
+      "description": "Sootcellar and lower sootstairs",
+      "x": 45,
+      "y": 45,
+      "plane": 0
+    },
+    "steps": [
+      {
+        "id": "sweep_pile",
+        "name": "Sweep Soot Pile",
+        "description": "Sweep a soot pile from the Sootcellar floor",
+        "skillId": "sleight",
+        "requiredLevel": 1,
+        "actionTicks": 2,
+        "xpReward": [{ "skillId": "sleight", "amount": 8 }]
+      },
+      {
+        "id": "clear_mites",
+        "name": "Clear Grave Mites",
+        "description": "Fight or flee Grave Mites that emerge from the soot",
+        "skillId": "arms",
+        "requiredLevel": 1,
+        "actionTicks": 3,
+        "xpReward": [{ "skillId": "arms", "amount": 12 }, { "skillId": "guard", "amount": 8 }],
+        "failureChance": 0.1
+      }
+    ],
+    "rewards": [
+      { "type": "xp", "skillId": "arms", "quantity": 12 },
+      { "type": "xp", "skillId": "guard", "quantity": 8 },
+      { "type": "xp", "skillId": "sleight", "quantity": 8 },
+      { "type": "token", "tokenId": "soot_mark", "quantity": 1 }
+    ],
+    "tokenId": "soot_mark",
+    "loopDescription": "The player sweeps soot piles from the Sootcellar floor, clearing paths and reducing Grave Mite spawn chances.",
+    "failureState": "If overwhelmed by Grave Mites, the player is forced to retreat. No death penalty, but the sweep is incomplete.",
+    "inputs": [],
+    "outputs": [
+      { "itemId": "soot_ash", "quantity": 1 },
+      { "itemId": "soot_mark", "quantity": 1 }
+    ]
+  }
+]

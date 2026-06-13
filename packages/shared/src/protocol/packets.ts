@@ -157,11 +157,20 @@ export interface ShopViewPacket {
   readonly buyMultiplier: number;
 }
 
+export interface ActivityViewPacket {
+  readonly activityId: string;
+  readonly name: string;
+  readonly category: string;
+  readonly loopDescription: string;
+  readonly risk: string;
+}
+
 export interface InterfaceOpenPacket {
   readonly interfaceId: string;
   readonly dialogue?: DialogueViewPacket;
   readonly shop?: ShopViewPacket;
   readonly recipe?: RecipeListPacket;
+  readonly activity?: ActivityViewPacket;
 }
 
 /** A request for the client to close an interface/panel. */

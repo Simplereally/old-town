@@ -1,5 +1,6 @@
 import type { z } from "zod";
 import type { ContentKind } from "../content/content-kind";
+import { activityDefSchema } from "./activity";
 import { animationDefSchema } from "./animation";
 import { bankDefSchema } from "./bank";
 import { charterDefSchema } from "./charter";
@@ -46,6 +47,7 @@ export const contentSchemas = {
   contract: contractDefSchema,
   property: propertyDefSchema,
   charter: charterDefSchema,
+  activity: activityDefSchema,
 } as const satisfies Record<ContentKind, z.ZodTypeAny>;
 
 /** The schema object type for a given kind. */

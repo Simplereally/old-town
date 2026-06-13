@@ -81,6 +81,7 @@ describe("ItemAuditLog", () => {
       "systems/ledger-system.ts",
       "systems/public-works-system.ts",
       "systems/service-fee-system.ts",
+      "systems/activity-system.ts",
       "systems/shop-system.ts",
       "systems/skilling-system.ts",
       "systems/spell-system.ts",

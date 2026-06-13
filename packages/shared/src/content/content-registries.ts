@@ -5,6 +5,7 @@
  * content-registry.ts and content-references.ts.
  */
 
+import type { ActivityDef } from "../content-schemas/activity";
 import type { AnimationDef } from "../content-schemas/animation";
 import type { BankDef } from "../content-schemas/bank";
 import type { CharterDef } from "../content-schemas/charter";
@@ -48,4 +49,5 @@ export interface ContentRegistries {
   readonly contract: ReadonlyMap<string, ContractDef>;
   readonly property: ReadonlyMap<string, PropertyDef>;
   readonly charter: ReadonlyMap<string, CharterDef>;
+  readonly activity: ReadonlyMap<string, ActivityDef>;
 }

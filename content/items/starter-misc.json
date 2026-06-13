@@ -486,5 +486,27 @@
     "value": 15,
     "weight": 0.2,
     "options": []
+  },
+  {
+    "id": "soot_mark",
+    "name": "Soot Mark",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A soot-stained mark proving labour in the Sootcellar.",
+    "icon": "icon_soot_mark",
+    "value": 3,
+    "weight": 0.1,
+    "options": []
+  },
+  {
+    "id": "soot_ash",
+    "name": "Soot Ash",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A handful of fine ash from the Sootcellar floor.",
+    "icon": "icon_soot_ash",
+    "value": 1,
+    "weight": 0.1,
+    "options": []
   }
 ]

@@ -11,6 +11,7 @@ import { handlePrayIntent } from "./favour-system";
 import { handleMoveIntent } from "./movement-system";
 import { enterNook, type NookDef } from "./nook-system";
 import type { ResourceNodeContext } from "./resource-node-system";
+import { handleActivityIntent } from "./activity-system";
 import { handleObjectSkillingIntent } from "./skilling-system";
 import { handleTrappingIntent, isTrappingAction } from "./trapping-system";
 
@@ -322,6 +323,19 @@ function handleTrappingOption(
   );
 }
 
+function handleActivityOption(
+  ctx: ObjectInteractionContext,
+  invocation: ObjectOptionInvocation,
+): boolean {
+  return handleActivityIntent(
+    ctx,
+    invocation.owner,
+    invocation.intent.objectEntityId,
+    invocation.serverTime,
+    invocation.tick,
+  );
+}
+
 const OBJECT_OPTION_ROUTES = new Map<string, AdjacentObjectOptionRoute>([
   ["inspect", { kind: "adjacent", handler: handleInspectOption }],
   ["read", { kind: "adjacent", handler: handleReadOption }],
@@ -331,6 +345,7 @@ const OBJECT_OPTION_ROUTES = new Map<string, AdjacentObjectOptionRoute>([
   ["pray", { kind: "adjacent", handler: handlePrayOption }],
   ["survey", { kind: "adjacent", handler: handleSurveyOption }],
   ["accept", { kind: "adjacent", handler: handleContractAcceptOption }],
+  ["activity", { kind: "adjacent", handler: handleActivityOption }],
 ]);
 
 const SKILLING_OBJECT_ROUTE: ObjectOptionRoute = { kind: "skilling" };

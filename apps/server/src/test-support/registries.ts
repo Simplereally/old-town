@@ -30,6 +30,7 @@ export function makeRegistries(overrides: Partial<ContentRegistries> = {}): Cont
     contract: new Map(),
     property: new Map(),
     charter: new Map(),
+    activity: new Map(),
     ...overrides,
   };
 }

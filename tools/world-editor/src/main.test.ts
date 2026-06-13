@@ -202,6 +202,7 @@ function makeState(region: RegionMapDef = baseRegion): EditorState {
       processingRecipe: new Map(),
       regionMap: new Map(),
       skill: new Map(),
+      activity: new Map(),
     },
     regions: [],
     selected: {

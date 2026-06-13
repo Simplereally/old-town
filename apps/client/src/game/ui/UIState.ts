@@ -1,4 +1,5 @@
 import type {
+  ActivityViewPacket,
   ChatPacket,
   ContractCompletePacket,
   ContractProgressPacket,
@@ -63,6 +64,7 @@ export class UIState {
   private _deathScreen = false;
   private _notifications: Notification[] = [];
   private _xpDrops: XpDropPacket[] = [];
+  private _activity: ActivityViewPacket | undefined;
   private _listeners = new Set<() => void>();
 
   get inventory(): ReadonlyMap<number, InventorySlotChange> {
@@ -382,6 +384,20 @@ export class UIState {
 
   get xpDrops(): readonly XpDropPacket[] {
     return this._xpDrops;
+  }
+
+  get activity(): ActivityViewPacket | undefined {
+    return this._activity;
+  }
+
+  setActivity(activity: ActivityViewPacket): void {
+    this._activity = activity;
+    this._notify();
+  }
+
+  clearActivity(): void {
+    this._activity = undefined;
+    this._notify();
   }
 
   addXpDrops(drops: readonly XpDropPacket[]): void {

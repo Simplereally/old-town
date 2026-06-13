@@ -33,6 +33,8 @@ export const objectDefSchema = z
     defaultRotation: nonNegInt.max(3).default(0),
     /** Drop table id for chest contents, rolled when opened. */
     dropTableId: contentIdSchema.optional(),
+    /** Activity id triggered by interacting with this object. */
+    activityId: contentIdSchema.optional(),
   })
   .strict();
 

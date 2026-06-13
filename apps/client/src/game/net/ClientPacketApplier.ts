@@ -26,6 +26,7 @@ export interface IUIState {
   readonly dialogue: import("@old-town/shared").DialogueViewPacket | undefined;
   readonly recipeList: import("@old-town/shared").RecipeListPacket | undefined;
   readonly recipeResult: import("@old-town/shared").RecipeResultPacket | undefined;
+  readonly activity: import("@old-town/shared").ActivityViewPacket | undefined;
   readonly deathScreen: boolean;
   setInventory(delta: InventoryDelta): void;
   setSkills(skills: readonly SkillDelta[]): void;
@@ -46,6 +47,8 @@ export interface IUIState {
   clearRecipeList(): void;
   setRecipeResult(packet: import("@old-town/shared").RecipeResultPacket): void;
   clearRecipeResult(): void;
+  setActivity(activity: import("@old-town/shared").ActivityViewPacket): void;
+  clearActivity(): void;
   addXpDrops(drops: readonly XpDropPacket[]): void;
   setDeathScreen(active: boolean): void;
   setStatusEffects(effects: readonly StatusEffectUpdate[]): void;
@@ -518,6 +521,9 @@ export class ClientPacketApplier {
         if (open.recipe) {
           ctx.uiState.setRecipeList(open.recipe);
         }
+        if (open.activity) {
+          ctx.uiState.setActivity(open.activity);
+        }
       }
     }
     if (packet.interfaceCloses) {
@@ -533,6 +539,9 @@ export class ClientPacketApplier {
         }
         if (close.interfaceId === "recipe") {
           ctx.uiState.clearRecipeList();
+        }
+        if (close.interfaceId === "activity") {
+          ctx.uiState.clearActivity();
         }
       }
     }

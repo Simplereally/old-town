@@ -10,6 +10,7 @@
  */
 import type { ZodError } from "zod";
 import type { ContentKind } from "../content/content-kind";
+import type { ActivityDef } from "../content-schemas/activity";
 import type { AnimationDef } from "../content-schemas/animation";
 import type { BankDef } from "../content-schemas/bank";
 import type { CharterDef } from "../content-schemas/charter";
@@ -81,6 +82,7 @@ const CONTENT_KINDS: readonly ContentKind[] = [
   "contract",
   "property",
   "charter",
+  "activity",
 ];
 
 function jsonPointer(path: readonly (string | number)[]): string {
@@ -190,6 +192,7 @@ export function validateContent(files: readonly LoadedContentFile[]): ContentVal
     contract: maps.get("contract") as Map<string, ContractDef>,
     property: maps.get("property") as Map<string, PropertyDef>,
     charter: maps.get("charter") as Map<string, CharterDef>,
+    activity: maps.get("activity") as Map<string, ActivityDef>,
   };
 
   const graphResult = validateContentGraph(registries, sources);

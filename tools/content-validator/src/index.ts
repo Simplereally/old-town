@@ -62,6 +62,7 @@ const REGISTRY_ORDER: readonly (keyof ContentRegistries & ContentKind)[] = [
   "regionMap",
   "material",
   "animation",
+  "activity",
 ];
 
 async function main(): Promise<void> {

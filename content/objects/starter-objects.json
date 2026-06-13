@@ -124,7 +124,11 @@
     "length": 2,
     "blocksMovement": true,
     "blocksLineOfSight": false,
-    "options": [{ "label": "Ring", "actionId": "ring", "priority": 10, "requiredDistance": 1 }],
+    "options": [
+      { "label": "Ring", "actionId": "ring", "priority": 10, "requiredDistance": 1 },
+      { "label": "Start activity", "actionId": "activity", "priority": 5, "requiredDistance": 1 }
+    ],
+    "activityId": "bell_run",
     "model": "model_market_bell"
   },
   {
@@ -157,7 +161,11 @@
     "length": 1,
     "blocksMovement": true,
     "blocksLineOfSight": false,
-    "options": [{ "label": "Open", "actionId": "open", "priority": 10, "requiredDistance": 1 }],
+    "options": [
+      { "label": "Open", "actionId": "open", "priority": 10, "requiredDistance": 1 },
+      { "label": "Start activity", "actionId": "activity", "priority": 5, "requiredDistance": 1 }
+    ],
+    "activityId": "soot_sweep",
     "model": "model_sootcellar_hatch"
   },
   {
