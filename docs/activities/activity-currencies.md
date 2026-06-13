@@ -99,10 +99,10 @@ The Road Token is earned by completing the Crowmile Relay. It is the currency of
 
 ### Ledger Sort Discount
 
-The Ledger Sort Discount is earned by completing the Ledger Sort. It is not a traditional token but a discount voucher that reduces civic service fees. Players spend Ledger Sort Discounts at the Ledger Shop for civic discounts and the Counting House Clerk trim.
+The Ledger Sort Discount is earned by completing the Ledger Sort. It is not a traditional token but a discount voucher that reduces civic service fees. Players spend Ledger Sort Discounts at the Ledger Shop for civic discounts and the Counting House Clerk Trim.
 
 - **Earn rate:** 0-1 discount per sort, depending on accuracy.
-- **Sink:** Civic discounts (5 discounts), Counting House Clerk trim (50 discounts).
+- **Sink:** Civic discounts (5 discounts), Counting House Clerk Trim (50 discounts).
 - **Related:** Ledger Sort Discounts are bound to the player and cannot be traded.
 
 ## Currency Exchange Rates

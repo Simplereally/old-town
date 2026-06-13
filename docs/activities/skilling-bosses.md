@@ -124,7 +124,7 @@ The player can choose to end the encounter at any time. The rewards are based on
 
 - 1-5 batches: Hearthcraft XP, Beadwork XP, basic fired beads, 1 Kiln Token.
 - 6-10 batches: Above plus ash materials, ember beads, 2 Kiln Tokens.
-- 11-15 batches: Above plus 3-5 Kiln Tokens, ashproof gloves.
+- 11-15 batches: Above plus 3-5 Kiln Tokens, ashproof gloves, Kilnwatch Oath Mark.
 - 16+ batches: Above plus 4-6 Kiln Tokens, rare chance at Tallow Drake Scale.
 
 ### Failure State
@@ -200,7 +200,7 @@ The player can choose to end the encounter at any time. The rewards are based on
 
 - 1-5 baskets: Fishing XP, Cooking XP, Wayfaring XP, basic fish, 1 Tide Token.
 - 6-10 baskets: Above plus river bait, Wardenbrook fish, 2 Tide Tokens.
-- 11-15 baskets: Above plus 3-5 Tide Tokens, fish hamper upgrade.
+- 11-15 baskets: Above plus 3-5 Tide Tokens, fish hamper upgrade, Wardenbrook Angler Pin.
 - 16+ baskets: Above plus 4-6 Tide Tokens, rare chance at Argent Ray clue.
 
 ### Failure State
@@ -239,7 +239,7 @@ If the player is washed off the dock by a wave, the encounter ends. All fish in 
 
 **entry requirement:** Favour 20 and completion of the quest `Gravegate Flowers`.
 
-**danger classification:** Risky.
+**danger classification:** Dangerous.
 
 **fantasy:** Keep the graves polite through the night. The rot spreads from forgotten graves, the candles gutter in the wind, and the Grave Wisps grow restless. The player must plant flowers, light candles, clear rot, offer bone chips, brew washes, and keep the Wisps calm — all while the night deepens.
 
@@ -278,7 +278,7 @@ The player can choose to end the encounter at any time. The rewards are based on
 
 - 1-5 graves: Favour XP, Gardening XP, basic grave flowers, 1 Vigil Token.
 - 6-10 graves: Above plus grave flower seeds, rot-resistant salves, 2 Vigil Tokens.
-- 11-15 graves: Above plus 3-5 Vigil Tokens, candle trims.
+- 11-15 graves: Above plus 3-5 Vigil Tokens, candle trims, Lowgrave Candle Trim.
 - 16+ graves: Above plus 4-6 Vigil Tokens, rare chance at Gravekeeper's Tooth fragment.
 
 ### Failure State

@@ -104,15 +104,14 @@ Safe activities have no failure cost beyond lost time:
 
 Risky activities have failure costs that include lost materials and time:
 
-- **Quarry Shift:** Cave-ins ruin the batch and may damage tools. Lost materials and tool durability.
-- **Lowgrave Vigil:** Rot forces retreat. Lost materials. Grave Wisps may interrupt actions.
 - **Sootstairs Lockroom:** Wrong door resets progress. Lost time.
-- **Soot Sweep:** Grave Mites force retreat. No death, but sweep is incomplete.
 
 ### Dangerous Activities
 
 Dangerous activities have failure costs that include damage, death, and significant loss:
 
+- **Quarry Shift:** Cave-ins ruin the batch and may damage tools. If caught in the collapse, the player may die. Lost materials and tool durability.
+- **Lowgrave Vigil:** Rot forces retreat. Grave Wisps drain health if the player stays in the dark too long. Lost materials.
 - **Old Kiln Watch:** Kiln eruption forces retreat. All materials in the kiln are lost. Player may take damage.
 - **Wardenbrook Tide:** Washed off the dock. All fish in the current basket are lost. Player may take damage.
 
@@ -120,6 +119,7 @@ Dangerous activities have failure costs that include damage, death, and signific
 
 - **Safe activities:** No death possible.
 - **Risky activities:** No death possible. Failure is retreat or reset.
+- **Soot Sweep:** Grave Mites force retreat. No death, but sweep is incomplete.
 - **Dangerous activities:** Death is possible but rare. The player is more likely to be forced to retreat than to die. Death only occurs if the player ignores multiple warnings and stays in the danger zone.
 - **Death penalty:** Standard Old Town death penalty applies (loss of carried materials, respawn at nearest safe point). No special activity death penalty.
 
@@ -163,10 +163,10 @@ Some activities can be done by multiple players simultaneously:
 | River Basket | Active | 85% | 1-2/run | Lost materials | No |
 | Crowmile Relay | Active | 90% | 3-5/run | None | Yes |
 | Bellwood Replant | Active | 90% | 2-3/run | Pause | No |
-| Quarry Shift | Risky | 105% | 3-5/run | Lost materials + tool damage | No |
+| Quarry Shift | Mastery | 105% | 3-5/run | Lost materials + tool damage + death | No |
 | Patchfield Drive | Active | 90% | 2-3/run | Lost materials | No |
-| Wardenbrook Tide | Mastery | 110% | 3-5/run (11+ baskets) | Lost materials + damage | Yes |
-| Lowgrave Vigil | Risky | 105% | 3-5/run (11+ graves) | Lost materials + retreat | Yes |
+| Wardenbrook Tide | Mastery | 110% | 3-6/run (11+ baskets) | Lost materials + damage | Yes |
+| Lowgrave Vigil | Mastery | 105% | 3-6/run (11+ graves) | Lost materials + death | Yes |
 | Old Kiln Watch | Mastery | 110% | 3-6/run (11+ batches) | Lost materials + damage | Yes |
 | Sootstairs Lockroom | Risky | 100% | 2-4/run | Lost progress | No |
 

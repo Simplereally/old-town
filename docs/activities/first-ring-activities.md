@@ -117,17 +117,17 @@ This document defines the eight repeatable activities in first-ring areas beyond
 
 **entry requirement:** Mining 20 and route unlock to Tinstone Cut.
 
-**safe/risky/dangerous:** Risky
+**safe/risky/dangerous:** Dangerous
 
-**loop description:** The player works a shift at the Tinstone Cut quarry. Actions: deliver ore carts from deep faces, sort blackcoal by grade, repair bellows on the portable furnace, smelt timed batches, and hammer flawed ingots. The quarry has a cave-in risk that increases the longer the player stays. Cave-ins damage tools and interrupt production.
+**loop description:** The player works a shift at the Tinstone Cut quarry. Actions: deliver ore carts from deep faces, sort blackcoal by grade, repair bellows on the portable furnace, smelt timed batches, and hammer flawed ingots. The quarry has a cave-in risk that increases the longer the player stays. Cave-ins damage tools, interrupt production, and can trap the player if not avoided.
 
 **inputs:** Mining tools, blackcoal, ore (provided or gathered).
 
 **outputs:** Mining XP, Smithing XP, ore bundles, ingots, rivets, Quarry Token.
 
-**reward identity:** Quarry Tokens can be exchanged for mining tools, repair discounts, and the Quarry Worker apron cosmetic.
+**reward identity:** Quarry Tokens can be exchanged for mining tools, repair discounts, and the Quarry Worker Apron cosmetic.
 
-**failure state:** If a cave-in occurs, the current batch is ruined and the player must retreat to a safe area. Tools may be damaged. Inputs are lost.
+**failure state:** If a cave-in occurs, the current batch is ruined and the player must retreat to a safe area. Tools may be damaged. Inputs are lost. If the player is caught in the collapse, they take heavy damage and may die.
 
 **what it teaches:** How to manage risk in a production environment, how to balance speed and safety, and how to repair equipment under pressure.
 
@@ -213,7 +213,7 @@ This document defines the eight repeatable activities in first-ring areas beyond
 
 **entry requirement:** Favour 20 and completion of the quest `Gravegate Flowers`.
 
-**safe/risky/dangerous:** Risky
+**safe/risky/dangerous:** Dangerous
 
 **loop description:** The player keeps the graves polite through the night. Actions: plant grave flowers, light shrine candles, clear rot patches that spread from forgotten graves, offer bone chips at the shrine, brew simple washes to cleanse rot, and keep Grave Wisps calm. The rot has a spread meter that increases if neglected. Grave Wisps become hostile if too many candles fail.
 
@@ -223,7 +223,7 @@ This document defines the eight repeatable activities in first-ring areas beyond
 
 **reward identity:** Vigil Tokens can be exchanged for grave flower seeds, salve recipes, and the Lowgrave Candle Trim cosmetic. Candle trims are also earned directly during successful vigils. Rare chance at a Gravekeeper's Tooth fragment.
 
-**failure state:** If the rot spreads too far, the player is forced to retreat to the chapel. If a Grave Wisp becomes hostile, the player must flee. Lost materials are not recovered.
+**failure state:** If the rot spreads too far, the player is forced to retreat to the chapel. If a Grave Wisp becomes hostile, the player must flee. If the player stays in the dark too long, the Wisps drain their health to death. Lost materials are not recovered.
 
 **what it teaches:** How to manage multiple timed tasks under environmental pressure, how to use Favour rites in a dangerous context, and how to brew under time pressure.
 
@@ -253,7 +253,7 @@ This document defines the eight repeatable activities in first-ring areas beyond
 
 **outputs:** Hearthcraft XP, Beadwork XP, Magic XP, fired beads, ash materials, ember beads, Kiln Token.
 
-**reward identity:** Kiln Tokens can be exchanged for bead-firing materials, heat-safe firing access, and the Kilnwatch Oath cosmetic. Ashproof gloves are also earned directly during successful watches. Rare chance at a Tallow Drake Scale.
+**reward identity:** Kiln Tokens can be exchanged for bead-firing materials, heat-safe firing access, and the Kilnwatch Oath Mark cosmetic. Ashproof gloves are also earned directly during successful watches. Rare chance at a Tallow Drake Scale.
 
 **failure state:** If the kiln erupts, the player is forced to retreat and all materials in the kiln are lost. If an Ash Drake Whelp bites the player, the bite interrupts the current action and deals minor damage.
 

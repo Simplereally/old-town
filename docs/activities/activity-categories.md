@@ -77,7 +77,7 @@ This document defines the eight activity categories used in Old Town. Every acti
 - Must not have a failure state that punishes all participants.
 - Must not require coordination. Players can contribute independently.
 - Must be in a town or populated area.
-- Examples: Market Rush, Ledger Sort, Soot Sweep.
+- Examples: Market Rush, Soot Sweep.
 
 ### Combat-lite Activity
 

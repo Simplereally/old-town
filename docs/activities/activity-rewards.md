@@ -54,7 +54,7 @@ Activities should not reward any of the following:
 |----|------|------|----------|--------------|----------------|
 | `bell_runner_ribbon` | Bell Runner Ribbon | cosmetic | Bell Run | A blue ribbon worn on the belt or cloak. | Shows you run the Bell Run. Pure identity, no stat change. |
 | `soot_sweeper_apron` | Soot Sweeper Apron | cosmetic | Soot Sweep | A soot-stained apron with a broom motif. | Shows you keep the Sootcellar clean. Signals belonging without changing stats. |
-| `counting_house_clerk` | Counting House Clerk trim | cosmetic | Ledger Sort | A wax-seal pattern on the collar. | Shows you sort ledgers. Pure identity. |
+| `counting_house_clerk` | Counting House Clerk Trim | cosmetic | Ledger Sort | A wax-seal pattern on the collar. | Shows you sort ledgers. Pure identity. |
 | `market_runner_ribbon` | Market Runner Ribbon | cosmetic | Market Rush | A green ribbon with a basket weave pattern. | Shows you run the market. Pure identity. |
 | `gravekeeper_ribbon` | Gravekeeper Ribbon | cosmetic | Graveflower Round | A grey ribbon with a small flower sigil. | Shows you tend the graves. Pure identity. |
 | `foundry_shift_apron` | Foundry Shift Apron | cosmetic | Foundry Shift | A leather apron with furnace scorch marks. | Shows you work the Foundry Row shift. Pure identity. |
@@ -93,14 +93,14 @@ Activities should not reward any of the following:
 
 | Activity | Reward 1 | Reward 2 | Reward 3 |
 |----------|----------|----------|----------|
-| Bell Run | Bell Runner ribbon | Bell Token | route hints |
-| Soot Sweep | Soot Sweeper apron | Soot Mark | small coins |
-| Ledger Sort | Counting House Clerk trim | Ledger Sort discount | small coins |
-| Market Rush | Market Runner ribbon | Market Token | cooking ingredients |
-| Graveflower Round | Gravekeeper ribbon | Grave Token | grave flower seeds |
-| Foundry Shift | Foundry Shift apron | Foundry Token | copper bars |
-| Kilnwatch Primer | Kilnwatch ribbon | Kiln Token | fired beads |
-| River Basket | River Basket ribbon | River Token | raw fish |
+| Bell Run | Bell Runner Ribbon | Bell Token | route hints |
+| Soot Sweep | Soot Sweeper Apron | Soot Mark | small coins |
+| Ledger Sort | Counting House Clerk Trim | Ledger Sort discount | small coins |
+| Market Rush | Market Runner Ribbon | Market Token | cooking ingredients |
+| Graveflower Round | Gravekeeper Ribbon | Grave Token | grave flower seeds |
+| Foundry Shift | Foundry Shift Apron | Foundry Token | copper bars |
+| Kilnwatch Primer | Kilnwatch Ribbon | Kiln Token | fired beads |
+| River Basket | River Basket Ribbon | River Token | raw fish |
 
 ### First-Ring Activities
 
@@ -108,11 +108,11 @@ Activities should not reward any of the following:
 |----------|----------|----------|----------|
 | Crowmile Relay | Crowmile Road Ribbon | Road Token | route cosmetics |
 | Bellwood Replant | Bellwood Axe Mark | Replant Token | bow staves |
-| Quarry Shift | Quarry Worker apron | Quarry Token | ore bundles |
+| Quarry Shift | Quarry Worker Apron | Quarry Token | ore bundles |
 | Patchfield Drive | Patchfield Hide Stamp | Drive Token | hide bundles |
 | Wardenbrook Tide | Wardenbrook Angler Pin | Tide Token | fish hamper upgrade |
 | Lowgrave Vigil | Lowgrave Candle Trim | Vigil Token | candle trims |
-| Old Kiln Watch | Kilnwatch Oath mark | Kiln Token | ashproof gloves |
+| Old Kiln Watch | Kilnwatch Oath Mark | Kiln Token | ashproof gloves |
 | Sootstairs Lockroom | Blacksealed Cloak | Lockroom Token | False-Bottom Pouch parts |
 
 ### Skilling Bosses
@@ -151,7 +151,7 @@ Every activity with a token has a reward shop. The shop is located at the activi
 |------|-----|----------|-------|---------------|
 | Bell Shop | Mara Bellkeeper | Market Bell | Bell Token | route hints, district maps, Bell Runner ribbon |
 | Soot Shop | Marn Lock | Sootcellar | Soot Mark | Sleight tools, broom upgrades, Soot Sweeper apron |
-| Ledger Shop | Clerk Penn | Counting House | Ledger Sort discount | civic discounts, Counting House Clerk trim |
+| Ledger Shop | Clerk Penn | Counting House | Ledger Sort discount | civic discounts, Counting House Clerk Trim |
 | Market Shop | Pell Hookline | Market Bell | Market Token | cooking ingredients, Market Runner ribbon |
 | Grave Shop | Sister Writ | Shrine Hearth | Grave Token | grave flower seeds, Gravekeeper ribbon |
 | Foundry Shop | Osric Penny | Foundry Row | Foundry Token | smithing tools, Foundry Shift apron |
@@ -159,11 +159,11 @@ Every activity with a token has a reward shop. The shop is located at the activi
 | River Shop | Pell Hookline | River Stoop | River Token | bait, fishing hints, River Basket ribbon |
 | Crowmile Shop | Orven Roadcap | Crowmile Road Camp | Road Token | route cosmetics, shortcut unlocks, Crowmile Road Ribbon |
 | Replant Shop | Aunt Bracken | Bellwood Yard | Replant Token | bowcraft materials, Bellwood Axe Mark |
-| Quarry Shop | Sella Coalhand | Foundry Hall | Quarry Token | mining tools, Quarry Worker apron |
+| Quarry Shop | Sella Coalhand | Foundry Hall | Quarry Token | mining tools, Quarry Worker Apron |
 | Drive Shop | Rowen Hidepeg | Patchfield Tannery | Drive Token | tailoring materials, Patchfield Hide Stamp |
 | Tide Shop | Pell Hookline | Wardenbrook Fishery | Tide Token | river bait, fish hamper upgrade, Wardenbrook Angler Pin, Argent Ray clue |
 | Vigil Shop | Cress Lowgrave | Lowgrave Chapel | Vigil Token | grave flower seeds, candle trims, Lowgrave Candle Trim, Gravekeeper's Tooth fragment |
-| Watch Shop | Noll Kilnwatch | Old Kiln House | Kiln Token | ashproof gloves, Kilnwatch Oath mark |
+| Watch Shop | Noll Kilnwatch | Old Kiln House | Kiln Token | ashproof gloves, Kilnwatch Oath Mark |
 | Lockroom Shop | Vey Falsewick | Sootstairs Rooms | Lockroom Token | lockpick upgrades, Blacksealed Cloak |
 
 ## Related Systems

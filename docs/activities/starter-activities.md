@@ -84,7 +84,7 @@ This document defines the eight repeatable activities inside Old Town proper. Th
 
 **entry requirement:** Arms 1
 
-**safe/risky/dangerous:** Risky
+**safe/risky/dangerous:** Safe
 
 **loop description:** The player sweeps soot piles from the Sootcellar floor, clearing paths and reducing the chance of Grave Mite spawns. Occasionally, Grave Mites emerge from the soot and must be fought or fled. Cleared areas grant small coin rewards and reduce the town's soot accumulation meter.
 
@@ -124,7 +124,7 @@ This document defines the eight repeatable activities inside Old Town proper. Th
 
 **outputs:** Cartography XP, Sleight XP, small coins, Ledger Sort discount voucher.
 
-**reward identity:** Discount vouchers reduce the cost of civic services (bank fees, permit costs). The Counting House Clerk cosmetic is awarded for 100 correct sorts.
+**reward identity:** Discount vouchers reduce the cost of civic services (bank fees, permit costs). The Counting House Clerk Trim cosmetic is awarded for 100 correct sorts.
 
 **failure state:** If the player submits an incorrect bundle, the clerk rejects it and the pages must be re-sorted. No penalty beyond lost time.
 

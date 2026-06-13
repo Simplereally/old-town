@@ -68,7 +68,7 @@ Every hook in this document follows the same structure:
 - **activity:** Ledger Sort
 - **premise:** One ledger has a name that does not match any seal. Clerk Penn asks the player to find the missing entry.
 - **systems:** Cartography, Sleight
-- **reward:** Ledger Sort discount, Counting House Clerk trim, small coins
+- **reward:** Ledger Sort discount, Counting House Clerk Trim, small coins
 - **hook_line:** "Every name has a seal. Every seal has a name. If one don't match, someone is lying."
 
 ### Hook 4: The Market That Moved
@@ -150,7 +150,7 @@ Every hook in this document follows the same structure:
 - **activity:** Quarry Shift
 - **premise:** The quarry workers report hearing whispers from the deep cut. Sella asks the player to investigate.
 - **systems:** Mining, Smithing
-- **reward:** Quarry Token, Quarry Worker apron, ore bundles
+- **reward:** Quarry Token, Quarry Worker Apron, ore bundles
 - **hook_line:** "A quarry that whispers is a quarry that's remembering something. Go down and listen."
 
 ### Hook 12: The Drive That Lost the Fox
@@ -190,7 +190,7 @@ Every hook in this document follows the same structure:
 - **activity:** Old Kiln Watch
 - **premise:** The kiln has flared unexpectedly during a watch. Noll asks the player to investigate the cause and prevent a repeat.
 - **systems:** Hearthcraft, Beadwork, Magic
-- **reward:** Kiln Token, Kilnwatch Oath mark, ashproof gloves
+- **reward:** Kiln Token, Kilnwatch Oath Mark, ashproof gloves
 - **hook_line:** "A kiln that catches fire during the watch is a kiln that don't trust the watcher. Earn its trust back."
 
 ### Hook 16: The Lockroom That Opened Itself
@@ -209,7 +209,7 @@ Every hook in this document follows the same structure:
 |---|------------|-------|----------|---------|--------|
 | 1 | The Bell That Ran Ahead | Mara Bellkeeper | Bell Run | Wayfaring, Cartography | Bell Token, route hint, Bell Runner ribbon |
 | 2 | The Sweep That Never Ends | Marn Lock | Soot Sweep | Arms, Guard, Sleight | Soot Sweeper apron, Soot Mark, small coins |
-| 3 | The Ledger That Would Not Balance | Clerk Penn | Ledger Sort | Cartography, Sleight | Ledger Sort discount, Counting House Clerk trim, small coins |
+| 3 | The Ledger That Would Not Balance | Clerk Penn | Ledger Sort | Cartography, Sleight | Ledger Sort discount, Counting House Clerk Trim, small coins |
 | 4 | The Market That Moved | Pell Hookline | Market Rush | Wayfaring, Cooking | Market Token, Market Runner ribbon, cooking ingredients |
 | 5 | The Grave That Bloomed Twice | Sister Writ | Graveflower Round | Favour, Gardening | Grave Token, Gravekeeper ribbon, grave flower seeds |
 | 6 | The Shift That Would Not End | Osric Penny | Foundry Shift | Smithing, Mining | Foundry Token, Foundry Shift apron, copper bars |
@@ -217,11 +217,11 @@ Every hook in this document follows the same structure:
 | 8 | The Basket That Caught Nothing | Pell Hookline | River Basket | Fishing, Cooking | River Token, River Basket ribbon, raw fish |
 | 9 | The Relay That Broke | Orven Roadcap | Crowmile Relay | Wayfaring, Cartography | Road Token, Crowmile Road Ribbon, cosmetics |
 | 10 | The Replant That Grew Backwards | Aunt Bracken | Bellwood Replant | Woodcutting, Gardening, Bowcraft | Replant Token, Bellwood Axe Mark, bow staves |
-| 11 | The Quarry That Whispered | Sella Coalhand | Quarry Shift | Mining, Smithing | Quarry Token, Quarry Worker apron, ore bundles |
+| 11 | The Quarry That Whispered | Sella Coalhand | Quarry Shift | Mining, Smithing | Quarry Token, Quarry Worker Apron, ore bundles |
 | 12 | The Drive That Lost the Fox | Rowen Hidepeg | Patchfield Drive | Trapping, Tailoring | Drive Token, Patchfield Hide Stamp, hide bundles |
 | 13 | The Tide That Came Early | Pell Hookline | Wardenbrook Tide | Fishing, Cooking, Wayfaring | Tide Token, Wardenbrook Angler Pin, fish hamper upgrade |
 | 14 | The Vigil That Never Ended | Cress Lowgrave | Lowgrave Vigil | Favour, Gardening, Hearthcraft, Apothecary | Vigil Token, Lowgrave Candle Trim, candle trims |
-| 15 | The Watch That Caught Fire | Noll Kilnwatch | Old Kiln Watch | Hearthcraft, Beadwork, Magic | Kiln Token, Kilnwatch Oath mark, ashproof gloves |
+| 15 | The Watch That Caught Fire | Noll Kilnwatch | Old Kiln Watch | Hearthcraft, Beadwork, Magic | Kiln Token, Kilnwatch Oath Mark, ashproof gloves |
 | 16 | The Lockroom That Opened Itself | Vey Falsewick | Sootstairs Lockroom | Sleight, Cartography | Lockroom Token, Blacksealed Cloak, False-Bottom Pouch parts |
 
 ## Deferred to Implementation
