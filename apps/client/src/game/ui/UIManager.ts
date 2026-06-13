@@ -38,6 +38,7 @@ export class UIManager {
     "recipe-panel",
     "minimap-panel",
     "contract-panel",
+    "activity-panel",
     "status-effects-panel",
     "death-screen",
     "notification-toast",
@@ -53,6 +54,7 @@ export class UIManager {
     s: "shop-panel",
     ",": "minimap-panel",
     ".": "contract-panel",
+    a: "activity-panel",
     d: "debug-overlay",
   };
   private _unsubscribe: (() => void) | undefined;
@@ -222,6 +224,7 @@ export class UIManager {
     this._renderRecipes();
     this._renderMinimap();
     this._renderContract();
+    this._renderActivity();
     this._renderStatusEffects();
     this._renderDeathScreen();
     this._renderNotifications();
@@ -740,6 +743,66 @@ export class UIManager {
       <div class="text-muted">${contract.current} / ${contract.required}</div>
     `;
     body.appendChild(bar);
+  }
+
+  private _renderActivity(): void {
+    const body = document.getElementById("activity-body");
+    const panel = document.getElementById("activity-panel");
+    if (!body || !panel) return;
+
+    const activity = this.uiState.activity;
+    if (!activity) {
+      body.innerHTML = '<div class="text-dim">No active activity.</div>';
+      panel.classList.add("hidden");
+      this._updateButtonState("activity-panel", false);
+      return;
+    }
+
+    panel.classList.remove("hidden");
+    this._updateButtonState("activity-panel", true);
+    body.innerHTML = "";
+
+    const nameRow = document.createElement("div");
+    nameRow.classList.add("activity-row");
+    nameRow.innerHTML = `<span class="activity-label">Name</span><span class="activity-value">${activity.name}</span>`;
+    body.appendChild(nameRow);
+
+    const categoryRow = document.createElement("div");
+    categoryRow.classList.add("activity-row");
+    categoryRow.innerHTML = `<span class="activity-label">Category</span><span class="activity-value">${activity.category}</span>`;
+    body.appendChild(categoryRow);
+
+    const riskRow = document.createElement("div");
+    riskRow.classList.add("activity-row");
+    const riskClass =
+      activity.risk === "low"
+        ? "activity-risk-low"
+        : activity.risk === "high"
+          ? "activity-risk-high"
+          : "activity-risk-medium";
+    riskRow.innerHTML = `<span class="activity-label">Risk</span><span class="activity-value ${riskClass}">${activity.risk}</span>`;
+    body.appendChild(riskRow);
+
+    const loopRow = document.createElement("div");
+    loopRow.classList.add("activity-row");
+    loopRow.innerHTML = `<span class="activity-label">Loop</span>`;
+    body.appendChild(loopRow);
+
+    const loopDesc = document.createElement("div");
+    loopDesc.classList.add("activity-value");
+    loopDesc.style.paddingTop = "2px";
+    loopDesc.style.lineHeight = "1.4";
+    loopDesc.textContent = activity.loopDescription;
+    body.appendChild(loopDesc);
+
+    const stopBtn = document.createElement("button");
+    stopBtn.type = "button";
+    stopBtn.classList.add("activity-stop-btn");
+    stopBtn.textContent = "Stop";
+    stopBtn.addEventListener("click", () => {
+      this.callbacks.sendUiActionCommand("activity_stop", activity.activityId);
+    });
+    body.appendChild(stopBtn);
   }
 
   private _renderStatusEffects(): void {

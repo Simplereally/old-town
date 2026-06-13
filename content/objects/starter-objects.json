@@ -150,7 +150,11 @@
     "length": 1,
     "blocksMovement": true,
     "blocksLineOfSight": false,
-    "options": [{ "label": "Enter", "actionId": "enter", "priority": 10, "requiredDistance": 1 }],
+    "options": [
+      { "label": "Enter", "actionId": "enter", "priority": 10, "requiredDistance": 1 },
+      { "label": "Start activity", "actionId": "activity", "priority": 5, "requiredDistance": 1 }
+    ],
+    "activityId": "graveflower_round",
     "model": "model_gravegate_arch"
   },
   {
@@ -176,7 +180,11 @@
     "length": 1,
     "blocksMovement": true,
     "blocksLineOfSight": false,
-    "options": [{ "label": "Use", "actionId": "use", "priority": 10, "requiredDistance": 1 }],
+    "options": [
+      { "label": "Use", "actionId": "use", "priority": 10, "requiredDistance": 1 },
+      { "label": "Start activity", "actionId": "activity", "priority": 5, "requiredDistance": 1 }
+    ],
+    "activityId": "ledger_sort",
     "model": "model_counting_house_ledger_desk"
   },
   {
@@ -275,7 +283,11 @@
     "length": 1,
     "blocksMovement": true,
     "blocksLineOfSight": false,
-    "options": [{ "label": "Trade", "actionId": "trade", "priority": 10, "requiredDistance": 1 }],
+    "options": [
+      { "label": "Trade", "actionId": "trade", "priority": 10, "requiredDistance": 1 },
+      { "label": "Start activity", "actionId": "activity", "priority": 5, "requiredDistance": 1 }
+    ],
+    "activityId": "river_basket",
     "model": "model_river_stoop_counter"
   },
   {
@@ -286,7 +298,11 @@
     "length": 1,
     "blocksMovement": true,
     "blocksLineOfSight": false,
-    "options": [{ "label": "Smelt", "actionId": "smelt", "priority": 10, "requiredDistance": 1 }],
+    "options": [
+      { "label": "Smelt", "actionId": "smelt", "priority": 10, "requiredDistance": 1 },
+      { "label": "Start activity", "actionId": "activity", "priority": 5, "requiredDistance": 1 }
+    ],
+    "activityId": "foundry_shift",
     "model": "model_foundry_furnace"
   },
   {
@@ -341,7 +357,11 @@
     "length": 1,
     "blocksMovement": true,
     "blocksLineOfSight": false,
-    "options": [{ "label": "Fire", "actionId": "fire", "priority": 10, "requiredDistance": 1 }],
+    "options": [
+      { "label": "Fire", "actionId": "fire", "priority": 10, "requiredDistance": 1 },
+      { "label": "Start activity", "actionId": "activity", "priority": 5, "requiredDistance": 1 }
+    ],
+    "activityId": "kilnwatch_primer",
     "model": "model_chalkhouse_bead_kiln"
   },
   {

@@ -953,6 +953,54 @@
       transition: width 0.2s;
     }
 
+    /* Activity panel */
+    #activity-panel {
+      width: 220px;
+    }
+    #activity-body {
+      font-size: 11px;
+    }
+    .activity-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .activity-row:last-child {
+      border-bottom: none;
+    }
+    .activity-label {
+      color: #aaa;
+    }
+    .activity-value {
+      color: #e8dcc8;
+    }
+    .activity-risk-low {
+      color: #4a9a4a;
+    }
+    .activity-risk-medium {
+      color: #d4a843;
+    }
+    .activity-risk-high {
+      color: #ff4444;
+    }
+    .activity-stop-btn {
+      width: 100%;
+      margin-top: 8px;
+      padding: 6px 0;
+      background: linear-gradient(180deg, #6a3a3a 0%, #5a2a2a 50%, #4a1a1a 100%);
+      border: 1px solid rgba(180, 80, 80, 0.5);
+      color: #e8dcc8;
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    .activity-stop-btn:hover {
+      background: linear-gradient(180deg, #7a4a4a 0%, #6a3a3a 50%, #5a2a2a 100%);
+    }
+
     /* Status effects panel */
     #status-effects-panel {
       position: absolute;
@@ -1210,6 +1258,12 @@
           <div id="contract-progress-bar"><div id="contract-progress-fill"></div></div>
         </div>
       </div>
+      <div id="activity-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Activity</div>
+        <div class="ui-panel-body" id="activity-body">
+          <div class="text-dim">No active activity.</div>
+        </div>
+      </div>
     </div>
     <div id="ui-bottom">
       <div id="chat-box" class="ui-panel hidden chat-box">
@@ -1241,6 +1295,7 @@
       <button type="button" class="ui-bar-btn" data-panel="minimap-panel">🗺️</button>
       <button type="button" class="ui-bar-btn" data-panel="recipe-panel">🔨</button>
       <button type="button" class="ui-bar-btn" data-panel="contract-panel">📋</button>
+      <button type="button" class="ui-bar-btn" data-panel="activity-panel">⚙️</button>
       <button type="button" class="ui-bar-btn" data-panel="chat-box">💬</button>
       <button type="button" class="ui-bar-btn" data-panel="debug-overlay">🐛</button>
     </div>

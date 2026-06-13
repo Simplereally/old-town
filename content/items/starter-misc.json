@@ -508,5 +508,71 @@
     "value": 1,
     "weight": 0.1,
     "options": []
+  },
+  {
+    "id": "ledger_sort_voucher",
+    "name": "Ledger Sort Voucher",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A small voucher earned from sorting ledgers at the Counting House.",
+    "icon": "icon_ledger_sort_voucher",
+    "value": 5,
+    "weight": 0.1,
+    "options": []
+  },
+  {
+    "id": "market_token",
+    "name": "Market Token",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A small brass token earned from market deliveries.",
+    "icon": "icon_market_token",
+    "value": 5,
+    "weight": 0.1,
+    "options": []
+  },
+  {
+    "id": "grave_token",
+    "name": "Grave Token",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A small token earned from tending the graveyard flowers.",
+    "icon": "icon_grave_token",
+    "value": 5,
+    "weight": 0.1,
+    "options": []
+  },
+  {
+    "id": "foundry_token",
+    "name": "Foundry Token",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A stamped iron token earned for working the foundry.",
+    "icon": "icon_foundry_token",
+    "value": 5,
+    "weight": 0.1,
+    "options": []
+  },
+  {
+    "id": "kiln_token",
+    "name": "Kiln Token",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A stamped clay token earned from firing the kiln.",
+    "icon": "icon_kiln_token",
+    "value": 5,
+    "weight": 0.1,
+    "options": []
+  },
+  {
+    "id": "river_token",
+    "name": "River Token",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A small brass token earned from river fishing.",
+    "icon": "icon_river_token",
+    "value": 5,
+    "weight": 0.1,
+    "options": []
   }
 ]

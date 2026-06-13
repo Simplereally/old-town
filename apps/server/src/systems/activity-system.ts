@@ -21,6 +21,7 @@ import type { ItemAuditLog } from "../items/item-audit";
 import { ActionQueue, type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import type { ActionContext } from "../sim/action-executor";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
+import { dispatchQuestEvent } from "../quests/quest-engine";
 import { addXp, getCurrentLevel } from "../skills/skill-state";
 import type { CollisionMap } from "../world/collision";
 
@@ -179,10 +180,11 @@ function grantOutputs(
   owner: EntityId,
   activityDef: ActivityDef,
   tick: number,
-): void {
+): Array<{ itemId: string; quantity: number; added: number }> {
   const inventory = ctx.world.getComponent(owner, "inventory");
-  if (!inventory) return;
+  if (!inventory) return [];
   const catalog = catalogFromItems(ctx.registries.item);
+  const results: Array<{ itemId: string; quantity: number; added: number }> = [];
   for (const output of activityDef.outputs) {
     if (!hasSpaceFor(inventory, catalog, output.itemId, output.quantity)) {
       continue;
@@ -200,8 +202,10 @@ function grantOutputs(
         afterQuantity: count(inventory, output.itemId),
         metadata: { activityId: activityDef.id },
       });
+      results.push({ itemId: output.itemId, quantity: output.quantity, added: result.added });
     }
   }
+  return results;
 }
 
 function grantXpRewards(
@@ -219,13 +223,13 @@ function grantTokenReward(
   owner: EntityId,
   activityDef: ActivityDef,
   tick: number,
-): void {
-  if (!activityDef.tokenId) return;
+): { itemId: string; quantity: number; added: number } | undefined {
+  if (!activityDef.tokenId) return undefined;
   const inventory = ctx.world.getComponent(owner, "inventory");
-  if (!inventory) return;
+  if (!inventory) return undefined;
   const catalog = catalogFromItems(ctx.registries.item);
   if (!hasSpaceFor(inventory, catalog, activityDef.tokenId, 1)) {
-    return;
+    return undefined;
   }
   const beforeQuantity = count(inventory, activityDef.tokenId);
   const result = addItem(inventory, catalog, activityDef.tokenId, 1);
@@ -240,7 +244,9 @@ function grantTokenReward(
       afterQuantity: count(inventory, activityDef.tokenId),
       metadata: { activityId: activityDef.id },
     });
+    return { itemId: activityDef.tokenId, quantity: 1, added: result.added };
   }
+  return undefined;
 }
 
 function stepFailureChance(activityDef: ActivityDef): number {
@@ -476,12 +482,48 @@ export function handleActivityAction(
 
   // Grant XP
   grantXpRewards(ctx, action.entry.owner, activityDef);
+  for (const xp of totalXpRewards(activityDef)) {
+    dispatchQuestEvent(
+      ctx,
+      action.entry.owner,
+      { kind: "skill_xp_gained", skillId: xp.skillId, amount: xp.amount },
+      serverTime,
+      tick,
+    );
+  }
 
   // Grant outputs
-  grantOutputs(ctx, action.entry.owner, activityDef, tick);
+  const outputResults = grantOutputs(ctx, action.entry.owner, activityDef, tick);
+  for (const result of outputResults) {
+    dispatchQuestEvent(
+      ctx,
+      action.entry.owner,
+      { kind: "item_gained", itemId: result.itemId, quantity: result.quantity },
+      serverTime,
+      tick,
+    );
+  }
 
   // Grant token
-  grantTokenReward(ctx, action.entry.owner, activityDef, tick);
+  const tokenResult = grantTokenReward(ctx, action.entry.owner, activityDef, tick);
+  if (tokenResult) {
+    dispatchQuestEvent(
+      ctx,
+      action.entry.owner,
+      { kind: "item_gained", itemId: tokenResult.itemId, quantity: tokenResult.quantity },
+      serverTime,
+      tick,
+    );
+  }
+
+  // Dispatch object interaction quest event
+  dispatchQuestEvent(
+    ctx,
+    action.entry.owner,
+    { kind: "object_interacted", objectId: object.objectId, option: "activity" },
+    serverTime,
+    tick,
+  );
 
   // Every 5 loops, send a reminder message
   if (action.executionCount % 5 === 0) {

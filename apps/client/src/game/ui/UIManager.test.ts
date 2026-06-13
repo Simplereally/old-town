@@ -95,6 +95,9 @@ function setupTestEnv(): void {
       <div class="ui-panel-body" id="contract-body"></div>
       <div id="contract-progress-bar"><div id="contract-progress-fill"></div></div>
     </div>
+    <div id="activity-panel" class="hidden">
+      <div class="ui-panel-body" id="activity-body"></div>
+    </div>
     <div id="status-effects-panel" class="hidden"></div>
     <div id="death-screen" class="hidden"></div>
     <div id="notification-toast" class="hidden"></div>
@@ -457,5 +460,62 @@ describe("UIManager", () => {
 
   it("disposes without error with recipe panel attached", () => {
     expect(() => manager.dispose()).not.toThrow();
+  });
+
+  it("renders activity panel when activity is set", () => {
+    uiState.setActivity({
+      activityId: "woodcutting_oak",
+      name: "Woodcutting",
+      category: "Gathering",
+      loopDescription: "Chopping oak trees.",
+      risk: "low",
+    });
+
+    const panel = document.getElementById("activity-panel");
+    const body = document.getElementById("activity-body");
+    expect(panel?.classList.contains("hidden")).toBe(false);
+    expect(body?.textContent).toContain("Woodcutting");
+    expect(body?.textContent).toContain("Gathering");
+    expect(body?.textContent).toContain("low");
+    expect(body?.textContent).toContain("Chopping oak trees.");
+  });
+
+  it("hides activity panel and clears body when activity is cleared", () => {
+    uiState.setActivity({
+      activityId: "woodcutting_oak",
+      name: "Woodcutting",
+      category: "Gathering",
+      loopDescription: "Chopping oak trees.",
+      risk: "low",
+    });
+    uiState.clearActivity();
+
+    const panel = document.getElementById("activity-panel");
+    const body = document.getElementById("activity-body");
+    expect(panel?.classList.contains("hidden")).toBe(true);
+    expect(body?.textContent).toContain("No active activity.");
+  });
+
+  it("sends activity_stop command on Stop button click", () => {
+    uiState.setActivity({
+      activityId: "woodcutting_oak",
+      name: "Woodcutting",
+      category: "Gathering",
+      loopDescription: "Chopping oak trees.",
+      risk: "low",
+    });
+
+    const stopBtn = document.querySelector(".activity-stop-btn") as HTMLButtonElement | null;
+    expect(stopBtn).not.toBeNull();
+    stopBtn?.click();
+    expect(callbacks.sendUiActionCommand).toHaveBeenCalledWith("activity_stop", "woodcutting_oak");
+  });
+
+  it("toggles activity panel on keyboard shortcut", () => {
+    const panel = document.getElementById("activity-panel") as HTMLDivElement;
+    expect(panel.classList.contains("hidden")).toBe(true);
+    const event = new KeyboardEvent("keydown", { key: "a" });
+    document.dispatchEvent(event);
+    expect(panel.classList.contains("hidden")).toBe(false);
   });
 });
