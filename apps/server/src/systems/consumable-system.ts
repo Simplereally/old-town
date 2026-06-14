@@ -20,7 +20,7 @@
 import type { EntityId } from "@old-town/shared";
 import type { ContentRegistries } from "@old-town/shared";
 import type { World } from "../ecs/world";
-import { boostSkill } from "../skills/skill-state";
+import { boostSkill, restoreSkill } from "../skills/skill-state";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { applyStatusEffect, cureStatusEffect } from "./status-system";
 
@@ -55,6 +55,19 @@ interface PendingBoost {
   readonly amount: number;
 }
 
+/** A skill restore queued at input close, awaiting application in the stat-change phase. */
+interface PendingRestore {
+  readonly entityId: EntityId;
+  readonly skillId: string;
+  readonly amount: number;
+}
+
+/** A status effect removal queued at input close, awaiting application in the stat-change phase. */
+interface PendingRemoveStatus {
+  readonly entityId: EntityId;
+  readonly statusEffectId: string;
+}
+
 export class ConsumableSystem {
   /** Heals queued this tick, drained (FIFO) during {@link processConsumablePhase}. */
   private pending: PendingHeal[] = [];
@@ -64,6 +77,10 @@ export class ConsumableSystem {
   private pendingApplyStatus: PendingApplyStatus[] = [];
   /** Boosts queued this tick, drained (FIFO) during {@link processConsumablePhase}. */
   private pendingBoosts: PendingBoost[] = [];
+  /** Restores queued this tick, drained (FIFO) during {@link processConsumablePhase}. */
+  private pendingRestores: PendingRestore[] = [];
+  /** Status removals queued this tick, drained (FIFO) during {@link processConsumablePhase}. */
+  private pendingRemoveStatus: PendingRemoveStatus[] = [];
 
   /**
    * Queue a heal of `heal` hitpoints for `entityId`, to be applied during this tick's
@@ -93,6 +110,18 @@ export class ConsumableSystem {
     }
   }
 
+  /** Queue a skill restore of `amount` for `skillId` on `entityId`. */
+  enqueueRestore(entityId: EntityId, skillId: string, amount: number): void {
+    if (amount > 0) {
+      this.pendingRestores.push({ entityId, skillId, amount });
+    }
+  }
+
+  /** Queue a status effect removal of `statusEffectId` for `entityId`. */
+  enqueueRemoveStatus(entityId: EntityId, statusEffectId: string): void {
+    this.pendingRemoveStatus.push({ entityId, statusEffectId });
+  }
+
   /** Whether any heals are queued (for tests/diagnostics). */
   get pendingCount(): number {
     return this.pending.length;
@@ -113,11 +142,21 @@ export class ConsumableSystem {
     return this.pendingBoosts.length;
   }
 
+  /** Whether any restores are queued (for tests/diagnostics). */
+  get pendingRestoreCount(): number {
+    return this.pendingRestores.length;
+  }
+
+  /** Whether any status removals are queued (for tests/diagnostics). */
+  get pendingRemoveStatusCount(): number {
+    return this.pendingRemoveStatus.length;
+  }
+
   /**
-   * Apply every queued heal, cure, status, and boost (tick phase 9). Each heal is clamped to
-   * the actor's `maxHealth`; when it actually restores hitpoints, a `heal` hitsplat and a
-   * refreshed health bar are emitted. An actor already at full health produces no deltas
-   * (and no hitsplat noise). Cures and boosts are applied immediately.
+   * Apply every queued heal, cure, status, boost, restore, and removal (tick phase 9). Each heal
+   * is clamped to the actor's `maxHealth`; when it actually restores hitpoints, a `heal` hitsplat
+   * and a refreshed health bar are emitted. An actor already at full health produces no deltas
+   * (and no hitsplat noise). Cures, boosts, restores, and removals are applied immediately.
    */
   processConsumablePhase(ctx: ConsumableContext): void {
     const heals = this.pending;
@@ -142,6 +181,18 @@ export class ConsumableSystem {
     this.pendingBoosts = [];
     for (const { entityId, skillId, amount } of boosts) {
       boostSkill(ctx, entityId, skillId, amount);
+    }
+
+    const restores = this.pendingRestores;
+    this.pendingRestores = [];
+    for (const { entityId, skillId, amount } of restores) {
+      restoreSkill(ctx, entityId, skillId, amount);
+    }
+
+    const removals = this.pendingRemoveStatus;
+    this.pendingRemoveStatus = [];
+    for (const { entityId, statusEffectId } of removals) {
+      cureStatusEffect(ctx, entityId, statusEffectId);
     }
   }
 }

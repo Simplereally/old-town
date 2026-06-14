@@ -215,6 +215,16 @@ export function handleItemIntent(
         def.consumable.boostsSkill.boostAmount,
       );
     }
+    if (def.consumable.effectType === "restore" && def.consumable.boostsSkill) {
+      ctx.consumables.enqueueRestore(
+        owner,
+        def.consumable.boostsSkill.skillId,
+        def.consumable.effectValue ?? def.consumable.boostsSkill.boostAmount,
+      );
+    }
+    if (def.consumable.effectType === "remove_status" && def.consumable.statusEffectId) {
+      ctx.consumables.enqueueRemoveStatus(owner, def.consumable.statusEffectId);
+    }
     combatant.eatBlockedUntilTick = tick + def.consumable.consumeTicks;
     ctx.itemAudit?.recordForEntity(owner, {
       tick,

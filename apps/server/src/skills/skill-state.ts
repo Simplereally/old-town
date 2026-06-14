@@ -153,6 +153,42 @@ export function boostSkill(
   return true;
 }
 
+export function restoreSkill(
+  ctx: SkillStateContext,
+  entityId: EntityId,
+  skillId: string,
+  amount: number,
+): boolean {
+  if (amount <= 0) {
+    return false;
+  }
+
+  const skills = ctx.world.getComponent(entityId, "skills");
+  if (!skills) {
+    return false;
+  }
+
+  const skill = skills.skills[skillId];
+  if (!skill) {
+    return false;
+  }
+
+  if (skill.drain <= 0) {
+    return false;
+  }
+
+  skill.drain = Math.max(0, skill.drain - amount);
+
+  ctx.deltas.markSkillDelta({
+    skillId,
+    level: skill.level,
+    xp: skill.xp,
+    effectiveLevel: getEffectiveLevel(skill),
+  });
+
+  return true;
+}
+
 export function maxHealthForHitpointsLevel(hitpointsLevel: number): number {
   return hitpointsLevel * 10;
 }

@@ -3,7 +3,7 @@ import type { SkillsComponent } from "../ecs/components";
 import { createWorld } from "../ecs/world";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { computeCombatLevel } from "./combat-level";
-import { addXp, getBaseLevel, getCurrentLevel, maxHealthForHitpointsLevel } from "./skill-state";
+import { addXp, getBaseLevel, getCurrentLevel, maxHealthForHitpointsLevel, restoreSkill } from "./skill-state";
 
 function skill(skills: SkillsComponent, id: string) {
   const state = skills.skills[id];
@@ -167,6 +167,63 @@ describe("getCurrentLevel", () => {
     skill(skills, "woodcutting").boost = 5;
     skill(skills, "woodcutting").drain = 2;
     expect(getCurrentLevel(skills, "woodcutting")).toBe(4);
+  });
+});
+
+describe("restoreSkill", () => {
+  it("reduces skill drain by the given amount", () => {
+    const { world, owner, deltas, skills } = setupSkills();
+    skill(skills, "strength").drain = 5;
+
+    const result = restoreSkill({ world, deltas }, owner, "strength", 3);
+
+    expect(result).toBe(true);
+    expect(skill(skills, "strength").drain).toBe(2);
+  });
+
+  it("clamps drain to 0 and does not go negative", () => {
+    const { world, owner, deltas, skills } = setupSkills();
+    skill(skills, "strength").drain = 2;
+
+    const result = restoreSkill({ world, deltas }, owner, "strength", 5);
+
+    expect(result).toBe(true);
+    expect(skill(skills, "strength").drain).toBe(0);
+  });
+
+  it("returns false when skill is not drained", () => {
+    const { world, owner, deltas } = setupSkills();
+    expect(restoreSkill({ world, deltas }, owner, "strength", 3)).toBe(false);
+  });
+
+  it("returns false for non-positive restore amount", () => {
+    const { world, owner, deltas, skills } = setupSkills();
+    skill(skills, "strength").drain = 5;
+    expect(restoreSkill({ world, deltas }, owner, "strength", 0)).toBe(false);
+    expect(restoreSkill({ world, deltas }, owner, "strength", -3)).toBe(false);
+  });
+
+  it("returns false for missing skills component", () => {
+    const world = createWorld();
+    const owner = world.createEntity();
+    const deltas = new DeltaAccumulator();
+    expect(restoreSkill({ world, deltas }, owner, "strength", 3)).toBe(false);
+  });
+
+  it("returns false for missing skill", () => {
+    const { world, owner, deltas } = setupSkills();
+    expect(restoreSkill({ world, deltas }, owner, "nonexistent", 3)).toBe(false);
+  });
+
+  it("emits a skill delta when drain is restored", () => {
+    const { world, owner, deltas, skills } = setupSkills();
+    skill(skills, "strength").drain = 5;
+    restoreSkill({ world, deltas }, owner, "strength", 3);
+
+    const dirty = deltas.peek();
+    expect(dirty.skillDelta).toEqual([
+      { skillId: "strength", level: 1, xp: 0, effectiveLevel: 1 },
+    ]);
   });
 });
 

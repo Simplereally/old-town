@@ -213,6 +213,58 @@ describe("ConsumableSystem.enqueueBoost", () => {
   });
 });
 
+describe("ConsumableSystem.enqueueRestore", () => {
+  it("restores skill drain when processed", () => {
+    const { world, owner, deltas, consumables, registries } = setupWithSkills();
+    const skills = world.getComponent(owner, "skills");
+    expect(skills).toBeDefined();
+    if (!skills) return;
+    skills.skills.strength!.drain = 5;
+
+    consumables.enqueueRestore(owner, "strength", 3);
+    consumables.processConsumablePhase({ world, deltas, registries });
+
+    expect(skills.skills.strength!.drain).toBe(2);
+    expect(consumables.pendingRestoreCount).toBe(0);
+  });
+
+  it("ignores a non-positive restore without queueing it", () => {
+    const { owner, consumables } = setupWithSkills();
+    consumables.enqueueRestore(owner, "strength", 0);
+    expect(consumables.pendingRestoreCount).toBe(0);
+  });
+
+  it("no-ops when entity has no skills component", () => {
+    const { world, owner, deltas, consumables, registries } = setup();
+    consumables.enqueueRestore(owner, "strength", 3);
+    expect(() => consumables.processConsumablePhase({ world, deltas, registries })).not.toThrow();
+  });
+});
+
+describe("ConsumableSystem.enqueueRemoveStatus", () => {
+  it("removes a status effect when processed", () => {
+    const { world, owner, deltas, consumables, registries } = setupWithStatusEffects();
+    const statusEffectId = "stun";
+    world.setComponent(owner, "statusEffects", {
+      entityId: owner,
+      effects: [{ statusEffectId, stacks: 1, remainingTicks: 10 }],
+    });
+
+    consumables.enqueueRemoveStatus(owner, statusEffectId);
+    consumables.processConsumablePhase({ world, deltas, registries });
+
+    const statusEffects = world.getComponent(owner, "statusEffects");
+    expect(statusEffects).toBeUndefined();
+    expect(consumables.pendingRemoveStatusCount).toBe(0);
+  });
+
+  it("no-ops when entity has no status effects component", () => {
+    const { world, owner, deltas, consumables, registries } = setup();
+    consumables.enqueueRemoveStatus(owner, "stun");
+    expect(() => consumables.processConsumablePhase({ world, deltas, registries })).not.toThrow();
+  });
+});
+
 describe("ConsumableSystem.processConsumablePhase — mixed effects", () => {
   it("applies heal, cure, boost, and apply status in the same tick", () => {
     const { world, owner, deltas, consumables, registries } = setupWithStatusEffects({ health: 5, maxHealth: 10 });
@@ -247,5 +299,28 @@ describe("ConsumableSystem.processConsumablePhase — mixed effects", () => {
     expect(statusEffects?.effects.some((e) => e.statusEffectId === "poison")).toBe(false);
     const skills = world.getComponent(owner, "skills");
     expect(skills?.skills.strength?.boost).toBe(2);
+  });
+
+  it("applies restore and remove_status in the same tick", () => {
+    const { world, owner, deltas, consumables, registries } = setupWithStatusEffects();
+    world.setComponent(owner, "skills", {
+      entityId: owner,
+      skills: {
+        strength: { level: 5, xp: 0, boost: 0, drain: 5 },
+      },
+    });
+    world.setComponent(owner, "statusEffects", {
+      entityId: owner,
+      effects: [{ statusEffectId: "stun", stacks: 1, remainingTicks: 10 }],
+    });
+
+    consumables.enqueueRestore(owner, "strength", 3);
+    consumables.enqueueRemoveStatus(owner, "stun");
+    consumables.processConsumablePhase({ world, deltas, registries });
+
+    const skills = world.getComponent(owner, "skills");
+    expect(skills?.skills.strength?.drain).toBe(2);
+    const statusEffects = world.getComponent(owner, "statusEffects");
+    expect(statusEffects).toBeUndefined();
   });
 });
