@@ -155,11 +155,11 @@ class BakingWorker implements WorkerLike {
         v++;
       }
       indices[i + 0] = v - 4;
-      indices[i + 1] = v - 3;
-      indices[i + 2] = v - 2;
+      indices[i + 1] = v - 2;
+      indices[i + 2] = v - 3;
       indices[i + 3] = v - 4;
-      indices[i + 4] = v - 2;
-      indices[i + 5] = v - 1;
+      indices[i + 4] = v - 1;
+      indices[i + 5] = v - 2;
       i += 6;
     }
 

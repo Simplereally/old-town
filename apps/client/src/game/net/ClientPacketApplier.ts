@@ -13,7 +13,6 @@ import {
   type VarbitDelta,
   type XpDropPacket,
 } from "@old-town/shared";
-import type { AnimationState } from "../scene/ActorRenderer";
 import type { ClientWorldStore, WorldEntity } from "./ClientWorldStore";
 import type { RenderEvent, RenderSnapshot, SnapshotBuffer } from "./SnapshotBuffer";
 
@@ -248,17 +247,20 @@ export class ClientPacketApplier {
     for (const update of packet.entityUpdates) {
       const changes = update.changes;
       const entityId = update.entityId;
-      const entity = store.getEntity(entityId);
+      let entity = store.getEntity(entityId);
+      const updateEntity = (updated: WorldEntity): void => {
+        entity = updated;
+        store.setEntity(updated);
+      };
 
       if (changes.position) {
         if (entity) {
-          const updated: WorldEntity = {
+          const moved: WorldEntity = {
             ...entity,
             previousTile: entity.tile,
             tile: changes.position,
-            moveSpeed: this._deriveMoveSpeed(entity),
           };
-          store.setEntity(updated);
+          updateEntity({ ...moved, moveSpeed: this._deriveMoveSpeed(moved) });
         }
         presentationEvents.push({
           type: "actors.updateTile",
@@ -276,7 +278,7 @@ export class ClientPacketApplier {
               payload: { entityId, direction },
             });
             const updated: WorldEntity = { ...entity, facing: direction };
-            store.setEntity(updated);
+            updateEntity(updated);
           }
         }
       }
@@ -298,7 +300,7 @@ export class ClientPacketApplier {
       if (changes.healthBar) {
         if (entity) {
           const updated: WorldEntity = { ...entity, healthBar: changes.healthBar };
-          store.setEntity(updated);
+          updateEntity(updated);
         }
         presentationEvents.push({
           type: "actors.updateHealthBar",
@@ -315,7 +317,7 @@ export class ClientPacketApplier {
       if (changes.appearance) {
         if (entity) {
           const updated: WorldEntity = { ...entity, appearance: changes.appearance };
-          store.setEntity(updated);
+          updateEntity(updated);
         }
         presentationEvents.push({
           type: "actors.updateAppearance",
@@ -337,7 +339,11 @@ export class ClientPacketApplier {
       if (changes.animation) {
         presentationEvents.push({
           type: "actors.updateAnimation",
-          payload: { entityId, state: changes.animation.id as AnimationState },
+          payload: {
+            entityId,
+            animationId: changes.animation.id,
+            startTick: changes.animation.startTick,
+          },
         });
       }
       if (changes.moveSpeed) {
@@ -347,7 +353,7 @@ export class ClientPacketApplier {
             moveSpeedRaw: changes.moveSpeed,
             moveSpeed: this._mapMoveSpeed(changes.moveSpeed),
           };
-          store.setEntity(updated);
+          updateEntity(updated);
         }
         presentationEvents.push({
           type: "actors.updateMoveSpeed",
@@ -367,7 +373,7 @@ export class ClientPacketApplier {
               payload: { entityId, direction },
             });
             const updated: WorldEntity = { ...actor, facing: direction };
-            store.setEntity(updated);
+            updateEntity(updated);
           }
         }
       }

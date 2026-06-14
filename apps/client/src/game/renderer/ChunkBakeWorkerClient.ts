@@ -282,21 +282,68 @@ class SynchronousWorker implements WorkerLike {
       return;
     }
     if (msg.type === "bake_chunk") {
-      const { jobId, regionId, chunkCoord } = msg;
-      const positions = new Float32Array([0, 0, 0]);
-      const normals = new Float32Array([0, 1, 0]);
-      const colors = new Float32Array([1, 1, 1]);
-      const indices = new Uint32Array([0]);
+      const { jobId, regionId, chunkCoord, tiles } = msg;
+      const vertexCount = Math.max(1, tiles.length * 4);
+      const indexCount = Math.max(1, tiles.length * 6);
+      const positions = new Float32Array(vertexCount * 3);
+      const normals = new Float32Array(vertexCount * 3);
+      const colors = new Float32Array(vertexCount * 3);
+      const indices = new Uint32Array(indexCount);
+      let v = 0;
+      let iIdx = 0;
+      for (const tile of tiles) {
+        const quad: [number, number, number][] = [
+          [tile.x, tile.height, tile.y],
+          [tile.x + 1, tile.height, tile.y],
+          [tile.x + 1, tile.height, tile.y + 1],
+          [tile.x, tile.height, tile.y + 1],
+        ];
+        for (const point of quad) {
+          positions[v * 3 + 0] = point[0];
+          positions[v * 3 + 1] = point[1];
+          positions[v * 3 + 2] = point[2];
+          normals[v * 3 + 1] = 1;
+          colors[v * 3 + 0] = 0.5;
+          colors[v * 3 + 1] = 0.6;
+          colors[v * 3 + 2] = 0.4;
+          v++;
+        }
+        indices[iIdx + 0] = v - 4;
+        indices[iIdx + 1] = v - 2;
+        indices[iIdx + 2] = v - 3;
+        indices[iIdx + 3] = v - 4;
+        indices[iIdx + 4] = v - 1;
+        indices[iIdx + 5] = v - 2;
+        iIdx += 6;
+      }
 
       const payload: BakedChunkPayload = {
         positions,
         normals,
         colors,
         indices,
-        materialGroups: [{ startIndex: 0, count: 1, materialId: "test" }],
-        bounds: { minX: 0, minY: 0, minZ: 0, maxX: 1, maxY: 1, maxZ: 1 },
-        tileMetadata: [],
-        collisionDebugData: [],
+        materialGroups: [{ startIndex: 0, count: indexCount, materialId: "terrain_default" }],
+        bounds: {
+          minX: chunkCoord.cx * 8,
+          minY: chunkCoord.cy * 8,
+          minZ: 0,
+          maxX: chunkCoord.cx * 8 + 8,
+          maxY: chunkCoord.cy * 8 + 8,
+          maxZ: 0,
+        },
+        tileMetadata: tiles.map((tile) => ({
+          x: tile.x,
+          y: tile.y,
+          height: tile.height,
+          underlayId: tile.underlayId,
+          overlayId: tile.overlayId ?? null,
+          collision: tile.collision,
+        })),
+        collisionDebugData: tiles.map((tile) => ({
+          x: tile.x,
+          y: tile.y,
+          flags: tile.collision,
+        })),
         objectInstanceDescriptors: [],
       };
 

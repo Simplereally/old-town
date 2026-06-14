@@ -161,6 +161,15 @@ describe("UIManager", () => {
     expect(callbacks.sendChatCommand).not.toHaveBeenCalled();
   });
 
+  it("renders only the changed UI surface on state updates", () => {
+    content.getAllQuests.mockClear();
+
+    uiState.addChat([{ text: "hello", channel: "public", serverTime: 0 }]);
+
+    expect(document.getElementById("chat-body")?.textContent).toContain("hello");
+    expect(content.getAllQuests).not.toHaveBeenCalled();
+  });
+
   it("does not intercept keyboard shortcuts when input is focused", () => {
     const input = document.getElementById("chat-input") as HTMLInputElement;
     const panel = document.getElementById("inventory-panel") as HTMLDivElement;

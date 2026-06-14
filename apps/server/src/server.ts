@@ -69,12 +69,19 @@ export async function startServer(): Promise<GameServer> {
   });
 
   // --- Create simulation kernel ----------------------------------------------------
+  // The authoritative timeline is deterministic sim time: serverTime starts at 0
+  // and advances exactly GAME_TICK_MS per tick, so `serverTime === tick * GAME_TICK_MS`
+  // holds everywhere. The client renderer relies on this identity — snapshot
+  // interpolation, projectile flight, and hitsplat fades all derive their timing
+  // from `tick * GAME_TICK_MS`. Stamping serverTime from Date.now() (epoch) silently
+  // breaks that identity and desyncs every time-based render layer, so we keep the
+  // sim clock at 0 and drive the scheduler from wall-clock elapsed since boot.
+  const simEpochMs = Date.now();
   const kernel = createSimulationKernel({
     registries: content.registries,
     logger,
     persistence,
     lazySaveIntervalTicks: config.persistence.lazySaveIntervalTicks,
-    startServerTime: Date.now(),
   });
 
   // --- HTTP server (health + readiness + content) -----------------------------------
@@ -82,6 +89,14 @@ export async function startServer(): Promise<GameServer> {
 
   const httpServer = createServer((req, res) => {
     const url = req.url ? new URL(req.url, "http://old-town.local") : undefined;
+    if (url?.pathname.startsWith("/api/") || url?.pathname.startsWith("/debug/")) {
+      writeCorsHeaders(res);
+      if (req.method === "OPTIONS") {
+        res.writeHead(204);
+        res.end();
+        return;
+      }
+    }
     if (url?.pathname === "/health" && req.method === "GET") {
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(
@@ -179,8 +194,11 @@ export async function startServer(): Promise<GameServer> {
   });
 
   // --- Tick loop timer --------------------------------------------------------------
+  // Drive the sim from wall-clock elapsed since boot so serverTime stays 0-based
+  // (see the simEpochMs note above). runDueTicks catches up any ticks owed if the
+  // timer drifts, keeping sim time aligned to real time without going to epoch scale.
   const tickTimer = setInterval(() => {
-    kernel.runDueTicks(Date.now());
+    kernel.runDueTicks(Date.now() - simEpochMs);
   }, GAME_TICK_MS);
 
   // --- Graceful shutdown ------------------------------------------------------------
@@ -209,6 +227,12 @@ function serializeContentForClient(registries: BootContentResult["registries"]):
     dialogue: Object.fromEntries(registries.dialogue),
     contract: Object.fromEntries(registries.contract),
   };
+}
+
+function writeCorsHeaders(res: ServerResponse): void {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 }
 
 function readClientBuildCompatibility(): ClientBuildCompatibility {

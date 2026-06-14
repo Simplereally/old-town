@@ -39,8 +39,8 @@ vi.mock("./renderer/ThreeRenderer", () => {
     running: false,
     onFrame: undefined,
     onResize: undefined,
-    tileToWorld: vi.fn((x: number, y: number) => ({ x, y: 0, z: -y })),
-    worldToTile: vi.fn((x: number, z: number) => ({ x: Math.floor(x), y: Math.floor(-z) })),
+    tileToWorld: vi.fn((x: number, y: number) => ({ x, y: 0, z: y })),
+    worldToTile: vi.fn((x: number, z: number) => ({ x: Math.floor(x), y: Math.floor(z) })),
   };
   return {
     ThreeRenderer: vi.fn(() => mockRenderer),

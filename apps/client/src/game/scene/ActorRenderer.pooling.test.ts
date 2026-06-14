@@ -1,8 +1,13 @@
 import type { TileCoord } from "@old-town/shared";
 import { Direction, entityId } from "@old-town/shared";
-import { Scene } from "three";
-import { beforeEach, describe, expect, it } from "vitest";
-import { ActorRenderer, ANIMATION_SUBSTEP_MS, ANIMATION_SUBSTEPS_PER_TICK } from "./ActorRenderer";
+import { type MeshLambertMaterial, Scene } from "three";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  ACTION_ANIMATION_DURATION_MS,
+  ActorRenderer,
+  ANIMATION_SUBSTEP_MS,
+  ANIMATION_SUBSTEPS_PER_TICK,
+} from "./ActorRenderer";
 
 const TILE: TileCoord = { x: 5, y: 5, plane: 0 };
 const ID1 = entityId(1);
@@ -123,8 +128,15 @@ describe("ActorRenderer pooling", () => {
 
     const meshes = renderer.meshes.get(ID1);
     expect(meshes).toBeDefined();
-    // facing is applied during interpolate or updateFromCache
-    renderer.interpolate(1);
+    // Mesh rotation is applied from the snapshot heading during updateFromCache.
+    const cache = mockCache({
+      renderX: 0,
+      renderY: 0,
+      renderZ: 0,
+      heading: Direction.East,
+      movementKind: 0,
+    });
+    renderer.updateFromCache(cache, 1);
     expect(meshes?.group.rotation.y).toBeCloseTo(Math.PI * 0.5, 3);
   });
 
@@ -175,6 +187,46 @@ describe("ActorRenderer pooling", () => {
     renderer.updateFromCache(cache, 1);
     const actor = renderer.getActorState(ID1);
     expect(actor?.animationState).toBe("walk");
+  });
+
+  it("server action animation overrides locomotion until it expires", () => {
+    const nowSpy = vi.spyOn(performance, "now").mockReturnValue(1000);
+    renderer.spawn(ID1, TILE, "player", true);
+
+    // The cache reports the actor is walking every frame.
+    const walking = mockCache({ renderX: 0, renderY: 0, renderZ: 0, heading: 0, movementKind: 1 });
+
+    // The server signals an attack swing; it must win over the walk pose and
+    // survive the per-frame locomotion update that previously stomped it.
+    renderer.playAction(ID1, "melee_attack");
+    renderer.updateFromCache(walking, 1);
+    expect(renderer.getActorState(ID1)?.animationState).toBe("attack");
+
+    // Still inside the action window — action keeps precedence.
+    nowSpy.mockReturnValue(1000 + ACTION_ANIMATION_DURATION_MS / 2);
+    renderer.updateFromCache(walking, 2);
+    expect(renderer.getActorState(ID1)?.animationState).toBe("attack");
+
+    // Past the action window — locomotion resumes on its own, no server packet.
+    nowSpy.mockReturnValue(1000 + ACTION_ANIMATION_DURATION_MS + 1);
+    renderer.updateFromCache(walking, 3);
+    expect(renderer.getActorState(ID1)?.animationState).toBe("walk");
+
+    nowSpy.mockRestore();
+  });
+
+  it("resolves server animation content ids to presentational poses", () => {
+    renderer.spawn(ID1, TILE, "player", true);
+    const idle = mockCache({ renderX: 0, renderY: 0, renderZ: 0, heading: 0, movementKind: 0 });
+
+    renderer.playAction(ID1, "magic_cast");
+    renderer.updateFromCache(idle, 1);
+    expect(renderer.getActorState(ID1)?.animationState).toBe("cast");
+
+    // Unknown ids fall back to a generic swing rather than vanishing.
+    renderer.playAction(ID1, "totally_unknown_move");
+    renderer.updateFromCache(idle, 2);
+    expect(renderer.getActorState(ID1)?.animationState).toBe("attack");
   });
 
   it("updates appearance from cache", () => {
@@ -257,7 +309,3 @@ describe("ActorRenderer pooling", () => {
     expect(renderer.actorCount).toBe(0);
   });
 });
-
-import type { MeshLambertMaterial } from "three";
-// Need to import vi for the spy test
-import { vi } from "vitest";

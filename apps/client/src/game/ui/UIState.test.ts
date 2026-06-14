@@ -118,15 +118,19 @@ describe("UIState", () => {
   it("notifies listeners on change", () => {
     const state = new UIState();
     let calls = 0;
-    const unsubscribe = state.onChange(() => {
+    const changes: string[] = [];
+    const unsubscribe = state.onChange((change) => {
       calls += 1;
+      changes.push(change);
     });
 
     state.setSkills([{ skillId: "woodcutting", level: 1, xp: 0, effectiveLevel: 1 }]);
     expect(calls).toBe(1);
+    expect(changes).toEqual(["skills"]);
 
     state.applySkillDelta([{ skillId: "woodcutting", level: 2, xp: 83, effectiveLevel: 2 }]);
     expect(calls).toBe(2);
+    expect(changes).toEqual(["skills", "skills"]);
 
     unsubscribe();
     state.setSkills([]);

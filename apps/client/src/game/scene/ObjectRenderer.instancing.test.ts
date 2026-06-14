@@ -143,7 +143,7 @@ describe("ObjectRenderer instancing", () => {
     // Two different regions => two buckets
     expect(renderer.getRaycastTargets().length).toBe(2);
 
-    renderer.setRegionVisible("r0:0:0", false);
+    renderer.setRegionVisible("0:0:0", false);
     const targets = renderer.getRaycastTargets();
     expect(targets[0]?.visible).toBe(false);
     expect(targets[1]?.visible).toBe(true);

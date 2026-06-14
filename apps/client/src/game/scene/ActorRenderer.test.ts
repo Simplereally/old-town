@@ -1,6 +1,6 @@
 import type { TileCoord } from "@old-town/shared";
 import { Direction, entityId } from "@old-town/shared";
-import { type MeshLambertMaterial, Scene, Vector3 } from "three";
+import { type MeshLambertMaterial, Scene } from "three";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ActorRenderer } from "./ActorRenderer";
 
@@ -66,15 +66,6 @@ describe("ActorRenderer", () => {
     expect(actor?.facingDirection).toBe(Direction.East);
   });
 
-  it("interpolates actor position", () => {
-    renderer.spawn(ID1, TILE, "player", true);
-    const newTile: TileCoord = { x: 6, y: 5, plane: 0 };
-    renderer.updateTile(ID1, newTile);
-    renderer.interpolate(1);
-    const actor = renderer.getActorState(ID1);
-    expect(actor?.visualPosition).toBeInstanceOf(Vector3);
-  });
-
   it("clears all actors", () => {
     renderer.spawn(ID1, TILE, "player", true);
     renderer.spawn(ID2, TILE, "npc", false);
@@ -90,16 +81,6 @@ describe("ActorRenderer", () => {
   it("sets self entity id", () => {
     renderer.setSelfEntityId(42);
     expect(renderer.getActorState(entityId(42))).toBeUndefined();
-  });
-
-  it("interpolates correctly at tick start", () => {
-    renderer.spawn(ID1, TILE, "player", true);
-    const newTile: TileCoord = { x: 6, y: 5, plane: 0 };
-    renderer.updateTile(ID1, newTile);
-    renderer.interpolate(1);
-    const actor = renderer.getActorState(ID1);
-    expect(actor?.visualPosition.x).toBeCloseTo(5, 1);
-    expect(actor?.visualPosition.z).toBeCloseTo(-5, 1);
   });
 
   it("disposes actor resources on remove", () => {

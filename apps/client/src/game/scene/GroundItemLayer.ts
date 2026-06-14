@@ -88,6 +88,6 @@ export class GroundItemLayer {
   }
 
   private _tileToWorld(tile: TileCoord): Vector3 {
-    return new Vector3(tile.x * TILE_SIZE_WORLD_UNITS, 0, -tile.y * TILE_SIZE_WORLD_UNITS);
+    return new Vector3(tile.x * TILE_SIZE_WORLD_UNITS, 0, tile.y * TILE_SIZE_WORLD_UNITS);
   }
 }

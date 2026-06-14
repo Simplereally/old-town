@@ -83,7 +83,9 @@ export class ProjectileLayer {
       const mesh = proj.mesh;
       const id = proj.id;
 
-      const progress = Math.min((now - startTimeMs) / totalDurationMs, 1);
+      // Clamp to [0, 1]: render time runs ~1 tick behind the latest packet, so a
+      // freshly spawned projectile can momentarily sample before its launch time.
+      const progress = Math.max(0, Math.min((now - startTimeMs) / totalDurationMs, 1));
       const startWorld = this._tileToWorld(startTile);
       const endWorld = this._tileToWorld(endTile);
       mesh.position.lerpVectors(startWorld, endWorld, progress);
@@ -118,6 +120,6 @@ export class ProjectileLayer {
   }
 
   private _tileToWorld(tile: TileCoord): Vector3 {
-    return new Vector3(tile.x * TILE_SIZE_WORLD_UNITS, 0, -tile.y * TILE_SIZE_WORLD_UNITS);
+    return new Vector3(tile.x * TILE_SIZE_WORLD_UNITS, 0, tile.y * TILE_SIZE_WORLD_UNITS);
   }
 }

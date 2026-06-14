@@ -1,6 +1,6 @@
 import { type ChunkId, chunkId } from "@old-town/shared";
 import { BufferGeometry, type Material, Mesh, Scene } from "three";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ChunkBakeQueue, type ChunkBakeJob } from "./ChunkBakeQueue";
 import type { BakedChunkPayload, MaterialGroup } from "./ChunkBakeWorkerClient";
 import {
@@ -56,6 +56,7 @@ function expectDequeueJob(queue: ChunkBakeQueue): ChunkBakeJob {
 }
 
 describe("ChunkUploadQueue", () => {
+  const originalPerformanceNow = performance.now;
   let scene: Scene;
   let registry: RenderResourceRegistry;
   let chunkBakeQueue: ChunkBakeQueue;
@@ -69,6 +70,14 @@ describe("ChunkUploadQueue", () => {
       scene,
       registry,
       chunkBakeQueue,
+    });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    Object.defineProperty(performance, "now", {
+      configurable: true,
+      value: originalPerformanceNow,
     });
   });
 
@@ -151,6 +160,33 @@ describe("ChunkUploadQueue", () => {
     const stats = chunkBakeQueue.getStats();
     expect(stats.waitingUpload).toBe(0);
     expect(stats.resident).toBe(1);
+    expect(queue.stats().totalUploads).toBe(1);
+  });
+
+  it("uses performance.now with the correct receiver when no clock is injected", () => {
+    Object.defineProperty(performance, "now", {
+      configurable: true,
+      value: function now(this: Performance): number {
+        if (this !== performance) {
+          throw new TypeError(
+            "'now' called on an object that does not implement interface Performance.",
+          );
+        }
+        return 0;
+      },
+    });
+
+    const _id = makeChunkId(0, 0);
+    chunkBakeQueue.ingestRegionLoad("0:0:0" as import("@old-town/shared").RegionId, [
+      { cx: 0, cy: 0, plane: 0 },
+    ]);
+    const job = expectDequeueJob(chunkBakeQueue);
+    queue.enqueueBakedChunk(
+      job.chunkId,
+      makePayload([{ materialId: "grass", startIndex: 0, count: 3 }]),
+    );
+
+    expect(() => queue.processFrame(0)).not.toThrow();
     expect(queue.stats().totalUploads).toBe(1);
   });
 

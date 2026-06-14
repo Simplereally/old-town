@@ -184,7 +184,7 @@ export class GameSocket {
         this.stopPing();
         return;
       }
-      this._lastPingTime = performance.now();
+      this._lastPingTime = Math.floor(performance.now());
       this.sendCommand({
         type: ClientCommandType.Ping,
         commandId: 0,

@@ -70,6 +70,12 @@ describe("TilePicker", () => {
     }
   });
 
+  it("maps positive world z back to positive tile y", () => {
+    vi.spyOn(picker, "screenToGroundPoint").mockReturnValue(new Vector3(12.2, 0, 34.4));
+
+    expect(picker.screenToTile(400, 300)).toEqual({ x: 12, y: 34 });
+  });
+
   it("returns a tile for coordinates outside the canvas (ray extends infinitely)", () => {
     const tile = picker.screenToTile(1200, 900);
     expect(tile).not.toBeNull();

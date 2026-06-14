@@ -136,7 +136,7 @@ export class ChunkUploadQueue {
    */
   processFrame(frameStartMs: number, nowFn?: () => number, currentFrame?: number): void {
     this._ensureNotDisposed();
-    const now = nowFn ?? performance.now;
+    const now = nowFn ?? (() => performance.now());
     let chunksProcessed = 0;
     let i = 0;
 

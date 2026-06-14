@@ -136,14 +136,12 @@ export class SnapshotBuffer {
       };
     }
 
-    const targetTick = renderServerTimeMs / this._options.tickMs;
-
-    // Find the last snapshot with tick < targetTick
+    // Find the last snapshot with server time < render time.
     let olderIndex = -1;
     for (let i = 0; i < snapshots.length; i++) {
       const snap = snapshots[i];
       if (snap === undefined) continue;
-      if (snap.tick < targetTick) {
+      if (snap.serverTimeMs < renderServerTimeMs) {
         olderIndex = i;
       } else {
         break;
@@ -163,8 +161,8 @@ export class SnapshotBuffer {
           mode: "empty",
         };
       }
-      const tickDelta = newer.tick - older.tick;
-      const alpha = tickDelta === 0 ? 0 : (targetTick - older.tick) / tickDelta;
+      const timeDelta = newer.serverTimeMs - older.serverTimeMs;
+      const alpha = timeDelta === 0 ? 0 : (renderServerTimeMs - older.serverTimeMs) / timeDelta;
       return {
         renderServerTimeMs,
         olderTick: older.tick,
@@ -206,7 +204,7 @@ export class SnapshotBuffer {
         mode: "empty",
       };
     }
-    const gapTicks = targetTick - latest.tick;
+    const gapTicks = (renderServerTimeMs - latest.serverTimeMs) / this._options.tickMs;
 
     if (gapTicks < this._options.freezeAfterMissingTicks) {
       return {

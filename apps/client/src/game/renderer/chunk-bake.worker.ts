@@ -60,11 +60,11 @@ export function buildBakedChunkPayload(
     }
 
     indices[iIdx + 0] = v - 4;
-    indices[iIdx + 1] = v - 3;
-    indices[iIdx + 2] = v - 2;
+    indices[iIdx + 1] = v - 2;
+    indices[iIdx + 2] = v - 3;
     indices[iIdx + 3] = v - 4;
-    indices[iIdx + 4] = v - 2;
-    indices[iIdx + 5] = v - 1;
+    indices[iIdx + 4] = v - 1;
+    indices[iIdx + 5] = v - 2;
 
     iIdx += 6;
   }

@@ -257,7 +257,7 @@ export class ThreeRenderer {
    * Y is up (world), but tiles are on the ground plane.
    */
   tileToWorld(x: number, y: number, height = 0): Vector3 {
-    return new Vector3(x * TILE_SIZE_WORLD_UNITS, height, -y * TILE_SIZE_WORLD_UNITS);
+    return new Vector3(x * TILE_SIZE_WORLD_UNITS, height, y * TILE_SIZE_WORLD_UNITS);
   }
 
   /**
@@ -266,7 +266,7 @@ export class ThreeRenderer {
   worldToTile(worldX: number, worldZ: number): { x: number; y: number } {
     return {
       x: Math.floor(worldX / TILE_SIZE_WORLD_UNITS + 0.5),
-      y: Math.floor(-worldZ / TILE_SIZE_WORLD_UNITS + 0.5),
+      y: Math.floor(worldZ / TILE_SIZE_WORLD_UNITS + 0.5),
     };
   }
 

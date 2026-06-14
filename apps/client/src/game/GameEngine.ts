@@ -1,6 +1,10 @@
 import {
+  chunkToRegion,
   type FullStatePacket,
   GAME_TICK_MS,
+  type Plane,
+  type RegionId,
+  regionId,
   type SpellTarget,
   TILE_SIZE_WORLD_UNITS,
   type TickDeltaPacket,
@@ -16,7 +20,7 @@ import { ClientWorldStore } from "./net/ClientWorldStore";
 import { GameSocket } from "./net/GameSocket";
 import { SnapshotBuffer } from "./net/SnapshotBuffer";
 import { EntityPicker } from "./picking/EntityPicker";
-import { ChunkBakeQueue } from "./renderer/ChunkBakeQueue";
+import { ChunkBakeQueue, type ChunkMetadata } from "./renderer/ChunkBakeQueue";
 import {
   ChunkBakeWorkerClient,
   createSynchronousTestClient,
@@ -114,7 +118,16 @@ export class GameEngine {
     chunks: readonly import("@old-town/shared").ChunkData[];
   }> = [];
   private readonly _pendingRegionUnloads: Array<{ regionId: string }> = [];
+  private readonly _loadedChunkData = new Map<string, import("@old-town/shared").ChunkData>();
+  private readonly _actorPositions = new Map<number, Vector3>();
+  private readonly _seenActorPositionIds = new Set<number>();
+  private readonly _cameraFollowTarget = new Vector3();
   private _frameId = 0;
+  private _lastOverlayConnection: boolean | undefined;
+  private _lastOverlayTickText = "";
+  private _lastOverlayFpsText = "";
+  private _lastFpsOverlayUpdateMs = -Infinity;
+  private _lastDebugOverlayUpdateMs = -Infinity;
 
   constructor(options: GameEngineOptions) {
     const { canvas, statusOverlay, serverUrl, characterId } = options;
@@ -147,12 +160,7 @@ export class GameEngine {
       residentRadiusTiles: 128,
       maxGpuBytes: 256 * 1024 * 1024,
       onDisposeChunk: (chunkId) => {
-        // When a chunk is disposed, evict it from terrain and hide object buckets
         this.terrain.unloadChunk(chunkId);
-        const [regionId] = chunkId.split(":");
-        if (regionId) {
-          this.objects.setRegionVisible(regionId, false);
-        }
       },
     });
     this._chunkBakeWorker =
@@ -592,6 +600,9 @@ export class GameEngine {
     for (const load of this._pendingRegionLoads) {
       const regionParts = load.regionId.split(":");
       const plane = Number(regionParts[2] ?? 0) as 0 | 1 | 2 | 3;
+      for (const chunk of load.chunks) {
+        this._loadedChunkData.set(this._chunkKey(chunk.cx, chunk.cy, plane), chunk);
+      }
       this._chunkResidency.ingestRegionLoad(
         load.regionId as import("@old-town/shared").RegionId,
         load.chunks.map((c) => ({ cx: c.cx, cy: c.cy, plane })),
@@ -616,6 +627,7 @@ export class GameEngine {
     let job = this._chunkBakeQueue.dequeueJob();
     while (job) {
       const metadata = job.chunkId.split(":").map(Number);
+      const chunk = this._loadedChunkData.get(job.chunkId);
       if (metadata.length >= 2) {
         this._chunkBakeWorker.submit({
           type: "bake_chunk",
@@ -625,7 +637,7 @@ export class GameEngine {
             cy: metadata[1] as number,
             plane: (metadata[2] ?? 0) as 0 | 1 | 2 | 3,
           },
-          tiles: [],
+          tiles: chunk?.tiles ?? [],
           objectRefs: [],
           requestVersion: 1,
         });
@@ -635,6 +647,13 @@ export class GameEngine {
 
     // 2. Process GPU uploads
     this._chunkUploadQueue.processFrame(frameNow);
+    this._chunkResidency.forEachChunk((chunkId, state) => {
+      if (state !== "unseen") return;
+      const group = this._chunkUploadQueue.getChunkGroup(chunkId);
+      if (group) {
+        this._chunkResidency.onGpuResident(chunkId, 0);
+      }
+    });
 
     // 3. Evaluate residency and visibility
     this._chunkResidency.evaluate(this._frameId);
@@ -642,7 +661,8 @@ export class GameEngine {
     // 4. Sync terrain visibility with chunk residency
     const stats = this._chunkResidency.getStats();
     const queueStats = this._chunkBakeQueue.getStats();
-    this._chunkResidency.forEachChunk((chunkId, state) => {
+    const regionVisibility = new Map<RegionId, boolean>();
+    this._chunkResidency.forEachChunk((chunkId, state, metadata) => {
       if (state === "visible") {
         const group = this._chunkUploadQueue.getChunkGroup(chunkId);
         if (group) {
@@ -651,18 +671,13 @@ export class GameEngine {
       } else if (state === "hidden_resident" || state === "evict_pending") {
         this.terrain.unloadChunk(chunkId);
       }
-    });
 
-    // 5. Sync object bucket visibility: only show when chunk is visible
-    this._chunkResidency.forEachChunk((chunkId, state) => {
-      const [regionId] = chunkId.split(":");
-      if (!regionId) return;
-      if (state === "visible") {
-        this.objects.setRegionVisible(regionId, true);
-      } else if (state === "hidden_resident" || state === "evict_pending" || state === "disposed") {
-        this.objects.setRegionVisible(regionId, false);
-      }
+      const region = this._regionIdForChunk(metadata);
+      regionVisibility.set(region, (regionVisibility.get(region) ?? false) || state === "visible");
     });
+    for (const [region, visible] of regionVisibility) {
+      this.objects.setRegionVisible(region, visible);
+    }
 
     this.objects.flush(frameNow);
 
@@ -704,24 +719,39 @@ export class GameEngine {
     this.actors.updateFromCache(this._renderTransformCache, this._currentTick);
 
     // Build actor positions map from cache for hitsplats / XP drops / chat.
-    const actorPositions = new Map<number, Vector3>();
+    this._seenActorPositionIds.clear();
     this._renderTransformCache.forEachPresentation((p) => {
-      actorPositions.set(p.entityId, new Vector3(p.renderX, p.renderY, p.renderZ));
+      if (p.kind !== "player" && p.kind !== "npc" && p.kind !== "creature") return;
+      let position = this._actorPositions.get(p.entityId);
+      if (!position) {
+        position = new Vector3();
+        this._actorPositions.set(p.entityId, position);
+      }
+      position.set(p.renderX, p.renderY, p.renderZ);
+      this._seenActorPositionIds.add(p.entityId);
     });
+    for (const entityId of this._actorPositions.keys()) {
+      if (!this._seenActorPositionIds.has(entityId)) {
+        this._actorPositions.delete(entityId);
+      }
+    }
 
     // Keep the camera centred on the local player. The interpolated visual
     // position is presentational only and never feeds gameplay truth.
     const selfPresentation = this._renderTransformCache.getPresentation(this._selfEntityId);
     if (selfPresentation) {
-      this.renderer.cameraController.followTarget(
-        new Vector3(selfPresentation.renderX, selfPresentation.renderY, selfPresentation.renderZ),
+      this._cameraFollowTarget.set(
+        selfPresentation.renderX,
+        selfPresentation.renderY,
+        selfPresentation.renderZ,
       );
+      this.renderer.cameraController.followTarget(this._cameraFollowTarget);
     }
 
     this.projectiles.update(clockSample.renderServerTimeMs);
-    this.hitsplats.update(this._currentTick, clockSample.renderServerTimeMs, actorPositions);
-    this.xpDrops.update(this._currentTick, actorPositions);
-    this.chatOverhead.update(actorPositions);
+    this.hitsplats.update(this._currentTick, clockSample.renderServerTimeMs, this._actorPositions);
+    this.xpDrops.update(this._currentTick, this._actorPositions);
+    this.chatOverhead.update(this._actorPositions);
     this._hoverHighlighter.updateFromCache(this._renderTransformCache);
     this._clickMarkers.update(clockSample.renderServerTimeMs);
     this._updateOverlay(clockSample, presentationSample, queueStats, stats);
@@ -732,6 +762,20 @@ export class GameEngine {
       this._applyPresentationEvent(event);
     }
     this._presentationEventQueue.length = 0;
+  }
+
+  private _chunkKey(cx: number, cy: number, plane: number): string {
+    return `${cx}:${cy}:${plane}`;
+  }
+
+  private _regionIdForChunk(metadata: ChunkMetadata): RegionId {
+    return regionId(
+      chunkToRegion({
+        cx: metadata.cx,
+        cy: metadata.cy,
+        plane: metadata.plane as Plane,
+      }),
+    );
   }
 
   private _applyDebugEvents(): void {
@@ -789,11 +833,8 @@ export class GameEngine {
         break;
       }
       case "actors.updateAnimation": {
-        const p = event.payload as { entityId: number; state: string };
-        this.actors.updateAnimation(
-          p.entityId,
-          p.state as import("./scene/ActorRenderer").AnimationState,
-        );
+        const p = event.payload as { entityId: number; animationId: string; startTick?: number };
+        this.actors.playAction(p.entityId, p.animationId, p.startTick);
         break;
       }
       case "actors.updateMoveSpeed": {
@@ -968,23 +1009,41 @@ export class GameEngine {
     queueStats?: import("./renderer/ChunkBakeQueue").ChunkBakeQueueStats,
     residencyStats?: import("./renderer/ChunkResidencyManager").ChunkResidencyStats,
   ): void {
-    if (this._connected) {
-      this._overlays.connectionStatus.textContent = "Connected";
-      this._overlays.connectionStatus.className = "connected";
-    } else {
-      this._overlays.connectionStatus.textContent = "Disconnected";
-      this._overlays.connectionStatus.className = "disconnected";
+    const nowMs = clockSample?.rafNowMs ?? performance.now();
+
+    if (this._lastOverlayConnection !== this._connected) {
+      this._lastOverlayConnection = this._connected;
+      this._overlays.connectionStatus.textContent = this._connected ? "Connected" : "Disconnected";
+      this._overlays.connectionStatus.className = this._connected ? "connected" : "disconnected";
     }
-    this._overlays.tickStatus.textContent = `Tick: ${this._currentTick}`;
-    this._overlays.fpsStatus.textContent = `FPS: ${this.renderer.fps}`;
+
+    const tickText = `Tick: ${this._currentTick}`;
+    if (this._lastOverlayTickText !== tickText) {
+      this._lastOverlayTickText = tickText;
+      this._overlays.tickStatus.textContent = tickText;
+    }
+
+    if (nowMs - this._lastFpsOverlayUpdateMs >= 250) {
+      this._lastFpsOverlayUpdateMs = nowMs;
+      const fpsText = `FPS: ${this.renderer.fps}`;
+      if (this._lastOverlayFpsText !== fpsText) {
+        this._lastOverlayFpsText = fpsText;
+        this._overlays.fpsStatus.textContent = fpsText;
+      }
+    }
 
     const selfActor = this.actors.getActorState(this._selfEntityId);
     if (selfActor) {
       const debug = document.getElementById("debug-overlay");
-      if (debug?.classList.contains("visible") && !this._debugOverlayUpdatePending) {
+      if (
+        debug?.classList.contains("visible") &&
+        !this._debugOverlayUpdatePending &&
+        nowMs - this._lastDebugOverlayUpdateMs >= 250
+      ) {
         this._debugOverlayUpdatePending = true;
         const doUpdate = () => {
           this._debugOverlayUpdatePending = false;
+          this._lastDebugOverlayUpdateMs = nowMs;
           const cx = Math.floor(selfActor.serverTile.x / 8);
           const cy = Math.floor(selfActor.serverTile.y / 8);
           const rx = Math.floor(selfActor.serverTile.x / 64);

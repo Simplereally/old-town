@@ -301,7 +301,7 @@ function computeRegionId(tile: TileCoord): string {
   const regionSize = 64;
   const rx = Math.floor(tile.x / regionSize);
   const ry = Math.floor(tile.y / regionSize);
-  return `r${rx}:${ry}:${tile.plane}`;
+  return `${rx}:${ry}:${tile.plane}`;
 }
 
 function makeBucketKey(
@@ -331,6 +331,7 @@ export class ObjectRenderer {
   private readonly objectGroup = new Group();
   private readonly flushPending = new Set<string>();
   private readonly _registeredArchetypes = new Set<string>();
+  private readonly _regionVisibility = new Map<string, boolean>();
   private readonly _scratchPos = new Vector3();
   private readonly _scratchQuat = new Quaternion();
   private readonly _scratchScale = new Vector3();
@@ -364,7 +365,7 @@ export class ObjectRenderer {
       if (slot === null) return;
     }
 
-    this._scratchPos.set(tile.x, 0.1, -tile.y);
+    this._scratchPos.set(tile.x, 0.1, tile.y);
     this._scratchQuat.set(0, 0, 0, 1);
     this._scratchScale.set(1, 1, 1);
     this._scratchMatrix.compose(this._scratchPos, this._scratchQuat, this._scratchScale);
@@ -407,7 +408,7 @@ export class ObjectRenderer {
     if (!bucket) return;
 
     const angle = (rotation * Math.PI) / 2;
-    this._scratchPos.set(obj.tile.x, 0.1, -obj.tile.y);
+    this._scratchPos.set(obj.tile.x, 0.1, obj.tile.y);
     this._scratchQuat.set(0, Math.sin(angle / 2), 0, Math.cos(angle / 2));
     this._scratchScale.set(1, 1, 1);
     this._scratchMatrix.compose(this._scratchPos, this._scratchQuat, this._scratchScale);
@@ -453,6 +454,7 @@ export class ObjectRenderer {
 
     this.objectGroup.clear();
     this.scene.remove(this.objectGroup);
+    this._regionVisibility.clear();
   }
 
   /** Number of rendered objects. */
@@ -483,6 +485,8 @@ export class ObjectRenderer {
 
   /** Cull or show all buckets belonging to a region without destroying slots. */
   setRegionVisible(regionId: string, visible: boolean): void {
+    if (this._regionVisibility.get(regionId) === visible) return;
+    this._regionVisibility.set(regionId, visible);
     for (const bucket of this.buckets.values()) {
       if (bucket.key.regionId === regionId) {
         bucket.mesh.visible = visible;
@@ -514,6 +518,7 @@ export class ObjectRenderer {
       material,
       initialCapacity: 16,
     });
+    bucket.mesh.visible = this._regionVisibility.get(regionId) ?? true;
 
     this.objectGroup.add(bucket.mesh);
     this.buckets.set(keyStr, bucket);

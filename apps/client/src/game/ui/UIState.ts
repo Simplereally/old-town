@@ -38,6 +38,24 @@ export interface Notification {
   readonly createdAt: number;
 }
 
+export type UIStateChange =
+  | "inventory"
+  | "equipment"
+  | "skills"
+  | "vars"
+  | "chat"
+  | "dialogue"
+  | "bank"
+  | "shop"
+  | "minimap"
+  | "recipes"
+  | "contract"
+  | "statusEffects"
+  | "deathScreen"
+  | "notifications"
+  | "xpDrops"
+  | "activity";
+
 /**
  * Client-side UI state container. Holds all authoritative state received from server
  * packets that is needed to render UI panels. Never invents state — every field is
@@ -65,7 +83,7 @@ export class UIState {
   private _notifications: Notification[] = [];
   private _xpDrops: XpDropPacket[] = [];
   private _activity: ActivityViewPacket | undefined;
-  private _listeners = new Set<() => void>();
+  private _listeners = new Set<(change: UIStateChange) => void>();
 
   get inventory(): ReadonlyMap<number, InventorySlotChange> {
     return this._inventory;
@@ -93,7 +111,7 @@ export class UIState {
     for (const change of delta.changes) {
       this._inventory.set(change.slot, change);
     }
-    this._notify();
+    this._notify("inventory");
   }
 
   /** Apply an inventory delta (from TickDeltaPacket). */
@@ -105,7 +123,7 @@ export class UIState {
         this._inventory.set(change.slot, change);
       }
     }
-    this._notify();
+    this._notify("inventory");
   }
 
   /** Apply a full skills snapshot (from FullStatePacket). */
@@ -114,7 +132,7 @@ export class UIState {
     for (const skill of skills) {
       this._skills.set(skill.skillId, skill);
     }
-    this._notify();
+    this._notify("skills");
   }
 
   /** Apply a skill delta (from TickDeltaPacket). */
@@ -122,7 +140,7 @@ export class UIState {
     for (const skill of delta) {
       this._skills.set(skill.skillId, skill);
     }
-    this._notify();
+    this._notify("skills");
   }
 
   /** Apply a full vars snapshot (from FullStatePacket). */
@@ -131,7 +149,7 @@ export class UIState {
     for (const v of vars) {
       this._vars.set(v.varId, v.value);
     }
-    this._notify();
+    this._notify("vars");
   }
 
   /** Apply a varbit delta (from TickDeltaPacket). */
@@ -139,7 +157,7 @@ export class UIState {
     for (const v of delta) {
       this._vars.set(v.varId, v.value);
     }
-    this._notify();
+    this._notify("vars");
   }
 
   setEquipment(slots: readonly (string | null)[]): void {
@@ -150,7 +168,7 @@ export class UIState {
         this._equipment.set(i, itemId);
       }
     }
-    this._notify();
+    this._notify("equipment");
   }
 
   get dialogue(): DialogueViewPacket | undefined {
@@ -159,12 +177,12 @@ export class UIState {
 
   setDialogue(dialogue: DialogueViewPacket): void {
     this._dialogue = dialogue;
-    this._notify();
+    this._notify("dialogue");
   }
 
   clearDialogue(): void {
     this._dialogue = undefined;
-    this._notify();
+    this._notify("dialogue");
   }
 
   get bank(): ReadonlyMap<number, InventorySlotChange> {
@@ -176,7 +194,7 @@ export class UIState {
     for (const change of delta.changes) {
       this._bank.set(change.slot, change);
     }
-    this._notify();
+    this._notify("bank");
   }
 
   applyBankDelta(delta: InventoryDelta): void {
@@ -187,12 +205,12 @@ export class UIState {
         this._bank.set(change.slot, change);
       }
     }
-    this._notify();
+    this._notify("bank");
   }
 
   clearBank(): void {
     this._bank.clear();
-    this._notify();
+    this._notify("bank");
   }
 
   get shop(): ShopViewPacket | undefined {
@@ -201,12 +219,12 @@ export class UIState {
 
   setShop(shop: ShopViewPacket): void {
     this._shop = shop;
-    this._notify();
+    this._notify("shop");
   }
 
   clearShop(): void {
     this._shop = undefined;
-    this._notify();
+    this._notify("shop");
   }
 
   get minimapPlayerTile(): TileCoord | undefined {
@@ -215,7 +233,7 @@ export class UIState {
 
   setMinimapPlayerTile(tile: TileCoord): void {
     this._minimapPlayerTile = tile;
-    this._notify();
+    this._notify("minimap");
   }
 
   get minimapEntities(): ReadonlyMap<number, MinimapEntity> {
@@ -224,25 +242,25 @@ export class UIState {
 
   setMinimapEntity(entity: MinimapEntity): void {
     this._minimapEntities.set(entity.entityId, entity);
-    this._notify();
+    this._notify("minimap");
   }
 
   updateMinimapEntityTile(entityId: number, tile: TileCoord): void {
     const existing = this._minimapEntities.get(entityId);
     if (existing) {
       this._minimapEntities.set(entityId, { ...existing, tile });
-      this._notify();
+      this._notify("minimap");
     }
   }
 
   removeMinimapEntity(entityId: number): void {
     this._minimapEntities.delete(entityId);
-    this._notify();
+    this._notify("minimap");
   }
 
   clearMinimapEntities(): void {
     this._minimapEntities.clear();
-    this._notify();
+    this._notify("minimap");
   }
 
   get minimapTiles(): ReadonlyMap<string, MinimapTile> {
@@ -257,7 +275,7 @@ export class UIState {
       keys.push(key);
     }
     this._minimapRegionTileKeys.set(regionId, new Set(keys));
-    this._notify();
+    this._notify("minimap");
   }
 
   removeMinimapTilesByRegion(regionId: string): void {
@@ -267,14 +285,14 @@ export class UIState {
         this._minimapTiles.delete(key);
       }
       this._minimapRegionTileKeys.delete(regionId);
-      this._notify();
+      this._notify("minimap");
     }
   }
 
   clearMinimapTiles(): void {
     this._minimapTiles.clear();
     this._minimapRegionTileKeys.clear();
-    this._notify();
+    this._notify("minimap");
   }
 
   get recipeList(): RecipeListPacket | undefined {
@@ -284,13 +302,13 @@ export class UIState {
   setRecipeList(packet: RecipeListPacket): void {
     this._recipeList = packet;
     this._recipeResult = undefined;
-    this._notify();
+    this._notify("recipes");
   }
 
   clearRecipeList(): void {
     this._recipeList = undefined;
     this._recipeResult = undefined;
-    this._notify();
+    this._notify("recipes");
   }
 
   get recipeResult(): RecipeResultPacket | undefined {
@@ -299,12 +317,12 @@ export class UIState {
 
   setRecipeResult(packet: RecipeResultPacket): void {
     this._recipeResult = packet;
-    this._notify();
+    this._notify("recipes");
   }
 
   clearRecipeResult(): void {
     this._recipeResult = undefined;
-    this._notify();
+    this._notify("recipes");
   }
 
   get activeContract(): ContractProgressPacket | undefined {
@@ -313,12 +331,12 @@ export class UIState {
 
   setActiveContract(contract: ContractProgressPacket): void {
     this._activeContract = contract;
-    this._notify();
+    this._notify("contract");
   }
 
   clearActiveContract(): void {
     this._activeContract = undefined;
-    this._notify();
+    this._notify("contract");
   }
 
   get contractCompletes(): readonly ContractCompletePacket[] {
@@ -330,7 +348,7 @@ export class UIState {
     while (this._contractCompletes.length > 10) {
       this._contractCompletes.shift();
     }
-    this._notify();
+    this._notify("contract");
   }
 
   setContract(packet: ContractCompletePacket): void {
@@ -339,7 +357,7 @@ export class UIState {
 
   clearContractCompletes(): void {
     this._contractCompletes = [];
-    this._notify();
+    this._notify("contract");
   }
 
   get statusEffects(): readonly StatusEffectUpdate[] {
@@ -348,7 +366,7 @@ export class UIState {
 
   setStatusEffects(effects: readonly StatusEffectUpdate[]): void {
     this._statusEffects = effects.slice();
-    this._notify();
+    this._notify("statusEffects");
   }
 
   get deathScreen(): boolean {
@@ -357,7 +375,7 @@ export class UIState {
 
   setDeathScreen(active: boolean): void {
     this._deathScreen = active;
-    this._notify();
+    this._notify("deathScreen");
   }
 
   get notifications(): readonly Notification[] {
@@ -369,17 +387,17 @@ export class UIState {
     while (this._notifications.length > 20) {
       this._notifications.shift();
     }
-    this._notify();
+    this._notify("notifications");
   }
 
   removeNotification(id: string): void {
     this._notifications = this._notifications.filter((n) => n.id !== id);
-    this._notify();
+    this._notify("notifications");
   }
 
   clearNotifications(): void {
     this._notifications = [];
-    this._notify();
+    this._notify("notifications");
   }
 
   get xpDrops(): readonly XpDropPacket[] {
@@ -392,12 +410,12 @@ export class UIState {
 
   setActivity(activity: ActivityViewPacket): void {
     this._activity = activity;
-    this._notify();
+    this._notify("activity");
   }
 
   clearActivity(): void {
     this._activity = undefined;
-    this._notify();
+    this._notify("activity");
   }
 
   addXpDrops(drops: readonly XpDropPacket[]): void {
@@ -405,12 +423,12 @@ export class UIState {
     while (this._xpDrops.length > 50) {
       this._xpDrops.shift();
     }
-    this._notify();
+    this._notify("xpDrops");
   }
 
   clearXpDrops(): void {
     this._xpDrops = [];
-    this._notify();
+    this._notify("xpDrops");
   }
 
   /** Append chat messages (from TickDeltaPacket). */
@@ -419,26 +437,26 @@ export class UIState {
     while (this._chat.length > 200) {
       this._chat.shift();
     }
-    this._notify();
+    this._notify("chat");
   }
 
   /** Clear all chat history. */
   clearChat(): void {
     this._chat = [];
-    this._notify();
+    this._notify("chat");
   }
 
   /** Register a listener that fires whenever state changes. */
-  onChange(listener: () => void): () => void {
+  onChange(listener: (change: UIStateChange) => void): () => void {
     this._listeners.add(listener);
     return () => {
       this._listeners.delete(listener);
     };
   }
 
-  private _notify(): void {
+  private _notify(change: UIStateChange): void {
     for (const listener of this._listeners) {
-      listener();
+      listener(change);
     }
   }
 }

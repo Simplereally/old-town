@@ -42,7 +42,7 @@ export class TilePicker {
     if (!world) return null;
     return {
       x: Math.floor(world.x + 0.5),
-      y: Math.floor(-world.z + 0.5),
+      y: Math.floor(world.z + 0.5),
     };
   }
 

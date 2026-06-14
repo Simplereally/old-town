@@ -53,7 +53,7 @@ export class ClickMarkerLayer {
     const mesh = this.pool.acquire();
     if (!mesh) return id;
 
-    mesh.position.set(tile.x * TILE_SIZE_WORLD_UNITS, 0.05, -tile.y * TILE_SIZE_WORLD_UNITS);
+    mesh.position.set(tile.x * TILE_SIZE_WORLD_UNITS, 0.05, tile.y * TILE_SIZE_WORLD_UNITS);
     mesh.visible = true;
     this.group.add(mesh);
 

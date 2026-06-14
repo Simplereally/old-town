@@ -158,6 +158,42 @@ describe("RenderTransformCache", () => {
     expect(p?.renderX).toBeCloseTo(10.5 + 0.5 * 1, 5);
   });
 
+  it("stopped entity holds at its destination instead of replaying the final step", () => {
+    // Regression: when a path completes the server stops sending position
+    // updates, so the per-entity previousTile stays pinned to the
+    // second-to-last tile and moveSpeed stays "walk". Interpolating from that
+    // field replays the last step every tick. The cache must instead use the
+    // older snapshot's tile, which equals the current tile once at rest.
+    const cache = new RenderTransformCache(defaultOptions);
+    // Final move tick: arrived at {12,20} from {11,20}.
+    const arrived = makeSnapshot(2, [
+      makeEntity(
+        1,
+        { x: 12, y: 20, plane: 0 },
+        { moveSpeed: "walk", previousTile: { x: 11, y: 20, plane: 0 } },
+      ),
+    ]);
+    // Next tick: still at {12,20} but carrying the stale previousTile/moveSpeed.
+    const held = makeSnapshot(3, [
+      makeEntity(
+        1,
+        { x: 12, y: 20, plane: 0 },
+        { moveSpeed: "walk", previousTile: { x: 11, y: 20, plane: 0 } },
+      ),
+    ]);
+
+    cache.applySample(makeSample("interpolate", 0, arrived));
+    cache.applySample(makeSample("interpolate", 0.5, held, arrived));
+
+    const p = cache.getPresentation(1);
+    // Interpolating between two identical positions must stay put, not slide
+    // back toward the second-to-last tile.
+    expect(p?.renderX).toBe(12.5);
+    expect(p?.renderZ).toBe(20.5);
+    // And the actor must not keep playing its walk cycle while standing still.
+    expect(p?.movementKind).toBe(MovementPresentationKind.Idle);
+  });
+
   it("teleport snaps to tile without interpolation", () => {
     const cache = new RenderTransformCache(defaultOptions);
     const older = makeSnapshot(1, [makeEntity(1, { x: 10, y: 20, plane: 0 })]);

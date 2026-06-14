@@ -24,10 +24,35 @@ import { compose, PALETTE, vertexColorMaterial } from "./lowpoly";
 
 export type AnimationState = "idle" | "walk" | "run" | "attack" | "cast" | "hit" | "die";
 
+/** Locomotion poses driven continuously by movement; never server-signalled. */
+export type LocomotionState = "idle" | "walk" | "run";
+
 /** Number of visual substeps per server tick for quantized animation. */
 export const ANIMATION_SUBSTEPS_PER_TICK = 4;
 /** Duration of one animation substep in milliseconds. */
 export const ANIMATION_SUBSTEP_MS = GAME_TICK_MS / ANIMATION_SUBSTEPS_PER_TICK;
+
+/**
+ * Time-box for a server-signalled action animation. The client is not sent the
+ * animation registry, so durations are presentational. One tick reads as a
+ * single swing/cast; combat re-signals on each attack so sustained fighting
+ * keeps the pose alive without it sticking when the action ends.
+ */
+export const ACTION_ANIMATION_DURATION_MS = GAME_TICK_MS;
+
+/**
+ * Resolve a server animation content id to a presentational pose. Keyword-based
+ * and purely presentational — gameplay never reads it. Mirrors {@link resolveCreature}
+ * so new combat/skill animations render without a code change. Unknown ids read
+ * as a generic melee swing.
+ */
+export function resolveActionPose(animationId: string): AnimationState {
+  const id = animationId.toLowerCase();
+  if (/cast|magic|spell|teleport|channel|enchant|alch|curse|bind/.test(id)) return "cast";
+  if (/death|die|defeat|collapse/.test(id)) return "die";
+  if (/block|defend|flinch|stagger|recoil/.test(id)) return "hit";
+  return "attack";
+}
 
 /** Lightweight render handle for an actor. Used by the transform cache and policy layer. */
 export interface ActorRenderHandle {
@@ -41,16 +66,19 @@ export interface ActorRenderHandle {
 interface ActorState {
   readonly entityId: number;
   serverTile: TileCoord;
-  previousServerTile: TileCoord;
   visualPosition: Vector3;
   facingDirection: Direction;
+  /** Continuous movement-derived pose (idle/walk/run). */
+  locomotionState: LocomotionState;
+  /** Server-signalled action that overrides locomotion until its wall-clock deadline. */
+  action: { state: AnimationState; untilMs: number } | undefined;
+  /** Effective pose actually rendered this frame (action if active, else locomotion). */
   animationState: AnimationState;
   isLocalPlayer: boolean;
   name: string;
   kind: "player" | "npc";
   healthBar?: { current: number; max: number };
   lastHitTick: number;
-  tickStartTime: number;
   resourceKey: string;
   poolSlot: number;
 }
@@ -567,15 +595,15 @@ export class ActorRenderer {
     const state: ActorState = {
       entityId,
       serverTile: tile,
-      previousServerTile: tile,
       visualPosition: this._tileToWorld(tile),
       facingDirection: Direction.South,
+      locomotionState: "idle",
+      action: undefined,
       animationState: "idle",
       isLocalPlayer,
       name: defId ?? "Actor",
       kind,
       lastHitTick: -Infinity,
-      tickStartTime: performance.now(),
       resourceKey,
       poolSlot,
     };
@@ -595,13 +623,15 @@ export class ActorRenderer {
     this.actors.delete(entityId);
   }
 
-  /** Update actor server tile (called on each tick delta). */
+  /**
+   * Update actor server tile (called on each tick delta). This tracks the
+   * authoritative tile for picking, camera focus, and debug; visual position is
+   * driven separately from the snapshot buffer via {@link updateFromCache}.
+   */
   updateTile(entityId: number, tile: TileCoord): void {
     const actor = this.actors.get(entityId);
     if (!actor) return;
-    actor.previousServerTile = actor.serverTile;
     actor.serverTile = tile;
-    actor.tickStartTime = performance.now();
   }
 
   /** Update actor facing direction. */
@@ -611,19 +641,27 @@ export class ActorRenderer {
     actor.facingDirection = direction;
   }
 
-  /** Update animation state. */
-  updateAnimation(entityId: number, state: AnimationState): void {
+  /**
+   * Play a server-signalled action animation (attack, cast, …). Actions are
+   * discrete events owned by the server — unlike locomotion they are time-boxed
+   * and take precedence over the movement pose until they expire, so they are
+   * not stomped by the per-frame locomotion update. `animationId` is a content
+   * id resolved to a presentational pose.
+   */
+  playAction(entityId: number, animationId: string, _startTick?: number): void {
     const actor = this.actors.get(entityId);
     if (!actor) return;
-    actor.animationState = state;
+    actor.action = {
+      state: resolveActionPose(animationId),
+      untilMs: performance.now() + ACTION_ANIMATION_DURATION_MS,
+    };
   }
 
-  /** Update animation state from movement speed. */
+  /** Update the continuous locomotion pose from movement speed. */
   updateMoveSpeed(entityId: number, speed: MoveSpeed): void {
     const actor = this.actors.get(entityId);
     if (!actor) return;
-    const state: AnimationState = speed === "stationary" ? "idle" : speed;
-    actor.animationState = state;
+    actor.locomotionState = speed === "stationary" ? "idle" : speed;
   }
 
   /** Hide an actor (e.g. on death). */
@@ -679,37 +717,6 @@ export class ActorRenderer {
     }
   }
 
-  /** Interpolate all actor visual positions. Call this every frame. */
-  interpolate(currentTick: number): void {
-    const now = performance.now();
-
-    for (const actor of this.actors.values()) {
-      const tickStartTime = actor.tickStartTime;
-      const previousServerTile = actor.previousServerTile;
-      const serverTile = actor.serverTile;
-      const entityId = actor.entityId;
-      const facingDirection = actor.facingDirection;
-      const visualPosition = actor.visualPosition;
-
-      const tickProgress = Math.min((now - tickStartTime) / GAME_TICK_MS, 1);
-      const prevWorld = this._tileToWorld(previousServerTile);
-      const currWorld = this._tileToWorld(serverTile);
-      visualPosition.lerpVectors(prevWorld, currWorld, tickProgress);
-
-      const meshes = this.meshes.get(entityId);
-      if (meshes) {
-        meshes.group.position.copy(visualPosition);
-        meshes.group.position.y += GROUND_OFFSET;
-        meshes.group.rotation.y = this._directionToRotation(facingDirection);
-
-        if (meshes.healthBar) {
-          const elapsed = currentTick - actor.lastHitTick;
-          meshes.healthBar.group.visible = elapsed <= HP_BAR_LIFETIME_TICKS && !!actor.healthBar;
-        }
-      }
-    }
-  }
-
   /** Update actor visual positions from RenderTransformCache. Call every frame. */
   updateFromCache(
     cache: import("../renderer/RenderTransformCache").RenderTransformCache,
@@ -725,27 +732,30 @@ export class ActorRenderer {
       meshes.group.position.y += GROUND_OFFSET;
       meshes.group.rotation.y = this._directionToRotation(presentation.heading as Direction);
 
-      // Drive animation state from movement presentation kind
+      // Drive the locomotion pose from the movement presentation kind. This is
+      // continuous and recomputed every frame, but it must not clobber a live
+      // server-signalled action (e.g. an attack swing) — the effective pose
+      // prefers an active action and falls back to locomotion.
       const movementKind = presentation.movementKind;
-      let animState: AnimationState;
+      let locomotion: LocomotionState;
       switch (movementKind) {
-        case 0:
-          animState = "idle";
-          break;
         case 1:
-          animState = "walk";
+          locomotion = "walk";
           break;
         case 2:
-          animState = "run";
+          locomotion = "run";
           break;
         default:
-          animState = "idle";
+          locomotion = "idle";
           break;
       }
-      actor.animationState = animState;
+      actor.locomotionState = locomotion;
+
+      const nowMs = performance.now();
+      actor.animationState = this._effectiveAnimation(actor, nowMs);
 
       // Apply quantized CPU-side animation pose
-      this._sampleAnimation(actor, meshes, performance.now());
+      this._sampleAnimation(actor, meshes, nowMs);
 
       if (meshes.healthBar) {
         const elapsed = currentTick - actor.lastHitTick;
@@ -1128,7 +1138,7 @@ export class ActorRenderer {
   }
 
   private _tileToWorld(tile: TileCoord): Vector3 {
-    return new Vector3(tile.x * TILE_SIZE_WORLD_UNITS, 0, -tile.y * TILE_SIZE_WORLD_UNITS);
+    return new Vector3(tile.x * TILE_SIZE_WORLD_UNITS, 0, tile.y * TILE_SIZE_WORLD_UNITS);
   }
 
   /** Build a billboarded health-bar group (red bg + green fill). */
@@ -1159,6 +1169,22 @@ export class ActorRenderer {
   ): void {
     const ratio = maxHealth > 0 ? Math.min(1, Math.max(0, health / maxHealth)) : 0;
     healthBar.fill.scale.x = ratio <= 0 ? HP_BAR_EPSILON : HP_BAR_WIDTH * ratio;
+  }
+
+  /**
+   * Resolve the pose to render this frame. A server-signalled action wins until
+   * its wall-clock deadline, then it expires and locomotion resumes. Expiry is
+   * driven by render time, never by server ticks, so the pose flows smoothly.
+   */
+  private _effectiveAnimation(actor: ActorState, nowMs: number): AnimationState {
+    const action = actor.action;
+    if (action && nowMs < action.untilMs) {
+      return action.state;
+    }
+    if (action) {
+      actor.action = undefined;
+    }
+    return actor.locomotionState;
   }
 
   private _directionToRotation(direction: Direction): number {

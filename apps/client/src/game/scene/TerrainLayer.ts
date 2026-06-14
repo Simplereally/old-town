@@ -87,6 +87,13 @@ export class TerrainLayer {
 
   /** Add a pre-built baked chunk Group to the scene (production path). */
   addBakedChunk(key: string, group: Group): void {
+    const existing = this.bakedChunks.get(key);
+    if (existing === group) {
+      if (group.parent !== this.scene) {
+        this.scene.add(group);
+      }
+      return;
+    }
     if (this.chunks.has(key) || this.bakedChunks.has(key)) {
       this.unloadChunk(key);
     }
@@ -147,12 +154,12 @@ export class TerrainLayer {
     if (isWater) {
       const mesh = new Mesh(this.waterGeometry, this.waterMaterial);
       mesh.rotation.x = -Math.PI / 2;
-      mesh.position.set(tile.x, 0.05, -tile.y);
+      mesh.position.set(tile.x, 0.05, tile.y);
       return mesh;
     }
 
     const mesh = new Mesh(this.chunkGeometry, this.getMaterial(underlayId));
-    mesh.position.set(tile.x, height * 0.1, -tile.y);
+    mesh.position.set(tile.x, height * 0.1, tile.y);
     return mesh;
   }
 

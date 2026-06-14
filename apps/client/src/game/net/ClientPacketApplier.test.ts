@@ -379,6 +379,40 @@ describe("ClientPacketApplier (pure)", () => {
     expect(entity).toBeDefined();
     expect(entity?.tile).toEqual({ x: 1, y: 0, plane: 0 });
     expect(entity?.previousTile).toEqual({ x: 0, y: 0, plane: 0 });
+    expect(entity?.moveSpeed).toBe("walk");
+  });
+
+  it("applyTickDelta keeps movement state when position and speed arrive together", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(
+      fullStatePacket({ selfEntityId: eid(1), entities: [spawnNpc(5, { x: 0, y: 0, plane: 0 })] }),
+    );
+
+    const result = applier.applyTickDelta(
+      tickDeltaPacket({
+        entityUpdates: [
+          {
+            entityId: eid(5),
+            mask: 0,
+            changes: {
+              position: { x: 1, y: 0, plane: 0 },
+              facingTile: { x: 2, y: 0, plane: 0 },
+              moveSpeed: "walk",
+            },
+          },
+        ],
+      }),
+      1,
+    );
+
+    const entity = ctx.store.getEntity(5);
+    expect(entity?.tile).toEqual({ x: 1, y: 0, plane: 0 });
+    expect(entity?.previousTile).toEqual({ x: 0, y: 0, plane: 0 });
+    expect(entity?.moveSpeed).toBe("walk");
+    expect(result?.snapshot.entities[0]?.tile).toEqual({ x: 1, y: 0, plane: 0 });
+    expect(result?.snapshot.entities[0]?.previousTile).toEqual({ x: 0, y: 0, plane: 0 });
+    expect(result?.snapshot.entities[0]?.moveSpeed).toBe("walk");
   });
 
   it("applyTickDelta emits object transform event", () => {

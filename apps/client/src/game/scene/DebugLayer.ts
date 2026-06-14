@@ -92,6 +92,7 @@ export class DebugLayer {
   constructor(options: DebugLayerOptions) {
     this.scene = options.scene;
     this.group.name = "debug";
+    this.group.visible = false;
     this.scene.add(this.group);
   }
 
@@ -113,7 +114,7 @@ export class DebugLayer {
     this._removeTile(key);
     if (!this._showTrueTile) return;
     const mesh = new Mesh(this.tileGeometry, this.trueTileMaterial);
-    mesh.position.set(tile.x * TILE_SIZE_WORLD_UNITS, 0.05, -tile.y * TILE_SIZE_WORLD_UNITS);
+    mesh.position.set(tile.x * TILE_SIZE_WORLD_UNITS, 0.05, tile.y * TILE_SIZE_WORLD_UNITS);
     this.group.add(mesh);
     this.tiles.set(key, { tile, mesh, type: "trueTile" });
   }
@@ -123,7 +124,7 @@ export class DebugLayer {
     if (this.tiles.has(key)) return;
     if (!this._showPath) return;
     const mesh = new Mesh(this.tileGeometry, this.pathMaterial);
-    mesh.position.set(tile.x * TILE_SIZE_WORLD_UNITS, 0.05, -tile.y * TILE_SIZE_WORLD_UNITS);
+    mesh.position.set(tile.x * TILE_SIZE_WORLD_UNITS, 0.05, tile.y * TILE_SIZE_WORLD_UNITS);
     this.group.add(mesh);
     this.tiles.set(key, { tile, mesh, type: "path" });
   }
@@ -133,7 +134,7 @@ export class DebugLayer {
     if (this.tiles.has(key)) return;
     if (!this._showCollision) return;
     const mesh = new Mesh(this.tileGeometry, this.collisionMaterial);
-    mesh.position.set(tile.x * TILE_SIZE_WORLD_UNITS, 0.05, -tile.y * TILE_SIZE_WORLD_UNITS);
+    mesh.position.set(tile.x * TILE_SIZE_WORLD_UNITS, 0.05, tile.y * TILE_SIZE_WORLD_UNITS);
     this.group.add(mesh);
     this.tiles.set(key, { tile, mesh, type: "collision" });
   }
@@ -143,7 +144,7 @@ export class DebugLayer {
     if (this.tiles.has(key)) return;
     if (!this._showFootprint) return;
     const mesh = new Mesh(this.tileGeometry, this.footprintMaterial);
-    mesh.position.set(tile.x * TILE_SIZE_WORLD_UNITS, 0.05, -tile.y * TILE_SIZE_WORLD_UNITS);
+    mesh.position.set(tile.x * TILE_SIZE_WORLD_UNITS, 0.05, tile.y * TILE_SIZE_WORLD_UNITS);
     this.group.add(mesh);
     this.tiles.set(key, { tile, mesh, type: "footprint" });
   }
@@ -160,7 +161,7 @@ export class DebugLayer {
         const tile = { x: center.x + dx, y: center.y + dy, plane: center.plane };
         const key = `reach:${tile.x}:${tile.y}:${tile.plane}`;
         const mesh = new Mesh(this.tileGeometry, this.reachMaterial);
-        mesh.position.set(tile.x * TILE_SIZE_WORLD_UNITS, 0.05, -tile.y * TILE_SIZE_WORLD_UNITS);
+        mesh.position.set(tile.x * TILE_SIZE_WORLD_UNITS, 0.05, tile.y * TILE_SIZE_WORLD_UNITS);
         this.group.add(mesh);
         this.tiles.set(key, { tile, mesh, type: "reach" });
       }

@@ -236,9 +236,16 @@ export class RenderTransformCache {
     // Update hot fields
     this._entityIds[index] = entity.entityId;
 
-    // Determine previous tile for interpolation
+    // Determine the previous tile used for interpolation. Prefer the older
+    // snapshot's actual tile — the entity's true position one tick ago — over
+    // the per-entity previousTile field. When an entity stops moving the server
+    // stops sending position updates, so its previousTile stays pinned to the
+    // second-to-last tile; interpolating from that replays the final step every
+    // tick (the classic "moonwalk back and re-walk" stutter at a path's end).
+    // The older snapshot's tile equals the current tile once the entity is at
+    // rest, so it interpolates to a standstill instead.
     let prevTile = entity.previousTile;
-    if (prevTile === null && olderSnapshot !== undefined) {
+    if (olderSnapshot !== undefined) {
       const olderIdx = this._olderLookup.get(entity.entityId);
       if (olderIdx !== undefined) {
         const olderEntity = olderSnapshot.entities[olderIdx];
@@ -265,13 +272,24 @@ export class RenderTransformCache {
 
     this._heading[index] = entity.facing;
 
-    // Determine movement presentation kind
+    // Determine movement presentation kind. Decide "is it actually moving"
+    // from the displacement between the interpolation endpoints
+    // (prevTile → currTile) rather than the moveSpeed field, which the server
+    // leaves at "walk" after an entity reaches its destination. Without this a
+    // stopped actor keeps playing its walk cycle on the spot.
+    const movedThisWindow =
+      prevTile !== null &&
+      (prevTile.x !== entity.tile.x ||
+        prevTile.y !== entity.tile.y ||
+        prevTile.plane !== entity.tile.plane);
     let movementKind: MovementPresentationKind;
     if (entity.moveSpeed === "teleport" || entity.previousTile === null) {
       movementKind = MovementPresentationKind.Teleport;
-    } else if (entity.moveSpeed === "run" && entity.previousTile !== null) {
-      const dx = Math.abs(entity.previousTile.x - entity.tile.x);
-      const dy = Math.abs(entity.previousTile.y - entity.tile.y);
+    } else if (!movedThisWindow) {
+      movementKind = MovementPresentationKind.Idle;
+    } else if (entity.moveSpeed === "run" && prevTile !== null) {
+      const dx = Math.abs(prevTile.x - entity.tile.x);
+      const dy = Math.abs(prevTile.y - entity.tile.y);
       if (dx + dy >= 2) {
         movementKind = MovementPresentationKind.Run;
       } else {

@@ -1,6 +1,6 @@
 import type { ContentClient } from "./ContentClient";
 import { GlobalKeydownBus } from "./GlobalKeydownBus";
-import type { UIState } from "./UIState";
+import type { UIState, UIStateChange } from "./UIState";
 
 export interface UIManagerCallbacks {
   sendItemCommand(itemUid: number, actionId: string): void;
@@ -73,7 +73,7 @@ export class UIManager {
     this._bindKeyboardShortcuts();
     this._bindChatInput();
     this._bindRecipeMakeButton();
-    this._unsubscribe = uiState.onChange(() => this._renderAll());
+    this._unsubscribe = uiState.onChange((change) => this._renderChange(change));
     this._renderAll();
   }
 
@@ -202,6 +202,9 @@ export class UIManager {
       }
     }
     this._updateButtonState(panelId, isHidden);
+    if (isHidden && !isDebugOverlay && panelId !== "activity-panel") {
+      this._renderPanel(panelId);
+    }
   }
 
   private _updateButtonState(panelId: string, visible: boolean): void {
@@ -228,6 +231,105 @@ export class UIManager {
     this._renderStatusEffects();
     this._renderDeathScreen();
     this._renderNotifications();
+  }
+
+  private _renderChange(change: UIStateChange): void {
+    switch (change) {
+      case "inventory":
+        this._renderInventory();
+        break;
+      case "equipment":
+        this._renderEquipment();
+        break;
+      case "skills":
+        this._renderSkills();
+        this._renderSpellbook();
+        this._renderRecipes();
+        break;
+      case "vars":
+        this._renderQuests();
+        break;
+      case "chat":
+        this._renderChat();
+        break;
+      case "dialogue":
+        this._renderDialogue();
+        break;
+      case "bank":
+        this._renderBank();
+        break;
+      case "shop":
+        this._renderShop();
+        break;
+      case "minimap":
+        if (this._isPanelVisible("minimap-panel")) {
+          this._renderMinimap();
+        }
+        break;
+      case "recipes":
+        this._renderRecipes();
+        break;
+      case "contract":
+        this._renderContract();
+        break;
+      case "statusEffects":
+        this._renderStatusEffects();
+        break;
+      case "deathScreen":
+        this._renderDeathScreen();
+        break;
+      case "notifications":
+        this._renderNotifications();
+        break;
+      case "activity":
+        this._renderActivity();
+        break;
+      case "xpDrops":
+        break;
+    }
+  }
+
+  private _renderPanel(panelId: string): void {
+    switch (panelId) {
+      case "inventory-panel":
+        this._renderInventory();
+        break;
+      case "equipment-panel":
+        this._renderEquipment();
+        break;
+      case "skills-panel":
+        this._renderSkills();
+        break;
+      case "spellbook-panel":
+        this._renderSpellbook();
+        break;
+      case "quest-panel":
+        this._renderQuests();
+        break;
+      case "chat-box":
+        this._renderChat();
+        break;
+      case "bank-panel":
+        this._renderBank();
+        break;
+      case "shop-panel":
+        this._renderShop();
+        break;
+      case "recipe-panel":
+        this._renderRecipes();
+        break;
+      case "minimap-panel":
+        this._renderMinimap();
+        break;
+      case "contract-panel":
+        this._renderContract();
+        break;
+    }
+  }
+
+  private _isPanelVisible(panelId: string): boolean {
+    const panel = this.panels.get(panelId);
+    return panel ? !panel.classList.contains("hidden") : false;
   }
 
   private _renderInventory(): void {

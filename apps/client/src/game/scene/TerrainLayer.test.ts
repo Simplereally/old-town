@@ -138,6 +138,17 @@ describe("TerrainLayer", () => {
     expect(scene.children).not.toContain(group1);
   });
 
+  it("does not re-add the same baked chunk every frame", () => {
+    const group = createBakedGroup("0:0:0:0:0");
+    terrain.addBakedChunk("0:0:0:0:0", group);
+    const addSpy = vi.spyOn(scene, "add");
+
+    terrain.addBakedChunk("0:0:0:0:0", group);
+
+    expect(addSpy).not.toHaveBeenCalled();
+    expect(scene.children.filter((child) => child === group)).toHaveLength(1);
+  });
+
   it("replaces raw chunk with baked chunk", () => {
     const chunk = createChunk(0, 0, [{ x: 0, y: 0, height: 0, underlayId: "grass", collision: 0 }]);
     terrain.loadChunk("0:0:0", chunk);

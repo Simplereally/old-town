@@ -16,11 +16,13 @@ describe("DebugLayer", () => {
 
   it("starts hidden", () => {
     expect(layer.visible).toBe(false);
+    expect(scene.children[0]?.visible).toBe(false);
   });
 
   it("can be toggled visible", () => {
     layer.toggle();
     expect(layer.visible).toBe(true);
+    expect(scene.children[0]?.visible).toBe(true);
   });
 
   it("marks a true tile", () => {
