@@ -334,5 +334,9 @@ export function dispatchMovementPhase(
 }
 
 export function dispatchConsumablePhase(ctx: IntentDispatcherContext): void {
-  ctx.consumableSystem.processConsumablePhase({ world: ctx.world, deltas: ctx.deltas });
+  ctx.consumableSystem.processConsumablePhase({
+    world: ctx.world,
+    deltas: ctx.deltas,
+    registries: ctx.registries,
+  });
 }

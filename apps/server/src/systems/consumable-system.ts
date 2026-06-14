@@ -18,12 +18,16 @@
  * Heals are clamped to `maxHealth`; food cannot overheal (no content field opts into it yet).
  */
 import type { EntityId } from "@old-town/shared";
+import type { ContentRegistries } from "@old-town/shared";
 import type { World } from "../ecs/world";
+import { boostSkill } from "../skills/skill-state";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
+import { applyStatusEffect, cureStatusEffect } from "./status-system";
 
 export interface ConsumableContext {
   readonly world: World;
   readonly deltas: DeltaAccumulator;
+  readonly registries: ContentRegistries;
 }
 
 /** A heal queued at input close, awaiting application in the stat-change phase. */
@@ -32,9 +36,34 @@ interface PendingHeal {
   readonly heal: number;
 }
 
+/** A status effect cure queued at input close, awaiting application in the stat-change phase. */
+interface PendingCure {
+  readonly entityId: EntityId;
+  readonly statusEffectId: string;
+}
+
+/** A status effect application queued at input close, awaiting application in the stat-change phase. */
+interface PendingApplyStatus {
+  readonly entityId: EntityId;
+  readonly statusEffectId: string;
+}
+
+/** A skill boost queued at input close, awaiting application in the stat-change phase. */
+interface PendingBoost {
+  readonly entityId: EntityId;
+  readonly skillId: string;
+  readonly amount: number;
+}
+
 export class ConsumableSystem {
   /** Heals queued this tick, drained (FIFO) during {@link processConsumablePhase}. */
   private pending: PendingHeal[] = [];
+  /** Cures queued this tick, drained (FIFO) during {@link processConsumablePhase}. */
+  private pendingCures: PendingCure[] = [];
+  /** Status applications queued this tick, drained (FIFO) during {@link processConsumablePhase}. */
+  private pendingApplyStatus: PendingApplyStatus[] = [];
+  /** Boosts queued this tick, drained (FIFO) during {@link processConsumablePhase}. */
+  private pendingBoosts: PendingBoost[] = [];
 
   /**
    * Queue a heal of `heal` hitpoints for `entityId`, to be applied during this tick's
@@ -47,24 +76,72 @@ export class ConsumableSystem {
     }
   }
 
+  /** Queue a cure of `statusEffectId` for `entityId`. */
+  enqueueCure(entityId: EntityId, statusEffectId: string): void {
+    this.pendingCures.push({ entityId, statusEffectId });
+  }
+
+  /** Queue a status effect application of `statusEffectId` for `entityId`. */
+  enqueueApplyStatus(entityId: EntityId, statusEffectId: string): void {
+    this.pendingApplyStatus.push({ entityId, statusEffectId });
+  }
+
+  /** Queue a skill boost of `amount` for `skillId` on `entityId`. */
+  enqueueBoost(entityId: EntityId, skillId: string, amount: number): void {
+    if (amount > 0) {
+      this.pendingBoosts.push({ entityId, skillId, amount });
+    }
+  }
+
   /** Whether any heals are queued (for tests/diagnostics). */
   get pendingCount(): number {
     return this.pending.length;
   }
 
+  /** Whether any cures are queued (for tests/diagnostics). */
+  get pendingCureCount(): number {
+    return this.pendingCures.length;
+  }
+
+  /** Whether any status applications are queued (for tests/diagnostics). */
+  get pendingApplyStatusCount(): number {
+    return this.pendingApplyStatus.length;
+  }
+
+  /** Whether any boosts are queued (for tests/diagnostics). */
+  get pendingBoostCount(): number {
+    return this.pendingBoosts.length;
+  }
+
   /**
-   * Apply every queued heal (tick phase 9). Each heal is clamped to the actor's `maxHealth`;
-   * when it actually restores hitpoints, a `heal` hitsplat and a refreshed health bar are
-   * emitted. An actor already at full health produces no deltas (and no hitsplat noise).
+   * Apply every queued heal, cure, status, and boost (tick phase 9). Each heal is clamped to
+   * the actor's `maxHealth`; when it actually restores hitpoints, a `heal` hitsplat and a
+   * refreshed health bar are emitted. An actor already at full health produces no deltas
+   * (and no hitsplat noise). Cures and boosts are applied immediately.
    */
   processConsumablePhase(ctx: ConsumableContext): void {
-    if (this.pending.length === 0) {
-      return;
-    }
-    const queued = this.pending;
+    const heals = this.pending;
     this.pending = [];
-    for (const { entityId, heal } of queued) {
+    for (const { entityId, heal } of heals) {
       applyHeal(ctx, entityId, heal);
+    }
+
+    const cures = this.pendingCures;
+    this.pendingCures = [];
+    for (const { entityId, statusEffectId } of cures) {
+      cureStatusEffect(ctx, entityId, statusEffectId);
+    }
+
+    const applyStatuses = this.pendingApplyStatus;
+    this.pendingApplyStatus = [];
+    for (const { entityId, statusEffectId } of applyStatuses) {
+      applyStatusEffect(ctx, entityId, statusEffectId);
+    }
+
+    const boosts = this.pendingBoosts;
+    this.pendingBoosts = [];
+    for (const { entityId, skillId, amount } of boosts) {
+      boostSkill(ctx, entityId, skillId, amount);
     }
   }
 }

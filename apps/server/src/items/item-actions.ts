@@ -196,12 +196,24 @@ export function handleItemIntent(
     const { changes } = removeFromSlot(inventory, slot, 1);
     const afterQuantity = count(inventory, occupant.itemId);
     ctx.deltas.markInventoryDelta(buildDelta(inventory, changes));
-    // `heal` is optional now that consumables can carry non-healing effects
-    // (restore/boost/cure). Only enqueue restoration when a heal is defined;
-    // other effect types are resolved by their own systems.
+    // Enqueue all consumable effects to be processed in the stat-change phase.
+    // Heal is clamped to maxHealth; other effects resolve via their systems.
     const heal = def.consumable.heal;
     if (heal !== undefined) {
       ctx.consumables.enqueueHeal(owner, heal);
+    }
+    if (def.consumable.curesStatus) {
+      ctx.consumables.enqueueCure(owner, def.consumable.curesStatus);
+    }
+    if (def.consumable.effectType === "apply_status" && def.consumable.statusEffectId) {
+      ctx.consumables.enqueueApplyStatus(owner, def.consumable.statusEffectId);
+    }
+    if (def.consumable.effectType === "boost" && def.consumable.boostsSkill) {
+      ctx.consumables.enqueueBoost(
+        owner,
+        def.consumable.boostsSkill.skillId,
+        def.consumable.boostsSkill.boostAmount,
+      );
     }
     combatant.eatBlockedUntilTick = tick + def.consumable.consumeTicks;
     ctx.itemAudit?.recordForEntity(owner, {

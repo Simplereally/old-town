@@ -120,6 +120,39 @@ export function getCurrentLevel(skills: SkillsComponent, skillId: string): numbe
   return Math.max(1, skill.level + skill.boost - skill.drain);
 }
 
+export function boostSkill(
+  ctx: SkillStateContext,
+  entityId: EntityId,
+  skillId: string,
+  amount: number,
+): boolean {
+  if (amount <= 0) {
+    return false;
+  }
+
+  const skills = ctx.world.getComponent(entityId, "skills");
+  if (!skills) {
+    return false;
+  }
+
+  const skill = skills.skills[skillId];
+  if (!skill) {
+    return false;
+  }
+
+  skill.boost = amount;
+  skill.drain = 0; // A fresh boost overrides any existing drain
+
+  ctx.deltas.markSkillDelta({
+    skillId,
+    level: skill.level,
+    xp: skill.xp,
+    effectiveLevel: getEffectiveLevel(skill),
+  });
+
+  return true;
+}
+
 export function maxHealthForHitpointsLevel(hitpointsLevel: number): number {
   return hitpointsLevel * 10;
 }
