@@ -158,4 +158,20 @@ describe("ChatSystem", () => {
     expect(deltas.peek().chat).toBeUndefined();
     expect(deltas.peek().entityUpdates).toEqual([]);
   });
+
+  it("cleans up rate limiter when entity is removed", () => {
+    const world = createWorld();
+    const deltas = new DeltaAccumulator();
+    const session = { id: "speaker", characterId: "Speaker" };
+    const speaker = createPlayer(world, session, tile(0, 0));
+    const chat = new ChatSystem({ rateLimitTicks: 2 });
+
+    expect(chat.submit({ world, deltas }, speaker, { text: "hello" }, 1, 600)).toMatchObject({
+      ok: true,
+    });
+    chat.removeEntity(speaker);
+    expect(chat.submit({ world, deltas }, speaker, { text: "again" }, 2, 1_200)).toMatchObject({
+      ok: true,
+    });
+  });
 });

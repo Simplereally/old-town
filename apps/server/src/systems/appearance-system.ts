@@ -80,6 +80,12 @@ export function processAppearanceUpdates(ctx: AppearanceContext): void {
     }
     recalculateAppearance(ctx, entityId);
   }
+  // Clean up entries for entities that were destroyed or no longer have equipment
+  for (const entityId of lastAppearanceHash.keys()) {
+    if (!ctx.world.isAlive(entityId) || !ctx.world.hasComponent(entityId, "equipment")) {
+      lastAppearanceHash.delete(entityId);
+    }
+  }
 }
 
 /** Clear the cached appearance hash for an entity (or all). */

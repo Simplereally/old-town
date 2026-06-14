@@ -117,4 +117,14 @@ describe("InterestManager", () => {
     expect(second.chunkUnloads.length).toBeGreaterThan(0);
     expect(second.regionLoads.length + second.regionUnloads.length).toBeGreaterThanOrEqual(0);
   });
+
+  it("removes player state on disconnect", () => {
+    const manager = new InterestManager();
+    const player = entityId(1);
+    manager.updateInterest(player, { x: 0, y: 0, plane: 0 });
+    manager.removePlayer(player);
+    const transition = manager.updateInterest(player, { x: 0, y: 0, plane: 0 });
+    expect(transition.chunkLoads.length).toBeGreaterThan(0);
+    expect(transition.chunkUnloads.length).toBe(0);
+  });
 });

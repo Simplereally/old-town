@@ -90,14 +90,12 @@ export class ContextMenu {
         this.hide();
       }
     };
-    const clickListener = this._clickOutsideListener;
-    const keyListener = this._keydownListener;
     setTimeout(() => {
-      if (clickListener) {
-        document.addEventListener("click", clickListener);
+      if (this._visible && this._clickOutsideListener) {
+        document.addEventListener("click", this._clickOutsideListener);
       }
-      if (keyListener) {
-        document.addEventListener("keydown", keyListener);
+      if (this._visible && this._keydownListener) {
+        document.addEventListener("keydown", this._keydownListener);
       }
     }, 0);
   }

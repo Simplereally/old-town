@@ -14,6 +14,7 @@ import type { ItemAuditLog } from "../items/item-audit";
 import { projectEntity } from "../net/entity-spawn-projector";
 import { dispatchQuestEvent } from "../quests/quest-engine";
 import { meetsAllRequirements } from "../quests/requirements";
+import type { ActionQueue } from "../sim/action-queue";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import type { CollisionMap } from "../world/collision";
 import {
@@ -30,6 +31,7 @@ export interface GroundItemSystemContext {
   readonly registries: ContentRegistries;
   readonly rng: Rng;
   readonly itemAudit?: ItemAuditLog | undefined;
+  readonly actionQueue?: ActionQueue | undefined;
 }
 
 export const DROP_PRIVATE_TICKS = 60;
@@ -241,6 +243,7 @@ export function processDeathResolution(
       dead: true,
     });
     ctx.world.removeComponent(entityId, "movement");
+    ctx.actionQueue?.cancel(entityId, {});
     ctx.world.setComponent(entityId, "npc", {
       ...npc,
       brainState: "respawning",
@@ -264,6 +267,7 @@ export function processDeathResolution(
       respawnTick: tick + 5,
     });
     ctx.world.removeComponent(entityId, "movement");
+    ctx.actionQueue?.cancel(entityId, {});
     ctx.deltas.markEntityUpdate(entityId, {
       healthBar: { current: 0, max: combatant.maxHealth },
     });

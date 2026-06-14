@@ -48,6 +48,10 @@ export class ChatRateLimiter {
     this.lastChatTickByEntity.set(entityId, tick);
     return true;
   }
+
+  removeEntity(entityId: EntityId): void {
+    this.lastChatTickByEntity.delete(entityId);
+  }
 }
 
 export class ChatSystem {
@@ -59,6 +63,10 @@ export class ChatSystem {
     this.maxLength = options.maxLength ?? DEFAULT_MAX_LENGTH;
     this.profanityFilter = options.profanityFilter ?? ((text) => text);
     this.rateLimiter = new ChatRateLimiter(options.rateLimitTicks ?? DEFAULT_RATE_LIMIT_TICKS);
+  }
+
+  removeEntity(entityId: EntityId): void {
+    this.rateLimiter.removeEntity(entityId);
   }
 
   submit(

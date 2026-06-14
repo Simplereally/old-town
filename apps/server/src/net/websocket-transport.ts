@@ -206,6 +206,7 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
 
     socket.on("error", (error) => {
       options.logger.warn("ws", "Socket error", { message: error.message });
+      socket.terminate();
     });
 
     // Keep-alive ping to prevent NAT/mobile timeouts

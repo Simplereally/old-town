@@ -138,7 +138,8 @@ export class TickLoop {
 
   runDueTicks(nowMs: number): number {
     let ran = 0;
-    while (this.serverTime + GAME_TICK_MS <= nowMs) {
+    const maxCatchUp = 5;
+    while (this.serverTime + GAME_TICK_MS <= nowMs && ran < maxCatchUp) {
       this.runOneTick();
       ran += 1;
     }

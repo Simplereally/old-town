@@ -106,6 +106,7 @@ export class GameEngine {
   private _lastPingRtt = 0;
   private _spellTargetMode: { spellId: string } | undefined;
   private _debugOverlayUpdatePending = false;
+  private _debugOverlayUpdateHandle: number | undefined;
   private readonly _presentationEventQueue: PresentationEvent[] = [];
   private readonly _debugEventQueue: PresentationEvent[] = [];
   private readonly _chunkBakeQueue: ChunkBakeQueue;
@@ -347,6 +348,14 @@ export class GameEngine {
 
   shutdown(): void {
     this._running = false;
+    if (this._debugOverlayUpdateHandle !== undefined) {
+      if (typeof cancelIdleCallback !== "undefined") {
+        cancelIdleCallback(this._debugOverlayUpdateHandle);
+      } else {
+        clearTimeout(this._debugOverlayUpdateHandle);
+      }
+      this._debugOverlayUpdateHandle = undefined;
+    }
     this.socket.close();
     this._canvas.removeEventListener("click", this._handleCanvasClick);
     this._canvas.removeEventListener("mousemove", this._handleMouseMove);
@@ -1044,6 +1053,7 @@ export class GameEngine {
         const doUpdate = () => {
           this._debugOverlayUpdatePending = false;
           this._lastDebugOverlayUpdateMs = nowMs;
+          this._debugOverlayUpdateHandle = undefined;
           const cx = Math.floor(selfActor.serverTile.x / 8);
           const cy = Math.floor(selfActor.serverTile.y / 8);
           const rx = Math.floor(selfActor.serverTile.x / 64);
@@ -1127,9 +1137,9 @@ export class GameEngine {
           }
         };
         if (typeof requestIdleCallback !== "undefined") {
-          requestIdleCallback(doUpdate);
+          this._debugOverlayUpdateHandle = requestIdleCallback(doUpdate);
         } else {
-          setTimeout(doUpdate, 0);
+          this._debugOverlayUpdateHandle = window.setTimeout(doUpdate, 0);
         }
       }
     }

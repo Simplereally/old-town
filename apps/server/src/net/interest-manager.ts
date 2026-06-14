@@ -84,9 +84,8 @@ function packetWith(
   changes: Pick<TickDeltaPacket, "entityAdds" | "entityRemoves" | "entityUpdates"> &
     Partial<Pick<TickDeltaPacket, "chat" | "projectiles" | "regionLoads" | "regionUnloads">>,
 ): TickDeltaPacket {
-  const { projectiles: _projectiles, ...base } = packet;
   return {
-    ...base,
+    ...packet,
     entityAdds: changes.entityAdds,
     entityRemoves: changes.entityRemoves,
     entityUpdates: changes.entityUpdates,
@@ -97,7 +96,7 @@ function packetWith(
     ...(changes.regionUnloads && changes.regionUnloads.length > 0
       ? { regionUnloads: changes.regionUnloads }
       : {}),
-    ...(changes.chat ? { chat: changes.chat } : {}),
+    ...(changes.chat !== undefined ? { chat: changes.chat } : {}),
   };
 }
 
@@ -266,6 +265,10 @@ export class InterestManager {
       regionLoads: transition.regionLoads,
       regionUnloads: transition.regionUnloads,
     });
+  }
+
+  removePlayer(player: EntityId): void {
+    this.stateByPlayer.delete(player);
   }
 
   primeKnownEntities(player: EntityId, entities: readonly EntitySpawnPacket[]): void {

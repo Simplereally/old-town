@@ -269,4 +269,28 @@ describe("appearance-system", () => {
     );
     expect(update?.changes.appearance?.name).toBe("Test");
   });
+
+  it("clears cache for destroyed entities so reused ids are not suppressed", () => {
+    const world = createWorld();
+    const deltas = new DeltaAccumulator();
+
+    const player = world.createEntity();
+    world.setComponent(player, "actor", makeActor(player, "Test", "dev_player"));
+    world.setComponent(player, "equipment", createEquipment(player));
+
+    processAppearanceUpdates({ world, deltas, items });
+    expect(deltas.peek().entityUpdates).toHaveLength(1);
+
+    world.destroyEntity(player);
+    processAppearanceUpdates({ world, deltas: new DeltaAccumulator(), items });
+
+    const newPlayer = world.createEntity();
+    expect(newPlayer).toBe(player);
+    world.setComponent(newPlayer, "actor", makeActor(newPlayer, "Test", "dev_player"));
+    world.setComponent(newPlayer, "equipment", createEquipment(newPlayer));
+
+    const newDeltas = new DeltaAccumulator();
+    processAppearanceUpdates({ world, deltas: newDeltas, items });
+    expect(newDeltas.peek().entityUpdates).toHaveLength(1);
+  });
 });

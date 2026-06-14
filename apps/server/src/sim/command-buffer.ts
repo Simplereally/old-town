@@ -208,6 +208,13 @@ export class CommandBuffer {
     this.intentsByTick.delete(tick);
     this.lastClosedTick = tick;
 
+    // Prune seen command IDs to prevent unbounded memory growth
+    for (const [key, seen] of this.seenCommandIds) {
+      if (seen.size > 10_000) {
+        this.seenCommandIds.delete(key);
+      }
+    }
+
     const groups =
       owners.size === 0
         ? []
@@ -219,6 +226,18 @@ export class CommandBuffer {
             }));
 
     return { tick, groups };
+  }
+
+  removeConnection(connectionId: string, ownerEntityId: EntityId): void {
+    const key = dedupeKey(ownerEntityId, connectionId);
+    this.seenCommandIds.delete(key);
+    for (const [tick, owners] of this.intentsByTick) {
+      if (owners.delete(ownerEntityId)) {
+        if (owners.size === 0) {
+          this.intentsByTick.delete(tick);
+        }
+      }
+    }
   }
 
   get pendingCount(): number {

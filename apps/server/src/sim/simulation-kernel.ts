@@ -5,7 +5,6 @@ import {
   createRng,
   type EntityId,
   type FullStatePacket,
-  GAME_TICK_MS,
   type ItemTransactionAuditRecord,
   type TileCoord,
 } from "@old-town/shared";
@@ -527,6 +526,8 @@ function createKernelInterface(
     deltas,
     devSessions,
     interestManager,
+    chatSystem,
+    actionQueue,
     logger,
     saveQueue,
     itemAudit,
@@ -567,12 +568,7 @@ function createKernelInterface(
   };
 
   const runDueTicks = (nowMs: number): number => {
-    let ran = 0;
-    while (tickLoop.currentServerTime + GAME_TICK_MS <= nowMs) {
-      runOneTick();
-      ran += 1;
-    }
-    return ran;
+    return tickLoop.runDueTicks(nowMs);
   };
 
   return {
@@ -612,7 +608,11 @@ function createKernelInterface(
         throw error;
       } finally {
         if (entityId !== undefined) {
+          interestManager.removePlayer(entityId);
+          chatSystem.removeEntity(entityId);
+          commandBuffer.removeConnection(session.id, entityId);
           saveQueue.discard(entityId);
+          actionQueue.cancel(entityId, {});
         }
         connectedSessions.delete(session.id);
       }
