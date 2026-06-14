@@ -63,6 +63,15 @@ const REGISTRY_ORDER: readonly (keyof ContentRegistries & ContentKind)[] = [
   "material",
   "animation",
   "activity",
+  "boss",
+  "trail",
+  "charter",
+  "property",
+  "contract",
+  "shop",
+  "bank",
+  "serviceFee",
+  "statusEffect",
 ];
 
 async function main(): Promise<void> {
@@ -303,7 +312,7 @@ function buildUnusedWarnings(
     incoming.get(kind)?.add(id);
   }
 
-  const safeKinds: readonly ContentKind[] = ["resourceNode", "dropTable", "dialogue"];
+  const safeKinds: readonly ContentKind[] = ["resourceNode", "dropTable", "dialogue", "boss"];
   const warnings: ContentNotice[] = [];
   for (const kind of safeKinds) {
     for (const id of registries[kind].keys()) {
@@ -493,6 +502,20 @@ function buildDependencyEdges(registries: ContentRegistries): readonly Dependenc
         "resourceNodeSpawns.resourceNodeId",
       );
     }
+  }
+  for (const [id, def] of registries.boss) {
+    add("boss", id, "npc", def.npcId, "npcId");
+    add("boss", id, "dropTable", def.dropTableId, "dropTableId");
+    if (def.trophyId !== undefined) {
+      add("boss", id, "item", def.trophyId, "trophyId");
+    }
+    for (const uniqueDropId of def.uniqueDropIds) {
+      add("boss", id, "item", uniqueDropId, "uniqueDropIds");
+    }
+    addRequirementEdges(def.accessRequirements, "boss", id, "accessRequirements");
+  }
+  for (const [id, def] of registries.trail) {
+    add("trail", id, "statusEffect", def.buff, "buff");
   }
   return edges.toSorted((a, b) =>
     `${a.from}|${a.to}|${a.field}`.localeCompare(`${b.from}|${b.to}|${b.field}`),

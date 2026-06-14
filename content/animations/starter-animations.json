@@ -1,0 +1,50 @@
+[
+  {
+    "id": "woodcut",
+    "name": "Woodcut",
+    "durationTicks": 4,
+    "asset": "anim_woodcut"
+  },
+  {
+    "id": "mine",
+    "name": "Mine",
+    "durationTicks": 4,
+    "asset": "anim_mine"
+  },
+  {
+    "id": "cook",
+    "name": "Cook",
+    "durationTicks": 4,
+    "asset": "anim_cook"
+  },
+  {
+    "id": "attack_melee",
+    "name": "Attack Melee",
+    "durationTicks": 5,
+    "asset": "anim_attack_melee"
+  },
+  {
+    "id": "attack_ranged",
+    "name": "Attack Ranged",
+    "durationTicks": 5,
+    "asset": "anim_attack_ranged"
+  },
+  {
+    "id": "attack_magic",
+    "name": "Attack Magic",
+    "durationTicks": 5,
+    "asset": "anim_attack_magic"
+  },
+  {
+    "id": "death",
+    "name": "Death",
+    "durationTicks": 3,
+    "asset": "anim_death"
+  },
+  {
+    "id": "teleport",
+    "name": "Teleport",
+    "durationTicks": 5,
+    "asset": "anim_teleport"
+  }
+]

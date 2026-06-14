@@ -31,6 +31,8 @@ export function makeRegistries(overrides: Partial<ContentRegistries> = {}): Cont
     property: new Map(),
     charter: new Map(),
     activity: new Map(),
+    boss: new Map(),
+    trail: new Map(),
     ...overrides,
   };
 }

@@ -8,6 +8,7 @@
 import type { ActivityDef } from "../content-schemas/activity";
 import type { AnimationDef } from "../content-schemas/animation";
 import type { BankDef } from "../content-schemas/bank";
+import type { BossDef } from "../content-schemas/boss";
 import type { CharterDef } from "../content-schemas/charter";
 import type { ContractDef } from "../content-schemas/contract";
 import type { DialogueDef } from "../content-schemas/dialogue";
@@ -26,6 +27,7 @@ import type { ShopDef } from "../content-schemas/shop";
 import type { SkillDef } from "../content-schemas/skill";
 import type { SpellDef } from "../content-schemas/spell";
 import type { StatusEffectDef } from "../content-schemas/status-effect";
+import type { TrailDef } from "../content-schemas/trail";
 
 /** Typed per-kind registries keyed by content id (region maps keyed by `rx:ry:plane`). */
 export interface ContentRegistries {
@@ -50,4 +52,6 @@ export interface ContentRegistries {
   readonly property: ReadonlyMap<string, PropertyDef>;
   readonly charter: ReadonlyMap<string, CharterDef>;
   readonly activity: ReadonlyMap<string, ActivityDef>;
+  readonly boss: ReadonlyMap<string, BossDef>;
+  readonly trail: ReadonlyMap<string, TrailDef>;
 }

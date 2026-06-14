@@ -1,19 +1,10 @@
-import type { ContentRegistries, EntityId, TileCoord } from "@old-town/shared";
+import type { ContentRegistries, EntityId, TileCoord, TrailDef } from "@old-town/shared";
 import type { World } from "../ecs/world";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import type { StatusEffectContext } from "./status-system";
 import { applyStatusEffect } from "./status-system";
 
-export interface TrailDef {
-  readonly id: string;
-  readonly name: string;
-  readonly startTile: TileCoord;
-  readonly endTile: TileCoord;
-  readonly hidden: boolean;
-  readonly discoveryRadius: number;
-  readonly buff: string; // status effect id
-  readonly shortcutSpeed?: number;
-}
+export type { TrailDef } from "@old-town/shared";
 
 export interface TrailSystemContext {
   readonly world: World;

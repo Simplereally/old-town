@@ -20,6 +20,8 @@ export const CONTENT_KINDS = [
   "property",
   "charter",
   "activity",
+  "boss",
+  "trail",
 ] as const;
 
 export type ContentKind = (typeof CONTENT_KINDS)[number];

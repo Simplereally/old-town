@@ -60,11 +60,19 @@ import {
   type ActivityHandlerTable,
 } from "../systems/activity-system";
 import { processStatusEffects } from "../systems/status-system";
+import { processStatusEffectTick } from "../systems/status-effect-system";
+import {
+  checkTrailDiscovery,
+  processTrailBuffs,
+} from "../systems/trail-system";
+import { processCharterExpiry } from "../systems/charter-system";
+import { checkNookDiscovery } from "../systems/nook-system";
+import { processDeedExpiry } from "../systems/ledger-system";
 import { applyObjectCollision, CollisionMap } from "../world/collision";
 import { loadAllRegionMapsIntoWorld } from "../world/region-loader";
 import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
 import { ActionExecutor, type ActionHandler } from "./action-executor";
-import { ActionQueue } from "./action-queue";
+import { ActionQueue, InterruptGroup } from "./action-queue";
 import { CommandBuffer } from "./command-buffer";
 import { DeltaAccumulator } from "./delta-accumulator";
 import {
@@ -354,14 +362,74 @@ function wireTickPhases(
     }
   });
 
+  tickLoop.registerPhase(TickPhase.Interruptions, ({ tick }) => {
+    const blockedOwners = new Set<EntityId>();
+    for (const [entityId, _player] of world.componentEntries("player")) {
+      // Blocked by dialogue modal
+      if (world.getComponent(entityId, "dialogue")) {
+        blockedOwners.add(entityId);
+      }
+      // Blocked by movement freeze/stun
+      const movement = world.getComponent(entityId, "movement");
+      if (movement && movement.blockedUntilTick !== undefined && movement.blockedUntilTick >= tick) {
+        blockedOwners.add(entityId);
+      }
+      // Blocked by active status effect (freeze/stun)
+      const statusEffects = world.getComponent(entityId, "statusEffects");
+      if (statusEffects) {
+        for (const effect of statusEffects.effects) {
+          const def = registries.statusEffect.get(effect.statusEffectId);
+          if (def && (def.id === "freeze" || def.id === "stun") && effect.remainingTicks > 0) {
+            blockedOwners.add(entityId);
+            break;
+          }
+        }
+      }
+    }
+    if (blockedOwners.size > 0) {
+      actionQueue.setBlockedOwners(blockedOwners);
+      // Interrupt weak actions for blocked owners
+      for (const owner of blockedOwners) {
+        actionQueue.interrupt(owner, InterruptGroup.Skilling);
+        actionQueue.interrupt(owner, InterruptGroup.Combat);
+        actionQueue.interrupt(owner, InterruptGroup.Dialogue);
+        actionQueue.interrupt(owner, InterruptGroup.Interface);
+      }
+    } else {
+      actionQueue.clearBlockedOwners();
+    }
+  });
+
   tickLoop.registerPhase(TickPhase.ActionQueueTimers, ({ tick, serverTime }) => {
     const executions = actionQueue.advanceTick();
+    actionQueue.clearBlockedOwners();
     actionExecutor.execute(executions, { tick, serverTime });
   });
 
-  tickLoop.registerPhase(TickPhase.Movement, ({ tick }) => {
+  tickLoop.registerPhase(TickPhase.Movement, ({ tick, serverTime }) => {
     dispatchMovementPhase(dispatchContext, tick, npcFootprintResolver(npcContext));
     syncNpcOccupancy(npcContext);
+
+    // Trail discovery and buffs for all players
+    const trailContext = {
+      world,
+      deltas,
+      registries,
+    };
+    const trails = Array.from(registries.trail.values());
+    for (const [entityId, _player] of world.componentEntries("player")) {
+      checkTrailDiscovery(trailContext, entityId, trails, serverTime);
+      processTrailBuffs(trailContext, entityId, trails, tick);
+    }
+
+    // Nook discovery for all players
+    const nooks = deps.nooks;
+    if (nooks) {
+      const nookContext = { world, deltas };
+      for (const [entityId, _player] of world.componentEntries("player")) {
+        checkNookDiscovery(nookContext, entityId, nooks, serverTime);
+      }
+    }
   });
 
   tickLoop.registerPhase(TickPhase.TargetValidation, () => {
@@ -389,6 +457,7 @@ function wireTickPhases(
 
   tickLoop.registerPhase(TickPhase.StatusEffects, ({ tick }) => {
     processStatusEffects(statusEffectContext, tick);
+    processStatusEffectTick(statusEffectContext, tick);
   });
 
   tickLoop.registerPhase(TickPhase.DeathResolution, ({ tick, serverTime }) => {
@@ -413,6 +482,11 @@ function wireTickPhases(
 
   tickLoop.registerPhase(TickPhase.ContractLifecycle, ({ tick, serverTime }) => {
     processContractLifecycle({ world, deltas, registries, itemAudit }, tick, serverTime);
+  });
+
+  tickLoop.registerPhase(TickPhase.SkillingProgress, ({ tick, serverTime }) => {
+    processCharterExpiry({ world, deltas, registries, itemAudit }, tick, serverTime);
+    processDeedExpiry({ world, deltas, registries, itemAudit }, tick, serverTime);
   });
 
   tickLoop.registerPhase(TickPhase.AppearanceUpdate, () => {

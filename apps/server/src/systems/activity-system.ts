@@ -24,6 +24,7 @@ import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { dispatchQuestEvent } from "../quests/quest-engine";
 import { addXp, getCurrentLevel } from "../skills/skill-state";
 import type { CollisionMap } from "../world/collision";
+import { handleMoveIntent } from "./movement-system";
 
 export interface ActivityContext {
   readonly world: World;
@@ -336,8 +337,11 @@ export function handleActivityIntent(
   }
 
   if (chebyshev(actorTile, objectTile) > 1) {
-    // TODO: use movement system to walk to the object
-    systemMessage(ctx, owner, "You need to get closer.", serverTime);
+    handleMoveIntent(
+      { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
+      owner,
+      { dest: objectTile },
+    );
     return true;
   }
 

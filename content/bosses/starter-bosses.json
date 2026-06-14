@@ -1,0 +1,168 @@
+[
+  {
+    "id": "cellar_king",
+    "name": "The Cellar King",
+    "category": "starter",
+    "npcId": "cellar_king",
+    "combatLevelBand": { "low": 1, "high": 10 },
+    "accessRequirements": [
+      { "kind": "quest_stage", "questId": "rats_under_tallys", "minStage": 0 }
+    ],
+    "mechanics": [
+      { "kind": "add_spawn", "description": "Summons 2 cellar rats at low health. The player must switch targets or clear the adds before they overwhelm." },
+      { "kind": "interrupt", "description": "Chews ledger piles to heal slightly unless interrupted. The player must stop the heal with a melee attack or a thrown object." },
+      { "kind": "kill_proof", "description": "Drops a cellar_king_whisker trophy on defeat." }
+    ],
+    "lair": {
+      "type": "room",
+      "threshold": "door",
+      "area": "Sootcellar, below the Counting House",
+      "safeRating": "safe"
+    },
+    "dropTableId": "cellar_king_drops",
+    "trophyId": "cellar_king_whisker",
+    "uniqueDropIds": ["bent_nail_ring"],
+    "failureState": "The player can retreat to the Sootcellar at any time. No death penalty. Lost food is the only cost.",
+    "whatItTeaches": "How to eat food, how to switch targets, and how to interrupt a heal.",
+    "whatItDoesNotReplace": "Normal combat training at the Sootcellar or the Warden Steps. The Cellar King is a named encounter, not a replacement for fighting rats."
+  },
+  {
+    "id": "mudhook_grib",
+    "name": "Mudhook Grib",
+    "category": "starter",
+    "npcId": "mudhook_grib",
+    "combatLevelBand": { "low": 10, "high": 20 },
+    "accessRequirements": [
+      { "kind": "skill", "skillId": "mining", "level": 5 }
+    ],
+    "mechanics": [
+      { "kind": "shield_phase", "description": "Periodically raises a scrap shield. The shield blocks all melee damage from the front. Javelins and mauls break the shield faster." },
+      { "kind": "prep_item", "description": "Throws mud to slow movement. The player must move to a safe tile or eat food to recover speed." },
+      { "kind": "kill_proof", "description": "Drops a mudhook_jaw trophy on defeat." }
+    ],
+    "lair": {
+      "type": "clearing",
+      "threshold": "gate",
+      "area": "North Quarry Road, near the Tinstone Cut entrance",
+      "safeRating": "risky"
+    },
+    "dropTableId": "mudhook_grib_drops",
+    "trophyId": "mudhook_jaw",
+    "uniqueDropIds": ["mudhook_charm", "crude_hookblade"],
+    "failureState": "The player can retreat to the North Quarry Road. Death is possible but rare. Lost food is the primary cost.",
+    "whatItTeaches": "How to switch weapons against armour, how to break shields, and how to manage movement debuffs.",
+    "whatItDoesNotReplace": "Normal mining or smithing at the Foundry Row. Mudhook Grib is a combat encounter, not a gathering target."
+  },
+  {
+    "id": "ashling_in_the_kiln",
+    "name": "Ashling in the Kiln",
+    "category": "skilling",
+    "npcId": "ashling_in_the_kiln",
+    "combatLevelBand": { "low": 15, "high": 25 },
+    "accessRequirements": [
+      { "kind": "quest_stage", "questId": "smoke_over_old_town", "minStage": 0 }
+    ],
+    "mechanics": [
+      { "kind": "hazard_pulse", "description": "Heat bursts on floor tiles. The drake flares the kiln, creating hot tiles that deal damage over time." },
+      { "kind": "safe_tile", "description": "Smoke vents reduce line of sight. The player must move to safe tiles to avoid heat damage." },
+      { "kind": "prep_item", "description": "Tide spells and Tide beads reduce heat stacks. The player can use Tide magic to cool the kiln." },
+      { "kind": "kill_proof", "description": "Drops an ashling_ember trophy on defeat." }
+    ],
+    "lair": {
+      "type": "room",
+      "threshold": "door",
+      "area": "The Old Kiln, near the Sootcellar and Foundry Row",
+      "safeRating": "risky"
+    },
+    "dropTableId": "ashling_in_the_kiln_drops",
+    "trophyId": "ashling_ember",
+    "uniqueDropIds": ["tallow_drake_scale"],
+    "failureState": "The player can retreat to the Foundry Row. Death is possible if the player stands on heat tiles too long. Lost food is the primary cost.",
+    "whatItTeaches": "How to manage heat, how to use Tide beads, and how to switch between ranged and melee.",
+    "whatItDoesNotReplace": "The Old Kiln Watch activity. The skilling boss is a combat encounter. The activity is a skilling loop."
+  },
+  {
+    "id": "bell_bat_mother",
+    "name": "The Bell Bat Mother",
+    "category": "starter",
+    "npcId": "bell_bat_mother",
+    "combatLevelBand": { "low": 10, "high": 20 },
+    "accessRequirements": [
+      { "kind": "skill", "skillId": "bowcraft", "level": 5 }
+    ],
+    "mechanics": [
+      { "kind": "style_swap", "description": "Alternates between roost and swoop. When roosting, the bat is weak to ranged and magic. When swooping, it is weak to melee." },
+      { "kind": "add_spawn", "description": "Summons bell bats during the roost phase. The player must clear the adds or they will overwhelm." },
+      { "kind": "interrupt", "description": "Sound pulse interrupts slow weapons. The bat screeches, interrupting slow melee attacks and long spell casts." },
+      { "kind": "kill_proof", "description": "Drops a bat_mother_claw trophy on defeat." }
+    ],
+    "lair": {
+      "type": "rafters",
+      "threshold": "light",
+      "area": "Bellwood Copse, in the Lath Yard rafters",
+      "safeRating": "safe"
+    },
+    "dropTableId": "bell_bat_mother_drops",
+    "trophyId": "bat_mother_claw",
+    "uniqueDropIds": ["bellfang_charm"],
+    "failureState": "The player can retreat to the Bellwood Copse. No death penalty. Lost food is the only cost.",
+    "whatItTeaches": "How to switch combat styles, how to manage adds, and how to avoid interrupts.",
+    "whatItDoesNotReplace": "Normal bowcraft or magic training. The Bell Bat Mother is a combat encounter, not a skilling target."
+  },
+  {
+    "id": "old_snapper",
+    "name": "Old Snapper",
+    "category": "skilling",
+    "npcId": "old_snapper",
+    "combatLevelBand": { "low": 10, "high": 20 },
+    "accessRequirements": [
+      { "kind": "skill", "skillId": "fishing", "level": 10 }
+    ],
+    "mechanics": [
+      { "kind": "prep_item", "description": "Can be lured with bait. The player can throw bait to draw the snapper to a specific tile." },
+      { "kind": "safe_tile", "description": "Surfaces on predictable water tiles. The player can predict where it will surface." },
+      { "kind": "kill_proof", "description": "Drops a snapped_hook trophy on defeat." }
+    ],
+    "lair": {
+      "type": "water_edge",
+      "threshold": "line",
+      "area": "River Stoop / Wardenbrook, in the water near the ferry dock",
+      "safeRating": "safe"
+    },
+    "dropTableId": "old_snapper_drops",
+    "trophyId": "snapped_hook",
+    "uniqueDropIds": ["old_snapper_shell"],
+    "failureState": "The player can retreat to the River Stoop. No death penalty. Lost bait and food are the primary costs.",
+    "whatItTeaches": "How to use bait, how to position for combat, and how to choose a combat style.",
+    "whatItDoesNotReplace": "Normal fishing or cooking at the River Stoop. The snapper is a combat encounter, not a gathering target."
+  },
+  {
+    "id": "wrong_flower",
+    "name": "The Wrong Flower",
+    "category": "quest",
+    "npcId": "wrong_flower",
+    "combatLevelBand": { "low": 15, "high": 25 },
+    "accessRequirements": [
+      { "kind": "quest_stage", "questId": "gravegate_flowers", "minStage": 0 },
+      { "kind": "skill", "skillId": "favour", "level": 10 }
+    ],
+    "mechanics": [
+      { "kind": "prep_item", "description": "Rot aura if candles go out. The flower emits a rot aura that deals damage over time unless the player has lit shrine candles." },
+      { "kind": "add_spawn", "description": "Grave mites spawn from bad soil. The flower's footsteps leave bad soil that spawns mites." },
+      { "kind": "enrage", "description": "Fire damage helps but can enrage if careless. Too much fire makes the flower aggressive, increasing its attack speed." },
+      { "kind": "kill_proof", "description": "Drops a polite_root trophy on defeat." }
+    ],
+    "lair": {
+      "type": "clearing",
+      "threshold": "line",
+      "area": "Lowgrave, near the Gravegate",
+      "safeRating": "risky"
+    },
+    "dropTableId": "wrong_flower_drops",
+    "trophyId": "polite_root",
+    "uniqueDropIds": ["wrong_flower_petal"],
+    "failureState": "The player can retreat to the Lowgrave Chapel. Death is possible if the rot aura is too strong. Lost candles and food are the primary costs.",
+    "whatItTeaches": "How to use Favour in combat, how to manage candles, and how to cleanse rot.",
+    "whatItDoesNotReplace": "Normal Favour training at the Shrine Hearth or Lowgrave Chapel. The Wrong Flower is a combat encounter, not a skilling target."
+  }
+]

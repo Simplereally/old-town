@@ -1,0 +1,26 @@
+[
+  {
+    "id": "oldroad_gate_pass",
+    "name": "Oldroad Gate Pass",
+    "type": "area",
+    "requiredStanding": 0,
+    "cost": { "itemId": "coin", "quantity": 100 },
+    "duration": 0
+  },
+  {
+    "id": "bellwood_hunting_permit",
+    "name": "Bellwood Hunting Permit",
+    "type": "activity",
+    "requiredStanding": 5,
+    "cost": { "itemId": "coin", "quantity": 250 },
+    "duration": 1000
+  },
+  {
+    "id": "sootcellar_mining_charter",
+    "name": "Sootcellar Mining Charter",
+    "type": "content",
+    "requiredStanding": 10,
+    "cost": { "itemId": "coin", "quantity": 500 },
+    "duration": 500
+  }
+]

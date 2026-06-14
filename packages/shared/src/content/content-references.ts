@@ -396,5 +396,21 @@ export function validateContentGraph(
     }
   }
 
+  for (const [id, def] of registries.boss) {
+    requireRef("npc", def.npcId, "boss", id, "npcId");
+    requireRef("dropTable", def.dropTableId, "boss", id, "dropTableId");
+    if (def.trophyId !== undefined) {
+      requireRef("item", def.trophyId, "boss", id, "trophyId");
+    }
+    for (const uniqueDropId of def.uniqueDropIds) {
+      requireRef("item", uniqueDropId, "boss", id, "uniqueDropIds");
+    }
+    checkRequirements(def.accessRequirements, "boss", id, "accessRequirements");
+  }
+
+  for (const [id, def] of registries.trail) {
+    requireRef("statusEffect", def.buff, "trail", id, "buff");
+  }
+
   return { issues };
 }

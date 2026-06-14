@@ -355,15 +355,18 @@ const TRAPPING_OBJECT_ROUTE: AdjacentObjectOptionRoute = {
 };
 
 function resolveObjectOptionRoute(actionId: string): ObjectOptionRoute | undefined {
-  if (GATHER_ACTION_IDS.has(actionId) || PROCESS_ACTION_IDS.has(actionId)) {
+  if (GATHER_ACTION_IDS.has(actionId)) {
+    return SKILLING_OBJECT_ROUTE;
+  }
+  if (isTrappingAction(actionId)) {
+    return TRAPPING_OBJECT_ROUTE;
+  }
+  if (PROCESS_ACTION_IDS.has(actionId)) {
     return SKILLING_OBJECT_ROUTE;
   }
   const route = OBJECT_OPTION_ROUTES.get(actionId);
   if (route) {
     return route;
-  }
-  if (isTrappingAction(actionId)) {
-    return TRAPPING_OBJECT_ROUTE;
   }
   return undefined;
 }

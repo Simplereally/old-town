@@ -1,0 +1,41 @@
+[
+  {
+    "id": "sootcellar_cell",
+    "name": "Sootcellar Cell",
+    "description": "A small cell in the sootcellar.",
+    "location": {
+      "tileX": 30,
+      "tileY": 26,
+      "plane": 0
+    },
+    "maxOwners": 1,
+    "transferable": true,
+    "expiryTicks": 0
+  },
+  {
+    "id": "foundry_bench",
+    "name": "Foundry Bench",
+    "description": "A smithing bench at the foundry.",
+    "location": {
+      "tileX": 24,
+      "tileY": 40,
+      "plane": 0
+    },
+    "maxOwners": 1,
+    "transferable": true,
+    "expiryTicks": 1000
+  },
+  {
+    "id": "patch_garden_plot",
+    "name": "Patch Garden Plot",
+    "description": "A small garden plot in Patch Lane.",
+    "location": {
+      "tileX": 48,
+      "tileY": 32,
+      "plane": 0
+    },
+    "maxOwners": 1,
+    "transferable": false,
+    "expiryTicks": 500
+  }
+]

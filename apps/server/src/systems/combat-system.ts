@@ -18,6 +18,7 @@ import { trackContractObjective } from "./contract-system";
 import { type InteractionTarget, resolveInteraction } from "./interaction-reach";
 import { handleMoveIntent } from "./movement-system";
 import { npcFootprint } from "./npc-system";
+import { validateBossAccess } from "./boss-system";
 
 export interface CombatSystemContext {
   readonly world: World;
@@ -216,6 +217,17 @@ export function handleNpcCombatIntent(
       targetFailureText(validation.reason ?? "not_attackable"),
       serverTime,
     );
+    return true;
+  }
+
+  // Boss access validation
+  const bossAccess = validateBossAccess(
+    { world: ctx.world, deltas: ctx.deltas, registries: ctx.registries },
+    owner,
+    intent.npcEntityId,
+  );
+  if (!bossAccess.ok) {
+    systemMessage(ctx.deltas, owner, bossAccess.reason ?? "You cannot fight that boss.", serverTime);
     return true;
   }
 

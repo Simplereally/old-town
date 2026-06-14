@@ -13,6 +13,7 @@ import type { ContentKind } from "../content/content-kind";
 import type { ActivityDef } from "../content-schemas/activity";
 import type { AnimationDef } from "../content-schemas/animation";
 import type { BankDef } from "../content-schemas/bank";
+import type { BossDef } from "../content-schemas/boss";
 import type { CharterDef } from "../content-schemas/charter";
 import type { ContractDef } from "../content-schemas/contract";
 import type { DialogueDef } from "../content-schemas/dialogue";
@@ -32,6 +33,7 @@ import type { ShopDef } from "../content-schemas/shop";
 import type { SkillDef } from "../content-schemas/skill";
 import type { SpellDef } from "../content-schemas/spell";
 import type { StatusEffectDef } from "../content-schemas/status-effect";
+import type { TrailDef } from "../content-schemas/trail";
 import { validateContentGraph } from "./content-references";
 import type { ContentRegistries } from "./content-registries";
 
@@ -83,6 +85,8 @@ const CONTENT_KINDS: readonly ContentKind[] = [
   "property",
   "charter",
   "activity",
+  "boss",
+  "trail",
 ];
 
 function jsonPointer(path: readonly (string | number)[]): string {
@@ -193,6 +197,8 @@ export function validateContent(files: readonly LoadedContentFile[]): ContentVal
     property: maps.get("property") as Map<string, PropertyDef>,
     charter: maps.get("charter") as Map<string, CharterDef>,
     activity: maps.get("activity") as Map<string, ActivityDef>,
+    boss: maps.get("boss") as Map<string, BossDef>,
+    trail: maps.get("trail") as Map<string, TrailDef>,
   };
 
   const graphResult = validateContentGraph(registries, sources);

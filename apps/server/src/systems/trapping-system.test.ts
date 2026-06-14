@@ -387,7 +387,7 @@ function setup() {
 
 describe("trapping action runtime", () => {
   it("tan converts hide to leather at tanning frame", () => {
-    const { ctx, world, deltas, actionQueue } = setup();
+    const { ctx, world, deltas } = setup();
     const player = addPlayer(world, 1, 1);
     const frame = addObject(world, "patch_tanning_frame", 2, 1);
     const inventory = world.getComponent(player, "inventory");
@@ -398,15 +398,6 @@ describe("trapping action runtime", () => {
 
     const result = handleObjectIntent(ctx, player, { actionId: "tan", objectEntityId: frame }, 0);
     expect(result).toBe(true);
-
-    expect(handleRecipeSelect(ctx, player, frame, TAN_RECIPE.id, 0)).toBe(true);
-    const execution = advanceToExecution(actionQueue, TAN_RECIPE.actionTicks);
-    const payload: ProcessActionPayload = {
-      kind: "process",
-      stationEntityId: frame,
-      recipeId: TAN_RECIPE.id,
-    };
-    handleProcess(ctx, execution, payload, TAN_RECIPE.actionTicks, 0);
 
     const leatherCount = inventory.slots.reduce((sum, slot) => {
       if (slot?.itemId === "plain_leather") {
@@ -429,11 +420,11 @@ describe("trapping action runtime", () => {
     expect(result).toBe(true);
 
     const chat = deltas.peek().chat;
-    expect(chat?.[0]?.text).toBe("You have nothing suitable to cook.");
+    expect(chat?.[0]?.text).toBe("You have no hides to tan.");
   });
 
   it("dye applies dye to cloth at dye vat", () => {
-    const { ctx, world, deltas, actionQueue } = setup();
+    const { ctx, world, deltas } = setup();
     const player = addPlayer(world, 1, 1);
     const vat = addObject(world, "patch_dye_vat", 2, 1);
     const inventory = world.getComponent(player, "inventory");
@@ -445,15 +436,6 @@ describe("trapping action runtime", () => {
 
     const result = handleObjectIntent(ctx, player, { actionId: "dye", objectEntityId: vat }, 0);
     expect(result).toBe(true);
-
-    expect(handleRecipeSelect(ctx, player, vat, DYE_RECIPE.id, 0)).toBe(true);
-    const execution = advanceToExecution(actionQueue, DYE_RECIPE.actionTicks);
-    const payload: ProcessActionPayload = {
-      kind: "process",
-      stationEntityId: vat,
-      recipeId: DYE_RECIPE.id,
-    };
-    handleProcess(ctx, execution, payload, DYE_RECIPE.actionTicks, 0);
 
     const clothCount = inventory.slots.reduce((sum, slot) => {
       if (slot?.itemId === "coloured_cloth") {
@@ -476,7 +458,7 @@ describe("trapping action runtime", () => {
     expect(result).toBe(true);
 
     const chat = deltas.peek().chat;
-    expect(chat?.[0]?.text).toBe("You have nothing suitable to cook.");
+    expect(chat?.[0]?.text).toBe("You need cloth and dye to colour fabric.");
   });
 
   it("fire sets a trap at trap base", () => {
@@ -492,7 +474,7 @@ describe("trapping action runtime", () => {
   });
 
   it("weave creates bead strand at loom", () => {
-    const { ctx, world, deltas, actionQueue } = setup();
+    const { ctx, world, deltas } = setup();
     const player = addPlayer(world, 1, 1);
     const loom = addObject(world, "chalkhouse_bead_loom", 2, 1);
     const inventory = world.getComponent(player, "inventory");
@@ -503,15 +485,6 @@ describe("trapping action runtime", () => {
 
     const result = handleObjectIntent(ctx, player, { actionId: "weave", objectEntityId: loom }, 0);
     expect(result).toBe(true);
-
-    expect(handleRecipeSelect(ctx, player, loom, WEAVE_RECIPE.id, 0)).toBe(true);
-    const execution = advanceToExecution(actionQueue, WEAVE_RECIPE.actionTicks);
-    const payload: ProcessActionPayload = {
-      kind: "process",
-      stationEntityId: loom,
-      recipeId: WEAVE_RECIPE.id,
-    };
-    handleProcess(ctx, execution, payload, WEAVE_RECIPE.actionTicks, 0);
 
     const strandCount = inventory.slots.reduce((sum, slot) => {
       if (slot?.itemId === "bead_strand") {
@@ -526,7 +499,7 @@ describe("trapping action runtime", () => {
   });
 
   it("mix creates remedy at mixing bench", () => {
-    const { ctx, world, deltas, actionQueue } = setup();
+    const { ctx, world, deltas } = setup();
     const player = addPlayer(world, 1, 1);
     const bench = addObject(world, "chalkhouse_mixing_bench", 2, 1);
     const inventory = world.getComponent(player, "inventory");
@@ -537,15 +510,6 @@ describe("trapping action runtime", () => {
 
     const result = handleObjectIntent(ctx, player, { actionId: "mix", objectEntityId: bench }, 0);
     expect(result).toBe(true);
-
-    expect(handleRecipeSelect(ctx, player, bench, MIX_RECIPE.id, 0)).toBe(true);
-    const execution = advanceToExecution(actionQueue, MIX_RECIPE.actionTicks);
-    const payload: ProcessActionPayload = {
-      kind: "process",
-      stationEntityId: bench,
-      recipeId: MIX_RECIPE.id,
-    };
-    handleProcess(ctx, execution, payload, MIX_RECIPE.actionTicks, 0);
 
     const remedyCount = inventory.slots.reduce((sum, slot) => {
       if (slot?.itemId === "simple_remedy") {
@@ -568,6 +532,6 @@ describe("trapping action runtime", () => {
     expect(result).toBe(true);
 
     const chat = deltas.peek().chat;
-    expect(chat?.[0]?.text).toBe("You have nothing suitable to cook.");
+    expect(chat?.[0]?.text).toBe("You need herbs to mix a remedy.");
   });
 });

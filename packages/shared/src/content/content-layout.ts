@@ -25,6 +25,10 @@ export const CONTENT_DIR_KINDS: Readonly<Record<string, ContentKind>> = {
   "status-effects": "statusEffect",
   contracts: "contract",
   activities: "activity",
+  bosses: "boss",
+  trails: "trail",
+  charters: "charter",
+  properties: "property",
 };
 
 /** Resolve the content kind for a top-level content directory name, if known. */

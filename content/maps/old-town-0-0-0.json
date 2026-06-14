@@ -14084,6 +14084,42 @@
       "y": 26
     },
     {
+      "npcId": "cellar_king",
+      "x": 30,
+      "y": 26,
+      "wanderRadius": 0
+    },
+    {
+      "npcId": "mudhook_grib",
+      "x": 44,
+      "y": 36,
+      "wanderRadius": 0
+    },
+    {
+      "npcId": "ashling_in_the_kiln",
+      "x": 26,
+      "y": 22,
+      "wanderRadius": 0
+    },
+    {
+      "npcId": "bell_bat_mother",
+      "x": 56,
+      "y": 54,
+      "wanderRadius": 0
+    },
+    {
+      "npcId": "old_snapper",
+      "x": 62,
+      "y": 28,
+      "wanderRadius": 0
+    },
+    {
+      "npcId": "wrong_flower",
+      "x": 58,
+      "y": 10,
+      "wanderRadius": 0
+    },
+    {
       "npcId": "osric_penny",
       "x": 60,
       "y": 48,

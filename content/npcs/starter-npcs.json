@@ -525,5 +525,197 @@
       { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
       { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
     ]
+  },
+  {
+    "id": "cellar_king",
+    "name": "The Cellar King",
+    "examine": "A swollen ledger-eating rat that has nested inside ruined account books.",
+    "size": 2,
+    "combatLevel": 5,
+    "maxHp": 30,
+    "stats": {
+      "attack": 3,
+      "strength": 3,
+      "defence": 2,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 30
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 2,
+    "respawnTicks": 30,
+    "drops": "cellar_king_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
+    "weakness": {
+      "element": "none",
+      "multiplier": 1.0
+    },
+    "trophyId": "cellar_king_whisker",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "mudhook_grib",
+    "name": "Mudhook Grib",
+    "examine": "A mud goblin foreman who wears quarry scrap as armour.",
+    "size": 1,
+    "combatLevel": 15,
+    "maxHp": 50,
+    "stats": {
+      "attack": 5,
+      "strength": 5,
+      "defence": 8,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 50
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 2,
+    "respawnTicks": 40,
+    "drops": "mudhook_grib_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
+    "weakness": {
+      "element": "none",
+      "multiplier": 1.0
+    },
+    "trophyId": "mudhook_jaw",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "ashling_in_the_kiln",
+    "name": "Ashling in the Kiln",
+    "examine": "A young ash drake nesting in the old municipal kiln.",
+    "size": 2,
+    "combatLevel": 20,
+    "maxHp": 60,
+    "stats": {
+      "attack": 6,
+      "strength": 6,
+      "defence": 5,
+      "ranged": 1,
+      "magic": 4,
+      "prayer": 1,
+      "hitpoints": 60
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 2,
+    "respawnTicks": 50,
+    "drops": "ashling_in_the_kiln_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
+    "weakness": {
+      "element": "water",
+      "multiplier": 1.5
+    },
+    "trophyId": "ashling_ember",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "bell_bat_mother",
+    "name": "The Bell Bat Mother",
+    "examine": "An enormous bell-roosting bat that carries stolen strings in its claws.",
+    "size": 2,
+    "combatLevel": 15,
+    "maxHp": 45,
+    "stats": {
+      "attack": 5,
+      "strength": 4,
+      "defence": 4,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 45
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 2,
+    "respawnTicks": 40,
+    "drops": "bell_bat_mother_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
+    "weakness": {
+      "element": "none",
+      "multiplier": 1.0
+    },
+    "trophyId": "bat_mother_claw",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "old_snapper",
+    "name": "Old Snapper",
+    "examine": "A scarred river snapper that knows where bait comes from.",
+    "size": 2,
+    "combatLevel": 15,
+    "maxHp": 40,
+    "stats": {
+      "attack": 4,
+      "strength": 4,
+      "defence": 6,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 40
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 2,
+    "respawnTicks": 40,
+    "drops": "old_snapper_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
+    "weakness": {
+      "element": "none",
+      "multiplier": 1.0
+    },
+    "trophyId": "snapped_hook",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "wrong_flower",
+    "name": "The Wrong Flower",
+    "examine": "A grave flower planted in the wrong grave, now walking around wearing soil like a coat.",
+    "size": 1,
+    "combatLevel": 20,
+    "maxHp": 55,
+    "stats": {
+      "attack": 5,
+      "strength": 5,
+      "defence": 5,
+      "ranged": 1,
+      "magic": 3,
+      "prayer": 1,
+      "hitpoints": 55
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 3,
+    "respawnTicks": 50,
+    "drops": "wrong_flower_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
+    "weakness": {
+      "element": "fire",
+      "multiplier": 1.5
+    },
+    "trophyId": "polite_root",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
   }
 ]

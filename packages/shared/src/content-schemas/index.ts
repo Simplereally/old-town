@@ -7,6 +7,8 @@
 export * from "./activity";
 export * from "./animation";
 export * from "./bank";
+export * from "./boss";
+export * from "./charter";
 export * from "./common";
 export * from "./contract";
 export * from "./dialogue";
@@ -25,11 +27,14 @@ export * from "./shop";
 export * from "./skill";
 export * from "./spell";
 export * from "./status-effect";
+export * from "./trail";
 
 import type { z } from "zod";
 import { activityDefSchema } from "./activity";
 import { animationDefSchema } from "./animation";
 import { bankDefSchema } from "./bank";
+import { bossDefSchema } from "./boss";
+import { charterDefSchema } from "./charter";
 import { contractDefSchema } from "./contract";
 import { dialogueDefSchema } from "./dialogue";
 import { dropTableDefSchema } from "./drop-table";
@@ -47,6 +52,7 @@ import { shopDefSchema } from "./shop";
 import { skillDefSchema } from "./skill";
 import { spellDefSchema } from "./spell";
 import { statusEffectDefSchema } from "./status-effect";
+import { trailDefSchema } from "./trail";
 
 /**
  * The single content-schema entry point: every content definition kind mapped to the
@@ -72,7 +78,10 @@ export const contentSchemas = {
   statusEffect: statusEffectDefSchema,
   contract: contractDefSchema,
   property: propertyDefSchema,
+  charter: charterDefSchema,
   activity: activityDefSchema,
+  boss: bossDefSchema,
+  trail: trailDefSchema,
 } as const;
 
 /** Discriminator for a content definition kind. */

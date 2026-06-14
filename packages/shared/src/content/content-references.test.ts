@@ -25,6 +25,8 @@ function buildRegistries(overrides: Partial<ContentRegistries> = {}): ContentReg
     property: new Map(),
     charter: new Map(),
     activity: new Map(),
+    boss: new Map(),
+    trail: new Map(),
     ...overrides,
   };
 }

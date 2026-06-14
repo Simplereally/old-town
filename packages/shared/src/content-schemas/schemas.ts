@@ -3,6 +3,7 @@ import type { ContentKind } from "../content/content-kind";
 import { activityDefSchema } from "./activity";
 import { animationDefSchema } from "./animation";
 import { bankDefSchema } from "./bank";
+import { bossDefSchema } from "./boss";
 import { charterDefSchema } from "./charter";
 import { contractDefSchema } from "./contract";
 import { dialogueDefSchema } from "./dialogue";
@@ -21,6 +22,7 @@ import { shopDefSchema } from "./shop";
 import { skillDefSchema } from "./skill";
 import { spellDefSchema } from "./spell";
 import { statusEffectDefSchema } from "./status-effect";
+import { trailDefSchema } from "./trail";
 
 /**
  * The single content-schema entry point: every content definition kind mapped to the
@@ -48,6 +50,8 @@ export const contentSchemas = {
   property: propertyDefSchema,
   charter: charterDefSchema,
   activity: activityDefSchema,
+  boss: bossDefSchema,
+  trail: trailDefSchema,
 } as const satisfies Record<ContentKind, z.ZodTypeAny>;
 
 /** The schema object type for a given kind. */

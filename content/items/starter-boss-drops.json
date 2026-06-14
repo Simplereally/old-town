@@ -1,0 +1,382 @@
+[
+  {
+    "id": "torn_ledger_scrap",
+    "name": "Torn Ledger Scrap",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A scrap of torn ledger from the Sootcellar. Cartographers can use this.",
+    "icon": "icon_torn_ledger_scrap",
+    "value": 8,
+    "weight": 0.1,
+    "options": [],
+    "tags": ["boss_drop", "crafting_material"]
+  },
+  {
+    "id": "cellar_fur_bundle",
+    "name": "Cellar Fur Bundle",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A bundle of fur from the Sootcellar rats. Tailors can use this.",
+    "icon": "icon_cellar_fur_bundle",
+    "value": 12,
+    "weight": 0.3,
+    "options": [],
+    "tags": ["boss_drop", "crafting_material"]
+  },
+  {
+    "id": "bent_nail_ring",
+    "name": "Bent Nail Ring",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A ring made from a bent nail. It grants a small bonus against rats.",
+    "icon": "icon_bent_nail_ring",
+    "model": "model_bent_nail_ring",
+    "value": 150,
+    "weight": 0.1,
+    "options": ["wear"],
+    "equipment": {
+      "slot": "ring",
+      "bonuses": {
+        "stabAttack": 1,
+        "crushAttack": 1
+      },
+      "requirements": []
+    },
+    "tags": ["boss_drop", "unique"]
+  },
+  {
+    "id": "cellar_king_whisker",
+    "name": "Cellar King Whisker",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "A whisker from the Cellar King. A trophy of victory.",
+    "icon": "icon_cellar_king_whisker",
+    "value": 0,
+    "weight": 0.1,
+    "options": [],
+    "tags": ["boss_drop", "trophy"]
+  },
+  {
+    "id": "pig_iron_scrap_bundle",
+    "name": "Pig Iron Scrap Bundle",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A bundle of pig iron scrap from the quarry. Smiths can use this.",
+    "icon": "icon_pig_iron_scrap_bundle",
+    "value": 20,
+    "weight": 1.5,
+    "options": [],
+    "tags": ["boss_drop", "crafting_material"]
+  },
+  {
+    "id": "mudhook_charm",
+    "name": "Mudhook Charm",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A charm made from mudhook scrap. It grants a small bonus against mud creatures.",
+    "icon": "icon_mudhook_charm",
+    "model": "model_mudhook_charm",
+    "value": 120,
+    "weight": 0.1,
+    "options": ["wear"],
+    "equipment": {
+      "slot": "neck",
+      "bonuses": {
+        "stabDefence": 2,
+        "crushDefence": 2
+      },
+      "requirements": []
+    },
+    "tags": ["boss_drop", "unique"]
+  },
+  {
+    "id": "crude_hookblade",
+    "name": "Crude Hookblade",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A crude hookblade fashioned from quarry scrap. Good for early combat.",
+    "icon": "icon_crude_hookblade",
+    "model": "model_crude_hookblade",
+    "value": 80,
+    "weight": 1.2,
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["stab", "slash"],
+      "bonuses": {
+        "stabAttack": 4,
+        "slashAttack": 3,
+        "meleeStrength": 3
+      },
+      "requirements": []
+    },
+    "tags": ["boss_drop", "weapon"]
+  },
+  {
+    "id": "quarry_token",
+    "name": "Quarry Token",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A token earned from quarry work. Spent at the quarry shop.",
+    "icon": "icon_quarry_token",
+    "value": 5,
+    "weight": 0.1,
+    "options": [],
+    "tags": ["boss_drop", "currency"]
+  },
+  {
+    "id": "mudhook_jaw",
+    "name": "Mudhook Jaw",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "The jaw of Mudhook Grib. A trophy of victory.",
+    "icon": "icon_mudhook_jaw",
+    "value": 0,
+    "weight": 0.5,
+    "options": [],
+    "tags": ["boss_drop", "trophy"]
+  },
+  {
+    "id": "blackcoal_ash",
+    "name": "Blackcoal Ash",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "Ash from the Old Kiln. Beadworkers can use this for firing.",
+    "icon": "icon_blackcoal_ash",
+    "value": 10,
+    "weight": 0.2,
+    "options": [],
+    "tags": ["boss_drop", "crafting_material"]
+  },
+  {
+    "id": "drake_tooth",
+    "name": "Drake Tooth",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A tooth from a young drake. Mages can use this for spell components.",
+    "icon": "icon_drake_tooth",
+    "value": 35,
+    "weight": 0.2,
+    "options": [],
+    "tags": ["boss_drop", "crafting_material"]
+  },
+  {
+    "id": "tallow_drake_scale",
+    "name": "Tallow Drake Scale",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A rare tallow drake scale. Used in high-tier heat-resistant armour.",
+    "icon": "icon_tallow_drake_scale",
+    "value": 300,
+    "weight": 0.5,
+    "options": [],
+    "tags": ["boss_drop", "rare", "crafting_material"]
+  },
+  {
+    "id": "ashling_ember",
+    "name": "Ashling Ember",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "An ember from Ashling in the Kiln. A trophy of victory.",
+    "icon": "icon_ashling_ember",
+    "value": 0,
+    "weight": 0.1,
+    "options": [],
+    "tags": ["boss_drop", "trophy"]
+  },
+  {
+    "id": "bellfeather_bundle",
+    "name": "Bellfeather Bundle",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A bundle of feathers from the Bellwood bats. Tailors can use this.",
+    "icon": "icon_bellfeather_bundle",
+    "value": 15,
+    "weight": 0.2,
+    "options": [],
+    "tags": ["boss_drop", "crafting_material"]
+  },
+  {
+    "id": "wing_hide_roll",
+    "name": "Wing Hide Roll",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A roll of hide from bat wings. Leatherworkers can use this.",
+    "icon": "icon_wing_hide_roll",
+    "value": 20,
+    "weight": 0.4,
+    "options": [],
+    "tags": ["boss_drop", "crafting_material"]
+  },
+  {
+    "id": "echo_dust",
+    "name": "Echo Dust",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "Dust that echoes. Mages can use this for sound-related spells.",
+    "icon": "icon_echo_dust",
+    "value": 25,
+    "weight": 0.1,
+    "options": [],
+    "tags": ["boss_drop", "crafting_material"]
+  },
+  {
+    "id": "bellfang_charm",
+    "name": "Bellfang Charm",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A charm made from bat fangs. Grants a small bonus against flying creatures.",
+    "icon": "icon_bellfang_charm",
+    "model": "model_bellfang_charm",
+    "value": 180,
+    "weight": 0.1,
+    "options": ["wear"],
+    "equipment": {
+      "slot": "neck",
+      "bonuses": {
+        "rangedAttack": 2,
+        "magicAttack": 2
+      },
+      "requirements": []
+    },
+    "tags": ["boss_drop", "unique"]
+  },
+  {
+    "id": "bat_mother_claw",
+    "name": "Bat Mother Claw",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "A claw from the Bell Bat Mother. A trophy of victory.",
+    "icon": "icon_bat_mother_claw",
+    "value": 0,
+    "weight": 0.2,
+    "options": [],
+    "tags": ["boss_drop", "trophy"]
+  },
+  {
+    "id": "snapper_meat",
+    "name": "Snapper Meat",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "Meat from the Old Snapper. A good cooking ingredient.",
+    "icon": "icon_snapper_meat",
+    "value": 12,
+    "weight": 0.4,
+    "options": [],
+    "tags": ["boss_drop", "food_ingredient"]
+  },
+  {
+    "id": "shell_chip_bundle",
+    "name": "Shell Chip Bundle",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A bundle of shell chips. Crafters can use this.",
+    "icon": "icon_shell_chip_bundle",
+    "value": 18,
+    "weight": 0.3,
+    "options": [],
+    "tags": ["boss_drop", "crafting_material"]
+  },
+  {
+    "id": "river_tooth",
+    "name": "River Tooth",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A tooth from a river creature. Mages can use this for water-related spells.",
+    "icon": "icon_river_tooth",
+    "value": 20,
+    "weight": 0.2,
+    "options": [],
+    "tags": ["boss_drop", "crafting_material"]
+  },
+  {
+    "id": "old_snapper_shell",
+    "name": "Old Snapper Shell",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A rare shell from the Old Snapper. Used in high-tier water-resistant armour.",
+    "icon": "icon_old_snapper_shell",
+    "value": 250,
+    "weight": 0.8,
+    "options": [],
+    "tags": ["boss_drop", "rare", "crafting_material"]
+  },
+  {
+    "id": "snapped_hook",
+    "name": "Snapped Hook",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "A snapped hook from the Old Snapper. A trophy of victory.",
+    "icon": "icon_snapped_hook",
+    "value": 0,
+    "weight": 0.2,
+    "options": [],
+    "tags": ["boss_drop", "trophy"]
+  },
+  {
+    "id": "grave_flower_seed",
+    "name": "Grave Flower Seed",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A seed from the Wrong Flower. Gardeners can plant this.",
+    "icon": "icon_grave_flower_seed",
+    "value": 15,
+    "weight": 0.1,
+    "options": [],
+    "tags": ["boss_drop", "crafting_material"]
+  },
+  {
+    "id": "grave_dust_bundle",
+    "name": "Grave Dust Bundle",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A bundle of grave dust. Crafters can use this.",
+    "icon": "icon_grave_dust_bundle",
+    "value": 10,
+    "weight": 0.2,
+    "options": [],
+    "tags": ["boss_drop", "crafting_material"]
+  },
+  {
+    "id": "cleanroot_wash",
+    "name": "Cleanroot Wash",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A wash that cleanses rot. Useful after graveyard work.",
+    "icon": "icon_cleanroot_wash",
+    "value": 25,
+    "weight": 0.3,
+    "options": ["drink"],
+    "consumable": {
+      "heal": 8,
+      "consumeTicks": 2
+    },
+    "tags": ["boss_drop", "consumable"]
+  },
+  {
+    "id": "wrong_flower_petal",
+    "name": "Wrong Flower Petal",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A rare petal from the Wrong Flower. Used in high-tier Favour items.",
+    "icon": "icon_wrong_flower_petal",
+    "value": 200,
+    "weight": 0.1,
+    "options": [],
+    "tags": ["boss_drop", "rare", "crafting_material"]
+  },
+  {
+    "id": "polite_root",
+    "name": "Polite Root",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "A root from the Wrong Flower. A trophy of victory.",
+    "icon": "icon_polite_root",
+    "value": 0,
+    "weight": 0.3,
+    "options": [],
+    "tags": ["boss_drop", "trophy"]
+  }
+]

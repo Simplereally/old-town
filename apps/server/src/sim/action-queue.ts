@@ -92,6 +92,15 @@ function matchesFilter(entry: ActionQueueEntry, filter: ActionCancelFilter): boo
 
 export class ActionQueue {
   private actions: QueuedAction[] = [];
+  private tickBlockedOwners: ReadonlySet<EntityId> | undefined;
+
+  setBlockedOwners(blockedOwners: ReadonlySet<EntityId>): void {
+    this.tickBlockedOwners = blockedOwners;
+  }
+
+  clearBlockedOwners(): void {
+    this.tickBlockedOwners = undefined;
+  }
 
   enqueue(entry: ActionQueueEntry): void {
     this.validateEntry(entry);
@@ -133,7 +142,7 @@ export class ActionQueue {
   advanceTick(options: ActionQueueAdvanceOptions = {}): readonly ActionExecution[] {
     const executed: ActionExecution[] = [];
     const next: QueuedAction[] = [];
-    const blockedOwners = options.blockedOwners;
+    const blockedOwners = options.blockedOwners ?? this.tickBlockedOwners;
 
     for (const action of this.actions) {
       if (

@@ -203,6 +203,8 @@ function makeState(region: RegionMapDef = baseRegion): EditorState {
       regionMap: new Map(),
       skill: new Map(),
       activity: new Map(),
+      boss: new Map(),
+      trail: new Map(),
     },
     regions: [],
     selected: {

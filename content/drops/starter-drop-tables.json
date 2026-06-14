@@ -116,5 +116,89 @@
       { "itemId": "coin", "min": 1, "max": 3, "weight": 8 },
       { "itemId": "ditch_shrimp", "min": 1, "max": 1, "weight": 5 }
     ]
+  },
+  {
+    "id": "cellar_king_drops",
+    "name": "Cellar King Drops",
+    "rolls": 1,
+    "alwaysDrops": [
+      { "itemId": "ratcatcher_tail", "quantity": 1 },
+      { "itemId": "torn_ledger_scrap", "quantity": 1 },
+      { "itemId": "cellar_fur_bundle", "quantity": 1 }
+    ],
+    "entries": [
+      { "itemId": "bent_nail_ring", "min": 1, "max": 1, "weight": 5, "rarity": "uncommon" },
+      { "itemId": "cellar_king_whisker", "min": 1, "max": 1, "weight": 10, "rarity": "uncommon" }
+    ]
+  },
+  {
+    "id": "mudhook_grib_drops",
+    "name": "Mudhook Grib Drops",
+    "rolls": 1,
+    "alwaysDrops": [
+      { "itemId": "pig_iron_scrap_bundle", "quantity": 1 },
+      { "itemId": "mudhook_charm", "quantity": 1 },
+      { "itemId": "crude_hookblade", "quantity": 1 }
+    ],
+    "entries": [
+      { "itemId": "quarry_token", "min": 1, "max": 3, "weight": 5, "rarity": "uncommon" },
+      { "itemId": "mudhook_jaw", "min": 1, "max": 1, "weight": 10, "rarity": "uncommon" }
+    ]
+  },
+  {
+    "id": "ashling_in_the_kiln_drops",
+    "name": "Ashling in the Kiln Drops",
+    "rolls": 1,
+    "alwaysDrops": [
+      { "itemId": "warm_scale", "quantity": 1 },
+      { "itemId": "blackcoal_ash", "quantity": 1 },
+      { "itemId": "drake_tooth", "quantity": 1 }
+    ],
+    "entries": [
+      { "itemId": "tallow_drake_scale", "min": 1, "max": 1, "weight": 2, "rarity": "rare" },
+      { "itemId": "ashling_ember", "min": 1, "max": 1, "weight": 10, "rarity": "uncommon" }
+    ]
+  },
+  {
+    "id": "bell_bat_mother_drops",
+    "name": "Bell Bat Mother Drops",
+    "rolls": 1,
+    "alwaysDrops": [
+      { "itemId": "bellfeather_bundle", "quantity": 1 },
+      { "itemId": "wing_hide_roll", "quantity": 1 },
+      { "itemId": "echo_dust", "quantity": 1 }
+    ],
+    "entries": [
+      { "itemId": "bellfang_charm", "min": 1, "max": 1, "weight": 5, "rarity": "uncommon" },
+      { "itemId": "bat_mother_claw", "min": 1, "max": 1, "weight": 10, "rarity": "uncommon" }
+    ]
+  },
+  {
+    "id": "old_snapper_drops",
+    "name": "Old Snapper Drops",
+    "rolls": 1,
+    "alwaysDrops": [
+      { "itemId": "snapper_meat", "quantity": 1 },
+      { "itemId": "shell_chip_bundle", "quantity": 1 },
+      { "itemId": "river_tooth", "quantity": 1 }
+    ],
+    "entries": [
+      { "itemId": "old_snapper_shell", "min": 1, "max": 1, "weight": 2, "rarity": "rare" },
+      { "itemId": "snapped_hook", "min": 1, "max": 1, "weight": 10, "rarity": "uncommon" }
+    ]
+  },
+  {
+    "id": "wrong_flower_drops",
+    "name": "Wrong Flower Drops",
+    "rolls": 1,
+    "alwaysDrops": [
+      { "itemId": "grave_flower_seed", "quantity": 1 },
+      { "itemId": "grave_dust_bundle", "quantity": 1 },
+      { "itemId": "cleanroot_wash", "quantity": 1 }
+    ],
+    "entries": [
+      { "itemId": "wrong_flower_petal", "min": 1, "max": 1, "weight": 2, "rarity": "rare" },
+      { "itemId": "polite_root", "min": 1, "max": 1, "weight": 10, "rarity": "uncommon" }
+    ]
   }
 ]
