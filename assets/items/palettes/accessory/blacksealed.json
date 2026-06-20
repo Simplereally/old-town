@@ -1,0 +1,11 @@
+{
+  "ladder": "accessory",
+  "tier": "blacksealed",
+  "tierOrder": 4,
+  "regions": {
+    "cloth": "#2e2a28",
+    "metal": "#4a4a4a",
+    "seal": "#1a1a1a",
+    "accent": "#3a3a3a"
+  }
+}

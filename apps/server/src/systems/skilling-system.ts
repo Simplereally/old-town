@@ -22,7 +22,7 @@ import { dispatchQuestEvent } from "../quests/quest-engine";
 import type { ActionHandler } from "../sim/action-executor";
 import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
-import { addXp, getCurrentLevel } from "../skills/skill-state";
+import { addXp, getCurrentLevel, type AddXpResult } from "../skills/skill-state";
 import { trackContractItemGain } from "./contract-system";
 import { handleMoveIntent } from "./movement-system";
 import { depleteResourceNode, type ResourceNodeContext } from "./resource-node-system";
@@ -102,7 +102,7 @@ function actionId(prefix: string, owner: EntityId): string {
 function tileOf(world: World, entityId: EntityId): TileCoord | undefined {
   const position = world.getComponent(entityId, "position");
   return position
-    ? { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] }
+    ? { x: position.x, y: position.y, plane: position.plane }
     : undefined;
 }
 
@@ -117,6 +117,22 @@ function systemMessage(
   serverTime: number,
 ): void {
   deltas.markChat({ entityId: owner, channel: "system", text, serverTime });
+}
+
+function announceLevelUp(
+  deltas: DeltaAccumulator,
+  owner: EntityId,
+  result: AddXpResult | undefined,
+  serverTime: number,
+): void {
+  if (result?.levelUp) {
+    systemMessage(
+      deltas,
+      owner,
+      `Congratulations! You've advanced to level ${result.newLevel} ${result.skillId}.`,
+      serverTime,
+    );
+  }
 }
 
 function gatherFailureText(reason: GatherFailure, nodeDef?: ResourceNodeDef): string {
@@ -642,12 +658,13 @@ export function handleGather(
         skillId: nodeDef.skill,
       },
     });
-    addXp(
+    const xpResult = addXp(
       { world: ctx.world, deltas: ctx.deltas },
       action.entry.owner,
       nodeDef.skill,
       nodeDef.baseXp,
     );
+    announceLevelUp(ctx.deltas, action.entry.owner, xpResult, serverTime);
     dispatchQuestEvent(
       ctx,
       action.entry.owner,
@@ -773,7 +790,13 @@ export function handleProcess(
   );
   trackContractItemGain(ctx, action.entry.owner, itemId, quantity);
   if (!failed) {
-    addXp({ world: ctx.world, deltas: ctx.deltas }, action.entry.owner, recipe.skill, recipe.xp);
+    const xpResult = addXp(
+      { world: ctx.world, deltas: ctx.deltas },
+      action.entry.owner,
+      recipe.skill,
+      recipe.xp,
+    );
+    announceLevelUp(ctx.deltas, action.entry.owner, xpResult, serverTime);
     dispatchQuestEvent(
       ctx,
       action.entry.owner,

@@ -1,3 +1,4 @@
+import type { CharterDef } from "@old-town/shared/content-schemas/charter";
 import { describe, expect, it } from "vitest";
 import { createWorld } from "../../ecs/world";
 import { addItem, catalogFromItems, createInventory } from "../../items/inventory";
@@ -5,7 +6,6 @@ import { ItemAuditLog } from "../../items/item-audit";
 import { DeltaAccumulator } from "../../sim/delta-accumulator";
 import { makeRegistries } from "../../test-support/registries";
 import { setVar } from "../../vars/player-vars";
-import type { CharterDef } from "@old-town/shared/content-schemas/charter";
 import { hasPermit, issueCharter, processCharterExpiry, validateCharter } from "../charter-system";
 
 const PLAYER = 0 as import("@old-town/shared/types/ids").EntityId;

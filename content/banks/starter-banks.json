@@ -2,6 +2,7 @@
   {
     "id": "old_town_bank",
     "name": "Old Town Bank",
+    "npcId": "tomas_tally",
     "location": { "plane": 0, "tileX": 30, "tileY": 30 },
     "capacity": 400,
     "tabs": true,

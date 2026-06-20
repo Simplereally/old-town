@@ -85,7 +85,7 @@
     "dialogueId": "warden_holt_contracts",
     "options": [
       { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
-      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
+      { "label": "Contracts", "actionId": "contract", "priority": 8, "requiredDistance": 1 }
     ]
   },
   {
@@ -97,8 +97,7 @@
     "wanderRadius": 0,
     "dialogueId": "sister_writ_favour_intro",
     "options": [
-      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
-      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 }
     ]
   },
   {
@@ -109,7 +108,10 @@
     "respawnTicks": 1,
     "wanderRadius": 0,
     "dialogueId": "finch_quill_cartography_intro",
-    "options": [{ "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 }]
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
+      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
+    ]
   },
   {
     "id": "edda_tinfin",
@@ -153,8 +155,7 @@
     "wanderRadius": 0,
     "dialogueId": "baker_dialogue",
     "options": [
-      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
-      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 }
     ]
   },
   {
@@ -242,6 +243,61 @@
     "aggressiveRadius": 0,
     "wanderRadius": 5,
     "respawnTicks": 10,
+    "drops": "stray_dog_drops",
+    "movementType": "wander",
+    "aggressionMode": "retaliate",
+    "creatureKind": "retaliating",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "man",
+    "name": "Man",
+    "examine": "An ordinary townsman of Old Town, minding his own business.",
+    "size": 1,
+    "combatLevel": 2,
+    "maxHp": 7,
+    "stats": {
+      "attack": 1,
+      "strength": 1,
+      "defence": 1,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 7
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 4,
+    "respawnTicks": 12,
+    "drops": "man_drops",
+    "movementType": "wander",
+    "aggressionMode": "retaliate",
+    "creatureKind": "retaliating",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "woman",
+    "name": "Woman",
+    "examine": "An ordinary townswoman of Old Town, watching the street go by.",
+    "size": 1,
+    "combatLevel": 2,
+    "maxHp": 7,
+    "stats": {
+      "attack": 1,
+      "strength": 1,
+      "defence": 1,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 7
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 4,
+    "respawnTicks": 12,
+    "drops": "man_drops",
     "movementType": "wander",
     "aggressionMode": "retaliate",
     "creatureKind": "retaliating",

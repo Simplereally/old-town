@@ -1,11 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { InputInterpreter } from "./InputInterpreter";
+import {
+  calculateCombatLevel,
+  InputInterpreter,
+  shouldNpcAttackBeLeftClick,
+} from "./InputInterpreter";
 
 function createMockResolver(): ConstructorParameters<typeof InputInterpreter>[0] {
   return {
     getNpc: (id: string) => {
       if (id === "guard") {
         return {
+          name: "Guard",
+          combatLevel: 21,
           options: [
             { label: "Talk-to", actionId: "talk", priority: 10, requiredDistance: 1 },
             { label: "Attack", actionId: "attack", priority: 0, requiredDistance: 1 },
@@ -14,6 +20,25 @@ function createMockResolver(): ConstructorParameters<typeof InputInterpreter>[0]
       }
       if (id === "goblin") {
         return {
+          name: "Goblin",
+          combatLevel: 2,
+          options: [{ label: "Attack", actionId: "attack", priority: 1, requiredDistance: 1 }],
+        };
+      }
+      if (id === "knight") {
+        return {
+          name: "Knight",
+          combatLevel: 53,
+          options: [
+            { label: "Pickpocket", actionId: "pickpocket", priority: 5, requiredDistance: 1 },
+            { label: "Attack", actionId: "attack", priority: 20, requiredDistance: 1 },
+          ],
+        };
+      }
+      if (id === "boss") {
+        return {
+          name: "Old Warden",
+          combatLevel: 140,
           options: [{ label: "Attack", actionId: "attack", priority: 1, requiredDistance: 1 }],
         };
       }
@@ -125,13 +150,13 @@ describe("InputInterpreter content-driven", () => {
   describe("interpretCanvasClick", () => {
     it("chooses content-driven default for NPC", () => {
       const entity = { entityId: 10, kind: "npc" as const, defId: "guard", distance: 1 };
-      const decision = interpreter.interpretCanvasClick(entity, null, null, undefined);
+      const decision = interpreter.interpretCanvasClick(entity, null, null, undefined, undefined);
       expect(decision).toEqual({ type: "npcOption", entityId: 10, actionId: "talk" });
     });
 
     it("chooses content-driven default for object", () => {
       const entity = { entityId: 20, kind: "object" as const, defId: "tree_oak", distance: 1 };
-      const decision = interpreter.interpretCanvasClick(entity, null, null, undefined);
+      const decision = interpreter.interpretCanvasClick(entity, null, null, undefined, undefined);
       expect(decision).toEqual({ type: "objectOption", entityId: 20, actionId: "woodcut" });
     });
 
@@ -143,12 +168,12 @@ describe("InputInterpreter content-driven", () => {
         quantity: 5,
         distance: 1,
       };
-      const decision = interpreter.interpretCanvasClick(entity, null, null, undefined);
+      const decision = interpreter.interpretCanvasClick(entity, null, null, undefined, undefined);
       expect(decision).toEqual({ type: "groundItemOption", entityId: 30, actionId: "pickup" });
     });
 
     it("chooses walk for empty tile", () => {
-      const decision = interpreter.interpretCanvasClick(null, { x: 15, y: 25 }, null, undefined);
+      const decision = interpreter.interpretCanvasClick(null, { x: 15, y: 25 }, null, undefined, undefined);
       expect(decision).toEqual({ type: "move", tile: { x: 15, y: 25, plane: 0 } });
     });
 
@@ -159,13 +184,14 @@ describe("InputInterpreter content-driven", () => {
         null,
         { x: 30, y: 32, plane: 0 },
         undefined,
+        undefined,
       );
       expect(decision).toEqual({ type: "move", tile: { x: 30, y: 32, plane: 0 } });
     });
 
     it("chooses none for player without tile", () => {
       const entity = { entityId: 42, kind: "player" as const, defId: "hero", distance: 1 };
-      const decision = interpreter.interpretCanvasClick(entity, null, null, undefined);
+      const decision = interpreter.interpretCanvasClick(entity, null, null, undefined, undefined);
       expect(decision).toEqual({ type: "none" });
     });
 
@@ -173,7 +199,7 @@ describe("InputInterpreter content-driven", () => {
       const entity = { entityId: 10, kind: "npc" as const, defId: "guard", distance: 1 };
       const decision = interpreter.interpretCanvasClick(entity, null, null, {
         spellId: "wind_strike",
-      });
+      }, undefined);
       expect(decision.type).toBe("castSpell");
       expect(decision).toMatchObject({
         type: "castSpell",
@@ -186,13 +212,143 @@ describe("InputInterpreter content-driven", () => {
       const tile = { x: 10, y: 20 };
       const decision = interpreter.interpretCanvasClick(null, tile, null, {
         spellId: "wind_strike",
-      });
+      }, undefined);
       expect(decision.type).toBe("castSpell");
       expect(decision).toMatchObject({
         type: "castSpell",
         spellId: "wind_strike",
         target: { kind: "tile", tile: { x: 10, y: 20, plane: 0 } },
       });
+    });
+
+    it("uses Walk here when attack is demoted below movement", () => {
+      const local = new InputInterpreter(createMockResolver(), { npcAttack: "always-right-click" });
+      const entity = { entityId: 10, kind: "npc" as const, defId: "goblin", distance: 1 };
+      const decision = local.interpretCanvasClick(entity, { x: 15, y: 25 }, null, undefined, undefined);
+      expect(decision).toEqual({ type: "move", tile: { x: 15, y: 25, plane: 0 } });
+    });
+
+    it("chooses useItemOn with entity target when in item target mode", () => {
+      const entity = { entityId: 10, kind: "npc" as const, defId: "guard", distance: 1 };
+      const decision = interpreter.interpretCanvasClick(entity, null, null, undefined, { itemUid: 5 });
+      expect(decision).toEqual({
+        type: "useItemOn",
+        itemUid: 5,
+        target: { kind: "entity", entityId: 10 },
+      });
+    });
+
+    it("chooses useItemOn with tile target when in item target mode and no entity", () => {
+      const decision = interpreter.interpretCanvasClick(null, { x: 7, y: 8 }, null, undefined, {
+        itemUid: 3,
+      });
+      expect(decision).toEqual({
+        type: "useItemOn",
+        itemUid: 3,
+        target: { kind: "tile", tile: { x: 7, y: 8, plane: 0 } },
+      });
+    });
+  });
+
+  describe("NPC attack menu priority", () => {
+    it("left-clicks attack when setting is left-click where available", () => {
+      const local = new InputInterpreter(createMockResolver(), {
+        npcAttack: "left-click-where-available",
+      });
+      const entity = { entityId: 11, kind: "npc" as const, defId: "goblin", distance: 1 };
+      expect(local.interpretCanvasClick(entity, { x: 1, y: 2 }, null, undefined, undefined)).toEqual({
+        type: "npcOption",
+        entityId: 11,
+        actionId: "attack",
+      });
+    });
+
+    it("hides attack and lets skilling actions become top entry", () => {
+      const local = new InputInterpreter(createMockResolver(), { npcAttack: "hidden" });
+      const entity = { entityId: 12, kind: "npc" as const, defId: "knight", distance: 1 };
+      const options = local.getContextMenuOptions(entity, { x: 1, y: 2 });
+      expect(options.map((option) => option.actionId)).not.toContain("attack");
+      expect(local.interpretCanvasClick(entity, { x: 1, y: 2 }, null, undefined, undefined)).toEqual({
+        type: "npcOption",
+        entityId: 12,
+        actionId: "pickpocket",
+      });
+    });
+
+    it("depends on combat levels with equal-or-lower NPCs left-clickable", () => {
+      const local = new InputInterpreter(createMockResolver());
+      const entity = { entityId: 13, kind: "npc" as const, defId: "guard", distance: 1 };
+      expect(
+        local.interpretCanvasClick(entity, { x: 1, y: 2 }, null, undefined, undefined, {
+          playerCombatLevel: 21,
+        }),
+      ).toEqual({ type: "npcOption", entityId: 13, actionId: "attack" });
+    });
+
+    it("depends on combat levels with higher NPCs requiring explicit menu attack", () => {
+      const local = new InputInterpreter(createMockResolver());
+      const entity = { entityId: 14, kind: "npc" as const, defId: "guard", distance: 1 };
+      expect(
+        local.interpretCanvasClick(entity, { x: 1, y: 2 }, null, undefined, undefined, {
+          playerCombatLevel: 20,
+        }),
+      ).toEqual({ type: "npcOption", entityId: 14, actionId: "talk" });
+    });
+
+    it("depends on combat levels left-clicks bosses above max player combat", () => {
+      const local = new InputInterpreter(createMockResolver());
+      const entity = { entityId: 15, kind: "npc" as const, defId: "boss", distance: 1 };
+      expect(
+        local.interpretCanvasClick(entity, { x: 1, y: 2 }, null, undefined, undefined, {
+          playerCombatLevel: 3,
+        }),
+      ).toEqual({ type: "npcOption", entityId: 15, actionId: "attack" });
+    });
+
+    it("applies menu swaps after vanilla settings", () => {
+      const local = new InputInterpreter(createMockResolver(), {
+        npcAttack: "left-click-where-available",
+        menuSwaps: [{ actionId: "walk_here", priority: 200, entityKind: "npc" }],
+      });
+      const entity = { entityId: 16, kind: "npc" as const, defId: "goblin", distance: 1 };
+      expect(local.interpretCanvasClick(entity, { x: 1, y: 2 }, null, undefined, undefined)).toEqual({
+        type: "move",
+        tile: { x: 1, y: 2, plane: 0 },
+      });
+    });
+
+    it("promotes spell targeting above NPC actions", () => {
+      const local = new InputInterpreter(createMockResolver(), {
+        npcAttack: "left-click-where-available",
+      });
+      const entity = { entityId: 17, kind: "npc" as const, defId: "goblin", distance: 1 };
+      const options = local.getContextMenuOptions(
+        entity,
+        { x: 1, y: 2 },
+        {
+          spellMode: { spellId: "wind_strike" },
+        },
+      );
+      expect(options[0]?.actionId).toBe("cast_spell");
+    });
+  });
+
+  describe("combat helpers", () => {
+    it("uses the OSRS-style attack left-click threshold", () => {
+      expect(shouldNpcAttackBeLeftClick(74, 74)).toBe(true);
+      expect(shouldNpcAttackBeLeftClick(73, 74)).toBe(false);
+      expect(shouldNpcAttackBeLeftClick(3, 127)).toBe(true);
+    });
+
+    it("calculates a bounded combat level from visible skills", () => {
+      const skills = new Map([
+        ["attack", { skillId: "attack", level: 40, xp: 0, effectiveLevel: 40 }],
+        ["strength", { skillId: "strength", level: 40, xp: 0, effectiveLevel: 40 }],
+        ["defence", { skillId: "defence", level: 30, xp: 0, effectiveLevel: 30 }],
+        ["hitpoints", { skillId: "hitpoints", level: 40, xp: 0, effectiveLevel: 40 }],
+        ["prayer", { skillId: "prayer", level: 20, xp: 0, effectiveLevel: 20 }],
+      ]);
+      expect(calculateCombatLevel(skills)).toBeGreaterThan(3);
     });
   });
 
@@ -237,17 +393,38 @@ describe("InputInterpreter content-driven", () => {
       const decision = interpreter.interpretContextMenu(null, null, "unknown");
       expect(decision).toEqual({ type: "none" });
     });
+
+    it("chooses useItemOn when use_item_on action is selected with item mode", () => {
+      const entity = { entityId: 10, kind: "npc" as const, defId: "guard", distance: 1 };
+      const decision = interpreter.interpretContextMenu(
+        entity,
+        null,
+        "use_item_on",
+        undefined,
+        { itemUid: 5 },
+      );
+      expect(decision).toEqual({
+        type: "useItemOn",
+        itemUid: 5,
+        target: { kind: "entity", entityId: 10 },
+      });
+    });
   });
 
   describe("interpretEscape", () => {
     it("chooses cancelSpellTarget when in spell mode", () => {
-      const decision = interpreter.interpretEscape({ spellId: "wind_strike" });
+      const decision = interpreter.interpretEscape({ spellId: "wind_strike" }, undefined);
       expect(decision).toEqual({ type: "cancelSpellTarget" });
     });
 
     it("returns none when not in spell mode", () => {
-      const decision = interpreter.interpretEscape(undefined);
+      const decision = interpreter.interpretEscape(undefined, undefined);
       expect(decision).toEqual({ type: "none" });
+    });
+
+    it("chooses cancelItemTarget when in item target mode", () => {
+      const decision = interpreter.interpretEscape(undefined, { itemUid: 7 });
+      expect(decision).toEqual({ type: "cancelItemTarget" });
     });
   });
 });

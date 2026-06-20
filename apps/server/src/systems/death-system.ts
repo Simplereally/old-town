@@ -3,6 +3,7 @@ import type { CombatantComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import type { CollisionMap } from "../world/collision";
+import type { RuntimeMap } from "../world/runtime-map";
 
 export const PLAYER_RESPAWN_DELAY_TICKS = 5;
 
@@ -10,6 +11,7 @@ export interface DeathSystemContext {
   readonly world: World;
   readonly collision: CollisionMap;
   readonly deltas: DeltaAccumulator;
+  readonly map: RuntimeMap;
 }
 
 function systemMessage(
@@ -26,11 +28,45 @@ function removePendingHits(combatant: CombatantComponent): Omit<CombatantCompone
   return withoutPendingHits;
 }
 
+function chebyshev(a: TileCoord, b: TileCoord): number {
+  return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
+}
+
+function resolveRespawnTile(
+  map: RuntimeMap,
+  position: { x: number; y: number; plane: number } | undefined,
+  fallback?: TileCoord,
+): TileCoord {
+  const points = map.deathRespawnPoints;
+  if (points.length > 0) {
+    if (position) {
+      const pos = { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] };
+      let best = points[0]?.tile;
+      if (!best) {
+        return fallback ?? { x: 0, y: 0, plane: 0 };
+      }
+      let bestDist = chebyshev(pos, best);
+      for (let i = 1; i < points.length; i += 1) {
+        const candidate = points[i]?.tile;
+        if (!candidate) continue;
+        const dist = chebyshev(pos, candidate);
+        if (dist < bestDist) {
+          best = candidate;
+          bestDist = dist;
+        }
+      }
+      return best;
+    }
+    return points[0]?.tile ?? fallback ?? { x: 0, y: 0, plane: 0 };
+  }
+  return fallback ?? { x: 0, y: 0, plane: 0 };
+}
+
 export function processPlayerRespawn(
   ctx: DeathSystemContext,
   tick: number,
   serverTime = tick * GAME_TICK_MS,
-  defaultSpawnTile: TileCoord = { x: 30, y: 32, plane: 0 },
+  defaultSpawnTile?: TileCoord,
 ): void {
   for (const [entityId, combatant] of ctx.world.componentEntries("combatant")) {
     if (!ctx.world.hasComponent(entityId, "player")) {
@@ -43,8 +79,8 @@ export function processPlayerRespawn(
       continue;
     }
 
-    // Respawn the player
-    const respawnTile = defaultSpawnTile;
+    const position = ctx.world.getComponent(entityId, "position");
+    const respawnTile = resolveRespawnTile(ctx.map, position, defaultSpawnTile);
 
     const respawnedCombatant = {
       ...removePendingHits(combatant),

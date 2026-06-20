@@ -34,6 +34,9 @@ interface RegionPayload {
     tag?: string;
   }>;
   tileOverrides: Array<{ x: number; y: number; underlayId: string; collision?: number }>;
+  resourceNodeSpawns: Array<{ resourceNodeId: string; x: number; y: number; respawnTicks: number; initialDepletion: boolean }>;
+  playerSpawnPoints: Array<{ x: number; y: number; plane: number; spawnType: string }>;
+  deathRespawnPoints: Array<{ x: number; y: number; plane: number; respawnType: string }>;
 }
 
 // ---------------------------------------------------------------------------
@@ -143,6 +146,58 @@ const creatureSpawns: GlobalPlacement[] = [
   { id: "river_snapper", x: 66, y: 28 },
   // Old Kiln (rare)
   { id: "ash_drake_whelp", x: 68, y: 42 },
+  // Boss spawns
+  { id: "cellar_king", x: 30, y: 26 },
+  { id: "mudhook_grib", x: 44, y: 36 },
+  { id: "ashling_in_the_kiln", x: 26, y: 22 },
+  { id: "bell_bat_mother", x: 56, y: 54 },
+  { id: "old_snapper", x: 62, y: 28 },
+  { id: "wrong_flower", x: 58, y: 10 },
+  // Townsfolk (Lumbridge-style first kill) — attackable near the dev spawn (30,32) and the market plaza
+  { id: "man", x: 30, y: 33 },
+  { id: "woman", x: 31, y: 33 },
+  { id: "man", x: 29, y: 34 },
+  { id: "man", x: 44, y: 44 },
+  { id: "woman", x: 48, y: 47 },
+  { id: "man", x: 50, y: 44 },
+];
+
+// Resource node visual objects (have resourceNodeId in their object definition)
+const resourceNodeObjects: GlobalPlacement[] = [
+  { id: "copper_rock", x: 80, y: 20 },
+  { id: "copper_rock", x: 82, y: 22 },
+  { id: "iron_rock", x: 84, y: 20 },
+  { id: "dry_tree", x: 20, y: 72 },
+  { id: "dry_tree", x: 23, y: 74 },
+  { id: "oak_tree", x: 26, y: 76 },
+];
+
+// Resource node spawns (global coordinates)
+const resourceNodeSpawns: Array<{ id: string; x: number; y: number; respawnTicks: number }> = [
+  { id: "oak_tree_node", x: 10, y: 15, respawnTicks: 100 },
+  { id: "dry_tree_node", x: 20, y: 25, respawnTicks: 100 },
+  { id: "copper_rock_node", x: 30, y: 35, respawnTicks: 100 },
+  { id: "scrub_tree", x: 42, y: 26, respawnTicks: 100 },
+  { id: "oldroad_oak_tree", x: 12, y: 42, respawnTicks: 100 },
+  { id: "ditch_shrimp_spot", x: 58, y: 26, respawnTicks: 100 },
+  { id: "rabbit_snare_point", x: 44, y: 28, respawnTicks: 100 },
+  { id: "bird_lure_spot", x: 46, y: 30, respawnTicks: 100 },
+  { id: "grave_flower_patch", x: 58, y: 10, respawnTicks: 100 },
+  { id: "copper_rock_node", x: 79, y: 15, respawnTicks: 100 },
+  { id: "tin_rock_node", x: 89, y: 25, respawnTicks: 100 },
+  { id: "riverwillow_tree", x: 66, y: 26, respawnTicks: 100 },
+  { id: "tinfin_ripple", x: 68, y: 30, respawnTicks: 100 },
+  { id: "river_curio_spot", x: 70, y: 34, respawnTicks: 100 },
+  { id: "bog_fox_track", x: 68, y: 12, respawnTicks: 100 },
+  { id: "allotment_patch", x: 70, y: 16, respawnTicks: 100 },
+  { id: "herb_pot_table", x: 66, y: 18, respawnTicks: 100 },
+  { id: "oak_tree_node", x: 10, y: 74, respawnTicks: 100 },
+  { id: "willow_tree_node", x: 20, y: 84, respawnTicks: 100 },
+  { id: "penny_copper_deposit", x: 44, y: 74, respawnTicks: 100 },
+  { id: "tinstone_deposit", x: 46, y: 78, respawnTicks: 100 },
+  { id: "pig_iron_outcrop", x: 48, y: 78, respawnTicks: 100 },
+  { id: "blackcoal_pocket", x: 50, y: 74, respawnTicks: 100 },
+  { id: "oak_tree_node", x: 74, y: 74, respawnTicks: 100 },
 ];
 
 // Ground item spawns (minimal)
@@ -171,39 +226,38 @@ const districtTriggers: Array<{ id: string; x: number; y: number; width: number;
     { id: "death_respawn_counting_house", x: 34, y: 46, width: 4, height: 4 },
   ];
 
+// District definitions: material and transition border material per district.
+const districtDefs: Array<{ id: string; x: number; y: number; width: number; height: number; material: string; border: string }> = [
+  { id: "market_bell", x: 40, y: 40, width: 16, height: 16, material: "bellstone_plaza", border: "grass_to_bellstone" },
+  { id: "foundry_row", x: 56, y: 40, width: 16, height: 16, material: "soot_cobble", border: "grass_to_soot_cobble" },
+  { id: "lath_yard", x: 40, y: 56, width: 16, height: 16, material: "chalk_flagstone", border: "grass_to_chalk_flagstone" },
+  { id: "patch_lane", x: 40, y: 24, width: 16, height: 16, material: "patch_grass", border: "grass_to_patch_grass" },
+  { id: "chalkhouse_court", x: 24, y: 56, width: 16, height: 16, material: "chalk_flagstone", border: "grass_to_chalk_flagstone" },
+  { id: "warden_steps", x: 56, y: 56, width: 16, height: 16, material: "packed_road", border: "grass_to_packed_road" },
+  { id: "shrine_hearth", x: 24, y: 40, width: 16, height: 16, material: "stone_floor", border: "grass_to_stone_floor" },
+  { id: "counting_house", x: 32, y: 44, width: 8, height: 8, material: "wood_floor", border: "grass_to_wood_floor" },
+  { id: "river_stoop", x: 56, y: 24, width: 16, height: 16, material: "river_mud", border: "grass_to_river_mud" },
+  { id: "oldroad_gate", x: 8, y: 40, width: 16, height: 16, material: "oldroad_slabs", border: "grass_to_oldroad_slabs" },
+  { id: "gravegate", x: 56, y: 8, width: 16, height: 16, material: "grave_soil", border: "grass_to_grave_soil" },
+  { id: "sootcellar", x: 24, y: 24, width: 16, height: 16, material: "dark_cellar_floor", border: "grass_to_dark_cellar" },
+  { id: "north_quarry_road", x: 40, y: 72, width: 16, height: 16, material: "quarry_grit", border: "grass_to_quarry_grit" },
+];
+
 // Terrain overrides (sparse, by district)
-const terrainOverrides: Array<{ x: number; y: number; underlayId: string; collision?: number }> = [
-  // Market Bell — bellstone plaza
-  ...fillRect(40, 40, 16, 16, "bellstone_plaza", 0),
-  // Counting House — wood floor
-  ...fillRect(32, 44, 8, 8, "wood_floor", 0),
-  // Foundry Row — soot cobble
-  ...fillRect(56, 40, 16, 16, "soot_cobble", 0),
-  // Lath Yard — chalk flagstone
-  ...fillRect(40, 56, 16, 16, "chalk_flagstone", 0),
-  // Patch Lane — patch grass
-  ...fillRect(40, 24, 16, 16, "patch_grass", 0),
-  // Chalkhouse Court — chalk flagstone
-  ...fillRect(24, 56, 16, 16, "chalk_flagstone", 0),
-  // Warden Steps — packed road
-  ...fillRect(56, 56, 16, 16, "packed_road", 0),
-  // Shrine Hearth — stone floor
-  ...fillRect(24, 40, 16, 16, "stone_floor", 0),
-  // River Stoop — river mud
-  ...fillRect(56, 24, 16, 16, "river_mud", 0),
-  // Oldroad Gate — oldroad slabs
-  ...fillRect(8, 40, 16, 16, "oldroad_slabs", 0),
-  // Gravegate — grave soil
-  ...fillRect(56, 8, 16, 16, "grave_soil", 0),
-  // Sootcellar — dark cellar floor
-  ...fillRect(24, 24, 16, 16, "dark_cellar_floor", 0),
-  // North Quarry Road — quarry grit
-  ...fillRect(40, 72, 16, 16, "quarry_grit", 0),
-  // Main roads — packed road
+const terrainOverrides: Array<{ x: number; y: number; underlayId: string; collision?: number; water?: boolean; bridge?: boolean }> = [
+  // District fills
+  ...districtDefs.flatMap((d) => fillRect(d.x, d.y, d.width, d.height, d.material, 0)),
+  // District transition borders (1-tile inset ring, applied after fills so they override)
+  ...districtDefs.flatMap((d) => fillBorder(d.x, d.y, d.width, d.height, d.border, 0)),
+  // Main roads — packed road (applied last so roads override transitions)
   ...fillRect(40, 36, 16, 4, "packed_road", 0), // Market Bell north
   ...fillRect(40, 56, 16, 4, "packed_road", 0), // Market Bell south
   ...fillRect(36, 40, 4, 16, "packed_road", 0), // Market Bell west
   ...fillRect(56, 40, 4, 16, "packed_road", 0), // Market Bell east
+  // River near River Stoop (vertical strip at x=72, y=20..31)
+  ...fillRect(72, 20, 1, 12, "water", 0).map((t) => ({ ...t, water: true })),
+  // Bridge crossing the river at y=26
+  { x: 72, y: 26, underlayId: "oldroad_slabs", collision: 0, bridge: true },
 ];
 
 function fillRect(
@@ -219,6 +273,28 @@ function fillRect(
     for (let dy = 0; dy < h; dy++) {
       tiles.push({ x: x + dx, y: y + dy, underlayId, collision });
     }
+  }
+  return tiles;
+}
+
+/** Paint the 1-tile inset border ring of a rectangle. */
+function fillBorder(
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  underlayId: string,
+  collision: number,
+): Array<{ x: number; y: number; underlayId: string; collision: number }> {
+  if (w < 3 || h < 3) return fillRect(x, y, w, h, underlayId, collision);
+  const tiles: Array<{ x: number; y: number; underlayId: string; collision: number }> = [];
+  for (let dx = 0; dx < w; dx++) {
+    tiles.push({ x: x + dx, y, underlayId, collision }); // top row
+    tiles.push({ x: x + dx, y: y + h - 1, underlayId, collision }); // bottom row
+  }
+  for (let dy = 1; dy < h - 1; dy++) {
+    tiles.push({ x, y: y + dy, underlayId, collision }); // left column
+    tiles.push({ x: x + w - 1, y: y + dy, underlayId, collision }); // right column
   }
   return tiles;
 }
@@ -258,6 +334,9 @@ function buildRegion(rx: number, ry: number): RegionPayload {
     groundItemSpawns: [],
     triggers: [],
     tileOverrides: [],
+    resourceNodeSpawns: [],
+    playerSpawnPoints: [],
+    deathRespawnPoints: [],
   };
 }
 
@@ -272,8 +351,8 @@ function getRegion(rx: number, ry: number): RegionPayload {
   return region;
 }
 
-// Place all objects
-for (const p of [...landmarks, ...serviceObjects, ...stations, ...questObjects]) {
+// Place all objects (including resource node visuals)
+for (const p of [...landmarks, ...serviceObjects, ...stations, ...questObjects, ...resourceNodeObjects]) {
   const { rx, ry, lx, ly } = toRuntimeCoords(p.x, p.y);
   assertLocalBounds(lx, ly, p.id);
   getRegion(rx, ry).objects.push({ objectId: p.id, x: lx, y: ly });
@@ -388,6 +467,19 @@ for (const t of districtTriggers) {
   }
 }
 
+// Place resource node spawns
+for (const r of resourceNodeSpawns) {
+  const { rx, ry, lx, ly } = toRuntimeCoords(r.x, r.y);
+  assertLocalBounds(lx, ly, r.id);
+  getRegion(rx, ry).resourceNodeSpawns.push({
+    resourceNodeId: r.id,
+    x: lx,
+    y: ly,
+    respawnTicks: r.respawnTicks,
+    initialDepletion: false,
+  });
+}
+
 // Place terrain
 for (const t of terrainOverrides) {
   const { rx, ry, lx, ly } = toRuntimeCoords(t.x, t.y);
@@ -397,6 +489,8 @@ for (const t of terrainOverrides) {
     y: ly,
     underlayId: t.underlayId,
     collision: t.collision,
+    ...(t.water ? { water: true } : {}),
+    ...(t.bridge ? { bridge: true } : {}),
   });
 }
 
@@ -489,6 +583,13 @@ async function emit() {
       npcSpawns: region.npcSpawns.sort((a, b) => a.x - b.x || a.y - b.y),
       groundItemSpawns: region.groundItemSpawns.sort((a, b) => a.x - b.x || a.y - b.y),
       triggers: region.triggers.sort((a, b) => a.x - b.x || a.y - b.y),
+      resourceNodeSpawns: region.resourceNodeSpawns.sort((a, b) => a.x - b.x || a.y - b.y),
+      playerSpawnPoints: region.rx === 0 && region.ry === 0
+        ? [{ x: 46, y: 46, plane: 0, spawnType: "default" }]
+        : [],
+      deathRespawnPoints: region.rx === 0 && region.ry === 0
+        ? [{ x: 34, y: 46, plane: 0, respawnType: "nearest" }]
+        : [],
     };
 
     await writeFile(filename, `${JSON.stringify(payload, null, 2)}\n`);

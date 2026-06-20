@@ -179,6 +179,7 @@ Examples: `pennywrought_shortblade`, `oak_log`, `health_potion`, `smoke_over_old
 - [`../economy/currency-and-value-bands.md`](../economy/currency-and-value-bands.md) — Item value bands
 - [`../../POC_SPEC.md`](../../POC_SPEC.md) §13 (Combat), §16 (Items, inventory, equipment)
 - `content/items/` — Actual JSON definitions (populated as stories land)
+- `assets/items/` — Original item art (SVG silhouettes, tier palettes, rasterized icon atlases, procedural model specs); see epic `tasks/epics/E41_item-asset-pipeline-and-equipment-visuals.md`
 
 ---
 

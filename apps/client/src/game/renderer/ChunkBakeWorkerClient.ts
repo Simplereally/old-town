@@ -69,6 +69,8 @@ export interface BakeChunkRequest {
   readonly tiles: readonly RegionTileData[];
   readonly objectRefs: readonly ObjectRef[];
   readonly requestVersion: number;
+  /** Material ID → 0xRRGGBB color map from the material registry. */
+  readonly materialColors?: Record<string, number>;
 }
 
 export interface BakeChunkSuccess {
@@ -282,47 +284,102 @@ class SynchronousWorker implements WorkerLike {
       return;
     }
     if (msg.type === "bake_chunk") {
-      const { jobId, regionId, chunkCoord, tiles } = msg;
-      const vertexCount = Math.max(1, tiles.length * 4);
-      const indexCount = Math.max(1, tiles.length * 6);
+      const { jobId, regionId, chunkCoord, tiles, materialColors } = msg;
+      const DEFAULT_COLOR = 0x4f8f3a;
+      const resolveColor = (id: string): number =>
+        materialColors?.[id] ?? DEFAULT_COLOR;
+      const hexToRgb = (hex: number): [number, number, number] => [
+        ((hex >> 16) & 0xff) / 255,
+        ((hex >> 8) & 0xff) / 255,
+        (hex & 0xff) / 255,
+      ];
+
+      const maxQuads = tiles.length * 2;
+      const vertexCount = Math.max(1, maxQuads * 4);
+      const indexCount = Math.max(1, maxQuads * 6);
       const positions = new Float32Array(vertexCount * 3);
       const normals = new Float32Array(vertexCount * 3);
       const colors = new Float32Array(vertexCount * 3);
       const indices = new Uint32Array(indexCount);
       let v = 0;
       let iIdx = 0;
+      const quadMaterialIds: string[] = [];
+      const quadStartVertices: number[] = [];
       for (const tile of tiles) {
-        const quad: [number, number, number][] = [
-          [tile.x, tile.height, tile.y],
-          [tile.x + 1, tile.height, tile.y],
-          [tile.x + 1, tile.height, tile.y + 1],
-          [tile.x, tile.height, tile.y + 1],
-        ];
-        for (const point of quad) {
-          positions[v * 3 + 0] = point[0];
-          positions[v * 3 + 1] = point[1];
-          positions[v * 3 + 2] = point[2];
-          normals[v * 3 + 1] = 1;
-          colors[v * 3 + 0] = 0.5;
-          colors[v * 3 + 1] = 0.6;
-          colors[v * 3 + 2] = 0.4;
-          v++;
+        const writeQuad = (h: number, color: number, materialId: string) => {
+          const [r, g, b] = hexToRgb(color);
+          const quad: [number, number, number][] = [
+            [tile.x, h, tile.y],
+            [tile.x + 1, h, tile.y],
+            [tile.x + 1, h, tile.y + 1],
+            [tile.x, h, tile.y + 1],
+          ];
+          const sv = v;
+          for (const point of quad) {
+            positions[v * 3 + 0] = point[0];
+            positions[v * 3 + 1] = point[1];
+            positions[v * 3 + 2] = point[2];
+            normals[v * 3 + 1] = 1;
+            colors[v * 3 + 0] = r;
+            colors[v * 3 + 1] = g;
+            colors[v * 3 + 2] = b;
+            v++;
+          }
+          indices[iIdx + 0] = sv;
+          indices[iIdx + 1] = sv + 2;
+          indices[iIdx + 2] = sv + 1;
+          indices[iIdx + 3] = sv;
+          indices[iIdx + 4] = sv + 3;
+          indices[iIdx + 5] = sv + 2;
+          iIdx += 6;
+          quadMaterialIds.push(materialId);
+          quadStartVertices.push(sv);
+        };
+
+        if (tile.water) {
+          writeQuad(tile.height * 0.1 - 0.05, resolveColor("water"), "water");
+          continue;
         }
-        indices[iIdx + 0] = v - 4;
-        indices[iIdx + 1] = v - 2;
-        indices[iIdx + 2] = v - 3;
-        indices[iIdx + 3] = v - 4;
-        indices[iIdx + 4] = v - 1;
-        indices[iIdx + 5] = v - 2;
-        iIdx += 6;
+        writeQuad(tile.height * 0.1, resolveColor(tile.underlayId), tile.underlayId);
+        if (tile.overlayId !== undefined) {
+          writeQuad(tile.height * 0.1 + 0.02, resolveColor(tile.overlayId), tile.overlayId);
+        }
       }
 
+      // Build contiguous material groups.
+      const byMaterial = new Map<string, number[]>();
+      for (let qi = 0; qi < quadMaterialIds.length; qi++) {
+        const mid = quadMaterialIds[qi];
+        if (!mid) continue;
+        const arr = byMaterial.get(mid) ?? [];
+        arr.push(qi);
+        byMaterial.set(mid, arr);
+      }
+      const newIndices = new Uint32Array(indexCount);
+      let newIdx = 0;
+      const materialGroups: MaterialGroup[] = [];
+      for (const [materialId, quadIndices] of byMaterial) {
+        const groupStart = newIdx;
+        for (const qi of quadIndices) {
+          const sv = quadStartVertices[qi]!;
+          newIndices[newIdx + 0] = sv;
+          newIndices[newIdx + 1] = sv + 2;
+          newIndices[newIdx + 2] = sv + 1;
+          newIndices[newIdx + 3] = sv;
+          newIndices[newIdx + 4] = sv + 3;
+          newIndices[newIdx + 5] = sv + 2;
+          newIdx += 6;
+        }
+        materialGroups.push({ startIndex: groupStart, count: newIdx - groupStart, materialId });
+      }
+      indices.set(newIndices.subarray(0, newIdx));
+
       const payload: BakedChunkPayload = {
-        positions,
-        normals,
-        colors,
-        indices,
-        materialGroups: [{ startIndex: 0, count: indexCount, materialId: "terrain_default" }],
+        positions: positions.subarray(0, v * 3),
+        normals: normals.subarray(0, v * 3),
+        colors: colors.subarray(0, v * 3),
+        indices: indices.subarray(0, newIdx),
+        materialGroups,
         bounds: {
           minX: chunkCoord.cx * 8,
           minY: chunkCoord.cy * 8,

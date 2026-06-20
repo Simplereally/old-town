@@ -20,14 +20,15 @@ import {
   type TileCoord,
   type VarDelta,
 } from "@old-town/shared";
-import type { InventoryComponent } from "../ecs/components";
+import type { EquipmentComponent, InventoryComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
-import { createEquipment, equipmentUpdate } from "../items/equipment";
+import { aggregateBonuses, createEquipment, equipmentUpdate } from "../items/equipment";
 import {
   addItem,
   catalogFromItems,
   createBank,
   createInventory,
+  removeFromSlot,
   toInventoryDelta,
 } from "../items/inventory";
 import type { ItemAuditLog } from "../items/item-audit";
@@ -37,19 +38,22 @@ import { computeCombatLevel } from "../skills/combat-level";
 import { maxHealthForHitpointsLevel } from "../skills/skill-state";
 import { groundItemVisibleToPlayer } from "../systems/ground-item-system";
 import { createVarComponent, toVarDeltas } from "../vars/player-vars";
-import type { RuntimeMap } from "../world/runtime-map";
+import type { PlayerSpawnPoint, RuntimeMap } from "../world/runtime-map";
 import { projectWorldEntities } from "./entity-spawn-projector";
 import type { TransportSession } from "./websocket-transport";
 
+/** Fallback spawn tile if no player spawn points are defined in the region map. */
 export const DEV_SPAWN_TILE: TileCoord = { x: 30, y: 32, plane: 0 };
 
 const DEFAULT_BANK_CAPACITY = 400;
 
 const STARTER_ITEMS: readonly { itemId: string; quantity: number }[] = [
+  { itemId: "pennywrought_shortblade", quantity: 1 },
   { itemId: "pennywrought_axe", quantity: 1 },
   { itemId: "pennywrought_pickaxe", quantity: 1 },
   { itemId: "bread", quantity: 5 },
   { itemId: "raw_fish", quantity: 5 },
+  { itemId: "coin", quantity: 25 },
   { itemId: "ember_bead", quantity: 20 },
   { itemId: "gust_bead", quantity: 20 },
   { itemId: "wit_bead", quantity: 20 },
@@ -133,6 +137,7 @@ export class DevSessionManager {
 
   private fullState(entityId: EntityId, tick: number, serverTime: number): FullStatePacket {
     const { spawns } = projectWorldEntities(this.world, this.registries.item);
+    const combatStyle = this.world.getComponent(entityId, "combatant")?.combatStyle;
 
     return {
       type: ServerPacketType.FullState,
@@ -156,6 +161,7 @@ export class DevSessionManager {
       equipment: this.equipmentUpdate(entityId),
       skills: this.skillDeltas(entityId),
       vars: this.varDeltas(entityId),
+      ...(combatStyle ? { combatStyle } : {}),
       regionLoads: this.regionLoads(),
     };
   }
@@ -188,6 +194,16 @@ export class DevSessionManager {
     return entityId;
   }
 
+  private spawnTile(): TileCoord {
+    const defaultSpawn = this.map.playerSpawnPoints.find(
+      (p: PlayerSpawnPoint) => p.spawnType === "default" || p.spawnType === "new_player",
+    );
+    if (defaultSpawn) {
+      return defaultSpawn.tile;
+    }
+    return DEV_SPAWN_TILE;
+  }
+
   private applyDefaultPlayerComponents(
     entityId: EntityId,
     session: TransportSession,
@@ -197,11 +213,12 @@ export class DevSessionManager {
       readonly serverTime: number;
     },
   ): void {
+    const spawn = this.spawnTile();
     this.world.setComponent(entityId, "position", {
       entityId,
-      x: DEV_SPAWN_TILE.x,
-      y: DEV_SPAWN_TILE.y,
-      plane: DEV_SPAWN_TILE.plane,
+      x: spawn.x,
+      y: spawn.y,
+      plane: spawn.plane,
     });
     this.world.setComponent(entityId, "player", {
       entityId,
@@ -221,12 +238,11 @@ export class DevSessionManager {
       mode: "walk",
       path: [],
     });
-    this.world.setComponent(
-      entityId,
-      "inventory",
-      this.createStarterInventory(entityId, session.characterId, options),
-    );
-    this.world.setComponent(entityId, "equipment", createEquipment(entityId));
+    const inventory = this.createStarterInventory(entityId, session.characterId, options);
+    this.world.setComponent(entityId, "inventory", inventory);
+    const equipment = createEquipment(entityId);
+    this.world.setComponent(entityId, "equipment", equipment);
+    this.autoEquipStarterWeapon(entityId, inventory, equipment);
     this.world.setComponent(entityId, "bank", createBank(entityId, DEFAULT_BANK_CAPACITY));
     this.world.setComponent(entityId, "vars", createVarComponent(entityId));
     this.world.setComponent(entityId, "skills", {
@@ -289,6 +305,22 @@ export class DevSessionManager {
       }
     }
     return inventory;
+  }
+
+  private autoEquipStarterWeapon(
+    entityId: EntityId,
+    inventory: InventoryComponent,
+    equipment: EquipmentComponent,
+  ): void {
+    const bladeSlot = inventory.slots.findIndex(
+      (slot) => slot?.itemId === "pennywrought_shortblade",
+    );
+    if (bladeSlot < 0) return;
+    const { changes } = removeFromSlot(inventory, bladeSlot, 1);
+    void changes;
+    equipment.slots.weapon = "pennywrought_shortblade";
+    equipment.bonuses = aggregateBonuses(equipment, this.registries.item);
+    void entityId;
   }
 
   private inventoryDelta(entityId: EntityId): InventoryDelta {

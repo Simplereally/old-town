@@ -1,23 +1,18 @@
-import type {
-  DialogueDef,
-  ItemDef,
-  NpcDef,
-  ObjectDef,
-  QuestDef,
-  QuestStage,
-  SkillDef,
-  SpellDef,
+import {
+  type ContentClientRegistries,
+  contentClientRegistriesSchema,
+  type DialogueDef,
+  type ItemDef,
+  type MaterialDef,
+  type NpcDef,
+  type ObjectDef,
+  type QuestDef,
+  type QuestStage,
+  type SkillDef,
+  type SpellDef,
 } from "@old-town/shared";
 
-export interface ContentClientRegistries {
-  readonly item: Record<string, ItemDef>;
-  readonly npc: Record<string, NpcDef>;
-  readonly object: Record<string, ObjectDef>;
-  readonly skill: Record<string, SkillDef>;
-  readonly spell: Record<string, SpellDef>;
-  readonly quest: Record<string, QuestDef>;
-  readonly dialogue: Record<string, DialogueDef>;
-}
+export type { ContentClientRegistries } from "@old-town/shared";
 
 /**
  * Client-side content loader. Fetches the validated content registries from the
@@ -32,17 +27,18 @@ export class ContentClient {
     return this._ready;
   }
 
-  async load(serverUrl: string): Promise<void> {
-    const url = new URL(
-      "/api/content",
-      serverUrl.replace("ws://", "http://").replace("wss://", "https://"),
-    );
+  async load(httpBaseUrl: string): Promise<void> {
+    const url = new URL("/api/content", httpBaseUrl);
     const response = await fetch(url.toString());
     if (!response.ok) {
       throw new Error(`Failed to load content: ${response.status} ${response.statusText}`);
     }
-    const data = (await response.json()) as ContentClientRegistries;
-    this._registries = data;
+    const raw: unknown = await response.json();
+    const result = contentClientRegistriesSchema.safeParse(raw);
+    if (!result.success) {
+      throw new Error(`Invalid content response: ${result.error.message}`);
+    }
+    this._registries = result.data;
     this._ready = true;
   }
 
@@ -74,6 +70,14 @@ export class ContentClient {
     return this._registries?.dialogue[id];
   }
 
+  getMaterial(id: string): MaterialDef | undefined {
+    return this._registries?.material[id];
+  }
+
+  getAllMaterials(): Record<string, MaterialDef> {
+    return this._registries?.material ?? {};
+  }
+
   getQuestStage(questId: string, stage: number): QuestStage | undefined {
     const cached = this._questStageCache.get(questId);
     if (cached) {
@@ -86,15 +90,15 @@ export class ContentClient {
     return stageMap.get(stage);
   }
 
-  getAllSkills(): SkillDef[] {
+  getAllSkills(): readonly SkillDef[] {
     return Object.values(this._registries?.skill ?? {});
   }
 
-  getAllSpells(): SpellDef[] {
+  getAllSpells(): readonly SpellDef[] {
     return Object.values(this._registries?.spell ?? {});
   }
 
-  getAllQuests(): QuestDef[] {
+  getAllQuests(): readonly QuestDef[] {
     return Object.values(this._registries?.quest ?? {});
   }
 }

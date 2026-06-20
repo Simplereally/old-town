@@ -118,7 +118,9 @@ describe("RegionCrossingHarness", () => {
     // After running the full path, the final diagnostics should show that
     // region (0,0) chunks are either queued, baking, waiting upload, or visible
     // because they were re-entered.
-    const finalDiagnostic = diagnostics[diagnostics.length - 1] as NonNullable<typeof diagnostics[number]>;
+    const finalDiagnostic = diagnostics[diagnostics.length - 1] as NonNullable<
+      (typeof diagnostics)[number]
+    >;
     const finalBakeStats = finalDiagnostic.bakeStats;
     const activeBakeCount =
       finalBakeStats.queued +
@@ -199,8 +201,8 @@ describe("RegionCrossingHarness", () => {
     for (let i = 1; i < exhaustedFrames.length; i++) {
       expect(exhaustedFrames[i]).toBeDefined();
       expect(exhaustedFrames[i - 1]).toBeDefined();
-      expect((exhaustedFrames[i] as NonNullable<typeof exhaustedFrames[number]>).frameId).toBe(
-        (exhaustedFrames[i - 1] as NonNullable<typeof exhaustedFrames[number]>).frameId + 1,
+      expect((exhaustedFrames[i] as NonNullable<(typeof exhaustedFrames)[number]>).frameId).toBe(
+        (exhaustedFrames[i - 1] as NonNullable<(typeof exhaustedFrames)[number]>).frameId + 1,
       );
     }
 

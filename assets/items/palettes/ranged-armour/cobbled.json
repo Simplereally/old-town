@@ -1,0 +1,11 @@
+{
+  "ladder": "ranged-armour",
+  "tier": "cobbled",
+  "tierOrder": 0,
+  "regions": {
+    "hide": "#6a6a6a",
+    "stitch": "#4a3526",
+    "buckle": "#6a6d6f",
+    "accent": "#9a8769"
+  }
+}

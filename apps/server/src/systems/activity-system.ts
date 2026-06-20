@@ -7,7 +7,7 @@
  * entry requirement, then enqueues a repeating action that executes the activity
  * loop.
  */
-import type { ActivityDef, ContentRegistries, EntityId, Rng, TileCoord } from "@old-town/shared";
+import { type ActivityDef, type ContentRegistries, type EntityId, isPlane, type Rng, type TileCoord } from "@old-town/shared";
 import type { World } from "../ecs/world";
 import {
   addItem,
@@ -18,10 +18,15 @@ import {
   removeItem,
 } from "../items/inventory";
 import type { ItemAuditLog } from "../items/item-audit";
-import { ActionQueue, type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
-import type { ActionContext } from "../sim/action-executor";
-import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { dispatchQuestEvent } from "../quests/quest-engine";
+import type { ActionContext } from "../sim/action-executor";
+import {
+  type ActionExecution,
+  type ActionQueue,
+  ActionQueueType,
+  InterruptGroup,
+} from "../sim/action-queue";
+import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { addXp, getCurrentLevel } from "../skills/skill-state";
 import type { CollisionMap } from "../world/collision";
 import { handleMoveIntent } from "./movement-system";
@@ -55,7 +60,7 @@ export type ActivityHandlerTable = {
   [K in ActivityKind]: (payload: Extract<ActivityPayload, { kind: K }>, ctx: ActionContext) => void;
 };
 
-const ACTIVITY_ACTION_ID = "activity";
+const _ACTIVITY_ACTION_ID = "activity";
 
 function systemMessage(
   ctx: ActivityContext,
@@ -69,7 +74,7 @@ function systemMessage(
 function tileOf(world: World, entityId: EntityId): TileCoord | undefined {
   const position = world.getComponent(entityId, "position");
   return position
-    ? { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] }
+    ? { x: position.x, y: position.y, plane: position.plane }
     : undefined;
 }
 
@@ -107,10 +112,11 @@ export function validateActivityLocation(
   }
   const location = activityDef.location;
   if (location.x !== undefined && location.y !== undefined) {
+    const planeRaw = location.plane ?? 0;
     const distance = chebyshev(actorTile, {
       x: location.x,
       y: location.y,
-      plane: (location.plane ?? 0) as TileCoord["plane"],
+      plane: isPlane(planeRaw) ? planeRaw : 0,
     });
     if (distance > 5) {
       return { ok: false };
@@ -209,11 +215,7 @@ function grantOutputs(
   return results;
 }
 
-function grantXpRewards(
-  ctx: ActivityContext,
-  owner: EntityId,
-  activityDef: ActivityDef,
-): void {
+function grantXpRewards(ctx: ActivityContext, owner: EntityId, activityDef: ActivityDef): void {
   for (const xp of totalXpRewards(activityDef)) {
     addXp({ world: ctx.world, deltas: ctx.deltas }, owner, xp.skillId, xp.amount);
   }
@@ -282,7 +284,7 @@ function enqueueActivity(
   });
 }
 
-function enqueueBeginActivity(
+function _enqueueBeginActivity(
   ctx: ActivityContext,
   owner: EntityId,
   activityDef: ActivityDef,
@@ -337,11 +339,9 @@ export function handleActivityIntent(
   }
 
   if (chebyshev(actorTile, objectTile) > 1) {
-    handleMoveIntent(
-      { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
-      owner,
-      { dest: objectTile },
-    );
+    handleMoveIntent({ world: ctx.world, collision: ctx.collision, deltas: ctx.deltas }, owner, {
+      dest: objectTile,
+    });
     return true;
   }
 
@@ -375,7 +375,7 @@ export function handleBeginActivity(
   ctx: ActivityContext,
   action: ActionExecution,
   payload: BeginActivityPayload,
-  serverTime: number,
+  _serverTime: number,
 ): void {
   const object = ctx.world.getComponent(payload.objectEntityId, "object");
   if (!object) {

@@ -55,6 +55,7 @@ export function snapshotCharacter(
       health: Math.max(0, combatant?.health ?? 1),
       maxHealth: Math.max(1, combatant?.maxHealth ?? 1),
     },
+    ...(combatant?.combatStyle ? { combatStyle: combatant.combatStyle } : {}),
     skills: cloneSkills(skills),
     inventory: snapshotInventory(inventory, entityId),
     equipment: snapshotEquipment(equipment),
@@ -94,6 +95,7 @@ export function applyCharacterSnapshot(
       health: snapshot.hitpoints.health,
       maxHealth: snapshot.hitpoints.maxHealth,
       dead: snapshot.hitpoints.health <= 0,
+      ...(snapshot.combatStyle ? { combatStyle: snapshot.combatStyle } : {}),
     });
   }
 }
@@ -119,13 +121,15 @@ function snapshotInventory(
       slots: [],
     };
   }
+  const slots = inventory.slots.flatMap((item, slot) =>
+    item ? [{ slot, itemId: item.itemId, quantity: item.quantity, uid: item.uid }] : [],
+  );
+  const highestUid = slots.reduce((max, item) => Math.max(max, item.uid), 0);
   return {
     containerId: inventory.containerId,
     capacity: inventory.capacity,
-    nextUid: inventory.nextUid,
-    slots: inventory.slots.flatMap((item, slot) =>
-      item ? [{ slot, itemId: item.itemId, quantity: item.quantity, uid: item.uid }] : [],
-    ),
+    nextUid: Math.max(inventory.nextUid, highestUid + 1),
+    slots,
   };
 }
 

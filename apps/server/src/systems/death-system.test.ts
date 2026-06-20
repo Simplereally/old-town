@@ -63,9 +63,14 @@ function setup() {
   const world = createWorld();
   const map = createRuntimeMap();
   addOpenTiles(map);
+  map.deathRespawnPoints.push({
+    tile: { x: 30, y: 32, plane: 0 },
+    respawnType: "nearest",
+    priority: 0,
+  });
   const collision = new CollisionMap(map);
   const deltas = new DeltaAccumulator();
-  const ctx = { world, collision, deltas };
+  const ctx = { world, collision, deltas, map };
   return { ctx, world, deltas };
 }
 
@@ -141,7 +146,12 @@ describe("death system", () => {
   });
 
   it("respawns at a custom spawn tile", () => {
-    const { ctx, world } = setup();
+    const world = createWorld();
+    const map = createRuntimeMap();
+    addOpenTiles(map);
+    const collision = new CollisionMap(map);
+    const deltas = new DeltaAccumulator();
+    const ctx = { world, collision, deltas, map };
     const player = addPlayer(world, 10, 10);
     world.setComponent(player, "combatant", {
       ...getCombatant(world, player),

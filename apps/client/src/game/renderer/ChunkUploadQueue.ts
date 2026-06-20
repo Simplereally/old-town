@@ -11,6 +11,7 @@ import {
 import type { ChunkBakeQueue } from "./ChunkBakeQueue";
 import type { BakedChunkPayload, MaterialGroup } from "./ChunkBakeWorkerClient";
 import type { RenderResourceKey, RenderResourceRegistry } from "./RenderResourceRegistry";
+import { MaterialColorResolver } from "./MaterialColorResolver";
 
 /** Per-frame budget for GPU upload work. */
 export interface ChunkUploadBudget {
@@ -65,6 +66,8 @@ export interface ChunkUploadQueueOptions {
   readonly budget?: ChunkUploadBudget;
   /** External predicate that returns false during combat-active frames. */
   canUploadHeavyResources?: () => boolean;
+  /** Material color resolver for terrain material creation. */
+  colorResolver?: MaterialColorResolver;
 }
 
 /**
@@ -82,6 +85,7 @@ export class ChunkUploadQueue {
   private readonly _chunkBakeQueue: ChunkBakeQueue;
   private readonly _budget: ChunkUploadBudget;
   private readonly _canUploadHeavyResources: () => boolean;
+  private _colorResolver: MaterialColorResolver;
   private readonly _queue: QueuedChunkUpload[] = [];
   private readonly _uploadedGroups = new Map<ChunkId, Group>();
   private readonly _uploadedMaterialKeys = new Map<ChunkId, RenderResourceKey[]>();
@@ -96,6 +100,17 @@ export class ChunkUploadQueue {
     this._chunkBakeQueue = options.chunkBakeQueue;
     this._budget = options.budget ?? DEFAULT_UPLOAD_BUDGET;
     this._canUploadHeavyResources = options.canUploadHeavyResources ?? (() => true);
+    this._colorResolver = options.colorResolver ?? new MaterialColorResolver({});
+  }
+
+  /** Update the color resolver after content registries are loaded. */
+  setColorResolver(resolver: MaterialColorResolver): void {
+    this._colorResolver = resolver;
+  }
+
+  /** Get the material color record for passing to the bake worker. */
+  get colorRecord(): Record<string, number> {
+    return this._colorResolver.toRecord();
   }
 
   /** Number of chunks currently queued for upload. */
@@ -353,26 +368,9 @@ export class ChunkUploadQueue {
 
   private _createTerrainMaterial(materialId: string): Material {
     return new MeshLambertMaterial({
-      color: materialIdToColor(materialId),
+      color: this._colorResolver.resolve(materialId),
       vertexColors: true,
       flatShading: true,
     });
   }
-}
-
-function materialIdToColor(id: string): number {
-  const palette: Record<string, number | undefined> = {
-    grass: 0x4a8c4a,
-    dirt: 0x8b7355,
-    stone: 0x7a7a7a,
-    water: 0x4a90d9,
-    floor: 0x8b6f47,
-    sand: 0xc2b280,
-    forest: 0x2d5a27,
-    mud: 0x5c4033,
-    cobble: 0x696969,
-    path: 0xa08060,
-    default: 0x4a8c4a,
-  };
-  return palette[id] ?? palette.default ?? 0x4a8c4a;
 }

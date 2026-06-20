@@ -31,6 +31,7 @@ const region: RegionMapDef = {
   resourceNodeSpawns: [],
   playerSpawnPoints: [],
   deathRespawnPoints: [],
+  contractSpawns: [],
 };
 
 describe("world editor model helpers", () => {
@@ -66,7 +67,17 @@ describe("world editor model helpers", () => {
   });
 
   it("normalizes material colors and region bounds", () => {
-    expect(materialHex({ id: "grass", name: "Grass", color: 0x4f8f3a })).toBe("#4f8f3a");
+    expect(
+      materialHex({
+        id: "grass",
+        name: "Grass",
+        color: 0x4f8f3a,
+        isWater: false,
+        isBridge: false,
+        roughness: 0.8,
+        category: "grass",
+      }),
+    ).toBe("#4f8f3a");
     expect(materialHex(undefined)).toBe("#1d2b20");
     expect(assertRegionBounds(0, 63)).toBe(true);
     expect(assertRegionBounds(64, 0)).toBe(false);

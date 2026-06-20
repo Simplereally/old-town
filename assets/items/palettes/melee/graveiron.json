@@ -1,0 +1,14 @@
+{
+  "ladder": "melee",
+  "tier": "graveiron",
+  "tierOrder": 7,
+  "regions": {
+    "blade": "#3a3a3a",
+    "head": "#3a3a3a",
+    "grip": "#2e2a28",
+    "accent": "#cfc6ad",
+    "trim": "#6a6d6f",
+    "metal": "#3a3a3a",
+    "straps": "#2e2a28"
+  }
+}

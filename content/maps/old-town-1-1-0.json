@@ -60,6 +60,12 @@
         "collision": 0
       },
       {
+        "x": 0,
+        "y": 7,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
         "x": 1,
         "y": 0,
         "underlayId": "packed_road",
@@ -108,6 +114,12 @@
         "collision": 0
       },
       {
+        "x": 1,
+        "y": 7,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
         "x": 2,
         "y": 0,
         "underlayId": "packed_road",
@@ -156,6 +168,12 @@
         "collision": 0
       },
       {
+        "x": 2,
+        "y": 7,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
         "x": 3,
         "y": 0,
         "underlayId": "packed_road",
@@ -204,6 +222,12 @@
         "collision": 0
       },
       {
+        "x": 3,
+        "y": 7,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
         "x": 4,
         "y": 0,
         "underlayId": "packed_road",
@@ -252,6 +276,12 @@
         "collision": 0
       },
       {
+        "x": 4,
+        "y": 7,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
         "x": 5,
         "y": 0,
         "underlayId": "packed_road",
@@ -300,6 +330,12 @@
         "collision": 0
       },
       {
+        "x": 5,
+        "y": 7,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
         "x": 6,
         "y": 0,
         "underlayId": "packed_road",
@@ -348,9 +384,21 @@
         "collision": 0
       },
       {
+        "x": 6,
+        "y": 7,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
         "x": 7,
         "y": 0,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 0,
+        "underlayId": "grass_to_packed_road",
         "collision": 0
       },
       {
@@ -361,8 +409,20 @@
       },
       {
         "x": 7,
+        "y": 1,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
         "y": 2,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 2,
+        "underlayId": "grass_to_packed_road",
         "collision": 0
       },
       {
@@ -373,8 +433,20 @@
       },
       {
         "x": 7,
+        "y": 3,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
         "y": 4,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 4,
+        "underlayId": "grass_to_packed_road",
         "collision": 0
       },
       {
@@ -385,14 +457,32 @@
       },
       {
         "x": 7,
+        "y": 5,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
         "y": 6,
         "underlayId": "packed_road",
         "collision": 0
       },
       {
         "x": 7,
+        "y": 6,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
         "y": 7,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 7,
+        "underlayId": "grass_to_packed_road",
         "collision": 0
       }
     ]
@@ -432,6 +522,6 @@
       "initialDepletion": false
     }
   ],
-  "playerSpawnPoints": [{ "x": 32, "y": 32, "plane": 0, "spawnType": "default" }],
-  "deathRespawnPoints": [{ "x": 32, "y": 32, "plane": 0, "respawnType": "nearest" }]
+  "playerSpawnPoints": [],
+  "deathRespawnPoints": []
 }

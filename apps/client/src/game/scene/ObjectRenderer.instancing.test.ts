@@ -44,7 +44,10 @@ describe("ObjectRenderer instancing", () => {
     expect(targets.length).toBe(1);
     const mesh = targets[0];
     expect(mesh).toBeDefined();
-    const instanceMap = (mesh as import("three").InstancedMesh).userData.instanceMap as { entityId: number; defId: string }[];
+    const instanceMap = (mesh as import("three").InstancedMesh).userData.instanceMap as {
+      entityId: number;
+      defId: string;
+    }[];
     expect(instanceMap).toBeDefined();
 
     // ID1 should be gone from instanceMap
@@ -101,7 +104,10 @@ describe("ObjectRenderer instancing", () => {
     expect(targets.length).toBe(1);
     const mesh = targets[0];
     expect(mesh).toBeDefined();
-    const instanceMap = (mesh as import("three").InstancedMesh).userData.instanceMap as { entityId: number; defId: string }[];
+    const instanceMap = (mesh as import("three").InstancedMesh).userData.instanceMap as {
+      entityId: number;
+      defId: string;
+    }[];
     expect(instanceMap).toBeDefined();
 
     const meta1 = instanceMap.find((m) => m && m.entityId === ID1);

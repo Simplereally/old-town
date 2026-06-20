@@ -114,7 +114,7 @@ describe("applyStatusEffect", () => {
 
     applyStatusEffect(ctx, entity, "poison");
     const statusEffects = world.getComponent(entity, "statusEffects");
-    if (statusEffects && statusEffects.effects[0]) {
+    if (statusEffects?.effects[0]) {
       statusEffects.effects[0].remainingTicks = 1;
       world.setComponent(entity, "statusEffects", statusEffects);
     }
@@ -290,7 +290,7 @@ describe("processStatusEffects", () => {
   });
 
   it("does not kill combatant with dot", () => {
-    const { ctx, world, deltas } = setup();
+    const { ctx, world } = setup();
     const entity = addCombatant(world, 1);
     applyStatusEffect(ctx, entity, "poison");
 

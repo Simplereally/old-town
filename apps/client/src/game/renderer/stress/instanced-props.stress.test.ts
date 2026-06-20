@@ -204,7 +204,8 @@ describe("InstancedPropHarness stress", () => {
     const bucketsArray = Array.from(harness.buckets.values());
     const subset = bucketsArray.slice(0, Math.min(3, bucketsArray.length));
     for (const bucket of subset) {
-      for (const [, entityId] of (bucket as unknown as { slotToEntityId: Map<number, number> }).slotToEntityId) {
+      for (const [, entityId] of (bucket as unknown as { slotToEntityId: Map<number, number> })
+        .slotToEntityId) {
         harness.updateTransform(entityId);
         break; // dirty just one entity per bucket
       }
@@ -233,8 +234,8 @@ describe("InstancedPropHarness stress", () => {
 
     expect(propsA.length).toBe(propsB.length);
     for (let i = 0; i < propsA.length; i++) {
-      const a = propsA[i] as typeof propsA[number];
-      const b = propsB[i] as typeof propsB[number];
+      const a = propsA[i] as (typeof propsA)[number];
+      const b = propsB[i] as (typeof propsB)[number];
       expect(a).toBeDefined();
       expect(b).toBeDefined();
       expect(a.bucketKey).toEqual(b.bucketKey);

@@ -1,0 +1,17 @@
+{
+  "ladder": "ranged",
+  "tier": "gravebent",
+  "tierOrder": 7,
+  "regions": {
+    "limb": "#3a3632",
+    "string": "#cfc6ad",
+    "grip": "#2e2a28",
+    "accent": "#cfc6ad",
+    "prod": "#3a3632",
+    "stock": "#2e2a28",
+    "mechanism": "#cfc6ad",
+    "shaft": "#3a3632",
+    "fletch": "#cfc6ad",
+    "head": "#cfc6ad"
+  }
+}

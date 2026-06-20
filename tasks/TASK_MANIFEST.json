@@ -1166,6 +1166,297 @@
           "file": "completed/stories/E40/E40-S02_charter-and-permit-system.md"
         }
       ]
+    },
+    {
+      "id": "E41",
+      "title": "Item Asset Pipeline and Equipment Visuals",
+      "file": "completed/epics/E41_item-asset-pipeline-and-equipment-visuals.md",
+      "stories": [
+        {
+          "id": "E41-S01",
+          "title": "Asset directory, manifest schema, and build pipeline",
+          "file": "completed/stories/E41/E41-S01_asset-directory-manifest-and-build-pipeline.md"
+        },
+        {
+          "id": "E41-S02",
+          "title": "Flat icon rendering in inventory, bank, and equipment UI",
+          "file": "completed/stories/E41/E41-S02_flat-icon-rendering-inventory-bank-equipment-ui.md"
+        },
+        {
+          "id": "E41-S03",
+          "title": "Melee weapon icons and wielded models",
+          "file": "completed/stories/E41/E41-S03_melee-weapon-icons-and-wielded-models.md"
+        },
+        {
+          "id": "E41-S04",
+          "title": "Ranged and thrown weapon icons and models",
+          "file": "completed/stories/E41/E41-S04_ranged-and-thrown-weapon-icons-and-models.md"
+        },
+        {
+          "id": "E41-S05",
+          "title": "Magic weapon icons and models",
+          "file": "completed/stories/E41/E41-S05_magic-weapon-icons-and-models.md"
+        },
+        {
+          "id": "E41-S06",
+          "title": "Melee armour icons and worn models",
+          "file": "completed/stories/E41/E41-S06_melee-armour-icons-and-worn-models.md"
+        },
+        {
+          "id": "E41-S07",
+          "title": "Ranged and magic armour icons and worn models",
+          "file": "completed/stories/E41/E41-S07_ranged-and-magic-armour-icons-and-worn-models.md"
+        },
+        {
+          "id": "E41-S08",
+          "title": "Accessory and ammunition icons and models",
+          "file": "completed/stories/E41/E41-S08_accessory-and-ammunition-icons-and-models.md"
+        },
+        {
+          "id": "E41-S09",
+          "title": "Equipment appearance wiring, ground item billboards, and final validation",
+          "file": "completed/stories/E41/E41-S09_equipment-appearance-wiring-ground-item-billboards-final-validation.md"
+        }
+      ]
+    },
+    {
+      "id": "E42",
+      "title": "Old Town Terrain and District Identity",
+      "file": "completed/epics/E42_old-town-terrain-and-district-identity.md",
+      "stories": [
+        {
+          "id": "E42-S01",
+          "title": "Ground material registry and tile material mapping",
+          "file": "completed/stories/E42/E42-S01_ground-material-registry-and-tile-material-mapping.md"
+        },
+        {
+          "id": "E42-S02",
+          "title": "Render terrain chunks from region underlay and overlay data",
+          "file": "completed/stories/E42/E42-S02_render-terrain-chunks-from-region-underlay-and-overlay-data.md"
+        },
+        {
+          "id": "E42-S03",
+          "title": "District material painting and transitions",
+          "file": "completed/stories/E42/E42-S03_district-material-painting-and-transitions.md"
+        },
+        {
+          "id": "E42-S04",
+          "title": "Water, bridges, and elevation rendering",
+          "file": "completed/stories/E42/E42-S04_water-bridges-and-elevation-rendering.md"
+        },
+        {
+          "id": "E42-S05",
+          "title": "Terrain validation and starter-region visual pass",
+          "file": "completed/stories/E42/E42-S05_terrain-validation-and-starter-region-visual-pass.md"
+        }
+      ]
+    },
+    {
+      "id": "E43",
+      "title": "Old Town Buildings, Collision, and World Topology",
+      "file": "completed/epics/E43_old-town-buildings-collision-and-world-topology.md",
+      "stories": [
+        {
+          "id": "E43-S01",
+          "title": "Building object definitions and wall/door assets",
+          "file": "completed/stories/E43/E43-S01_building-object-definitions-and-wall-door-assets.md"
+        },
+        {
+          "id": "E43-S02",
+          "title": "Collision mask generation from objects and buildings",
+          "file": "completed/stories/E43/E43-S02_collision-mask-generation-from-objects-and-buildings.md"
+        },
+        {
+          "id": "E43-S03",
+          "title": "Door and gate interaction with dynamic collision",
+          "file": "completed/stories/E43/E43-S03_door-and-gate-interaction-with-dynamic-collision.md"
+        },
+        {
+          "id": "E43-S04",
+          "title": "Pathfinding through interactable doors",
+          "file": "completed/stories/E43/E43-S04_pathfinding-through-interactable-doors.md"
+        },
+        {
+          "id": "E43-S05",
+          "title": "Roof and interior rendering",
+          "file": "completed/stories/E43/E43-S05_roof-and-interior-rendering.md"
+        },
+        {
+          "id": "E43-S06",
+          "title": "Starter-region topology pass and collision validation",
+          "file": "completed/stories/E43/E43-S06_starter-region-topology-pass-and-collision-validation.md"
+        }
+      ]
+    },
+    {
+      "id": "E44",
+      "title": "Old Town Service NPCs and Economy Wiring",
+      "file": "completed/epics/E44_old-town-service-npcs-and-economy-wiring.md",
+      "stories": [
+        {
+          "id": "E44-S01",
+          "title": "Service NPC dialogue and option content pack",
+          "file": "completed/stories/E44/E44-S01_service-npc-dialogue-and-option-content-pack.md"
+        },
+        {
+          "id": "E44-S02",
+          "title": "Bank NPC and bank panel wiring",
+          "file": "completed/stories/E44/E44-S02_bank-npc-and-bank-panel-wiring.md"
+        },
+        {
+          "id": "E44-S03",
+          "title": "Shop NPCs and shop transaction UI",
+          "file": "completed/stories/E44/E44-S03_shop-npcs-and-shop-transaction-ui.md"
+        },
+        {
+          "id": "E44-S04",
+          "title": "Skill station objects and recipe routing",
+          "file": "completed/stories/E44/E44-S04_skill-station-objects-and-recipe-routing.md"
+        },
+        {
+          "id": "E44-S05",
+          "title": "Warden board and shrine starter activities",
+          "file": "completed/stories/E44/E44-S05_warden-board-and-shrine-starter-activities.md"
+        }
+      ]
+    },
+    {
+      "id": "E45",
+      "title": "Old Town Core Gameplay Loop",
+      "file": "epics/E45_old-town-core-gameplay-loop.md",
+      "stories": [
+        {
+          "id": "E45-S01",
+          "title": "Starter spawn point and first-load bootstrap",
+          "file": "stories/E45/E45-S01_starter-spawn-point-and-first-load-bootstrap.md"
+        },
+        {
+          "id": "E45-S02",
+          "title": "Woodcutting and mining loops in the starter region",
+          "file": "stories/E45/E45-S02_woodcutting-and-mining-loops-in-the-starter-region.md"
+        },
+        {
+          "id": "E45-S03",
+          "title": "Smithing, cooking, and crafting processing loops",
+          "file": "stories/E45/E45-S03_smithing-cooking-and-crafting-processing-loops.md"
+        },
+        {
+          "id": "E45-S04",
+          "title": "Combat loop against cellar rats and mud goblins",
+          "file": "stories/E45/E45-S04_combat-loop-against-cellar-rats-and-mud-goblins.md"
+        },
+        {
+          "id": "E45-S05",
+          "title": "XP drops, level-ups, and skill panel wiring",
+          "file": "stories/E45/E45-S05_xp-drops-level-ups-and-skill-panel-wiring.md"
+        }
+      ]
+    },
+    {
+      "id": "E46",
+      "title": "Smoke Over Old Town Quest End-to-End",
+      "file": "epics/E46_smoke-over-old-town-quest-end-to-end.md",
+      "stories": [
+        {
+          "id": "E46-S01",
+          "title": "Quest content and variable schema",
+          "file": "stories/E46/E46-S01_quest-content-and-variable-schema.md"
+        },
+        {
+          "id": "E46-S02",
+          "title": "Baker dialogue and quest start hook",
+          "file": "stories/E46/E46-S02_baker-dialogue-and-quest-start-hook.md"
+        },
+        {
+          "id": "E46-S03",
+          "title": "Gather, kill, and light objectives",
+          "file": "stories/E46/E46-S03_gather-kill-and-light-objectives.md"
+        },
+        {
+          "id": "E46-S04",
+          "title": "Quest rewards and completion",
+          "file": "stories/E46/E46-S04_quest-rewards-and-completion.md"
+        },
+        {
+          "id": "E46-S05",
+          "title": "Quest journal UI and end-to-end test",
+          "file": "stories/E46/E46-S05_quest-journal-ui-and-end-to-end-test.md"
+        }
+      ]
+    },
+    {
+      "id": "E47",
+      "title": "Old Town Audio, Atmosphere, and UI Juice",
+      "file": "epics/E47_old-town-audio-atmosphere-and-ui-juice.md",
+      "stories": [
+        {
+          "id": "E47-S01",
+          "title": "Ambient sound and district audio manager",
+          "file": "stories/E47/E47-S01_ambient-sound-and-district-audio-manager.md"
+        },
+        {
+          "id": "E47-S02",
+          "title": "UI and action sound effects",
+          "file": "stories/E47/E47-S02_ui-and-action-sound-effects.md"
+        },
+        {
+          "id": "E47-S03",
+          "title": "Lighting, shadows, and day/night foundation",
+          "file": "stories/E47/E47-S03_lighting-shadows-and-day-night-foundation.md"
+        },
+        {
+          "id": "E47-S04",
+          "title": "Hitsplats, XP drops, and selection rings",
+          "file": "stories/E47/E47-S04_hitsplats-xp-drops-and-selection-rings.md"
+        },
+        {
+          "id": "E47-S05",
+          "title": "Atmosphere validation and performance pass",
+          "file": "stories/E47/E47-S05_atmosphere-validation-and-performance-pass.md"
+        }
+      ]
+    },
+    {
+      "id": "E48",
+      "title": "Wire Validation for Server-to-Client Protocol",
+      "file": "epics/E48_wire-validation-for-s2c-protocol.md",
+      "stories": [
+        {
+          "id": "E48-S01",
+          "title": "S2C packet Zod schemas",
+          "file": "stories/E48/E48-S01_s2c-packet-zod-schemas.md"
+        },
+        {
+          "id": "E48-S02",
+          "title": "Validated server packet decoder",
+          "file": "stories/E48/E48-S02_validated-server-packet-decoder.md"
+        },
+        {
+          "id": "E48-S03",
+          "title": "DevAuth and transport message Zod validation",
+          "file": "stories/E48/E48-S03_devauth-and-transport-message-zod-validation.md"
+        },
+        {
+          "id": "E48-S04",
+          "title": "Client GameSocket validated decoder integration",
+          "file": "stories/E48/E48-S04_client-gamesocket-validated-decoder-integration.md"
+        },
+        {
+          "id": "E48-S05",
+          "title": "Content registry HTTP response validation",
+          "file": "stories/E48/E48-S05_content-registry-http-response-validation.md"
+        },
+        {
+          "id": "E48-S06",
+          "title": "HTTP URL decoupling from WebSocket URL",
+          "file": "stories/E48/E48-S06_http-url-decoupling-from-websocket-url.md"
+        },
+        {
+          "id": "E48-S07",
+          "title": "Wire validation policy ADR and final validation pass",
+          "file": "stories/E48/E48-S07_wire-validation-policy-adr-and-final-validation-pass.md"
+        }
+      ]
     }
   ]
 }

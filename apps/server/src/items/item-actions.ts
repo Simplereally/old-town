@@ -13,7 +13,14 @@
  *   - S03 layers combat-bonus/appearance derivation onto equip changes.
  *   - S04 layers HP healing + eat-delay/tick-phase priority onto the eat script.
  */
-import { type EntityId, EQUIPMENT_SLOTS, type ItemDef, type ItemIntent } from "@old-town/shared";
+import {
+  type EntityId,
+  EQUIPMENT_SLOTS,
+  type ItemDef,
+  type ItemIntent,
+  type SpellTarget,
+  type UseItemOnIntent,
+} from "@old-town/shared";
 import type { World } from "../ecs/world";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import type { ConsumableSystem } from "../systems/consumable-system";
@@ -255,6 +262,70 @@ export function handleItemIntent(
   }
 
   return invalid(GENERIC_NOTHING);
+}
+
+/**
+ * Resolve a "use item on target" intent. Validates that the item exists in the player's
+ * inventory and that the target entity is valid. For now, this is a stub that acknowledges
+ * the intent — concrete item-on-target combinations (e.g. key on door, knife on log) will
+ * be content-driven in future epics.
+ */
+export function handleUseItemOnIntent(
+  ctx: ItemActionContext,
+  owner: EntityId,
+  intent: UseItemOnIntent,
+  _tick: number,
+  serverTime: number,
+): ItemActionResult {
+  const invalid = (message: string): ItemActionResult => {
+    emitMessage(ctx, owner, message, serverTime);
+    return { outcome: "invalid", message };
+  };
+
+  const inventory = ctx.world.getComponent(owner, "inventory");
+  if (!inventory) {
+    return { outcome: "invalid", message: "" };
+  }
+
+  const slot = findSlotByUid(inventory, intent.itemUid);
+  if (slot === undefined) {
+    return invalid(GENERIC_NOTHING);
+  }
+  const occupant = inventory.slots[slot];
+  const def = occupant ? ctx.items.get(occupant.itemId) : undefined;
+  if (!occupant || !def) {
+    return invalid(GENERIC_NOTHING);
+  }
+
+  const targetDescription = describeTarget(ctx, intent.target);
+  if (!targetDescription) {
+    return invalid(GENERIC_NOTHING);
+  }
+
+  const message = `You use the ${def.name} on ${targetDescription}.`;
+  emitMessage(ctx, owner, message, serverTime);
+  return { outcome: "used", message };
+}
+
+function describeTarget(ctx: ItemActionContext, target: SpellTarget): string | null {
+  if (target.kind === "tile") {
+    return `the ground`;
+  }
+  if (target.kind === "none") {
+    return null;
+  }
+  // Entity target: look up what kind of entity it is for a description.
+  const targetId = target.entityId;
+  if (ctx.world.hasComponent(targetId, "npc")) {
+    return `the NPC`;
+  }
+  if (ctx.world.hasComponent(targetId, "object")) {
+    return `the object`;
+  }
+  if (ctx.world.hasComponent(targetId, "groundItem")) {
+    return `the item`;
+  }
+  return `the target`;
 }
 
 /**

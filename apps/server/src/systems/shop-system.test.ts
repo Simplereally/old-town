@@ -36,6 +36,7 @@ const BLADE: ItemDef = {
 const SHOP_DEF: ShopDef = {
   id: "test_merchant",
   name: "Test Shop",
+  npcId: "test_merchant",
   stock: [
     { itemId: "test_blade", quantity: 5, maxQuantity: 10, price: 20, restockRate: 1 },
     { itemId: "coin", quantity: 100, maxQuantity: 1000, price: 1, restockRate: 10 },

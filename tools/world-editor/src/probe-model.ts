@@ -161,6 +161,7 @@ export function runInteractionProbe(
         reached: false,
         destination: actorTile,
         explored: 0,
+        doorTiles: [],
       };
   return {
     inRange: isWithinInteractionRange(collision, actorTile, target, ONE_TILE),

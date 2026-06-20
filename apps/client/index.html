@@ -511,6 +511,118 @@
       font-weight: bold;
       line-height: 1;
     }
+    /* Combat tab: stat summary + attack-style selector */
+    .combat-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .combat-stat {
+      background: rgba(40, 40, 50, 0.9);
+      border: 2px solid;
+      border-color: #555 #333 #333 #555;
+      border-radius: 2px;
+      padding: 4px 2px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .combat-stat-icon {
+      font-size: 16px;
+      line-height: 1;
+    }
+    .combat-stat-level {
+      color: #ffcc00;
+      font-size: 11px;
+      font-weight: bold;
+      line-height: 1;
+    }
+    .combat-weapon {
+      text-align: center;
+      color: #e8dcc8;
+      font-weight: bold;
+      padding: 4px 0 8px;
+      border-top: 1px solid #333;
+    }
+    .combat-style-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      width: 100%;
+      margin-bottom: 4px;
+      padding: 6px 4px;
+      background: rgba(40, 40, 50, 0.9);
+      border: 2px solid;
+      border-color: #555 #333 #333 #555;
+      border-radius: 2px;
+      color: #ccc;
+      font-family: "Courier New", monospace;
+      cursor: pointer;
+      user-select: none;
+    }
+    .combat-style-btn:hover:not(:disabled) {
+      background: rgba(60, 60, 75, 0.9);
+      border-color: #666 #444 #444 #666;
+    }
+    .combat-style-btn.active {
+      background: rgba(70, 60, 35, 0.95);
+      border-color: #d4a843;
+      box-shadow: inset 0 0 6px rgba(212, 168, 67, 0.4);
+    }
+    .combat-style-btn:disabled {
+      cursor: default;
+      opacity: 0.75;
+    }
+    .combat-style-name {
+      font-size: 13px;
+      font-weight: bold;
+      color: #e8dcc8;
+    }
+    .combat-style-btn.active .combat-style-name {
+      color: #ffcc00;
+    }
+    .combat-style-skill {
+      font-size: 10px;
+      color: #9a8d78;
+    }
+    .combat-hint {
+      margin-top: 6px;
+      font-size: 10px;
+      text-align: center;
+      line-height: 1.4;
+    }
+    .settings-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .settings-label {
+      font-size: 11px;
+      color: #9a8d78;
+      font-weight: bold;
+    }
+    .settings-select {
+      background: rgba(30, 30, 40, 0.95);
+      border: 1px solid #555;
+      border-radius: 3px;
+      color: #e8dcc8;
+      font-size: 12px;
+      padding: 4px 6px;
+      cursor: pointer;
+    }
+    .settings-select:focus {
+      outline: none;
+      border-color: #d4a843;
+    }
+    .settings-hint {
+      font-size: 10px;
+      color: #6a6a6a;
+      line-height: 1.3;
+    }
     #skills-panel {
       width: 220px;
     }
@@ -665,9 +777,9 @@
     /* Context menu */
     .context-menu {
       position: absolute;
-      background: rgba(0, 0, 0, 0.85);
-      border: 1px solid #666;
-      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.9);
+      border: 1px solid #888;
+      border-radius: 6px;
       padding: 4px 0;
       z-index: 1000;
       min-width: 140px;
@@ -676,13 +788,35 @@
       color: #fff;
       user-select: none;
       cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
     }
     .context-menu-item {
       padding: 4px 12px;
       white-space: nowrap;
+      border-radius: 3px;
+      margin: 0 2px;
+      transition: background 0.08s ease;
     }
     .context-menu-item:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(120, 180, 255, 0.25);
+    }
+
+    /* Hover tooltip */
+    #hover-tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid #555;
+      border-radius: 3px;
+      padding: 2px 8px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #ddd;
+      z-index: 500;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    #hover-tooltip.hidden {
+      display: none;
     }
 
     /* Debug log */
@@ -755,6 +889,27 @@
       pointer-events: none;
     }
     #spell-target-overlay.visible {
+      display: block;
+    }
+
+    /* Item target overlay */
+    #item-target-overlay {
+      display: none;
+      position: absolute;
+      bottom: 220px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 60, 80, 0.85);
+      border: 1px solid #44aaff;
+      color: #44aaff;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      z-index: 30;
+      pointer-events: none;
+    }
+    #item-target-overlay.visible {
       display: block;
     }
 
@@ -1205,6 +1360,10 @@
         <div class="ui-panel-header">Equipment</div>
         <div class="ui-panel-body" id="equipment-body"></div>
       </div>
+      <div id="combat-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Combat</div>
+        <div class="ui-panel-body" id="combat-body"></div>
+      </div>
       <div id="bank-panel" class="ui-panel hidden">
         <div class="ui-panel-header">Bank</div>
         <div class="ui-panel-body" id="bank-body"></div>
@@ -1264,6 +1423,10 @@
           <div class="text-dim">No active activity.</div>
         </div>
       </div>
+      <div id="settings-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Settings</div>
+        <div class="ui-panel-body" id="settings-body"></div>
+      </div>
     </div>
     <div id="ui-bottom">
       <div id="chat-box" class="ui-panel hidden chat-box">
@@ -1285,6 +1448,7 @@
     <div id="ui-bar-left">
       <button type="button" class="ui-bar-btn" data-panel="inventory-panel">🎒</button>
       <button type="button" class="ui-bar-btn" data-panel="equipment-panel">🛡️</button>
+      <button type="button" class="ui-bar-btn" data-panel="combat-panel">⚔️</button>
       <button type="button" class="ui-bar-btn" data-panel="skills-panel">📊</button>
       <button type="button" class="ui-bar-btn" data-panel="spellbook-panel">✨</button>
       <button type="button" class="ui-bar-btn" data-panel="quest-panel">📜</button>
@@ -1296,10 +1460,13 @@
       <button type="button" class="ui-bar-btn" data-panel="recipe-panel">🔨</button>
       <button type="button" class="ui-bar-btn" data-panel="contract-panel">📋</button>
       <button type="button" class="ui-bar-btn" data-panel="activity-panel">⚙️</button>
+      <button type="button" class="ui-bar-btn" data-panel="settings-panel">🔧</button>
       <button type="button" class="ui-bar-btn" data-panel="chat-box">💬</button>
       <button type="button" class="ui-bar-btn" data-panel="debug-overlay">🐛</button>
     </div>
     <div id="spell-target-overlay">Select target for spell (Esc to cancel)</div>
+    <div id="item-target-overlay">Select target for item (Esc to cancel)</div>
+    <div id="hover-tooltip" class="hidden"></div>
     <div id="status-effects-panel" class="hidden"></div>
     <div id="notification-toast" class="hidden"></div>
   </div>

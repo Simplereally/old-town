@@ -443,6 +443,95 @@ describe("gameplay loop integration", () => {
     expect(inventoryCount(harness, player, drop?.itemId ?? "coin")).toBeGreaterThan(0);
   });
 
+  it("punches a Man unarmed at spawn, gains defence and hitpoints XP, then loots the coins", () => {
+    // A fresh spawn: no weapon, all combat levels at 1 — the very first Lumbridge-style kill.
+    const harness = makeHarness(fixedRng({ floats: [0], ints: [1, 0] }));
+    const player = addPlayer(harness, tile(1, 1));
+    const man = addNpc(harness, "man", tile(1, 2));
+    const manCombat = harness.world.getComponent(man, "combatant");
+    if (!manCombat) {
+      throw new Error("Expected man combatant");
+    }
+    harness.world.setComponent(man, "combatant", { ...manCombat, health: 1, maxHealth: 1 });
+
+    expect(
+      handleNpcCombatIntent(harness.ctx, player, { npcEntityId: man, actionId: "attack" }, 600, 1),
+    ).toBe(true);
+    processCombatStartEvents(harness.ctx, 1);
+    processDamageResolutionEvents(harness.ctx, 2);
+    processDeathResolution(harness.ctx, 2, 1_200);
+
+    // Unarmed melee defaults to the crush style, which trains defence (+4/dmg) and hitpoints (+1/dmg).
+    expect(harness.world.getComponent(man, "combatant")?.dead).toBe(true);
+    expect(skillXp(harness, player, "defence")).toBe(4);
+    expect(skillXp(harness, player, "hitpoints")).toBe(1);
+
+    // man_drops always yields coins, privately owned by the killer.
+    const coinDrop = harness.world
+      .entityIdsWith("groundItem")
+      .map((id) => ({ id, drop: harness.world.getComponent(id, "groundItem") }))
+      .find((g) => g.drop?.itemId === "coin");
+    if (!coinDrop) {
+      throw new Error("Expected a coin drop from the Man");
+    }
+    expect(coinDrop.drop?.ownerId).toBe(player);
+
+    const dropPosition = harness.world.getComponent(coinDrop.id, "position");
+    if (!dropPosition) {
+      throw new Error("Expected coin drop position");
+    }
+    harness.world.setComponent(player, "position", {
+      entityId: player,
+      x: dropPosition.x,
+      y: dropPosition.y,
+      plane: dropPosition.plane,
+    });
+    expect(
+      handleGroundItemIntent(
+        harness.ctx,
+        player,
+        { groundItemEntityId: coinDrop.id, actionId: "pickup" },
+        2,
+        1_200,
+      ),
+    ).toBe(true);
+    expect(inventoryCount(harness, player, "coin")).toBeGreaterThanOrEqual(3);
+  });
+
+  it("routes melee XP to the chosen combat style (default stab→attack, slash→strength)", () => {
+    const harness = makeHarness(fixedRng({ floats: [0, 0], ints: [99, 99] }));
+
+    // Default style: a shortblade's first allowed style is stab, which trains attack.
+    const stabber = addPlayer(harness, tile(1, 1), {
+      strengthLevel: 10,
+      weaponId: "pennywrought_shortblade",
+    });
+    const man1 = addNpc(harness, "man", tile(1, 2));
+
+    // Same weapon, but the player has chosen the Slash style → trains strength instead.
+    const slasher = addPlayer(harness, tile(5, 1), {
+      strengthLevel: 10,
+      weaponId: "pennywrought_shortblade",
+    });
+    const slasherCombat = harness.world.getComponent(slasher, "combatant");
+    if (!slasherCombat) {
+      throw new Error("Expected slasher combatant");
+    }
+    harness.world.setComponent(slasher, "combatant", { ...slasherCombat, combatStyle: "slash" });
+    const man2 = addNpc(harness, "man", tile(5, 2));
+
+    handleNpcCombatIntent(harness.ctx, stabber, { npcEntityId: man1, actionId: "attack" }, 600, 1);
+    handleNpcCombatIntent(harness.ctx, slasher, { npcEntityId: man2, actionId: "attack" }, 600, 1);
+    processCombatStartEvents(harness.ctx, 1);
+    processDamageResolutionEvents(harness.ctx, 2);
+
+    expect(skillXp(harness, stabber, "attack")).toBeGreaterThan(0);
+    expect(skillXp(harness, stabber, "strength")).toBe(0);
+
+    expect(skillXp(harness, slasher, "strength")).toBeGreaterThan(0);
+    expect(skillXp(harness, slasher, "attack")).toBe(0);
+  });
+
   it("casts a spell with bead costs, projectile travel, and delayed damage", () => {
     const harness = makeHarness(fixedRng({ floats: [0], ints: [2] }));
     const player = addPlayer(harness, tile(1, 1), {
@@ -495,7 +584,7 @@ describe("gameplay loop integration", () => {
       kernel.routeCommand(firstSession, {
         type: ClientCommandType.MoveClick,
         commandId: 1,
-        payload: { dest: tile(31, 32) },
+        payload: { dest: tile(44, 45) },
       }),
     ).toEqual({ ok: true });
     kernel.runOneTick();
@@ -508,6 +597,6 @@ describe("gameplay loop integration", () => {
     expect(secondState.type).toBe(ServerPacketType.FullState);
     expect(
       secondState.entities.find((entity) => entity.entityId === secondState.selfEntityId)?.tile,
-    ).toEqual(tile(31, 32));
+    ).toEqual(tile(44, 45));
   });
 });

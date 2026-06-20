@@ -4,6 +4,14 @@ import { tileCoordSchema } from "../protocol/schema-primitives";
 import { contentIdSchema, nonNegInt, positiveInt } from "./common";
 import { interactionOptionDefSchema } from "./npc";
 
+export const footprintOffsetSchema = z
+  .object({ dx: nonNegInt, dy: nonNegInt })
+  .strict();
+
+export const roofCoverageSchema = z
+  .object({ width: positiveInt, length: positiveInt })
+  .strict();
+
 export const objectDefSchema = z
   .object({
     id: contentIdSchema,
@@ -12,10 +20,20 @@ export const objectDefSchema = z
     /** Footprint width/length in tiles. */
     width: positiveInt.default(1),
     length: positiveInt.default(1),
+    /** Explicit tile offsets for non-rectangular footprints. Defaults to width×length rectangle. */
+    footprint: z.array(footprintOffsetSchema).optional(),
     /** Whether the object blocks movement on its tiles. */
     blocksMovement: z.boolean().default(true),
     /** Whether the object blocks line of sight / projectiles. */
     blocksLineOfSight: z.boolean().default(false),
+    /** Explicit collision bitmask override. If absent, derived from blocksMovement/blocksLineOfSight. */
+    defaultCollision: nonNegInt.optional(),
+    /** Marks this object as a door for the door interaction system. */
+    isDoor: z.boolean().optional(),
+    /** Marks this object as a gate (multi-tile door) for the door interaction system. */
+    isGate: z.boolean().optional(),
+    /** Roof coverage area for roof objects. Defines the interior footprint that hides the roof. */
+    roofCoverage: roofCoverageSchema.optional(),
     /** Resource node id, when this object is a gatherable (tree/rock). */
     resourceNodeId: contentIdSchema.optional(),
     /** Dialogue graph opened by interaction, if any. */

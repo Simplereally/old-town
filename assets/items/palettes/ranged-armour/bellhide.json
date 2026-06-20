@@ -1,0 +1,11 @@
+{
+  "ladder": "ranged-armour",
+  "tier": "bellhide",
+  "tierOrder": 3,
+  "regions": {
+    "hide": "#a07a3a",
+    "stitch": "#7a5a3a",
+    "buckle": "#c9a23c",
+    "accent": "#e0c060"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "ladder": "melee",
+  "tier": "argent",
+  "tierOrder": 10,
+  "regions": {
+    "blade": "#c2c6cc",
+    "head": "#c2c6cc",
+    "grip": "#7a5a3a",
+    "accent": "#e8e8e8",
+    "trim": "#9aa0a6",
+    "metal": "#c2c6cc",
+    "straps": "#7a5a3a"
+  }
+}

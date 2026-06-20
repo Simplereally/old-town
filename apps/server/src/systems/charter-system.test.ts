@@ -4,12 +4,7 @@ import { createInventory } from "../items/inventory";
 import { ItemAuditLog } from "../items/item-audit";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { makeRegistries } from "../test-support/registries";
-import {
-  hasPermit,
-  issueCharter,
-  processCharterExpiry,
-  validateCharter,
-} from "./charter-system";
+import { hasPermit, issueCharter, processCharterExpiry, validateCharter } from "./charter-system";
 
 const COIN_DEF = {
   id: "coin",
@@ -42,7 +37,12 @@ const CHARTER_WITH_COST: import("@old-town/shared").CharterDef = {
   cost: { itemId: "coin", quantity: 5 },
 };
 
-function addPlayer(world: World, x: number, y: number, standing = 0): import("@old-town/shared").EntityId {
+function addPlayer(
+  world: World,
+  x: number,
+  y: number,
+  standing = 0,
+): import("@old-town/shared").EntityId {
   const entityId = world.createEntity();
   world.setComponent(entityId, "position", { entityId, x, y, plane: 0 });
   world.setComponent(entityId, "player", {
@@ -59,7 +59,11 @@ function addPlayer(world: World, x: number, y: number, standing = 0): import("@o
   return entityId;
 }
 
-function addCoins(world: World, entityId: import("@old-town/shared").EntityId, quantity: number): void {
+function addCoins(
+  world: World,
+  entityId: import("@old-town/shared").EntityId,
+  quantity: number,
+): void {
   const inventory = world.getComponent(entityId, "inventory");
   expect(inventory).toBeDefined();
   if (!inventory) return;

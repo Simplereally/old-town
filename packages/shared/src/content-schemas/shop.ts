@@ -20,6 +20,7 @@ export const shopDefSchema = z
   .object({
     id: contentIdSchema,
     name: z.string().min(1),
+    npcId: contentIdSchema.optional(),
     stock: z.array(shopStockSchema).default([]),
     currency: contentIdSchema.default("coin"),
     sellMultiplier: z.number().min(0).default(0.6),

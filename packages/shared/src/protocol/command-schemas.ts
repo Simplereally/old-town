@@ -5,6 +5,7 @@
  * and the discriminated union rejects unknown command types.
  */
 import { z } from "zod";
+import { combatStyleSchema } from "../content-schemas/common";
 import { actionIdSchema } from "../content/action-id";
 import { type ClientCommand, ClientCommandType } from "./commands";
 import type { ParseResult } from "./parse-result";
@@ -50,6 +51,11 @@ const npcOptionCommandSchema = command(
 const itemOptionCommandSchema = command(
   ClientCommandType.ItemOption,
   z.object({ itemUid: z.number().int().nonnegative(), actionId: actionIdSchema }).strict(),
+);
+
+const useItemOnCommandSchema = command(
+  ClientCommandType.UseItemOn,
+  z.object({ itemUid: z.number().int().nonnegative(), target: spellTargetSchema }).strict(),
 );
 
 const groundItemOptionCommandSchema = command(
@@ -110,6 +116,11 @@ const recipeSelectCommandSchema = command(
     .strict(),
 );
 
+const setCombatStyleCommandSchema = command(
+  ClientCommandType.SetCombatStyle,
+  z.object({ style: combatStyleSchema }).strict(),
+);
+
 const pingCommandSchema = command(
   ClientCommandType.Ping,
   z.object({ clientTimeMs: z.number().int().nonnegative() }).strict(),
@@ -121,6 +132,7 @@ export const clientCommandSchema = z.discriminatedUnion("type", [
   objectOptionCommandSchema,
   npcOptionCommandSchema,
   itemOptionCommandSchema,
+  useItemOnCommandSchema,
   groundItemOptionCommandSchema,
   castSpellCommandSchema,
   chatCommandSchema,
@@ -128,6 +140,7 @@ export const clientCommandSchema = z.discriminatedUnion("type", [
   bankActionCommandSchema,
   shopActionCommandSchema,
   recipeSelectCommandSchema,
+  setCombatStyleCommandSchema,
   pingCommandSchema,
 ]);
 

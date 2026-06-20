@@ -1,7 +1,7 @@
 import { type ChunkId, chunkId } from "@old-town/shared";
 import { BufferGeometry, type Material, Mesh, Scene } from "three";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ChunkBakeQueue, type ChunkBakeJob } from "./ChunkBakeQueue";
+import { type ChunkBakeJob, ChunkBakeQueue } from "./ChunkBakeQueue";
 import type { BakedChunkPayload, MaterialGroup } from "./ChunkBakeWorkerClient";
 import {
   ChunkUploadQueue,

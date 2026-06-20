@@ -9,6 +9,9 @@ build/
 out/
 *.tsbuildinfo
 
+# Generated item-asset atlases (built by items:build-assets)
+assets/items/atlases/
+
 # Test / coverage output
 coverage/
 .nyc_output/

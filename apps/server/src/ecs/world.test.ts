@@ -1,3 +1,4 @@
+import type { Plane } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { createWorld } from "./world";
 
@@ -33,7 +34,7 @@ describe("ECS World", () => {
   it("stores and retrieves components", () => {
     const world = createWorld();
     const id = world.createEntity();
-    const pos = { entityId: id, x: 10, y: 20, plane: 0 };
+    const pos = { entityId: id, x: 10, y: 20, plane: 0 as Plane };
     world.setComponent(id, "position", pos);
     expect(world.getComponent(id, "position")).toBe(pos);
   });
@@ -41,7 +42,7 @@ describe("ECS World", () => {
   it("removes all components on destroy", () => {
     const world = createWorld();
     const id = world.createEntity();
-    world.setComponent(id, "position", { entityId: id, x: 0, y: 0, plane: 0 });
+    world.setComponent(id, "position", { entityId: id, x: 0, y: 0, plane: 0 as Plane });
     world.setComponent(id, "actor", { entityId: id, name: "Test", level: 1, appearanceId: "test" });
     world.destroyEntity(id);
     expect(world.hasComponent(id, "position")).toBe(false);
@@ -52,8 +53,8 @@ describe("ECS World", () => {
     const world = createWorld();
     const a = world.createEntity();
     const b = world.createEntity();
-    world.setComponent(a, "position", { entityId: a, x: 0, y: 0, plane: 0 });
-    world.setComponent(b, "position", { entityId: b, x: 1, y: 1, plane: 0 });
+    world.setComponent(a, "position", { entityId: a, x: 0, y: 0, plane: 0 as Plane });
+    world.setComponent(b, "position", { entityId: b, x: 1, y: 1, plane: 0 as Plane });
     world.destroyEntity(a);
     const alive = world.componentEntries("position").map(([, c]) => c);
     expect(alive).toHaveLength(1);
@@ -71,7 +72,7 @@ describe("ECS World", () => {
     const world = createWorld();
     const id = world.createEntity();
     const stored = id;
-    world.setComponent(id, "position", { entityId: id, x: 5, y: 5, plane: 0 });
+    world.setComponent(id, "position", { entityId: id, x: 5, y: 5, plane: 0 as Plane });
     expect(world.getComponent(stored, "position")?.x).toBe(5);
   });
 
@@ -80,7 +81,7 @@ describe("ECS World", () => {
     const id = world.createEntity();
     world.destroyEntity(id);
     expect(() =>
-      world.setComponent(id, "position", { entityId: id, x: 0, y: 0, plane: 0 }),
+      world.setComponent(id, "position", { entityId: id, x: 0, y: 0, plane: 0 as Plane }),
     ).toThrow("Cannot set component on dead entity");
   });
 
@@ -89,7 +90,7 @@ describe("ECS World", () => {
     const id = world.createEntity();
     const wrongId = world.createEntity();
     expect(() =>
-      world.setComponent(id, "position", { entityId: wrongId, x: 0, y: 0, plane: 0 }),
+      world.setComponent(id, "position", { entityId: wrongId, x: 0, y: 0, plane: 0 as Plane }),
     ).toThrow("Component entityId mismatch");
   });
 
@@ -109,8 +110,8 @@ describe("ECS World", () => {
     const a = world.createEntity();
     const _b = world.createEntity();
     const c = world.createEntity();
-    world.setComponent(c, "position", { entityId: c, x: 0, y: 0, plane: 0 });
-    world.setComponent(a, "position", { entityId: a, x: 1, y: 1, plane: 0 });
+    world.setComponent(c, "position", { entityId: c, x: 0, y: 0, plane: 0 as Plane });
+    world.setComponent(a, "position", { entityId: a, x: 1, y: 1, plane: 0 as Plane });
     const ids = world.entityIdsWith("position");
     expect(ids).toEqual([a, c]);
     expect(ids[0] as number).toBeLessThan(ids[1] as number);
@@ -121,9 +122,9 @@ describe("ECS World", () => {
     const a = world.createEntity();
     const b = world.createEntity();
     const c = world.createEntity();
-    world.setComponent(c, "position", { entityId: c, x: 10, y: 10, plane: 0 });
-    world.setComponent(a, "position", { entityId: a, x: 5, y: 5, plane: 0 });
-    world.setComponent(b, "position", { entityId: b, x: 7, y: 7, plane: 0 });
+    world.setComponent(c, "position", { entityId: c, x: 10, y: 10, plane: 0 as Plane });
+    world.setComponent(a, "position", { entityId: a, x: 5, y: 5, plane: 0 as Plane });
+    world.setComponent(b, "position", { entityId: b, x: 7, y: 7, plane: 0 as Plane });
     const entries = world.componentEntries("position");
     expect(entries.map(([id]) => id)).toEqual([a, b, c]);
   });
@@ -132,8 +133,8 @@ describe("ECS World", () => {
     const world = createWorld();
     const a = world.createEntity();
     const b = world.createEntity();
-    world.setComponent(a, "position", { entityId: a, x: 0, y: 0, plane: 0 });
-    world.setComponent(b, "position", { entityId: b, x: 1, y: 1, plane: 0 });
+    world.setComponent(a, "position", { entityId: a, x: 0, y: 0, plane: 0 as Plane });
+    world.setComponent(b, "position", { entityId: b, x: 1, y: 1, plane: 0 as Plane });
     expect(world.componentCount("position")).toBe(2);
     expect(world.componentCount("actor")).toBe(0);
   });
@@ -142,14 +143,14 @@ describe("ECS World", () => {
     const world = createWorld();
     const id = world.createEntity();
     expect(world.hasComponent(id, "position")).toBe(false);
-    world.setComponent(id, "position", { entityId: id, x: 0, y: 0, plane: 0 });
+    world.setComponent(id, "position", { entityId: id, x: 0, y: 0, plane: 0 as Plane });
     expect(world.hasComponent(id, "position")).toBe(true);
   });
 
   it("removeComponent deletes the component and returns true", () => {
     const world = createWorld();
     const id = world.createEntity();
-    world.setComponent(id, "position", { entityId: id, x: 0, y: 0, plane: 0 });
+    world.setComponent(id, "position", { entityId: id, x: 0, y: 0, plane: 0 as Plane });
     expect(world.removeComponent(id, "position")).toBe(true);
     expect(world.hasComponent(id, "position")).toBe(false);
     expect(world.removeComponent(id, "position")).toBe(false);

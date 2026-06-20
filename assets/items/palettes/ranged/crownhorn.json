@@ -1,0 +1,17 @@
+{
+  "ladder": "ranged",
+  "tier": "crownhorn",
+  "tierOrder": 11,
+  "regions": {
+    "limb": "#c9a23c",
+    "string": "#e8e8e8",
+    "grip": "#7a5a3a",
+    "accent": "#c2c6cc",
+    "prod": "#c9a23c",
+    "stock": "#7a5a3a",
+    "mechanism": "#c2c6cc",
+    "shaft": "#c9a23c",
+    "fletch": "#e8e8e8",
+    "head": "#c2c6cc"
+  }
+}

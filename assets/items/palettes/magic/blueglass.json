@@ -1,0 +1,18 @@
+{
+  "ladder": "magic",
+  "tier": "blueglass",
+  "tierOrder": 8,
+  "regions": {
+    "cloth": "#3a6ea5",
+    "script": "#c2c6cc",
+    "seal": "#9aa0a6",
+    "accent": "#c2c6cc",
+    "shaft": "#9aa0a6",
+    "tip": "#3a6ea5",
+    "bead": "#c2c6cc",
+    "lens": "#3a6ea5",
+    "rim": "#9aa0a6",
+    "cover": "#3a6ea5",
+    "page": "#c2c6cc"
+  }
+}

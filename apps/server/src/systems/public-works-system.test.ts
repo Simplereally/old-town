@@ -246,7 +246,9 @@ describe("distributePublicWorkRewards", () => {
     contributeToPublicWork(ctx, player, workEntity, "coin", 10, 1, 0);
 
     const state = deltas.peek();
-    expect(state.chat?.some((c) => c.text === "You receive rewards for completing Bridge Repair.")).toBe(true);
+    expect(
+      state.chat?.some((c) => c.text === "You receive rewards for completing Bridge Repair."),
+    ).toBe(true);
   });
 
   it("does not distribute rewards twice", () => {

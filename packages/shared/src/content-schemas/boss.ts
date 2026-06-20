@@ -1,13 +1,6 @@
 /** Boss definitions (POC_SPEC §42). */
 import { z } from "zod";
-import {
-  combatBonusesSchema,
-  combatStatsSchema,
-  contentIdSchema,
-  nonNegInt,
-  positiveInt,
-  requirementSchema,
-} from "./common";
+import { contentIdSchema, nonNegInt, requirementSchema } from "./common";
 
 export const bossCategorySchema = z.enum([
   "starter",
@@ -52,11 +45,7 @@ export const bossLairThresholdSchema = z.enum([
   "light",
 ]);
 
-export const bossSafeRatingSchema = z.enum([
-  "safe",
-  "risky",
-  "dangerous",
-]);
+export const bossSafeRatingSchema = z.enum(["safe", "risky", "dangerous"]);
 
 export const bossMechanicSchema = z
   .object({

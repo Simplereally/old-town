@@ -1,13 +1,14 @@
 import type { ContentRegistries, EntityId, Rng } from "@old-town/shared";
 import { handleDialogueUiIntent, handleNpcDialogueIntent } from "../dialogue/dialogue-engine";
 import type { World } from "../ecs/world";
-import { handleItemIntent, handleUnequipIntent } from "../items/item-actions";
+import { handleItemIntent, handleUnequipIntent, handleUseItemOnIntent } from "../items/item-actions";
 import type { ItemAuditLog } from "../items/item-audit";
 import { dispatchQuestEvent } from "../quests/quest-engine";
 import { handleBankIntent } from "../systems/bank-system";
 import type { ChatSystem } from "../systems/chat-system";
 import { handleNpcCombatIntent } from "../systems/combat-system";
 import type { ConsumableSystem } from "../systems/consumable-system";
+import { handleContractBoardOpen } from "../systems/contract-system";
 import { handleGroundItemIntent } from "../systems/ground-item-system";
 import {
   type FootprintResolver,
@@ -46,6 +47,58 @@ function emitSystemMessage(
   serverTime: number,
 ): void {
   ctx.deltas.markChat({ entityId: owner, text, channel: "system", serverTime });
+}
+
+/** System-reserved action IDs that are always valid for NPCs even if not in the def's options. */
+const NPC_SYSTEM_ACTIONS = new Set(["attack", "talk", "examine", "walk_here"]);
+
+/** System-reserved action IDs that are always valid for objects even if not in the def's options. */
+const OBJECT_SYSTEM_ACTIONS = new Set(["examine", "walk_here"]);
+
+/**
+ * Authoritative validation that the client-sent actionId is a valid option for the targeted NPC.
+ * Prevents a misbehaving client from invoking arbitrary actionIds not defined in content.
+ */
+function isValidNpcAction(
+  ctx: IntentDispatcherContext,
+  npcEntityId: EntityId,
+  actionId: string,
+): boolean {
+  if (NPC_SYSTEM_ACTIONS.has(actionId)) {
+    return true;
+  }
+  const npc = ctx.world.getComponent(npcEntityId, "npc");
+  if (!npc) {
+    return false;
+  }
+  const def = ctx.registries.npc.get(npc.npcId);
+  if (!def) {
+    return false;
+  }
+  return def.options.some((option) => option.actionId === actionId);
+}
+
+/**
+ * Authoritative validation that the client-sent actionId is a valid option for the targeted object.
+ * Prevents a misbehaving client from invoking arbitrary actionIds not defined in content.
+ */
+function isValidObjectAction(
+  ctx: IntentDispatcherContext,
+  objectEntityId: EntityId,
+  actionId: string,
+): boolean {
+  if (OBJECT_SYSTEM_ACTIONS.has(actionId)) {
+    return true;
+  }
+  const object = ctx.world.getComponent(objectEntityId, "object");
+  if (!object) {
+    return false;
+  }
+  const def = ctx.registries.object.get(object.objectId);
+  if (!def) {
+    return false;
+  }
+  return def.options.some((option) => option.actionId === actionId);
 }
 
 export function dispatchIntentGroup(
@@ -111,6 +164,25 @@ function dispatchSingleIntent(
       return;
     }
 
+    case IntentKind.UseItemOn: {
+      ctx.actionQueue.cancel(owner, { type: ActionQueueType.Weak });
+      ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
+      handleUseItemOnIntent(
+        {
+          world: ctx.world,
+          deltas: ctx.deltas,
+          items: ctx.registries.item,
+          consumables: ctx.consumableSystem,
+          itemAudit: ctx.itemAudit,
+        },
+        owner,
+        intent.payload,
+        tick,
+        serverTime,
+      );
+      return;
+    }
+
     case IntentKind.UiAction: {
       if (handleDialogueUiIntent(ctx, owner, intent.payload, serverTime, tick)) {
         return;
@@ -138,6 +210,10 @@ function dispatchSingleIntent(
     case IntentKind.Object: {
       ctx.actionQueue.cancel(owner, { type: ActionQueueType.Weak });
       ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
+      if (!isValidObjectAction(ctx, intent.payload.objectEntityId, intent.payload.actionId)) {
+        emitSystemMessage(ctx, owner, "Nothing interesting happens.", serverTime);
+        return;
+      }
       const object = ctx.world.getComponent(intent.payload.objectEntityId, "object");
       if (handleObjectIntent(ctx, owner, intent.payload, serverTime, tick, ctx.nooks)) {
         if (object) {
@@ -178,6 +254,10 @@ function dispatchSingleIntent(
     case IntentKind.Npc: {
       ctx.actionQueue.cancel(owner, { type: ActionQueueType.Weak });
       ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
+      if (!isValidNpcAction(ctx, intent.payload.npcEntityId, intent.payload.actionId)) {
+        emitSystemMessage(ctx, owner, "Nothing interesting happens.", serverTime);
+        return;
+      }
       if (intent.payload.actionId === "bank") {
         handleBankIntent(
           {
@@ -206,6 +286,19 @@ function dispatchSingleIntent(
           owner,
           { action: "open", targetEntityId: intent.payload.npcEntityId },
           tick,
+          serverTime,
+        );
+        return;
+      }
+      if (intent.payload.actionId === "contract") {
+        handleContractBoardOpen(
+          {
+            world: ctx.world,
+            deltas: ctx.deltas,
+            registries: ctx.registries,
+            itemAudit: ctx.itemAudit,
+          },
+          owner,
           serverTime,
         );
         return;
@@ -312,6 +405,17 @@ function dispatchSingleIntent(
         serverTime,
         tick,
       );
+      return;
+    }
+
+    case IntentKind.SetCombatStyle: {
+      const combatant = ctx.world.getComponent(owner, "combatant");
+      if (combatant) {
+        ctx.world.setComponent(owner, "combatant", {
+          ...combatant,
+          combatStyle: intent.payload.style,
+        });
+      }
       return;
     }
 

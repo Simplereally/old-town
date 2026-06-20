@@ -1,0 +1,18 @@
+{
+  "ladder": "magic",
+  "tier": "gravebound",
+  "tierOrder": 7,
+  "regions": {
+    "cloth": "#3a3632",
+    "script": "#cfc6ad",
+    "seal": "#cfc6ad",
+    "accent": "#6a6d6f",
+    "shaft": "#2e2a28",
+    "tip": "#cfc6ad",
+    "bead": "#3a3632",
+    "lens": "#cfc6ad",
+    "rim": "#2e2a28",
+    "cover": "#3a3632",
+    "page": "#cfc6ad"
+  }
+}

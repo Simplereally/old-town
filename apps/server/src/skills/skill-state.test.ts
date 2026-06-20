@@ -3,7 +3,13 @@ import type { SkillsComponent } from "../ecs/components";
 import { createWorld } from "../ecs/world";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { computeCombatLevel } from "./combat-level";
-import { addXp, getBaseLevel, getCurrentLevel, maxHealthForHitpointsLevel, restoreSkill } from "./skill-state";
+import {
+  addXp,
+  getBaseLevel,
+  getCurrentLevel,
+  maxHealthForHitpointsLevel,
+  restoreSkill,
+} from "./skill-state";
 
 function skill(skills: SkillsComponent, id: string) {
   const state = skills.skills[id];
@@ -221,9 +227,7 @@ describe("restoreSkill", () => {
     restoreSkill({ world, deltas }, owner, "strength", 3);
 
     const dirty = deltas.peek();
-    expect(dirty.skillDelta).toEqual([
-      { skillId: "strength", level: 1, xp: 0, effectiveLevel: 1 },
-    ]);
+    expect(dirty.skillDelta).toEqual([{ skillId: "strength", level: 1, xp: 0, effectiveLevel: 1 }]);
   });
 });
 

@@ -2,6 +2,7 @@
   {
     "id": "counting_house",
     "name": "Counting House",
+    "npcId": "tomas_tally",
     "stock": [],
     "currency": "coin",
     "sellMultiplier": 0.6,
@@ -13,6 +14,7 @@
   {
     "id": "general_stall",
     "name": "General Stall",
+    "npcId": "general_stall_keeper",
     "stock": [
       {
         "itemId": "bellbread",
@@ -88,6 +90,7 @@
   {
     "id": "penny_and_sons_forge",
     "name": "Penny and Sons Forge",
+    "npcId": "osric_penny",
     "stock": [
       {
         "itemId": "pennywrought_pickaxe",
@@ -149,6 +152,7 @@
   {
     "id": "lath_and_twine",
     "name": "Lath and Twine",
+    "npcId": "letha_lath",
     "stock": [
       {
         "itemId": "whittling_knife",
@@ -224,6 +228,7 @@
   {
     "id": "patch_and_awl",
     "name": "Patch and Awl",
+    "npcId": "nell_patch",
     "stock": [
       {
         "itemId": "bone_needle",
@@ -292,6 +297,7 @@
   {
     "id": "chalkhouse",
     "name": "Chalkhouse",
+    "npcId": "mother_tallow",
     "stock": [
       {
         "itemId": "chalkmarked_wand",
@@ -400,6 +406,7 @@
   {
     "id": "shrine_hearth",
     "name": "Shrine Hearth",
+    "npcId": "sister_writ",
     "stock": [
       {
         "itemId": "shrine_candle",
@@ -447,6 +454,7 @@
   {
     "id": "river_stoop",
     "name": "River Stoop",
+    "npcId": "edda_tinfin",
     "stock": [
       {
         "itemId": "reed_rod",

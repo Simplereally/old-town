@@ -1,6 +1,7 @@
 import {
   type ClientCommand,
   ClientCommandType,
+  type CombatStyle,
   entityId,
   type SpellTarget,
   type TileCoord,
@@ -67,6 +68,15 @@ export class ClientCommandDispatcher {
       commandId: ++this._commandId,
       clientTickHint: this._currentTick,
       payload: { itemUid, actionId },
+    });
+  }
+
+  useItemOn(itemUid: number, target: SpellTarget): void {
+    this._sendCommand({
+      type: ClientCommandType.UseItemOn,
+      commandId: ++this._commandId,
+      clientTickHint: this._currentTick,
+      payload: { itemUid, target },
     });
   }
 
@@ -138,6 +148,15 @@ export class ClientCommandDispatcher {
       commandId: ++this._commandId,
       clientTickHint: this._currentTick,
       payload: { recipeId, stationEntityId: entityId(stationEntityId) },
+    });
+  }
+
+  setCombatStyle(style: CombatStyle): void {
+    this._sendCommand({
+      type: ClientCommandType.SetCombatStyle,
+      commandId: ++this._commandId,
+      clientTickHint: this._currentTick,
+      payload: { style },
     });
   }
 

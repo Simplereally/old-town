@@ -277,10 +277,10 @@ describe("multiplayer loop integration", () => {
     const client = await connectClient("movement-smoke");
     const self = fullState(client).selfEntityId;
 
-    await sendMove(client, 1, tile(31, 32));
+    await sendMove(client, 1, tile(44, 45));
     const delta = deltaAt(await runTick([client]), 0);
 
-    expect(selfUpdate(delta, self)?.changes.position).toEqual(tile(31, 32));
+    expect(selfUpdate(delta, self)?.changes.position).toEqual(tile(44, 45));
     expect(selfUpdate(delta, self)?.changes.moveSpeed).toBe("walk");
   });
 
@@ -293,11 +293,11 @@ describe("multiplayer loop integration", () => {
     const firstJoinDelta = deltaAt(await runTick([first]), 0);
     expect(firstJoinDelta.entityAdds.some((entity) => entity.entityId === secondSelf)).toBe(true);
 
-    await sendMove(second, 1, tile(31, 32));
+    await sendMove(second, 1, tile(44, 45));
     const firstMovementDelta = deltaAt(await runTick([first]), 0);
 
     expect(selfUpdate(firstMovementDelta, secondSelf)?.changes).toMatchObject({
-      position: tile(31, 32),
+      position: tile(44, 45),
       moveSpeed: "walk",
     });
   });
@@ -307,12 +307,12 @@ describe("multiplayer loop integration", () => {
     const client = await connectClient("blocked-smoke");
     const self = fullState(client).selfEntityId;
 
-    await sendMove(client, 1, tile(31, 32));
+    await sendMove(client, 1, tile(44, 45));
     await runTick([client]);
-    await sendMove(client, 2, tile(32, 32));
+    await sendMove(client, 2, tile(46, 46));
     const delta = deltaAt(await runTick([client]), 0);
 
-    expect(selfUpdate(delta, self)?.changes.position).not.toEqual(tile(32, 32));
+    expect(selfUpdate(delta, self)?.changes.position).not.toEqual(tile(46, 46));
   });
 
   it("sends recipe list for object cook interaction", async () => {
@@ -345,10 +345,10 @@ describe("multiplayer loop integration", () => {
     const firstJoinDelta = deltaAt(await runTick([first]), 0);
     expect(firstJoinDelta.entityAdds.some((entity) => entity.entityId === secondSelf)).toBe(true);
 
-    await sendMove(second, 1, tile(30, 90));
+    await sendMove(second, 1, tile(20, 97));
     const secondDeltas: TickDeltaPacket[] = [];
     let firstSawSecondLeave = false;
-    for (let i = 0; i < 90; i += 1) {
+    for (let i = 0; i < 200; i += 1) {
       const deltas = await runTick([first, second]);
       const firstDelta = deltaAt(deltas, 0);
       const secondDelta = deltaAt(deltas, 1);

@@ -1,0 +1,18 @@
+{
+  "ladder": "magic",
+  "tier": "blacksalt",
+  "tierOrder": 4,
+  "regions": {
+    "cloth": "#2e2a28",
+    "script": "#6a6a6a",
+    "seal": "#4a4a4a",
+    "accent": "#6a6d6f",
+    "shaft": "#3a3632",
+    "tip": "#6a6d6f",
+    "bead": "#2e2a28",
+    "lens": "#6a6d6f",
+    "rim": "#3a3632",
+    "cover": "#2e2a28",
+    "page": "#6a6a6a"
+  }
+}

@@ -14,11 +14,14 @@ import {
   type ContentKind,
   type ContentRegistries,
   type Effect,
+  type ItemAssetRef,
   type Requirement,
   validateContent,
 } from "@old-town/shared";
+import { validateAssets } from "./asset-validation";
 import { loadContentDir } from "./loader";
 
+export { validateAssets } from "./asset-validation";
 export { loadContentDir } from "./loader";
 
 type ContentCommand = "validate" | "list" | "graph";
@@ -90,7 +93,20 @@ export async function runContentCli(args: readonly string[] = []): Promise<CliRe
   const contentDir = resolve(process.cwd(), parsed.contentDir);
   const { files, issues: loadIssues } = await loadContentDir(contentDir);
   const validation = validateContent(files);
-  const errors = [...loadIssues, ...validation.issues].map((issue) =>
+  const contentErrors = [...loadIssues, ...validation.issues];
+
+  const manifestPath = resolve(contentDir, "../assets/items/manifest.json");
+  const itemRefs: ItemAssetRef[] = [];
+  for (const [id, def] of validation.registries.item) {
+    itemRefs.push({
+      id,
+      icon: def.icon,
+      ...(def.model !== undefined ? { model: def.model } : {}),
+    });
+  }
+  const assetResult = validateAssets(itemRefs, manifestPath);
+
+  const errors = [...contentErrors, ...assetResult.issues].map((issue) =>
     normalizeIssue(issue, "error"),
   );
   const warnings = buildUnusedWarnings(validation.registries, validation.sources);
@@ -102,6 +118,10 @@ export async function runContentCli(args: readonly string[] = []): Promise<CliRe
       stderr: renderValidationFailure(errors, warnings),
     };
   }
+
+  const assetNotice = assetResult.skipped
+    ? "\nAsset validation skipped (manifest empty or absent)."
+    : `\nAsset validation OK — ${assetResult.itemCount} item(s), ${assetResult.manifestEntryCount} manifest entr(y/ies).`;
 
   switch (parsed.command) {
     case "list":
@@ -124,7 +144,8 @@ export async function runContentCli(args: readonly string[] = []): Promise<CliRe
     case "validate":
       return {
         exitCode: 0,
-        stdout: renderValidationSuccess(files.length, validation.registries, warnings),
+        stdout:
+          renderValidationSuccess(files.length, validation.registries, warnings) + assetNotice,
         stderr: "",
       };
   }

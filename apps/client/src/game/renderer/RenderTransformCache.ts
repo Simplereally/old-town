@@ -313,31 +313,40 @@ export class RenderTransformCache {
     const halfTile = this._tileSize * 0.5;
 
     if (
-      RenderTransformCache._readTypedArray(this._movementKind, index) === MovementPresentationKind.Teleport ||
+      RenderTransformCache._readTypedArray(this._movementKind, index) ===
+        MovementPresentationKind.Teleport ||
       mode === "snap" ||
       mode === "empty"
     ) {
-      this._renderX[index] = RenderTransformCache._readTypedArray(this._currTileX, index) * this._tileSize + halfTile;
+      this._renderX[index] =
+        RenderTransformCache._readTypedArray(this._currTileX, index) * this._tileSize + halfTile;
       this._renderY[index] = RenderTransformCache._readTypedArray(this._currTilePlane, index);
-      this._renderZ[index] = RenderTransformCache._readTypedArray(this._currTileY, index) * this._tileSize + halfTile;
+      this._renderZ[index] =
+        RenderTransformCache._readTypedArray(this._currTileY, index) * this._tileSize + halfTile;
       return;
     }
 
     if (mode === "hold_latest" || mode === "freeze") {
-      this._renderX[index] = RenderTransformCache._readTypedArray(this._currTileX, index) * this._tileSize + halfTile;
+      this._renderX[index] =
+        RenderTransformCache._readTypedArray(this._currTileX, index) * this._tileSize + halfTile;
       this._renderY[index] = RenderTransformCache._readTypedArray(this._currTilePlane, index);
-      this._renderZ[index] = RenderTransformCache._readTypedArray(this._currTileY, index) * this._tileSize + halfTile;
+      this._renderZ[index] =
+        RenderTransformCache._readTypedArray(this._currTileY, index) * this._tileSize + halfTile;
       return;
     }
 
     // interpolate
-    const prevX = RenderTransformCache._readTypedArray(this._prevTileX, index) * this._tileSize + halfTile;
+    const prevX =
+      RenderTransformCache._readTypedArray(this._prevTileX, index) * this._tileSize + halfTile;
     const prevY = RenderTransformCache._readTypedArray(this._prevTilePlane, index);
-    const prevZ = RenderTransformCache._readTypedArray(this._prevTileY, index) * this._tileSize + halfTile;
+    const prevZ =
+      RenderTransformCache._readTypedArray(this._prevTileY, index) * this._tileSize + halfTile;
 
-    const currX = RenderTransformCache._readTypedArray(this._currTileX, index) * this._tileSize + halfTile;
+    const currX =
+      RenderTransformCache._readTypedArray(this._currTileX, index) * this._tileSize + halfTile;
     const currY = RenderTransformCache._readTypedArray(this._currTilePlane, index);
-    const currZ = RenderTransformCache._readTypedArray(this._currTileY, index) * this._tileSize + halfTile;
+    const currZ =
+      RenderTransformCache._readTypedArray(this._currTileY, index) * this._tileSize + halfTile;
 
     this._renderX[index] = prevX + alpha * (currX - prevX);
     this._renderY[index] = prevY + alpha * (currY - prevY);
@@ -484,7 +493,10 @@ export class RenderTransformCache {
     return next;
   }
 
-  private static _readTypedArray<T extends Int32Array | Float32Array | Uint8Array>(arr: T, index: number): number {
+  private static _readTypedArray<T extends Int32Array | Float32Array | Uint8Array>(
+    arr: T,
+    index: number,
+  ): number {
     const val = arr[index];
     if (val === undefined) throw new Error("Invariant: index out of bounds");
     return val;
@@ -526,7 +538,10 @@ export class RenderTransformCache {
     s.renderY = RenderTransformCache._readTypedArray(this._renderY, index);
     s.renderZ = RenderTransformCache._readTypedArray(this._renderZ, index);
     s.heading = RenderTransformCache._readTypedArray(this._heading, index);
-    s.movementKind = RenderTransformCache._readTypedArray(this._movementKind, index) as MovementPresentationKind;
+    s.movementKind = RenderTransformCache._readTypedArray(
+      this._movementKind,
+      index,
+    ) as MovementPresentationKind;
     s.renderHandleId = RenderTransformCache._readTypedArray(this._renderHandleId, index);
     s.kind = this._kind.get(entityId) ?? "npc";
     s.defId = this._defId.get(entityId) ?? "";
@@ -548,7 +563,10 @@ export class RenderTransformCache {
       renderY: RenderTransformCache._readTypedArray(this._renderY, index),
       renderZ: RenderTransformCache._readTypedArray(this._renderZ, index),
       heading: RenderTransformCache._readTypedArray(this._heading, index),
-      movementKind: RenderTransformCache._readTypedArray(this._movementKind, index) as MovementPresentationKind,
+      movementKind: RenderTransformCache._readTypedArray(
+        this._movementKind,
+        index,
+      ) as MovementPresentationKind,
       renderHandleId: RenderTransformCache._readTypedArray(this._renderHandleId, index),
       kind: this._kind.get(entityId) ?? "npc",
       defId: this._defId.get(entityId) ?? "",

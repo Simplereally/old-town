@@ -30,11 +30,13 @@ function systemMessage(
 function tileOf(world: World, entityId: EntityId): TileCoord | undefined {
   const position = world.getComponent(entityId, "position");
   return position
-    ? { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] }
+    ? { x: position.x, y: position.y, plane: position.plane }
     : undefined;
 }
 
 function isDoor(objectDef: ObjectDef): boolean {
+  if (objectDef.isDoor === true) return true;
+  if (objectDef.isGate === true) return true;
   return objectDef.id.includes("door") || objectDef.id.includes("hatch");
 }
 
@@ -49,10 +51,11 @@ function applyDoorCollision(
   isOpen: boolean,
 ): void {
   const flags = objectCollisionFlags(def);
+  const footprint = { width: def.width, length: def.length };
   if (isOpen) {
-    collision.clearDynamic(tile, flags);
+    collision.clearFootprint(tile, footprint, flags);
   } else {
-    collision.addDynamic(tile, flags);
+    collision.applyFootprint(tile, footprint, flags);
   }
 }
 
@@ -129,6 +132,7 @@ export function handleDoorOpenIntent(
     ctx.deltas.markSound({ soundId, tile, volume: 1 });
     ctx.deltas.markEntityUpdate(objectEntityId, {
       animation: { id: animId },
+      doorState: { isOpen: nextOpen },
     });
 
     const actionText = nextOpen ? "You open the door." : "You close the door.";

@@ -19,8 +19,20 @@
       },
       {
         "x": 8,
+        "y": 40,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 8,
         "y": 41,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 8,
+        "y": 41,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -31,8 +43,20 @@
       },
       {
         "x": 8,
+        "y": 42,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 8,
         "y": 43,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 8,
+        "y": 43,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -43,8 +67,20 @@
       },
       {
         "x": 8,
+        "y": 44,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 8,
         "y": 45,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 8,
+        "y": 45,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -55,8 +91,20 @@
       },
       {
         "x": 8,
+        "y": 46,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 8,
         "y": 47,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 8,
+        "y": 47,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -67,8 +115,20 @@
       },
       {
         "x": 8,
+        "y": 48,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 8,
         "y": 49,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 8,
+        "y": 49,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -79,8 +139,20 @@
       },
       {
         "x": 8,
+        "y": 50,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 8,
         "y": 51,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 8,
+        "y": 51,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -91,8 +163,20 @@
       },
       {
         "x": 8,
+        "y": 52,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 8,
         "y": 53,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 8,
+        "y": 53,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -103,8 +187,20 @@
       },
       {
         "x": 8,
+        "y": 54,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 8,
         "y": 55,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 8,
+        "y": 55,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -115,6 +211,12 @@
       },
       {
         "x": 9,
+        "y": 40,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 9,
         "y": 41,
         "underlayId": "oldroad_slabs",
         "collision": 0
@@ -204,9 +306,21 @@
         "collision": 0
       },
       {
+        "x": 9,
+        "y": 55,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
         "x": 10,
         "y": 40,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 10,
+        "y": 40,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -297,6 +411,12 @@
         "x": 10,
         "y": 55,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 10,
+        "y": 55,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -307,6 +427,12 @@
       },
       {
         "x": 11,
+        "y": 40,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 11,
         "y": 41,
         "underlayId": "oldroad_slabs",
         "collision": 0
@@ -396,9 +522,21 @@
         "collision": 0
       },
       {
+        "x": 11,
+        "y": 55,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
         "x": 12,
         "y": 40,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 12,
+        "y": 40,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -489,6 +627,12 @@
         "x": 12,
         "y": 55,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 12,
+        "y": 55,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -499,6 +643,12 @@
       },
       {
         "x": 13,
+        "y": 40,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 13,
         "y": 41,
         "underlayId": "oldroad_slabs",
         "collision": 0
@@ -588,9 +738,21 @@
         "collision": 0
       },
       {
+        "x": 13,
+        "y": 55,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
         "x": 14,
         "y": 40,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 14,
+        "y": 40,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -681,6 +843,12 @@
         "x": 14,
         "y": 55,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 14,
+        "y": 55,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -691,6 +859,12 @@
       },
       {
         "x": 15,
+        "y": 40,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 15,
         "y": 41,
         "underlayId": "oldroad_slabs",
         "collision": 0
@@ -780,9 +954,21 @@
         "collision": 0
       },
       {
+        "x": 15,
+        "y": 55,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
         "x": 16,
         "y": 40,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 16,
+        "y": 40,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -873,6 +1059,12 @@
         "x": 16,
         "y": 55,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 16,
+        "y": 55,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -883,6 +1075,12 @@
       },
       {
         "x": 17,
+        "y": 40,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 17,
         "y": 41,
         "underlayId": "oldroad_slabs",
         "collision": 0
@@ -972,9 +1170,21 @@
         "collision": 0
       },
       {
+        "x": 17,
+        "y": 55,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
         "x": 18,
         "y": 40,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 18,
+        "y": 40,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -1065,6 +1275,12 @@
         "x": 18,
         "y": 55,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 18,
+        "y": 55,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -1075,6 +1291,12 @@
       },
       {
         "x": 19,
+        "y": 40,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 19,
         "y": 41,
         "underlayId": "oldroad_slabs",
         "collision": 0
@@ -1164,9 +1386,21 @@
         "collision": 0
       },
       {
+        "x": 19,
+        "y": 55,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
         "x": 20,
         "y": 40,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 20,
+        "y": 40,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -1257,6 +1491,12 @@
         "x": 20,
         "y": 55,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 20,
+        "y": 55,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -1267,6 +1507,12 @@
       },
       {
         "x": 21,
+        "y": 40,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 21,
         "y": 41,
         "underlayId": "oldroad_slabs",
         "collision": 0
@@ -1356,9 +1602,21 @@
         "collision": 0
       },
       {
+        "x": 21,
+        "y": 55,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
         "x": 22,
         "y": 40,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 22,
+        "y": 40,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -1449,6 +1707,12 @@
         "x": 22,
         "y": 55,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 22,
+        "y": 55,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -1459,8 +1723,20 @@
       },
       {
         "x": 23,
+        "y": 40,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 23,
         "y": 41,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 23,
+        "y": 41,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -1471,8 +1747,20 @@
       },
       {
         "x": 23,
+        "y": 42,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 23,
         "y": 43,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 23,
+        "y": 43,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -1483,8 +1771,20 @@
       },
       {
         "x": 23,
+        "y": 44,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 23,
         "y": 45,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 23,
+        "y": 45,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -1495,8 +1795,20 @@
       },
       {
         "x": 23,
+        "y": 46,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 23,
         "y": 47,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 23,
+        "y": 47,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -1507,8 +1819,20 @@
       },
       {
         "x": 23,
+        "y": 48,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 23,
         "y": 49,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 23,
+        "y": 49,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -1519,8 +1843,20 @@
       },
       {
         "x": 23,
+        "y": 50,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 23,
         "y": 51,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 23,
+        "y": 51,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -1531,8 +1867,20 @@
       },
       {
         "x": 23,
+        "y": 52,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 23,
         "y": 53,
         "underlayId": "oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 23,
+        "y": 53,
+        "underlayId": "grass_to_oldroad_slabs",
         "collision": 0
       },
       {
@@ -1543,14 +1891,32 @@
       },
       {
         "x": 23,
+        "y": 54,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
+        "x": 23,
         "y": 55,
         "underlayId": "oldroad_slabs",
         "collision": 0
       },
       {
+        "x": 23,
+        "y": 55,
+        "underlayId": "grass_to_oldroad_slabs",
+        "collision": 0
+      },
+      {
         "x": 24,
         "y": 24,
         "underlayId": "dark_cellar_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 24,
+        "underlayId": "grass_to_dark_cellar",
         "collision": 0
       },
       {
@@ -1561,8 +1927,20 @@
       },
       {
         "x": 24,
+        "y": 25,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 24,
         "y": 26,
         "underlayId": "dark_cellar_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 26,
+        "underlayId": "grass_to_dark_cellar",
         "collision": 0
       },
       {
@@ -1573,8 +1951,20 @@
       },
       {
         "x": 24,
+        "y": 27,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 24,
         "y": 28,
         "underlayId": "dark_cellar_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 28,
+        "underlayId": "grass_to_dark_cellar",
         "collision": 0
       },
       {
@@ -1585,8 +1975,20 @@
       },
       {
         "x": 24,
+        "y": 29,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 24,
         "y": 30,
         "underlayId": "dark_cellar_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 30,
+        "underlayId": "grass_to_dark_cellar",
         "collision": 0
       },
       {
@@ -1597,8 +1999,20 @@
       },
       {
         "x": 24,
+        "y": 31,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 24,
         "y": 32,
         "underlayId": "dark_cellar_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 32,
+        "underlayId": "grass_to_dark_cellar",
         "collision": 0
       },
       {
@@ -1609,8 +2023,20 @@
       },
       {
         "x": 24,
+        "y": 33,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 24,
         "y": 34,
         "underlayId": "dark_cellar_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 34,
+        "underlayId": "grass_to_dark_cellar",
         "collision": 0
       },
       {
@@ -1621,8 +2047,20 @@
       },
       {
         "x": 24,
+        "y": 35,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 24,
         "y": 36,
         "underlayId": "dark_cellar_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 36,
+        "underlayId": "grass_to_dark_cellar",
         "collision": 0
       },
       {
@@ -1633,8 +2071,20 @@
       },
       {
         "x": 24,
+        "y": 37,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 24,
         "y": 38,
         "underlayId": "dark_cellar_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 38,
+        "underlayId": "grass_to_dark_cellar",
         "collision": 0
       },
       {
@@ -1645,8 +2095,20 @@
       },
       {
         "x": 24,
+        "y": 39,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 24,
         "y": 40,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 40,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -1657,8 +2119,20 @@
       },
       {
         "x": 24,
+        "y": 41,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
         "y": 42,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 42,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -1669,8 +2143,20 @@
       },
       {
         "x": 24,
+        "y": 43,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
         "y": 44,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 44,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -1681,8 +2167,20 @@
       },
       {
         "x": 24,
+        "y": 45,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
         "y": 46,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 46,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -1693,8 +2191,20 @@
       },
       {
         "x": 24,
+        "y": 47,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
         "y": 48,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 48,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -1705,8 +2215,20 @@
       },
       {
         "x": 24,
+        "y": 49,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
         "y": 50,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 50,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -1717,8 +2239,20 @@
       },
       {
         "x": 24,
+        "y": 51,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
         "y": 52,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 52,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -1729,8 +2263,20 @@
       },
       {
         "x": 24,
+        "y": 53,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
         "y": 54,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 54,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -1741,8 +2287,20 @@
       },
       {
         "x": 24,
+        "y": 55,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 24,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -1753,8 +2311,20 @@
       },
       {
         "x": 24,
+        "y": 57,
+        "underlayId": "grass_to_chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 24,
         "y": 58,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 58,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -1765,8 +2335,20 @@
       },
       {
         "x": 24,
+        "y": 59,
+        "underlayId": "grass_to_chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 24,
         "y": 60,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 60,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -1777,8 +2359,20 @@
       },
       {
         "x": 24,
+        "y": 61,
+        "underlayId": "grass_to_chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 24,
         "y": 62,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 24,
+        "y": 62,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -1788,9 +2382,21 @@
         "collision": 0
       },
       {
+        "x": 24,
+        "y": 63,
+        "underlayId": "grass_to_chalk_flagstone",
+        "collision": 0
+      },
+      {
         "x": 25,
         "y": 24,
         "underlayId": "dark_cellar_floor",
+        "collision": 0
+      },
+      {
+        "x": 25,
+        "y": 24,
+        "underlayId": "grass_to_dark_cellar",
         "collision": 0
       },
       {
@@ -1885,8 +2491,20 @@
       },
       {
         "x": 25,
+        "y": 39,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 25,
         "y": 40,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 25,
+        "y": 40,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -1981,8 +2599,20 @@
       },
       {
         "x": 25,
+        "y": 55,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 25,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 25,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -2035,6 +2665,12 @@
       },
       {
         "x": 26,
+        "y": 24,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 26,
         "y": 25,
         "underlayId": "dark_cellar_floor",
         "collision": 0
@@ -2125,8 +2761,20 @@
       },
       {
         "x": 26,
+        "y": 39,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 26,
         "y": 40,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 26,
+        "y": 40,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -2221,8 +2869,20 @@
       },
       {
         "x": 26,
+        "y": 55,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 26,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 26,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -2275,6 +2935,12 @@
       },
       {
         "x": 27,
+        "y": 24,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 27,
         "y": 25,
         "underlayId": "dark_cellar_floor",
         "collision": 0
@@ -2365,8 +3031,20 @@
       },
       {
         "x": 27,
+        "y": 39,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 27,
         "y": 40,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 27,
+        "y": 40,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -2461,8 +3139,20 @@
       },
       {
         "x": 27,
+        "y": 55,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 27,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 27,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -2515,6 +3205,12 @@
       },
       {
         "x": 28,
+        "y": 24,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 28,
         "y": 25,
         "underlayId": "dark_cellar_floor",
         "collision": 0
@@ -2605,8 +3301,20 @@
       },
       {
         "x": 28,
+        "y": 39,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 28,
         "y": 40,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 28,
+        "y": 40,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -2701,8 +3409,20 @@
       },
       {
         "x": 28,
+        "y": 55,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 28,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 28,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -2755,6 +3475,12 @@
       },
       {
         "x": 29,
+        "y": 24,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 29,
         "y": 25,
         "underlayId": "dark_cellar_floor",
         "collision": 0
@@ -2845,8 +3571,20 @@
       },
       {
         "x": 29,
+        "y": 39,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 29,
         "y": 40,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 29,
+        "y": 40,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -2941,8 +3679,20 @@
       },
       {
         "x": 29,
+        "y": 55,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 29,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 29,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -2995,6 +3745,12 @@
       },
       {
         "x": 30,
+        "y": 24,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 30,
         "y": 25,
         "underlayId": "dark_cellar_floor",
         "collision": 0
@@ -3085,8 +3841,20 @@
       },
       {
         "x": 30,
+        "y": 39,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 30,
         "y": 40,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 30,
+        "y": 40,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -3181,8 +3949,20 @@
       },
       {
         "x": 30,
+        "y": 55,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 30,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 30,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -3235,6 +4015,12 @@
       },
       {
         "x": 31,
+        "y": 24,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 31,
         "y": 25,
         "underlayId": "dark_cellar_floor",
         "collision": 0
@@ -3325,8 +4111,20 @@
       },
       {
         "x": 31,
+        "y": 39,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 31,
         "y": 40,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 31,
+        "y": 40,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -3421,8 +4219,20 @@
       },
       {
         "x": 31,
+        "y": 55,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 31,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 31,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -3475,6 +4285,12 @@
       },
       {
         "x": 32,
+        "y": 24,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 32,
         "y": 25,
         "underlayId": "dark_cellar_floor",
         "collision": 0
@@ -3565,8 +4381,20 @@
       },
       {
         "x": 32,
+        "y": 39,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 32,
         "y": 40,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 32,
+        "y": 40,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -3590,12 +4418,24 @@
       {
         "x": 32,
         "y": 44,
+        "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 32,
+        "y": 44,
         "underlayId": "wood_floor",
         "collision": 0
       },
       {
         "x": 32,
         "y": 44,
+        "underlayId": "grass_to_wood_floor",
+        "collision": 0
+      },
+      {
+        "x": 32,
+        "y": 45,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -3608,6 +4448,12 @@
       {
         "x": 32,
         "y": 45,
+        "underlayId": "grass_to_wood_floor",
+        "collision": 0
+      },
+      {
+        "x": 32,
+        "y": 46,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -3620,6 +4466,12 @@
       {
         "x": 32,
         "y": 46,
+        "underlayId": "grass_to_wood_floor",
+        "collision": 0
+      },
+      {
+        "x": 32,
+        "y": 47,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -3632,6 +4484,12 @@
       {
         "x": 32,
         "y": 47,
+        "underlayId": "grass_to_wood_floor",
+        "collision": 0
+      },
+      {
+        "x": 32,
+        "y": 48,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -3644,6 +4502,12 @@
       {
         "x": 32,
         "y": 48,
+        "underlayId": "grass_to_wood_floor",
+        "collision": 0
+      },
+      {
+        "x": 32,
+        "y": 49,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -3656,6 +4520,12 @@
       {
         "x": 32,
         "y": 49,
+        "underlayId": "grass_to_wood_floor",
+        "collision": 0
+      },
+      {
+        "x": 32,
+        "y": 50,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -3668,6 +4538,12 @@
       {
         "x": 32,
         "y": 50,
+        "underlayId": "grass_to_wood_floor",
+        "collision": 0
+      },
+      {
+        "x": 32,
+        "y": 51,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -3680,7 +4556,7 @@
       {
         "x": 32,
         "y": 51,
-        "underlayId": "stone_floor",
+        "underlayId": "grass_to_wood_floor",
         "collision": 0
       },
       {
@@ -3709,8 +4585,20 @@
       },
       {
         "x": 32,
+        "y": 55,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 32,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 32,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -3763,6 +4651,12 @@
       },
       {
         "x": 33,
+        "y": 24,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 33,
         "y": 25,
         "underlayId": "dark_cellar_floor",
         "collision": 0
@@ -3853,8 +4747,20 @@
       },
       {
         "x": 33,
+        "y": 39,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 33,
         "y": 40,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 33,
+        "y": 40,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -3878,12 +4784,24 @@
       {
         "x": 33,
         "y": 44,
+        "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 33,
+        "y": 44,
         "underlayId": "wood_floor",
         "collision": 0
       },
       {
         "x": 33,
         "y": 44,
+        "underlayId": "grass_to_wood_floor",
+        "collision": 0
+      },
+      {
+        "x": 33,
+        "y": 45,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -3895,7 +4813,7 @@
       },
       {
         "x": 33,
-        "y": 45,
+        "y": 46,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -3907,7 +4825,7 @@
       },
       {
         "x": 33,
-        "y": 46,
+        "y": 47,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -3919,7 +4837,7 @@
       },
       {
         "x": 33,
-        "y": 47,
+        "y": 48,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -3931,7 +4849,7 @@
       },
       {
         "x": 33,
-        "y": 48,
+        "y": 49,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -3943,7 +4861,7 @@
       },
       {
         "x": 33,
-        "y": 49,
+        "y": 50,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -3955,7 +4873,7 @@
       },
       {
         "x": 33,
-        "y": 50,
+        "y": 51,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -3968,7 +4886,7 @@
       {
         "x": 33,
         "y": 51,
-        "underlayId": "stone_floor",
+        "underlayId": "grass_to_wood_floor",
         "collision": 0
       },
       {
@@ -3997,8 +4915,20 @@
       },
       {
         "x": 33,
+        "y": 55,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 33,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 33,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -4051,6 +4981,12 @@
       },
       {
         "x": 34,
+        "y": 24,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 34,
         "y": 25,
         "underlayId": "dark_cellar_floor",
         "collision": 0
@@ -4141,8 +5077,20 @@
       },
       {
         "x": 34,
+        "y": 39,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 34,
         "y": 40,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 34,
+        "y": 40,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -4166,12 +5114,24 @@
       {
         "x": 34,
         "y": 44,
+        "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 34,
+        "y": 44,
         "underlayId": "wood_floor",
         "collision": 0
       },
       {
         "x": 34,
         "y": 44,
+        "underlayId": "grass_to_wood_floor",
+        "collision": 0
+      },
+      {
+        "x": 34,
+        "y": 45,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -4183,7 +5143,7 @@
       },
       {
         "x": 34,
-        "y": 45,
+        "y": 46,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -4195,7 +5155,7 @@
       },
       {
         "x": 34,
-        "y": 46,
+        "y": 47,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -4207,7 +5167,7 @@
       },
       {
         "x": 34,
-        "y": 47,
+        "y": 48,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -4219,7 +5179,7 @@
       },
       {
         "x": 34,
-        "y": 48,
+        "y": 49,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -4231,7 +5191,7 @@
       },
       {
         "x": 34,
-        "y": 49,
+        "y": 50,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -4243,7 +5203,7 @@
       },
       {
         "x": 34,
-        "y": 50,
+        "y": 51,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -4256,7 +5216,7 @@
       {
         "x": 34,
         "y": 51,
-        "underlayId": "stone_floor",
+        "underlayId": "grass_to_wood_floor",
         "collision": 0
       },
       {
@@ -4285,8 +5245,20 @@
       },
       {
         "x": 34,
+        "y": 55,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 34,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 34,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -4339,6 +5311,12 @@
       },
       {
         "x": 35,
+        "y": 24,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 35,
         "y": 25,
         "underlayId": "dark_cellar_floor",
         "collision": 0
@@ -4429,8 +5407,20 @@
       },
       {
         "x": 35,
+        "y": 39,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 35,
         "y": 40,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 35,
+        "y": 40,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -4454,12 +5444,24 @@
       {
         "x": 35,
         "y": 44,
+        "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 35,
+        "y": 44,
         "underlayId": "wood_floor",
         "collision": 0
       },
       {
         "x": 35,
         "y": 44,
+        "underlayId": "grass_to_wood_floor",
+        "collision": 0
+      },
+      {
+        "x": 35,
+        "y": 45,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -4471,7 +5473,7 @@
       },
       {
         "x": 35,
-        "y": 45,
+        "y": 46,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -4483,7 +5485,7 @@
       },
       {
         "x": 35,
-        "y": 46,
+        "y": 47,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -4495,7 +5497,7 @@
       },
       {
         "x": 35,
-        "y": 47,
+        "y": 48,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -4507,7 +5509,7 @@
       },
       {
         "x": 35,
-        "y": 48,
+        "y": 49,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -4519,7 +5521,7 @@
       },
       {
         "x": 35,
-        "y": 49,
+        "y": 50,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -4531,7 +5533,7 @@
       },
       {
         "x": 35,
-        "y": 50,
+        "y": 51,
         "underlayId": "stone_floor",
         "collision": 0
       },
@@ -4544,7 +5546,7 @@
       {
         "x": 35,
         "y": 51,
-        "underlayId": "stone_floor",
+        "underlayId": "grass_to_wood_floor",
         "collision": 0
       },
       {
@@ -4573,8 +5575,20 @@
       },
       {
         "x": 35,
+        "y": 55,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 35,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 35,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -4627,6 +5641,12 @@
       },
       {
         "x": 36,
+        "y": 24,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 36,
         "y": 25,
         "underlayId": "dark_cellar_floor",
         "collision": 0
@@ -4717,8 +5737,20 @@
       },
       {
         "x": 36,
+        "y": 39,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 36,
         "y": 40,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 36,
+        "y": 40,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -4766,13 +5798,19 @@
       {
         "x": 36,
         "y": 44,
+        "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 36,
+        "y": 44,
         "underlayId": "wood_floor",
         "collision": 0
       },
       {
         "x": 36,
         "y": 44,
-        "underlayId": "stone_floor",
+        "underlayId": "grass_to_wood_floor",
         "collision": 0
       },
       {
@@ -4784,13 +5822,13 @@
       {
         "x": 36,
         "y": 45,
-        "underlayId": "wood_floor",
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
         "x": 36,
         "y": 45,
-        "underlayId": "stone_floor",
+        "underlayId": "wood_floor",
         "collision": 0
       },
       {
@@ -4802,13 +5840,13 @@
       {
         "x": 36,
         "y": 46,
-        "underlayId": "wood_floor",
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
         "x": 36,
         "y": 46,
-        "underlayId": "stone_floor",
+        "underlayId": "wood_floor",
         "collision": 0
       },
       {
@@ -4820,13 +5858,13 @@
       {
         "x": 36,
         "y": 47,
-        "underlayId": "wood_floor",
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
         "x": 36,
         "y": 47,
-        "underlayId": "stone_floor",
+        "underlayId": "wood_floor",
         "collision": 0
       },
       {
@@ -4838,13 +5876,13 @@
       {
         "x": 36,
         "y": 48,
-        "underlayId": "wood_floor",
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
         "x": 36,
         "y": 48,
-        "underlayId": "stone_floor",
+        "underlayId": "wood_floor",
         "collision": 0
       },
       {
@@ -4856,13 +5894,13 @@
       {
         "x": 36,
         "y": 49,
-        "underlayId": "wood_floor",
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
         "x": 36,
         "y": 49,
-        "underlayId": "stone_floor",
+        "underlayId": "wood_floor",
         "collision": 0
       },
       {
@@ -4874,13 +5912,13 @@
       {
         "x": 36,
         "y": 50,
-        "underlayId": "wood_floor",
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
         "x": 36,
         "y": 50,
-        "underlayId": "stone_floor",
+        "underlayId": "wood_floor",
         "collision": 0
       },
       {
@@ -4892,13 +5930,19 @@
       {
         "x": 36,
         "y": 51,
+        "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 36,
+        "y": 51,
         "underlayId": "wood_floor",
         "collision": 0
       },
       {
         "x": 36,
         "y": 51,
-        "underlayId": "stone_floor",
+        "underlayId": "grass_to_wood_floor",
         "collision": 0
       },
       {
@@ -4947,6 +5991,12 @@
         "x": 36,
         "y": 55,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 36,
+        "y": 55,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -4959,6 +6009,12 @@
         "x": 36,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 36,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -5011,6 +6067,12 @@
       },
       {
         "x": 37,
+        "y": 24,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 37,
         "y": 25,
         "underlayId": "dark_cellar_floor",
         "collision": 0
@@ -5101,8 +6163,20 @@
       },
       {
         "x": 37,
+        "y": 39,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 37,
         "y": 40,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 37,
+        "y": 40,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -5150,13 +6224,19 @@
       {
         "x": 37,
         "y": 44,
+        "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 37,
+        "y": 44,
         "underlayId": "wood_floor",
         "collision": 0
       },
       {
         "x": 37,
         "y": 44,
-        "underlayId": "stone_floor",
+        "underlayId": "grass_to_wood_floor",
         "collision": 0
       },
       {
@@ -5168,13 +6248,13 @@
       {
         "x": 37,
         "y": 45,
-        "underlayId": "wood_floor",
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
         "x": 37,
         "y": 45,
-        "underlayId": "stone_floor",
+        "underlayId": "wood_floor",
         "collision": 0
       },
       {
@@ -5186,13 +6266,13 @@
       {
         "x": 37,
         "y": 46,
-        "underlayId": "wood_floor",
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
         "x": 37,
         "y": 46,
-        "underlayId": "stone_floor",
+        "underlayId": "wood_floor",
         "collision": 0
       },
       {
@@ -5204,13 +6284,13 @@
       {
         "x": 37,
         "y": 47,
-        "underlayId": "wood_floor",
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
         "x": 37,
         "y": 47,
-        "underlayId": "stone_floor",
+        "underlayId": "wood_floor",
         "collision": 0
       },
       {
@@ -5222,13 +6302,13 @@
       {
         "x": 37,
         "y": 48,
-        "underlayId": "wood_floor",
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
         "x": 37,
         "y": 48,
-        "underlayId": "stone_floor",
+        "underlayId": "wood_floor",
         "collision": 0
       },
       {
@@ -5240,13 +6320,13 @@
       {
         "x": 37,
         "y": 49,
-        "underlayId": "wood_floor",
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
         "x": 37,
         "y": 49,
-        "underlayId": "stone_floor",
+        "underlayId": "wood_floor",
         "collision": 0
       },
       {
@@ -5258,13 +6338,13 @@
       {
         "x": 37,
         "y": 50,
-        "underlayId": "wood_floor",
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
         "x": 37,
         "y": 50,
-        "underlayId": "stone_floor",
+        "underlayId": "wood_floor",
         "collision": 0
       },
       {
@@ -5276,13 +6356,19 @@
       {
         "x": 37,
         "y": 51,
+        "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 37,
+        "y": 51,
         "underlayId": "wood_floor",
         "collision": 0
       },
       {
         "x": 37,
         "y": 51,
-        "underlayId": "stone_floor",
+        "underlayId": "grass_to_wood_floor",
         "collision": 0
       },
       {
@@ -5331,6 +6417,12 @@
         "x": 37,
         "y": 55,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 37,
+        "y": 55,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -5343,6 +6435,12 @@
         "x": 37,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 37,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -5395,6 +6493,12 @@
       },
       {
         "x": 38,
+        "y": 24,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 38,
         "y": 25,
         "underlayId": "dark_cellar_floor",
         "collision": 0
@@ -5485,8 +6589,20 @@
       },
       {
         "x": 38,
+        "y": 39,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 38,
         "y": 40,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 38,
+        "y": 40,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -5529,6 +6645,12 @@
         "x": 38,
         "y": 43,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 38,
+        "y": 44,
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
@@ -5540,13 +6662,19 @@
       {
         "x": 38,
         "y": 44,
-        "underlayId": "stone_floor",
+        "underlayId": "grass_to_wood_floor",
         "collision": 0
       },
       {
         "x": 38,
         "y": 44,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 38,
+        "y": 45,
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
@@ -5558,13 +6686,13 @@
       {
         "x": 38,
         "y": 45,
-        "underlayId": "stone_floor",
+        "underlayId": "packed_road",
         "collision": 0
       },
       {
         "x": 38,
-        "y": 45,
-        "underlayId": "packed_road",
+        "y": 46,
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
@@ -5576,13 +6704,13 @@
       {
         "x": 38,
         "y": 46,
-        "underlayId": "stone_floor",
+        "underlayId": "packed_road",
         "collision": 0
       },
       {
         "x": 38,
-        "y": 46,
-        "underlayId": "packed_road",
+        "y": 47,
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
@@ -5594,13 +6722,13 @@
       {
         "x": 38,
         "y": 47,
-        "underlayId": "stone_floor",
+        "underlayId": "packed_road",
         "collision": 0
       },
       {
         "x": 38,
-        "y": 47,
-        "underlayId": "packed_road",
+        "y": 48,
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
@@ -5612,13 +6740,13 @@
       {
         "x": 38,
         "y": 48,
-        "underlayId": "stone_floor",
+        "underlayId": "packed_road",
         "collision": 0
       },
       {
         "x": 38,
-        "y": 48,
-        "underlayId": "packed_road",
+        "y": 49,
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
@@ -5630,13 +6758,13 @@
       {
         "x": 38,
         "y": 49,
-        "underlayId": "stone_floor",
+        "underlayId": "packed_road",
         "collision": 0
       },
       {
         "x": 38,
-        "y": 49,
-        "underlayId": "packed_road",
+        "y": 50,
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
@@ -5648,13 +6776,13 @@
       {
         "x": 38,
         "y": 50,
-        "underlayId": "stone_floor",
+        "underlayId": "packed_road",
         "collision": 0
       },
       {
         "x": 38,
-        "y": 50,
-        "underlayId": "packed_road",
+        "y": 51,
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
@@ -5666,7 +6794,7 @@
       {
         "x": 38,
         "y": 51,
-        "underlayId": "stone_floor",
+        "underlayId": "grass_to_wood_floor",
         "collision": 0
       },
       {
@@ -5720,6 +6848,12 @@
       {
         "x": 38,
         "y": 55,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 38,
+        "y": 55,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -5727,6 +6861,12 @@
         "x": 38,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 38,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -5779,8 +6919,20 @@
       },
       {
         "x": 39,
+        "y": 24,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 39,
         "y": 25,
         "underlayId": "dark_cellar_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 25,
+        "underlayId": "grass_to_dark_cellar",
         "collision": 0
       },
       {
@@ -5791,8 +6943,20 @@
       },
       {
         "x": 39,
+        "y": 26,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 39,
         "y": 27,
         "underlayId": "dark_cellar_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 27,
+        "underlayId": "grass_to_dark_cellar",
         "collision": 0
       },
       {
@@ -5803,8 +6967,20 @@
       },
       {
         "x": 39,
+        "y": 28,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 39,
         "y": 29,
         "underlayId": "dark_cellar_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 29,
+        "underlayId": "grass_to_dark_cellar",
         "collision": 0
       },
       {
@@ -5815,8 +6991,20 @@
       },
       {
         "x": 39,
+        "y": 30,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 39,
         "y": 31,
         "underlayId": "dark_cellar_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 31,
+        "underlayId": "grass_to_dark_cellar",
         "collision": 0
       },
       {
@@ -5827,8 +7015,20 @@
       },
       {
         "x": 39,
+        "y": 32,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 39,
         "y": 33,
         "underlayId": "dark_cellar_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 33,
+        "underlayId": "grass_to_dark_cellar",
         "collision": 0
       },
       {
@@ -5839,8 +7039,20 @@
       },
       {
         "x": 39,
+        "y": 34,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 39,
         "y": 35,
         "underlayId": "dark_cellar_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 35,
+        "underlayId": "grass_to_dark_cellar",
         "collision": 0
       },
       {
@@ -5851,8 +7063,20 @@
       },
       {
         "x": 39,
+        "y": 36,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 39,
         "y": 37,
         "underlayId": "dark_cellar_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 37,
+        "underlayId": "grass_to_dark_cellar",
         "collision": 0
       },
       {
@@ -5863,14 +7087,32 @@
       },
       {
         "x": 39,
+        "y": 38,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 39,
         "y": 39,
         "underlayId": "dark_cellar_floor",
         "collision": 0
       },
       {
         "x": 39,
+        "y": 39,
+        "underlayId": "grass_to_dark_cellar",
+        "collision": 0
+      },
+      {
+        "x": 39,
         "y": 40,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 40,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -5888,6 +7130,12 @@
       {
         "x": 39,
         "y": 41,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 41,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -5895,6 +7143,12 @@
         "x": 39,
         "y": 42,
         "underlayId": "stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 42,
+        "underlayId": "grass_to_stone_floor",
         "collision": 0
       },
       {
@@ -5912,7 +7166,19 @@
       {
         "x": 39,
         "y": 43,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 43,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 44,
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
@@ -5924,13 +7190,25 @@
       {
         "x": 39,
         "y": 44,
-        "underlayId": "stone_floor",
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 44,
+        "underlayId": "grass_to_wood_floor",
         "collision": 0
       },
       {
         "x": 39,
         "y": 44,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 45,
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
@@ -5942,13 +7220,25 @@
       {
         "x": 39,
         "y": 45,
-        "underlayId": "stone_floor",
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 45,
+        "underlayId": "grass_to_wood_floor",
         "collision": 0
       },
       {
         "x": 39,
         "y": 45,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 46,
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
@@ -5960,13 +7250,25 @@
       {
         "x": 39,
         "y": 46,
-        "underlayId": "stone_floor",
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 46,
+        "underlayId": "grass_to_wood_floor",
         "collision": 0
       },
       {
         "x": 39,
         "y": 46,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 47,
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
@@ -5978,13 +7280,25 @@
       {
         "x": 39,
         "y": 47,
-        "underlayId": "stone_floor",
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 47,
+        "underlayId": "grass_to_wood_floor",
         "collision": 0
       },
       {
         "x": 39,
         "y": 47,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 48,
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
@@ -5996,13 +7310,25 @@
       {
         "x": 39,
         "y": 48,
-        "underlayId": "stone_floor",
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 48,
+        "underlayId": "grass_to_wood_floor",
         "collision": 0
       },
       {
         "x": 39,
         "y": 48,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 49,
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
@@ -6014,13 +7340,25 @@
       {
         "x": 39,
         "y": 49,
-        "underlayId": "stone_floor",
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 49,
+        "underlayId": "grass_to_wood_floor",
         "collision": 0
       },
       {
         "x": 39,
         "y": 49,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 50,
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
@@ -6032,13 +7370,25 @@
       {
         "x": 39,
         "y": 50,
-        "underlayId": "stone_floor",
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 50,
+        "underlayId": "grass_to_wood_floor",
         "collision": 0
       },
       {
         "x": 39,
         "y": 50,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 51,
+        "underlayId": "stone_floor",
         "collision": 0
       },
       {
@@ -6050,7 +7400,13 @@
       {
         "x": 39,
         "y": 51,
-        "underlayId": "stone_floor",
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 51,
+        "underlayId": "grass_to_wood_floor",
         "collision": 0
       },
       {
@@ -6068,6 +7424,12 @@
       {
         "x": 39,
         "y": 52,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 52,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -6080,6 +7442,12 @@
       {
         "x": 39,
         "y": 53,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 53,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -6092,6 +7460,12 @@
       {
         "x": 39,
         "y": 54,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 54,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -6104,6 +7478,12 @@
       {
         "x": 39,
         "y": 55,
+        "underlayId": "grass_to_stone_floor",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 55,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -6115,8 +7495,20 @@
       },
       {
         "x": 39,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 39,
         "y": 57,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 57,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -6127,8 +7519,20 @@
       },
       {
         "x": 39,
+        "y": 58,
+        "underlayId": "grass_to_chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 39,
         "y": 59,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 59,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -6139,8 +7543,20 @@
       },
       {
         "x": 39,
+        "y": 60,
+        "underlayId": "grass_to_chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 39,
         "y": 61,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 61,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -6151,8 +7567,20 @@
       },
       {
         "x": 39,
+        "y": 62,
+        "underlayId": "grass_to_chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 39,
         "y": 63,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 39,
+        "y": 63,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -6163,8 +7591,20 @@
       },
       {
         "x": 40,
+        "y": 24,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 40,
         "y": 25,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 25,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -6175,8 +7615,20 @@
       },
       {
         "x": 40,
+        "y": 26,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 40,
         "y": 27,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 27,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -6187,8 +7639,20 @@
       },
       {
         "x": 40,
+        "y": 28,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 40,
         "y": 29,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 29,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -6199,8 +7663,20 @@
       },
       {
         "x": 40,
+        "y": 30,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 40,
         "y": 31,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 31,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -6211,8 +7687,20 @@
       },
       {
         "x": 40,
+        "y": 32,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 40,
         "y": 33,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 33,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -6223,14 +7711,32 @@
       },
       {
         "x": 40,
+        "y": 34,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 40,
         "y": 35,
         "underlayId": "patch_grass",
         "collision": 0
       },
       {
         "x": 40,
+        "y": 35,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 40,
         "y": 36,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 36,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -6243,6 +7749,12 @@
         "x": 40,
         "y": 37,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 37,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -6255,6 +7767,12 @@
         "x": 40,
         "y": 38,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 38,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -6267,6 +7785,12 @@
         "x": 40,
         "y": 39,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 39,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -6283,8 +7807,20 @@
       },
       {
         "x": 40,
+        "y": 40,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 40,
         "y": 41,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 41,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -6295,8 +7831,20 @@
       },
       {
         "x": 40,
+        "y": 42,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 40,
         "y": 43,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 43,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -6307,8 +7855,20 @@
       },
       {
         "x": 40,
+        "y": 44,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 40,
         "y": 45,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 45,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -6319,8 +7879,20 @@
       },
       {
         "x": 40,
+        "y": 46,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 40,
         "y": 47,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 47,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -6331,8 +7903,20 @@
       },
       {
         "x": 40,
+        "y": 48,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 40,
         "y": 49,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 49,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -6343,8 +7927,20 @@
       },
       {
         "x": 40,
+        "y": 50,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 40,
         "y": 51,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 51,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -6355,8 +7951,20 @@
       },
       {
         "x": 40,
+        "y": 52,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 40,
         "y": 53,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 53,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -6367,14 +7975,32 @@
       },
       {
         "x": 40,
+        "y": 54,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 40,
         "y": 55,
         "underlayId": "bellstone_plaza",
         "collision": 0
       },
       {
         "x": 40,
+        "y": 55,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 40,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -6387,6 +8013,12 @@
         "x": 40,
         "y": 57,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 57,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -6399,6 +8031,12 @@
         "x": 40,
         "y": 58,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 58,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -6411,6 +8049,12 @@
         "x": 40,
         "y": 59,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 59,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -6427,8 +8071,20 @@
       },
       {
         "x": 40,
+        "y": 60,
+        "underlayId": "grass_to_chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 40,
         "y": 61,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 61,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -6439,14 +8095,32 @@
       },
       {
         "x": 40,
+        "y": 62,
+        "underlayId": "grass_to_chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 40,
         "y": 63,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 40,
+        "y": 63,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
         "x": 41,
         "y": 24,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 41,
+        "y": 24,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -6560,6 +8234,12 @@
       {
         "x": 41,
         "y": 39,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 41,
+        "y": 39,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -6567,6 +8247,12 @@
         "x": 41,
         "y": 40,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 41,
+        "y": 40,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -6661,8 +8347,20 @@
       },
       {
         "x": 41,
+        "y": 55,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 41,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 41,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -6735,6 +8433,12 @@
         "x": 42,
         "y": 24,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 42,
+        "y": 24,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -6848,6 +8552,12 @@
       {
         "x": 42,
         "y": 39,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 42,
+        "y": 39,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -6855,6 +8565,12 @@
         "x": 42,
         "y": 40,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 42,
+        "y": 40,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -6949,8 +8665,20 @@
       },
       {
         "x": 42,
+        "y": 55,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 42,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 42,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -7023,6 +8751,12 @@
         "x": 43,
         "y": 24,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 43,
+        "y": 24,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -7136,6 +8870,12 @@
       {
         "x": 43,
         "y": 39,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 43,
+        "y": 39,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -7143,6 +8883,12 @@
         "x": 43,
         "y": 40,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 43,
+        "y": 40,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -7237,8 +8983,20 @@
       },
       {
         "x": 43,
+        "y": 55,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 43,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 43,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -7311,6 +9069,12 @@
         "x": 44,
         "y": 24,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 44,
+        "y": 24,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -7424,6 +9188,12 @@
       {
         "x": 44,
         "y": 39,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 44,
+        "y": 39,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -7431,6 +9201,12 @@
         "x": 44,
         "y": 40,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 44,
+        "y": 40,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -7525,8 +9301,20 @@
       },
       {
         "x": 44,
+        "y": 55,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 44,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 44,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -7599,6 +9387,12 @@
         "x": 45,
         "y": 24,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 45,
+        "y": 24,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -7712,6 +9506,12 @@
       {
         "x": 45,
         "y": 39,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 45,
+        "y": 39,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -7719,6 +9519,12 @@
         "x": 45,
         "y": 40,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 45,
+        "y": 40,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -7813,8 +9619,20 @@
       },
       {
         "x": 45,
+        "y": 55,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 45,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 45,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -7887,6 +9705,12 @@
         "x": 46,
         "y": 24,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 46,
+        "y": 24,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -8000,6 +9824,12 @@
       {
         "x": 46,
         "y": 39,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 46,
+        "y": 39,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -8007,6 +9837,12 @@
         "x": 46,
         "y": 40,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 46,
+        "y": 40,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -8101,8 +9937,20 @@
       },
       {
         "x": 46,
+        "y": 55,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 46,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 46,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -8175,6 +10023,12 @@
         "x": 47,
         "y": 24,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 47,
+        "y": 24,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -8288,6 +10142,12 @@
       {
         "x": 47,
         "y": 39,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 47,
+        "y": 39,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -8295,6 +10155,12 @@
         "x": 47,
         "y": 40,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 47,
+        "y": 40,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -8389,8 +10255,20 @@
       },
       {
         "x": 47,
+        "y": 55,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 47,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 47,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -8463,6 +10341,12 @@
         "x": 48,
         "y": 24,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 48,
+        "y": 24,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -8576,6 +10460,12 @@
       {
         "x": 48,
         "y": 39,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 48,
+        "y": 39,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -8583,6 +10473,12 @@
         "x": 48,
         "y": 40,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 48,
+        "y": 40,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -8677,8 +10573,20 @@
       },
       {
         "x": 48,
+        "y": 55,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 48,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 48,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -8751,6 +10659,12 @@
         "x": 49,
         "y": 24,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 49,
+        "y": 24,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -8864,6 +10778,12 @@
       {
         "x": 49,
         "y": 39,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 49,
+        "y": 39,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -8871,6 +10791,12 @@
         "x": 49,
         "y": 40,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 49,
+        "y": 40,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -8965,8 +10891,20 @@
       },
       {
         "x": 49,
+        "y": 55,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 49,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 49,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -9039,6 +10977,12 @@
         "x": 50,
         "y": 24,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 50,
+        "y": 24,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -9152,6 +11096,12 @@
       {
         "x": 50,
         "y": 39,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 50,
+        "y": 39,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -9159,6 +11109,12 @@
         "x": 50,
         "y": 40,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 50,
+        "y": 40,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -9253,8 +11209,20 @@
       },
       {
         "x": 50,
+        "y": 55,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 50,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 50,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -9327,6 +11295,12 @@
         "x": 51,
         "y": 24,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 51,
+        "y": 24,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -9440,6 +11414,12 @@
       {
         "x": 51,
         "y": 39,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 51,
+        "y": 39,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -9447,6 +11427,12 @@
         "x": 51,
         "y": 40,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 51,
+        "y": 40,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -9541,8 +11527,20 @@
       },
       {
         "x": 51,
+        "y": 55,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 51,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 51,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -9615,6 +11613,12 @@
         "x": 52,
         "y": 24,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 52,
+        "y": 24,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -9728,6 +11732,12 @@
       {
         "x": 52,
         "y": 39,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 52,
+        "y": 39,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -9735,6 +11745,12 @@
         "x": 52,
         "y": 40,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 52,
+        "y": 40,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -9829,8 +11845,20 @@
       },
       {
         "x": 52,
+        "y": 55,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 52,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 52,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -9903,6 +11931,12 @@
         "x": 53,
         "y": 24,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 53,
+        "y": 24,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -10016,6 +12050,12 @@
       {
         "x": 53,
         "y": 39,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 53,
+        "y": 39,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -10023,6 +12063,12 @@
         "x": 53,
         "y": 40,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 53,
+        "y": 40,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -10117,8 +12163,20 @@
       },
       {
         "x": 53,
+        "y": 55,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 53,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 53,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -10191,6 +12249,12 @@
         "x": 54,
         "y": 24,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 54,
+        "y": 24,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -10304,6 +12368,12 @@
       {
         "x": 54,
         "y": 39,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 54,
+        "y": 39,
         "underlayId": "packed_road",
         "collision": 0
       },
@@ -10311,6 +12381,12 @@
         "x": 54,
         "y": 40,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 54,
+        "y": 40,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -10405,8 +12481,20 @@
       },
       {
         "x": 54,
+        "y": 55,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 54,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 54,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -10483,8 +12571,20 @@
       },
       {
         "x": 55,
+        "y": 24,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 55,
         "y": 25,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 25,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -10495,8 +12595,20 @@
       },
       {
         "x": 55,
+        "y": 26,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 55,
         "y": 27,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 27,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -10507,8 +12619,20 @@
       },
       {
         "x": 55,
+        "y": 28,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 55,
         "y": 29,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 29,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -10519,8 +12643,20 @@
       },
       {
         "x": 55,
+        "y": 30,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 55,
         "y": 31,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 31,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -10531,8 +12667,20 @@
       },
       {
         "x": 55,
+        "y": 32,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 55,
         "y": 33,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 33,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -10543,14 +12691,32 @@
       },
       {
         "x": 55,
+        "y": 34,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 55,
         "y": 35,
         "underlayId": "patch_grass",
         "collision": 0
       },
       {
         "x": 55,
+        "y": 35,
+        "underlayId": "grass_to_patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 55,
         "y": 36,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 36,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -10563,6 +12729,12 @@
         "x": 55,
         "y": 37,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 37,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -10575,6 +12747,12 @@
         "x": 55,
         "y": 38,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 38,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -10587,6 +12765,12 @@
         "x": 55,
         "y": 39,
         "underlayId": "patch_grass",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 39,
+        "underlayId": "grass_to_patch_grass",
         "collision": 0
       },
       {
@@ -10603,8 +12787,20 @@
       },
       {
         "x": 55,
+        "y": 40,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 55,
         "y": 41,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 41,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -10615,8 +12811,20 @@
       },
       {
         "x": 55,
+        "y": 42,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 55,
         "y": 43,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 43,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -10627,8 +12835,20 @@
       },
       {
         "x": 55,
+        "y": 44,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 55,
         "y": 45,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 45,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -10639,8 +12859,20 @@
       },
       {
         "x": 55,
+        "y": 46,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 55,
         "y": 47,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 47,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -10651,8 +12883,20 @@
       },
       {
         "x": 55,
+        "y": 48,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 55,
         "y": 49,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 49,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -10663,8 +12907,20 @@
       },
       {
         "x": 55,
+        "y": 50,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 55,
         "y": 51,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 51,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -10675,8 +12931,20 @@
       },
       {
         "x": 55,
+        "y": 52,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 55,
         "y": 53,
         "underlayId": "bellstone_plaza",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 53,
+        "underlayId": "grass_to_bellstone",
         "collision": 0
       },
       {
@@ -10687,14 +12955,32 @@
       },
       {
         "x": 55,
+        "y": 54,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 55,
         "y": 55,
         "underlayId": "bellstone_plaza",
         "collision": 0
       },
       {
         "x": 55,
+        "y": 55,
+        "underlayId": "grass_to_bellstone",
+        "collision": 0
+      },
+      {
+        "x": 55,
         "y": 56,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 56,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -10707,6 +12993,12 @@
         "x": 55,
         "y": 57,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 57,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -10719,6 +13011,12 @@
         "x": 55,
         "y": 58,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 58,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -10731,6 +13029,12 @@
         "x": 55,
         "y": 59,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 59,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -10747,8 +13051,20 @@
       },
       {
         "x": 55,
+        "y": 60,
+        "underlayId": "grass_to_chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 55,
         "y": 61,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 61,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -10759,8 +13075,20 @@
       },
       {
         "x": 55,
+        "y": 62,
+        "underlayId": "grass_to_chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 55,
         "y": 63,
         "underlayId": "chalk_flagstone",
+        "collision": 0
+      },
+      {
+        "x": 55,
+        "y": 63,
+        "underlayId": "grass_to_chalk_flagstone",
         "collision": 0
       },
       {
@@ -10771,8 +13099,20 @@
       },
       {
         "x": 56,
+        "y": 8,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 9,
         "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 9,
+        "underlayId": "grass_to_grave_soil",
         "collision": 0
       },
       {
@@ -10783,8 +13123,20 @@
       },
       {
         "x": 56,
+        "y": 10,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 11,
         "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 11,
+        "underlayId": "grass_to_grave_soil",
         "collision": 0
       },
       {
@@ -10795,8 +13147,20 @@
       },
       {
         "x": 56,
+        "y": 12,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 13,
         "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 13,
+        "underlayId": "grass_to_grave_soil",
         "collision": 0
       },
       {
@@ -10807,8 +13171,20 @@
       },
       {
         "x": 56,
+        "y": 14,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 15,
         "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 15,
+        "underlayId": "grass_to_grave_soil",
         "collision": 0
       },
       {
@@ -10819,8 +13195,20 @@
       },
       {
         "x": 56,
+        "y": 16,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 17,
         "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 17,
+        "underlayId": "grass_to_grave_soil",
         "collision": 0
       },
       {
@@ -10831,8 +13219,20 @@
       },
       {
         "x": 56,
+        "y": 18,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 19,
         "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 19,
+        "underlayId": "grass_to_grave_soil",
         "collision": 0
       },
       {
@@ -10843,8 +13243,20 @@
       },
       {
         "x": 56,
+        "y": 20,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 21,
         "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 21,
+        "underlayId": "grass_to_grave_soil",
         "collision": 0
       },
       {
@@ -10855,8 +13267,20 @@
       },
       {
         "x": 56,
+        "y": 22,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 23,
         "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 23,
+        "underlayId": "grass_to_grave_soil",
         "collision": 0
       },
       {
@@ -10867,8 +13291,20 @@
       },
       {
         "x": 56,
+        "y": 24,
+        "underlayId": "grass_to_river_mud",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 25,
         "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 25,
+        "underlayId": "grass_to_river_mud",
         "collision": 0
       },
       {
@@ -10879,8 +13315,20 @@
       },
       {
         "x": 56,
+        "y": 26,
+        "underlayId": "grass_to_river_mud",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 27,
         "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 27,
+        "underlayId": "grass_to_river_mud",
         "collision": 0
       },
       {
@@ -10891,8 +13339,20 @@
       },
       {
         "x": 56,
+        "y": 28,
+        "underlayId": "grass_to_river_mud",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 29,
         "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 29,
+        "underlayId": "grass_to_river_mud",
         "collision": 0
       },
       {
@@ -10903,8 +13363,20 @@
       },
       {
         "x": 56,
+        "y": 30,
+        "underlayId": "grass_to_river_mud",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 31,
         "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 31,
+        "underlayId": "grass_to_river_mud",
         "collision": 0
       },
       {
@@ -10915,8 +13387,20 @@
       },
       {
         "x": 56,
+        "y": 32,
+        "underlayId": "grass_to_river_mud",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 33,
         "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 33,
+        "underlayId": "grass_to_river_mud",
         "collision": 0
       },
       {
@@ -10927,8 +13411,20 @@
       },
       {
         "x": 56,
+        "y": 34,
+        "underlayId": "grass_to_river_mud",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 35,
         "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 35,
+        "underlayId": "grass_to_river_mud",
         "collision": 0
       },
       {
@@ -10939,8 +13435,20 @@
       },
       {
         "x": 56,
+        "y": 36,
+        "underlayId": "grass_to_river_mud",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 37,
         "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 37,
+        "underlayId": "grass_to_river_mud",
         "collision": 0
       },
       {
@@ -10951,14 +13459,32 @@
       },
       {
         "x": 56,
+        "y": 38,
+        "underlayId": "grass_to_river_mud",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 39,
         "underlayId": "river_mud",
         "collision": 0
       },
       {
         "x": 56,
+        "y": 39,
+        "underlayId": "grass_to_river_mud",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 40,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 40,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -10971,6 +13497,12 @@
         "x": 56,
         "y": 41,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 41,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -10983,6 +13515,12 @@
         "x": 56,
         "y": 42,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 42,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -10995,6 +13533,12 @@
         "x": 56,
         "y": 43,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 43,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -11007,6 +13551,12 @@
         "x": 56,
         "y": 44,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 44,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -11019,6 +13569,12 @@
         "x": 56,
         "y": 45,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 45,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -11031,6 +13587,12 @@
         "x": 56,
         "y": 46,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 46,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -11043,6 +13605,12 @@
         "x": 56,
         "y": 47,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 47,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -11055,6 +13623,12 @@
         "x": 56,
         "y": 48,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 48,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -11067,6 +13641,12 @@
         "x": 56,
         "y": 49,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 49,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -11079,6 +13659,12 @@
         "x": 56,
         "y": 50,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 50,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -11091,6 +13677,12 @@
         "x": 56,
         "y": 51,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 51,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -11103,6 +13695,12 @@
         "x": 56,
         "y": 52,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 52,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -11115,6 +13713,12 @@
         "x": 56,
         "y": 53,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 53,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -11127,6 +13731,12 @@
         "x": 56,
         "y": 54,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 54,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -11139,6 +13749,12 @@
         "x": 56,
         "y": 55,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 55,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -11151,6 +13767,12 @@
         "x": 56,
         "y": 56,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 56,
+        "underlayId": "grass_to_packed_road",
         "collision": 0
       },
       {
@@ -11161,8 +13783,20 @@
       },
       {
         "x": 56,
+        "y": 57,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 58,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 58,
+        "underlayId": "grass_to_packed_road",
         "collision": 0
       },
       {
@@ -11173,8 +13807,20 @@
       },
       {
         "x": 56,
+        "y": 59,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 60,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 60,
+        "underlayId": "grass_to_packed_road",
         "collision": 0
       },
       {
@@ -11185,8 +13831,20 @@
       },
       {
         "x": 56,
+        "y": 61,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 56,
         "y": 62,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 56,
+        "y": 62,
+        "underlayId": "grass_to_packed_road",
         "collision": 0
       },
       {
@@ -11196,9 +13854,21 @@
         "collision": 0
       },
       {
+        "x": 56,
+        "y": 63,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
         "x": 57,
         "y": 8,
         "underlayId": "grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 57,
+        "y": 8,
+        "underlayId": "grass_to_grave_soil",
         "collision": 0
       },
       {
@@ -11293,8 +13963,20 @@
       },
       {
         "x": 57,
+        "y": 23,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 57,
         "y": 24,
         "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 57,
+        "y": 24,
+        "underlayId": "grass_to_river_mud",
         "collision": 0
       },
       {
@@ -11389,8 +14071,20 @@
       },
       {
         "x": 57,
+        "y": 39,
+        "underlayId": "grass_to_river_mud",
+        "collision": 0
+      },
+      {
+        "x": 57,
         "y": 40,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 57,
+        "y": 40,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -11571,6 +14265,12 @@
         "x": 57,
         "y": 55,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 57,
+        "y": 55,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -11583,6 +14283,12 @@
         "x": 57,
         "y": 56,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 57,
+        "y": 56,
+        "underlayId": "grass_to_packed_road",
         "collision": 0
       },
       {
@@ -11635,6 +14341,12 @@
       },
       {
         "x": 58,
+        "y": 8,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 58,
         "y": 9,
         "underlayId": "grave_soil",
         "collision": 0
@@ -11725,8 +14437,20 @@
       },
       {
         "x": 58,
+        "y": 23,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 58,
         "y": 24,
         "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 58,
+        "y": 24,
+        "underlayId": "grass_to_river_mud",
         "collision": 0
       },
       {
@@ -11821,8 +14545,20 @@
       },
       {
         "x": 58,
+        "y": 39,
+        "underlayId": "grass_to_river_mud",
+        "collision": 0
+      },
+      {
+        "x": 58,
         "y": 40,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 58,
+        "y": 40,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -12003,6 +14739,12 @@
         "x": 58,
         "y": 55,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 58,
+        "y": 55,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -12015,6 +14757,12 @@
         "x": 58,
         "y": 56,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 58,
+        "y": 56,
+        "underlayId": "grass_to_packed_road",
         "collision": 0
       },
       {
@@ -12067,6 +14815,12 @@
       },
       {
         "x": 59,
+        "y": 8,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 59,
         "y": 9,
         "underlayId": "grave_soil",
         "collision": 0
@@ -12157,8 +14911,20 @@
       },
       {
         "x": 59,
+        "y": 23,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 59,
         "y": 24,
         "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 59,
+        "y": 24,
+        "underlayId": "grass_to_river_mud",
         "collision": 0
       },
       {
@@ -12253,8 +15019,20 @@
       },
       {
         "x": 59,
+        "y": 39,
+        "underlayId": "grass_to_river_mud",
+        "collision": 0
+      },
+      {
+        "x": 59,
         "y": 40,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 59,
+        "y": 40,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -12435,6 +15213,12 @@
         "x": 59,
         "y": 55,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 59,
+        "y": 55,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -12447,6 +15231,12 @@
         "x": 59,
         "y": 56,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 59,
+        "y": 56,
+        "underlayId": "grass_to_packed_road",
         "collision": 0
       },
       {
@@ -12499,6 +15289,12 @@
       },
       {
         "x": 60,
+        "y": 8,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 60,
         "y": 9,
         "underlayId": "grave_soil",
         "collision": 0
@@ -12589,8 +15385,20 @@
       },
       {
         "x": 60,
+        "y": 23,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 60,
         "y": 24,
         "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 60,
+        "y": 24,
+        "underlayId": "grass_to_river_mud",
         "collision": 0
       },
       {
@@ -12685,8 +15493,20 @@
       },
       {
         "x": 60,
+        "y": 39,
+        "underlayId": "grass_to_river_mud",
+        "collision": 0
+      },
+      {
+        "x": 60,
         "y": 40,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 60,
+        "y": 40,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -12781,8 +15601,20 @@
       },
       {
         "x": 60,
+        "y": 55,
+        "underlayId": "grass_to_soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 60,
         "y": 56,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 60,
+        "y": 56,
+        "underlayId": "grass_to_packed_road",
         "collision": 0
       },
       {
@@ -12835,6 +15667,12 @@
       },
       {
         "x": 61,
+        "y": 8,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 61,
         "y": 9,
         "underlayId": "grave_soil",
         "collision": 0
@@ -12925,8 +15763,20 @@
       },
       {
         "x": 61,
+        "y": 23,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 61,
         "y": 24,
         "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 61,
+        "y": 24,
+        "underlayId": "grass_to_river_mud",
         "collision": 0
       },
       {
@@ -13021,8 +15871,20 @@
       },
       {
         "x": 61,
+        "y": 39,
+        "underlayId": "grass_to_river_mud",
+        "collision": 0
+      },
+      {
+        "x": 61,
         "y": 40,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 61,
+        "y": 40,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -13117,8 +15979,20 @@
       },
       {
         "x": 61,
+        "y": 55,
+        "underlayId": "grass_to_soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 61,
         "y": 56,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 61,
+        "y": 56,
+        "underlayId": "grass_to_packed_road",
         "collision": 0
       },
       {
@@ -13171,6 +16045,12 @@
       },
       {
         "x": 62,
+        "y": 8,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 62,
         "y": 9,
         "underlayId": "grave_soil",
         "collision": 0
@@ -13261,8 +16141,20 @@
       },
       {
         "x": 62,
+        "y": 23,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 62,
         "y": 24,
         "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 62,
+        "y": 24,
+        "underlayId": "grass_to_river_mud",
         "collision": 0
       },
       {
@@ -13357,8 +16249,20 @@
       },
       {
         "x": 62,
+        "y": 39,
+        "underlayId": "grass_to_river_mud",
+        "collision": 0
+      },
+      {
+        "x": 62,
         "y": 40,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 62,
+        "y": 40,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -13453,8 +16357,20 @@
       },
       {
         "x": 62,
+        "y": 55,
+        "underlayId": "grass_to_soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 62,
         "y": 56,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 62,
+        "y": 56,
+        "underlayId": "grass_to_packed_road",
         "collision": 0
       },
       {
@@ -13507,6 +16423,12 @@
       },
       {
         "x": 63,
+        "y": 8,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 63,
         "y": 9,
         "underlayId": "grave_soil",
         "collision": 0
@@ -13597,8 +16519,20 @@
       },
       {
         "x": 63,
+        "y": 23,
+        "underlayId": "grass_to_grave_soil",
+        "collision": 0
+      },
+      {
+        "x": 63,
         "y": 24,
         "underlayId": "river_mud",
+        "collision": 0
+      },
+      {
+        "x": 63,
+        "y": 24,
+        "underlayId": "grass_to_river_mud",
         "collision": 0
       },
       {
@@ -13693,8 +16627,20 @@
       },
       {
         "x": 63,
+        "y": 39,
+        "underlayId": "grass_to_river_mud",
+        "collision": 0
+      },
+      {
+        "x": 63,
         "y": 40,
         "underlayId": "soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 63,
+        "y": 40,
+        "underlayId": "grass_to_soot_cobble",
         "collision": 0
       },
       {
@@ -13789,8 +16735,20 @@
       },
       {
         "x": 63,
+        "y": 55,
+        "underlayId": "grass_to_soot_cobble",
+        "collision": 0
+      },
+      {
+        "x": 63,
         "y": 56,
         "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 63,
+        "y": 56,
+        "underlayId": "grass_to_packed_road",
         "collision": 0
       },
       {
@@ -13932,6 +16890,56 @@
       "objectId": "foundry_anvil",
       "x": 62,
       "y": 48
+    },
+    {
+      "objectId": "building_wall_straight",
+      "x": 20,
+      "y": 20
+    },
+    {
+      "objectId": "building_wall_straight",
+      "x": 21,
+      "y": 20
+    },
+    {
+      "objectId": "building_wall_straight",
+      "x": 22,
+      "y": 20
+    },
+    {
+      "objectId": "building_wall_straight",
+      "x": 20,
+      "y": 21
+    },
+    {
+      "objectId": "building_wall_straight",
+      "x": 22,
+      "y": 21
+    },
+    {
+      "objectId": "building_wall_straight",
+      "x": 20,
+      "y": 22
+    },
+    {
+      "objectId": "building_door_wood",
+      "x": 21,
+      "y": 22
+    },
+    {
+      "objectId": "building_wall_straight",
+      "x": 22,
+      "y": 22
+    },
+    {
+      "objectId": "building_roof_flat",
+      "x": 21,
+      "y": 21
+    },
+    {
+      "objectId": "building_gate_town",
+      "x": 40,
+      "y": 40
     }
   ],
   "npcSpawns": [
@@ -13967,6 +16975,11 @@
       "y": 52
     },
     {
+      "npcId": "ashling_in_the_kiln",
+      "x": 26,
+      "y": 22
+    },
+    {
       "npcId": "soot_rat",
       "x": 28,
       "y": 24
@@ -13977,9 +16990,29 @@
       "y": 28
     },
     {
+      "npcId": "man",
+      "x": 29,
+      "y": 34
+    },
+    {
+      "npcId": "cellar_king",
+      "x": 30,
+      "y": 26
+    },
+    {
       "npcId": "cellar_rat",
       "x": 30,
       "y": 30
+    },
+    {
+      "npcId": "man",
+      "x": 30,
+      "y": 33
+    },
+    {
+      "npcId": "woman",
+      "x": 31,
+      "y": 33
     },
     {
       "npcId": "soot_rat",
@@ -14035,6 +17068,16 @@
       "y": 28
     },
     {
+      "npcId": "mudhook_grib",
+      "x": 44,
+      "y": 36
+    },
+    {
+      "npcId": "man",
+      "x": 44,
+      "y": 44
+    },
+    {
       "npcId": "pippa_hearth",
       "x": 46,
       "y": 46,
@@ -14045,6 +17088,11 @@
       "x": 48,
       "y": 32,
       "wanderRadius": 0
+    },
+    {
+      "npcId": "woman",
+      "x": 48,
+      "y": 47
     },
     {
       "npcId": "mara_bellkeeper",
@@ -14059,14 +17107,29 @@
       "wanderRadius": 0
     },
     {
+      "npcId": "man",
+      "x": 50,
+      "y": 44
+    },
+    {
       "npcId": "grave_wisp",
       "x": 56,
       "y": 8
     },
     {
+      "npcId": "bell_bat_mother",
+      "x": 56,
+      "y": 54
+    },
+    {
       "npcId": "bell_bat",
       "x": 56,
       "y": 56
+    },
+    {
+      "npcId": "wrong_flower",
+      "x": 58,
+      "y": 10
     },
     {
       "npcId": "bell_bat",
@@ -14084,49 +17147,56 @@
       "y": 26
     },
     {
-      "npcId": "cellar_king",
-      "x": 30,
-      "y": 26,
-      "wanderRadius": 0
-    },
-    {
-      "npcId": "mudhook_grib",
-      "x": 44,
-      "y": 36,
-      "wanderRadius": 0
-    },
-    {
-      "npcId": "ashling_in_the_kiln",
-      "x": 26,
-      "y": 22,
-      "wanderRadius": 0
-    },
-    {
-      "npcId": "bell_bat_mother",
-      "x": 56,
-      "y": 54,
+      "npcId": "osric_penny",
+      "x": 60,
+      "y": 48,
       "wanderRadius": 0
     },
     {
       "npcId": "old_snapper",
       "x": 62,
-      "y": 28,
+      "y": 28
+    },
+    {
+      "npcId": "warden_holt",
+      "x": 50,
+      "y": 50,
       "wanderRadius": 0
     },
     {
-      "npcId": "wrong_flower",
-      "x": 58,
-      "y": 10,
+      "npcId": "mother_tallow",
+      "x": 46,
+      "y": 32,
       "wanderRadius": 0
     },
     {
-      "npcId": "osric_penny",
-      "x": 60,
+      "npcId": "edda_tinfin",
+      "x": 52,
       "y": 48,
+      "wanderRadius": 0
+    },
+    {
+      "npcId": "bramble_hook",
+      "x": 52,
+      "y": 50,
+      "wanderRadius": 0
+    },
+    {
+      "npcId": "gravekeeper_soll",
+      "x": 30,
+      "y": 46,
       "wanderRadius": 0
     }
   ],
   "groundItemSpawns": [],
+  "contractSpawns": [
+    { "contractId": "rats_under_tallys_contract", "x": 50, "y": 48 },
+    { "contractId": "mud_on_the_north_road", "x": 50, "y": 48 },
+    { "contractId": "bats_in_the_bell_rafters", "x": 50, "y": 48 },
+    { "contractId": "foxes_in_patch_lane", "x": 50, "y": 48 },
+    { "contractId": "mites_at_gravegate", "x": 50, "y": 48 },
+    { "contractId": "smoke_in_the_old_kiln", "x": 50, "y": 48 }
+  ],
   "triggers": [
     {
       "id": "oldroad_gate",
@@ -14250,6 +17320,13 @@
       "initialDepletion": false
     },
     {
+      "resourceNodeId": "oldroad_oak_tree",
+      "x": 12,
+      "y": 42,
+      "respawnTicks": 100,
+      "initialDepletion": false
+    },
+    {
       "resourceNodeId": "dry_tree_node",
       "x": 20,
       "y": 25,
@@ -14266,20 +17343,6 @@
     {
       "resourceNodeId": "scrub_tree",
       "x": 42,
-      "y": 26,
-      "respawnTicks": 100,
-      "initialDepletion": false
-    },
-    {
-      "resourceNodeId": "oldroad_oak_tree",
-      "x": 12,
-      "y": 42,
-      "respawnTicks": 100,
-      "initialDepletion": false
-    },
-    {
-      "resourceNodeId": "ditch_shrimp_spot",
-      "x": 58,
       "y": 26,
       "respawnTicks": 100,
       "initialDepletion": false
@@ -14304,8 +17367,29 @@
       "y": 10,
       "respawnTicks": 100,
       "initialDepletion": false
+    },
+    {
+      "resourceNodeId": "ditch_shrimp_spot",
+      "x": 58,
+      "y": 26,
+      "respawnTicks": 100,
+      "initialDepletion": false
     }
   ],
-  "playerSpawnPoints": [{ "x": 32, "y": 32, "plane": 0, "spawnType": "default" }],
-  "deathRespawnPoints": [{ "x": 32, "y": 32, "plane": 0, "respawnType": "nearest" }]
+  "playerSpawnPoints": [
+    {
+      "x": 45,
+      "y": 45,
+      "plane": 0,
+      "spawnType": "default"
+    }
+  ],
+  "deathRespawnPoints": [
+    {
+      "x": 34,
+      "y": 46,
+      "plane": 0,
+      "respawnType": "nearest"
+    }
+  ]
 }

@@ -122,6 +122,33 @@ export function createWorld(): World {
     statusEffect: new Map(),
   };
 
+  const allStores: readonly Map<EntityId, unknown>[] = [
+    componentTables.position,
+    componentTables.movement,
+    componentTables.actor,
+    componentTables.player,
+    componentTables.npc,
+    componentTables.object,
+    componentTables.groundItem,
+    componentTables.grave,
+    componentTables.doorState,
+    componentTables.inventory,
+    componentTables.bank,
+    componentTables.equipment,
+    componentTables.skills,
+    componentTables.combatant,
+    componentTables.resourceNode,
+    componentTables.vars,
+    componentTables.dialogue,
+    componentTables.shop,
+    componentTables.contract,
+    componentTables.deed,
+    componentTables.charter,
+    componentTables.publicWork,
+    componentTables.statusEffects,
+    componentTables.statusEffect,
+  ];
+
   const createEntity = (): EntityId => {
     return entities.allocate();
   };
@@ -130,7 +157,7 @@ export function createWorld(): World {
     if (!entities.isAlive(id)) {
       throw new Error(`Cannot destroy non-existent entity ${id}`);
     }
-    for (const store of Object.values(componentTables)) {
+    for (const store of allStores) {
       store.delete(id);
     }
     entities.release(id);

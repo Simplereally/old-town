@@ -6,7 +6,10 @@ import { exportRegionJson } from "./editor-model";
 import type { EditorState } from "./main";
 
 // Mock import.meta.glob (Vite feature) before importing main.ts
-vi.stubGlobal("import.meta.glob", vi.fn(() => ({})));
+vi.stubGlobal(
+  "import.meta.glob",
+  vi.fn(() => ({})),
+);
 
 let commitPlacementMutation: (
   state: EditorState,
@@ -177,6 +180,7 @@ const baseRegion: RegionMapDef = {
   resourceNodeSpawns: [],
   playerSpawnPoints: [],
   deathRespawnPoints: [],
+  contractSpawns: [],
 };
 
 function makeState(region: RegionMapDef = baseRegion): EditorState {
@@ -226,8 +230,7 @@ beforeAll(async () => {
   const gt = globalThis as unknown as typeof globalThis & {
     URL: { createObjectURL: (_blob: Blob) => string; revokeObjectURL: () => void };
   };
-  gt.URL.createObjectURL = (_blob: Blob) =>
-    `blob:mock-${Math.random().toString(36).slice(2)}`;
+  gt.URL.createObjectURL = (_blob: Blob) => `blob:mock-${Math.random().toString(36).slice(2)}`;
   gt.URL.revokeObjectURL = () => {};
   const mod = await import("./main");
   commitPlacementMutation = mod.commitPlacementMutation;

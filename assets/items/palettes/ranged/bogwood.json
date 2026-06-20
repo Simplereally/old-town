@@ -1,0 +1,17 @@
+{
+  "ladder": "ranged",
+  "tier": "bogwood",
+  "tierOrder": 2,
+  "regions": {
+    "limb": "#6b4a2b",
+    "string": "#9a8769",
+    "grip": "#4a3526",
+    "accent": "#8a5a32",
+    "prod": "#6b4a2b",
+    "stock": "#4a3526",
+    "mechanism": "#8a5a32",
+    "shaft": "#6b4a2b",
+    "fletch": "#9a8769",
+    "head": "#8a5a32"
+  }
+}

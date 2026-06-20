@@ -1,0 +1,14 @@
+{
+  "ladder": "melee",
+  "tier": "cobbled",
+  "tierOrder": 0,
+  "regions": {
+    "blade": "#6a6d6f",
+    "head": "#6a6d6f",
+    "grip": "#4a3526",
+    "accent": "#8a5a32",
+    "trim": "#3a3632",
+    "metal": "#6a6d6f",
+    "straps": "#4a3526"
+  }
+}

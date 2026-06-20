@@ -1,0 +1,18 @@
+{
+  "ladder": "magic",
+  "tier": "tallowbound",
+  "tierOrder": 2,
+  "regions": {
+    "cloth": "#7a5a3a",
+    "script": "#c9b88a",
+    "seal": "#c9a23c",
+    "accent": "#8a6a44",
+    "shaft": "#6b4a2b",
+    "tip": "#c9a23c",
+    "bead": "#c9b88a",
+    "lens": "#c9a23c",
+    "rim": "#6b4a2b",
+    "cover": "#7a5a3a",
+    "page": "#c9b88a"
+  }
+}

@@ -1,6 +1,7 @@
 import type { QuestDef } from "@old-town/shared";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ContentClient } from "./ContentClient";
+import { IconAtlas } from "./IconAtlas";
 import { UIManager, type UIManagerCallbacks } from "./UIManager";
 import { UIState } from "./UIState";
 
@@ -45,6 +46,8 @@ function setupTestEnv(): void {
     <div id="inventory-body"></div>
     <div id="equipment-panel" class="hidden"></div>
     <div id="equipment-body"></div>
+    <div id="combat-panel" class="hidden"></div>
+    <div id="combat-body"></div>
     <div id="skills-panel" class="hidden"></div>
     <div id="skills-body"></div>
     <div id="spellbook-panel" class="hidden"></div>
@@ -58,6 +61,7 @@ function setupTestEnv(): void {
     <div id="debug-overlay" class="hidden"></div>
     <button class="ui-bar-btn" data-panel="inventory-panel"></button>
     <button class="ui-bar-btn" data-panel="equipment-panel"></button>
+    <button class="ui-bar-btn" data-panel="combat-panel"></button>
     <button class="ui-bar-btn" data-panel="skills-panel"></button>
     <button class="ui-bar-btn" data-panel="spellbook-panel"></button>
     <button class="ui-bar-btn" data-panel="quest-panel"></button>
@@ -98,6 +102,10 @@ function setupTestEnv(): void {
     <div id="activity-panel" class="hidden">
       <div class="ui-panel-body" id="activity-body"></div>
     </div>
+    <div id="settings-panel" class="hidden">
+      <div class="ui-panel-body" id="settings-body"></div>
+    </div>
+    <button class="ui-bar-btn" data-panel="settings-panel"></button>
     <div id="status-effects-panel" class="hidden"></div>
     <div id="death-screen" class="hidden"></div>
     <div id="notification-toast" class="hidden"></div>
@@ -118,17 +126,21 @@ describe("UIManager", () => {
       sendItemCommand: vi.fn(),
       sendChatCommand: vi.fn(),
       enterSpellTargetMode: vi.fn(),
+      enterItemTargetMode: vi.fn(),
       sendUiActionCommand: vi.fn(),
       sendBankCommand: vi.fn(),
       sendShopCommand: vi.fn(),
       sendRecipeCommand: vi.fn(),
+      sendSetCombatStyle: vi.fn(),
+      setInputSettings: vi.fn(),
     };
     manager = new UIManager(uiState, content, callbacks);
   });
 
   it("toggles panel visibility on bar button click", () => {
-    const btn = document.querySelector("[data-panel='inventory-panel']") as HTMLButtonElement;
-    const panel = document.getElementById("inventory-panel") as HTMLDivElement;
+    const btn = document.querySelector("[data-panel='inventory-panel']");
+    const panel = document.getElementById("inventory-panel");
+    if (!(btn instanceof HTMLButtonElement) || !(panel instanceof HTMLDivElement)) throw new Error("Missing elements");
     expect(panel.classList.contains("hidden")).toBe(true);
     btn.click();
     expect(panel.classList.contains("hidden")).toBe(false);
@@ -136,8 +148,55 @@ describe("UIManager", () => {
     expect(panel.classList.contains("hidden")).toBe(true);
   });
 
+  it("renders weapon attack styles and selecting one sends the command optimistically", () => {
+    content.getItem.mockImplementation(
+      (id: string) =>
+        (id === "pennywrought_shortblade"
+          ? {
+              id,
+              name: "Pennywrought Shortblade",
+              equipment: { slot: "weapon", allowedStyles: ["stab", "slash", "crush"] },
+            }
+          : undefined) as unknown as undefined,
+    );
+    uiState.setEquipment([null, null, null, "pennywrought_shortblade"]);
+    uiState.setSkills([{ skillId: "strength", level: 3, xp: 0, effectiveLevel: 3 }]);
+
+    manager.togglePanel("combat-panel");
+
+    const body = document.getElementById("combat-body");
+    const buttons = body?.querySelectorAll(".combat-style-btn");
+    expect(buttons?.length).toBe(3);
+    // Default active style is the weapon's first style: stab → Attack.
+    expect(
+      body?.querySelector(".combat-style-btn.active .combat-style-name")?.textContent,
+    ).toBe("Stab");
+
+    const slash = [...(buttons ?? [])].find((b) => b.textContent?.includes("Slash"));
+    (slash as HTMLButtonElement).click();
+
+    expect(callbacks.sendSetCombatStyle).toHaveBeenCalledWith("slash");
+    expect(uiState.combatStyle).toBe("slash");
+    // Optimistic re-render now highlights Slash (which trains Strength).
+    expect(
+      document.querySelector("#combat-body .combat-style-btn.active .combat-style-name")
+        ?.textContent,
+    ).toBe("Slash");
+  });
+
+  it("shows Unarmed with no selectable styles when no weapon is equipped", () => {
+    uiState.setEquipment([]);
+    manager.togglePanel("combat-panel");
+    const body = document.getElementById("combat-body");
+    expect(body?.querySelector(".combat-weapon")?.textContent).toBe("Unarmed");
+    const buttons = body?.querySelectorAll<HTMLButtonElement>(".combat-style-btn");
+    expect(buttons?.length).toBe(1);
+    expect(buttons?.[0]?.disabled).toBe(true);
+  });
+
   it("toggles panel visibility on keyboard shortcut", () => {
-    const panel = document.getElementById("inventory-panel") as HTMLDivElement;
+    const panel = document.getElementById("inventory-panel");
+    if (!(panel instanceof HTMLDivElement)) throw new Error("Expected HTMLDivElement");
     expect(panel.classList.contains("hidden")).toBe(true);
     const event = new KeyboardEvent("keydown", { key: "i" });
     document.dispatchEvent(event);
@@ -145,7 +204,8 @@ describe("UIManager", () => {
   });
 
   it("sends chat command on Enter in chat input", () => {
-    const input = document.getElementById("chat-input") as HTMLInputElement;
+    const input = document.getElementById("chat-input");
+    if (!(input instanceof HTMLInputElement)) throw new Error("Expected HTMLInputElement");
     input.value = "hello";
     const event = new KeyboardEvent("keydown", { key: "Enter" });
     input.dispatchEvent(event);
@@ -154,7 +214,8 @@ describe("UIManager", () => {
   });
 
   it("does not send chat command when text is empty", () => {
-    const input = document.getElementById("chat-input") as HTMLInputElement;
+    const input = document.getElementById("chat-input");
+    if (!(input instanceof HTMLInputElement)) throw new Error("Expected HTMLInputElement");
     input.value = "   ";
     const event = new KeyboardEvent("keydown", { key: "Enter" });
     input.dispatchEvent(event);
@@ -171,8 +232,9 @@ describe("UIManager", () => {
   });
 
   it("does not intercept keyboard shortcuts when input is focused", () => {
-    const input = document.getElementById("chat-input") as HTMLInputElement;
-    const panel = document.getElementById("inventory-panel") as HTMLDivElement;
+    const input = document.getElementById("chat-input");
+    const panel = document.getElementById("inventory-panel");
+    if (!(input instanceof HTMLInputElement) || !(panel instanceof HTMLDivElement)) throw new Error("Missing elements");
     expect(panel.classList.contains("hidden")).toBe(true);
     const event = new KeyboardEvent("keydown", { key: "i" });
     Object.defineProperty(event, "target", { value: input, writable: false });
@@ -346,9 +408,10 @@ describe("UIManager", () => {
     const detail = document.getElementById("recipe-detail");
     expect(detail?.classList.contains("hidden")).toBe(false);
 
-    const makeBtn = document.getElementById("recipe-make-btn") as HTMLButtonElement | null;
-    expect(makeBtn?.textContent).toBe("Make");
-    expect(makeBtn?.disabled).toBe(false);
+    const makeBtn = document.getElementById("recipe-make-btn");
+    if (!(makeBtn instanceof HTMLButtonElement)) throw new Error("Expected HTMLButtonElement");
+    expect(makeBtn.textContent).toBe("Make");
+    expect(makeBtn.disabled).toBe(false);
 
     const output = document.getElementById("recipe-output");
     expect(output?.textContent).toContain("Cooked Fish");
@@ -378,9 +441,10 @@ describe("UIManager", () => {
     const rows = document.querySelectorAll<HTMLDivElement>(".recipe-row");
     rows[0]?.click();
 
-    const makeBtn = document.getElementById("recipe-make-btn") as HTMLButtonElement | null;
-    expect(makeBtn?.disabled).toBe(true);
-    expect(makeBtn?.textContent).toBe("Level too low");
+    const makeBtn = document.getElementById("recipe-make-btn");
+    if (!(makeBtn instanceof HTMLButtonElement)) throw new Error("Expected HTMLButtonElement");
+    expect(makeBtn.disabled).toBe(true);
+    expect(makeBtn.textContent).toBe("Level too low");
   });
 
   it("sends RecipeSelect command on Make click", () => {
@@ -406,8 +470,9 @@ describe("UIManager", () => {
     const rows = document.querySelectorAll<HTMLDivElement>(".recipe-row");
     rows[0]?.click();
 
-    const makeBtn = document.getElementById("recipe-make-btn") as HTMLButtonElement | null;
-    makeBtn?.click();
+    const makeBtn = document.getElementById("recipe-make-btn");
+    if (!(makeBtn instanceof HTMLButtonElement)) throw new Error("Expected HTMLButtonElement");
+    makeBtn.click();
 
     expect(callbacks.sendRecipeCommand).toHaveBeenCalledWith("r1", 99);
   });
@@ -514,17 +579,190 @@ describe("UIManager", () => {
       risk: "low",
     });
 
-    const stopBtn = document.querySelector(".activity-stop-btn") as HTMLButtonElement | null;
+    const stopBtn = document.querySelector(".activity-stop-btn");
     expect(stopBtn).not.toBeNull();
-    stopBtn?.click();
+    if (!(stopBtn instanceof HTMLButtonElement)) throw new Error("Expected HTMLButtonElement");
+    stopBtn.click();
     expect(callbacks.sendUiActionCommand).toHaveBeenCalledWith("activity_stop", "woodcutting_oak");
   });
 
   it("toggles activity panel on keyboard shortcut", () => {
-    const panel = document.getElementById("activity-panel") as HTMLDivElement;
+    const panel = document.getElementById("activity-panel");
+    if (!(panel instanceof HTMLDivElement)) throw new Error("Expected HTMLDivElement");
     expect(panel.classList.contains("hidden")).toBe(true);
     const event = new KeyboardEvent("keydown", { key: "a" });
     document.dispatchEvent(event);
     expect(panel.classList.contains("hidden")).toBe(false);
+  });
+
+  describe("icon rendering (E41-S02)", () => {
+    function makeIconAtlas(iconAssetId: string): IconAtlas {
+      const atlas = new IconAtlas();
+      // Inject a resolved index without going through fetch.
+      (atlas as unknown as { _index: unknown })._index = {
+        version: 1,
+        atlas: "atlas-0.svg",
+        cellSize: 64,
+        cells: { [iconAssetId]: { x: 64, y: 0, w: 64, h: 64 } },
+      };
+      (atlas as unknown as { _atlasUrl: string })._atlasUrl =
+        "http://localhost/assets/items/atlases/atlas-0.svg";
+      (atlas as unknown as { _ready: boolean })._ready = true;
+      return atlas;
+    }
+
+    it("inventory renders an <img> sprite for an occupied slot", () => {
+      content.getItem = vi.fn(() => ({
+        id: "test_sword",
+        name: "Test Sword",
+        icon: "icon_test_sword",
+        stackable: false,
+        tradeable: true,
+        examine: "A test sword.",
+        value: 1,
+        options: ["wield"],
+        tags: [],
+      })) as unknown as typeof content.getItem;
+      const atlas = makeIconAtlas("icon_test_sword");
+      new UIManager(uiState, content, callbacks, atlas);
+      uiState.setInventory({
+        containerId: "inventory",
+        changes: [{ slot: 0, itemId: "test_sword", quantity: 1, uid: 1 }],
+      });
+
+      const cell = document.querySelector("#inventory-body .inventory-cell");
+      if (!(cell instanceof HTMLDivElement)) throw new Error("Expected HTMLDivElement");
+      expect(cell).toBeTruthy();
+      const img = cell.querySelector("img.item-icon");
+      expect(img).not.toBeNull();
+      expect(img instanceof HTMLImageElement ? img.src : "").toContain("atlas-0.svg");
+      expect(img instanceof HTMLImageElement ? img.alt : "").toBe("icon_test_sword");
+    });
+
+    it("inventory renders a placeholder img for an unresolved icon", () => {
+      content.getItem = vi.fn(() => ({
+        id: "no_art_item",
+        name: "No Art Item",
+        icon: "icon_missing",
+        stackable: false,
+        tradeable: true,
+        examine: "No art.",
+        value: 1,
+        options: [],
+        tags: [],
+      })) as unknown as typeof content.getItem;
+      const atlas = makeIconAtlas("icon_other");
+      new UIManager(uiState, content, callbacks, atlas);
+      uiState.setInventory({
+        containerId: "inventory",
+        changes: [{ slot: 0, itemId: "no_art_item", quantity: 1, uid: 2 }],
+      });
+
+      const cell = document.querySelector("#inventory-body .inventory-cell");
+      if (!(cell instanceof HTMLDivElement)) throw new Error("Expected HTMLDivElement");
+      const img = cell.querySelector("img.item-icon-missing");
+      expect(img).not.toBeNull();
+      expect(img instanceof HTMLImageElement ? img.src : "").toMatch(/^data:image\/svg\+xml/);
+    });
+
+    it("inventory renders a quantity badge for stackable items", () => {
+      content.getItem = vi.fn(() => ({
+        id: "arrows",
+        name: "Arrows",
+        icon: "icon_arrows",
+        stackable: true,
+        tradeable: true,
+        examine: "Arrows.",
+        value: 1,
+        options: [],
+        tags: [],
+      })) as unknown as typeof content.getItem;
+      const atlas = makeIconAtlas("icon_arrows");
+      new UIManager(uiState, content, callbacks, atlas);
+      uiState.setInventory({
+        containerId: "inventory",
+        changes: [{ slot: 5, itemId: "arrows", quantity: 42, uid: 3 }],
+      });
+
+      const cells = document.querySelectorAll("#inventory-body .inventory-cell");
+      const occupiedCell = cells[5];
+      if (!(occupiedCell instanceof HTMLDivElement)) throw new Error("Expected HTMLDivElement");
+      const badge = occupiedCell.querySelector(".item-qty-badge");
+      expect(badge).not.toBeNull();
+      expect(badge instanceof HTMLSpanElement ? badge.textContent : "").toBe("42");
+    });
+
+    it("equipment renders an icon grid with placeholder for empty slots", () => {
+      content.getItem = vi.fn(() => ({
+        id: "test_helm",
+        name: "Test Helm",
+        icon: "icon_test_helm",
+        stackable: false,
+        tradeable: true,
+        examine: "A helm.",
+        value: 1,
+        options: ["wear"],
+        tags: [],
+      })) as unknown as typeof content.getItem;
+      const atlas = makeIconAtlas("icon_test_helm");
+      new UIManager(uiState, content, callbacks, atlas);
+      // Equipment slot 0 = Head
+      (uiState as unknown as { _equipment: Map<number, string> })._equipment.set(0, "test_helm");
+      (uiState as unknown as { _notify: (c: string) => void })._notify("equipment");
+
+      const cells = document.querySelectorAll("#equipment-body .equipment-cell");
+      expect(cells.length).toBe(11);
+      const headCell = cells[0];
+      if (!(headCell instanceof HTMLDivElement)) throw new Error("Expected HTMLDivElement");
+      const img = headCell.querySelector("img.item-icon");
+      expect(img).not.toBeNull();
+      // Empty slot (slot 1 = Cape) should have a label, no img
+      const capeCell = cells[1];
+      if (!(capeCell instanceof HTMLDivElement)) throw new Error("Expected HTMLDivElement");
+      expect(capeCell.querySelector("img")).toBeNull();
+    });
+  });
+
+  describe("settings panel", () => {
+    beforeEach(() => {
+      localStorage.clear();
+    });
+
+    it("renders NPC attack and mouse mode selects with persisted values", () => {
+      localStorage.setItem(
+        "old-town-input-settings",
+        JSON.stringify({ npcAttack: "always-right-click", mouseButtons: "one-button", menuSwaps: [] }),
+      );
+      manager.togglePanel("settings-panel");
+      const body = document.getElementById("settings-body");
+      const selects = body?.querySelectorAll<HTMLSelectElement>(".settings-select");
+      expect(selects?.length).toBe(2);
+      expect(selects?.[0]?.value).toBe("always-right-click");
+      expect(selects?.[1]?.value).toBe("one-button");
+    });
+
+    it("calls setInputSettings and persists when NPC attack option changes", () => {
+      manager.togglePanel("settings-panel");
+      const body = document.getElementById("settings-body");
+      const npcSelect = body?.querySelectorAll<HTMLSelectElement>(".settings-select")[0];
+      if (!npcSelect) throw new Error("Expected NPC attack select");
+      npcSelect.value = "hidden";
+      npcSelect.dispatchEvent(new Event("change"));
+      expect(callbacks.setInputSettings).toHaveBeenCalledWith({ npcAttack: "hidden" });
+      const stored = JSON.parse(localStorage.getItem("old-town-input-settings") ?? "{}");
+      expect(stored.npcAttack).toBe("hidden");
+    });
+
+    it("calls setInputSettings and persists when mouse mode changes", () => {
+      manager.togglePanel("settings-panel");
+      const body = document.getElementById("settings-body");
+      const mouseSelect = body?.querySelectorAll<HTMLSelectElement>(".settings-select")[1];
+      if (!mouseSelect) throw new Error("Expected mouse mode select");
+      mouseSelect.value = "one-button";
+      mouseSelect.dispatchEvent(new Event("change"));
+      expect(callbacks.setInputSettings).toHaveBeenCalledWith({ mouseButtons: "one-button" });
+      const stored = JSON.parse(localStorage.getItem("old-town-input-settings") ?? "{}");
+      expect(stored.mouseButtons).toBe("one-button");
+    });
   });
 });

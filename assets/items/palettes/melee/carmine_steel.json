@@ -1,0 +1,14 @@
+{
+  "ladder": "melee",
+  "tier": "carmine_steel",
+  "tierOrder": 9,
+  "regions": {
+    "blade": "#8a3a32",
+    "head": "#8a3a32",
+    "grip": "#2e2a28",
+    "accent": "#c2c6cc",
+    "trim": "#6a6d6f",
+    "metal": "#8a3a32",
+    "straps": "#2e2a28"
+  }
+}

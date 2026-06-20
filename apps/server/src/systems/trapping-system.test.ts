@@ -8,9 +8,8 @@ import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
 import { handleObjectIntent } from "./object-interaction-router";
-import { handleProcess, handleRecipeSelect, type ProcessActionPayload } from "./skilling-system";
 
-function advanceToExecution(
+function _advanceToExecution(
   actionQueue: import("../sim/action-queue").ActionQueue,
   delayTicks: number,
 ): ActionExecution {

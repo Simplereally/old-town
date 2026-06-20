@@ -1,0 +1,11 @@
+{
+  "ladder": "accessory",
+  "tier": "gravebound",
+  "tierOrder": 7,
+  "regions": {
+    "cloth": "#4a4a3a",
+    "metal": "#6a6a5a",
+    "seal": "#3a3a2a",
+    "accent": "#5a5a4a"
+  }
+}

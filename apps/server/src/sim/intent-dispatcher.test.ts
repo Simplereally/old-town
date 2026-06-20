@@ -181,7 +181,7 @@ describe("IntentDispatcher", () => {
 
     expect(actionQueue.getDebugState()).toEqual([]);
     const packet = deltas.consume(1, 600);
-    expect(packet.chat?.[0]?.text).toBe("Object interaction is not yet implemented.");
+    expect(packet.chat?.[0]?.text).toBe("Nothing interesting happens.");
     expect(packet.chat?.[0]?.channel).toBe("system");
   });
 
@@ -332,5 +332,193 @@ describe("IntentDispatcher", () => {
 
     const packet = deltas.consume(1, 600);
     expect(packet.chat).toBeUndefined();
+  });
+
+  it("rejects NPC option with an invalid actionId not in the NPC definition", () => {
+    const world = createWorld();
+    const player = world.createEntity();
+    world.setComponent(player, "position", { entityId: player, x: 0, y: 0, plane: 0 });
+    const npcEntity = world.createEntity();
+    world.setComponent(npcEntity, "npc", {
+      entityId: npcEntity,
+      npcId: "test_npc",
+      brainState: "idle",
+      respawnTick: 0,
+      wanderRadius: 5,
+    });
+    const registries = makeRegistries({
+      npc: new Map([
+        [
+          "test_npc",
+          {
+            id: "test_npc",
+            name: "Test NPC",
+            size: 1,
+            respawnTicks: 10,
+            wanderRadius: 0,
+            options: [{ label: "Talk", actionId: "talk", priority: 0, requiredDistance: 1 }],
+            movementType: "static",
+            aggressionMode: "peaceful",
+            contractEligible: false,
+          } as unknown as import("@old-town/shared").NpcDef,
+        ],
+      ]),
+    });
+    const deltas = new DeltaAccumulator();
+    const ctx = {
+      world,
+      collision: new CollisionMap(createRuntimeMap()),
+      deltas,
+      actionQueue: new ActionQueue(),
+      registries,
+      rng: createRng(1),
+      chatSystem: new ChatSystem(),
+      consumableSystem: new ConsumableSystem(),
+    };
+
+    dispatchIntentGroup(
+      ctx,
+      makeGroup(player, [
+        {
+          kind: IntentKind.Npc,
+          ownerEntityId: player,
+          connectionId: "c1",
+          commandId: 1,
+          receivedTick: 0,
+          targetTick: 1,
+          payload: { npcEntityId: npcEntity, actionId: "hack_server" },
+        },
+      ]),
+      1,
+      600,
+    );
+
+    const packet = deltas.consume(1, 600);
+    expect(packet.chat?.[0]?.text).toBe("Nothing interesting happens.");
+  });
+
+  it("allows NPC system actionIds even when not in the NPC definition options", () => {
+    const world = createWorld();
+    const player = world.createEntity();
+    world.setComponent(player, "position", { entityId: player, x: 0, y: 0, plane: 0 });
+    const npcEntity = world.createEntity();
+    world.setComponent(npcEntity, "npc", {
+      entityId: npcEntity,
+      npcId: "test_npc",
+      brainState: "idle",
+      respawnTick: 0,
+      wanderRadius: 5,
+    });
+    const registries = makeRegistries({
+      npc: new Map([
+        [
+          "test_npc",
+          {
+            id: "test_npc",
+            name: "Test NPC",
+            size: 1,
+            respawnTicks: 10,
+            wanderRadius: 0,
+            options: [],
+            movementType: "static",
+            aggressionMode: "peaceful",
+            contractEligible: false,
+          } as unknown as import("@old-town/shared").NpcDef,
+        ],
+      ]),
+    });
+    const deltas = new DeltaAccumulator();
+    const ctx = {
+      world,
+      collision: new CollisionMap(createRuntimeMap()),
+      deltas,
+      actionQueue: new ActionQueue(),
+      registries,
+      rng: createRng(1),
+      chatSystem: new ChatSystem(),
+      consumableSystem: new ConsumableSystem(),
+    };
+
+    dispatchIntentGroup(
+      ctx,
+      makeGroup(player, [
+        {
+          kind: IntentKind.Npc,
+          ownerEntityId: player,
+          connectionId: "c1",
+          commandId: 1,
+          receivedTick: 0,
+          targetTick: 1,
+          payload: { npcEntityId: npcEntity, actionId: "examine" },
+        },
+      ]),
+      1,
+      600,
+    );
+
+    const packet = deltas.consume(1, 600);
+    const messages = packet.chat ?? [];
+    expect(messages.some((m) => m.text === "Nothing interesting happens.")).toBe(false);
+  });
+
+  it("rejects object option with an invalid actionId not in the object definition", () => {
+    const world = createWorld();
+    const player = world.createEntity();
+    world.setComponent(player, "position", { entityId: player, x: 0, y: 0, plane: 0 });
+    const objectEntity = world.createEntity();
+    world.setComponent(objectEntity, "object", {
+      entityId: objectEntity,
+      objectId: "test_object",
+      facing: 0,
+      variant: 0,
+    });
+    const registries = makeRegistries({
+      object: new Map([
+        [
+          "test_object",
+          {
+            id: "test_object",
+            name: "Test Object",
+            width: 1,
+            length: 1,
+            blocksMovement: true,
+            blocksLineOfSight: false,
+            defaultRotation: 0,
+            options: [{ label: "Chop", actionId: "chop", priority: 0, requiredDistance: 1 }],
+          } as unknown as import("@old-town/shared").ObjectDef,
+        ],
+      ]),
+    });
+    const deltas = new DeltaAccumulator();
+    const ctx = {
+      world,
+      collision: new CollisionMap(createRuntimeMap()),
+      deltas,
+      actionQueue: new ActionQueue(),
+      registries,
+      rng: createRng(1),
+      chatSystem: new ChatSystem(),
+      consumableSystem: new ConsumableSystem(),
+    };
+
+    dispatchIntentGroup(
+      ctx,
+      makeGroup(player, [
+        {
+          kind: IntentKind.Object,
+          ownerEntityId: player,
+          connectionId: "c1",
+          commandId: 1,
+          receivedTick: 0,
+          targetTick: 1,
+          payload: { objectEntityId: objectEntity, actionId: "hack_server" },
+        },
+      ]),
+      1,
+      600,
+    );
+
+    const packet = deltas.consume(1, 600);
+    expect(packet.chat?.[0]?.text).toBe("Nothing interesting happens.");
   });
 });

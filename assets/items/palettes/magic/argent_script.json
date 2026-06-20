@@ -1,0 +1,18 @@
+{
+  "ladder": "magic",
+  "tier": "argent_script",
+  "tierOrder": 10,
+  "regions": {
+    "cloth": "#c2c6cc",
+    "script": "#e8e8e8",
+    "seal": "#e8e8e8",
+    "accent": "#9aa0a6",
+    "shaft": "#c2c6cc",
+    "tip": "#e8e8e8",
+    "bead": "#c2c6cc",
+    "lens": "#e8e8e8",
+    "rim": "#c2c6cc",
+    "cover": "#c2c6cc",
+    "page": "#e8e8e8"
+  }
+}

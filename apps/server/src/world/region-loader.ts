@@ -7,8 +7,9 @@ import {
   type TileCoord,
   tileKey,
 } from "@old-town/shared";
+import type { ContractObjective } from "../ecs/components";
 import type { World } from "../ecs/world";
-import type { RuntimeAreaTrigger, RuntimeMap, RuntimeTile } from "./runtime-map";
+import type { RuntimeAreaTrigger, RuntimeMap, RuntimeTile, PlayerSpawnPoint, DeathRespawnPoint } from "./runtime-map";
 
 export interface LoadedRegionSummary {
   readonly regionId: string;
@@ -28,10 +29,6 @@ function globalTile(region: RegionMapDef["region"], x: number, y: number): TileC
   };
 }
 
-function entityNumbers(ids: readonly EntityId[]): readonly number[] {
-  return ids.map((id) => id as number);
-}
-
 function tileWithZone(tile: RuntimeTile, zoneId: string): RuntimeTile {
   return { ...tile, zoneId };
 }
@@ -45,7 +42,7 @@ function applyTriggerZones(map: RuntimeMap, trigger: RuntimeAreaTrigger): void {
       const tile: TileCoord = {
         x: trigger.x + dx,
         y: trigger.y + dy,
-        plane: trigger.plane as TileCoord["plane"],
+        plane: trigger.plane,
       };
       const key = tileKey(tile);
       const current = map.tiles.get(key);
@@ -123,6 +120,49 @@ export function loadRegionMapIntoWorld(
     }
   }
 
+  // Spawn warden board contract entities from contractSpawns.
+  // Each contract spawn creates a warden_board object with a ContractComponent
+  // in "available" status, ready for players to accept.
+  const contractRegistry = registries.contract;
+  for (const spawn of def.contractSpawns) {
+    const contractDef = contractRegistry.get(spawn.contractId);
+    if (!contractDef) {
+      throw new Error(`Region ${id} references missing contract ${spawn.contractId}`);
+    }
+    const entityId = world.createEntity();
+    const tile = globalTile(def.region, spawn.x, spawn.y);
+    world.setComponent(entityId, "position", { entityId, x: tile.x, y: tile.y, plane: tile.plane });
+    world.setComponent(entityId, "object", {
+      entityId,
+      objectId: "warden_board",
+      facing: 0,
+      variant: 0,
+    });
+    const objectives: ContractObjective[] =
+      contractDef.completionTrigger === "collect"
+        ? contractDef.targetCreatureIds.map((id) => ({
+            kind: "collect",
+            targetId: id,
+            required: contractDef.targetCount,
+            current: 0,
+          }))
+        : contractDef.targetCreatureIds.map((id) => ({
+            kind: "kill",
+            targetId: id,
+            required: contractDef.targetCount,
+            current: 0,
+          }));
+    world.setComponent(entityId, "contract", {
+      entityId,
+      contractId: spawn.contractId,
+      status: "available",
+      objectives,
+      startTick: 0,
+      expiryTick: 0,
+    });
+    objectEntityIds.push(entityId);
+  }
+
   const npcEntityIds: EntityId[] = [];
   const npcRegistry = registries.npc;
   for (const spawn of def.npcSpawns) {
@@ -138,10 +178,12 @@ export function loadRegionMapIntoWorld(
       npcId: spawn.npcId,
       brainState: "idle",
       respawnTick: 0,
-      wanderRadius: spawn.wanderRadius ?? npcDef.wanderRadius,
+      wanderRadius: spawn.wanderRadius !== undefined ? spawn.wanderRadius : npcDef.wanderRadius,
       home: tile,
       leashDistance:
-        (spawn.wanderRadius ?? npcDef.wanderRadius) + (npcDef.aggressiveRadius ?? 0) + 4,
+        (spawn.wanderRadius !== undefined ? spawn.wanderRadius : npcDef.wanderRadius) +
+        (npcDef.aggressiveRadius ?? 0) +
+        4,
     });
     world.setComponent(entityId, "actor", {
       entityId,
@@ -149,7 +191,7 @@ export function loadRegionMapIntoWorld(
       level: npcDef.combatLevel ?? 0,
       appearanceId: spawn.npcId,
     });
-    if (npcDef.maxHp) {
+    if (npcDef.maxHp !== undefined && npcDef.maxHp > 0) {
       world.setComponent(entityId, "combatant", {
         entityId,
         health: npcDef.maxHp,
@@ -202,14 +244,30 @@ export function loadRegionMapIntoWorld(
     applyTriggerZones(map, runtimeTrigger);
   }
 
+  // Collect player spawn points and death respawn points from the region def.
+  for (const spawn of def.playerSpawnPoints) {
+    const tile = globalTile(def.region, spawn.x, spawn.y);
+    const point: PlayerSpawnPoint = { tile, spawnType: spawn.spawnType };
+    map.playerSpawnPoints.push(point);
+  }
+  for (const respawn of def.deathRespawnPoints) {
+    const tile = globalTile(def.region, respawn.x, respawn.y);
+    const point: DeathRespawnPoint = {
+      tile,
+      respawnType: respawn.respawnType,
+      priority: respawn.priority,
+    };
+    map.deathRespawnPoints.push(point);
+  }
+
   map.regions.set(id, {
     id,
     region: def.region,
     tileKeys,
-    objectEntityIds: entityNumbers(objectEntityIds),
-    npcEntityIds: entityNumbers(npcEntityIds),
-    groundItemEntityIds: entityNumbers(groundItemEntityIds),
-    resourceNodeEntityIds: entityNumbers(resourceNodeEntityIds),
+    objectEntityIds,
+    npcEntityIds,
+    groundItemEntityIds,
+    resourceNodeEntityIds,
     triggerIds,
   });
 

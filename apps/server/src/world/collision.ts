@@ -102,7 +102,11 @@ export class CollisionMap {
     const length = footprint.length;
     for (let x = 0; x < width; x += 1) {
       for (let y = 0; y < length; y += 1) {
-        if ((this.getMask(tileAt(origin, x, y)) & OCCUPANCY_BLOCKERS) !== 0) {
+        const tile = tileAt(origin, x, y);
+        if ((this.getMask(tile) & OCCUPANCY_BLOCKERS) !== 0) {
+          return false;
+        }
+        if (this.tileBlocksOccupancy(tile)) {
           return false;
         }
       }
@@ -162,7 +166,13 @@ export class CollisionMap {
   }
 
   private canStepCardinal(from: TileCoord, dx: number, dy: number, footprint: Footprint): boolean {
-    if (!this.canOccupy(tileAt(from, dx, dy), footprint)) {
+    const toOrigin = tileAt(from, dx, dy);
+    if (!this.canOccupy(toOrigin, footprint)) {
+      return false;
+    }
+
+    // Height difference blocks movement (unless both tiles are bridges).
+    if (!this.heightCompatible(from, toOrigin)) {
       return false;
     }
 
@@ -267,9 +277,29 @@ export class CollisionMap {
       (options.projectile === true && (mask & CollisionFlag.PROJECTILE_BLOCK) !== 0)
     );
   }
+
+  /** Water tiles block occupancy unless a bridge is present. */
+  private tileBlocksOccupancy(tile: TileCoord): boolean {
+    const rt = this.map.tiles.get(tileKey(tile));
+    if (!rt) return true;
+    return rt.water && !rt.bridge;
+  }
+
+  /** Height differences block movement unless both tiles are bridges. */
+  private heightCompatible(from: TileCoord, to: TileCoord): boolean {
+    const fromTile = this.map.tiles.get(tileKey(from));
+    const toTile = this.map.tiles.get(tileKey(to));
+    if (!fromTile || !toTile) return false;
+    if (fromTile.height === toTile.height) return true;
+    // Bridges allow crossing height differences over water.
+    return fromTile.bridge && toTile.bridge;
+  }
 }
 
 export function objectCollisionFlags(def: ObjectDef): number {
+  if (def.defaultCollision !== undefined) {
+    return def.defaultCollision;
+  }
   let flags = CollisionFlag.OCCUPIED_OBJECT;
   if (def.blocksMovement) {
     flags |= CollisionFlag.BLOCK_FULL;
@@ -293,10 +323,26 @@ export function applyObjectCollision(
       continue;
     }
 
-    collision.applyFootprint(
-      { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] },
-      { width: def.width, length: def.length },
-      objectCollisionFlags(def),
-    );
+    const origin: TileCoord = {
+      x: position.x,
+      y: position.y,
+      plane: position.plane,
+    };
+    const flags = objectCollisionFlags(def);
+
+    if (def.footprint && def.footprint.length > 0) {
+      for (const offset of def.footprint) {
+        collision.addDynamic(
+          { x: origin.x + offset.dx, y: origin.y + offset.dy, plane: origin.plane },
+          flags,
+        );
+      }
+    } else {
+      collision.applyFootprint(
+        origin,
+        { width: def.width, length: def.length },
+        flags,
+      );
+    }
   }
 }

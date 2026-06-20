@@ -1,0 +1,11 @@
+{
+  "ladder": "accessory",
+  "tier": "carmine",
+  "tierOrder": 9,
+  "regions": {
+    "cloth": "#8a3a3a",
+    "metal": "#c94a4a",
+    "seal": "#d46a6a",
+    "accent": "#e88a8a"
+  }
+}

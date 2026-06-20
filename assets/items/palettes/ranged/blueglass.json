@@ -1,0 +1,17 @@
+{
+  "ladder": "ranged",
+  "tier": "blueglass",
+  "tierOrder": 8,
+  "regions": {
+    "limb": "#9aa0a6",
+    "string": "#3a6ea5",
+    "grip": "#3a6ea5",
+    "accent": "#c2c6cc",
+    "prod": "#9aa0a6",
+    "stock": "#3a6ea5",
+    "mechanism": "#c2c6cc",
+    "shaft": "#9aa0a6",
+    "fletch": "#3a6ea5",
+    "head": "#c2c6cc"
+  }
+}

@@ -3,12 +3,12 @@ import {
   ClientCommandType,
   type FullStatePacket,
   isCompatibleProtocol,
+  parseTransportServerPacket,
   PROTOCOL_VERSION,
   ServerPacketType,
   type TickDeltaPacket,
   TransportClientMessageType,
   TransportServerMessageType,
-  type TransportServerPacket,
 } from "@old-town/shared";
 
 export interface GameSocketOptions {
@@ -48,6 +48,11 @@ export class GameSocket {
 
   get serverUrl(): string {
     return this.url;
+  }
+
+  /** HTTP base URL derived from the WebSocket URL (ws:// → http://, wss:// → https://). */
+  get httpUrl(): string {
+    return this.url.replace("ws://", "http://").replace("wss://", "https://");
   }
 
   get lastPingTime(): number {
@@ -100,7 +105,7 @@ export class GameSocket {
         socket.send(JSON.stringify(authMessage));
       };
 
-      socket.onerror = () => {
+      socket.onerror = (_event) => {
         fail(new Error(`GameSocket connection failed: ${this.url}`));
       };
 
@@ -114,14 +119,27 @@ export class GameSocket {
       };
 
       socket.onmessage = (event) => {
-        let packet: TransportServerPacket;
+        let raw: unknown;
         try {
-          packet = JSON.parse(String(event.data)) as TransportServerPacket;
+          if (typeof event.data !== "string") {
+            fail(new Error("Unexpected non-text WebSocket message"));
+            socket.close();
+            return;
+          }
+          raw = JSON.parse(event.data);
         } catch (error) {
           fail(error instanceof Error ? error : new Error(String(error)));
           socket.close();
           return;
         }
+
+        const result = parseTransportServerPacket(raw);
+        if (!result.ok) {
+          fail(new Error(`Invalid bootstrap packet: ${result.error}`));
+          socket.close();
+          return;
+        }
+        const packet = result.value;
 
         if (packet.type === ServerPacketType.FullState) {
           if (!isCompatibleProtocol(packet.protocolVersion)) {
@@ -138,7 +156,7 @@ export class GameSocket {
         }
 
         if (packet.type === TransportServerMessageType.Error) {
-          fail(new Error(`Server error: ${(packet as { reason: string }).reason}`));
+          fail(new Error(`Server error: ${packet.reason}`));
           socket.close();
           return;
         }
@@ -150,19 +168,30 @@ export class GameSocket {
   }
 
   private _handleMessage(event: MessageEvent): void {
+    let raw: unknown;
     try {
-      const packet = JSON.parse(String(event.data)) as TransportServerPacket;
-      if (packet.type === ServerPacketType.TickDelta) {
-        this.onTickDelta?.(packet as TickDeltaPacket);
-      } else if (packet.type === TransportServerMessageType.Pong) {
-        const pong = packet as { clientTimeMs: number; serverTime: number };
-        this.onPong?.(pong.clientTimeMs, pong.serverTime);
-      } else if (packet.type === TransportServerMessageType.CommandRejected) {
-        const rejection = packet as { reason: string };
-        this.onCommandRejected?.(rejection.reason);
+      if (typeof event.data !== "string") {
+        console.error("Unexpected non-text WebSocket message");
+        return;
       }
+      raw = JSON.parse(event.data);
     } catch (error) {
       console.error("Failed to parse server message:", error);
+      return;
+    }
+
+    const result = parseTransportServerPacket(raw);
+    if (!result.ok) {
+      console.error("Invalid server packet:", result.error);
+      return;
+    }
+    const packet = result.value;
+    if (packet.type === ServerPacketType.TickDelta) {
+      this.onTickDelta?.(packet);
+    } else if (packet.type === TransportServerMessageType.Pong) {
+      this.onPong?.(packet.clientTimeMs, packet.serverTime);
+    } else if (packet.type === TransportServerMessageType.CommandRejected) {
+      this.onCommandRejected?.(packet.reason);
     }
   }
 

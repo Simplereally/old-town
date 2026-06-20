@@ -11,6 +11,14 @@ import {
   ServerPacketType,
   type TickDeltaPacket,
 } from "./packets";
+import { parseServerPacket, parseTransportServerPacket } from "./packet-schemas";
+import {
+  encodeTransportPacket,
+  TransportServerMessageType,
+  type PongPacket,
+  type CommandRejectedPacket,
+  type TransportErrorPacket,
+} from "./transport";
 
 const spawn: EntitySpawnPacket = {
   entityId: entityId(1),
@@ -109,5 +117,51 @@ describe("protocol compatibility guard", () => {
     expect(isCompatibleProtocol(PROTOCOL_VERSION + 1)).toBe(false);
     const stale: FullStatePacket = { ...fullState, protocolVersion: PROTOCOL_VERSION + 1 };
     expect(isCompatibleProtocol(stale.protocolVersion)).toBe(false);
+  });
+});
+
+describe("validated server packet decoder round-trip", () => {
+  it("parseServerPacket accepts encodeServerPacket output for a FullStatePacket", () => {
+    const result = parseServerPacket(JSON.parse(encodeServerPacket(fullState)));
+    expect(result.ok).toBe(true);
+  });
+
+  it("parseServerPacket accepts encodeServerPacket output for a TickDeltaPacket", () => {
+    const result = parseServerPacket(JSON.parse(encodeServerPacket(tickDelta)));
+    expect(result.ok).toBe(true);
+  });
+
+  it("parseServerPacket rejects a truncated JSON string", () => {
+    const result = parseServerPacket(JSON.parse('{"type":"S2C_FULL_STATE","tick":1}'));
+    expect(result.ok).toBe(false);
+  });
+
+  it("parseTransportServerPacket accepts encodeTransportPacket output for PongPacket", () => {
+    const pong: PongPacket = {
+      type: TransportServerMessageType.Pong,
+      commandId: 1,
+      clientTimeMs: 100,
+      serverTime: 200,
+    };
+    const result = parseTransportServerPacket(JSON.parse(encodeTransportPacket(pong)));
+    expect(result.ok).toBe(true);
+  });
+
+  it("parseTransportServerPacket accepts encodeTransportPacket output for CommandRejectedPacket", () => {
+    const rejection: CommandRejectedPacket = {
+      type: TransportServerMessageType.CommandRejected,
+      reason: "nope",
+    };
+    const result = parseTransportServerPacket(JSON.parse(encodeTransportPacket(rejection)));
+    expect(result.ok).toBe(true);
+  });
+
+  it("parseTransportServerPacket accepts encodeTransportPacket output for TransportErrorPacket", () => {
+    const error: TransportErrorPacket = {
+      type: TransportServerMessageType.Error,
+      reason: "boom",
+    };
+    const result = parseTransportServerPacket(JSON.parse(encodeTransportPacket(error)));
+    expect(result.ok).toBe(true);
   });
 });

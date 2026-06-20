@@ -25,6 +25,7 @@ const region: RegionMapDef = {
   resourceNodeSpawns: [],
   playerSpawnPoints: [],
   deathRespawnPoints: [],
+  contractSpawns: [],
   triggers: [],
 };
 

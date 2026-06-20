@@ -5,6 +5,7 @@
  * position, inventory/XP/HP changes, damage rolls, drops, quest state, and whether any
  * interaction is valid. There is deliberately no command that sets authoritative state.
  */
+import type { CombatStyle } from "../content-schemas/common";
 import type { TileCoord } from "../types/coords";
 import type { EntityId } from "../types/ids";
 
@@ -14,6 +15,7 @@ export const ClientCommandType = {
   ObjectOption: "C2S_OBJECT_OPTION",
   NpcOption: "C2S_NPC_OPTION",
   ItemOption: "C2S_ITEM_OPTION",
+  UseItemOn: "C2S_USE_ITEM_ON",
   GroundItemOption: "C2S_GROUND_ITEM_OPTION",
   CastSpell: "C2S_CAST_SPELL",
   Chat: "C2S_CHAT",
@@ -21,6 +23,7 @@ export const ClientCommandType = {
   BankAction: "C2S_BANK_ACTION",
   ShopAction: "C2S_SHOP_ACTION",
   RecipeSelect: "C2S_RECIPE_SELECT",
+  SetCombatStyle: "C2S_SET_COMBAT_STYLE",
   Ping: "C2S_PING",
 } as const;
 
@@ -50,6 +53,12 @@ export interface ItemIntent {
   /** Server-assigned inventory item instance id (received via inventory deltas). */
   readonly itemUid: number;
   readonly actionId: string;
+}
+
+/** Request to use an inventory item on a world target (NPC, object, ground item, or tile). */
+export interface UseItemOnIntent {
+  readonly itemUid: number;
+  readonly target: SpellTarget;
 }
 
 /** Request to use an action on a ground item (e.g. "pickup"). */
@@ -106,6 +115,12 @@ export interface RecipeSelectIntent {
   readonly stationEntityId: EntityId;
 }
 
+/** Request to set the active combat attack style (which combat skill melee XP trains).
+ *  The server clamps the choice to the equipped weapon's allowed styles at resolution time. */
+export interface SetCombatStyleIntent {
+  readonly style: CombatStyle;
+}
+
 // --- Command envelope -------------------------------------------------------------
 
 /** Common envelope: a typed payload plus dedupe/ordering metadata. */
@@ -125,6 +140,7 @@ export type ObjectOptionCommand = ClientCommandBase<
 >;
 export type NpcOptionCommand = ClientCommandBase<typeof ClientCommandType.NpcOption, NpcIntent>;
 export type ItemOptionCommand = ClientCommandBase<typeof ClientCommandType.ItemOption, ItemIntent>;
+export type UseItemOnCommand = ClientCommandBase<typeof ClientCommandType.UseItemOn, UseItemOnIntent>;
 export type GroundItemOptionCommand = ClientCommandBase<
   typeof ClientCommandType.GroundItemOption,
   GroundItemIntent
@@ -138,6 +154,10 @@ export type RecipeSelectCommand = ClientCommandBase<
   typeof ClientCommandType.RecipeSelect,
   RecipeSelectIntent
 >;
+export type SetCombatStyleCommand = ClientCommandBase<
+  typeof ClientCommandType.SetCombatStyle,
+  SetCombatStyleIntent
+>;
 export type PingCommand = ClientCommandBase<typeof ClientCommandType.Ping, PingIntent>;
 
 /** The discriminated union of every client → server command. */
@@ -146,6 +166,7 @@ export type ClientCommand =
   | ObjectOptionCommand
   | NpcOptionCommand
   | ItemOptionCommand
+  | UseItemOnCommand
   | GroundItemOptionCommand
   | CastSpellCommand
   | ChatCommand
@@ -153,4 +174,5 @@ export type ClientCommand =
   | BankActionCommand
   | ShopActionCommand
   | RecipeSelectCommand
+  | SetCombatStyleCommand
   | PingCommand;

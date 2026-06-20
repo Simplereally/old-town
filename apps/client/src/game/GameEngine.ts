@@ -1,5 +1,6 @@
 import {
   chunkToRegion,
+  type CombatStyle,
   type FullStatePacket,
   GAME_TICK_MS,
   type Plane,
@@ -11,15 +12,21 @@ import {
   type TileCoord,
 } from "@old-town/shared";
 import { Vector3 } from "three";
-import { type ClientDecision, InputInterpreter } from "./input/InputInterpreter";
+import {
+  calculateCombatLevel,
+  type ClientDecision,
+  InputInterpreter,
+  type InputInterpreterSettings,
+  type MenuResolveState,
+} from "./input/InputInterpreter";
 import { ClientCommandDispatcher } from "./net/ClientCommandDispatcher";
-import type { PresentationEvent } from "./net/ClientPacketApplier";
+import type { DebugEvent, PresentationEvent } from "./net/presentation-events";
 import { ClientPacketApplier } from "./net/ClientPacketApplier";
 import { ClientPacketIngestor } from "./net/ClientPacketIngestor";
 import { ClientWorldStore } from "./net/ClientWorldStore";
 import { GameSocket } from "./net/GameSocket";
 import { SnapshotBuffer } from "./net/SnapshotBuffer";
-import { EntityPicker } from "./picking/EntityPicker";
+import { EntityPicker, type PickedEntity } from "./picking/EntityPicker";
 import { ChunkBakeQueue, type ChunkMetadata } from "./renderer/ChunkBakeQueue";
 import {
   ChunkBakeWorkerClient,
@@ -27,6 +34,7 @@ import {
 } from "./renderer/ChunkBakeWorkerClient";
 import { ChunkResidencyManager } from "./renderer/ChunkResidencyManager";
 import { ChunkUploadQueue } from "./renderer/ChunkUploadQueue";
+import { MaterialColorResolver } from "./renderer/MaterialColorResolver";
 import { RenderClock } from "./renderer/RenderClock";
 import { RenderResourceRegistry } from "./renderer/RenderResourceRegistry";
 import { RenderTransformCache } from "./renderer/RenderTransformCache";
@@ -38,13 +46,16 @@ import { DebugLayer } from "./scene/DebugLayer";
 import { GroundItemLayer } from "./scene/GroundItemLayer";
 import { HitsplatLayer } from "./scene/HitsplatLayer";
 import { HoverHighlighter } from "./scene/HoverHighlighter";
+import { IconTextureFactory } from "./scene/IconTextureFactory";
 import { ObjectRenderer } from "./scene/ObjectRenderer";
 import { ProjectileLayer } from "./scene/ProjectileLayer";
 import { TerrainLayer } from "./scene/TerrainLayer";
 import { XpDropLayer } from "./scene/XpDropLayer";
 import { ContentClient } from "./ui/ContentClient";
 import { ContextMenu } from "./ui/ContextMenu";
+import { DebugOverlay } from "./ui/DebugOverlay";
 import { GlobalKeydownBus } from "./ui/GlobalKeydownBus";
+import { IconAtlas } from "./ui/IconAtlas";
 import { UIManager, type UIManagerCallbacks } from "./ui/UIManager";
 import { UIState } from "./ui/UIState";
 
@@ -56,11 +67,18 @@ export interface GameEngineOptions {
   readonly characterId?: string;
 }
 
-interface OverlayElements {
-  connectionStatus: HTMLDivElement;
-  tickStatus: HTMLDivElement;
-  fpsStatus: HTMLDivElement;
-}
+/**
+ * How far behind estimated server time the client renders, in milliseconds.
+ *
+ * A full tick (600 ms) is the bare minimum: it makes render time reach the
+ * newest snapshot exactly when the next one is due, so any late/bursty arrival
+ * (server tick-loop catch-up, GC, network jitter) drops it past the newest
+ * snapshot and the actor freezes/teleports. Rendering 1.5 ticks behind keeps a
+ * bracketing snapshot pair available plus half a tick of jitter slack, while
+ * staying responsive enough for an OSRS-style tick game. RenderClock and
+ * SnapshotBuffer must use the same value.
+ */
+const INTERPOLATION_DELAY_MS = Math.round(GAME_TICK_MS * 1.5);
 
 /**
  * Top-level game engine. Orchestrates renderer, network, and UI.
@@ -84,6 +102,8 @@ export class GameEngine {
   readonly debug: DebugLayer | undefined;
   readonly uiState = new UIState();
   readonly content = new ContentClient();
+  readonly icons = new IconAtlas();
+  readonly iconTextures = new IconTextureFactory();
   readonly renderClock: RenderClock;
   private readonly socket: GameSocket;
   private readonly _dispatcher: ClientCommandDispatcher;
@@ -91,7 +111,7 @@ export class GameEngine {
   private readonly _packetIngestor: ClientPacketIngestor;
   private readonly _snapshotBuffer: SnapshotBuffer;
   private readonly _renderTransformCache: RenderTransformCache;
-  private readonly _overlays: OverlayElements;
+  private readonly _overlay: DebugOverlay;
   private readonly _canvas: HTMLCanvasElement;
   private readonly _entityPicker: EntityPicker;
   private readonly _hoverHighlighter: HoverHighlighter;
@@ -104,16 +124,16 @@ export class GameEngine {
   private _selfEntityId = 0;
   private readonly _clickMarkers: ClickMarkerLayer;
   private _lastPingRtt = 0;
-  private _spellTargetMode: { spellId: string } | undefined;
-  private _debugOverlayUpdatePending = false;
-  private _debugOverlayUpdateHandle: number | undefined;
+  private _spellTargetMode: { readonly spellId: string } | undefined;
+  private _itemTargetMode: { readonly itemUid: number } | undefined;
   private readonly _presentationEventQueue: PresentationEvent[] = [];
-  private readonly _debugEventQueue: PresentationEvent[] = [];
+  private readonly _debugEventQueue: DebugEvent[] = [];
   private readonly _chunkBakeQueue: ChunkBakeQueue;
   private readonly _chunkBakeWorker: ChunkBakeWorkerClient;
   private readonly _chunkUploadQueue: ChunkUploadQueue;
   private readonly _chunkResidency: ChunkResidencyManager;
   private readonly _registry: RenderResourceRegistry;
+  private _colorResolver: MaterialColorResolver = new MaterialColorResolver({});
   private readonly _pendingRegionLoads: Array<{
     regionId: string;
     chunks: readonly import("@old-town/shared").ChunkData[];
@@ -124,19 +144,14 @@ export class GameEngine {
   private readonly _seenActorPositionIds = new Set<number>();
   private readonly _cameraFollowTarget = new Vector3();
   private _frameId = 0;
-  private _lastOverlayConnection: boolean | undefined;
-  private _lastOverlayTickText = "";
-  private _lastOverlayFpsText = "";
-  private _lastFpsOverlayUpdateMs = -Infinity;
-  private _lastDebugOverlayUpdateMs = -Infinity;
 
   constructor(options: GameEngineOptions) {
-    const { canvas, statusOverlay, serverUrl, characterId } = options;
+    const { canvas, statusOverlay, debugOverlay, serverUrl, characterId } = options;
     this._canvas = canvas;
 
     this.renderer = new ThreeRenderer({ canvas });
     this._registry = new RenderResourceRegistry();
-    this.terrain = new TerrainLayer({ scene: this.renderer.scene });
+    this.terrain = new TerrainLayer({ scene: this.renderer.scene, colorResolver: this._colorResolver });
     this.objects = new ObjectRenderer({ scene: this.renderer.scene, registry: this._registry });
     this.actors = new ActorRenderer({ scene: this.renderer.scene });
     this.projectiles = new ProjectileLayer({ scene: this.renderer.scene });
@@ -152,6 +167,7 @@ export class GameEngine {
       scene: this.renderer.scene,
       registry: this._registry,
       chunkBakeQueue: this._chunkBakeQueue,
+      colorResolver: this._colorResolver,
     });
     this._chunkUploadQueue = uploadQueue;
     this._chunkResidency = new ChunkResidencyManager({
@@ -191,11 +207,11 @@ export class GameEngine {
           });
     this.socket = new GameSocket(serverUrl, { characterId });
     this._dispatcher = new ClientCommandDispatcher(this.socket);
-    this._inputInterpreter = new InputInterpreter(this.content);
+    this._inputInterpreter = new InputInterpreter(this.content, UIManager.loadInputSettings());
 
     this.renderClock = new RenderClock({
       tickMs: GAME_TICK_MS,
-      interpolationDelayMs: GAME_TICK_MS,
+      interpolationDelayMs: INTERPOLATION_DELAY_MS,
       maxFrameDeltaMs: 100,
       serverTimeSmoothing: 0.1,
     });
@@ -203,7 +219,7 @@ export class GameEngine {
     const store = new ClientWorldStore();
     this._snapshotBuffer = new SnapshotBuffer({
       tickMs: GAME_TICK_MS,
-      interpolationDelayMs: GAME_TICK_MS,
+      interpolationDelayMs: INTERPOLATION_DELAY_MS,
       maxSnapshots: 32,
       freezeAfterMissingTicks: 2,
       snapAfterMissingTicks: 6,
@@ -221,23 +237,36 @@ export class GameEngine {
     });
     this._packetIngestor = new ClientPacketIngestor(applier, this.renderClock);
 
-    this._overlays = {
-      connectionStatus: statusOverlay.querySelector("#connection-status") as HTMLDivElement,
-      tickStatus: statusOverlay.querySelector("#tick-status") as HTMLDivElement,
-      fpsStatus: statusOverlay.querySelector("#fps-status") as HTMLDivElement,
-    };
+    this._overlay = new DebugOverlay({ statusOverlay, debugOverlay });
     this._entityPicker = new EntityPicker({ camera: this.renderer.camera, canvas });
     this._hoverHighlighter = new HoverHighlighter({ scene: this.renderer.scene });
     this._contextMenu = new ContextMenu({
       container: document.body,
       callbacks: {
         onOptionSelected: (actionId, entity, tile) => {
-          const decision = this._inputInterpreter.interpretContextMenu(entity, tile, actionId);
+          const decision = this._inputInterpreter.interpretContextMenu(
+            entity,
+            tile,
+            actionId,
+            this._spellTargetMode,
+            this._itemTargetMode,
+          );
           this._applyDecision(decision);
           if (decision.type === "move") {
             this._showClickMarker(decision.tile);
             this._packetIngestor.recordClickTile(decision.tile, this._currentTick);
             this._logDebug(`Context: Walk here (${decision.tile.x}, ${decision.tile.y})`);
+          }
+          if (decision.type === "castSpell") {
+            this._spellTargetMode = undefined;
+            this._updateSpellTargetOverlay();
+            this._logDebug(`Context: cast ${decision.spellId}`);
+          }
+          if (decision.type === "useItemOn") {
+            this._dispatcher.useItemOn(decision.itemUid, decision.target);
+            this._itemTargetMode = undefined;
+            this._updateItemTargetOverlay();
+            this._logDebug(`Context: use item ${decision.itemUid} on ${decision.target.kind}`);
           }
           if (decision.type === "examine") {
             this._logDebug(`Examine: ${entity?.defId ?? entity?.itemId ?? "entity"}`);
@@ -264,27 +293,57 @@ export class GameEngine {
     this._running = true;
 
     this.renderer.start();
-    this._updateOverlay();
+    this._overlay.update({
+      nowMs: performance.now(),
+      connected: this._connected,
+      currentTick: this._currentTick,
+      fps: this.renderer.fps,
+      selfActor: undefined,
+      pingRtt: this._lastPingRtt,
+      renderStats: this.renderer.debugCounters(),
+      actorCount: this.actors.actorCount,
+      objectCount: this.objects.objectCount,
+      loadedChunkCount: this.terrain.loadedChunkCount,
+      snapshotDepth: this._snapshotBuffer.depth,
+      latestAcceptedTick: this._snapshotBuffer.latestAcceptedTick,
+    });
 
-    const contentLoad = this.content.load(this.socket.serverUrl).catch((error) => {
+    const contentLoad = this.content.load(this.socket.httpUrl).then(() => {
+      this._colorResolver = new MaterialColorResolver(this.content.getAllMaterials());
+      this.terrain.setColorResolver(this._colorResolver);
+      this._chunkUploadQueue.setColorResolver(this._colorResolver);
+    }).catch((error) => {
       console.warn("Failed to load content registries:", error);
     });
+    const iconLoad = this.icons.load(this.socket.httpUrl).catch((error) => {
+      console.warn("Failed to load icon atlas:", error);
+    });
+    const iconTextureLoad = this.iconTextures
+      .load(this.socket.httpUrl)
+      .then(() => {
+        this.groundItems.setIconResolver((assetId) => this.iconTextures.resolveTexture(assetId));
+      })
+      .catch((error) => {
+        console.warn("Failed to load icon textures:", error);
+      });
     let fullState: FullStatePacket | undefined;
     try {
       fullState = await this.socket.connect();
     } catch (error) {
       console.error("Failed to connect to server:", error);
-      this._overlays.connectionStatus.textContent = "Connection failed";
-      this._overlays.connectionStatus.className = "disconnected";
+      this._overlay.setConnectionFailed();
       throw error;
     }
     this._handleFullState(fullState);
     await contentLoad;
+    await iconLoad;
+    await iconTextureLoad;
 
     const uiCallbacks: UIManagerCallbacks = {
       sendItemCommand: (uid, actionId) => this.sendItemCommand(uid, actionId),
       sendChatCommand: (text) => this.sendChatCommand(text),
       enterSpellTargetMode: (spellId) => this.enterSpellTargetMode(spellId),
+      enterItemTargetMode: (itemUid) => this.enterItemTargetMode(itemUid),
       sendUiActionCommand: (action, targetId, value) =>
         this.sendUiActionCommand(action, targetId, value),
       sendBankCommand: (action, itemUid, quantity) =>
@@ -292,8 +351,10 @@ export class GameEngine {
       sendShopCommand: (action, itemId, quantity) => this.sendShopCommand(action, itemId, quantity),
       sendRecipeCommand: (recipeId, stationEntityId) =>
         this.sendRecipeCommand(recipeId, stationEntityId),
+      sendSetCombatStyle: (style) => this.sendSetCombatStyle(style),
+      setInputSettings: (settings) => this.setInputSettings(settings),
     };
-    this._uiManager = new UIManager(this.uiState, this.content, uiCallbacks);
+    this._uiManager = new UIManager(this.uiState, this.content, uiCallbacks, this.icons);
 
     this.socket.onTickDelta = (packet) => {
       this._handleTickDelta(packet);
@@ -314,7 +375,20 @@ export class GameEngine {
     this.socket.startPing();
     this.socket.onClose = () => {
       this._connected = false;
-      this._updateOverlay();
+      this._overlay.update({
+        nowMs: performance.now(),
+        connected: this._connected,
+        currentTick: this._currentTick,
+        fps: this.renderer.fps,
+        selfActor: undefined,
+        pingRtt: this._lastPingRtt,
+        renderStats: this.renderer.debugCounters(),
+        actorCount: this.actors.actorCount,
+        objectCount: this.objects.objectCount,
+        loadedChunkCount: this.terrain.loadedChunkCount,
+        snapshotDepth: this._snapshotBuffer.depth,
+        latestAcceptedTick: this._snapshotBuffer.latestAcceptedTick,
+      });
     };
   }
 
@@ -328,7 +402,21 @@ export class GameEngine {
     this._debugEventQueue.push(...result.debugEvents);
     this.actors.setSelfEntityId(this._selfEntityId);
     this._connected = true;
-    this._updateOverlay();
+    this._uiManager?.openDefaultPanels();
+    this._overlay.update({
+      nowMs: performance.now(),
+      connected: this._connected,
+      currentTick: this._currentTick,
+      fps: this.renderer.fps,
+      selfActor: undefined,
+      pingRtt: this._lastPingRtt,
+      renderStats: this.renderer.debugCounters(),
+      actorCount: this.actors.actorCount,
+      objectCount: this.objects.objectCount,
+      loadedChunkCount: this.terrain.loadedChunkCount,
+      snapshotDepth: this._snapshotBuffer.depth,
+      latestAcceptedTick: this._snapshotBuffer.latestAcceptedTick,
+    });
   }
 
   private _handleTickDelta(packet: TickDeltaPacket): void {
@@ -348,14 +436,7 @@ export class GameEngine {
 
   shutdown(): void {
     this._running = false;
-    if (this._debugOverlayUpdateHandle !== undefined) {
-      if (typeof cancelIdleCallback !== "undefined") {
-        cancelIdleCallback(this._debugOverlayUpdateHandle);
-      } else {
-        clearTimeout(this._debugOverlayUpdateHandle);
-      }
-      this._debugOverlayUpdateHandle = undefined;
-    }
+    this._overlay.dispose();
     this.socket.close();
     this._canvas.removeEventListener("click", this._handleCanvasClick);
     this._canvas.removeEventListener("mousemove", this._handleMouseMove);
@@ -376,6 +457,7 @@ export class GameEngine {
     this.hitsplats.dispose();
     this.xpDrops.dispose();
     this.groundItems.dispose();
+    this.iconTextures.dispose();
     this.chatOverhead.dispose();
     this.debug?.dispose();
     this.renderer.dispose();
@@ -390,11 +472,19 @@ export class GameEngine {
 
   private _handleKeyDown = (event: KeyboardEvent): void => {
     if (event.key === "Escape") {
-      const decision = this._inputInterpreter.interpretEscape(this._spellTargetMode);
+      const decision = this._inputInterpreter.interpretEscape(
+        this._spellTargetMode,
+        this._itemTargetMode,
+      );
       if (decision.type === "cancelSpellTarget") {
         this._spellTargetMode = undefined;
         this._logDebug("Spell target mode cancelled");
         this._updateSpellTargetOverlay();
+      }
+      if (decision.type === "cancelItemTarget") {
+        this._itemTargetMode = undefined;
+        this._logDebug("Item target mode cancelled");
+        this._updateItemTargetOverlay();
       }
     }
   };
@@ -406,11 +496,29 @@ export class GameEngine {
     }
   }
 
+  private _updateItemTargetOverlay(): void {
+    const overlay = document.getElementById("item-target-overlay");
+    if (overlay) {
+      overlay.classList.toggle("visible", !!this._itemTargetMode);
+    }
+  }
+
   private _handleCanvasClick = (event: MouseEvent): void => {
     if (!this._connected) return;
 
     const entity = this._pickEntityAt(event.clientX, event.clientY);
     const tile = this.renderer.tilePicker.screenToTile(event.clientX, event.clientY);
+    const menuState = this._getMenuResolveState();
+    if (this._inputInterpreter.shouldOpenMenuOnPrimaryClick()) {
+      const resolveState: MenuResolveState = this._spellTargetMode
+        ? { ...menuState, spellMode: this._spellTargetMode }
+        : this._itemTargetMode
+          ? { ...menuState, itemMode: this._itemTargetMode }
+          : menuState;
+      const options = this._inputInterpreter.getContextMenuOptions(entity, tile, resolveState);
+      this._contextMenu.show(event.clientX, event.clientY, options, entity, tile);
+      return;
+    }
     const playerTile =
       entity?.kind === "player"
         ? (this.actors.getActorState(entity.entityId)?.serverTile ?? null)
@@ -420,6 +528,8 @@ export class GameEngine {
       tile,
       playerTile,
       this._spellTargetMode,
+      this._itemTargetMode,
+      menuState,
     );
 
     if (decision.type === "castSpell") {
@@ -427,6 +537,14 @@ export class GameEngine {
       this._spellTargetMode = undefined;
       this._updateSpellTargetOverlay();
       this._logDebug(`Spell target: ${decision.target.kind}`);
+      return;
+    }
+
+    if (decision.type === "useItemOn") {
+      this._dispatcher.useItemOn(decision.itemUid, decision.target);
+      this._itemTargetMode = undefined;
+      this._updateItemTargetOverlay();
+      this._logDebug(`Item target: ${decision.target.kind}`);
       return;
     }
 
@@ -450,6 +568,7 @@ export class GameEngine {
   private _handleMouseMove = (event: MouseEvent): void => {
     if (!this._connected) return;
     const entity = this._pickEntityAt(event.clientX, event.clientY);
+    const tooltip = document.getElementById("hover-tooltip");
     if (entity) {
       const pos = this._getEntityWorldPosition(entity);
       if (pos) {
@@ -457,8 +576,22 @@ export class GameEngine {
         this._hoverHighlighter.highlight(pos, yOffset);
         this._hoverHighlighter.setTargetEntityId(entity.entityId);
       }
+      if (tooltip) {
+        const name = this._inputInterpreter.getEntityName(entity);
+        if (name) {
+          tooltip.textContent = name;
+          tooltip.style.left = `${event.clientX + 12}px`;
+          tooltip.style.top = `${event.clientY + 12}px`;
+          tooltip.classList.remove("hidden");
+        } else {
+          tooltip.classList.add("hidden");
+        }
+      }
     } else {
       this._hoverHighlighter.hide();
+      if (tooltip) {
+        tooltip.classList.add("hidden");
+      }
     }
   };
 
@@ -468,14 +601,28 @@ export class GameEngine {
 
     const entity = this._pickEntityAt(event.clientX, event.clientY);
     const tile = this.renderer.tilePicker.screenToTile(event.clientX, event.clientY);
-    const options = this._inputInterpreter.getContextMenuOptions(entity, tile);
+    const menuState = this._getMenuResolveState();
+    const resolveState: MenuResolveState = this._spellTargetMode
+      ? { ...menuState, spellMode: this._spellTargetMode }
+      : this._itemTargetMode
+        ? { ...menuState, itemMode: this._itemTargetMode }
+        : menuState;
+    const options = this._inputInterpreter.getContextMenuOptions(entity, tile, resolveState);
     this._contextMenu.show(event.clientX, event.clientY, options, entity, tile);
   };
+
+  setInputSettings(settings: Partial<InputInterpreterSettings>): void {
+    this._inputInterpreter.setSettings(settings);
+  }
+
+  private _getMenuResolveState(): MenuResolveState {
+    return { playerCombatLevel: calculateCombatLevel(this.uiState.skills) };
+  }
 
   private _pickEntityAt(
     screenX: number,
     screenY: number,
-  ): import("./picking/EntityPicker").PickedEntity | null {
+  ): PickedEntity | null {
     const actorTargets = this.actors.getRaycastTargets();
     const objectTargets = this.objects.getRaycastTargets();
     const groundItemTargets = this.groundItems.getRaycastTargets();
@@ -484,7 +631,7 @@ export class GameEngine {
   }
 
   private _getEntityWorldPosition(
-    entity: import("./picking/EntityPicker").PickedEntity,
+    entity: PickedEntity,
   ): Vector3 | null {
     if (entity.kind === "player" || entity.kind === "npc") {
       const actor = this.actors.getActorState(entity.entityId);
@@ -513,6 +660,9 @@ export class GameEngine {
       case "inventoryItemOption":
         this._dispatcher.inventoryItemOption(decision.itemUid, decision.actionId);
         break;
+      case "useItemOn":
+        this._dispatcher.useItemOn(decision.itemUid, decision.target);
+        break;
       case "castSpell":
         this._dispatcher.castSpell(decision.spellId, decision.target);
         break;
@@ -524,6 +674,7 @@ export class GameEngine {
         break;
       case "examine":
       case "cancelSpellTarget":
+      case "cancelItemTarget":
       case "none":
         break;
     }
@@ -557,6 +708,12 @@ export class GameEngine {
     this._logDebug(`Spell target mode: ${spellId}`);
   }
 
+  enterItemTargetMode(itemUid: number): void {
+    this._itemTargetMode = { itemUid };
+    this._updateItemTargetOverlay();
+    this._logDebug(`Item target mode: item ${itemUid}`);
+  }
+
   sendUiActionCommand(action: string, targetId?: string, value?: number): void {
     this._dispatcher.uiAction(action, targetId, value);
     this._logDebug(`UI: action ${action}${targetId ? ` ${targetId}` : ""}`);
@@ -585,6 +742,11 @@ export class GameEngine {
     this._logDebug(`UI: recipeSelect ${recipeId} @ ${stationEntityId}`);
   }
 
+  sendSetCombatStyle(style: CombatStyle): void {
+    this._dispatcher.setCombatStyle(style);
+    this._logDebug(`UI: combatStyle ${style}`);
+  }
+
   private _logDebug(message: string): void {
     const log = document.getElementById("debug-log");
     if (!log) return;
@@ -593,7 +755,9 @@ export class GameEngine {
     entry.classList.add("debug-log-entry");
     log.appendChild(entry);
     while (log.children.length > 50) {
-      log.removeChild(log.firstChild as Node);
+      if (log.firstChild) {
+        log.removeChild(log.firstChild);
+      }
     }
     log.scrollTop = log.scrollHeight;
   }
@@ -649,6 +813,7 @@ export class GameEngine {
           tiles: chunk?.tiles ?? [],
           objectRefs: [],
           requestVersion: 1,
+          materialColors: this._chunkUploadQueue.colorRecord,
         });
       }
       job = this._chunkBakeQueue.dequeueJob();
@@ -763,7 +928,40 @@ export class GameEngine {
     this.chatOverhead.update(this._actorPositions);
     this._hoverHighlighter.updateFromCache(this._renderTransformCache);
     this._clickMarkers.update(clockSample.renderServerTimeMs);
-    this._updateOverlay(clockSample, presentationSample, queueStats, stats);
+    this._overlay.update({
+      nowMs: clockSample.rafNowMs,
+      connected: this._connected,
+      currentTick: this._currentTick,
+      fps: this.renderer.fps,
+      selfActor: selfActor
+        ? {
+            serverTile: selfActor.serverTile,
+            visualPosition: selfActor.visualPosition,
+            facingDirection: selfActor.facingDirection,
+            animationState: selfActor.animationState,
+          }
+        : undefined,
+      pingRtt: this._lastPingRtt,
+      renderStats: this.renderer.debugCounters(),
+      actorCount: this.actors.actorCount,
+      objectCount: this.objects.objectCount,
+      loadedChunkCount: this.terrain.loadedChunkCount,
+      snapshotDepth: this._snapshotBuffer.depth,
+      latestAcceptedTick: this._snapshotBuffer.latestAcceptedTick,
+      clockSample,
+      presentationSample,
+      queueStats,
+      residencyStats: stats,
+      debugState: this.debug
+        ? {
+            actionQueue: this.debug.getActionQueue(),
+            combatCooldown: this.debug.getCombatCooldown(),
+            pendingHits: this.debug.getPendingHits(),
+            npcLeash: this.debug.getNpcLeash(),
+            varbits: this.debug.getVarbits(),
+          }
+        : undefined,
+    });
   }
 
   private _applyPresentationEvents(): void {
@@ -799,349 +997,201 @@ export class GameEngine {
       case "actors.clear":
         this.actors.clear();
         break;
-      case "actors.spawn": {
-        const p = event.payload as {
-          entityId: number;
-          tile: TileCoord;
-          defId: string | undefined;
-          isLocalPlayer: boolean;
-          kind: "player" | "npc";
-        };
-        this.actors.spawn(p.entityId, p.tile, p.defId, p.isLocalPlayer, p.kind);
+      case "actors.spawn":
+        this.actors.spawn(
+          event.payload.entityId,
+          event.payload.tile,
+          event.payload.defId,
+          event.payload.isLocalPlayer,
+          event.payload.kind,
+        );
         break;
-      }
       case "actors.remove":
-        this.actors.remove((event.payload as { entityId: number }).entityId);
+        this.actors.remove(event.payload.entityId);
         break;
-      case "actors.updateTile": {
-        const p = event.payload as { entityId: number; tile: TileCoord };
-        this.actors.updateTile(p.entityId, p.tile);
+      case "actors.updateTile":
+        this.actors.updateTile(event.payload.entityId, event.payload.tile);
         break;
-      }
-      case "actors.updateFacing": {
-        const p = event.payload as { entityId: number; direction: number };
-        this.actors.updateFacing(p.entityId, p.direction);
+      case "actors.updateFacing":
+        this.actors.updateFacing(event.payload.entityId, event.payload.direction);
         break;
-      }
-      case "actors.updateHealthBar": {
-        const p = event.payload as { entityId: number; health: number; maxHealth: number };
-        this.actors.updateHealthBar(p.entityId, p.health, p.maxHealth);
+      case "actors.updateHealthBar":
+        this.actors.updateHealthBar(
+          event.payload.entityId,
+          event.payload.health,
+          event.payload.maxHealth,
+        );
         break;
-      }
-      case "actors.notifyHit": {
-        const p = event.payload as { entityId: number; tick: number };
-        this.actors.notifyHit(p.entityId, p.tick);
+      case "actors.notifyHit":
+        this.actors.notifyHit(event.payload.entityId, event.payload.tick);
         break;
-      }
-      case "actors.updateAppearance": {
-        const p = event.payload as {
-          entityId: number;
-          appearance: { name?: string; bodyId?: string; colors?: readonly number[] };
-        };
-        this.actors.updateAppearance(p.entityId, p.appearance);
+      case "actors.updateAppearance":
+        this.actors.updateAppearance(event.payload.entityId, event.payload.appearance);
+        break;
+      case "actors.setWeaponModel": {
+        const modelAssetId = event.payload.weaponItemId
+          ? (this.content.getItem(event.payload.weaponItemId)?.model ?? null)
+          : null;
+        this.actors.setWeaponModel(event.payload.entityId, modelAssetId);
         break;
       }
-      case "actors.updateAnimation": {
-        const p = event.payload as { entityId: number; animationId: string; startTick?: number };
-        this.actors.playAction(p.entityId, p.animationId, p.startTick);
+      case "actors.setArmourModel": {
+        const modelAssetId = event.payload.itemId
+          ? (this.content.getItem(event.payload.itemId)?.model ?? null)
+          : null;
+        this.actors.setArmourModel(event.payload.entityId, event.payload.slot, modelAssetId);
         break;
       }
-      case "actors.updateMoveSpeed": {
-        const p = event.payload as {
-          entityId: number;
-          speed: import("@old-town/shared").MoveSpeed;
-        };
-        this.actors.updateMoveSpeed(p.entityId, p.speed);
+      case "actors.setAccessoryModel": {
+        const modelAssetId = event.payload.itemId
+          ? (this.content.getItem(event.payload.itemId)?.model ?? null)
+          : null;
+        this.actors.setAccessoryModel(event.payload.entityId, event.payload.slot, modelAssetId);
         break;
       }
+      case "actors.updateAnimation":
+        this.actors.playAction(
+          event.payload.entityId,
+          event.payload.animationId,
+          event.payload.startTick,
+        );
+        break;
+      case "actors.updateMoveSpeed":
+        this.actors.updateMoveSpeed(event.payload.entityId, event.payload.speed);
+        break;
       case "actors.hide":
-        this.actors.hide((event.payload as { entityId: number }).entityId);
+        this.actors.hide(event.payload.entityId);
         break;
       case "actors.show":
-        this.actors.show((event.payload as { entityId: number }).entityId);
+        this.actors.show(event.payload.entityId);
         break;
       case "objects.clear":
         this.objects.clear();
         break;
-      case "objects.spawn": {
-        const p = event.payload as { entityId: number; tile: TileCoord; defId: string };
-        this.objects.spawn(p.entityId, p.tile, p.defId);
+      case "objects.spawn":
+        this.objects.spawn(event.payload.entityId, event.payload.tile, event.payload.defId);
         break;
-      }
       case "objects.remove":
-        this.objects.remove((event.payload as { entityId: number }).entityId);
+        this.objects.remove(event.payload.entityId);
         break;
-      case "objects.transform": {
-        const p = event.payload as { entityId: number; defId: string };
-        this.objects.transform(p.entityId, p.defId);
+      case "objects.transform":
+        this.objects.transform(event.payload.entityId, event.payload.defId);
         break;
-      }
+      case "objects.updateDoorState":
+        this.objects.updateDoorState(event.payload.entityId, event.payload.isOpen);
+        break;
       case "groundItems.clear":
         this.groundItems.clear();
         break;
       case "groundItems.spawn": {
-        const p = event.payload as {
-          entityId: number;
-          tile: TileCoord;
-          defId: string;
-          quantity: number;
-        };
-        this.groundItems.spawn(p.entityId, p.tile, p.defId, p.quantity);
+        const iconAssetId = this.content.getItem(event.payload.defId)?.icon ?? undefined;
+        this.groundItems.spawn(
+          event.payload.entityId,
+          event.payload.tile,
+          event.payload.defId,
+          event.payload.quantity,
+          iconAssetId,
+        );
         break;
       }
       case "groundItems.remove":
-        this.groundItems.remove((event.payload as { entityId: number }).entityId);
+        this.groundItems.remove(event.payload.entityId);
         break;
       case "hitsplats.clear":
         this.hitsplats.clear();
         break;
-      case "hitsplats.show": {
-        const p = event.payload as {
-          entityId: number;
-          amount: number;
-          type: import("@old-town/shared").HitsplatType | undefined;
-          tick: number;
-        };
-        this.hitsplats.show(p.entityId, p.amount, p.type ?? "damage", p.tick);
+      case "hitsplats.show":
+        this.hitsplats.show(
+          event.payload.entityId,
+          event.payload.amount,
+          event.payload.type,
+          event.payload.tick,
+        );
         break;
-      }
       case "xpDrops.clear":
         this.xpDrops.clear();
         break;
-      case "xpDrops.show": {
-        const p = event.payload as {
-          entityId: number;
-          skillId: string;
-          amount: number;
-          tick: number;
-        };
-        this.xpDrops.show(p.entityId, p.skillId, p.amount, p.tick);
+      case "xpDrops.show":
+        this.xpDrops.show(
+          event.payload.entityId,
+          event.payload.skillId,
+          event.payload.amount,
+          event.payload.tick,
+        );
         break;
-      }
       case "projectiles.clear":
         this.projectiles.clear();
         break;
-      case "projectiles.spawn": {
-        const p = event.payload as {
-          id: string;
-          startTile: TileCoord;
-          endTile: TileCoord;
-          startTick: number;
-          hitTick: number;
-        };
-        this.projectiles.spawn(p.id, p.startTile, p.endTile, p.startTick, p.hitTick);
+      case "projectiles.spawn":
+        this.projectiles.spawn(
+          event.payload.id,
+          event.payload.startTile,
+          event.payload.endTile,
+          event.payload.startTick,
+          event.payload.hitTick,
+        );
         break;
-      }
       case "chatOverhead.clear":
         this.chatOverhead.clear();
         break;
       case "chatOverhead.show": {
-        const p = event.payload as { entityId: number; text: string };
-        const actor = this.actors.getActorState(p.entityId);
+        const actor = this.actors.getActorState(event.payload.entityId);
         if (actor) {
-          this.chatOverhead.show(p.entityId, p.text, actor.visualPosition);
+          this.chatOverhead.show(event.payload.entityId, event.payload.text, actor.visualPosition);
         }
         break;
       }
-      case "region.load": {
-        const p = event.payload as {
-          regionId: string;
-          chunks: readonly import("@old-town/shared").ChunkData[];
-        };
-        this._pendingRegionLoads.push(p);
+      case "region.load":
+        this._pendingRegionLoads.push(event.payload);
         break;
-      }
-      case "region.unload": {
-        const p = event.payload as { regionId: string };
-        this._pendingRegionUnloads.push(p);
+      case "region.unload":
+        this._pendingRegionUnloads.push(event.payload);
         break;
-      }
     }
   }
 
-  private _applyDebugEvent(event: PresentationEvent): void {
+  private _applyDebugEvent(event: DebugEvent): void {
     if (!this.debug) return;
     switch (event.type) {
       case "debug.clear":
         this.debug.clear();
         break;
       case "debug.markPathTile":
-        this.debug.markPathTile((event.payload as { tile: TileCoord }).tile);
+        this.debug.markPathTile(event.payload.tile);
         break;
-      case "debug.markTrueTile": {
-        const p = event.payload as { tile: TileCoord; entityId: number };
-        this.debug.markTrueTile(p.tile, p.entityId);
+      case "debug.markTrueTile":
+        this.debug.markTrueTile(event.payload.tile, event.payload.entityId);
         break;
-      }
       case "debug.markCollisionTile":
-        this.debug.markCollisionTile((event.payload as { tile: TileCoord }).tile);
+        this.debug.markCollisionTile(event.payload.tile);
         break;
       case "debug.markFootprint":
-        this.debug.markFootprint((event.payload as { tile: TileCoord }).tile);
+        this.debug.markFootprint(event.payload.tile);
         break;
-      case "debug.markReachTiles": {
-        const p = event.payload as { center: TileCoord; radius: number };
-        this.debug.markReachTiles(p.center, p.radius);
+      case "debug.markReachTiles":
+        this.debug.markReachTiles(event.payload.center, event.payload.radius);
         break;
-      }
       case "debug.markLoSRay": {
-        const p = event.payload as {
-          start: { x: number; y: number; z: number };
-          end: { x: number; y: number; z: number };
-        };
-        const start = new Vector3(p.start.x, p.start.y, p.start.z);
-        const end = new Vector3(p.end.x, p.end.y, p.end.z);
+        const start = new Vector3(event.payload.start.x, event.payload.start.y, event.payload.start.z);
+        const end = new Vector3(event.payload.end.x, event.payload.end.y, event.payload.end.z);
         this.debug.markLoSRay(start, end);
         break;
       }
       case "debug.setActionQueue":
-        this.debug.setActionQueue((event.payload as { queue: string[] }).queue);
+        this.debug.setActionQueue(event.payload.queue);
         break;
       case "debug.setCombatCooldown":
-        this.debug.setCombatCooldown((event.payload as { ticks: number }).ticks);
+        this.debug.setCombatCooldown(event.payload.ticks);
         break;
       case "debug.setPendingHits":
-        this.debug.setPendingHits((event.payload as { hits: Map<string, number> }).hits);
+        this.debug.setPendingHits(event.payload.hits);
         break;
       case "debug.setNpcLeash":
-        this.debug.setNpcLeash((event.payload as { tile: TileCoord }).tile);
+        this.debug.setNpcLeash(event.payload.tile);
         break;
       case "debug.setVarbits":
-        this.debug.setVarbits((event.payload as { vars: Map<string, number> }).vars);
+        this.debug.setVarbits(event.payload.vars);
         break;
-    }
-  }
-
-  private _updateOverlay(
-    clockSample?: import("./renderer/RenderClock").RenderClockSample,
-    presentationSample?: import("./net/SnapshotBuffer").PresentationSample,
-    queueStats?: import("./renderer/ChunkBakeQueue").ChunkBakeQueueStats,
-    residencyStats?: import("./renderer/ChunkResidencyManager").ChunkResidencyStats,
-  ): void {
-    const nowMs = clockSample?.rafNowMs ?? performance.now();
-
-    if (this._lastOverlayConnection !== this._connected) {
-      this._lastOverlayConnection = this._connected;
-      this._overlays.connectionStatus.textContent = this._connected ? "Connected" : "Disconnected";
-      this._overlays.connectionStatus.className = this._connected ? "connected" : "disconnected";
-    }
-
-    const tickText = `Tick: ${this._currentTick}`;
-    if (this._lastOverlayTickText !== tickText) {
-      this._lastOverlayTickText = tickText;
-      this._overlays.tickStatus.textContent = tickText;
-    }
-
-    if (nowMs - this._lastFpsOverlayUpdateMs >= 250) {
-      this._lastFpsOverlayUpdateMs = nowMs;
-      const fpsText = `FPS: ${this.renderer.fps}`;
-      if (this._lastOverlayFpsText !== fpsText) {
-        this._lastOverlayFpsText = fpsText;
-        this._overlays.fpsStatus.textContent = fpsText;
-      }
-    }
-
-    const selfActor = this.actors.getActorState(this._selfEntityId);
-    if (selfActor) {
-      const debug = document.getElementById("debug-overlay");
-      if (
-        debug?.classList.contains("visible") &&
-        !this._debugOverlayUpdatePending &&
-        nowMs - this._lastDebugOverlayUpdateMs >= 250
-      ) {
-        this._debugOverlayUpdatePending = true;
-        const doUpdate = () => {
-          this._debugOverlayUpdatePending = false;
-          this._lastDebugOverlayUpdateMs = nowMs;
-          this._debugOverlayUpdateHandle = undefined;
-          const cx = Math.floor(selfActor.serverTile.x / 8);
-          const cy = Math.floor(selfActor.serverTile.y / 8);
-          const rx = Math.floor(selfActor.serverTile.x / 64);
-          const ry = Math.floor(selfActor.serverTile.y / 64);
-          const renderStats = this.renderer.debugCounters();
-          const lines = [
-            `Tick: ${this._currentTick}`,
-            `Ping: ${Math.round(this._lastPingRtt)}ms`,
-            `Frame: ${renderStats.frameTimeMs.toFixed(1)}ms`,
-            `Draw calls: ${renderStats.drawCalls}`,
-            `Geometries: ${renderStats.geometries}`,
-            `Textures: ${renderStats.textures}`,
-            `Actors: ${this.actors.actorCount}`,
-            `Objects: ${this.objects.objectCount}`,
-            `Chunks: ${this.terrain.loadedChunkCount}`,
-            `True tile: (${selfActor.serverTile.x}, ${selfActor.serverTile.y}, ${selfActor.serverTile.plane})`,
-            `Visual: (${selfActor.visualPosition.x.toFixed(1)}, ${selfActor.visualPosition.y.toFixed(1)}, ${selfActor.visualPosition.z.toFixed(1)})`,
-            `Region: ${rx}:${ry}:${selfActor.serverTile.plane}`,
-            `Chunk: ${cx}:${cy}:${selfActor.serverTile.plane}`,
-            `Facing: ${selfActor.facingDirection}`,
-            `Anim: ${selfActor.animationState}`,
-          ];
-          if (clockSample && presentationSample) {
-            lines.push(`Snapshot depth: ${this._snapshotBuffer.depth}`);
-            lines.push(`Presentation mode: ${presentationSample.mode}`);
-            lines.push(`Render server time: ${clockSample.renderServerTimeMs.toFixed(0)}ms`);
-            lines.push(`Latest accepted tick: ${this._snapshotBuffer.latestAcceptedTick}`);
-            lines.push(`Interpolation alpha: ${presentationSample.alpha.toFixed(3)}`);
-            if (presentationSample.snapReason) {
-              lines.push(`Snap reason: ${presentationSample.snapReason}`);
-            }
-          }
-          if (queueStats) {
-            lines.push(`Bake queued: ${queueStats.queued}`);
-            lines.push(`Bake baking: ${queueStats.baking}`);
-            lines.push(`Bake waitingUpload: ${queueStats.waitingUpload}`);
-            lines.push(`Bake resident: ${queueStats.resident}`);
-            lines.push(`Bake visible: ${queueStats.visible}`);
-            lines.push(`Bake hidden: ${queueStats.hiddenResident}`);
-            lines.push(`Bake evictPending: ${queueStats.evictPending}`);
-            lines.push(`Bake failed: ${queueStats.failed}`);
-          }
-          if (residencyStats) {
-            lines.push(`Residency visible: ${residencyStats.visible}`);
-            lines.push(`Residency hidden: ${residencyStats.hiddenResident}`);
-            lines.push(
-              `Residency GPU: ${(residencyStats.approximateGpuBytes / 1024 / 1024).toFixed(1)}MB`,
-            );
-          }
-          if (this.debug) {
-            const queue = this.debug.getActionQueue();
-            if (queue.length > 0) {
-              lines.push(`Action queue: ${queue.join(", ")}`);
-            }
-            const cooldown = this.debug.getCombatCooldown();
-            if (cooldown > 0) {
-              lines.push(`Combat cooldown: ${cooldown}`);
-            }
-            const hits = this.debug.getPendingHits();
-            if (hits.size > 0) {
-              const hitLines = Array.from(hits.entries()).map(
-                ([target, amount]) => `Pending hit ${target}: ${amount}`,
-              );
-              lines.push(...hitLines);
-            }
-            const leash = this.debug.getNpcLeash();
-            if (leash) {
-              lines.push(`NPC leash: (${leash.x}, ${leash.y})`);
-            }
-            const vars = this.debug.getVarbits();
-            if (vars.size > 0) {
-              const varLines = Array.from(vars.entries()).map(
-                ([varId, value]) => `Var ${varId}: ${value}`,
-              );
-              lines.push(...varLines);
-            }
-          }
-          const stats = document.getElementById("debug-stats");
-          if (stats) {
-            stats.innerHTML = lines.map((line) => `<div>${line}</div>`).join("");
-          }
-        };
-        if (typeof requestIdleCallback !== "undefined") {
-          this._debugOverlayUpdateHandle = requestIdleCallback(doUpdate);
-        } else {
-          this._debugOverlayUpdateHandle = window.setTimeout(doUpdate, 0);
-        }
-      }
     }
   }
 }

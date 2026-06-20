@@ -45,6 +45,10 @@ function resolveArchetype(defId: string): string {
   if (has("desk", "table", "bench", "board", "ledger")) return "table";
   if (has("chest", "supply")) return "chest";
   if (has("door", "hatch")) return "door";
+  if (has("gate")) return "gate";
+  if (has("wall")) return "wall";
+  if (has("roof")) return "roof";
+  if (has("window")) return "window";
   if (has("bell")) return "bell";
   if (has("signpost", "sign")) return "signpost";
   if (has("arch", "gravegate")) return "arch";
@@ -231,6 +235,33 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
           y: 0.75,
           z: 0.1,
         },
+      ]);
+    }
+    case "gate": {
+      return compose([
+        { geometry: new BoxGeometry(1.7, 1.4, 0.18), color: PALETTE.barkDark, y: 0.7 },
+        { geometry: new BoxGeometry(0.08, 1.2, 0.08), color: PALETTE.iron, x: -0.8, y: 0.7 },
+        { geometry: new BoxGeometry(0.08, 1.2, 0.08), color: PALETTE.iron, x: 0.8, y: 0.7 },
+        { geometry: new BoxGeometry(1.7, 0.12, 0.12), color: PALETTE.iron, y: 1.4 },
+      ]);
+    }
+    case "wall": {
+      return compose([
+        { geometry: new BoxGeometry(1.0, 1.6, 0.4), color: PALETTE.stoneMid, y: 0.8 },
+        { geometry: new BoxGeometry(1.0, 0.1, 0.42), color: PALETTE.stoneLight, y: 1.6 },
+      ]);
+    }
+    case "roof": {
+      const pitch = new ConeGeometry(0.8, 0.6, 4);
+      return compose([
+        { geometry: new BoxGeometry(1.0, 0.1, 1.0), color: PALETTE.barkDark, y: 0.05 },
+        { geometry: pitch, color: PALETTE.clothRed, rotY: Math.PI / 4, y: 0.4 },
+      ]);
+    }
+    case "window": {
+      return compose([
+        { geometry: new BoxGeometry(1.0, 1.6, 0.4), color: PALETTE.stoneMid, y: 0.8 },
+        { geometry: new BoxGeometry(0.4, 0.5, 0.08), color: PALETTE.clothCream, y: 1.0, z: 0.2 },
       ]);
     }
     case "bell": {
@@ -494,6 +525,32 @@ export class ObjectRenderer {
     }
   }
 
+  /** Toggle roof visibility for a region. When the player enters a building, roofs in that region are hidden. */
+  setRoofVisible(regionId: string, visible: boolean): void {
+    for (const bucket of this.buckets.values()) {
+      if (bucket.key.regionId === regionId && bucket.key.archetypeId === "roof") {
+        bucket.mesh.visible = visible;
+      }
+    }
+  }
+
+  /** Update an object's door state (open/closed). Purely visual — does not affect collision. */
+  updateDoorState(entityId: number, isOpen: boolean): void {
+    const obj = this.objects.get(entityId);
+    if (!obj) return;
+    const bucket = this.buckets.get(obj.bucketKey);
+    if (!bucket) return;
+    // Open doors sink slightly and rotate to suggest an open swing.
+    const angle = isOpen ? Math.PI / 2.2 : 0;
+    const yOffset = isOpen ? -0.1 : 0;
+    this._scratchPos.set(obj.tile.x, 0.1 + yOffset, obj.tile.y);
+    this._scratchQuat.set(0, Math.sin(angle / 2), 0, Math.cos(angle / 2));
+    this._scratchScale.set(1, 1, 1);
+    this._scratchMatrix.compose(this._scratchPos, this._scratchQuat, this._scratchScale);
+    bucket.writeTransform(entityId, this._scratchMatrix);
+    this._markPending(obj.bucketKey);
+  }
+
   private _getOrCreateBucket(
     keyStr: string,
     archetypeId: string,
@@ -556,6 +613,7 @@ export class ObjectRenderer {
     }
     bucket.mesh.userData = {
       kind: "object",
+      archetypeId: bucket.key.archetypeId,
       instanceMap,
     };
   }

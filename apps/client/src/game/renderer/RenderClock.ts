@@ -44,9 +44,20 @@ export class RenderClock {
   /**
    * Update the estimated server-time offset from an accepted server packet.
    *
-   * The offset is computed as `packetServerTimeMs - rafNowMs` and smoothed
-   * using `serverTimeSmoothing`.  The offset is never decreased during normal
-   * sync so that render time does not move backwards.
+   * The offset is computed as `packetServerTimeMs - rafNowMs` and tracked with a
+   * symmetric exponential moving average controlled by `serverTimeSmoothing`.
+   *
+   * It must converge on the *mean* offset and self-correct in both directions.
+   * A previous implementation clamped this with `Math.max(prev, smoothed)` to
+   * "never move render time backwards", but a one-sided ratchet permanently
+   * locks onto the most optimistic arrival — the early packet of a server
+   * tick-loop catch-up burst, a GC-delayed frame, or any low-latency outlier.
+   * Every such spike biases the playout clock forward and never decays, so under
+   * a bursty/jittery packet cadence render time creeps past the newest buffered
+   * snapshot and interpolation collapses into a per-tick teleport (smooth, then
+   * progressively worse, then a reset when the next burst lands — repeating).
+   * Smoothing both ways keeps the clock centred; each correction is bounded by
+   * `serverTimeSmoothing`, so it never produces a perceptible rewind.
    */
   syncToServer(packetTick: number, packetServerTimeMs: number, rafNowMs: number): void {
     const rawOffset = packetServerTimeMs - rafNowMs;
@@ -54,11 +65,9 @@ export class RenderClock {
     if (this._serverTimeOffset === null) {
       this._serverTimeOffset = rawOffset;
     } else {
-      const smoothed =
+      this._serverTimeOffset =
         this._serverTimeOffset * (1 - this._options.serverTimeSmoothing) +
         rawOffset * this._options.serverTimeSmoothing;
-      // Never move the offset backwards (which would rewind render time).
-      this._serverTimeOffset = Math.max(this._serverTimeOffset, smoothed);
     }
 
     this._lastSyncTick = packetTick;

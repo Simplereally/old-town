@@ -1,0 +1,11 @@
+{
+  "ladder": "ranged-armour",
+  "tier": "argentweave",
+  "tierOrder": 10,
+  "regions": {
+    "hide": "#c2c6cc",
+    "stitch": "#e8e8e8",
+    "buckle": "#e8e8e8",
+    "accent": "#9aa0a6"
+  }
+}

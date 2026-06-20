@@ -3,7 +3,7 @@
  *
  * Run with: `bun run dev`
  */
-import { type ChildProcessWithoutNullStreams, spawn } from "node:child_process";
+import { type ChildProcess, spawn } from "node:child_process";
 
 const root = process.cwd();
 const bun = process.execPath;
@@ -14,7 +14,7 @@ const clientHost = process.env.CLIENT_HOST ?? "127.0.0.1";
 const clientPort = process.env.CLIENT_PORT ?? "5173";
 const serverUrl = process.env.VITE_SERVER_URL ?? `ws://${serverHost}:${serverPort}/ws`;
 
-const children: ChildProcessWithoutNullStreams[] = [];
+const children: ChildProcess[] = [];
 let shuttingDown = false;
 
 function prefixLines(label: string, chunk: Buffer): void {
@@ -26,19 +26,15 @@ function prefixLines(label: string, chunk: Buffer): void {
   }
 }
 
-function start(
-  label: string,
-  args: readonly string[],
-  env: NodeJS.ProcessEnv,
-): ChildProcessWithoutNullStreams {
+function start(label: string, args: readonly string[], env: NodeJS.ProcessEnv): ChildProcess {
   const child = spawn(bun, [...args], {
     cwd: root,
     env,
     stdio: ["ignore", "pipe", "pipe"],
   });
 
-  child.stdout.on("data", (chunk: Buffer) => prefixLines(label, chunk));
-  child.stderr.on("data", (chunk: Buffer) => prefixLines(label, chunk));
+  child.stdout?.on("data", (chunk: Buffer) => prefixLines(label, chunk));
+  child.stderr?.on("data", (chunk: Buffer) => prefixLines(label, chunk));
   child.on("exit", (code, signal) => {
     if (!shuttingDown) {
       const reason = signal ? `signal ${signal}` : `code ${code ?? "unknown"}`;
@@ -51,15 +47,31 @@ function start(
   return child;
 }
 
+/**
+ * Terminate a child and ALL of its descendants. The client child is `bun run …` which
+ * itself spawns `node vite.js`, so the real process tree is
+ * `bun(dev) → bun(client) → node(vite)`. On Windows `child.kill()` only signals the
+ * direct child, orphaning the grandchild Vite — which then keeps port 5173 bound and
+ * makes the next `bun run dev` fail on `--strictPort`. `taskkill /T` kills the whole tree.
+ */
+function killChildTree(child: ChildProcess): void {
+  if (child.killed || child.pid === undefined) {
+    return;
+  }
+  if (process.platform === "win32") {
+    spawn("taskkill", ["/PID", String(child.pid), "/T", "/F"], { stdio: "ignore" });
+  } else {
+    child.kill("SIGTERM");
+  }
+}
+
 function shutdown(code = 0): void {
   if (shuttingDown) {
     return;
   }
   shuttingDown = true;
   for (const child of children) {
-    if (!child.killed) {
-      child.kill("SIGTERM");
-    }
+    killChildTree(child);
   }
   process.exitCode = code;
 }

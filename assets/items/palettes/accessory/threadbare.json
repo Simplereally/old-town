@@ -1,0 +1,11 @@
+{
+  "ladder": "accessory",
+  "tier": "threadbare",
+  "tierOrder": 1,
+  "regions": {
+    "cloth": "#8a7a6a",
+    "metal": "#b8a890",
+    "seal": "#8a7a5a",
+    "accent": "#a89888"
+  }
+}

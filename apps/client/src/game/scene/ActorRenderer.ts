@@ -21,6 +21,34 @@ import {
 } from "three";
 import { type RenderResourceKey, RenderResourceRegistry } from "../renderer/RenderResourceRegistry";
 import { compose, PALETTE, vertexColorMaterial } from "./lowpoly";
+import {
+  getAccessorySlot,
+  registerAccessoryAssets,
+  resolveAccessoryFamily,
+  resolveAccessoryTier,
+} from "./models/accessory/register";
+import { getArmourSlot } from "./models/armour-melee";
+import {
+  registerArmourAssets,
+  resolveArmourFamily,
+  resolveArmourTier,
+} from "./models/armour-melee/register";
+import {
+  getRangedMagicArmourSlot,
+  registerRangedMagicArmourAssets,
+  resolveRangedMagicArmourFamily,
+  resolveRangedMagicArmourTier,
+} from "./models/armour-ranged/register";
+import { MAGIC_FAMILIES } from "./models/magic";
+import { registerMagicAssets, resolveMagicFamily, resolveMagicTier } from "./models/magic/register";
+import { MELEE_FAMILIES } from "./models/melee";
+import { registerMeleeAssets, resolveMeleeFamily, resolveMeleeTier } from "./models/melee/register";
+import { RANGED_FAMILIES } from "./models/ranged";
+import {
+  registerRangedAssets,
+  resolveRangedFamily,
+  resolveRangedTier,
+} from "./models/ranged/register";
 
 export type AnimationState = "idle" | "walk" | "run" | "attack" | "cast" | "hit" | "die";
 
@@ -475,6 +503,8 @@ export class ActorRenderer {
   private readonly creatureActive = new Map<string, Set<ActorMeshes>>();
   private readonly registeredArchetypes = new Set<string>();
   private _nextPoolSlot = 0;
+  private readonly weaponMeshes = new Map<number, Mesh>();
+  private readonly armourMeshes = new Map<number, Map<string, Mesh>>();
 
   constructor(options: ActorRendererOptions) {
     this.scene = options.scene;
@@ -555,6 +585,19 @@ export class ActorRenderer {
 
     // Prewarm humanoid pool
     this._prewarmHumanoidPool();
+
+    // Register melee weapon geometries + tier materials (E41-S03)
+    registerMeleeAssets(this.registry);
+    // Register ranged/thrown weapon geometries + tier materials (E41-S04)
+    registerRangedAssets(this.registry);
+    // Register magic weapon geometries + tier materials (E41-S05)
+    registerMagicAssets(this.registry);
+    // Register melee armour geometries + tier materials (E41-S06)
+    registerArmourAssets(this.registry);
+    // Register ranged+magic armour geometries + tier materials (E41-S07)
+    registerRangedMagicArmourAssets(this.registry);
+    // Register accessory geometries + tier materials (E41-S08)
+    registerAccessoryAssets(this.registry);
   }
 
   setSelfEntityId(id: number): void {
@@ -619,6 +662,14 @@ export class ActorRenderer {
     if (meshes) {
       this._releaseMeshes(meshes);
       this.meshes.delete(entityId);
+    }
+    this.weaponMeshes.delete(entityId);
+    const armourSlots = this.armourMeshes.get(entityId);
+    if (armourSlots) {
+      for (const mesh of armourSlots.values()) {
+        meshes?.group.remove(mesh);
+      }
+      this.armourMeshes.delete(entityId);
     }
     this.actors.delete(entityId);
   }
@@ -715,6 +766,244 @@ export class ActorRenderer {
     if (appearance.name) {
       actor.name = appearance.name;
     }
+  }
+
+  /**
+   * Attach a weapon model to an actor's right hand (E41-S03/S04/S05).
+   * Resolves the model AssetId to a melee, ranged, or magic family geometry +
+   * tier material and attaches the mesh to the humanoid group. Pass `null` to
+   * clear. Two-handed families angle for a 2H stance. Off-hand foci attach to
+   * the left hand.
+   */
+  setWeaponModel(entityId: number, modelAssetId: string | null): void {
+    const meshes = this.meshes.get(entityId);
+    if (!meshes) return;
+
+    // Remove existing weapon mesh
+    const existing = this.weaponMeshes.get(entityId);
+    if (existing) {
+      meshes.group.remove(existing);
+      this.weaponMeshes.delete(entityId);
+    }
+
+    if (!modelAssetId) return;
+
+    // Try melee first, then ranged, then magic
+    let familyId: string | null = resolveMeleeFamily(modelAssetId);
+    let tier: string | null = resolveMeleeTier(modelAssetId);
+    let materialContentId = "melee_weapon";
+    let twoHanded: boolean;
+    let offHand = false;
+
+    if (familyId && tier) {
+      const familySpec = MELEE_FAMILIES.find((f) => f.id === familyId);
+      twoHanded = familySpec?.twoHanded ?? false;
+    } else {
+      const rangedFamily = resolveRangedFamily(modelAssetId);
+      const rangedTier = resolveRangedTier(modelAssetId);
+      if (rangedFamily && rangedTier) {
+        familyId = rangedFamily;
+        tier = rangedTier.tier;
+        materialContentId = rangedTier.palette === "ranged" ? "ranged_weapon" : "crossbow_weapon";
+        const rangedSpec = RANGED_FAMILIES.find((f) => f.id === rangedFamily);
+        twoHanded = rangedSpec?.twoHanded ?? false;
+      } else {
+        const magicFamily = resolveMagicFamily(modelAssetId);
+        const magicTier = resolveMagicTier(modelAssetId);
+        if (!magicFamily || !magicTier) return;
+        familyId = magicFamily;
+        tier = magicTier;
+        materialContentId = "magic_weapon";
+        const magicSpec = MAGIC_FAMILIES.find((f) => f.id === magicFamily);
+        twoHanded = magicSpec?.twoHanded ?? false;
+        offHand = magicSpec?.offHand ?? false;
+      }
+    }
+
+    if (!familyId || !tier) return;
+
+    const geometry = this.registry.getGeometry({
+      type: "prop",
+      contentId: `model_${familyId}`,
+    });
+    const material = this.registry.getMaterial({
+      type: "prop",
+      contentId: materialContentId,
+      materialId: tier,
+    });
+
+    const weaponMesh = new Mesh(geometry, material);
+    weaponMesh.name = "weapon";
+    if (offHand) {
+      // Off-hand focus: attach to left arm (x=-0.34)
+      weaponMesh.position.set(-0.34, ARM_Y + 0.1, 0.06);
+      weaponMesh.rotation.z = 0.1;
+    } else {
+      // Main hand: attach to right arm (x=0.34)
+      weaponMesh.position.set(0.34, ARM_Y + 0.15, 0.06);
+      weaponMesh.rotation.z = -0.1;
+      if (twoHanded) {
+        weaponMesh.rotation.z = -0.25;
+      }
+    }
+    weaponMesh.castShadow = false;
+    weaponMesh.receiveShadow = false;
+    meshes.group.add(weaponMesh);
+    this.weaponMeshes.set(entityId, weaponMesh);
+  }
+
+  /**
+   * Attach an armour model to an actor's body part (E41-S06).
+   * Resolves the model AssetId to an armour family geometry + tier material
+   * and attaches the mesh to the appropriate body part. Pass `null` to clear
+   * the slot.
+   */
+  setArmourModel(entityId: number, slot: string, modelAssetId: string | null): void {
+    const meshes = this.meshes.get(entityId);
+    if (!meshes) return;
+
+    let slotMap = this.armourMeshes.get(entityId);
+    if (!slotMap) {
+      slotMap = new Map();
+      this.armourMeshes.set(entityId, slotMap);
+    }
+
+    // Remove existing armour for this slot
+    const existing = slotMap.get(slot);
+    if (existing) {
+      meshes.group.remove(existing);
+      slotMap.delete(slot);
+    }
+
+    if (!modelAssetId) return;
+
+    // Try melee armour first, then ranged/magic armour
+    let familyId: string | null = resolveArmourFamily(modelAssetId);
+    let tier: string | null = resolveArmourTier(modelAssetId);
+    let materialContentId = "armour_melee";
+    let armourSlot: string | undefined;
+
+    if (familyId && tier) {
+      armourSlot = getArmourSlot(familyId);
+    } else {
+      const rmFamily = resolveRangedMagicArmourFamily(modelAssetId);
+      const rmTier = resolveRangedMagicArmourTier(modelAssetId);
+      if (!rmFamily || !rmTier) return;
+      familyId = rmFamily;
+      tier = rmTier.tier;
+      materialContentId = rmTier.palette === "ranged" ? "armour_ranged" : "armour_magic";
+      armourSlot = getRangedMagicArmourSlot(rmFamily);
+    }
+
+    if (!familyId || !tier || !armourSlot) return;
+
+    const geometry = this.registry.getGeometry({
+      type: "prop",
+      contentId: `model_${familyId}`,
+    });
+    const material = this.registry.getMaterial({
+      type: "prop",
+      contentId: materialContentId,
+      materialId: tier,
+    });
+
+    const armourMesh = new Mesh(geometry, material);
+    armourMesh.name = `armour_${slot}`;
+
+    // Position based on body part
+    switch (armourSlot) {
+      case "head":
+        armourMesh.position.set(0, HEAD_Y, 0);
+        break;
+      case "body":
+        armourMesh.position.set(0, TORSO_Y, 0);
+        break;
+      case "legs":
+        armourMesh.position.set(0, LEG_Y, 0);
+        break;
+      case "feet":
+        armourMesh.position.set(0, 0, 0);
+        break;
+      case "hands":
+        armourMesh.position.set(0, ARM_Y, 0);
+        break;
+      case "shield":
+        // Shield attaches to left hand
+        armourMesh.position.set(-0.34, ARM_Y, 0.1);
+        break;
+    }
+    armourMesh.castShadow = false;
+    armourMesh.receiveShadow = false;
+    meshes.group.add(armourMesh);
+    slotMap.set(slot, armourMesh);
+  }
+
+  /**
+   * Attach an accessory model to an actor (E41-S08).
+   * Only visible accessories (cape, amulet, belt, trophy) get worn meshes.
+   * Ring and charm are icon-only. Pass `null` to clear the slot.
+   */
+  setAccessoryModel(entityId: number, slot: string, modelAssetId: string | null): void {
+    const meshes = this.meshes.get(entityId);
+    if (!meshes) return;
+
+    let slotMap = this.armourMeshes.get(entityId);
+    if (!slotMap) {
+      slotMap = new Map();
+      this.armourMeshes.set(entityId, slotMap);
+    }
+
+    // Remove existing accessory for this slot
+    const existing = slotMap.get(slot);
+    if (existing) {
+      meshes.group.remove(existing);
+      slotMap.delete(slot);
+    }
+
+    if (!modelAssetId) return;
+
+    const familyId = resolveAccessoryFamily(modelAssetId);
+    const tier = resolveAccessoryTier(modelAssetId);
+    if (!familyId || !tier) return;
+
+    const accessorySlot = getAccessorySlot(familyId);
+    if (!accessorySlot) return;
+
+    const geometry = this.registry.getGeometry({
+      type: "prop",
+      contentId: `model_${familyId}`,
+    });
+    const material = this.registry.getMaterial({
+      type: "prop",
+      contentId: "accessory",
+      materialId: tier,
+    });
+
+    const accessoryMesh = new Mesh(geometry, material);
+    accessoryMesh.name = `accessory_${slot}`;
+
+    switch (accessorySlot) {
+      case "back":
+        // Cape on the back, hanging from shoulders
+        accessoryMesh.position.set(0, TORSO_Y + 0.1, -0.2);
+        break;
+      case "neck":
+        // Amulet at the neck/base of head
+        accessoryMesh.position.set(0, TORSO_Y + TORSO_H * 0.5, 0.16);
+        break;
+      case "waist":
+        // Belt at the waist
+        accessoryMesh.position.set(0, LEG_H + 0.05, 0);
+        break;
+      case "chest":
+        // Trophy as a chest badge
+        accessoryMesh.position.set(0, TORSO_Y + 0.1, 0.18);
+        break;
+    }
+    accessoryMesh.castShadow = false;
+    accessoryMesh.receiveShadow = false;
+    meshes.group.add(accessoryMesh);
+    slotMap.set(slot, accessoryMesh);
   }
 
   /** Update actor visual positions from RenderTransformCache. Call every frame. */
@@ -1210,7 +1499,8 @@ export class ActorRenderer {
     const quantizedSubstep = Math.floor(nowMs / ANIMATION_SUBSTEP_MS) % ANIMATION_SUBSTEPS_PER_TICK;
     const t = (nowMs % ANIMATION_SUBSTEP_MS) / ANIMATION_SUBSTEP_MS;
 
-    // Reset parts to default positions first
+    // Reset to the rest pose each frame; the pose below is applied on top, so
+    // animation never accumulates or leaks between states.
     if (meshes.parts.length > 0) {
       // Humanoid parts: head, leftLeg, rightLeg, leftArm, rightArm
       const head = meshes.parts[0];
@@ -1219,18 +1509,47 @@ export class ActorRenderer {
       const leftArm = meshes.parts[3];
       const rightArm = meshes.parts[4];
 
-      if (head) head.position.y = HEAD_Y;
+      meshes.body.position.y = TORSO_Y;
+      if (head) {
+        head.position.y = HEAD_Y;
+        head.rotation.set(0, 0, 0);
+      }
       if (leftLeg) leftLeg.position.set(-0.13, LEG_Y, 0);
       if (rightLeg) rightLeg.position.set(0.13, LEG_Y, 0);
-      if (leftArm) leftArm.position.set(-0.34, ARM_Y, 0);
-      if (rightArm) rightArm.position.set(0.34, ARM_Y, 0);
+      if (leftArm) {
+        leftArm.position.set(-0.34, ARM_Y, 0);
+        leftArm.rotation.set(0, 0, 0);
+      }
+      if (rightArm) {
+        rightArm.position.set(0.34, ARM_Y, 0);
+        rightArm.rotation.set(0, 0, 0);
+      }
+    } else {
+      // Single-body creature: rest scale (idle breathing squashes/stretches it).
+      meshes.body.scale.y = 1;
     }
 
     switch (state.animationState) {
       case "idle": {
-        // Subtle breathing: slight torso bob
-        const breathe = Math.sin((quantizedSubstep * Math.PI) / 2) * 0.015;
-        meshes.group.position.y += breathe;
+        // Subtle breathing. The figure must stay planted — never translate the
+        // whole group (that reads as the primitive floating off the ground).
+        // Instead the upper body eases up a few millimetres and settles on a
+        // calm, smooth cycle while the feet stay put. A per-actor phase offset
+        // keeps a crowd from breathing in unison.
+        const breath = (Math.sin(nowMs / 900 + state.entityId) + 1) * 0.5; // 0..1, ~5.7s
+        if (meshes.parts.length > 0) {
+          const lift = breath * 0.018;
+          const head = meshes.parts[0];
+          const leftArm = meshes.parts[3];
+          const rightArm = meshes.parts[4];
+          meshes.body.position.y = TORSO_Y + lift;
+          if (head) head.position.y = HEAD_Y + lift;
+          if (leftArm) leftArm.position.y = ARM_Y + lift * 0.6;
+          if (rightArm) rightArm.position.y = ARM_Y + lift * 0.6;
+        } else {
+          // Creature: gentle vertical breathing from a planted base.
+          meshes.body.scale.y = 1 + breath * 0.03;
+        }
         break;
       }
       case "walk": {

@@ -1,24 +1,26 @@
-import type {
-  CombatBonuses,
-  ContentRegistries,
-  EntityId,
-  ItemDef,
-  NpcIntent,
-  Rng,
-  TileCoord,
+import {
+  type CombatBonuses,
+  type ContentRegistries,
+  type EntityId,
+  GAME_TICK_MS,
+  type ItemDef,
+  type NpcIntent,
+  type Plane,
+  type Rng,
+  type TileCoord,
 } from "@old-town/shared";
 import type { CombatantComponent, CombatHitStyle, PendingHit } from "../ecs/components";
 import type { World } from "../ecs/world";
 import type { ActionQueue } from "../sim/action-queue";
 import { InterruptGroup } from "../sim/action-queue";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
-import { addXp, getCurrentLevel } from "../skills/skill-state";
+import { addXp, getCurrentLevel, type AddXpResult } from "../skills/skill-state";
 import type { CollisionMap, Footprint } from "../world/collision";
+import { validateBossAccess } from "./boss-system";
 import { trackContractObjective } from "./contract-system";
 import { type InteractionTarget, resolveInteraction } from "./interaction-reach";
 import { handleMoveIntent } from "./movement-system";
 import { npcFootprint } from "./npc-system";
-import { validateBossAccess } from "./boss-system";
 
 export interface CombatSystemContext {
   readonly world: World;
@@ -60,9 +62,9 @@ const HITPOINTS_XP_PER_DAMAGE = 1;
 function positionTile(position: {
   readonly x: number;
   readonly y: number;
-  readonly plane: number;
+  readonly plane: Plane;
 }): TileCoord {
-  return { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] };
+  return { x: position.x, y: position.y, plane: position.plane };
 }
 
 function chebyshev(a: TileCoord, b: TileCoord): number {
@@ -76,6 +78,22 @@ function systemMessage(
   serverTime: number,
 ): void {
   deltas.markChat({ entityId: owner, channel: "system", text, serverTime });
+}
+
+function announceCombatLevelUp(
+  deltas: DeltaAccumulator,
+  owner: EntityId,
+  result: AddXpResult | undefined,
+  serverTime: number,
+): void {
+  if (result?.levelUp) {
+    systemMessage(
+      deltas,
+      owner,
+      `Congratulations! You've advanced to level ${result.newLevel} ${result.skillId}.`,
+      serverTime,
+    );
+  }
 }
 
 function targetFailureText(reason: CombatTargetFailure): string {
@@ -227,7 +245,12 @@ export function handleNpcCombatIntent(
     intent.npcEntityId,
   );
   if (!bossAccess.ok) {
-    systemMessage(ctx.deltas, owner, bossAccess.reason ?? "You cannot fight that boss.", serverTime);
+    systemMessage(
+      ctx.deltas,
+      owner,
+      bossAccess.reason ?? "You cannot fight that boss.",
+      serverTime,
+    );
     return true;
   }
 
@@ -319,6 +342,12 @@ function attackRangeTiles(ctx: CombatSystemContext, entityId: EntityId): number 
 
 function meleeStyle(ctx: CombatSystemContext, entityId: EntityId): CombatHitStyle {
   const styles = meleeWeapon(ctx, entityId)?.equipment?.allowedStyles ?? [];
+  // Honour the player's chosen style when the equipped weapon supports it; otherwise fall
+  // back to the weapon's first melee style (and unarmed always resolves to crush).
+  const preferred = ctx.world.getComponent(entityId, "combatant")?.combatStyle;
+  if (preferred && MELEE_STYLES.has(preferred) && styles.includes(preferred)) {
+    return preferred;
+  }
   return styles.find((style) => MELEE_STYLES.has(style)) ?? "crush";
 }
 
@@ -594,6 +623,7 @@ function awardCombatXp(
   sourceId: EntityId,
   style: CombatHitStyle,
   damage: number,
+  serverTime: number,
 ): void {
   if (damage <= 0) {
     return;
@@ -602,8 +632,10 @@ function awardCombatXp(
   if (!source || source.dead || source.health <= 0) {
     return;
   }
-  addXp(ctx, sourceId, styleSkill(style), damage * COMBAT_XP_PER_DAMAGE);
-  addXp(ctx, sourceId, "hitpoints", damage * HITPOINTS_XP_PER_DAMAGE);
+  const styleResult = addXp(ctx, sourceId, styleSkill(style), damage * COMBAT_XP_PER_DAMAGE);
+  const hpResult = addXp(ctx, sourceId, "hitpoints", damage * HITPOINTS_XP_PER_DAMAGE);
+  announceCombatLevelUp(ctx.deltas, sourceId, styleResult, serverTime);
+  announceCombatLevelUp(ctx.deltas, sourceId, hpResult, serverTime);
 }
 
 function applyPendingHit(
@@ -611,6 +643,7 @@ function applyPendingHit(
   targetId: EntityId,
   combatant: CombatantComponent,
   hit: PendingHit,
+  serverTime: number,
 ): CombatantComponent {
   if (hit.targetId !== targetId || combatant.dead || combatant.health <= 0) {
     return combatant;
@@ -634,7 +667,7 @@ function applyPendingHit(
     ctx.deltas.markEntityUpdate(targetId, {
       healthBar: { current: after, max: combatant.maxHealth },
     });
-    awardCombatXp(ctx, hit.sourceId, hit.style, damage);
+    awardCombatXp(ctx, hit.sourceId, hit.style, damage, serverTime);
   }
   if (after > 0) {
     assignAutoRetaliateTarget(ctx, targetId, hit.sourceId);
@@ -662,7 +695,7 @@ export function processDamageResolutionEvents(ctx: CombatSystemContext, tick: nu
         future.push(hit);
         continue;
       }
-      current = applyPendingHit(ctx, targetId, current, hit);
+      current = applyPendingHit(ctx, targetId, current, hit, tick * GAME_TICK_MS);
     }
 
     const latest = ctx.world.getComponent(targetId, "combatant") ?? current;

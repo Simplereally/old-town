@@ -23,7 +23,12 @@ import { DisabledPersistenceAdapter, type PersistenceAdapter } from "../persiste
 import { createPersistenceDirtyObserver } from "../persistence/dirty-triggers";
 import { CharacterSaveQueue } from "../persistence/save-queue";
 import { processQuestTriggers } from "../quests/quest-engine";
+import {
+  type ActivityHandlerTable,
+  createActivityActionHandlers,
+} from "../systems/activity-system";
 import { processAppearanceUpdates } from "../systems/appearance-system";
+import { processCharterExpiry } from "../systems/charter-system";
 import { ChatSystem } from "../systems/chat-system";
 import {
   processCombatStartEvents,
@@ -38,7 +43,9 @@ import {
   processGraveLifecycle,
   processGroundItemLifecycle,
 } from "../systems/ground-item-system";
+import { processDeedExpiry } from "../systems/ledger-system";
 import type { NookDef } from "../systems/nook-system";
+import { checkNookDiscovery } from "../systems/nook-system";
 import { npcFootprintResolver, processNpcAiPhase, syncNpcOccupancy } from "../systems/npc-system";
 import {
   type BeginInteractPayload,
@@ -54,19 +61,9 @@ import {
   type SkillingHandlerTable,
 } from "../systems/skilling-system";
 import { createSpellActionHandlers, type SpellHandlerTable } from "../systems/spell-system";
-import {
-  createActivityActionHandlers,
-  type ActivityHandlerTable,
-} from "../systems/activity-system";
-import { processStatusEffects } from "../systems/status-system";
 import { processStatusEffectTick } from "../systems/status-effect-system";
-import {
-  checkTrailDiscovery,
-  processTrailBuffs,
-} from "../systems/trail-system";
-import { processCharterExpiry } from "../systems/charter-system";
-import { checkNookDiscovery } from "../systems/nook-system";
-import { processDeedExpiry } from "../systems/ledger-system";
+import { processStatusEffects } from "../systems/status-system";
+import { checkTrailDiscovery, processTrailBuffs } from "../systems/trail-system";
 import { applyObjectCollision, CollisionMap } from "../world/collision";
 import { loadAllRegionMapsIntoWorld } from "../world/region-loader";
 import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
@@ -166,9 +163,7 @@ interface KernelMetrics {
 
 function positionTile(world: World, entityId: EntityId): TileCoord | undefined {
   const position = world.getComponent(entityId, "position");
-  return position
-    ? { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] }
-    : undefined;
+  return position ? { x: position.x, y: position.y, plane: position.plane } : undefined;
 }
 
 function clearCommandCountsForTick(countsByTargetTick: CommandCountsByTick, tick: number): void {
@@ -347,6 +342,7 @@ function wireTickPhases(
     rng,
     itemAudit,
     actionQueue,
+    map,
   };
 
   tickLoop.registerPhase(TickPhase.InputClose, ({ tick, serverTime }) => {
@@ -370,7 +366,11 @@ function wireTickPhases(
       }
       // Blocked by movement freeze/stun
       const movement = world.getComponent(entityId, "movement");
-      if (movement && movement.blockedUntilTick !== undefined && movement.blockedUntilTick >= tick) {
+      if (
+        movement &&
+        movement.blockedUntilTick !== undefined &&
+        movement.blockedUntilTick >= tick
+      ) {
         blockedOwners.add(entityId);
       }
       // Blocked by active status effect (freeze/stun)

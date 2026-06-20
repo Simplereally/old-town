@@ -58,6 +58,7 @@ The problems were:
   - **Authoritative reset** — full state clears all layers before applying
   - **Packet applier** — owns all S2C mutation semantics, GameEngine only routes
   - **Self entity tracking** — applier stores selfEntityId from full state and uses it for all subsequent deltas
+- **Wire validation (ADR-008).** The "server is trusted" comment on `decodeServerPacket` referred to the server as the source of truth, not the network transport. ADR-008 establishes the wire validation policy that all JSON from the wire (WebSocket and HTTP) is `unknown` until validated with Zod. `decodeServerPacket` is deprecated; client code uses `parseServerPacket` / `parseTransportServerPacket`.
 
 ## Related
 

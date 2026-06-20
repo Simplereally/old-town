@@ -1,0 +1,14 @@
+{
+  "ladder": "melee",
+  "tier": "crownsteel",
+  "tierOrder": 11,
+  "regions": {
+    "blade": "#c9a23c",
+    "head": "#c9a23c",
+    "grip": "#7a5a3a",
+    "accent": "#e8e8e8",
+    "trim": "#c2c6cc",
+    "metal": "#c9a23c",
+    "straps": "#7a5a3a"
+  }
+}

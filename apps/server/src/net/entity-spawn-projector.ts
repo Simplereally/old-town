@@ -57,7 +57,7 @@ export function projectWorldEntities(
     const tile: TileCoord = {
       x: position.x,
       y: position.y,
-      plane: position.plane as TileCoord["plane"],
+      plane: position.plane,
     };
 
     const player = world.getComponent(entityId, "player");
@@ -153,7 +153,7 @@ export function projectEntity(
   const tile: TileCoord = {
     x: position.x,
     y: position.y,
-    plane: position.plane as TileCoord["plane"],
+    plane: position.plane,
   };
 
   const player = world.getComponent(entityId, "player");

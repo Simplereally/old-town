@@ -1,0 +1,45 @@
+[
+  {
+    "id": "building_door_wood",
+    "name": "Wooden Door",
+    "examine": "A plank door on iron hinges. Sturdy enough for a market town.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": true,
+    "isDoor": true,
+    "options": [
+      { "label": "Open", "actionId": "open", "priority": 10, "requiredDistance": 1 }
+    ],
+    "model": "model_building_door_wood"
+  },
+  {
+    "id": "building_door_iron",
+    "name": "Iron Door",
+    "examine": "A heavy iron door set into a stone frame.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": true,
+    "isDoor": true,
+    "options": [
+      { "label": "Open", "actionId": "open", "priority": 10, "requiredDistance": 1 }
+    ],
+    "model": "model_building_door_iron"
+  },
+  {
+    "id": "building_gate_town",
+    "name": "Town Gate",
+    "examine": "A wide timber gate that can bar the road or swing open for trade.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": true,
+    "isDoor": true,
+    "isGate": true,
+    "options": [
+      { "label": "Open", "actionId": "open", "priority": 10, "requiredDistance": 1 }
+    ],
+    "model": "model_building_gate_town"
+  }
+]

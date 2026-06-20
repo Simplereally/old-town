@@ -7,6 +7,8 @@ import {
   type EntityId,
   type EntitySpawnPacket,
   type EntityUpdatePacket,
+  isPlane,
+  type Plane,
   type ProjectilePacket,
   REGION_SIZE,
   type RegionCoord,
@@ -25,7 +27,7 @@ export interface InterestScene {
   readonly maxX: number;
   readonly minY: number;
   readonly maxY: number;
-  readonly plane: number;
+  readonly plane: Plane;
 }
 
 export interface InterestTransition {
@@ -69,7 +71,7 @@ function regionCoordFromId(id: RegionId): RegionCoord {
   const coord: RegionCoord = {
     rx: rxRaw,
     ry: ryRaw,
-    plane: planeRaw as RegionCoord["plane"],
+    plane: isPlane(planeRaw) ? planeRaw : 0,
   };
   regionCoordCache.set(id, coord);
   return coord;
@@ -128,7 +130,7 @@ export function intersectingChunks(scene: InterestScene): ReadonlySet<ChunkId> {
   const maxCx = Math.floor(scene.maxX / CHUNK_SIZE);
   const minCy = Math.floor(scene.minY / CHUNK_SIZE);
   const maxCy = Math.floor(scene.maxY / CHUNK_SIZE);
-  const plane = scene.plane as TileCoord["plane"];
+  const plane = isPlane(scene.plane) ? scene.plane : 0;
   for (let cx = minCx; cx <= maxCx; cx += 1) {
     for (let cy = minCy; cy <= maxCy; cy += 1) {
       chunks.add(chunkId({ cx, cy, plane }));
@@ -148,7 +150,7 @@ export function intersectingRegions(scene: InterestScene): ReadonlyMap<RegionId,
     const coord = {
       rx: Math.floor(cxRaw / (REGION_SIZE / CHUNK_SIZE)),
       ry: Math.floor(cyRaw / (REGION_SIZE / CHUNK_SIZE)),
-      plane: planeRaw as RegionCoord["plane"],
+      plane: isPlane(planeRaw) ? planeRaw : 0,
     };
     regions.set(regionId(coord), coord);
   }
@@ -286,7 +288,7 @@ export class InterestManager {
   private positionTile(world: World, entityId: EntityId): TileCoord | undefined {
     const position = world.getComponent(entityId, "position");
     return position
-      ? { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] }
+      ? { x: position.x, y: position.y, plane: position.plane }
       : undefined;
   }
 

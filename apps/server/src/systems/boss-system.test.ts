@@ -85,7 +85,15 @@ describe("boss-system", () => {
   it("isBoss returns true for a boss NPC", () => {
     const { world, ctx } = setup();
     const entityId = world.createEntity();
-    world.setComponent(entityId, "npc", { entityId, npcId: "cellar_king", brainState: "idle", respawnTick: 0, wanderRadius: 2, home: { x: 30, y: 26, plane: 0 }, leashDistance: 6 });
+    world.setComponent(entityId, "npc", {
+      entityId,
+      npcId: "cellar_king",
+      brainState: "idle",
+      respawnTick: 0,
+      wanderRadius: 2,
+      home: { x: 30, y: 26, plane: 0 },
+      leashDistance: 6,
+    });
 
     const result = isBoss(ctx, entityId);
     expect(result.isBoss).toBe(true);
@@ -95,7 +103,15 @@ describe("boss-system", () => {
   it("isBoss returns false for a non-boss NPC", () => {
     const { world, ctx } = setup();
     const entityId = world.createEntity();
-    world.setComponent(entityId, "npc", { entityId, npcId: "cellar_rat", brainState: "idle", respawnTick: 0, wanderRadius: 2, home: { x: 30, y: 26, plane: 0 }, leashDistance: 6 });
+    world.setComponent(entityId, "npc", {
+      entityId,
+      npcId: "cellar_rat",
+      brainState: "idle",
+      respawnTick: 0,
+      wanderRadius: 2,
+      home: { x: 30, y: 26, plane: 0 },
+      leashDistance: 6,
+    });
 
     const result = isBoss(ctx, entityId);
     expect(result.isBoss).toBe(false);
@@ -117,7 +133,15 @@ describe("boss-system", () => {
     const playerId = world.createEntity();
     world.setComponent(playerId, "position", { entityId: playerId, x: 30, y: 26, plane: 0 });
     const bossId = world.createEntity();
-    world.setComponent(bossId, "npc", { entityId: bossId, npcId: "cellar_king", brainState: "idle", respawnTick: 0, wanderRadius: 2, home: { x: 30, y: 26, plane: 0 }, leashDistance: 6 });
+    world.setComponent(bossId, "npc", {
+      entityId: bossId,
+      npcId: "cellar_king",
+      brainState: "idle",
+      respawnTick: 0,
+      wanderRadius: 2,
+      home: { x: 30, y: 26, plane: 0 },
+      leashDistance: 6,
+    });
     world.setComponent(bossId, "position", { entityId: bossId, x: 30, y: 26, plane: 0 });
 
     const result = validateBossAccess(ctx, playerId, bossId);
@@ -130,7 +154,15 @@ describe("boss-system", () => {
     const playerId = world.createEntity();
     world.setComponent(playerId, "position", { entityId: playerId, x: 0, y: 0, plane: 0 });
     const bossId = world.createEntity();
-    world.setComponent(bossId, "npc", { entityId: bossId, npcId: "cellar_king", brainState: "idle", respawnTick: 0, wanderRadius: 2, home: { x: 30, y: 26, plane: 0 }, leashDistance: 6 });
+    world.setComponent(bossId, "npc", {
+      entityId: bossId,
+      npcId: "cellar_king",
+      brainState: "idle",
+      respawnTick: 0,
+      wanderRadius: 2,
+      home: { x: 30, y: 26, plane: 0 },
+      leashDistance: 6,
+    });
     world.setComponent(bossId, "position", { entityId: bossId, x: 30, y: 26, plane: 0 });
 
     const result = validateBossAccess(ctx, playerId, bossId);
@@ -143,7 +175,15 @@ describe("boss-system", () => {
     const playerId = world.createEntity();
     world.setComponent(playerId, "position", { entityId: playerId, x: 30, y: 26, plane: 0 });
     const bossId = world.createEntity();
-    world.setComponent(bossId, "npc", { entityId: bossId, npcId: "cellar_rat", brainState: "idle", respawnTick: 0, wanderRadius: 2, home: { x: 30, y: 26, plane: 0 }, leashDistance: 6 });
+    world.setComponent(bossId, "npc", {
+      entityId: bossId,
+      npcId: "cellar_rat",
+      brainState: "idle",
+      respawnTick: 0,
+      wanderRadius: 2,
+      home: { x: 30, y: 26, plane: 0 },
+      leashDistance: 6,
+    });
     world.setComponent(bossId, "position", { entityId: bossId, x: 30, y: 26, plane: 0 });
 
     const result = validateBossAccess(ctx, playerId, bossId);
@@ -154,7 +194,15 @@ describe("boss-system", () => {
   it("getBossCategory returns the category for a boss", () => {
     const { world, ctx } = setup();
     const entityId = world.createEntity();
-    world.setComponent(entityId, "npc", { entityId, npcId: "cellar_king", brainState: "idle", respawnTick: 0, wanderRadius: 2, home: { x: 30, y: 26, plane: 0 }, leashDistance: 6 });
+    world.setComponent(entityId, "npc", {
+      entityId,
+      npcId: "cellar_king",
+      brainState: "idle",
+      respawnTick: 0,
+      wanderRadius: 2,
+      home: { x: 30, y: 26, plane: 0 },
+      leashDistance: 6,
+    });
 
     expect(getBossCategory(ctx, entityId)).toBe("starter");
   });
@@ -162,7 +210,15 @@ describe("boss-system", () => {
   it("getBossMechanics returns mechanics for a boss", () => {
     const { world, ctx } = setup();
     const entityId = world.createEntity();
-    world.setComponent(entityId, "npc", { entityId, npcId: "cellar_king", brainState: "idle", respawnTick: 0, wanderRadius: 2, home: { x: 30, y: 26, plane: 0 }, leashDistance: 6 });
+    world.setComponent(entityId, "npc", {
+      entityId,
+      npcId: "cellar_king",
+      brainState: "idle",
+      respawnTick: 0,
+      wanderRadius: 2,
+      home: { x: 30, y: 26, plane: 0 },
+      leashDistance: 6,
+    });
 
     const mechanics = getBossMechanics(ctx, entityId);
     expect(mechanics).toHaveLength(1);
@@ -172,7 +228,15 @@ describe("boss-system", () => {
   it("getBossLair returns lair info for a boss", () => {
     const { world, ctx } = setup();
     const entityId = world.createEntity();
-    world.setComponent(entityId, "npc", { entityId, npcId: "cellar_king", brainState: "idle", respawnTick: 0, wanderRadius: 2, home: { x: 30, y: 26, plane: 0 }, leashDistance: 6 });
+    world.setComponent(entityId, "npc", {
+      entityId,
+      npcId: "cellar_king",
+      brainState: "idle",
+      respawnTick: 0,
+      wanderRadius: 2,
+      home: { x: 30, y: 26, plane: 0 },
+      leashDistance: 6,
+    });
 
     const lair = getBossLair(ctx, entityId);
     expect(lair?.type).toBe("room");
@@ -183,7 +247,15 @@ describe("boss-system", () => {
   it("getBossDropTable returns the drop table id", () => {
     const { world, ctx } = setup();
     const entityId = world.createEntity();
-    world.setComponent(entityId, "npc", { entityId, npcId: "cellar_king", brainState: "idle", respawnTick: 0, wanderRadius: 2, home: { x: 30, y: 26, plane: 0 }, leashDistance: 6 });
+    world.setComponent(entityId, "npc", {
+      entityId,
+      npcId: "cellar_king",
+      brainState: "idle",
+      respawnTick: 0,
+      wanderRadius: 2,
+      home: { x: 30, y: 26, plane: 0 },
+      leashDistance: 6,
+    });
 
     expect(getBossDropTable(ctx, entityId)).toBe("cellar_king_drops");
   });
@@ -191,7 +263,15 @@ describe("boss-system", () => {
   it("getBossTrophy returns the trophy id", () => {
     const { world, ctx } = setup();
     const entityId = world.createEntity();
-    world.setComponent(entityId, "npc", { entityId, npcId: "cellar_king", brainState: "idle", respawnTick: 0, wanderRadius: 2, home: { x: 30, y: 26, plane: 0 }, leashDistance: 6 });
+    world.setComponent(entityId, "npc", {
+      entityId,
+      npcId: "cellar_king",
+      brainState: "idle",
+      respawnTick: 0,
+      wanderRadius: 2,
+      home: { x: 30, y: 26, plane: 0 },
+      leashDistance: 6,
+    });
 
     expect(getBossTrophy(ctx, entityId)).toBe("cellar_king_whisker");
   });
@@ -199,7 +279,15 @@ describe("boss-system", () => {
   it("getBossUniqueDrops returns the unique drop ids", () => {
     const { world, ctx } = setup();
     const entityId = world.createEntity();
-    world.setComponent(entityId, "npc", { entityId, npcId: "cellar_king", brainState: "idle", respawnTick: 0, wanderRadius: 2, home: { x: 30, y: 26, plane: 0 }, leashDistance: 6 });
+    world.setComponent(entityId, "npc", {
+      entityId,
+      npcId: "cellar_king",
+      brainState: "idle",
+      respawnTick: 0,
+      wanderRadius: 2,
+      home: { x: 30, y: 26, plane: 0 },
+      leashDistance: 6,
+    });
 
     expect(getBossUniqueDrops(ctx, entityId)).toEqual(["bent_nail_ring"]);
   });
@@ -207,7 +295,15 @@ describe("boss-system", () => {
   it("returns undefined for non-boss entities", () => {
     const { world, ctx } = setup();
     const entityId = world.createEntity();
-    world.setComponent(entityId, "npc", { entityId, npcId: "cellar_rat", brainState: "idle", respawnTick: 0, wanderRadius: 2, home: { x: 30, y: 26, plane: 0 }, leashDistance: 6 });
+    world.setComponent(entityId, "npc", {
+      entityId,
+      npcId: "cellar_rat",
+      brainState: "idle",
+      respawnTick: 0,
+      wanderRadius: 2,
+      home: { x: 30, y: 26, plane: 0 },
+      leashDistance: 6,
+    });
 
     expect(getBossCategory(ctx, entityId)).toBeUndefined();
     expect(getBossMechanics(ctx, entityId)).toBeUndefined();

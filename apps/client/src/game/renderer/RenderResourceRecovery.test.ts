@@ -1,7 +1,7 @@
 import { type ChunkId, chunkId, type RegionId, type TileCoord } from "@old-town/shared";
 import { BoxGeometry, Scene } from "three";
 import { beforeEach, describe, expect, it } from "vitest";
-import { ChunkBakeQueue, type ChunkBakeJob, type ChunkMetadata } from "./ChunkBakeQueue";
+import { type ChunkBakeJob, ChunkBakeQueue, type ChunkMetadata } from "./ChunkBakeQueue";
 import { ChunkResidencyManager } from "./ChunkResidencyManager";
 import { ChunkUploadQueue } from "./ChunkUploadQueue";
 import { type RenderResourceErrorCode, RenderResourceRecovery } from "./RenderResourceRecovery";

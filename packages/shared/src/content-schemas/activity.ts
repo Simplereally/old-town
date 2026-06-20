@@ -37,9 +37,15 @@ export const activityStepSchema = z.object({
   skillId: contentIdSchema.optional(),
   requiredLevel: nonNegInt.default(1),
   actionTicks: positiveInt.default(1),
-  inputs: z.array(z.object({ itemId: contentIdSchema, quantity: nonNegInt.default(1) })).default([]),
-  outputs: z.array(z.object({ itemId: contentIdSchema, quantity: nonNegInt.default(1) })).default([]),
-  xpReward: z.array(z.object({ skillId: contentIdSchema, amount: nonNegInt.default(1) })).default([]),
+  inputs: z
+    .array(z.object({ itemId: contentIdSchema, quantity: nonNegInt.default(1) }))
+    .default([]),
+  outputs: z
+    .array(z.object({ itemId: contentIdSchema, quantity: nonNegInt.default(1) }))
+    .default([]),
+  xpReward: z
+    .array(z.object({ skillId: contentIdSchema, amount: nonNegInt.default(1) }))
+    .default([]),
   failureChance: z.number().min(0).max(1).default(0),
 });
 
@@ -66,11 +72,17 @@ export const activityDefSchema = z
     steps: z.array(activityStepSchema).min(1),
     rewards: z.array(activityRewardSchema).default([]),
     tokenId: contentIdSchema.optional(),
-    tokenSink: z.array(z.object({ itemId: contentIdSchema, quantity: nonNegInt.default(1) })).default([]),
+    tokenSink: z
+      .array(z.object({ itemId: contentIdSchema, quantity: nonNegInt.default(1) }))
+      .default([]),
     loopDescription: z.string().min(1),
     failureState: z.string().min(1),
-    inputs: z.array(z.object({ itemId: contentIdSchema, quantity: nonNegInt.default(1) })).default([]),
-    outputs: z.array(z.object({ itemId: contentIdSchema, quantity: nonNegInt.default(1) })).default([]),
+    inputs: z
+      .array(z.object({ itemId: contentIdSchema, quantity: nonNegInt.default(1) }))
+      .default([]),
+    outputs: z
+      .array(z.object({ itemId: contentIdSchema, quantity: nonNegInt.default(1) }))
+      .default([]),
   })
   .strict();
 

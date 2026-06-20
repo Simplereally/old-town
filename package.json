@@ -31,6 +31,8 @@
     "content:validate": "bun tools/content-validator/src/index.ts",
     "content:list": "bun tools/content-validator/src/index.ts list",
     "content:graph": "bun tools/content-validator/src/index.ts graph",
+    "items:build-assets": "bun scripts/build-item-assets.ts",
+    "items:validate-assets": "bun scripts/validate-item-assets.ts",
     "clean": "bun run --filter '*' clean || true"
   },
   "devDependencies": {

@@ -47,8 +47,8 @@ describe("ContextMenu view adapter", () => {
     menu.show(100, 100, NPC_OPTIONS, entity, tile);
     const items = document.querySelectorAll(".context-menu > .context-menu-item");
     const talkTo = Array.from(items).find((el) => el.textContent?.includes("Talk-to"));
-    expect(talkTo).toBeDefined();
-    (talkTo as HTMLDivElement)?.click();
+    if (!(talkTo instanceof HTMLDivElement)) throw new Error("Expected HTMLDivElement");
+    talkTo.click();
     expect(callbacks.onOptionSelected).toHaveBeenCalledWith("talk", entity, tile);
   });
 
@@ -58,8 +58,8 @@ describe("ContextMenu view adapter", () => {
     menu.show(100, 100, NPC_OPTIONS, entity, tile);
     const items = document.querySelectorAll(".context-menu > .context-menu-item");
     const walk = Array.from(items).find((el) => el.textContent?.includes("Walk here"));
-    expect(walk).toBeDefined();
-    (walk as HTMLDivElement)?.click();
+    if (!(walk instanceof HTMLDivElement)) throw new Error("Expected HTMLDivElement");
+    walk.click();
     expect(callbacks.onOptionSelected).toHaveBeenCalledWith("walk_here", entity, tile);
   });
 
@@ -69,15 +69,15 @@ describe("ContextMenu view adapter", () => {
     menu.show(100, 100, NPC_OPTIONS, entity, tile);
     const items = document.querySelectorAll(".context-menu > .context-menu-item");
     const examine = Array.from(items).find((el) => el.textContent?.includes("Examine"));
-    expect(examine).toBeDefined();
-    (examine as HTMLDivElement)?.click();
+    if (!(examine instanceof HTMLDivElement)) throw new Error("Expected HTMLDivElement");
+    examine.click();
     expect(callbacks.onOptionSelected).toHaveBeenCalledWith("examine", entity, tile);
   });
 
   it("hides menu on Escape key", async () => {
     menu.show(100, 100, NPC_OPTIONS, npcEntity("goblin"), { x: 5, y: 5 });
     expect(menu.visible).toBe(true);
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 10));
     const event = new KeyboardEvent("keydown", { key: "Escape" });
     document.dispatchEvent(event);
     expect(menu.visible).toBe(false);

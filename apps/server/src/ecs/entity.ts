@@ -7,30 +7,29 @@ import { type EntityId, entityId } from "@old-town/shared";
 
 export class EntityPool {
   private nextId = 0;
-  private freeList: number[] = [];
-  private alive = new Set<number>();
+  private freeList: EntityId[] = [];
+  private alive = new Set<EntityId>();
 
   allocate(): EntityId {
     const reused = this.freeList.pop();
-    const raw = reused ?? this.nextId++;
+    const raw = reused ?? entityId(this.nextId++);
     this.alive.add(raw);
-    return entityId(raw);
+    return raw;
   }
 
   release(id: EntityId): void {
-    const raw = id as number;
-    if (!this.alive.has(raw)) {
-      throw new Error(`Cannot release non-existent entity ${raw}`);
+    if (!this.alive.has(id)) {
+      throw new Error(`Cannot release non-existent entity ${id}`);
     }
-    this.alive.delete(raw);
-    this.freeList.push(raw);
+    this.alive.delete(id);
+    this.freeList.push(id);
   }
 
   isAlive(id: EntityId): boolean {
-    return this.alive.has(id as number);
+    return this.alive.has(id);
   }
 
   getAlive(): readonly EntityId[] {
-    return Array.from(this.alive).map(entityId);
+    return Array.from(this.alive);
   }
 }

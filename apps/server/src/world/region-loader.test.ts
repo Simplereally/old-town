@@ -23,8 +23,8 @@ describe("region loader", () => {
     expect(summaries.length).toBe(4);
     expect(summaries.map((s) => s.regionId).sort()).toEqual(["0:0:0", "0:1:0", "1:0:0", "1:1:0"]);
     expect(summaries.reduce((sum, s) => sum + s.tileCount, 0)).toBe(4 * REGION_SIZE * REGION_SIZE);
-    expect(summaries.reduce((sum, s) => sum + s.objectCount, 0)).toBe(38);
-    expect(summaries.reduce((sum, s) => sum + s.npcCount, 0)).toBe(48);
+    expect(summaries.reduce((sum, s) => sum + s.objectCount, 0)).toBe(54);
+    expect(summaries.reduce((sum, s) => sum + s.npcCount, 0)).toBe(59);
     expect(summaries.reduce((sum, s) => sum + s.groundItemCount, 0)).toBe(1);
     expect(summaries.reduce((sum, s) => sum + s.resourceNodeCount, 0)).toBe(6);
     expect(summaries.reduce((sum, s) => sum + s.triggerCount, 0)).toBe(23);
@@ -33,9 +33,9 @@ describe("region loader", () => {
   it("instantiates runtime entities while preserving content ids", async () => {
     const { world } = await loadSeedRegion();
 
-    expect(world.componentCount("object")).toBe(38);
+    expect(world.componentCount("object")).toBe(54);
     expect(world.componentCount("resourceNode")).toBe(6);
-    expect(world.componentCount("npc")).toBe(48);
+    expect(world.componentCount("npc")).toBe(59);
     expect(world.componentCount("groundItem")).toBe(1);
 
     const firstObject = world.getComponent(entityId(0), "object");
@@ -43,11 +43,13 @@ describe("region loader", () => {
     expect(firstObject?.objectId).toBe("oldroad_signpost");
     expect(firstObject?.objectId).not.toBe(String(firstObject?.entityId));
 
-    const firstNpc = world.getComponent(entityId(19), "npc");
+    const firstNpc = world.getComponent(entityId(35), "npc");
     expect(firstNpc?.npcId).toBe("stray_dog");
-    expect(world.getComponent(entityId(19), "actor")?.name).toBe("Stray Dog");
+    expect(world.getComponent(entityId(35), "actor")?.name).toBe("Stray Dog");
 
-    const firstGroundItem = world.getComponent(entityId(65), "groundItem");
+    const groundItemId = world.entityIdsWith("groundItem")[0];
+    const firstGroundItem =
+      groundItemId === undefined ? undefined : world.getComponent(groundItemId, "groundItem");
     expect(firstGroundItem).toMatchObject({ itemId: "pennywrought_pickaxe", quantity: 1 });
   });
 
@@ -97,6 +99,7 @@ describe("region loader", () => {
       resourceNodeSpawns: [],
       playerSpawnPoints: [],
       deathRespawnPoints: [],
+      contractSpawns: [],
       triggers: [{ id: "edited_trigger", x: 10, y: 11, width: 2, height: 3, tag: "edited_zone" }],
     };
 

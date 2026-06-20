@@ -391,42 +391,39 @@ describe("GameEngine snapshot playout", () => {
 
     spawnPlayerEntity(engine, entityId(42), { x: 10, y: 20, plane: 0 }, true);
 
-    const debugOverlay = document.createElement("div");
-    debugOverlay.id = "debug-overlay";
-    debugOverlay.classList.add("visible");
-    const debugStats = document.createElement("div");
-    debugStats.id = "debug-stats";
-    debugOverlay.appendChild(debugStats);
-    document.body.appendChild(debugOverlay);
+    const overlay = asEngine(engine)._overlay as {
+      update: (input: Record<string, unknown>) => void;
+      _debugOverlay: HTMLDivElement;
+      _debugOverlayUpdatePending: boolean;
+    };
+    overlay._debugOverlay.classList.add("visible");
 
     const onFrame = (
       asEngine(engine).renderer as { onFrame: (d: number, e: number, t: number) => void }
     ).onFrame;
-    const updateOverlaySpy = vi.spyOn(
-      asEngine(engine) as { _updateOverlay: () => void },
-      "_updateOverlay",
-    );
+    const updateSpy = vi.spyOn(overlay, "update");
     expect(() => onFrame(16, 1, 1000)).not.toThrow();
 
-    // Verify _updateOverlay was actually invoked
-    expect(updateOverlaySpy).toHaveBeenCalled();
+    // Verify overlay.update was actually invoked
+    expect(updateSpy).toHaveBeenCalled();
 
     // The overlay is deferred and may not be updated in the same tick.
     // Verify that _debugOverlayUpdatePending was set (meaning the overlay was scheduled).
-    expect(asEngine(engine)._debugOverlayUpdatePending).toBe(true);
+    expect(overlay._debugOverlayUpdatePending).toBe(true);
 
-    // Verify _updateOverlay was called with the snapshot/playout parameters
-    const lastCall = (updateOverlaySpy.mock.calls as unknown[][])[
-      updateOverlaySpy.mock.calls.length - 1
-    ];
+    // Verify overlay.update was called with the snapshot/playout parameters
+    const lastCall = updateSpy.mock.calls[updateSpy.mock.calls.length - 1];
     expect(lastCall).toBeDefined();
-    // _updateOverlay now takes 4 args: clockSample, presentationSample, queueStats, residencyStats
-    expect(lastCall?.length).toBe(4);
-    expect(lastCall?.[0]).toHaveProperty("renderServerTimeMs");
-    expect(lastCall?.[1]).toHaveProperty("mode");
-    expect(lastCall?.[1]).toHaveProperty("alpha");
-    expect(lastCall?.[2]).toHaveProperty("queued");
-    expect(lastCall?.[3]).toHaveProperty("visible");
+    const input = lastCall?.[0] as Record<string, unknown>;
+    expect(input).toHaveProperty("clockSample");
+    expect(input).toHaveProperty("presentationSample");
+    expect(input).toHaveProperty("queueStats");
+    expect(input).toHaveProperty("residencyStats");
+    expect((input.clockSample as unknown as Record<string, unknown>).renderServerTimeMs).toBeDefined();
+    expect((input.presentationSample as unknown as Record<string, unknown>).mode).toBeDefined();
+    expect((input.presentationSample as unknown as Record<string, unknown>).alpha).toBeDefined();
+    expect((input.queueStats as unknown as Record<string, unknown>).queued).toBeDefined();
+    expect((input.residencyStats as unknown as Record<string, unknown>).visible).toBeDefined();
   });
 
   it("_onFrame does not call actor position updates from network callbacks", () => {

@@ -1,0 +1,18 @@
+{
+  "ladder": "magic",
+  "tier": "carmine_ink",
+  "tierOrder": 9,
+  "regions": {
+    "cloth": "#8a3a32",
+    "script": "#c2c6cc",
+    "seal": "#c2c6cc",
+    "accent": "#2e2a28",
+    "shaft": "#2e2a28",
+    "tip": "#8a3a32",
+    "bead": "#c2c6cc",
+    "lens": "#8a3a32",
+    "rim": "#2e2a28",
+    "cover": "#8a3a32",
+    "page": "#c2c6cc"
+  }
+}

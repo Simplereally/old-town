@@ -115,4 +115,21 @@ describe("CommandBuffer", () => {
     expect(result).toEqual({ ok: false, reason: "late" });
     expect(buffer.pendingCount).toBe(0);
   });
+
+  it("normalizes UseItemOn commands into useItemOn intents", () => {
+    const buffer = new CommandBuffer();
+    const result = buffer.accept(
+      {
+        type: ClientCommandType.UseItemOn,
+        commandId: 20,
+        payload: { itemUid: 3, target: { kind: "entity", entityId: 7 } },
+      },
+      source(1),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.intent.kind).toBe(IntentKind.UseItemOn);
+    expect(result.intent.payload).toEqual({ itemUid: 3, target: { kind: "entity", entityId: 7 } });
+  });
 });

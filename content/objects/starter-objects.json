@@ -261,7 +261,10 @@
     "length": 1,
     "blocksMovement": true,
     "blocksLineOfSight": false,
-    "options": [{ "label": "Read", "actionId": "read", "priority": 10, "requiredDistance": 1 }],
+    "options": [
+      { "label": "Read", "actionId": "read", "priority": 10, "requiredDistance": 1 },
+      { "label": "Accept", "actionId": "accept", "priority": 8, "requiredDistance": 1 }
+    ],
     "model": "model_warden_board"
   },
   {

@@ -1,0 +1,17 @@
+{
+  "ladder": "ranged",
+  "tier": "greenwold",
+  "tierOrder": 6,
+  "regions": {
+    "limb": "#4f7a3a",
+    "string": "#d8cfba",
+    "grip": "#6b4a2b",
+    "accent": "#8ad0c0",
+    "prod": "#4f7a3a",
+    "stock": "#6b4a2b",
+    "mechanism": "#8ad0c0",
+    "shaft": "#4f7a3a",
+    "fletch": "#d8cfba",
+    "head": "#8ad0c0"
+  }
+}

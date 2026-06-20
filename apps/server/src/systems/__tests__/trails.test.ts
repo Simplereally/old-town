@@ -1,3 +1,4 @@
+import type { Plane } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { createWorld, type World } from "../../ecs/world";
 import { DeltaAccumulator } from "../../sim/delta-accumulator";
@@ -51,7 +52,7 @@ function addPlayer(
   plane: number = 0,
 ): import("@old-town/shared").EntityId {
   const entityId = world.createEntity();
-  world.setComponent(entityId, "position", { entityId, x, y, plane });
+  world.setComponent(entityId, "position", { entityId, x, y, plane: plane as Plane });
   world.setComponent(entityId, "vars", {
     entityId,
     values: {},

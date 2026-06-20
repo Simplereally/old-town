@@ -4,9 +4,11 @@
  */
 import type {
   CombatBonuses,
+  CombatStyle,
   Direction,
   EntityId,
   EquipmentSlotName,
+  Plane,
   PlayerVarValue,
   SpellDef,
   TileCoord,
@@ -17,7 +19,7 @@ export interface PositionComponent {
   entityId: EntityId;
   x: number;
   y: number;
-  plane: number;
+  plane: Plane;
 }
 
 export type MovementMode = "walk" | "run";
@@ -140,7 +142,7 @@ export interface SkillsComponent {
   skills: Record<string, SkillState>;
 }
 
-export type CombatHitStyle = "stab" | "slash" | "crush" | "ranged" | "magic";
+export type CombatHitStyle = CombatStyle;
 
 export interface PendingHit {
   sourceId: EntityId;
@@ -174,6 +176,9 @@ export interface CombatantComponent {
   lastDamageSourceId?: EntityId | undefined;
   spellCooldowns?: Record<string, number>;
   pendingHits?: PendingHit[];
+  /** Player-chosen melee attack style. Clamped to the equipped weapon's allowed styles
+   *  during combat resolution; absent means "use the weapon's default style". */
+  combatStyle?: CombatHitStyle;
 }
 
 /** Resource node (tree, rock, fishing spot). */

@@ -6,6 +6,7 @@
 
 export * from "./activity";
 export * from "./animation";
+export * from "./asset";
 export * from "./bank";
 export * from "./boss";
 export * from "./charter";

@@ -32,7 +32,7 @@ export interface BossAccessResult {
 function tileOf(world: World, entityId: EntityId): TileCoord | undefined {
   const position = world.getComponent(entityId, "position");
   return position
-    ? { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] }
+    ? { x: position.x, y: position.y, plane: position.plane }
     : undefined;
 }
 
@@ -41,7 +41,10 @@ function chebyshev(a: TileCoord, b: TileCoord): number {
 }
 
 /** Check if an NPC entity is a boss. */
-export function isBoss(ctx: BossSystemContext, entityId: EntityId): { readonly isBoss: boolean; readonly bossDef?: BossDef } {
+export function isBoss(
+  ctx: BossSystemContext,
+  entityId: EntityId,
+): { readonly isBoss: boolean; readonly bossDef?: BossDef } {
   const npc = ctx.world.getComponent(entityId, "npc");
   if (!npc) {
     return { isBoss: false };
@@ -107,10 +110,7 @@ export function getBossMechanics(
 }
 
 /** Get the boss category for an NPC entity. */
-export function getBossCategory(
-  ctx: BossSystemContext,
-  entityId: EntityId,
-): string | undefined {
+export function getBossCategory(ctx: BossSystemContext, entityId: EntityId): string | undefined {
   const { isBoss: bossCheck, bossDef } = isBoss(ctx, entityId);
   if (!bossCheck || !bossDef) {
     return undefined;
@@ -135,10 +135,7 @@ export function getBossLair(
 }
 
 /** Get the boss drop table for an NPC entity. */
-export function getBossDropTable(
-  ctx: BossSystemContext,
-  entityId: EntityId,
-): string | undefined {
+export function getBossDropTable(ctx: BossSystemContext, entityId: EntityId): string | undefined {
   const { isBoss: bossCheck, bossDef } = isBoss(ctx, entityId);
   if (!bossCheck || !bossDef) {
     return undefined;
@@ -147,10 +144,7 @@ export function getBossDropTable(
 }
 
 /** Get the boss trophy item for an NPC entity. */
-export function getBossTrophy(
-  ctx: BossSystemContext,
-  entityId: EntityId,
-): string | undefined {
+export function getBossTrophy(ctx: BossSystemContext, entityId: EntityId): string | undefined {
   const { isBoss: bossCheck, bossDef } = isBoss(ctx, entityId);
   if (!bossCheck || !bossDef) {
     return undefined;
@@ -159,10 +153,7 @@ export function getBossTrophy(
 }
 
 /** Get the boss unique drops for an NPC entity. */
-export function getBossUniqueDrops(
-  ctx: BossSystemContext,
-  entityId: EntityId,
-): readonly string[] {
+export function getBossUniqueDrops(ctx: BossSystemContext, entityId: EntityId): readonly string[] {
   const { isBoss: bossCheck, bossDef } = isBoss(ctx, entityId);
   if (!bossCheck || !bossDef) {
     return [];

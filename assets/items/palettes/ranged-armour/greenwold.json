@@ -1,0 +1,11 @@
+{
+  "ladder": "ranged-armour",
+  "tier": "greenwold",
+  "tierOrder": 6,
+  "regions": {
+    "hide": "#4f7a3a",
+    "stitch": "#2f5d2e",
+    "buckle": "#8ad0c0",
+    "accent": "#cfc6ad"
+  }
+}

@@ -9,8 +9,14 @@
       { "kind": "quest_stage", "questId": "rats_under_tallys", "minStage": 0 }
     ],
     "mechanics": [
-      { "kind": "add_spawn", "description": "Summons 2 cellar rats at low health. The player must switch targets or clear the adds before they overwhelm." },
-      { "kind": "interrupt", "description": "Chews ledger piles to heal slightly unless interrupted. The player must stop the heal with a melee attack or a thrown object." },
+      {
+        "kind": "add_spawn",
+        "description": "Summons 2 cellar rats at low health. The player must switch targets or clear the adds before they overwhelm."
+      },
+      {
+        "kind": "interrupt",
+        "description": "Chews ledger piles to heal slightly unless interrupted. The player must stop the heal with a melee attack or a thrown object."
+      },
       { "kind": "kill_proof", "description": "Drops a cellar_king_whisker trophy on defeat." }
     ],
     "lair": {
@@ -32,12 +38,16 @@
     "category": "starter",
     "npcId": "mudhook_grib",
     "combatLevelBand": { "low": 10, "high": 20 },
-    "accessRequirements": [
-      { "kind": "skill", "skillId": "mining", "level": 5 }
-    ],
+    "accessRequirements": [{ "kind": "skill", "skillId": "mining", "level": 5 }],
     "mechanics": [
-      { "kind": "shield_phase", "description": "Periodically raises a scrap shield. The shield blocks all melee damage from the front. Javelins and mauls break the shield faster." },
-      { "kind": "prep_item", "description": "Throws mud to slow movement. The player must move to a safe tile or eat food to recover speed." },
+      {
+        "kind": "shield_phase",
+        "description": "Periodically raises a scrap shield. The shield blocks all melee damage from the front. Javelins and mauls break the shield faster."
+      },
+      {
+        "kind": "prep_item",
+        "description": "Throws mud to slow movement. The player must move to a safe tile or eat food to recover speed."
+      },
       { "kind": "kill_proof", "description": "Drops a mudhook_jaw trophy on defeat." }
     ],
     "lair": {
@@ -63,9 +73,18 @@
       { "kind": "quest_stage", "questId": "smoke_over_old_town", "minStage": 0 }
     ],
     "mechanics": [
-      { "kind": "hazard_pulse", "description": "Heat bursts on floor tiles. The drake flares the kiln, creating hot tiles that deal damage over time." },
-      { "kind": "safe_tile", "description": "Smoke vents reduce line of sight. The player must move to safe tiles to avoid heat damage." },
-      { "kind": "prep_item", "description": "Tide spells and Tide beads reduce heat stacks. The player can use Tide magic to cool the kiln." },
+      {
+        "kind": "hazard_pulse",
+        "description": "Heat bursts on floor tiles. The drake flares the kiln, creating hot tiles that deal damage over time."
+      },
+      {
+        "kind": "safe_tile",
+        "description": "Smoke vents reduce line of sight. The player must move to safe tiles to avoid heat damage."
+      },
+      {
+        "kind": "prep_item",
+        "description": "Tide spells and Tide beads reduce heat stacks. The player can use Tide magic to cool the kiln."
+      },
       { "kind": "kill_proof", "description": "Drops an ashling_ember trophy on defeat." }
     ],
     "lair": {
@@ -87,13 +106,20 @@
     "category": "starter",
     "npcId": "bell_bat_mother",
     "combatLevelBand": { "low": 10, "high": 20 },
-    "accessRequirements": [
-      { "kind": "skill", "skillId": "bowcraft", "level": 5 }
-    ],
+    "accessRequirements": [{ "kind": "skill", "skillId": "bowcraft", "level": 5 }],
     "mechanics": [
-      { "kind": "style_swap", "description": "Alternates between roost and swoop. When roosting, the bat is weak to ranged and magic. When swooping, it is weak to melee." },
-      { "kind": "add_spawn", "description": "Summons bell bats during the roost phase. The player must clear the adds or they will overwhelm." },
-      { "kind": "interrupt", "description": "Sound pulse interrupts slow weapons. The bat screeches, interrupting slow melee attacks and long spell casts." },
+      {
+        "kind": "style_swap",
+        "description": "Alternates between roost and swoop. When roosting, the bat is weak to ranged and magic. When swooping, it is weak to melee."
+      },
+      {
+        "kind": "add_spawn",
+        "description": "Summons bell bats during the roost phase. The player must clear the adds or they will overwhelm."
+      },
+      {
+        "kind": "interrupt",
+        "description": "Sound pulse interrupts slow weapons. The bat screeches, interrupting slow melee attacks and long spell casts."
+      },
       { "kind": "kill_proof", "description": "Drops a bat_mother_claw trophy on defeat." }
     ],
     "lair": {
@@ -115,12 +141,16 @@
     "category": "skilling",
     "npcId": "old_snapper",
     "combatLevelBand": { "low": 10, "high": 20 },
-    "accessRequirements": [
-      { "kind": "skill", "skillId": "fishing", "level": 10 }
-    ],
+    "accessRequirements": [{ "kind": "skill", "skillId": "fishing", "level": 10 }],
     "mechanics": [
-      { "kind": "prep_item", "description": "Can be lured with bait. The player can throw bait to draw the snapper to a specific tile." },
-      { "kind": "safe_tile", "description": "Surfaces on predictable water tiles. The player can predict where it will surface." },
+      {
+        "kind": "prep_item",
+        "description": "Can be lured with bait. The player can throw bait to draw the snapper to a specific tile."
+      },
+      {
+        "kind": "safe_tile",
+        "description": "Surfaces on predictable water tiles. The player can predict where it will surface."
+      },
       { "kind": "kill_proof", "description": "Drops a snapped_hook trophy on defeat." }
     ],
     "lair": {
@@ -147,9 +177,18 @@
       { "kind": "skill", "skillId": "favour", "level": 10 }
     ],
     "mechanics": [
-      { "kind": "prep_item", "description": "Rot aura if candles go out. The flower emits a rot aura that deals damage over time unless the player has lit shrine candles." },
-      { "kind": "add_spawn", "description": "Grave mites spawn from bad soil. The flower's footsteps leave bad soil that spawns mites." },
-      { "kind": "enrage", "description": "Fire damage helps but can enrage if careless. Too much fire makes the flower aggressive, increasing its attack speed." },
+      {
+        "kind": "prep_item",
+        "description": "Rot aura if candles go out. The flower emits a rot aura that deals damage over time unless the player has lit shrine candles."
+      },
+      {
+        "kind": "add_spawn",
+        "description": "Grave mites spawn from bad soil. The flower's footsteps leave bad soil that spawns mites."
+      },
+      {
+        "kind": "enrage",
+        "description": "Fire damage helps but can enrage if careless. Too much fire makes the flower aggressive, increasing its attack speed."
+      },
       { "kind": "kill_proof", "description": "Drops a polite_root trophy on defeat." }
     ],
     "lair": {

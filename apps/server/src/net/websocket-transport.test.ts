@@ -152,7 +152,8 @@ describe("WebSocket transport", () => {
 
     socket.send(JSON.stringify({ type: ClientCommandType.MoveClick, commandId: 2, payload: {} }));
     expect(await nextMessage(socket)).toMatchObject({
-      type: TransportServerMessageType.CommandRejected,
+      type: TransportServerMessageType.Error,
+      reason: "malformed_json",
     });
   });
 });

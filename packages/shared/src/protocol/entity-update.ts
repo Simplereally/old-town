@@ -84,6 +84,8 @@ export interface EntityUpdatePayload {
   readonly transform?: string;
   readonly moveSpeed?: MoveSpeed;
   readonly statusEffects?: readonly StatusEffectUpdate[];
+  /** Door/gate open state for object entities. */
+  readonly doorState?: { isOpen: boolean };
 }
 
 /** A masked update for one already-known entity. */

@@ -192,7 +192,7 @@ describe("handleServiceFeeIntent — repair", () => {
     // Degrade the blade
     const blade = inventory.slots[1];
     expect(blade).toBeDefined();
-    inventory.slots[1] = { ...blade as NonNullable<typeof blade>, durability: 50 };
+    inventory.slots[1] = { ...(blade as NonNullable<typeof blade>), durability: 50 };
 
     const result = handleServiceFeeIntent(
       ctx,

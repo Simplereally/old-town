@@ -1,0 +1,15 @@
+[
+  {
+    "id": "tan_rabbit_hide",
+    "name": "Tan Rabbit Hide",
+    "skill": "tailoring",
+    "requiredLevel": 1,
+    "actionTicks": 3,
+    "stationObjectIds": ["patch_tanning_frame"],
+    "inputItemId": "rabbit_hide",
+    "successItemId": "soft_leather",
+    "xp": 15,
+    "failureChance": 0.15,
+    "recipeGroupId": "tailoring"
+  }
+]

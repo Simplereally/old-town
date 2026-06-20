@@ -3,6 +3,7 @@
  * plain data types (validated by construction, not by Zod). All packets carry the server
  * `tick` where relevant, and contain no Three.js/vector classes so they stay pure JSON.
  */
+import type { CombatStyle } from "../content-schemas/common";
 import type { RegionCoord, TileCoord } from "../types/coords";
 import type { EntityId, RegionId } from "../types/ids";
 import type {
@@ -16,7 +17,7 @@ import type {
  * Wire protocol version. Bump on any breaking change to packet/command shapes. The
  * client compares the version in the bootstrap {@link FullStatePacket} against this.
  */
-export const PROTOCOL_VERSION = 7;
+export const PROTOCOL_VERSION = 8;
 
 /** Discriminators for the two top-level server messages. */
 export const ServerPacketType = {
@@ -120,6 +121,20 @@ export interface ContractProgressPacket {
   readonly required: number;
 }
 
+export interface ContractBoardEntry {
+  readonly contractEntityId: number;
+  readonly contractId: string;
+  readonly name: string;
+  readonly description: string;
+  readonly contractType: string;
+  readonly requiredLevel: number;
+  readonly status: string;
+}
+
+export interface ContractBoardPacket {
+  readonly entries: readonly ContractBoardEntry[];
+}
+
 /** A sound cue to play. */
 export interface SoundPacket {
   readonly soundId: string;
@@ -171,6 +186,7 @@ export interface InterfaceOpenPacket {
   readonly shop?: ShopViewPacket;
   readonly recipe?: RecipeListPacket;
   readonly activity?: ActivityViewPacket;
+  readonly contractBoard?: ContractBoardPacket;
 }
 
 /** A request for the client to close an interface/panel. */
@@ -264,6 +280,8 @@ export interface FullStatePacket {
   readonly equipment?: EquipmentUpdate;
   readonly skills?: readonly SkillDelta[];
   readonly vars?: readonly VarbitDelta[];
+  /** The player's chosen melee attack style (which combat skill melee XP trains). */
+  readonly combatStyle?: CombatStyle;
   readonly regionLoads?: readonly RegionLoadPacket[];
 }
 
@@ -330,7 +348,14 @@ export function encodeServerPacket(packet: ServerPacket): string {
   return JSON.stringify(packet);
 }
 
-/** Deserialize a JSON wire string back into a server packet (server is trusted). */
+/**
+ * Deserialize a JSON wire string back into a server packet.
+ *
+ * @deprecated For trusted round-trip tests only (e.g. `packets.test.ts` verifies
+ * `encodeServerPacket` → `decodeServerPacket` symmetry on server-constructed data).
+ * Client code must use {@link parseServerPacket} from `packet-schemas.ts`, which
+ * validates untrusted wire input with Zod and returns a `ParseResult`.
+ */
 export function decodeServerPacket(raw: string): ServerPacket {
   return JSON.parse(raw) as ServerPacket;
 }

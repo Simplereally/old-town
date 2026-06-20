@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { createWorld } from "../ecs/world";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
-import { clearAppearanceCache, computeAppearance, recalculateAppearance } from "./appearance-system";
+import {
+  clearAppearanceCache,
+  computeAppearance,
+  recalculateAppearance,
+} from "./appearance-system";
 
 const HELMET_DEF = {
   id: "iron_helmet",
@@ -50,6 +54,13 @@ const ITEMS: ReadonlyMap<string, import("@old-town/shared").ItemDef> = new Map([
   [SWORD_DEF.id, SWORD_DEF as import("@old-town/shared").ItemDef],
 ]);
 
+function must<T>(value: T | undefined, label: string): T {
+  if (value === undefined) {
+    throw new Error(`Expected ${label}`);
+  }
+  return value;
+}
+
 function setup() {
   const world = createWorld();
   const deltas = new DeltaAccumulator();
@@ -71,8 +82,8 @@ function setup() {
 describe("computeAppearance", () => {
   it("returns base appearance when no equipment", () => {
     const { world, entityId } = setup();
-    const actor = world.getComponent(entityId, "actor")!;
-    const equipment = world.getComponent(entityId, "equipment")!;
+    const actor = must(world.getComponent(entityId, "actor"), "actor");
+    const equipment = must(world.getComponent(entityId, "equipment"), "equipment");
 
     const appearance = computeAppearance(actor, equipment, ITEMS);
 
@@ -83,8 +94,8 @@ describe("computeAppearance", () => {
 
   it("includes equipment model in bodyId", () => {
     const { world, entityId } = setup();
-    const actor = world.getComponent(entityId, "actor")!;
-    const equipment = world.getComponent(entityId, "equipment")!;
+    const actor = must(world.getComponent(entityId, "actor"), "actor");
+    const equipment = must(world.getComponent(entityId, "equipment"), "equipment");
     equipment.slots.weapon = "iron_sword";
 
     const appearance = computeAppearance(actor, equipment, ITEMS);
@@ -94,8 +105,8 @@ describe("computeAppearance", () => {
 
   it("includes visual identity colors from equipment", () => {
     const { world, entityId } = setup();
-    const actor = world.getComponent(entityId, "actor")!;
-    const equipment = world.getComponent(entityId, "equipment")!;
+    const actor = must(world.getComponent(entityId, "actor"), "actor");
+    const equipment = must(world.getComponent(entityId, "equipment"), "equipment");
     equipment.slots.head = "iron_helmet";
 
     const appearance = computeAppearance(actor, equipment, ITEMS);
@@ -105,8 +116,8 @@ describe("computeAppearance", () => {
 
   it("ignores unknown equipment items", () => {
     const { world, entityId } = setup();
-    const actor = world.getComponent(entityId, "actor")!;
-    const equipment = world.getComponent(entityId, "equipment")!;
+    const actor = must(world.getComponent(entityId, "actor"), "actor");
+    const equipment = must(world.getComponent(entityId, "equipment"), "equipment");
     equipment.slots.weapon = "nonexistent_item";
 
     const appearance = computeAppearance(actor, equipment, ITEMS);
@@ -119,7 +130,7 @@ describe("recalculateAppearance", () => {
   it("emits delta when appearance changes", () => {
     const { world, deltas, entityId } = setup();
     clearAppearanceCache();
-    const equipment = world.getComponent(entityId, "equipment")!;
+    const equipment = must(world.getComponent(entityId, "equipment"), "equipment");
     equipment.slots.weapon = "iron_sword";
     world.setComponent(entityId, "equipment", equipment);
 
@@ -128,7 +139,9 @@ describe("recalculateAppearance", () => {
 
     const state = deltas.peek();
     expect(state.entityUpdates.length).toBe(1);
-    expect(state.entityUpdates[0]?.changes?.appearance?.bodyId).toBe("dev_player|weapon:model_iron_sword");
+    expect(state.entityUpdates[0]?.changes?.appearance?.bodyId).toBe(
+      "dev_player|weapon:model_iron_sword",
+    );
   });
 
   it("does not emit delta when appearance is unchanged", () => {
@@ -150,7 +163,7 @@ describe("recalculateAppearance", () => {
     recalculateAppearance(ctx, entityId);
     deltas.consume(0, 0);
 
-    const equipment = world.getComponent(entityId, "equipment")!;
+    const equipment = must(world.getComponent(entityId, "equipment"), "equipment");
     equipment.slots.weapon = "iron_sword";
     world.setComponent(entityId, "equipment", equipment);
     recalculateAppearance(ctx, entityId);

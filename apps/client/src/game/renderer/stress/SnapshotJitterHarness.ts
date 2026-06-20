@@ -246,7 +246,10 @@ export class SnapshotJitterHarness {
       const rejectedPacketTicks: number[] = [];
 
       // Ingest all packets that have arrived by this frame
-      while (arrivalIndex < arrivals.length && (arrivals[arrivalIndex] as PacketArrival).arrivalTimeMs <= frameTime) {
+      while (
+        arrivalIndex < arrivals.length &&
+        (arrivals[arrivalIndex] as PacketArrival).arrivalTimeMs <= frameTime
+      ) {
         const arrival = arrivals[arrivalIndex] as PacketArrival;
         if (arrival.kind !== "dropped") {
           const currentTick = this.snapshotBuffer.latestAcceptedTick;

@@ -1,18 +1,18 @@
-import { describe, expect, it } from "vitest";
 import type { ActivityDef } from "@old-town/shared";
-import { createWorld } from "../ecs/world";
-import { makeRegistries } from "../test-support/registries";
-import { DeltaAccumulator } from "../sim/delta-accumulator";
-import { ActionQueue } from "../sim/action-queue";
 import { createRng } from "@old-town/shared";
+import { describe, expect, it } from "vitest";
+import { createWorld } from "../ecs/world";
+import { ActionQueue } from "../sim/action-queue";
+import { DeltaAccumulator } from "../sim/delta-accumulator";
+import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
 import {
-  handleActivityIntent,
-  handleActivityAction,
-  validateActivityEntry,
-  type ActivityContext,
   type ActivityActionPayload,
+  type ActivityContext,
+  handleActivityAction,
+  handleActivityIntent,
+  validateActivityEntry,
 } from "./activity-system";
 
 function buildContext(): ActivityContext {
@@ -35,8 +35,28 @@ const bellRunDef: ActivityDef = {
   entryRequirement: { skillId: "wayfaring", level: 1 },
   location: { description: "Market Bell", x: 32, y: 32, plane: 0 },
   steps: [
-    { id: "step1", name: "Step 1", description: "Run", actionTicks: 1, requiredLevel: 1, inputs: [], outputs: [], xpReward: [{ skillId: "wayfaring", amount: 10 }], failureChance: 0 },
-    { id: "step2", name: "Step 2", description: "Ring", actionTicks: 2, requiredLevel: 1, inputs: [], outputs: [], xpReward: [{ skillId: "cartography", amount: 5 }], failureChance: 0 },
+    {
+      id: "step1",
+      name: "Step 1",
+      description: "Run",
+      actionTicks: 1,
+      requiredLevel: 1,
+      inputs: [],
+      outputs: [],
+      xpReward: [{ skillId: "wayfaring", amount: 10 }],
+      failureChance: 0,
+    },
+    {
+      id: "step2",
+      name: "Step 2",
+      description: "Ring",
+      actionTicks: 2,
+      requiredLevel: 1,
+      inputs: [],
+      outputs: [],
+      xpReward: [{ skillId: "cartography", amount: 5 }],
+      failureChance: 0,
+    },
   ],
   rewards: [{ type: "xp", skillId: "wayfaring", quantity: 10 }],
   tokenId: "bell_token",
@@ -47,7 +67,7 @@ const bellRunDef: ActivityDef = {
   outputs: [{ itemId: "bell_token", quantity: 1 }],
 };
 
-function createPlayer(world: ReturnType<typeof createWorld>, ctx: ActivityContext) {
+function createPlayer(world: ReturnType<typeof createWorld>, _ctx: ActivityContext) {
   const player = world.createEntity();
   world.setComponent(player, "position", { entityId: player, x: 32, y: 32, plane: 0 });
   world.setComponent(player, "skills", {
@@ -66,9 +86,14 @@ function createPlayer(world: ReturnType<typeof createWorld>, ctx: ActivityContex
   return player;
 }
 
-function createActivityObject(world: ReturnType<typeof createWorld>, ctx: ActivityContext) {
+function createActivityObject(world: ReturnType<typeof createWorld>, _ctx: ActivityContext) {
   const object = world.createEntity();
-  world.setComponent(object, "object", { entityId: object, objectId: "market_bell", facing: 0, variant: 0 });
+  world.setComponent(object, "object", {
+    entityId: object,
+    objectId: "market_bell",
+    facing: 0,
+    variant: 0,
+  });
   world.setComponent(object, "position", { entityId: object, x: 32, y: 32, plane: 0 });
   return object;
 }
@@ -100,7 +125,22 @@ describe("activity system", () => {
     const player = createPlayer(ctx.world, ctx);
     const object = createActivityObject(ctx.world, ctx);
     const registries = makeRegistries({
-      object: new Map([["market_bell", { id: "market_bell", name: "Market Bell", activityId: "bell_run", length: 2, width: 2, blocksMovement: true, blocksLineOfSight: false, defaultRotation: 0, options: [] }]]),
+      object: new Map([
+        [
+          "market_bell",
+          {
+            id: "market_bell",
+            name: "Market Bell",
+            activityId: "bell_run",
+            length: 2,
+            width: 2,
+            blocksMovement: true,
+            blocksLineOfSight: false,
+            defaultRotation: 0,
+            options: [],
+          },
+        ],
+      ]),
       activity: new Map([["bell_run", bellRunDef]]),
     });
     const ctx2 = { ...ctx, registries };
@@ -116,7 +156,22 @@ describe("activity system", () => {
     const player = createPlayer(ctx.world, ctx);
     const object = createActivityObject(ctx.world, ctx);
     const registries = makeRegistries({
-      object: new Map([["market_bell", { id: "market_bell", name: "Market Bell", activityId: "bell_run", length: 2, width: 2, blocksMovement: true, blocksLineOfSight: false, defaultRotation: 0, options: [] }]]),
+      object: new Map([
+        [
+          "market_bell",
+          {
+            id: "market_bell",
+            name: "Market Bell",
+            activityId: "bell_run",
+            length: 2,
+            width: 2,
+            blocksMovement: true,
+            blocksLineOfSight: false,
+            defaultRotation: 0,
+            options: [],
+          },
+        ],
+      ]),
       activity: new Map([["bell_run", bellRunDef]]),
     });
     const ctx2 = { ...ctx, registries };
@@ -125,7 +180,11 @@ describe("activity system", () => {
     // Move player far away
     ctx2.world.setComponent(player, "position", { entityId: player, x: 100, y: 100, plane: 0 });
 
-    const payload: ActivityActionPayload = { kind: "activity", activityId: "bell_run", objectEntityId: object };
+    const payload: ActivityActionPayload = {
+      kind: "activity",
+      activityId: "bell_run",
+      objectEntityId: object,
+    };
     const execution = {
       entry: {
         id: `activity:bell_run:${player}`,

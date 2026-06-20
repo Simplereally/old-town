@@ -1,6 +1,7 @@
 import type {
   ActivityViewPacket,
   ChatPacket,
+  ContractBoardPacket,
   ContractCompletePacket,
   ContractProgressPacket,
   DialogueViewPacket,
@@ -41,6 +42,7 @@ export interface Notification {
 export type UIStateChange =
   | "inventory"
   | "equipment"
+  | "combatStyle"
   | "skills"
   | "vars"
   | "chat"
@@ -62,10 +64,11 @@ export type UIStateChange =
  * populated exclusively from server deltas.
  */
 export class UIState {
-  private _inventory = new Map<number, InventorySlotChange>();
-  private _equipment = new Map<number, string>();
-  private _skills = new Map<string, SkillDelta>();
-  private _vars = new Map<string, PlayerVarValue>();
+  private readonly _inventory = new Map<number, InventorySlotChange>();
+  private readonly _equipment = new Map<number, string>();
+  private _combatStyle: string | undefined;
+  private readonly _skills = new Map<string, SkillDelta>();
+  private readonly _vars = new Map<string, PlayerVarValue>();
   private _chat: ChatPacket[] = [];
   private _dialogue: DialogueViewPacket | undefined;
   private _bank = new Map<number, InventorySlotChange>();
@@ -78,12 +81,13 @@ export class UIState {
   private _recipeResult: RecipeResultPacket | undefined;
   private _activeContract: ContractProgressPacket | undefined;
   private _contractCompletes: ContractCompletePacket[] = [];
+  private _contractBoard: ContractBoardPacket | undefined;
   private _statusEffects: StatusEffectUpdate[] = [];
   private _deathScreen = false;
   private _notifications: Notification[] = [];
   private _xpDrops: XpDropPacket[] = [];
   private _activity: ActivityViewPacket | undefined;
-  private _listeners = new Set<(change: UIStateChange) => void>();
+  private readonly _listeners = new Set<(change: UIStateChange) => void>();
 
   get inventory(): ReadonlyMap<number, InventorySlotChange> {
     return this._inventory;
@@ -91,6 +95,17 @@ export class UIState {
 
   get equipment(): ReadonlyMap<number, string> {
     return this._equipment;
+  }
+
+  /** The player's chosen melee attack style (which combat skill melee XP trains). */
+  get combatStyle(): string | undefined {
+    return this._combatStyle;
+  }
+
+  /** Set the active combat style. Called optimistically on click and from server state. */
+  setCombatStyle(style: string | undefined): void {
+    this._combatStyle = style;
+    this._notify("combatStyle");
   }
 
   get skills(): ReadonlyMap<string, SkillDelta> {
@@ -360,6 +375,20 @@ export class UIState {
     this._notify("contract");
   }
 
+  get contractBoard(): ContractBoardPacket | undefined {
+    return this._contractBoard;
+  }
+
+  setContractBoard(board: ContractBoardPacket): void {
+    this._contractBoard = board;
+    this._notify("contract");
+  }
+
+  clearContractBoard(): void {
+    this._contractBoard = undefined;
+    this._notify("contract");
+  }
+
   get statusEffects(): readonly StatusEffectUpdate[] {
     return this._statusEffects;
   }
@@ -434,8 +463,8 @@ export class UIState {
   /** Append chat messages (from TickDeltaPacket). */
   addChat(messages: readonly ChatPacket[]): void {
     this._chat.push(...messages);
-    while (this._chat.length > 200) {
-      this._chat.shift();
+    if (this._chat.length > 200) {
+      this._chat = this._chat.slice(-200);
     }
     this._notify("chat");
   }

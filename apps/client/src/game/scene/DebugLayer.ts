@@ -84,7 +84,7 @@ export class DebugLayer {
   private _showNpcLeash = false;
   private _showVarbits = false;
   private _pendingHits = new Map<string, number>();
-  private _actionQueue: string[] = [];
+  private _actionQueue: readonly string[] = [];
   private _combatCooldown = 0;
   private _npcLeash: TileCoord | undefined;
   private _varbits = new Map<string, number>();
@@ -187,11 +187,11 @@ export class DebugLayer {
     });
   }
 
-  getActionQueue(): string[] {
+  getActionQueue(): readonly string[] {
     return this._actionQueue;
   }
 
-  setActionQueue(actions: string[]): void {
+  setActionQueue(actions: readonly string[]): void {
     this._actionQueue = actions;
   }
 

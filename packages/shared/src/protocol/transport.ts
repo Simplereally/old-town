@@ -1,5 +1,8 @@
+import { z } from "zod";
+import { clientCommandSchema } from "./command-schemas";
 import type { ClientCommand } from "./commands";
 import type { ServerPacket } from "./packets";
+import type { ParseResult } from "./parse-result";
 
 export const TransportClientMessageType = {
   DevAuth: "C2S_DEV_AUTH",
@@ -52,6 +55,42 @@ export function encodeTransportPacket(packet: TransportServerPacket): string {
   return JSON.stringify(packet);
 }
 
+/** Zod schema for the {@link DevAuthMessage} handshake. */
+export const devAuthMessageSchema = z
+  .object({
+    type: z.literal(TransportClientMessageType.DevAuth),
+    protocolVersion: z.number().int(),
+    characterId: z.string().optional(),
+  })
+  .strict();
+
+/**
+ * Zod schema for any transport-level client → server message (DevAuth or a ClientCommand).
+ * The discriminator values are disjoint, so a discriminated union is used.
+ */
+export const transportClientMessageSchema = z.discriminatedUnion("type", [
+  devAuthMessageSchema,
+  ...clientCommandSchema.options,
+]);
+
+/**
+ * Validate untrusted input as a {@link TransportClientMessage}. Returns a discriminated
+ * result rather than throwing, so the transport layer can reject malformed messages cleanly.
+ */
+export function parseTransportMessage(raw: unknown): ParseResult<TransportClientMessage> {
+  const result = transportClientMessageSchema.safeParse(raw);
+  if (!result.success) {
+    return { ok: false, error: result.error.message };
+  }
+  return { ok: true, value: result.data as unknown as TransportClientMessage };
+}
+
+/**
+ * Deserialize a JSON wire string back into a transport client message.
+ *
+ * @deprecated For trusted round-trip tests only. Server code must use
+ * {@link parseTransportMessage}, which validates untrusted wire input with Zod.
+ */
 export function decodeTransportMessage(raw: string): TransportClientMessage {
   return JSON.parse(raw) as TransportClientMessage;
 }

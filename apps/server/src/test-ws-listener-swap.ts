@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import WebSocket, { WebSocketServer, type RawData } from "ws";
+import WebSocket, { type RawData, WebSocketServer } from "ws";
 
 const server = createServer();
 const wss = new WebSocketServer({ noServer: true });

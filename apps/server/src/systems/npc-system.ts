@@ -1,4 +1,4 @@
-import type { ContentRegistries, EntityId, NpcDef, Rng, TileCoord } from "@old-town/shared";
+import type { ContentRegistries, EntityId, NpcDef, Plane, Rng, TileCoord } from "@old-town/shared";
 import type { NpcComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
 import { projectEntity } from "../net/entity-spawn-projector";
@@ -17,9 +17,9 @@ export interface NpcSystemContext {
 function positionTile(position: {
   readonly x: number;
   readonly y: number;
-  readonly plane: number;
+  readonly plane: Plane;
 }): TileCoord {
-  return { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] };
+  return { x: position.x, y: position.y, plane: position.plane };
 }
 
 function sameTile(a: TileCoord, b: TileCoord): boolean {

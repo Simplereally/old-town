@@ -4,6 +4,7 @@ import type {
   EntityId,
   GroundItemIntent,
   ItemQuantity,
+  Plane,
   Rng,
 } from "@old-town/shared";
 import { GAME_TICK_MS, RARITY_MULTIPLIERS, type TileCoord } from "@old-town/shared";
@@ -43,9 +44,9 @@ const PICKUP_ACTIONS = new Set(["pickup", "take"]);
 function tileFromPosition(position: {
   readonly x: number;
   readonly y: number;
-  readonly plane: number;
+  readonly plane: Plane;
 }): TileCoord {
-  return { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] };
+  return { x: position.x, y: position.y, plane: position.plane };
 }
 
 function sameTile(a: TileCoord, b: TileCoord): boolean {

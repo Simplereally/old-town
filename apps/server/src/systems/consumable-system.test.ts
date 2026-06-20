@@ -28,7 +28,9 @@ function setup(combat?: Partial<CombatantComponent> & { health: number; maxHealt
   return { world, owner, deltas, consumables, registries };
 }
 
-function setupWithSkills(combat?: Partial<CombatantComponent> & { health: number; maxHealth: number }) {
+function setupWithSkills(
+  combat?: Partial<CombatantComponent> & { health: number; maxHealth: number },
+) {
   const { world, owner, deltas, consumables, registries } = setup(combat);
   world.setComponent(owner, "skills", {
     entityId: owner,
@@ -39,7 +41,9 @@ function setupWithSkills(combat?: Partial<CombatantComponent> & { health: number
   return { world, owner, deltas, consumables, registries };
 }
 
-function setupWithStatusEffects(combat?: Partial<CombatantComponent> & { health: number; maxHealth: number }) {
+function setupWithStatusEffects(
+  combat?: Partial<CombatantComponent> & { health: number; maxHealth: number },
+) {
   const { world, owner, deltas, consumables, registries } = setup(combat);
   world.setComponent(owner, "statusEffects", {
     entityId: owner,
@@ -224,7 +228,7 @@ describe("ConsumableSystem.enqueueRestore", () => {
     consumables.enqueueRestore(owner, "strength", 3);
     consumables.processConsumablePhase({ world, deltas, registries });
 
-    expect(skills.skills.strength!.drain).toBe(2);
+    expect(skills.skills.strength?.drain).toBe(2);
     expect(consumables.pendingRestoreCount).toBe(0);
   });
 
@@ -267,7 +271,10 @@ describe("ConsumableSystem.enqueueRemoveStatus", () => {
 
 describe("ConsumableSystem.processConsumablePhase — mixed effects", () => {
   it("applies heal, cure, boost, and apply status in the same tick", () => {
-    const { world, owner, deltas, consumables, registries } = setupWithStatusEffects({ health: 5, maxHealth: 10 });
+    const { world, owner, deltas, consumables, registries } = setupWithStatusEffects({
+      health: 5,
+      maxHealth: 10,
+    });
     const statusEffectDef = {
       id: "strength_potion",
       name: "Strength Potion",

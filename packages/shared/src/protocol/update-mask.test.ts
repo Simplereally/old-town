@@ -27,6 +27,7 @@ const fullPayload: Required<EntityUpdatePayload> = {
   transform: "guard_angry",
   moveSpeed: "walk",
   statusEffects: [],
+  doorState: { isOpen: true },
 };
 
 describe("mask composition/decomposition", () => {

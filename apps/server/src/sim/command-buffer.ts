@@ -12,8 +12,10 @@ import {
   type PingCommand,
   parseClientCommand,
   type RecipeSelectCommand,
+  type SetCombatStyleCommand,
   type ShopActionCommand,
   type UiActionCommand,
+  type UseItemOnCommand,
 } from "@old-town/shared";
 
 export const IntentKind = {
@@ -21,6 +23,7 @@ export const IntentKind = {
   Object: "object",
   Npc: "npc",
   Item: "item",
+  UseItemOn: "useItemOn",
   GroundItem: "groundItem",
   Spell: "spell",
   Chat: "chat",
@@ -28,6 +31,7 @@ export const IntentKind = {
   BankAction: "bankAction",
   ShopAction: "shopAction",
   RecipeSelect: "recipeSelect",
+  SetCombatStyle: "setCombatStyle",
   Ping: "ping",
 } as const;
 
@@ -38,6 +42,7 @@ type NormalizedByCommand =
   | { readonly kind: typeof IntentKind.Object; readonly command: ObjectOptionCommand }
   | { readonly kind: typeof IntentKind.Npc; readonly command: NpcOptionCommand }
   | { readonly kind: typeof IntentKind.Item; readonly command: ItemOptionCommand }
+  | { readonly kind: typeof IntentKind.UseItemOn; readonly command: UseItemOnCommand }
   | { readonly kind: typeof IntentKind.GroundItem; readonly command: GroundItemOptionCommand }
   | { readonly kind: typeof IntentKind.Spell; readonly command: CastSpellCommand }
   | { readonly kind: typeof IntentKind.Chat; readonly command: ChatCommand }
@@ -45,6 +50,7 @@ type NormalizedByCommand =
   | { readonly kind: typeof IntentKind.BankAction; readonly command: BankActionCommand }
   | { readonly kind: typeof IntentKind.ShopAction; readonly command: ShopActionCommand }
   | { readonly kind: typeof IntentKind.RecipeSelect; readonly command: RecipeSelectCommand }
+  | { readonly kind: typeof IntentKind.SetCombatStyle; readonly command: SetCombatStyleCommand }
   | { readonly kind: typeof IntentKind.Ping; readonly command: PingCommand };
 
 export type BufferedIntent = NormalizedByCommand extends infer T
@@ -122,6 +128,11 @@ function normalize(raw: unknown, source: CommandSource): CommandBufferAcceptResu
         ok: true,
         intent: { ...base, kind: IntentKind.Item, payload: parsed.value.payload },
       };
+    case ClientCommandType.UseItemOn:
+      return {
+        ok: true,
+        intent: { ...base, kind: IntentKind.UseItemOn, payload: parsed.value.payload },
+      };
     case ClientCommandType.GroundItemOption:
       return {
         ok: true,
@@ -156,6 +167,11 @@ function normalize(raw: unknown, source: CommandSource): CommandBufferAcceptResu
       return {
         ok: true,
         intent: { ...base, kind: IntentKind.RecipeSelect, payload: parsed.value.payload },
+      };
+    case ClientCommandType.SetCombatStyle:
+      return {
+        ok: true,
+        intent: { ...base, kind: IntentKind.SetCombatStyle, payload: parsed.value.payload },
       };
     case ClientCommandType.Ping:
       return {

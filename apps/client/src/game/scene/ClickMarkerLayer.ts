@@ -21,6 +21,7 @@ export class ClickMarkerLayer {
   private readonly group = new Group();
   private readonly pool: RenderObjectPool<Mesh>;
   private readonly markers = new Map<number, ClickMarker>();
+  private readonly material: MeshBasicMaterial;
   private _nextId = 1;
 
   constructor(options: ClickMarkerLayerOptions) {
@@ -28,17 +29,17 @@ export class ClickMarkerLayer {
     this.group.name = "clickMarkers";
     this.scene.add(this.group);
     const geometry = new RingGeometry(0.3, 0.4, 16);
-    const material = new MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 0.8 });
+    this.material = new MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 0.8 });
     this.pool = new RenderObjectPool<Mesh>({
       create: () => {
-        const mesh = new Mesh(geometry, material);
+        const mesh = new Mesh(geometry, this.material);
         mesh.rotation.x = -Math.PI / 2;
         return mesh;
       },
       reset: (mesh) => {
         mesh.visible = false;
         mesh.position.set(0, 0, 0);
-        (mesh.material as MeshBasicMaterial).opacity = 0.8;
+        this.material.opacity = 0.8;
         if (mesh.parent) {
           mesh.parent.remove(mesh);
         }
@@ -76,7 +77,7 @@ export class ClickMarkerLayer {
         this.remove(id);
         continue;
       }
-      const material = marker.mesh.material as MeshBasicMaterial;
+      const material = this.material;
       material.opacity = 0.8 * (1 - elapsed / CLICK_MARKER_DURATION_MS);
     }
   }

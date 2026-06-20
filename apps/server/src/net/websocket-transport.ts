@@ -3,12 +3,12 @@ import {
   type ClientCommand,
   ClientCommandType,
   type DevAuthMessage,
-  decodeTransportMessage,
   encodeTransportPacket,
   type FullStatePacket,
   isCompatibleProtocol,
   PROTOCOL_VERSION,
   parseClientCommand,
+  parseTransportMessage,
   TransportClientMessageType,
   TransportServerMessageType,
   type TransportServerPacket,
@@ -62,18 +62,6 @@ function parseUpgradePath(requestUrl: string | undefined): string | undefined {
   }
 }
 
-function parseDevAuth(raw: unknown): DevAuthMessage | undefined {
-  if (
-    typeof raw === "object" &&
-    raw !== null &&
-    (raw as { type?: unknown }).type === TransportClientMessageType.DevAuth &&
-    typeof (raw as { protocolVersion?: unknown }).protocolVersion === "number"
-  ) {
-    return raw as DevAuthMessage;
-  }
-  return undefined;
-}
-
 export function createWebSocketTransport(options: WebSocketTransportOptions): WebSocketTransport {
   const sessions = new Map<string, TransportSession>();
   const socketsBySession = new Map<string, WebSocket>();
@@ -110,20 +98,27 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
 
       let message: unknown;
       try {
-        message = decodeTransportMessage(data.toString());
+        message = JSON.parse(data.toString());
       } catch {
         send(socket, { type: TransportServerMessageType.Error, reason: "malformed_json" });
         return;
       }
 
+      const parsedMessage = parseTransportMessage(message);
+      if (!parsedMessage.ok) {
+        send(socket, { type: TransportServerMessageType.Error, reason: "malformed_json" });
+        return;
+      }
+      const transportMessage = parsedMessage.value;
+
       const state = socketStates.get(socket);
       if (!state?.session) {
-        const auth = parseDevAuth(message);
-        if (!auth) {
+        if (transportMessage.type !== TransportClientMessageType.DevAuth) {
           send(socket, { type: TransportServerMessageType.Error, reason: "auth_required" });
           socket.close(1008, "auth_required");
           return;
         }
+        const auth = transportMessage as DevAuthMessage;
         if (!isCompatibleProtocol(auth.protocolVersion)) {
           options.logger.warn("ws", "Protocol version mismatch", {
             clientVersion: auth.protocolVersion,
@@ -161,7 +156,7 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
         return;
       }
 
-      const parsed = parseClientCommand(message);
+      const parsed = parseClientCommand(transportMessage);
       if (!parsed.ok) {
         send(socket, {
           type: TransportServerMessageType.CommandRejected,

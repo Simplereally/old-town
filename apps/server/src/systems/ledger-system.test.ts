@@ -180,7 +180,9 @@ describe("redeemDeed", () => {
     const vars = world.getComponent(player, "vars");
     expect(vars?.values["property.sootcellar_cell.owner"]).toBe(player);
     const state = deltas.peek();
-    expect(state.chat?.[0]?.text).toBe("You redeem the deed for Sootcellar Cell. Property rights granted.");
+    expect(state.chat?.[0]?.text).toBe(
+      "You redeem the deed for Sootcellar Cell. Property rights granted.",
+    );
   });
 
   it("fails when player has no deed component", () => {

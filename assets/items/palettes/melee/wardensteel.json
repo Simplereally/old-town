@@ -1,0 +1,14 @@
+{
+  "ladder": "melee",
+  "tier": "wardensteel",
+  "tierOrder": 5,
+  "regions": {
+    "blade": "#9aa0a6",
+    "head": "#9aa0a6",
+    "grip": "#4f7a3a",
+    "accent": "#c2c6cc",
+    "trim": "#3a6ea5",
+    "metal": "#9aa0a6",
+    "straps": "#4f7a3a"
+  }
+}

@@ -4,6 +4,7 @@ import type { World } from "../ecs/world";
 import type { ItemAuditLog } from "../items/item-audit";
 import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
+import { handleActivityIntent } from "./activity-system";
 import { handleSurveyIntent } from "./cartography-system";
 import { handleContractAcceptIntent } from "./contract-system";
 import { handleDoorOpenIntent } from "./door-system";
@@ -11,7 +12,6 @@ import { handlePrayIntent } from "./favour-system";
 import { handleMoveIntent } from "./movement-system";
 import { enterNook, type NookDef } from "./nook-system";
 import type { ResourceNodeContext } from "./resource-node-system";
-import { handleActivityIntent } from "./activity-system";
 import { handleObjectSkillingIntent } from "./skilling-system";
 import { handleTrappingIntent, isTrappingAction } from "./trapping-system";
 
@@ -42,7 +42,7 @@ function systemMessage(
 function tileOf(world: World, entityId: EntityId): TileCoord | undefined {
   const position = world.getComponent(entityId, "position");
   return position
-    ? { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] }
+    ? { x: position.x, y: position.y, plane: position.plane }
     : undefined;
 }
 

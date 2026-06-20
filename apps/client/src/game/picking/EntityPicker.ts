@@ -1,5 +1,5 @@
-import type { Mesh, OrthographicCamera } from "three";
-import { Raycaster, Vector2 } from "three";
+import type { OrthographicCamera } from "three";
+import { Mesh, Raycaster, Vector2 } from "three";
 
 export interface EntityPickerOptions {
   readonly camera: OrthographicCamera;
@@ -41,8 +41,11 @@ export class EntityPicker {
 
     const closest = intersects[0];
     if (!closest) return null;
-    const mesh = closest.object as Mesh;
+    if (!(closest.object instanceof Mesh)) return null;
+    const mesh = closest.object;
     const userData = mesh.userData;
+
+    const VALID_KINDS = new Set<string>(["player", "npc", "object", "groundItem"]);
 
     let entityId: number | undefined;
     let kind: PickedEntity["kind"] | undefined;
@@ -54,12 +57,18 @@ export class EntityPicker {
       const meta = userData.instanceMap[closest.instanceId];
       if (meta) {
         entityId = meta.entityId;
-        kind = userData.kind;
+        const rawKind = userData.kind;
+        kind = typeof rawKind === "string" && VALID_KINDS.has(rawKind)
+          ? (rawKind as PickedEntity["kind"])
+          : undefined;
         defId = meta.defId;
       }
     } else if (userData && typeof userData.entityId === "number") {
       entityId = userData.entityId;
-      kind = userData.kind;
+      const rawKind = userData.kind;
+      kind = typeof rawKind === "string" && VALID_KINDS.has(rawKind)
+        ? (rawKind as PickedEntity["kind"])
+        : undefined;
       defId = userData.defId;
       itemId = userData.itemId;
       quantity = userData.quantity;
@@ -71,10 +80,10 @@ export class EntityPicker {
       entityId,
       kind,
       distance: closest.distance,
+      ...(defId !== undefined ? { defId } : {}),
+      ...(itemId !== undefined ? { itemId } : {}),
+      ...(quantity !== undefined ? { quantity } : {}),
     };
-    if (defId !== undefined) (result as unknown as Record<string, unknown>).defId = defId;
-    if (itemId !== undefined) (result as unknown as Record<string, unknown>).itemId = itemId;
-    if (quantity !== undefined) (result as unknown as Record<string, unknown>).quantity = quantity;
     return result;
   }
 

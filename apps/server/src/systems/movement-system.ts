@@ -4,6 +4,7 @@ import {
   type EntityId,
   type MoveIntent,
   type MoveSpeed,
+  type Plane,
   type TileCoord,
 } from "@old-town/shared";
 import type { MovementMode } from "../ecs/components";
@@ -38,9 +39,9 @@ export type FootprintResolver = Footprint | ((entityId: EntityId) => Footprint);
 function positionTile(position: {
   readonly x: number;
   readonly y: number;
-  readonly plane: number;
+  readonly plane: Plane;
 }): TileCoord {
-  return { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] };
+  return { x: position.x, y: position.y, plane: position.plane };
 }
 
 function moveSpeed(mode: MovementMode): MoveSpeed {
@@ -158,19 +159,20 @@ export function processMovementPhase(
 
     let current = positionTile(position);
     const entityFootprint = resolveFootprint(footprint, entityId);
-    let remainingPath = [...movement.path];
+    let pathIndex = 0;
     let lastStepDirection = movement.lastStepDirection;
     let facingTile: TileCoord | undefined;
     let moved = false;
+    let blocked = false;
     const stepCount = movement.mode === "run" ? 2 : 1;
 
     for (let i = 0; i < stepCount; i += 1) {
-      const next = remainingPath[0];
+      const next = movement.path[pathIndex];
       if (!next) {
         break;
       }
       if (!context.collision.canStep(current, next, entityFootprint)) {
-        remainingPath = [];
+        blocked = true;
         context.world.setComponent(entityId, "movement", {
           entityId,
           mode: movement.mode,
@@ -181,7 +183,7 @@ export function processMovementPhase(
         break;
       }
 
-      remainingPath = remainingPath.slice(1);
+      pathIndex += 1;
       const direction = directionFromDelta(next.x - current.x, next.y - current.y);
       lastStepDirection = direction ?? lastStepDirection;
       current = next;
@@ -192,10 +194,16 @@ export function processMovementPhase(
       moved = true;
     }
 
+    if (blocked) {
+      context.deltas.markDebugPath(entityId, []);
+      continue;
+    }
+
     if (!moved) {
       continue;
     }
 
+    const remainingPath = movement.path.slice(pathIndex);
     context.world.setComponent(entityId, "position", {
       entityId,
       x: current.x,

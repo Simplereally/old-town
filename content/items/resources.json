@@ -154,6 +154,17 @@
     "options": []
   },
   {
+    "id": "soft_leather",
+    "name": "Soft Leather",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A supple piece of tanned leather, ready for crafting.",
+    "icon": "icon_soft_leather",
+    "value": 10,
+    "weight": 0.5,
+    "options": []
+  },
+  {
     "id": "fox_hide",
     "name": "Fox Hide",
     "stackable": true,

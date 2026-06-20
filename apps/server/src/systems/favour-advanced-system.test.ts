@@ -44,7 +44,11 @@ const RITE_DEF: import("./favour-advanced-system").RiteDef = {
   favourCost: 10,
 };
 
-function addPlayer(world: World, favourLevel = 1, favourXp = 0): import("@old-town/shared").EntityId {
+function addPlayer(
+  world: World,
+  favourLevel = 1,
+  favourXp = 0,
+): import("@old-town/shared").EntityId {
   const entityId = world.createEntity();
   world.setComponent(entityId, "position", { entityId, x: 0, y: 0, plane: 0 });
   world.setComponent(entityId, "player", {
@@ -159,7 +163,9 @@ describe("bindOath", () => {
 
     expect(result).toBe(false);
     const state = deltas.peek();
-    expect(state.chat?.[0]?.text).toBe("You are already bound to an oath. You must break it first.");
+    expect(state.chat?.[0]?.text).toBe(
+      "You are already bound to an oath. You must break it first.",
+    );
   });
 
   it("fails when player does not have enough favour level", () => {

@@ -53,7 +53,10 @@ describe("RendererMetrics", () => {
 
     const countingObjectCreate = (...args: unknown[]) => {
       allocationCount++;
-      return (OriginalObjectCreate as unknown as typeof Object.create).apply(Object, args as unknown as [object | null, PropertyDescriptorMap & ThisType<unknown>]);
+      return (OriginalObjectCreate as unknown as typeof Object.create).apply(
+        Object,
+        args as unknown as [object | null, PropertyDescriptorMap & ThisType<unknown>],
+      );
     };
 
     globalThis.Float64Array = countingFloat64Array as unknown as Float64ArrayConstructor;

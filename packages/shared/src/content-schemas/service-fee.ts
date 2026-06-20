@@ -1,7 +1,7 @@
 /** Service fee definitions for vendor pricing and repair costs. */
 import { z } from "zod";
-import { contentIdSchema, itemQuantitySchema, nonNegInt } from "./common";
 import { planeSchema } from "../protocol/schema-primitives";
+import { contentIdSchema, itemQuantitySchema, nonNegInt } from "./common";
 
 export const serviceTypeSchema = z.enum([
   "repair",

@@ -1,0 +1,17 @@
+{
+  "ladder": "ranged",
+  "tier": "carmine_ash",
+  "tierOrder": 9,
+  "regions": {
+    "limb": "#8a3a32",
+    "string": "#2e2a28",
+    "grip": "#2e2a28",
+    "accent": "#c2c6cc",
+    "prod": "#8a3a32",
+    "stock": "#2e2a28",
+    "mechanism": "#c2c6cc",
+    "shaft": "#8a3a32",
+    "fletch": "#2e2a28",
+    "head": "#c2c6cc"
+  }
+}

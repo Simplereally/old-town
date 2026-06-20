@@ -1,0 +1,68 @@
+[
+  {
+    "id": "building_wall_straight",
+    "name": "Town Wall",
+    "examine": "A sturdy wall of mortared stone and timber.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": true,
+    "model": "model_building_wall_straight"
+  },
+  {
+    "id": "building_wall_corner",
+    "name": "Corner Wall",
+    "examine": "A wall corner where two sides meet.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": true,
+    "model": "model_building_wall_corner"
+  },
+  {
+    "id": "building_wall_t_window",
+    "name": "Windowed Wall",
+    "examine": "A wall with a shuttered window. Light and wind pass through.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "model": "model_building_wall_t_window"
+  },
+  {
+    "id": "building_roof_flat",
+    "name": "Flat Roof",
+    "examine": "A flat timber roof covering a small building.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": false,
+    "blocksLineOfSight": false,
+    "defaultCollision": 0,
+    "roofCoverage": { "width": 1, "length": 1 },
+    "model": "model_building_roof_flat"
+  },
+  {
+    "id": "building_roof_gable",
+    "name": "Gable Roof",
+    "examine": "A pitched gable roof with a chimney at one end.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": false,
+    "blocksLineOfSight": false,
+    "defaultCollision": 0,
+    "roofCoverage": { "width": 1, "length": 1 },
+    "model": "model_building_roof_gable"
+  },
+  {
+    "id": "building_roof_tower",
+    "name": "Tower Roof",
+    "examine": "A steep conical roof crowning a narrow tower.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": false,
+    "blocksLineOfSight": false,
+    "defaultCollision": 0,
+    "roofCoverage": { "width": 1, "length": 1 },
+    "model": "model_building_roof_tower"
+  }
+]

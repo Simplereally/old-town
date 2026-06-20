@@ -55,6 +55,10 @@ export const equipmentSlotSchema = z.enum([
 /** Combat attack styles (POC_SPEC §13.1). */
 export const combatStyleSchema = z.enum(["stab", "slash", "crush", "ranged", "magic"]);
 
+/** A melee/ranged/magic attack style. Determines the attack/defence bonus used and,
+ *  via the style→skill map, which combat skill receives XP. */
+export type CombatStyle = z.infer<typeof combatStyleSchema>;
+
 /** Combat class an item belongs to (`docs/*-tiers.md`). */
 export const combatClassSchema = z.enum(["melee", "ranged", "magic"]);
 

@@ -25,10 +25,14 @@ const DEFAULT_RATE_LIMIT_TICKS = 2;
 function normalizeText(intent: ChatIntent, maxLength: number): string | undefined {
   const raw = intent.text.trim();
   if (raw.length === 0) return undefined;
-  const hasControlCharacters = Array.from(raw).some((char) => {
+  let hasControlCharacters = false;
+  for (const char of raw) {
     const code = char.charCodeAt(0);
-    return code < 32 || code === 127;
-  });
+    if (code < 32 || code === 127) {
+      hasControlCharacters = true;
+      break;
+    }
+  }
   if (hasControlCharacters) return undefined;
   const text = raw.replace(/\s+/g, " ");
   if (text.length > maxLength) return undefined;

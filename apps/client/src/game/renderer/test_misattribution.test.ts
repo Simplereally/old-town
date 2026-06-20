@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { RegionId } from "@old-town/shared";
+import { describe, expect, it } from "vitest";
 import {
   type BakeChunkRequest,
   type CancelBakeChunk,

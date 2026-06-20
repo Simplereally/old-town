@@ -1,4 +1,11 @@
-import type { ContentRegistries, EntityId, ObjectIntent, TileCoord } from "@old-town/shared";
+import type {
+  ContractBoardEntry,
+  ContractBoardPacket,
+  ContentRegistries,
+  EntityId,
+  ObjectIntent,
+  TileCoord,
+} from "@old-town/shared";
 import type { ContractComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
 import { addItem, buildDelta, catalogFromItems, count, hasSpaceFor } from "../items/inventory";
@@ -31,7 +38,7 @@ function systemMessage(
 function tileOf(world: World, entityId: EntityId): TileCoord | undefined {
   const position = world.getComponent(entityId, "position");
   return position
-    ? { x: position.x, y: position.y, plane: position.plane as TileCoord["plane"] }
+    ? { x: position.x, y: position.y, plane: position.plane }
     : undefined;
 }
 
@@ -397,4 +404,53 @@ export function processContractLifecycle(
       }
     }
   }
+}
+
+const CONTRACT_BOARD_INTERFACE_ID = "contract_board";
+
+/**
+ * Build a contract board packet listing all available contracts attached to
+ * warden board objects in the world. Only contracts with status "available"
+ * are listed — accepted/expired/completed contracts are excluded.
+ */
+export function buildContractBoard(
+  ctx: ContractTrackerContext,
+): ContractBoardPacket {
+  const entries: ContractBoardEntry[] = [];
+  for (const [entityId, contract] of ctx.world.componentEntries("contract")) {
+    if (contract.status !== "available") continue;
+    const def = ctx.registries.contract.get(contract.contractId);
+    if (!def) continue;
+    entries.push({
+      contractEntityId: entityId,
+      contractId: contract.contractId,
+      name: def.name,
+      description: def.description ?? "",
+      contractType: def.contractType,
+      requiredLevel: def.requiredLevel,
+      status: contract.status,
+    });
+  }
+  return { entries };
+}
+
+/**
+ * Open the contract board interface for a player, sending the list of
+ * available contracts. Called when a player selects "Contracts" on Warden Holt.
+ */
+export function handleContractBoardOpen(
+  ctx: ContractTrackerContext,
+  owner: EntityId,
+  serverTime: number,
+): boolean {
+  const board = buildContractBoard(ctx);
+  if (board.entries.length === 0) {
+    systemMessage(ctx, owner, "No contracts available right now.", serverTime);
+    return true;
+  }
+  ctx.deltas.markInterfaceOpen({
+    interfaceId: CONTRACT_BOARD_INTERFACE_ID,
+    contractBoard: board,
+  });
+  return true;
 }

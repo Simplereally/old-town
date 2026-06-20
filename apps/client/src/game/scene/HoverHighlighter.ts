@@ -21,6 +21,7 @@ export class HoverHighlighter {
     opacity: 0.6,
     depthTest: false,
   });
+  private _disposed = false;
 
   constructor(options: HoverHighlighterOptions) {
     this.scene = options.scene;
@@ -32,6 +33,7 @@ export class HoverHighlighter {
    * @param yOffset - vertical offset (e.g., 0.05 for ground items, 0.8 for actors)
    */
   highlight(position: Vector3, yOffset = 0.05): void {
+    if (this._disposed) return;
     this._targetPosition = position.clone();
     this._targetY = yOffset;
     let mesh = this._highlightMesh;
@@ -87,6 +89,8 @@ export class HoverHighlighter {
 
   /** Dispose resources. */
   dispose(): void {
+    if (this._disposed) return;
+    this._disposed = true;
     this.hide();
     this._ringGeometry.dispose();
     this._highlightMaterial.dispose();

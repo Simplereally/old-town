@@ -51,7 +51,13 @@ function getOrCreateShop(ctx: ShopSystemContext, npcEntityId: EntityId): ShopCom
   const npc = ctx.world.getComponent(npcEntityId, "npc");
   if (!npc) return undefined;
 
-  const shopDef = ctx.registries.shop.get(npc.npcId);
+  let shopDef: ShopDef | undefined;
+  for (const def of ctx.registries.shop.values()) {
+    if (def.npcId === npc.npcId) {
+      shopDef = def;
+      break;
+    }
+  }
   if (!shopDef) return undefined;
 
   const shop: ShopComponent = {

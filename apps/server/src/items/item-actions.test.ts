@@ -5,7 +5,7 @@ import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { ConsumableSystem } from "../systems/consumable-system";
 import { createEquipment } from "./equipment";
 import { addItem, catalogFromItems, count, createInventory } from "./inventory";
-import { handleItemIntent, handleUnequipIntent, type ItemActionContext } from "./item-actions";
+import { handleItemIntent, handleUnequipIntent, handleUseItemOnIntent, type ItemActionContext } from "./item-actions";
 import { ItemAuditLog } from "./item-audit";
 
 function defItem(over: Partial<ItemDef> & { id: string }): ItemDef {
@@ -443,5 +443,64 @@ describe("handleUnequipIntent", () => {
     const result = handleUnequipIntent(ctx, owner, 3, TICK + 1, SERVER_TIME);
     expect(result.outcome).toBe("invalid");
     expect(world.getComponent(owner, "equipment")?.slots.weapon).toBe("test_blade");
+  });
+});
+
+describe("handleUseItemOnIntent", () => {
+  it("returns invalid for a stale item uid", () => {
+    const { ctx, owner } = setup([{ itemId: "test_axe", quantity: 1 }]);
+    const result = handleUseItemOnIntent(
+      ctx,
+      owner,
+      { itemUid: 99999, target: { kind: "tile", tile: { x: 1, y: 1, plane: 0 } } },
+      TICK,
+      SERVER_TIME,
+    );
+    expect(result.outcome).toBe("invalid");
+  });
+
+  it("returns used for a valid item with a tile target", () => {
+    const { ctx, owner, inventory } = setup([{ itemId: "test_axe", quantity: 1 }]);
+    const uid = inventory.slots[0]?.uid;
+    if (uid === undefined) throw new Error("Expected item uid");
+    const result = handleUseItemOnIntent(
+      ctx,
+      owner,
+      { itemUid: uid, target: { kind: "tile", tile: { x: 5, y: 5, plane: 0 } } },
+      TICK,
+      SERVER_TIME,
+    );
+    expect(result.outcome).toBe("used");
+    expect(result.message).toContain("Test Axe");
+  });
+
+  it("returns used for a valid item with an entity target", () => {
+    const { ctx, owner, inventory, world } = setup([{ itemId: "test_axe", quantity: 1 }]);
+    const uid = inventory.slots[0]?.uid;
+    if (uid === undefined) throw new Error("Expected item uid");
+    const npcEntity = world.createEntity();
+    world.setComponent(npcEntity, "npc", { entityId: npcEntity, npcId: "guard", brainState: "idle", respawnTick: 0, wanderRadius: 5 });
+    const result = handleUseItemOnIntent(
+      ctx,
+      owner,
+      { itemUid: uid, target: { kind: "entity", entityId: npcEntity } },
+      TICK,
+      SERVER_TIME,
+    );
+    expect(result.outcome).toBe("used");
+  });
+
+  it("returns invalid for a none target", () => {
+    const { ctx, owner, inventory } = setup([{ itemId: "test_axe", quantity: 1 }]);
+    const uid = inventory.slots[0]?.uid;
+    if (uid === undefined) throw new Error("Expected item uid");
+    const result = handleUseItemOnIntent(
+      ctx,
+      owner,
+      { itemUid: uid, target: { kind: "none" } },
+      TICK,
+      SERVER_TIME,
+    );
+    expect(result.outcome).toBe("invalid");
   });
 });

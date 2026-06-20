@@ -39,6 +39,13 @@ vi.mock("./renderer/ThreeRenderer", () => {
     running: false,
     onFrame: undefined,
     onResize: undefined,
+    debugCounters: vi.fn(() => ({
+      fps: 60,
+      frameTimeMs: 16,
+      drawCalls: 10,
+      geometries: 5,
+      textures: 2,
+    })),
     tileToWorld: vi.fn((x: number, y: number) => ({ x, y: 0, z: y })),
     worldToTile: vi.fn((x: number, z: number) => ({ x: Math.floor(x), y: Math.floor(z) })),
   };
@@ -290,6 +297,25 @@ describe("GameEngine entity picking and context menu", () => {
     expect(contextMenu.show).toHaveBeenCalled();
   });
 
+  it("shows context menu on left-click in one-button mouse mode", () => {
+    const mockEntity = { entityId: 10, kind: "npc" as const, defId: "guard", distance: 1 };
+    (asEngine(engine) as { _pickEntityAt: ReturnType<typeof vi.fn> })._pickEntityAt = vi.fn(
+      () => mockEntity,
+    );
+    (engine as { setInputSettings: (settings: { mouseButtons: "one-button" }) => void })
+      .setInputSettings({ mouseButtons: "one-button" });
+    const contextMenu = asEngine(engine)._contextMenu as {
+      show: ReturnType<typeof vi.fn>;
+    };
+    contextMenu.show = vi.fn();
+
+    const clickEvent = new MouseEvent("click", { clientX: 400, clientY: 300, bubbles: true });
+    canvas.dispatchEvent(clickEvent);
+
+    expect(contextMenu.show).toHaveBeenCalled();
+    expect(socket.sendCommand).not.toHaveBeenCalled();
+  });
+
   it("sends NpcOption from context menu click", () => {
     const mockEntity = { entityId: 10, kind: "npc" as const, defId: "guard", distance: 1 };
     (asEngine(engine) as { _pickEntityAt: ReturnType<typeof vi.fn> })._pickEntityAt = vi.fn(
@@ -416,6 +442,36 @@ describe("GameEngine entity picking and context menu", () => {
     const dest = (call.payload as Record<string, unknown>).dest as Record<string, unknown>;
     expect(dest.x).toBe(30);
     expect(dest.y).toBe(32);
+  });
+
+  it("sends CastSpell from spell context menu click and clears spell mode", () => {
+    const mockEntity = { entityId: 10, kind: "npc" as const, defId: "guard", distance: 1 };
+    (asEngine(engine) as { _pickEntityAt: ReturnType<typeof vi.fn> })._pickEntityAt = vi.fn(
+      () => mockEntity,
+    );
+    (asEngine(engine) as { enterSpellTargetMode: (spellId: string) => void })
+      .enterSpellTargetMode("wind_strike");
+
+    const rightClickEvent = new MouseEvent("contextmenu", {
+      clientX: 400,
+      clientY: 300,
+      bubbles: true,
+    });
+    canvas.dispatchEvent(rightClickEvent);
+
+    const spellItem = Array.from(document.querySelectorAll(".context-menu-item")).find((el) =>
+      el.textContent?.includes("Cast wind_strike"),
+    );
+    expect(spellItem).toBeDefined();
+    (spellItem as HTMLDivElement)?.click();
+
+    expect(socket.sendCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: ClientCommandType.CastSpell,
+        payload: expect.objectContaining({ spellId: "wind_strike" }),
+      }),
+    );
+    expect((asEngine(engine) as { _spellTargetMode?: unknown })._spellTargetMode).toBeUndefined();
   });
 
   it("does not block render loop with context menu", () => {

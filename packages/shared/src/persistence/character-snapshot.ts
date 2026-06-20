@@ -5,7 +5,13 @@
  */
 import { z } from "zod";
 import { EQUIPMENT_SLOTS } from "../constants";
-import { contentIdSchema, nonNegInt, playerVarValueSchema, positiveInt } from "../content-schemas";
+import {
+  combatStyleSchema,
+  contentIdSchema,
+  nonNegInt,
+  playerVarValueSchema,
+  positiveInt,
+} from "../content-schemas";
 import { tileCoordSchema } from "../protocol/schema-primitives";
 
 export const CHARACTER_SNAPSHOT_VERSION = 1;
@@ -107,6 +113,8 @@ export const characterSnapshotSchema = z
     savedAt: nonNegInt,
     position: tileCoordSchema,
     hitpoints: characterHitpointsSnapshotSchema,
+    /** Preferred melee attack style; restored so combat training continues after relog. */
+    combatStyle: combatStyleSchema.optional(),
     skills: z.record(contentIdSchema, characterSkillSnapshotSchema).default({}),
     inventory: characterInventorySnapshotSchema,
     equipment: characterEquipmentSnapshotSchema,

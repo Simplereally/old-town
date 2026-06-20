@@ -195,16 +195,37 @@ export async function startServer(): Promise<GameServer> {
 
   // --- Tick loop timer --------------------------------------------------------------
   // Drive the sim from wall-clock elapsed since boot so serverTime stays 0-based
-  // (see the simEpochMs note above). runDueTicks catches up any ticks owed if the
-  // timer drifts, keeping sim time aligned to real time without going to epoch scale.
-  const tickTimer = setInterval(() => {
-    kernel.runDueTicks(Date.now() - simEpochMs);
-  }, GAME_TICK_MS);
+  // (see the simEpochMs note above).
+  //
+  // Use a self-correcting scheduler that re-targets the absolute tick grid
+  // (simEpochMs + n*GAME_TICK_MS) on every fire rather than `setInterval`.
+  // Node reschedules `setInterval` relative to when each callback *finishes*, so
+  // per-tick work — every system plus the periodic lazy-save serialization — is
+  // added to the period and accumulates as steady drift. The loop then slips a
+  // full tick behind every few seconds and runDueTicks emits a catch-up burst
+  // (two deltas back-to-back). That bursty, periodic cadence is precisely what
+  // makes client snapshot interpolation stutter on an endless loop. Targeting
+  // the grid keeps emission aligned to real time regardless of per-tick cost;
+  // runDueTicks still absorbs any genuine overrun without drifting.
+  let tickTimer: ReturnType<typeof setTimeout> | undefined;
+  let tickLoopStopped = false;
+  const scheduleNextTick = (): void => {
+    if (tickLoopStopped) return;
+    const elapsed = Date.now() - simEpochMs;
+    const nextSlotMs = Math.floor(elapsed / GAME_TICK_MS) * GAME_TICK_MS + GAME_TICK_MS;
+    const delayMs = Math.max(0, nextSlotMs - elapsed);
+    tickTimer = setTimeout(() => {
+      kernel.runDueTicks(Date.now() - simEpochMs);
+      scheduleNextTick();
+    }, delayMs);
+  };
+  scheduleNextTick();
 
   // --- Graceful shutdown ------------------------------------------------------------
   const shutdown = async (): Promise<void> => {
     logger.info("shutdown", "Graceful shutdown initiated");
-    clearInterval(tickTimer);
+    tickLoopStopped = true;
+    if (tickTimer) clearTimeout(tickTimer);
     await kernel.flushPersistence();
     await Promise.all([
       transport.close(),
@@ -226,6 +247,7 @@ function serializeContentForClient(registries: BootContentResult["registries"]):
     quest: Object.fromEntries(registries.quest),
     dialogue: Object.fromEntries(registries.dialogue),
     contract: Object.fromEntries(registries.contract),
+    material: Object.fromEntries(registries.material),
   };
 }
 

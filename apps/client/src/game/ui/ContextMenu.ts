@@ -81,7 +81,7 @@ export class ContextMenu {
     this._visible = true;
 
     this._clickOutsideListener = (e: MouseEvent) => {
-      if (this._menuElement && !this._menuElement.contains(e.target as Node)) {
+      if (this._menuElement && e.target instanceof Node && !this._menuElement.contains(e.target)) {
         this.hide();
       }
     };

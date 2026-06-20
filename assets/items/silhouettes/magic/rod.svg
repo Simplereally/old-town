@@ -1,0 +1,1 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36"><rect data-region="shaft" x="17" y="6" width="2" height="24" fill="#8a6a44"/><path data-region="tip" d="M14 6 L18 2 L22 6 Z" fill="#cccccc"/><circle data-region="bead" cx="18" cy="7" r="2" fill="#c9a23c"/><circle data-region="accent" cx="18" cy="14" r="1.5" fill="#c9a23c"/></svg>

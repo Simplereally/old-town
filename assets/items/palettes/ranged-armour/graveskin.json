@@ -1,0 +1,11 @@
+{
+  "ladder": "ranged-armour",
+  "tier": "graveskin",
+  "tierOrder": 7,
+  "regions": {
+    "hide": "#3a3632",
+    "stitch": "#cfc6ad",
+    "buckle": "#cfc6ad",
+    "accent": "#6a6d6f"
+  }
+}

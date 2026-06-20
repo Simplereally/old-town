@@ -7,6 +7,7 @@ export const bankDefSchema = z
   .object({
     id: contentIdSchema,
     name: z.string().min(1),
+    npcId: contentIdSchema.optional(),
     location: z
       .object({
         plane: nonNegInt.default(0),

@@ -139,6 +139,16 @@ export const areaTriggerSchema = z
     path: ["height"],
   });
 
+export const contractSpawnSchema = z
+  .object({
+    contractId: contentIdSchema,
+    x: localAxis,
+    y: localAxis,
+  })
+  .strict();
+
+export type ContractSpawnDef = z.infer<typeof contractSpawnSchema>;
+
 export const regionMapDefSchema = z
   .object({
     region: regionCoordSchema,
@@ -153,6 +163,7 @@ export const regionMapDefSchema = z
     npcSpawns: z.array(npcSpawnSchema).default([]),
     groundItemSpawns: z.array(groundItemSpawnSchema).default([]),
     resourceNodeSpawns: z.array(resourceNodeSpawnSchema).default([]),
+    contractSpawns: z.array(contractSpawnSchema).default([]),
     playerSpawnPoints: z.array(playerSpawnSchema).default([]),
     deathRespawnPoints: z.array(deathRespawnSchema).default([]),
     triggers: z.array(areaTriggerSchema).default([]),

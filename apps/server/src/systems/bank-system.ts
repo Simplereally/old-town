@@ -35,11 +35,25 @@ function emitSystemMessage(
   ctx.deltas.markChat({ entityId: owner, text, channel: "system", serverTime });
 }
 
-function getOrCreateBank(ctx: BankSystemContext, owner: EntityId): BankComponent {
+function getOrCreateBank(ctx: BankSystemContext, owner: EntityId, npcEntityId?: EntityId): BankComponent {
   const existing = ctx.world.getComponent(owner, "bank");
   if (existing) return existing;
 
-  const bankDef = ctx.registries.bank.values().next().value as BankDef | undefined;
+  let bankDef: BankDef | undefined;
+  if (npcEntityId !== undefined) {
+    const npc = ctx.world.getComponent(npcEntityId, "npc");
+    if (npc) {
+      for (const def of ctx.registries.bank.values()) {
+        if (def.npcId === npc.npcId) {
+          bankDef = def;
+          break;
+        }
+      }
+    }
+  }
+  if (!bankDef) {
+    bankDef = ctx.registries.bank.values().next().value as BankDef | undefined;
+  }
   const capacity = bankDef?.capacity ?? DEFAULT_BANK_CAPACITY;
 
   const bank = createBank(owner, capacity);
@@ -74,7 +88,7 @@ export function handleBankIntent(
           return true;
         }
       }
-      const bank = getOrCreateBank(ctx, owner);
+      const bank = getOrCreateBank(ctx, owner, intent.targetEntityId);
       ctx.deltas.markInterfaceOpen({ interfaceId: BANK_INTERFACE_ID });
       ctx.deltas.markInventoryDelta(toInventoryDelta(bank));
       return true;

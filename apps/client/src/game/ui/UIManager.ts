@@ -1,11 +1,20 @@
+import type { CombatStyle } from "@old-town/shared";
 import type { ContentClient } from "./ContentClient";
 import { GlobalKeydownBus } from "./GlobalKeydownBus";
+import type { IconAtlas } from "./IconAtlas";
+import { PLACEHOLDER_DATA_URI } from "./IconAtlas";
+import type {
+  InputInterpreterSettings,
+  MouseButtonMode,
+  NpcAttackSetting,
+} from "../input/InputInterpreter";
 import type { UIState, UIStateChange } from "./UIState";
 
 export interface UIManagerCallbacks {
   sendItemCommand(itemUid: number, actionId: string): void;
   sendChatCommand(text: string): void;
   enterSpellTargetMode(spellId: string): void;
+  enterItemTargetMode(itemUid: number): void;
   sendUiActionCommand(action: string, targetId?: string, value?: number): void;
   sendBankCommand(
     action: "deposit" | "withdraw" | "open" | "close",
@@ -18,17 +27,102 @@ export interface UIManagerCallbacks {
     quantity?: number,
   ): void;
   sendRecipeCommand(recipeId: string, stationEntityId: number): void;
+  sendSetCombatStyle(style: CombatStyle): void;
+  setInputSettings(settings: Partial<InputInterpreterSettings>): void;
 }
+
+const ITEM_ACTIONS = new Set(["drop", "equip", "eat", "drink"]);
+
+const SETTINGS_STORAGE_KEY = "old-town-input-settings";
+
+const NPC_ATTACK_OPTIONS: ReadonlyArray<{ value: NpcAttackSetting; label: string; hint: string }> = [
+  {
+    value: "depends-on-combat-levels",
+    label: "Depends on combat levels",
+    hint: "Left-click Attack only on NPCs at or below your combat level.",
+  },
+  {
+    value: "left-click-where-available",
+    label: "Left-click where available",
+    hint: "Always left-click Attack on NPCs.",
+  },
+  {
+    value: "always-right-click",
+    label: "Always right-click",
+    hint: "Attack is never left-click; right-click to target.",
+  },
+  {
+    value: "hidden",
+    label: "Hidden",
+    hint: "Attack option is removed from the menu entirely.",
+  },
+];
+
+const MOUSE_BUTTON_OPTIONS: ReadonlyArray<{ value: MouseButtonMode; label: string; hint: string }> = [
+  {
+    value: "two-button",
+    label: "Two-button mouse",
+    hint: "Left-click acts, right-click opens menu.",
+  },
+  {
+    value: "one-button",
+    label: "One-button mouse",
+    hint: "Left-click always opens the context menu.",
+  },
+];
+
+const DEFAULT_INPUT_SETTINGS: InputInterpreterSettings = {
+  npcAttack: "depends-on-combat-levels",
+  mouseButtons: "two-button",
+  menuSwaps: [],
+};
+
+function loadStoredSettings(): InputInterpreterSettings {
+  try {
+    const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if (!raw) return DEFAULT_INPUT_SETTINGS;
+    const parsed = JSON.parse(raw) as Partial<InputInterpreterSettings>;
+    return {
+      npcAttack: parsed.npcAttack ?? DEFAULT_INPUT_SETTINGS.npcAttack,
+      mouseButtons: parsed.mouseButtons ?? DEFAULT_INPUT_SETTINGS.mouseButtons,
+      menuSwaps: parsed.menuSwaps ?? DEFAULT_INPUT_SETTINGS.menuSwaps,
+    };
+  } catch {
+    return DEFAULT_INPUT_SETTINGS;
+  }
+}
+
+function saveStoredSettings(settings: InputInterpreterSettings): void {
+  try {
+    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+  } catch {
+    // Ignore storage errors (e.g. private mode quota).
+  }
+}
+
+/** Display metadata for each attack style: button label and the combat skill it trains. */
+const COMBAT_STYLE_META: Record<CombatStyle, { readonly name: string; readonly trains: string }> = {
+  stab: { name: "Stab", trains: "Attack" },
+  slash: { name: "Slash", trains: "Strength" },
+  crush: { name: "Crush", trains: "Defence" },
+  ranged: { name: "Shoot", trains: "Ranged" },
+  magic: { name: "Cast", trains: "Magic" },
+};
+
+/** Equipment slot index of the weapon (matches EQUIPMENT_SLOTS order). */
+const WEAPON_SLOT_INDEX = 3;
 
 export class UIManager {
   private readonly uiState: UIState;
   private readonly content: ContentClient;
   private readonly callbacks: UIManagerCallbacks;
+  private readonly icons: IconAtlas | undefined;
   private readonly panels: Map<string, HTMLDivElement>;
   private readonly buttons: Map<string, HTMLButtonElement>;
   private readonly panelOrder = [
     "inventory-panel",
     "equipment-panel",
+    "combat-panel",
     "skills-panel",
     "spellbook-panel",
     "quest-panel",
@@ -39,6 +133,7 @@ export class UIManager {
     "minimap-panel",
     "contract-panel",
     "activity-panel",
+    "settings-panel",
     "status-effects-panel",
     "death-screen",
     "notification-toast",
@@ -52,21 +147,29 @@ export class UIManager {
     c: "chat-box",
     b: "bank-panel",
     s: "shop-panel",
+    f: "combat-panel",
     ",": "minimap-panel",
     ".": "contract-panel",
     a: "activity-panel",
     d: "debug-overlay",
+    o: "settings-panel",
   };
-  private _unsubscribe: (() => void) | undefined;
+  private readonly _unsubscribe: (() => void) | undefined;
   private _selectedRecipeId: string | undefined;
   private _selectedQuantity = 1;
   private _recipeClickListeners: Array<() => void> = [];
   private _recipeMakeListener: (() => void) | undefined;
 
-  constructor(uiState: UIState, content: ContentClient, callbacks: UIManagerCallbacks) {
+  constructor(
+    uiState: UIState,
+    content: ContentClient,
+    callbacks: UIManagerCallbacks,
+    icons?: IconAtlas,
+  ) {
     this.uiState = uiState;
     this.content = content;
     this.callbacks = callbacks;
+    this.icons = icons;
     this.panels = this._buildPanelMap();
     this.buttons = this._buildButtonMap();
     this._bindBarButtons();
@@ -77,7 +180,7 @@ export class UIManager {
     this._renderAll();
   }
 
-  private _barButtonListeners: Map<string, () => void> = new Map();
+  private readonly _barButtonListeners: Map<string, () => void> = new Map();
   private _chatSendListener: (() => void) | undefined;
   private _chatKeydownListener: ((e: KeyboardEvent) => void) | undefined;
 
@@ -114,11 +217,11 @@ export class UIManager {
   private _buildPanelMap(): Map<string, HTMLDivElement> {
     const map = new Map<string, HTMLDivElement>();
     for (const id of this.panelOrder) {
-      const el = document.getElementById(id) as HTMLDivElement | null;
-      if (el) map.set(id, el);
+      const el = document.getElementById(id);
+      if (el instanceof HTMLDivElement) map.set(id, el);
     }
-    const debug = document.getElementById("debug-overlay") as HTMLDivElement | null;
-    if (debug) map.set("debug-overlay", debug);
+    const debug = document.getElementById("debug-overlay");
+    if (debug instanceof HTMLDivElement) map.set("debug-overlay", debug);
     return map;
   }
 
@@ -144,9 +247,9 @@ export class UIManager {
   }
 
   private _bindChatInput(): void {
-    const input = document.getElementById("chat-input") as HTMLInputElement | null;
-    const sendBtn = document.getElementById("chat-send") as HTMLButtonElement | null;
-    if (!input || !sendBtn) return;
+    const input = document.getElementById("chat-input");
+    const sendBtn = document.getElementById("chat-send");
+    if (!(input instanceof HTMLInputElement) || !(sendBtn instanceof HTMLButtonElement)) return;
 
     this._chatSendListener = () => {
       const text = input.value.trim();
@@ -207,6 +310,22 @@ export class UIManager {
     }
   }
 
+  /**
+   * Open the default set of UI panels on first load after receiving the
+   * initial full-state packet. Inventory, skills, and chat are shown by
+   * default; the minimap is always visible.
+   */
+  openDefaultPanels(): void {
+    for (const panelId of ["inventory-panel", "skills-panel", "chat-box"]) {
+      const panel = this.panels.get(panelId);
+      if (panel && panel.classList.contains("hidden")) {
+        panel.classList.remove("hidden");
+        this._updateButtonState(panelId, true);
+        this._renderPanel(panelId);
+      }
+    }
+  }
+
   private _updateButtonState(panelId: string, visible: boolean): void {
     const btn = this.buttons.get(panelId);
     if (btn) {
@@ -217,6 +336,7 @@ export class UIManager {
   private _renderAll(): void {
     this._renderInventory();
     this._renderEquipment();
+    this._renderCombat();
     this._renderSkills();
     this._renderSpellbook();
     this._renderQuests();
@@ -240,11 +360,16 @@ export class UIManager {
         break;
       case "equipment":
         this._renderEquipment();
+        this._renderCombat();
+        break;
+      case "combatStyle":
+        this._renderCombat();
         break;
       case "skills":
         this._renderSkills();
         this._renderSpellbook();
         this._renderRecipes();
+        this._renderCombat();
         break;
       case "vars":
         this._renderQuests();
@@ -297,6 +422,9 @@ export class UIManager {
       case "equipment-panel":
         this._renderEquipment();
         break;
+      case "combat-panel":
+        this._renderCombat();
+        break;
       case "skills-panel":
         this._renderSkills();
         break;
@@ -324,12 +452,42 @@ export class UIManager {
       case "contract-panel":
         this._renderContract();
         break;
+      case "settings-panel":
+        this._renderSettings();
+        break;
     }
   }
 
   private _isPanelVisible(panelId: string): boolean {
     const panel = this.panels.get(panelId);
     return panel ? !panel.classList.contains("hidden") : false;
+  }
+
+  private _renderIconInto(cell: HTMLDivElement, iconAssetId: string): void {
+    const resolved = iconAssetId ? this.icons?.resolveIcon(iconAssetId) : null;
+    const img = document.createElement("img");
+    img.classList.add("item-icon");
+    if (resolved) {
+      img.src = resolved.atlasUrl;
+      const { x, y, w, h } = resolved.cell;
+      img.style.objectFit = "none";
+      img.style.objectPosition = `-${x}px -${y}px`;
+      img.style.width = `${w}px`;
+      img.style.height = `${h}px`;
+      img.alt = iconAssetId;
+    } else {
+      img.src = PLACEHOLDER_DATA_URI;
+      img.classList.add("item-icon-missing");
+      img.alt = iconAssetId ? `missing: ${iconAssetId}` : "missing icon";
+    }
+    cell.appendChild(img);
+  }
+
+  private _renderQuantityBadge(cell: HTMLDivElement, quantity: number): void {
+    const badge = document.createElement("span");
+    badge.classList.add("item-qty-badge");
+    badge.textContent = String(quantity);
+    cell.appendChild(badge);
   }
 
   private _renderInventory(): void {
@@ -350,15 +508,18 @@ export class UIManager {
         const quantity = item.quantity;
         const def = this.content.getItem(itemId);
         const name = def?.name ?? itemId ?? "";
-        cell.textContent = name.length > 8 ? `${name.slice(0, 7)}…` : name;
+        const iconAssetId = def?.icon ?? "";
+        this._renderIconInto(cell, iconAssetId);
+        if (quantity > 1) {
+          this._renderQuantityBadge(cell, quantity);
+        }
         cell.title = `${name}${quantity > 1 ? ` x${quantity}` : ""}`;
         const uid = item.uid;
         if (uid !== undefined) {
           cell.addEventListener("click", () => {
-            this.callbacks.sendItemCommand(uid, "use");
+            this.callbacks.enterItemTargetMode(uid);
           });
-          const allowedActionIds = new Set(["drop", "equip", "eat", "drink"]);
-          const extraActions = def?.options?.filter((o) => allowedActionIds.has(o));
+          const extraActions = def?.options?.filter((o) => ITEM_ACTIONS.has(o));
           if (extraActions && extraActions.length > 0) {
             cell.addEventListener("contextmenu", (e) => {
               e.preventDefault();
@@ -392,25 +553,103 @@ export class UIManager {
       "Ring",
       "Ammo",
     ];
+    const grid = document.createElement("div");
+    grid.classList.add("equipment-grid");
     for (let i = 0, len = slots.length; i < len; i++) {
-      const row = document.createElement("div");
-      row.classList.add("ui-row");
-      const label = document.createElement("span");
-      label.textContent = slots[i] ?? "";
-      label.classList.add("text-muted");
-      const value = document.createElement("span");
+      const cell = document.createElement("div");
+      cell.classList.add("equipment-cell");
+      cell.title = slots[i] ?? "";
       const itemId = this.uiState.equipment.get(i);
       if (itemId) {
         const def = this.content.getItem(itemId);
-        value.textContent = def?.name ?? itemId;
-        value.classList.add("text-bright");
+        const name = def?.name ?? itemId;
+        const iconAssetId = def?.icon ?? "";
+        this._renderIconInto(cell, iconAssetId);
+        cell.title = `${slots[i]}: ${name}`;
       } else {
-        value.textContent = "—";
-        value.classList.add("text-dim");
+        const label = document.createElement("span");
+        label.textContent = slots[i] ?? "";
+        label.classList.add("text-dim");
+        cell.appendChild(label);
       }
-      row.appendChild(label);
-      row.appendChild(value);
-      body.appendChild(row);
+      grid.appendChild(cell);
+    }
+    body.appendChild(grid);
+  }
+
+  private _renderCombat(): void {
+    const body = document.getElementById("combat-body");
+    if (!body) return;
+    body.innerHTML = "";
+
+    // Combat stat summary: Attack / Strength / Defence / Hitpoints.
+    const stats = document.createElement("div");
+    stats.classList.add("combat-stats");
+    for (const skillId of ["attack", "strength", "defence", "hitpoints"]) {
+      const state = this.uiState.skills.get(skillId);
+      const level = state?.effectiveLevel ?? state?.level ?? 1;
+      const stat = document.createElement("div");
+      stat.classList.add("combat-stat");
+      stat.title = skillId;
+      const icon = document.createElement("span");
+      icon.classList.add("combat-stat-icon");
+      icon.textContent = this._skillIcon(skillId);
+      const lvl = document.createElement("span");
+      lvl.classList.add("combat-stat-level");
+      lvl.textContent = String(level);
+      stat.appendChild(icon);
+      stat.appendChild(lvl);
+      stats.appendChild(stat);
+    }
+    body.appendChild(stats);
+
+    // Equipped weapon and the attack styles it offers.
+    const weaponId = this.uiState.equipment.get(WEAPON_SLOT_INDEX);
+    const weaponDef = weaponId ? this.content.getItem(weaponId) : undefined;
+
+    const weaponRow = document.createElement("div");
+    weaponRow.classList.add("combat-weapon");
+    weaponRow.textContent = weaponDef?.name ?? "Unarmed";
+    body.appendChild(weaponRow);
+
+    const allowed = (weaponDef?.equipment?.allowedStyles ?? []) as CombatStyle[];
+    // Unarmed strikes resolve to crush (Defence) on the server; show that as a fixed style.
+    const styles: CombatStyle[] = allowed.length > 0 ? allowed : ["crush"];
+    const selectable = allowed.length > 0;
+    const preference = this.uiState.combatStyle as CombatStyle | undefined;
+    const activeStyle: CombatStyle =
+      preference && styles.includes(preference) ? preference : (styles[0] ?? "crush");
+
+    for (const style of styles) {
+      const meta = COMBAT_STYLE_META[style];
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.classList.add("combat-style-btn");
+      if (style === activeStyle) btn.classList.add("active");
+      const name = document.createElement("span");
+      name.classList.add("combat-style-name");
+      name.textContent = meta.name;
+      const trains = document.createElement("span");
+      trains.classList.add("combat-style-skill");
+      trains.textContent = `trains ${meta.trains}`;
+      btn.appendChild(name);
+      btn.appendChild(trains);
+      if (selectable) {
+        btn.addEventListener("click", () => {
+          this.uiState.setCombatStyle(style); // optimistic: highlight immediately
+          this.callbacks.sendSetCombatStyle(style);
+        });
+      } else {
+        btn.disabled = true;
+      }
+      body.appendChild(btn);
+    }
+
+    if (!selectable) {
+      const hint = document.createElement("div");
+      hint.classList.add("combat-hint", "text-dim");
+      hint.textContent = "Unarmed strikes train Defence. Wield a weapon to choose a style.";
+      body.appendChild(hint);
     }
   }
 
@@ -421,7 +660,7 @@ export class UIManager {
     const grid = document.createElement("div");
     grid.classList.add("skill-grid");
 
-    const skills = Array.from(this.content.getAllSkills()).toSorted((a, b) =>
+    const skills = [...this.content.getAllSkills()].toSorted((a, b) =>
       a.name.localeCompare(b.name),
     );
     const uiSkills = this.uiState.skills;
@@ -488,7 +727,7 @@ export class UIManager {
     const body = document.getElementById("spellbook-body");
     if (!body) return;
     body.innerHTML = "";
-    const spells = Array.from(this.content.getAllSpells()).toSorted(
+    const spells = [...this.content.getAllSpells()].toSorted(
       (a, b) => a.requiredMagic - b.requiredMagic,
     );
     const magic = this.uiState.skills.get("magic");
@@ -514,7 +753,7 @@ export class UIManager {
     if (!body) return;
     body.innerHTML = "";
     body.classList.remove("text-dim");
-    const quests = Array.from(this.content.getAllQuests());
+    const quests = [...this.content.getAllQuests()];
     const uiVars = this.uiState.vars;
     for (const quest of quests) {
       const rawStage = uiVars.get(`quest.${quest.varPrefix}.stage`);
@@ -614,7 +853,11 @@ export class UIManager {
         const quantity = item.quantity;
         const def = this.content.getItem(itemId);
         const name = def?.name ?? itemId ?? "";
-        cell.textContent = name.length > 8 ? `${name.slice(0, 7)}…` : name;
+        const iconAssetId = def?.icon ?? "";
+        this._renderIconInto(cell, iconAssetId);
+        if (quantity > 1) {
+          this._renderQuantityBadge(cell, quantity);
+        }
         cell.title = `${name}${quantity > 1 ? ` x${quantity}` : ""}`;
         const uid = item.uid;
         if (uid !== undefined) {
@@ -666,8 +909,8 @@ export class UIManager {
     const detailEl = document.getElementById("recipe-detail");
     const feedbackEl = document.getElementById("recipe-feedback");
     const headerEl = document.getElementById("recipe-header");
-    const makeBtn = document.getElementById("recipe-make-btn") as HTMLButtonElement | null;
-    if (!body || !listEl || !detailEl || !feedbackEl || !headerEl || !makeBtn) return;
+    const makeBtn = document.getElementById("recipe-make-btn");
+    if (!body || !listEl || !detailEl || !feedbackEl || !headerEl || !(makeBtn instanceof HTMLButtonElement)) return;
 
     for (const listener of this._recipeClickListeners) {
       listener();
@@ -958,8 +1201,8 @@ export class UIManager {
   }
 
   private _bindRecipeMakeButton(): void {
-    const makeBtn = document.getElementById("recipe-make-btn") as HTMLButtonElement | null;
-    if (!makeBtn) return;
+    const makeBtn = document.getElementById("recipe-make-btn");
+    if (!(makeBtn instanceof HTMLButtonElement)) return;
 
     this._recipeMakeListener = () => {
       const list = this.uiState.recipeList;
@@ -968,5 +1211,82 @@ export class UIManager {
       this.callbacks.sendRecipeCommand(selected, list.stationEntityId);
     };
     makeBtn.addEventListener("click", this._recipeMakeListener);
+  }
+
+  private _renderSettings(): void {
+    const body = document.getElementById("settings-body");
+    if (!body) return;
+    body.innerHTML = "";
+
+    const settings = loadStoredSettings();
+
+    // NPC attack option setting.
+    const npcRow = document.createElement("div");
+    npcRow.classList.add("settings-row");
+    const npcLabel = document.createElement("div");
+    npcLabel.classList.add("settings-label");
+    npcLabel.textContent = "NPC Attack Option";
+    npcRow.appendChild(npcLabel);
+    const npcSelect = document.createElement("select");
+    npcSelect.classList.add("settings-select");
+    for (const opt of NPC_ATTACK_OPTIONS) {
+      const option = document.createElement("option");
+      option.value = opt.value;
+      option.textContent = opt.label;
+      if (opt.value === settings.npcAttack) option.selected = true;
+      npcSelect.appendChild(option);
+    }
+    npcRow.appendChild(npcSelect);
+    const npcHint = document.createElement("div");
+    npcHint.classList.add("settings-hint");
+    npcHint.textContent =
+      NPC_ATTACK_OPTIONS.find((o) => o.value === settings.npcAttack)?.hint ?? "";
+    npcRow.appendChild(npcHint);
+    npcSelect.addEventListener("change", () => {
+      const value = npcSelect.value as NpcAttackSetting;
+      const next = { ...loadStoredSettings(), npcAttack: value };
+      saveStoredSettings(next);
+      this.callbacks.setInputSettings({ npcAttack: value });
+      npcHint.textContent =
+        NPC_ATTACK_OPTIONS.find((o) => o.value === value)?.hint ?? "";
+    });
+    body.appendChild(npcRow);
+
+    // Mouse button mode setting.
+    const mouseRow = document.createElement("div");
+    mouseRow.classList.add("settings-row");
+    const mouseLabel = document.createElement("div");
+    mouseLabel.classList.add("settings-label");
+    mouseLabel.textContent = "Mouse Mode";
+    mouseRow.appendChild(mouseLabel);
+    const mouseSelect = document.createElement("select");
+    mouseSelect.classList.add("settings-select");
+    for (const opt of MOUSE_BUTTON_OPTIONS) {
+      const option = document.createElement("option");
+      option.value = opt.value;
+      option.textContent = opt.label;
+      if (opt.value === settings.mouseButtons) option.selected = true;
+      mouseSelect.appendChild(option);
+    }
+    mouseRow.appendChild(mouseSelect);
+    const mouseHint = document.createElement("div");
+    mouseHint.classList.add("settings-hint");
+    mouseHint.textContent =
+      MOUSE_BUTTON_OPTIONS.find((o) => o.value === settings.mouseButtons)?.hint ?? "";
+    mouseRow.appendChild(mouseHint);
+    mouseSelect.addEventListener("change", () => {
+      const value = mouseSelect.value as MouseButtonMode;
+      const next = { ...loadStoredSettings(), mouseButtons: value };
+      saveStoredSettings(next);
+      this.callbacks.setInputSettings({ mouseButtons: value });
+      mouseHint.textContent =
+        MOUSE_BUTTON_OPTIONS.find((o) => o.value === value)?.hint ?? "";
+    });
+    body.appendChild(mouseRow);
+  }
+
+  /** Load persisted input settings at construction time so the engine can apply them immediately. */
+  static loadInputSettings(): InputInterpreterSettings {
+    return loadStoredSettings();
   }
 }

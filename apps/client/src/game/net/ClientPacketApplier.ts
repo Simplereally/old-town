@@ -14,6 +14,7 @@ import {
   type XpDropPacket,
 } from "@old-town/shared";
 import type { ClientWorldStore, WorldEntity } from "./ClientWorldStore";
+import type { DebugEvent, PresentationEvent } from "./presentation-events";
 import type { RenderEvent, RenderSnapshot, SnapshotBuffer } from "./SnapshotBuffer";
 
 export interface IUIState {
@@ -31,6 +32,7 @@ export interface IUIState {
   setSkills(skills: readonly SkillDelta[]): void;
   setVars(vars: readonly VarbitDelta[]): void;
   setEquipment(slots: readonly (string | null)[]): void;
+  setCombatStyle(style: string | undefined): void;
   applyInventoryDelta(delta: InventoryDelta): void;
   applySkillDelta(delta: readonly SkillDelta[]): void;
   applyVarbitDelta(delta: readonly VarbitDelta[]): void;
@@ -52,17 +54,14 @@ export interface IUIState {
   setDeathScreen(active: boolean): void;
   setStatusEffects(effects: readonly StatusEffectUpdate[]): void;
   setContract(contract: import("@old-town/shared").ContractCompletePacket): void;
+  setActiveContract(contract: import("@old-town/shared").ContractProgressPacket): void;
+  setContractBoard(board: import("@old-town/shared").ContractBoardPacket): void;
   addNotification(notification: {
     id: string;
     text: string;
     type: "success" | "failure" | "info";
     createdAt: number;
   }): void;
-}
-
-export interface PresentationEvent {
-  readonly type: string;
-  readonly payload: unknown;
 }
 
 export interface PurePacketApplierContext {
@@ -79,7 +78,7 @@ export interface PurePacketApplierResult {
   readonly selfEntityId: number;
   readonly rejectedMoves: readonly { tile: TileCoord; tick: number }[];
   readonly presentationEvents: readonly PresentationEvent[];
-  readonly debugEvents: readonly PresentationEvent[];
+  readonly debugEvents: readonly DebugEvent[];
   readonly snapshot: RenderSnapshot;
 }
 
@@ -121,7 +120,7 @@ export class ClientPacketApplier {
     const ctx = this.ctx;
     const store = ctx.store;
     const presentationEvents: PresentationEvent[] = [];
-    const debugEvents: PresentationEvent[] = [];
+    const debugEvents: DebugEvent[] = [];
 
     store.clear();
     ctx.snapshotBuffer.reset({
@@ -171,6 +170,7 @@ export class ClientPacketApplier {
     if (packet.skills) {
       ctx.uiState.setSkills(packet.skills);
     }
+    ctx.uiState.setCombatStyle(packet.combatStyle);
     if (packet.vars) {
       ctx.uiState.setVars(packet.vars);
     }
@@ -208,7 +208,7 @@ export class ClientPacketApplier {
     }
 
     const presentationEvents: PresentationEvent[] = [];
-    const debugEvents: PresentationEvent[] = [];
+    const debugEvents: DebugEvent[] = [];
 
     // Region unloads
     if (packet.regionUnloads) {
@@ -311,8 +311,43 @@ export class ClientPacketApplier {
           },
         });
       }
-      if (changes.equipment && entityId === store.selfEntityId) {
-        ctx.uiState.setEquipment(changes.equipment.slots);
+      if (changes.equipment) {
+        if (entityId === store.selfEntityId) {
+          ctx.uiState.setEquipment(changes.equipment.slots);
+        }
+        const weaponItemId = changes.equipment.slots[3] ?? null;
+        presentationEvents.push({
+          type: "actors.setWeaponModel",
+          payload: { entityId, weaponItemId },
+        });
+        // Armour slots: head(0), body(4), legs(6), feet(8), hands(7), shield(5)
+        const armourSlots: Array<{ slot: string; index: number }> = [
+          { slot: "head", index: 0 },
+          { slot: "body", index: 4 },
+          { slot: "legs", index: 6 },
+          { slot: "feet", index: 8 },
+          { slot: "hands", index: 7 },
+          { slot: "shield", index: 5 },
+        ];
+        for (const { slot, index } of armourSlots) {
+          const itemId = changes.equipment.slots[index] ?? null;
+          presentationEvents.push({
+            type: "actors.setArmourModel",
+            payload: { entityId, slot, itemId },
+          });
+        }
+        // Accessory slots: cape(1), neck/amulet(2)
+        const accessorySlots: Array<{ slot: string; index: number }> = [
+          { slot: "cape", index: 1 },
+          { slot: "amulet", index: 2 },
+        ];
+        for (const { slot, index } of accessorySlots) {
+          const itemId = changes.equipment.slots[index] ?? null;
+          presentationEvents.push({
+            type: "actors.setAccessoryModel",
+            payload: { entityId, slot, itemId },
+          });
+        }
       }
       if (changes.appearance) {
         if (entity) {
@@ -382,6 +417,12 @@ export class ClientPacketApplier {
       }
       if (changes.graphic) {
         ctx.logDebug(`Graphic play: ${changes.graphic.id}`);
+      }
+      if (changes.doorState) {
+        presentationEvents.push({
+          type: "objects.updateDoorState",
+          payload: { entityId, isOpen: changes.doorState.isOpen },
+        });
       }
     }
 
@@ -575,6 +616,20 @@ export class ClientPacketApplier {
       }
     }
 
+    if (packet.contractProgress) {
+      for (const progress of packet.contractProgress) {
+        ctx.uiState.setActiveContract(progress);
+      }
+    }
+
+    if (packet.interfaceOpens) {
+      for (const open of packet.interfaceOpens) {
+        if (open.contractBoard) {
+          ctx.uiState.setContractBoard(open.contractBoard);
+        }
+      }
+    }
+
     const rejectedMoves = this._applyDebugData(packet.debug, currentTick, debugEvents);
 
     const snapshot = this._buildSnapshot(
@@ -713,7 +768,7 @@ export class ClientPacketApplier {
   private _applyDebugData(
     debugData: TickDeltaPacket["debug"],
     currentTick: number,
-    events: PresentationEvent[],
+    events: DebugEvent[],
   ): { tile: TileCoord; tick: number }[] {
     const rejected: { tile: TileCoord; tick: number }[] = [];
     const ctx = this.ctx;
@@ -791,7 +846,7 @@ export class ClientPacketApplier {
     if (debugData?.actionQueue) {
       events.push({
         type: "debug.setActionQueue",
-        payload: { queue: debugData.actionQueue as string[] },
+        payload: { queue: debugData.actionQueue },
       });
     }
     if (debugData?.combatCooldown !== undefined) {
@@ -852,8 +907,8 @@ export class ClientPacketApplier {
   private _buildSnapshot(
     tick: number,
     serverTime: number,
-    presentationEvents: PresentationEvent[],
-    debugEvents: PresentationEvent[],
+    presentationEvents: readonly PresentationEvent[],
+    debugEvents: readonly DebugEvent[],
     regionLoads: readonly import("@old-town/shared").RegionLoadPacket[] = [],
     regionUnloads: readonly import("@old-town/shared").RegionUnloadPacket[] = [],
   ): RenderSnapshot {

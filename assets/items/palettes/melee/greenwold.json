@@ -1,0 +1,14 @@
+{
+  "ladder": "melee",
+  "tier": "greenwold",
+  "tierOrder": 6,
+  "regions": {
+    "blade": "#4f7a3a",
+    "head": "#4f7a3a",
+    "grip": "#6b4a2b",
+    "accent": "#8ad0c0",
+    "trim": "#2f5d2e",
+    "metal": "#4f7a3a",
+    "straps": "#6b4a2b"
+  }
+}

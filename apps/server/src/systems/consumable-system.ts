@@ -17,11 +17,10 @@
  *
  * Heals are clamped to `maxHealth`; food cannot overheal (no content field opts into it yet).
  */
-import type { EntityId } from "@old-town/shared";
-import type { ContentRegistries } from "@old-town/shared";
+import type { ContentRegistries, EntityId } from "@old-town/shared";
 import type { World } from "../ecs/world";
-import { boostSkill, restoreSkill } from "../skills/skill-state";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
+import { boostSkill, restoreSkill } from "../skills/skill-state";
 import { applyStatusEffect, cureStatusEffect } from "./status-system";
 
 export interface ConsumableContext {

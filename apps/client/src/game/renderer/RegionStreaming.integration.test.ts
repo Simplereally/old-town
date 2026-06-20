@@ -98,6 +98,7 @@ function createMockUIState(): IUIState {
     setSkills: vi.fn(),
     setVars: vi.fn(),
     setEquipment: vi.fn(),
+    setCombatStyle: vi.fn(),
     applyInventoryDelta: vi.fn(),
     applySkillDelta: vi.fn(),
     applyVarbitDelta: vi.fn(),
@@ -120,6 +121,8 @@ function createMockUIState(): IUIState {
     setDeathScreen: vi.fn(),
     setStatusEffects: vi.fn(),
     setContract: vi.fn(),
+    setActiveContract: vi.fn(),
+    setContractBoard: vi.fn(),
     addNotification: vi.fn(),
   };
 }
@@ -279,17 +282,13 @@ describe("RegionStreaming integration", () => {
 
     const regionLoads = result.presentationEvents.filter((e) => e.type === "region.load");
     const regionUnloads = result.presentationEvents.filter((e) => e.type === "region.unload");
-    const terrainEvents = result.presentationEvents.filter(
-      (e) => e.type === "terrain.loadChunk" || e.type === "terrain.unloadRegion",
-    );
 
     expect(regionLoads.length).toBe(1);
     expect(regionUnloads.length).toBe(0);
-    expect(terrainEvents.length).toBe(0);
 
-    const payload = regionLoads[0]?.payload as { regionId: string; chunks: ChunkData[] };
-    expect(payload.regionId).toBe("0:0:0");
-    expect(payload.chunks).toHaveLength(2);
+    const payload = regionLoads[0]?.payload;
+    expect(payload?.regionId).toBe("0:0:0");
+    expect(payload?.chunks).toHaveLength(2);
   });
 
   it("tick delta packet applier emits region.unload before region.load", () => {
