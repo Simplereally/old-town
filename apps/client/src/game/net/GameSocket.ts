@@ -3,13 +3,13 @@ import {
   ClientCommandType,
   type FullStatePacket,
   isCompatibleProtocol,
-  parseTransportServerPacket,
   PROTOCOL_VERSION,
   ServerPacketType,
   type TickDeltaPacket,
   TransportClientMessageType,
   TransportServerMessageType,
 } from "@old-town/shared";
+import { discriminateTransportServerPacket } from "./serverPacketDiscriminator";
 
 export interface GameSocketOptions {
   readonly protocolVersion?: number | undefined;
@@ -133,7 +133,7 @@ export class GameSocket {
           return;
         }
 
-        const result = parseTransportServerPacket(raw);
+        const result = discriminateTransportServerPacket(raw);
         if (!result.ok) {
           fail(new Error(`Invalid bootstrap packet: ${result.error}`));
           socket.close();
@@ -180,7 +180,7 @@ export class GameSocket {
       return;
     }
 
-    const result = parseTransportServerPacket(raw);
+    const result = discriminateTransportServerPacket(raw);
     if (!result.ok) {
       console.error("Invalid server packet:", result.error);
       return;

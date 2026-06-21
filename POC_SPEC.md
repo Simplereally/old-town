@@ -851,7 +851,7 @@ mage = 0.325 * (floor(magic / 2) + magic)
 combatLevel = floor(base + max(melee, range, mage))
 ```
 
-This formula is documented by OSRS Wiki mirrors/community calculators. ([Old School RuneScape Wiki][16])
+This formula is documented by the OSRS Wiki (Combat level §Mathematics): `Base = 1/4 * (Defence + Hitpoints + floor(Prayer * 1/2))`, `Melee = 13/40 * (Attack + Strength)`, `Range = 13/40 * floor(Ranged * 3/2)`, `Mage = 13/40 * floor(Magic * 3/2)`, `Final = floor(Base + max(Melee, Range, Mage))`. ([OSRS Wiki: Combat level][combat-level-wiki], [Old School RuneScape Wiki][16])
 
 For Old Town, consider:
 
@@ -886,6 +886,22 @@ else:
 
 This gives an OSRS-like curve.
 
+#### 13.4.1 Magic defence roll
+
+The effective defence level against magic attacks is **not** the raw Defence level. The OSRS wiki (Combat §Defensive skills › Player magic defence) documents the split:
+
+* **Players:** magic defence is 70% Magic + 30% Defence.
+* **Monsters:** magic defence is Magic level only — the Defence skill does not contribute. ([OSRS Wiki: Combat][combat-wiki])
+
+```ts
+// Player target
+effectiveMagicDefence = floor(0.7 * magicLevel + 0.3 * defenceLevel)
+// Monster target
+effectiveMagicDefence = magicLevel
+```
+
+The defence bonus field is always `magicDefence` (equipment + npcDef bonuses).
+
 ### 13.5 Damage
 
 For POC:
@@ -898,6 +914,58 @@ else:
 ```
 
 Yes, allow successful hits to roll 0 unless you intentionally want modern readability. OSRS historically allows zero-damage hits as part of its feel.
+
+#### 13.5.1 Max hit per style
+
+OSRS wiki (Combat §Combat skills › Damage calculating) documents the three damage sources. Formulas follow the OSRS `E * (B + 64) / N` shape:
+
+```ts
+// Melee: Strength level + meleeStrength bonus
+maxMeleeHit = floor(0.5 + effectiveLevel(strength) * (meleeStrength + 64) / 640)
+
+// Ranged: Ranged level + rangedStrength bonus (weapon + ammo)
+maxRangedHit = floor(0.5 + effectiveLevel(ranged) * (rangedStrength + 64) / 640)
+
+// Magic: spell base maxHit + magicDamage bonus (percent, /10)
+maxMagicHit = spellMaxHit + floor(max(0, magicDamage) / 10)
+```
+
+Magic damage is typically spell-driven (not Magic level), except powered staves/salamanders (out of POC scope). ([OSRS Wiki: Combat][combat-wiki])
+
+### 13.5.2 Experience gain
+
+OSRS wiki (Combat §Experience gain) documents the per-damage XP rates and defensive-style splits. These are the authoritative values for Old Town:
+
+```ts
+// Base XP per damage dealt
+meleeStyleXp  = 4   // Attack, Strength, or Defence depending on style mode
+rangedStyleXp = 4   // Ranged (or split for longrange)
+magicStyleXp  = 2   // Magic (or split for defensive casting)
+hitpointsXp   = 1.33 // always, per damage dealt
+```
+
+Defensive style splits (wiki §Experience gain):
+
+```ts
+// Longrange (ranged): 2 Ranged + 2 Defence per damage
+// Magic defensive:    1.33 Magic + 1 Defence per damage, plus casting XP
+// Controlled melee    1.33 Attack + 1.33 Strength + 1.33 Defence per damage
+//   (whip/spear-style shared weapons)
+```
+
+Magic spells also grant casting XP on cast (even on splash); defensive casting and longrange add Defence XP. PvM/PvP bonus XP multipliers are out of POC scope. ([OSRS Wiki: Combat][combat-wiki])
+
+#### 13.5.2.1 XP accumulation and storage
+
+OSRS accumulates combat XP as a **fractional** running total; it does not floor per award. A 3-damage melee hit grants `3 * 1.33 = 3.99` Hitpoints XP, stored as `3.99` and carried forward. ([OSRS Wiki: Combat §Experience gain][combat-wiki]; confirmed by the OSRS max-hit/damage formulae which floor only the final displayed max hit, not intermediate XP — [OSRS Wiki: Maximum melee hit][max-melee], [Maximum ranged hit][max-ranged])
+
+Old Town mirrors this:
+
+* `skill.xp` is a **non-negative finite number** (may be fractional). The `character_skills.xp` column is `numeric(20, 4)`, and `characterSkillSnapshotSchema.xp` is `nonNegNumber` (finite, nonnegative — not `nonNegInt`).
+* `skill.level` is always an **integer**, derived via `levelForXp(xp)` which compares `xp >= XP_TABLE[level]`. Fractional XP never produces a fractional level.
+* `skill.boost` and `skill.drain` are integers.
+
+The integer-world invariant (§25) applies to tiles, planes, ticks, IDs, and masks — not to the cumulative XP counter, which is a derived progression value like the float renderer positions it explicitly exempts.
 
 ### 13.6 Delayed hits
 
@@ -2186,4 +2254,8 @@ client interpolation
 [19]: https://oldschoolrunescape.fandom.com/wiki/Experience?utm_source=chatgpt.com "Experience - Old School RuneScape Wiki - Fandom"
 [20]: https://rune-server.org/threads/level-exp-formula.90065/?utm_source=chatgpt.com "Level EXP Formula"
 [21]: https://oldschoolrunescape.fandom.com/wiki/Teleportation_spells?utm_source=chatgpt.com "Teleportation spells - Old School RuneScape Wiki - Fandom"
+[combat-wiki]: https://oldschool.runescape.wiki/w/Combat "Combat - OSRS Wiki"
+[max-melee]: https://oldschool.runescape.wiki/w/Maximum_melee_hit "Maximum melee hit - OSRS Wiki"
+[max-ranged]: https://oldschool.runescape.wiki/w/Maximum_ranged_hit "Maximum ranged hit - OSRS Wiki"
+[combat-level-wiki]: https://oldschool.runescape.wiki/w/Combat_level "Combat level - OSRS Wiki"
 [22]: https://en.wikipedia.org/wiki/RuneScape?utm_source=chatgpt.com "RuneScape"

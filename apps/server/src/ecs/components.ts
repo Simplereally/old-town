@@ -5,6 +5,7 @@
 import type {
   CombatBonuses,
   CombatStyle,
+  CombatStyleMode,
   Direction,
   EntityId,
   EquipmentSlotName,
@@ -149,6 +150,8 @@ export interface PendingHit {
   targetId: EntityId;
   applyTick: number;
   style: CombatHitStyle;
+  /** XP distribution mode captured at attack time (POC_SPEC §13.5.2). */
+  styleMode?: CombatStyleMode;
   attackRoll: number;
   defenceRoll: number;
   hitChance: number;
@@ -179,6 +182,10 @@ export interface CombatantComponent {
   /** Player-chosen melee attack style. Clamped to the equipped weapon's allowed styles
    *  during combat resolution; absent means "use the weapon's default style". */
   combatStyle?: CombatHitStyle;
+  /** Player-chosen combat style mode (POC_SPEC §13.5.2). Controls XP distribution
+   *  across skills. Absent means "use the style's default mode" (accurate for stab,
+   *  aggressive for slash, defensive for crush, accurate for ranged/magic). */
+  combatStyleMode?: CombatStyleMode;
 }
 
 /** Resource node (tree, rock, fishing spot). */
@@ -347,6 +354,22 @@ export interface PublicWorkContributor {
   playerId: EntityId;
   itemId: string;
   quantity: number;
+}
+
+/**
+ * Prayer state (POC_SPEC §13.8, §17.1). Prayer points max = Prayer skill level.
+ * `drainCounter` accumulates per-tick drain effect sums; when it reaches the
+ * drain resistance (2 × prayerBonus + 60), one point is lost and the counter
+ * is decremented by the resistance. `activePrayers` holds currently-active
+ * prayer content ids.
+ */
+export interface PrayerComponent {
+  entityId: EntityId;
+  points: number;
+  /** Fractional drain accumulator (integer-valued at runtime). */
+  drainCounter: number;
+  /** Currently active prayer content ids. */
+  activePrayers: string[];
 }
 
 /** A collective community building project. */

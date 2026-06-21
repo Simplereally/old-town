@@ -577,9 +577,9 @@ export class GameEngine {
         this._hoverHighlighter.setTargetEntityId(entity.entityId);
       }
       if (tooltip) {
-        const name = this._inputInterpreter.getEntityName(entity);
-        if (name) {
-          tooltip.textContent = name;
+        const label = this._inputInterpreter.getDefaultActionLabel(entity, this._getMenuResolveState());
+        if (label) {
+          tooltip.textContent = label;
           tooltip.style.left = `${event.clientX + 12}px`;
           tooltip.style.top = `${event.clientY + 12}px`;
           tooltip.classList.remove("hidden");
@@ -901,7 +901,12 @@ export class GameEngine {
         position = new Vector3();
         this._actorPositions.set(p.entityId, position);
       }
-      position.set(p.renderX, p.renderY, p.renderZ);
+      const actorState = this.actors.getActorState(p.entityId);
+      if (actorState) {
+        position.copy(actorState.visualPosition);
+      } else {
+        position.set(p.renderX, p.renderY, p.renderZ);
+      }
       this._seenActorPositionIds.add(p.entityId);
     });
     for (const entityId of this._actorPositions.keys()) {

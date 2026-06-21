@@ -22,6 +22,10 @@ export const equipmentDefSchema = z
     attackSpeedTicks: positiveInt.optional(),
     attackRangeTiles: nonNegInt.optional(),
     allowedStyles: z.array(combatStyleSchema).optional(),
+    /** Ranged weapons: projectile visual id for the wire-level projectile packet. */
+    projectileId: contentIdSchema.optional(),
+    /** Ranged weapons: ticks between firing and damage application (projectile travel). */
+    hitDelayTicks: positiveInt.optional(),
   })
   .strict();
 
@@ -36,7 +40,7 @@ export const consumableDefSchema = z
     consumeTicks: positiveInt.default(1),
     /** Expanded effect types (E19-S01). */
     effectType: z
-      .enum(["heal", "restore", "boost", "cure", "apply_status", "remove_status"])
+      .enum(["heal", "restore", "boost", "cure", "apply_status", "remove_status", "restore_prayer"])
       .optional(),
     effectValue: nonNegInt.optional(),
     durationTicks: nonNegInt.optional(),

@@ -17,7 +17,20 @@ export interface MoveIntentOptions {
   readonly mode?: MovementMode;
   readonly footprint?: Footprint;
   readonly tick?: number;
+  /**
+   * Cap on tiles explored by the path search. Bounds the (otherwise region-wide)
+   * cost of searching toward an unreachable destination — important for casual
+   * movement like NPC wander, where the exact target tile may not be reachable.
+   */
+  readonly maxVisited?: number;
 }
+
+/**
+ * Tile-exploration cap for the in-phase re-path. The re-path only needs to resume
+ * progress from the current tile (or discover there is none), so it must never run an
+ * exhaustive region-wide search every tick toward an unreachable destination.
+ */
+const REPATH_MAX_VISITED = 2048;
 
 export type MoveIntentFailure = "missing_position" | "blocked";
 
@@ -105,25 +118,24 @@ export function handleMoveIntent(
   ) {
     context.deltas.markEntityUpdate(entityId, {
       moveSpeed: "stationary",
-      overheadText: "Bound",
     });
     context.deltas.markDebugPath(entityId, []);
     return { accepted: false, pathLength: 0, reached: false, reason: "blocked" };
   }
 
   const mode = options.mode ?? movement?.mode ?? "walk";
-  const result = findPath(
-    context.collision,
-    positionTile(position),
-    intent.dest,
-    options.footprint ? { footprint: options.footprint } : {},
-  );
+  const result = findPath(context.collision, positionTile(position), intent.dest, {
+    ...(options.footprint ? { footprint: options.footprint } : {}),
+    ...(options.maxVisited !== undefined ? { maxVisited: options.maxVisited } : {}),
+  });
 
   context.world.setComponent(entityId, "movement", {
     entityId,
     mode,
     path: result.path,
-    ...(result.path.length > 0 ? { destination: result.destination } : {}),
+    // Store the original intent destination (not the capped path end) so
+    // re-pathing after a capped/blocked path targets the correct tile.
+    destination: intent.dest,
     ...(movement?.lastStepDirection !== undefined
       ? { lastStepDirection: movement.lastStepDirection }
       : {}),
@@ -140,7 +152,14 @@ export function processMovementPhase(
   for (const entityId of sortedMovementEntityIds(context.world)) {
     const movement = context.world.getComponent(entityId, "movement");
     const position = context.world.getComponent(entityId, "position");
-    if (!movement || !position || movement.path.length === 0) {
+    if (!movement || !position) {
+      continue;
+    }
+    if (
+      movement.path.length === 0 &&
+      (movement.destination === undefined ||
+        (movement.blockedUntilTick !== undefined && tick < movement.blockedUntilTick))
+    ) {
       continue;
     }
     if (movement.blockedUntilTick !== undefined && tick < movement.blockedUntilTick) {
@@ -148,6 +167,7 @@ export function processMovementPhase(
         entityId,
         mode: movement.mode,
         path: [],
+        ...(movement.destination !== undefined ? { destination: movement.destination } : {}),
         ...(movement.lastStepDirection !== undefined
           ? { lastStepDirection: movement.lastStepDirection }
           : {}),
@@ -155,6 +175,53 @@ export function processMovementPhase(
       });
       context.deltas.markDebugPath(entityId, []);
       continue;
+    }
+
+    // Re-path when a previous block has expired but we still have a destination.
+    // Dynamic obstacles (e.g. NPCs) may have moved since the block, opening a route.
+    if (
+      movement.path.length === 0 &&
+      movement.destination !== undefined &&
+      (movement.blockedUntilTick === undefined || tick >= movement.blockedUntilTick)
+    ) {
+      const entityFootprint = resolveFootprint(footprint, entityId);
+      const result = findPath(context.collision, positionTile(position), movement.destination, {
+        footprint: entityFootprint,
+        maxVisited: REPATH_MAX_VISITED,
+      });
+      if (result.path.length > 0) {
+        context.world.setComponent(entityId, "movement", {
+          entityId,
+          mode: movement.mode,
+          path: result.path,
+          // Preserve the original destination, not the capped path end, so a path
+          // capped at maxPathLength can re-extend toward a far destination next tick.
+          destination: movement.destination,
+          ...(movement.lastStepDirection !== undefined
+            ? { lastStepDirection: movement.lastStepDirection }
+            : {}),
+        });
+      } else {
+        // No forward path exists from here. Either we are already standing on the
+        // destination (arrived), or it is unreachable (e.g. the interaction target
+        // tile itself is blocked and we can only stand adjacent to it). In both cases
+        // the move is over: CLEAR the destination so we do not re-run an often
+        // exhaustive A* search every single tick forever. Leaving it set was the
+        // cause of (a) entities freezing in place via a self-renewing blockedUntilTick
+        // and (b) dozens of failing searches per tick (one per idle NPC/player)
+        // saturating the tick loop. Interaction systems (combat, objects, banking)
+        // re-issue their own move intents when they still need the entity to close in.
+        context.world.setComponent(entityId, "movement", {
+          entityId,
+          mode: movement.mode,
+          path: [],
+          ...(movement.lastStepDirection !== undefined
+            ? { lastStepDirection: movement.lastStepDirection }
+            : {}),
+        });
+        context.deltas.markDebugPath(entityId, []);
+        continue;
+      }
     }
 
     let current = positionTile(position);
@@ -177,6 +244,7 @@ export function processMovementPhase(
           entityId,
           mode: movement.mode,
           path: [],
+          ...(movement.destination !== undefined ? { destination: movement.destination } : {}),
           ...(lastStepDirection !== undefined ? { lastStepDirection } : {}),
           blockedUntilTick: tick + 1,
         });
@@ -214,7 +282,8 @@ export function processMovementPhase(
       entityId,
       mode: movement.mode,
       path: remainingPath,
-      ...(remainingPath.length > 0 ? { destination: remainingPath[remainingPath.length - 1] } : {}),
+      // Preserve the original destination for re-pathing when the path is consumed.
+      ...(movement.destination !== undefined ? { destination: movement.destination } : {}),
       ...(lastStepDirection !== undefined ? { lastStepDirection } : {}),
     });
     context.deltas.markEntityUpdate(entityId, {

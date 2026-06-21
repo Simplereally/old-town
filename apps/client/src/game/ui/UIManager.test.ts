@@ -5,6 +5,33 @@ import { IconAtlas } from "./IconAtlas";
 import { UIManager, type UIManagerCallbacks } from "./UIManager";
 import { UIState } from "./UIState";
 
+/** Clear localStorage in jsdom envs that lack Storage.prototype.clear. */
+function clearLocalStorage(): void {
+  localStorage.clear();
+}
+
+// jsdom in some Bun versions provides a localStorage object whose
+// getItem/setItem/removeItem/clear are undefined. Install a minimal in-memory
+// Storage shim so UIManager's persistence tests can run.
+if (
+  typeof localStorage !== "undefined" &&
+  (typeof localStorage.getItem !== "function" ||
+    typeof localStorage.setItem !== "function" ||
+    typeof localStorage.removeItem !== "function" ||
+    typeof localStorage.clear !== "function")
+) {
+  const store = new Map<string, string>();
+  const shim = {
+    getItem: (key: string) => store.get(key) ?? null,
+    setItem: (key: string, value: string) => { store.set(key, String(value)); },
+    removeItem: (key: string) => { store.delete(key); },
+    clear: () => { store.clear(); },
+    key: (index: number) => Array.from(store.keys())[index] ?? null,
+    get length() { return store.size; },
+  };
+  Object.defineProperty(globalThis, "localStorage", { value: shim, configurable: true, writable: true });
+}
+
 function mockCanvas(): void {
   const mockCtx = {
     fillRect: vi.fn(),
@@ -109,6 +136,16 @@ function setupTestEnv(): void {
     <div id="status-effects-panel" class="hidden"></div>
     <div id="death-screen" class="hidden"></div>
     <div id="notification-toast" class="hidden"></div>
+    <div id="skill-tooltip" class="hidden"></div>
+    <div id="sidebar-placeholder" class="hidden"><h2 id="sidebar-placeholder-title"></h2></div>
+    <button type="button" class="sb-tab" data-tab="inventory" data-page="inventory-panel"></button>
+    <button type="button" class="sb-tab" data-tab="equipment" data-page="equipment-panel"></button>
+    <button type="button" class="sb-tab" data-tab="combat" data-page="combat-panel"></button>
+    <button type="button" class="sb-tab" data-tab="skills" data-page="skills-panel"></button>
+    <button type="button" class="sb-tab" data-tab="magic" data-page="spellbook-panel"></button>
+    <button type="button" class="sb-tab" data-tab="quests" data-page="quest-panel"></button>
+    <button type="button" class="sb-tab" data-tab="settings" data-page="settings-panel"></button>
+    <button type="button" class="sb-tab" data-tab="prayer"></button>
   `;
 }
 
@@ -137,15 +174,13 @@ describe("UIManager", () => {
     manager = new UIManager(uiState, content, callbacks);
   });
 
-  it("toggles panel visibility on bar button click", () => {
-    const btn = document.querySelector("[data-panel='inventory-panel']");
-    const panel = document.getElementById("inventory-panel");
+  it("shows panel on sidebar tab click", () => {
+    const btn = document.querySelector(".sb-tab[data-tab='equipment']");
+    const panel = document.getElementById("equipment-panel");
     if (!(btn instanceof HTMLButtonElement) || !(panel instanceof HTMLDivElement)) throw new Error("Missing elements");
     expect(panel.classList.contains("hidden")).toBe(true);
     btn.click();
     expect(panel.classList.contains("hidden")).toBe(false);
-    btn.click();
-    expect(panel.classList.contains("hidden")).toBe(true);
   });
 
   it("renders weapon attack styles and selecting one sends the command optimistically", () => {
@@ -195,10 +230,10 @@ describe("UIManager", () => {
   });
 
   it("toggles panel visibility on keyboard shortcut", () => {
-    const panel = document.getElementById("inventory-panel");
+    const panel = document.getElementById("equipment-panel");
     if (!(panel instanceof HTMLDivElement)) throw new Error("Expected HTMLDivElement");
     expect(panel.classList.contains("hidden")).toBe(true);
-    const event = new KeyboardEvent("keydown", { key: "i" });
+    const event = new KeyboardEvent("keydown", { key: "e" });
     document.dispatchEvent(event);
     expect(panel.classList.contains("hidden")).toBe(false);
   });
@@ -233,10 +268,10 @@ describe("UIManager", () => {
 
   it("does not intercept keyboard shortcuts when input is focused", () => {
     const input = document.getElementById("chat-input");
-    const panel = document.getElementById("inventory-panel");
+    const panel = document.getElementById("equipment-panel");
     if (!(input instanceof HTMLInputElement) || !(panel instanceof HTMLDivElement)) throw new Error("Missing elements");
     expect(panel.classList.contains("hidden")).toBe(true);
-    const event = new KeyboardEvent("keydown", { key: "i" });
+    const event = new KeyboardEvent("keydown", { key: "e" });
     Object.defineProperty(event, "target", { value: input, writable: false });
     document.dispatchEvent(event);
     expect(panel.classList.contains("hidden")).toBe(true);
@@ -595,6 +630,130 @@ describe("UIManager", () => {
     expect(panel.classList.contains("hidden")).toBe(false);
   });
 
+  describe("skills panel hover tooltip (OSRS-style progress)", () => {
+    function makeSkill(id: string, name: string): {
+      id: string;
+      name: string;
+      maxLevel: number;
+      xpTableId: "oldtown_default";
+      combat: boolean;
+      unlocks: never[];
+    } {
+      return { id, name, maxLevel: 99, xpTableId: "oldtown_default", combat: false, unlocks: [] };
+    }
+
+    it("shows current xp, next-level xp, and xp-to-next on hover", () => {
+      const cooking = makeSkill("cooking", "Cooking");
+      content.getSkill = vi.fn((id: string) => (id === "cooking" ? cooking : undefined));
+      content.getAllSkills = vi.fn(() => [cooking]);
+      // 1154 xp = exactly level 10; next level (11) at 1358 → 204 to next.
+      uiState.setSkills([
+        { skillId: "cooking", level: 10, xp: 1154, effectiveLevel: 10 },
+      ]);
+      manager.togglePanel("skills-panel");
+
+      const tile = document.querySelector<HTMLDivElement>(".skill-tile");
+      expect(tile).toBeDefined();
+      expect(tile?.title).toContain("Cooking");
+      expect(tile?.title).toContain("XP 1,154");
+      expect(tile?.title).toContain("Next at 1,358");
+      expect(tile?.title).toContain("204 to next");
+
+      tile?.dispatchEvent(new MouseEvent("mouseenter", { clientX: 100, clientY: 100 }));
+      const tooltip = document.getElementById("skill-tooltip");
+      expect(tooltip?.classList.contains("hidden")).toBe(false);
+      expect(tooltip?.textContent).toContain("Cooking");
+      expect(tooltip?.textContent).toContain("Level: 10/10");
+      expect(tooltip?.textContent).toContain("XP: 1,154");
+      expect(tooltip?.textContent).toContain("Next Level At: 1,358");
+      expect(tooltip?.textContent).toContain("XP to next: 204");
+    });
+
+    it("shows Max and no xp-to-next at level 99", () => {
+      const attack = makeSkill("attack", "Attack");
+      content.getSkill = vi.fn((id: string) => (id === "attack" ? attack : undefined));
+      content.getAllSkills = vi.fn(() => [attack]);
+      uiState.setSkills([
+        { skillId: "attack", level: 99, xp: 13_034_431, effectiveLevel: 99 },
+      ]);
+      manager.togglePanel("skills-panel");
+
+      const tile = document.querySelector<HTMLDivElement>(".skill-tile");
+      expect(tile?.title).toContain("Max");
+      expect(tile?.title).not.toContain("to next");
+
+      tile?.dispatchEvent(new MouseEvent("mouseenter", { clientX: 50, clientY: 50 }));
+      const tooltip = document.getElementById("skill-tooltip");
+      expect(tooltip?.textContent).toContain("Next Level At: Max");
+      expect(tooltip?.textContent).not.toContain("XP to next");
+    });
+
+    it("hides the tooltip on mouseleave and when the panel is closed", () => {
+      const cooking = makeSkill("cooking", "Cooking");
+      content.getSkill = vi.fn((id: string) => (id === "cooking" ? cooking : undefined));
+      content.getAllSkills = vi.fn(() => [cooking]);
+      uiState.setSkills([{ skillId: "cooking", level: 1, xp: 0, effectiveLevel: 1 }]);
+      manager.togglePanel("skills-panel");
+
+      const tile = document.querySelector<HTMLDivElement>(".skill-tile");
+      tile?.dispatchEvent(new MouseEvent("mouseenter", { clientX: 10, clientY: 10 }));
+      expect(document.getElementById("skill-tooltip")?.classList.contains("hidden")).toBe(false);
+
+      tile?.dispatchEvent(new MouseEvent("mouseleave"));
+      expect(document.getElementById("skill-tooltip")?.classList.contains("hidden")).toBe(true);
+
+      // Reopen + re-show, then close the panel → tooltip hides.
+      tile?.dispatchEvent(new MouseEvent("mouseenter", { clientX: 10, clientY: 10 }));
+      expect(document.getElementById("skill-tooltip")?.classList.contains("hidden")).toBe(false);
+      manager.togglePanel("skills-panel"); // visible → hidden
+      expect(document.getElementById("skill-tooltip")?.classList.contains("hidden")).toBe(true);
+    });
+
+    it("updates the tooltip in real time when XP changes while hovered", () => {
+      const cooking = makeSkill("cooking", "Cooking");
+      content.getSkill = vi.fn((id: string) => (id === "cooking" ? cooking : undefined));
+      content.getAllSkills = vi.fn(() => [cooking]);
+      uiState.setSkills([
+        { skillId: "cooking", level: 10, xp: 1154, effectiveLevel: 10 },
+      ]);
+      manager.togglePanel("skills-panel");
+
+      const tile = document.querySelector<HTMLDivElement>(".skill-tile");
+      tile?.dispatchEvent(new MouseEvent("mouseenter", { clientX: 100, clientY: 100 }));
+      const tooltip = document.getElementById("skill-tooltip");
+      expect(tooltip?.textContent).toContain("XP: 1,154");
+      expect(tooltip?.textContent).toContain("XP to next: 204");
+
+      // Simulate an XP drop arriving: 200 XP gained → 1354 total, 4 to next.
+      uiState.applySkillDelta([
+        { skillId: "cooking", level: 10, xp: 1354, effectiveLevel: 10 },
+      ]);
+
+      // Tooltip should now reflect the new XP without re-hovering.
+      expect(tooltip?.textContent).toContain("XP: 1,354");
+      expect(tooltip?.textContent).toContain("XP to next: 4");
+      expect(tooltip?.classList.contains("hidden")).toBe(false);
+    });
+
+    it("hides the tooltip when switching to a different sidebar tab", () => {
+      const cooking = makeSkill("cooking", "Cooking");
+      content.getSkill = vi.fn((id: string) => (id === "cooking" ? cooking : undefined));
+      content.getAllSkills = vi.fn(() => [cooking]);
+      uiState.setSkills([{ skillId: "cooking", level: 1, xp: 0, effectiveLevel: 1 }]);
+      manager.togglePanel("skills-panel");
+
+      const tile = document.querySelector<HTMLDivElement>(".skill-tile");
+      tile?.dispatchEvent(new MouseEvent("mouseenter", { clientX: 100, clientY: 100 }));
+      expect(document.getElementById("skill-tooltip")?.classList.contains("hidden")).toBe(false);
+
+      // Click the inventory tab — SidebarTabs hides the skills panel directly,
+      // not via togglePanel, so the tooltip cleanup must happen in the renderPage callback.
+      const invTab = document.querySelector<HTMLButtonElement>(".sb-tab[data-tab='inventory']");
+      invTab?.click();
+      expect(document.getElementById("skill-tooltip")?.classList.contains("hidden")).toBe(true);
+    });
+  });
+
   describe("icon rendering (E41-S02)", () => {
     function makeIconAtlas(iconAssetId: string): IconAtlas {
       const atlas = new IconAtlas();
@@ -725,13 +884,13 @@ describe("UIManager", () => {
 
   describe("settings panel", () => {
     beforeEach(() => {
-      localStorage.clear();
+      clearLocalStorage();
     });
 
     it("renders NPC attack and mouse mode selects with persisted values", () => {
       localStorage.setItem(
         "old-town-input-settings",
-        JSON.stringify({ npcAttack: "always-right-click", mouseButtons: "one-button", menuSwaps: [] }),
+        JSON.stringify({ v: 1, npcAttack: "always-right-click", mouseButtons: "one-button", menuSwaps: [] }),
       );
       manager.togglePanel("settings-panel");
       const body = document.getElementById("settings-body");
@@ -763,6 +922,42 @@ describe("UIManager", () => {
       expect(callbacks.setInputSettings).toHaveBeenCalledWith({ mouseButtons: "one-button" });
       const stored = JSON.parse(localStorage.getItem("old-town-input-settings") ?? "{}");
       expect(stored.mouseButtons).toBe("one-button");
+    });
+  });
+
+  describe("loadInputSettings defaults", () => {
+    beforeEach(() => {
+      clearLocalStorage();
+    });
+
+    it("defaults npcAttack to left-click-where-available when no stored settings", () => {
+      const settings = UIManager.loadInputSettings();
+      expect(settings.npcAttack).toBe("left-click-where-available");
+    });
+
+    it("respects an explicitly chosen depends-on-combat-levels persisted setting", () => {
+      localStorage.setItem(
+        "old-town-input-settings",
+        JSON.stringify({
+          v: 1,
+          npcAttack: "depends-on-combat-levels",
+          mouseButtons: "two-button",
+          menuSwaps: [],
+        }),
+      );
+      const settings = UIManager.loadInputSettings();
+      expect(settings.npcAttack).toBe("depends-on-combat-levels");
+    });
+
+    it("resets stale settings from a previous schema version to defaults", () => {
+      // Simulate a stale entry from before the settings version was introduced.
+      // Old-format entries have no `v` field; they should be discarded.
+      localStorage.setItem(
+        "old-town-input-settings",
+        JSON.stringify({ npcAttack: "depends-on-combat-levels", mouseButtons: "two-button", menuSwaps: [] }),
+      );
+      const settings = UIManager.loadInputSettings();
+      expect(settings.npcAttack).toBe("left-click-where-available");
     });
   });
 });

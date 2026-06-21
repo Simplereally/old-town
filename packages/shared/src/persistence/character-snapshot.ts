@@ -9,6 +9,7 @@ import {
   combatStyleSchema,
   contentIdSchema,
   nonNegInt,
+  nonNegNumber,
   playerVarValueSchema,
   positiveInt,
 } from "../content-schemas";
@@ -19,7 +20,9 @@ export const CHARACTER_SNAPSHOT_VERSION = 1;
 export const characterSkillSnapshotSchema = z
   .object({
     level: positiveInt,
-    xp: nonNegInt,
+    /** Fractional XP is valid: OSRS accumulates 1.33 XP/damage as a float
+     *  (Combat §Experience gain) and the DB stores it as `numeric(20, 4)`. */
+    xp: nonNegNumber,
     boost: z.number().int().default(0),
     drain: z.number().int().default(0),
   })
@@ -117,7 +120,7 @@ export const characterSnapshotSchema = z
     combatStyle: combatStyleSchema.optional(),
     skills: z.record(contentIdSchema, characterSkillSnapshotSchema).default({}),
     inventory: characterInventorySnapshotSchema,
-    equipment: characterEquipmentSnapshotSchema,
+    equipment: characterEquipmentSnapshotSchema.default({ slots: {} }),
     vars: z.record(z.string().min(1), playerVarValueSchema).default({}),
     bank: characterBankSnapshotSchema.default({ slots: [] }),
   })

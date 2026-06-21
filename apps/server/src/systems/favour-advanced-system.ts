@@ -3,7 +3,7 @@ import type { EntityId } from "@old-town/shared/types/ids";
 import type { World } from "../ecs/world";
 import { count, removeItem } from "../items/inventory";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
-import { deductXp } from "../skills/skill-state";
+import { deductXp, addXp } from "../skills/skill-state";
 import { applyStatusEffect, type StatusEffectContext } from "./status-effect-system";
 
 export interface BoonDef {
@@ -272,19 +272,7 @@ export function performRite(
 
   if (rite.outcome.xpRewards) {
     for (const reward of rite.outcome.xpRewards) {
-      const skills = ctx.world.getComponent(entityId, "skills");
-      const skill = skills?.skills[reward.skillId];
-      if (skill) {
-        skill.xp += reward.amount;
-        const newLevel = skill.level;
-        ctx.deltas.markXpDrop({ skillId: reward.skillId, amount: reward.amount });
-        ctx.deltas.markSkillDelta({
-          skillId: reward.skillId,
-          level: newLevel,
-          xp: skill.xp,
-          effectiveLevel: Math.max(1, newLevel + skill.boost - skill.drain),
-        });
-      }
+      addXp({ world: ctx.world, deltas: ctx.deltas }, entityId, reward.skillId, reward.amount);
     }
   }
 

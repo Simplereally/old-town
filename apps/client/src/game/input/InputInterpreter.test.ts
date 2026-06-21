@@ -4,6 +4,7 @@ import {
   InputInterpreter,
   shouldNpcAttackBeLeftClick,
 } from "./InputInterpreter";
+import { combatLevelColor } from "@old-town/shared";
 
 function createMockResolver(): ConstructorParameters<typeof InputInterpreter>[0] {
   return {
@@ -62,6 +63,15 @@ function createMockResolver(): ConstructorParameters<typeof InputInterpreter>[0]
       }
       return undefined;
     },
+    getItem: (id: string) => {
+      if (id === "coins") {
+        return { name: "Coins" };
+      }
+      if (id === "pennywrought_pickaxe") {
+        return { name: "Pennywrought Pickaxe" };
+      }
+      return undefined;
+    },
   };
 }
 
@@ -71,7 +81,7 @@ describe("InputInterpreter content-driven", () => {
   describe("getDefaultAction", () => {
     it("returns highest-priority content option for NPC", () => {
       const entity = { entityId: 10, kind: "npc" as const, defId: "guard", distance: 1 };
-      expect(interpreter.getDefaultAction(entity)).toBe("talk");
+      expect(interpreter.getDefaultAction(entity)).toBe("attack");
     });
 
     it("returns highest-priority content option for object", () => {
@@ -106,6 +116,34 @@ describe("InputInterpreter content-driven", () => {
     });
   });
 
+  describe("getDefaultActionLabel", () => {
+    it("returns the formatted attack label for a combat NPC", () => {
+      const entity = { entityId: 11, kind: "npc" as const, defId: "goblin", distance: 1 };
+      expect(interpreter.getDefaultActionLabel(entity)).toBe("Attack Goblin (level-2)");
+    });
+
+    it("returns the content label for an object", () => {
+      const entity = { entityId: 20, kind: "object" as const, defId: "tree_oak", distance: 1 };
+      expect(interpreter.getDefaultActionLabel(entity)).toBe("Chop");
+    });
+
+    it("returns the formatted pickup label for a ground item", () => {
+      const entity = {
+        entityId: 30,
+        kind: "groundItem" as const,
+        itemId: "pennywrought_pickaxe",
+        quantity: 1,
+        distance: 1,
+      };
+      expect(interpreter.getDefaultActionLabel(entity)).toBe("Pick up Pennywrought Pickaxe");
+    });
+
+    it("returns the name for a player", () => {
+      const entity = { entityId: 42, kind: "player" as const, defId: "hero", distance: 1 };
+      expect(interpreter.getDefaultActionLabel(entity)).toBe("hero");
+    });
+  });
+
   describe("getContextMenuOptions", () => {
     it("builds options from content for NPC", () => {
       const entity = { entityId: 10, kind: "npc" as const, defId: "guard", distance: 1 };
@@ -115,6 +153,23 @@ describe("InputInterpreter content-driven", () => {
       expect(actions).toContain("examine");
       expect(actions).toContain("talk");
       expect(actions).toContain("attack");
+    });
+
+    it("formats NPC labels with name and combat level", () => {
+      const entity = { entityId: 11, kind: "npc" as const, defId: "goblin", distance: 1 };
+      const options = interpreter.getContextMenuOptions(entity, { x: 10, y: 20 });
+      const labels = options.map((o) => o.label);
+      expect(labels).toContain("Attack Goblin (level-2)");
+      expect(labels).toContain("Examine Goblin (level-2)");
+    });
+
+    it("formats non-combat NPC labels with name and level suffix on every row", () => {
+      const entity = { entityId: 10, kind: "npc" as const, defId: "guard", distance: 1 };
+      const options = interpreter.getContextMenuOptions(entity, { x: 10, y: 20 });
+      const labels = options.map((o) => o.label);
+      expect(labels).toContain("Talk-to Guard (level-21)");
+      expect(labels).toContain("Examine Guard (level-21)");
+      expect(labels).toContain("Attack Guard (level-21)");
     });
 
     it("builds options from content for object", () => {
@@ -141,9 +196,83 @@ describe("InputInterpreter content-driven", () => {
       expect(actions).toContain("pickup");
     });
 
+    it("uses the item display name for ground item labels", () => {
+      const entity = {
+        entityId: 31,
+        kind: "groundItem" as const,
+        itemId: "pennywrought_pickaxe",
+        quantity: 1,
+        distance: 1,
+      };
+      const options = interpreter.getContextMenuOptions(entity, { x: 10, y: 20 });
+      const labels = options.map((o) => o.label);
+      expect(labels).toContain("Pick up Pennywrought Pickaxe");
+      expect(labels).toContain("Examine Pennywrought Pickaxe");
+    });
+
     it("only shows walk_here when no entity", () => {
       const options = interpreter.getContextMenuOptions(null, { x: 10, y: 20 });
       expect(options.map((o) => o.actionId)).toEqual(["walk_here"]);
+    });
+
+    it("appends NPC name and combat level to attackable NPC options (OSRS Choose Option)", () => {
+      const entity = { entityId: 11, kind: "npc" as const, defId: "goblin", distance: 1 };
+      const options = interpreter.getContextMenuOptions(entity, { x: 1, y: 2 }, {
+        playerCombatLevel: 3,
+      });
+      const labels = options.map((o) => o.label);
+      expect(labels).toContain("Attack Goblin (level-2)");
+      expect(labels).toContain("Walk here");
+      expect(labels).toContain("Examine Goblin (level-2)");
+      // OSRS order: Attack (left-clickable) > Walk here > Examine.
+      expect(options.map((o) => o.actionId)).toEqual(["attack", "walk_here", "examine"]);
+    });
+
+    it("colors the NPC name yellow and the level suffix by level difference", () => {
+      const entity = { entityId: 11, kind: "npc" as const, defId: "goblin", distance: 1 };
+      const options = interpreter.getContextMenuOptions(entity, { x: 1, y: 2 }, {
+        playerCombatLevel: 3,
+      });
+      // Goblin is level 2, player is 3 → diff -1 → yellow-green (#80ff00).
+      const attack = options.find((o) => o.actionId === "attack");
+      expect(attack?.parts).toEqual([
+        { text: "Attack " },
+        { text: "Goblin", color: "#ffff00" },
+        { text: " (level-2)", color: "#80ff00" },
+      ]);
+      const examine = options.find((o) => o.actionId === "examine");
+      expect(examine?.parts).toEqual([
+        { text: "Examine " },
+        { text: "Goblin", color: "#ffff00" },
+        { text: " (level-2)", color: "#80ff00" },
+      ]);
+      // "Walk here" is a generic tile action with no entity name to highlight,
+      // but it still carries a plain white parts array for consistent rendering.
+      const walkParts = options.find((o) => o.actionId === "walk_here")?.parts;
+      expect(walkParts).toEqual([{ text: "Walk here", color: "#ffffff" }]);
+    });
+
+    it("tints the level suffix across OSRS color tiers by level difference", () => {
+      const entity = (defId: string) =>
+        ({ entityId: 11, kind: "npc" as const, defId, distance: 1 });
+      // goblin is level 2: player 2 → diff 0 → true yellow.
+      const equal = interpreter.getContextMenuOptions(entity("goblin"), { x: 1, y: 2 }, {
+        playerCombatLevel: 2,
+      });
+      const equalSuffix = equal.find((o) => o.actionId === "examine")?.parts?.[2];
+      expect(equalSuffix?.color).toBe("#ffff00");
+      // goblin is level 2: player 50 → diff -48 → deep green.
+      const deepGreen = interpreter.getContextMenuOptions(entity("goblin"), { x: 1, y: 2 }, {
+        playerCombatLevel: 50,
+      });
+      const deepGreenSuffix = deepGreen.find((o) => o.actionId === "examine")?.parts?.[2];
+      expect(deepGreenSuffix?.color).toBe("#00ff00");
+      // guard is level 21: player 3 → diff +18 → dark orange.
+      const darkOrange = interpreter.getContextMenuOptions(entity("guard"), { x: 1, y: 2 }, {
+        playerCombatLevel: 3,
+      });
+      const darkOrangeSuffix = darkOrange.find((o) => o.actionId === "examine")?.parts?.[2];
+      expect(darkOrangeSuffix?.color).toBe("#ff4000");
     });
   });
 
@@ -151,7 +280,7 @@ describe("InputInterpreter content-driven", () => {
     it("chooses content-driven default for NPC", () => {
       const entity = { entityId: 10, kind: "npc" as const, defId: "guard", distance: 1 };
       const decision = interpreter.interpretCanvasClick(entity, null, null, undefined, undefined);
-      expect(decision).toEqual({ type: "npcOption", entityId: 10, actionId: "talk" });
+      expect(decision).toEqual({ type: "npcOption", entityId: 10, actionId: "attack" });
     });
 
     it("chooses content-driven default for object", () => {
@@ -276,7 +405,7 @@ describe("InputInterpreter content-driven", () => {
     });
 
     it("depends on combat levels with equal-or-lower NPCs left-clickable", () => {
-      const local = new InputInterpreter(createMockResolver());
+      const local = new InputInterpreter(createMockResolver(), { npcAttack: "depends-on-combat-levels" });
       const entity = { entityId: 13, kind: "npc" as const, defId: "guard", distance: 1 };
       expect(
         local.interpretCanvasClick(entity, { x: 1, y: 2 }, null, undefined, undefined, {
@@ -286,7 +415,7 @@ describe("InputInterpreter content-driven", () => {
     });
 
     it("depends on combat levels with higher NPCs requiring explicit menu attack", () => {
-      const local = new InputInterpreter(createMockResolver());
+      const local = new InputInterpreter(createMockResolver(), { npcAttack: "depends-on-combat-levels" });
       const entity = { entityId: 14, kind: "npc" as const, defId: "guard", distance: 1 };
       expect(
         local.interpretCanvasClick(entity, { x: 1, y: 2 }, null, undefined, undefined, {
@@ -296,7 +425,7 @@ describe("InputInterpreter content-driven", () => {
     });
 
     it("depends on combat levels left-clicks bosses above max player combat", () => {
-      const local = new InputInterpreter(createMockResolver());
+      const local = new InputInterpreter(createMockResolver(), { npcAttack: "depends-on-combat-levels" });
       const entity = { entityId: 15, kind: "npc" as const, defId: "boss", distance: 1 };
       expect(
         local.interpretCanvasClick(entity, { x: 1, y: 2 }, null, undefined, undefined, {
@@ -349,6 +478,47 @@ describe("InputInterpreter content-driven", () => {
         ["prayer", { skillId: "prayer", level: 20, xp: 0, effectiveLevel: 20 }],
       ]);
       expect(calculateCombatLevel(skills)).toBeGreaterThan(3);
+    });
+  });
+
+  describe("combatLevelColor", () => {
+    it("returns deep green when NPC is 10+ levels lower", () => {
+      expect(combatLevelColor(50, 40)).toBe("#00ff00");
+      expect(combatLevelColor(50, 30)).toBe("#00ff00");
+    });
+    it("returns light green when NPC is 6-9 levels lower", () => {
+      expect(combatLevelColor(50, 44)).toBe("#40ff00");
+      expect(combatLevelColor(50, 41)).toBe("#40ff00");
+    });
+    it("returns yellow-green when NPC is 1-5 levels lower", () => {
+      expect(combatLevelColor(50, 49)).toBe("#80ff00");
+      expect(combatLevelColor(50, 45)).toBe("#80ff00");
+    });
+    it("returns true yellow when levels are equal", () => {
+      expect(combatLevelColor(50, 50)).toBe("#ffff00");
+    });
+    it("returns yellow-orange when NPC is 1-5 levels higher", () => {
+      expect(combatLevelColor(50, 51)).toBe("#ffc000");
+      expect(combatLevelColor(50, 55)).toBe("#ffc000");
+    });
+    it("returns light orange when NPC is 6-10 levels higher", () => {
+      expect(combatLevelColor(50, 56)).toBe("#ff8000");
+      expect(combatLevelColor(50, 60)).toBe("#ff8000");
+    });
+    it("returns dark orange when NPC is 11-20 levels higher", () => {
+      expect(combatLevelColor(50, 61)).toBe("#ff4000");
+      expect(combatLevelColor(50, 70)).toBe("#ff4000");
+    });
+    it("returns red-orange when NPC is 21-50 levels higher", () => {
+      expect(combatLevelColor(50, 71)).toBe("#ff2000");
+      expect(combatLevelColor(50, 100)).toBe("#ff2000");
+    });
+    it("returns deep red when NPC is 51+ levels higher", () => {
+      expect(combatLevelColor(50, 101)).toBe("#ff0000");
+    });
+    it("falls back to yellow when levels are undefined", () => {
+      expect(combatLevelColor(undefined, 50)).toBe("#ffff00");
+      expect(combatLevelColor(50, undefined)).toBe("#ffff00");
     });
   });
 

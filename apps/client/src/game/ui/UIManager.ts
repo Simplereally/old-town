@@ -1,3 +1,4 @@
+import { MAX_SKILL_LEVEL, xpForLevel } from "@old-town/shared";
 import type { CombatStyle } from "@old-town/shared";
 import type { ContentClient } from "./ContentClient";
 import { GlobalKeydownBus } from "./GlobalKeydownBus";
@@ -8,6 +9,7 @@ import type {
   MouseButtonMode,
   NpcAttackSetting,
 } from "../input/InputInterpreter";
+import { SidebarTabs } from "./SidebarTabs";
 import type { UIState, UIStateChange } from "./UIState";
 
 export interface UIManagerCallbacks {
@@ -34,6 +36,7 @@ export interface UIManagerCallbacks {
 const ITEM_ACTIONS = new Set(["drop", "equip", "eat", "drink"]);
 
 const SETTINGS_STORAGE_KEY = "old-town-input-settings";
+const SETTINGS_VERSION = 1;
 
 const NPC_ATTACK_OPTIONS: ReadonlyArray<{ value: NpcAttackSetting; label: string; hint: string }> = [
   {
@@ -72,7 +75,7 @@ const MOUSE_BUTTON_OPTIONS: ReadonlyArray<{ value: MouseButtonMode; label: strin
 ];
 
 const DEFAULT_INPUT_SETTINGS: InputInterpreterSettings = {
-  npcAttack: "depends-on-combat-levels",
+  npcAttack: "left-click-where-available",
   mouseButtons: "two-button",
   menuSwaps: [],
 };
@@ -81,7 +84,9 @@ function loadStoredSettings(): InputInterpreterSettings {
   try {
     const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
     if (!raw) return DEFAULT_INPUT_SETTINGS;
-    const parsed = JSON.parse(raw) as Partial<InputInterpreterSettings>;
+    const parsed = JSON.parse(raw) as { v?: number } & Partial<InputInterpreterSettings>;
+    // Discard entries from a previous schema version so default changes take effect.
+    if (parsed.v !== SETTINGS_VERSION) return DEFAULT_INPUT_SETTINGS;
     return {
       npcAttack: parsed.npcAttack ?? DEFAULT_INPUT_SETTINGS.npcAttack,
       mouseButtons: parsed.mouseButtons ?? DEFAULT_INPUT_SETTINGS.mouseButtons,
@@ -94,7 +99,7 @@ function loadStoredSettings(): InputInterpreterSettings {
 
 function saveStoredSettings(settings: InputInterpreterSettings): void {
   try {
-    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify({ v: SETTINGS_VERSION, ...settings }));
   } catch {
     // Ignore storage errors (e.g. private mode quota).
   }
@@ -112,13 +117,22 @@ const COMBAT_STYLE_META: Record<CombatStyle, { readonly name: string; readonly t
 /** Equipment slot index of the weapon (matches EQUIPMENT_SLOTS order). */
 const WEAPON_SLOT_INDEX = 3;
 
+/** Tab shown in the sidebar on first load. */
+const DEFAULT_TAB = "inventory";
+
+/** Keyboard shortcuts for panels that are NOT sidebar tabs (e.g. activity). */
+const LEGACY_PANEL_KEYS: Record<string, string> = {
+  a: "activity-panel",
+};
+
 export class UIManager {
   private readonly uiState: UIState;
   private readonly content: ContentClient;
   private readonly callbacks: UIManagerCallbacks;
   private readonly icons: IconAtlas | undefined;
   private readonly panels: Map<string, HTMLDivElement>;
-  private readonly buttons: Map<string, HTMLButtonElement>;
+  /** Tabbed sidebar controller (top + bottom `.sb-tab` rows). */
+  private readonly sidebar: SidebarTabs;
   private readonly panelOrder = [
     "inventory-panel",
     "equipment-panel",
@@ -126,11 +140,10 @@ export class UIManager {
     "skills-panel",
     "spellbook-panel",
     "quest-panel",
-    "chat-box",
+    "sidebar-placeholder",
     "bank-panel",
     "shop-panel",
     "recipe-panel",
-    "minimap-panel",
     "contract-panel",
     "activity-panel",
     "settings-panel",
@@ -138,23 +151,12 @@ export class UIManager {
     "death-screen",
     "notification-toast",
   ];
-  private readonly keyBindings: Record<string, string> = {
-    i: "inventory-panel",
-    e: "equipment-panel",
-    k: "skills-panel",
-    m: "spellbook-panel",
-    q: "quest-panel",
-    c: "chat-box",
-    b: "bank-panel",
-    s: "shop-panel",
-    f: "combat-panel",
-    ",": "minimap-panel",
-    ".": "contract-panel",
-    a: "activity-panel",
-    d: "debug-overlay",
-    o: "settings-panel",
-  };
   private readonly _unsubscribe: (() => void) | undefined;
+  /** Skill id currently being hovered (undefined when no skill tile is hovered). */
+  private _hoveredSkillId: string | undefined;
+  /** Last cursor position, used to keep the tooltip pinned during real-time XP updates. */
+  private _tooltipX = 0;
+  private _tooltipY = 0;
   private _selectedRecipeId: string | undefined;
   private _selectedQuantity = 1;
   private _recipeClickListeners: Array<() => void> = [];
@@ -171,29 +173,32 @@ export class UIManager {
     this.callbacks = callbacks;
     this.icons = icons;
     this.panels = this._buildPanelMap();
-    this.buttons = this._buildButtonMap();
-    this._bindBarButtons();
+    this.sidebar = new SidebarTabs({
+      renderPage: (pageId) => {
+        // Switching away from the skills tab must clear the hover tooltip,
+        // since SidebarTabs hides the panel directly (not via togglePanel).
+        if (pageId !== "skills-panel") {
+          this._hoveredSkillId = undefined;
+          this._hideSkillTooltip();
+        }
+        this._renderPanel(pageId);
+      },
+    });
     this._bindKeyboardShortcuts();
     this._bindChatInput();
     this._bindRecipeMakeButton();
     this._unsubscribe = uiState.onChange((change) => this._renderChange(change));
     this._renderAll();
+    this.sidebar.select(DEFAULT_TAB);
   }
 
-  private readonly _barButtonListeners: Map<string, () => void> = new Map();
   private _chatSendListener: (() => void) | undefined;
   private _chatKeydownListener: ((e: KeyboardEvent) => void) | undefined;
 
   dispose(): void {
     this._unsubscribe?.();
     GlobalKeydownBus.unregister("ui-manager");
-    for (const [panelId, listener] of this._barButtonListeners) {
-      const btn = this.buttons.get(panelId);
-      if (btn) {
-        btn.removeEventListener("click", listener);
-      }
-    }
-    this._barButtonListeners.clear();
+    this.sidebar.dispose();
 
     const input = document.getElementById("chat-input");
     const sendBtn = document.getElementById("chat-send");
@@ -223,23 +228,6 @@ export class UIManager {
     const debug = document.getElementById("debug-overlay");
     if (debug instanceof HTMLDivElement) map.set("debug-overlay", debug);
     return map;
-  }
-
-  private _buildButtonMap(): Map<string, HTMLButtonElement> {
-    const map = new Map<string, HTMLButtonElement>();
-    for (const btn of document.querySelectorAll<HTMLButtonElement>(".ui-bar-btn")) {
-      const panelId = btn.dataset.panel;
-      if (panelId) map.set(panelId, btn);
-    }
-    return map;
-  }
-
-  private _bindBarButtons(): void {
-    for (const [panelId, btn] of this.buttons) {
-      const listener = () => this.togglePanel(panelId);
-      btn.addEventListener("click", listener);
-      this._barButtonListeners.set(panelId, listener);
-    }
   }
 
   private _bindKeyboardShortcuts(): void {
@@ -277,10 +265,17 @@ export class UIManager {
     if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
       return;
     }
-    const panelId = this.keyBindings[event.key.toLowerCase()];
-    if (panelId) {
+    const key = event.key.toLowerCase();
+    const tabId = SidebarTabs.tabForKey(key);
+    if (tabId && this.sidebar.has(tabId)) {
       event.preventDefault();
-      this.togglePanel(panelId);
+      this.sidebar.select(tabId);
+      return;
+    }
+    const legacyPanelId = LEGACY_PANEL_KEYS[key];
+    if (legacyPanelId) {
+      event.preventDefault();
+      this.togglePanel(legacyPanelId);
     }
   };
 
@@ -303,6 +298,10 @@ export class UIManager {
       } else {
         panel.classList.add("hidden");
       }
+      if (panelId === "skills-panel") {
+        this._hoveredSkillId = undefined;
+        this._hideSkillTooltip();
+      }
     }
     this._updateButtonState(panelId, isHidden);
     if (isHidden && !isDebugOverlay && panelId !== "activity-panel") {
@@ -318,7 +317,7 @@ export class UIManager {
   openDefaultPanels(): void {
     for (const panelId of ["inventory-panel", "skills-panel", "chat-box"]) {
       const panel = this.panels.get(panelId);
-      if (panel && panel.classList.contains("hidden")) {
+      if (panel?.classList.contains("hidden")) {
         panel.classList.remove("hidden");
         this._updateButtonState(panelId, true);
         this._renderPanel(panelId);
@@ -326,11 +325,9 @@ export class UIManager {
     }
   }
 
-  private _updateButtonState(panelId: string, visible: boolean): void {
-    const btn = this.buttons.get(panelId);
-    if (btn) {
-      btn.classList.toggle("active", visible);
-    }
+  private _updateButtonState(_panelId: string, _visible: boolean): void {
+    // Sidebar tab highlighting is owned by SidebarTabs.select(); legacy panel
+    // toggles (debug overlay, etc.) have no associated button.
   }
 
   private _renderAll(): void {
@@ -668,9 +665,19 @@ export class UIManager {
       const state = uiSkills.get(skillDef.id);
       const baseLevel = state?.level ?? 1;
       const effectiveLevel = state?.effectiveLevel ?? baseLevel;
+      const xp = state?.xp ?? 0;
+      const isMaxed = baseLevel >= MAX_SKILL_LEVEL;
+      const nextLevel = Math.min(baseLevel + 1, MAX_SKILL_LEVEL);
+      const nextXp = isMaxed ? 0 : xpForLevel(nextLevel);
+      const xpToNext = isMaxed ? 0 : Math.max(0, nextXp - xp);
+
+      const fmt = (n: number): string => n.toLocaleString("en-US");
+
       const tile = document.createElement("div");
       tile.classList.add("skill-tile");
-      tile.title = `${skillDef.name} — Level ${effectiveLevel} / ${baseLevel}`;
+      tile.title = isMaxed
+        ? `${skillDef.name} — Level ${effectiveLevel} / ${baseLevel} (Max)`
+        : `${skillDef.name} — Level ${effectiveLevel} / ${baseLevel} — XP ${fmt(xp)} — Next at ${fmt(nextXp)} — ${fmt(xpToNext)} to next`;
 
       const icon = document.createElement("div");
       icon.classList.add("skill-tile-icon");
@@ -683,9 +690,80 @@ export class UIManager {
 
       tile.appendChild(icon);
       tile.appendChild(levelText);
+
+      tile.addEventListener("mouseenter", (e: MouseEvent) => {
+        this._tooltipX = e.clientX;
+        this._tooltipY = e.clientY;
+        this._hoveredSkillId = skillDef.id;
+        this._refreshSkillTooltip();
+      });
+      tile.addEventListener("mouseleave", () => {
+        this._hoveredSkillId = undefined;
+        this._hideSkillTooltip();
+      });
+
       grid.appendChild(tile);
     }
     body.appendChild(grid);
+
+    // If a skill tooltip was visible before the re-render, refresh it with live data.
+    if (this._hoveredSkillId !== undefined) {
+      this._refreshSkillTooltip();
+    }
+  }
+
+  /**
+   * Refresh the skill tooltip from live {@link uiState} for the currently hovered skill.
+   * Called on mouseenter and whenever _renderSkills re-runs (e.g. XP drops arrive) so the
+   * tooltip updates in real time while hovered — matching OSRS native tooltip behavior.
+   */
+  private _refreshSkillTooltip(): void {
+    const skillId = this._hoveredSkillId;
+    if (skillId === undefined) return;
+    const tooltip = document.getElementById("skill-tooltip");
+    if (!tooltip) return;
+    const def = this.content.getSkill(skillId);
+    if (!def) {
+      this._hideSkillTooltip();
+      return;
+    }
+    const state = this.uiState.skills.get(skillId);
+    const baseLevel = state?.level ?? 1;
+    const effectiveLevel = state?.effectiveLevel ?? baseLevel;
+    const xp = state?.xp ?? 0;
+    const isMaxed = baseLevel >= MAX_SKILL_LEVEL;
+    const nextXp = isMaxed ? 0 : xpForLevel(Math.min(baseLevel + 1, MAX_SKILL_LEVEL));
+    const xpToNext = isMaxed ? 0 : Math.max(0, nextXp - xp);
+    const fmt = (n: number): string => n.toLocaleString("en-US");
+    const lines = [
+      def.name,
+      `Level: ${effectiveLevel}/${baseLevel}`,
+      `XP: ${fmt(xp)}`,
+    ];
+    if (isMaxed) {
+      lines.push("Next Level At: Max");
+    } else {
+      lines.push(`Next Level At: ${fmt(nextXp)}`);
+      lines.push(`XP to next: ${fmt(xpToNext)}`);
+    }
+    tooltip.textContent = lines.join("\n");
+    tooltip.classList.remove("hidden");
+    // Clamp to viewport so the tooltip doesn't overflow off-screen.
+    const offsetX = 12;
+    const offsetY = 12;
+    let left = this._tooltipX + offsetX;
+    let top = this._tooltipY + offsetY;
+    const rect = tooltip.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    if (left + rect.width > vw) left = Math.max(0, this._tooltipX - rect.width - offsetX);
+    if (top + rect.height > vh) top = Math.max(0, this._tooltipY - rect.height - offsetY);
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
+  }
+
+  private _hideSkillTooltip(): void {
+    document.getElementById("skill-tooltip")?.classList.add("hidden");
   }
 
   private _skillIcon(skillId: string): string {

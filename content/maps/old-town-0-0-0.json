@@ -17186,6 +17186,12 @@
       "x": 30,
       "y": 46,
       "wanderRadius": 0
+    },
+    {
+      "npcId": "cow",
+      "x": 40,
+      "y": 43,
+      "wanderRadius": 3
     }
   ],
   "groundItemSpawns": [],

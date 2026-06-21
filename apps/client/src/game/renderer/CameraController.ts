@@ -36,10 +36,6 @@ export class CameraController {
 
     // Set up isometric-like orientation
     this._setIsometricAngle();
-    // Sync OrbitControls rotation lock with the default isometric mode.
-    // OrbitControls defaults enableRotate=true, which would allow arrow-key
-    // rotation even while isometricAngle reports true (locked).
-    this.controls.enableRotate = !this._isometricAngle;
 
     // Constrain zoom
     this.controls.minZoom = this._minZoom;

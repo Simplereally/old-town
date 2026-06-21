@@ -27,7 +27,6 @@
 - 🔒 **600ms tick.** No `await sleep`, `setTimeout`, or animation-complete callbacks for gameplay. Use tick queues and action delays.
 - 🔒 **Tile bitmask collision.** No physics engine. Movement blocking is directional bitmask flags.
 - 🔒 **Content-driven.** Items, NPCs, objects, quests, skills, spells are JSON definitions loaded into registries. Do not hardcode specific content behavior.
-- 🔒 **Original assets only.** Do not import OSRS cache, assets, protocol, names, maps, or copied quests.
 
 ## Default stack
 
@@ -40,6 +39,8 @@
 
 ## Validation discipline
 
+- Always use `rg` (ripgrep) over `grep` for searching the codebase.
+- Prefer deep imports (`@old-town/shared/types/ids`) over barrel imports (`@old-town/shared`) to keep typecheck fast. The barrel is allowed but don't add new `export *` to it.
 - Every story lists validation commands. Run them before marking complete.
 - Typical validation: `bun run test`, `bun run lint`, `bun run typecheck`, `bun run content:validate`.
 - Never leave broken builds between completed stories.

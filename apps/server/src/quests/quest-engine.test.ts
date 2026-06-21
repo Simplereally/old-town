@@ -12,9 +12,9 @@ import { addItem, catalogFromItems, createInventory } from "../items/inventory";
 import { ItemAuditLog } from "../items/item-audit";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { makeRegistries } from "../test-support/registries";
-import { setQuestStage } from "../vars/player-vars";
+import { setQuestStage, setVar } from "../vars/player-vars";
 import { completeQuest } from "./effects";
-import { dispatchQuestEvent } from "./quest-engine";
+import { dispatchQuestEvent, processQuestTriggers } from "./quest-engine";
 import { meetsRequirement } from "./requirements";
 
 const PLAYER = entityId(0);
@@ -196,6 +196,12 @@ function setup() {
   const world = createWorld();
   const player = world.createEntity();
   expect(player).toBe(PLAYER);
+  world.setComponent(PLAYER, "player", {
+    entityId: PLAYER,
+    accountId: "test",
+    sessionId: "test",
+    interestRadius: 16,
+  });
   world.setComponent(PLAYER, "inventory", createInventory(PLAYER, "inventory:player", 28));
   world.setComponent(PLAYER, "skills", {
     entityId: PLAYER,
@@ -389,5 +395,35 @@ describe("quest engine", () => {
       "You need more inventory space for the quest rewards.",
     );
     expect(inventory.slots.filter((slot) => slot?.itemId === "reward_badge")).toHaveLength(28);
+  });
+
+  it("processQuestTriggers advances stages for all players with completed objectives", () => {
+    const { world, deltas, ctx } = setup();
+    // PLAYER is at stage 1 with a talk objective. Mark the talk var complete so
+    // processQuestTriggers can advance the stage without a dispatch event.
+    setVar(ctx, PLAYER, "quest.smoke_over_old_town.talk.baker", true);
+    deltas.consume(1, 600);
+
+    const result = processQuestTriggers(ctx, 600, 1);
+    expect(result.progressedQuestIds).toEqual(["smoke_over_old_town"]);
+    expect(world.getComponent(PLAYER, "vars")?.values["quest.smoke_over_old_town.stage"]).toBe(2);
+  });
+
+  it("processQuestTriggers skips completed quests and stage-0 quests", () => {
+    const { ctx } = setup();
+    // Mark the quest completed — processQuestTriggers should skip it entirely.
+    setVar(ctx, PLAYER, "quest.smoke_over_old_town.completed", true);
+    setVar(ctx, PLAYER, "quest.smoke_over_old_town.talk.baker", true);
+    const result = processQuestTriggers(ctx, 600, 1);
+    expect(result.progressedQuestIds).toEqual([]);
+  });
+
+  it("dispatchQuestEvent skips completed quests and stage-0 quests", () => {
+    const { ctx } = setup();
+    // REWARD_QUEST is at stage 0 (not started). An event should not progress it.
+    expect(
+      dispatchQuestEvent(ctx, PLAYER, { kind: "dialogue", npcId: "baker" }, 600, 1)
+        .progressedQuestIds,
+    ).not.toContain("reward_test");
   });
 });

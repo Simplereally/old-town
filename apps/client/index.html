@@ -465,14 +465,94 @@
     .ui-panel.hidden {
       display: none;
     }
-    #ui-left {
+    /* ---------- Bottom-left: chat ---------- */
+    #chat-cluster {
       position: absolute;
-      top: 80px;
-      left: 8px;
-      width: 200px;
+      bottom: 0;
+      left: 0;
+      width: 519px;
+      max-width: 60vw;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      background: var(--ot-panel-dark);
+      border: 2px solid var(--ot-edge);
+      border-left: none;
+      border-bottom: none;
+      user-select: none;
+      z-index: 22;
+    }
+    .chat-body {
+      height: 122px;
+      overflow-y: auto;
+      padding: 4px 8px;
+      background: var(--ot-panel) url(/assets/ui/menu/panel.png);
+      background-size: 120px;
+      color: var(--ot-text);
+      font: 14px/1.35 "Helvetica", Arial, sans-serif;
+    }
+    .chat-tabs {
+      display: flex;
+      align-items: stretch;
+      gap: 1px;
+      padding: 2px;
+      background: var(--ot-edge);
+    }
+    .chat-tab {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 0;
+      background: linear-gradient(180deg, #5a5043 0%, #3a3329 100%);
+      border: 1px solid var(--ot-edge);
+      color: var(--ot-text);
+      font: bold 12px "Helvetica", Arial, sans-serif;
+      cursor: pointer;
+    }
+    .chat-tab .chat-tab-state { color: #4be24b; font-size: 9px; line-height: 1; }
+    .chat-tab.active { background: linear-gradient(180deg, #7a6e5c 0%, #4d4434 100%); }
+    .chat-report,
+    .chat-timer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8px;
+      border: 1px solid var(--ot-edge);
+      font: bold 12px "Helvetica", Arial, sans-serif;
+    }
+    .chat-report { background: linear-gradient(180deg, #5a5043, #3a3329); color: var(--ot-text); cursor: pointer; }
+    .chat-timer { background: #5a1414; color: #ff8a8a; font-family: "Courier New", monospace; }
+
+    /* ---------- Interaction-driven overlay windows ---------- */
+    .overlay-window {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 120;
+      min-width: 300px;
+      max-width: 80vw;
+      background: var(--ot-panel) url(/assets/ui/menu/panel.png);
+      background-size: 120px;
+      border: 3px solid var(--ot-stone);
+      box-shadow: inset 0 0 0 2px var(--ot-edge), 0 8px 28px rgba(0, 0, 0, 0.75);
+      color: var(--ot-text);
+      border-radius: 2px;
+    }
+    .overlay-window.hidden { display: none; }
+    .overlay-window .ui-panel-header {
+      background: linear-gradient(180deg, #5a5043, #2c261d);
+      border-bottom: 2px solid var(--ot-edge);
+      color: var(--ot-gold);
+      text-align: center;
+    }
+    /* Dialogue overlays anchor to the bottom-centre, above the chat box. */
+    .dialogue-box.overlay-window {
+      top: auto;
+      bottom: 150px;
+      transform: translateX(-50%);
     }
     /* OSRS-style skill grid */
     .skill-grid {
@@ -640,95 +720,269 @@
         font-size: 10px;
       }
     }
-    #ui-right {
+    /* =====================================================================
+       OSRS resizable-mode clusters. Each cluster is a solid widget anchored
+       to a screen corner; everything between them stays click-through so the
+       game world remains playable. Chrome is built from the sliced sprite
+       kit in /assets/ui/menu/.
+       ===================================================================== */
+    :root {
+      --ot-panel: #3b3225;        /* brown center panel */
+      --ot-panel-dark: #2a2419;
+      --ot-stone: #5a5043;
+      --ot-stone-light: #857662;
+      --ot-edge: #14110b;         /* near-black bevel */
+      --ot-text: #e8e0cf;
+      --ot-gold: #ffce3a;
+    }
+
+    /* ---------- Top-right: minimap + orbs ---------- */
+    #minimap-cluster {
       position: absolute;
-      top: 80px;
-      right: 8px;
-      width: 220px;
+      top: 0;
+      right: 0;
+      width: 172px;
+      padding: 6px 8px 4px 0;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-    }
-    #ui-bottom {
-      position: absolute;
-      bottom: 8px;
-      left: 8px;
-      right: 8px;
-      display: flex;
-      justify-content: center;
-    }
-    #ui-bar-left {
-      position: absolute;
-      bottom: 8px;
-      left: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      z-index: 30;
-    }
-    #ui-bar-right {
-      position: absolute;
-      bottom: 8px;
-      right: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      z-index: 30;
-    }
-    .ui-bar-btn {
-      width: 36px;
-      height: 36px;
-      background: rgba(20, 20, 30, 0.85);
-      border: 1px solid #444;
-      color: #ccc;
-      font-size: 18px;
-      cursor: pointer;
-      border-radius: 6px;
+      align-items: flex-end;
       user-select: none;
+      z-index: 22;
+    }
+    #minimap-orbs {
+      position: absolute;
+      top: 26px;
+      left: -2px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .mm-orb {
       display: flex;
       align-items: center;
       justify-content: center;
+      gap: 2px;
+      width: 38px;
+      height: 24px;
       padding: 0;
-      line-height: 1;
+      background: linear-gradient(180deg, #4a4234 0%, #2c261d 100%);
+      border: 1px solid var(--ot-edge);
+      border-radius: 12px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      color: var(--ot-gold);
+      font: bold 11px/1 "Courier New", monospace;
+      cursor: pointer;
     }
-    .ui-bar-btn:hover {
-      background: rgba(60, 60, 80, 0.9);
-      border-color: #666;
+    .mm-orb-icon { font-size: 11px; line-height: 1; }
+    .mm-orb-xp { width: 38px; color: var(--ot-text); letter-spacing: 0.5px; }
+    .mm-orb-hp { color: #4be24b; } .mm-orb-hp .mm-orb-icon { color: #e23a3a; }
+    .mm-orb-prayer { color: #cfe9ff; } .mm-orb-prayer .mm-orb-icon { color: #54d2ff; }
+    .mm-orb-run { color: var(--ot-gold); } .mm-orb-run .mm-orb-icon { color: var(--ot-gold); }
+    .mm-orb-spec { color: #4be24b; } .mm-orb-spec .mm-orb-icon { color: #4be24b; }
+
+    #minimap-frame {
+      position: relative;
+      width: 156px;
+      height: 156px;
+    }
+    #minimap-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #181712;
+      border: 3px solid var(--ot-stone);
+      box-shadow: inset 0 0 0 2px var(--ot-edge), 0 2px 5px rgba(0, 0, 0, 0.6);
+      image-rendering: pixelated;
+    }
+    #minimap-compass {
+      position: absolute;
+      top: -3px;
+      left: -3px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 40%, #6a6052, #2c261d);
+      border: 2px solid var(--ot-stone-light);
       color: #fff;
+      font: bold 13px/24px "Courier New", monospace;
+      text-align: center;
+      z-index: 2;
     }
-    .ui-bar-btn.active {
-      background: rgba(80, 80, 110, 0.95);
-      border-color: #888;
-      color: #fff;
+    .mm-corner-btn {
+      position: absolute;
+      background: linear-gradient(180deg, #4a4234, #2c261d);
+      border: 1px solid var(--ot-edge);
+      border-radius: 4px;
+      color: var(--ot-text);
+      font: bold 9px/1 "Helvetica", sans-serif;
+      padding: 2px 3px;
+      cursor: pointer;
+      z-index: 2;
     }
-    @media (max-width: 480px) {
-      .ui-bar-btn {
-        width: 32px;
-        height: 32px;
-        font-size: 16px;
-      }
+    #minimap-worldmap { top: -2px; right: -4px; font-size: 12px; }
+    #minimap-wiki { bottom: -2px; right: -8px; color: var(--ot-gold); }
+    #minimap-level {
+      margin-top: 4px;
+      width: 156px;
+      text-align: center;
+      color: var(--ot-gold);
+      font: bold 12px/1 "Courier New", monospace;
+      text-shadow: 1px 1px 0 #000;
     }
 
-    /* Inventory */
+    /* ---------- Bottom-right: tabbed sidebar ---------- */
+    #sidebar-cluster {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 240px;
+      padding: 0 6px 4px;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      z-index: 22;
+    }
+    .sidebar-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 1px;
+      padding: 2px 18px;
+      background: var(--ot-panel-dark);
+      border: 2px solid var(--ot-edge);
+    }
+    #sidebar-tabs-top { border-bottom: none; }
+    #sidebar-tabs-bottom { border-top: none; }
+    .sb-tab {
+      flex: 1;
+      height: 30px;
+      max-width: 30px;
+      padding: 0;
+      border: none;
+      background: transparent center/contain no-repeat;
+      font-size: 0;             /* hide emoji fallback glyph */
+      cursor: pointer;
+      opacity: 0.78;
+      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.55));
+      transition: opacity 0.1s;
+    }
+    .sb-tab:hover { opacity: 1; }
+    .sb-tab.active {
+      opacity: 1;
+      background-color: rgba(255, 170, 60, 0.22);
+      border-radius: 5px;
+    }
+    #sidebar-tabs-top .sb-tab[data-tab="combat"]    { background-image: url(/assets/ui/menu/tab-combat.png); }
+    #sidebar-tabs-top .sb-tab[data-tab="skills"]    { background-image: url(/assets/ui/menu/tab-skills.png); }
+    #sidebar-tabs-top .sb-tab[data-tab="quests"]    { background-image: url(/assets/ui/menu/tab-quests.png); }
+    #sidebar-tabs-top .sb-tab[data-tab="inventory"] { background-image: url(/assets/ui/menu/tab-inventory.png); }
+    #sidebar-tabs-top .sb-tab[data-tab="equipment"] { background-image: url(/assets/ui/menu/tab-equipment.png); }
+    #sidebar-tabs-top .sb-tab[data-tab="prayer"]    { background-image: url(/assets/ui/menu/tab-prayer.png); }
+    #sidebar-tabs-top .sb-tab[data-tab="magic"]     { background-image: url(/assets/ui/menu/tab-magic.png); }
+    #sidebar-tabs-bottom .sb-tab[data-tab="clan"]     { background-image: url(/assets/ui/menu/btn-clan.png); }
+    #sidebar-tabs-bottom .sb-tab[data-tab="friends"]  { background-image: url(/assets/ui/menu/btn-friends.png); }
+    #sidebar-tabs-bottom .sb-tab[data-tab="account"]  { background-image: url(/assets/ui/menu/btn-account.png); }
+    #sidebar-tabs-bottom .sb-tab[data-tab="logout"]   { background-image: url(/assets/ui/menu/btn-logout.png); }
+    #sidebar-tabs-bottom .sb-tab[data-tab="settings"] { background-image: url(/assets/ui/menu/btn-settings.png); }
+    #sidebar-tabs-bottom .sb-tab[data-tab="emotes"]   { background-image: url(/assets/ui/menu/btn-emotes.png); }
+    #sidebar-tabs-bottom .sb-tab[data-tab="music"]    { background-image: url(/assets/ui/menu/btn-music.png); }
+
+    #sidebar-body {
+      position: relative;
+      margin: 0 16px;
+      min-height: 262px;
+      padding: 8px 6px;
+      background: var(--ot-panel) url(/assets/ui/menu/panel.png);
+      background-size: 96px;
+      border-left: 2px solid var(--ot-edge);
+      border-right: 2px solid var(--ot-edge);
+      overflow: hidden;
+    }
+    /* Decorative stone pillars framing the sidebar body. */
+    #sidebar-body::before,
+    #sidebar-body::after {
+      content: "";
+      position: absolute;
+      top: -2px;
+      bottom: -2px;
+      width: 18px;
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      pointer-events: none;
+    }
+    #sidebar-body::before { left: -16px; background-image: url(/assets/ui/menu/pillar-left.png); }
+    #sidebar-body::after  { right: -16px; background-image: url(/assets/ui/menu/pillar-right.png); }
+    .sidebar-page { height: 100%; }
+    .sidebar-page.hidden { display: none; }
+    .sidebar-page-body {
+      max-height: 252px;
+      overflow-y: auto;
+    }
+    .sidebar-placeholder-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 240px;
+      text-align: center;
+      color: var(--ot-text);
+    }
+    .sidebar-placeholder-title { font: bold 14px "Helvetica", sans-serif; color: var(--ot-gold); }
+    .sidebar-placeholder-sub { font: 11px "Helvetica", sans-serif; color: #9a8f7a; margin-top: 4px; }
+
+    /* Inventory — items sit directly on the brown panel (OSRS style) */
     .inventory-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 4px;
+      gap: 2px;
+      justify-items: center;
     }
     .inventory-cell {
-      width: 40px;
-      height: 40px;
-      background: rgba(40, 40, 50, 0.8);
-      border: 1px solid #444;
+      position: relative;
+      width: 42px;
+      height: 36px;
+      background: transparent;
+      border: none;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 10px;
+      font-size: 9px;
+      color: var(--ot-text);
       cursor: pointer;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      padding: 2px;
+      overflow: visible;
+    }
+    .inventory-cell:hover { background: rgba(255, 255, 255, 0.06); border-radius: 3px; }
+    .item-icon { image-rendering: pixelated; max-width: 36px; max-height: 32px; }
+    .item-icon-missing { width: 24px; height: 24px; opacity: 0.5; }
+    .item-qty-badge {
+      position: absolute;
+      top: -1px;
+      left: 0;
+      font: bold 11px "Helvetica", Arial, sans-serif;
+      color: var(--ot-gold);
+      text-shadow: 1px 1px 0 #000;
+      pointer-events: none;
+    }
+    /* Equipment — simple 3-column grid of slots */
+    .equipment-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      padding: 4px;
+    }
+    .equipment-cell {
+      min-height: 44px;
+      background: var(--ot-panel-dark);
+      border: 1px solid var(--ot-edge);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      color: #9a8f7a;
       text-align: center;
+      cursor: pointer;
     }
 
     /* Rows */
@@ -774,48 +1028,75 @@
       background: rgba(80, 80, 100, 0.9);
     }
 
-    /* Context menu */
+    /* Context menu — OSRS "Choose Option" style */
     .context-menu {
       position: absolute;
-      background: rgba(0, 0, 0, 0.9);
-      border: 1px solid #888;
-      border-radius: 6px;
-      padding: 4px 0;
+      background: #000;
+      border: 1px solid #5b5b5b;
+      border-radius: 0;
+      padding: 0;
       z-index: 1000;
-      min-width: 140px;
-      font-family: monospace;
-      font-size: 12px;
+      min-width: 130px;
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 13px;
+      font-weight: bold;
       color: #fff;
       user-select: none;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.7);
+    }
+    .context-menu-header {
+      padding: 1px 5px 2px;
+      background: #5b5b5b;
+      color: #fff;
+      border-bottom: 1px solid #2b2b2b;
+      cursor: default;
     }
     .context-menu-item {
-      padding: 4px 12px;
+      padding: 1px 5px;
       white-space: nowrap;
-      border-radius: 3px;
-      margin: 0 2px;
-      transition: background 0.08s ease;
     }
     .context-menu-item:hover {
-      background: rgba(120, 180, 255, 0.25);
+      background: #6f6f6f;
     }
 
-    /* Hover tooltip */
+    /* Hover tooltip (OSRS-style default action hint) */
     #hover-tooltip {
       position: absolute;
-      background: rgba(0, 0, 0, 0.85);
-      border: 1px solid #555;
-      border-radius: 3px;
-      padding: 2px 8px;
-      font-family: monospace;
-      font-size: 11px;
-      color: #ddd;
+      background: rgba(70, 62, 55, 0.98);
+      border: 2px solid #b8a890;
+      border-radius: 2px;
+      padding: 2px 10px;
+      font-family: "Courier New", "Lucida Console", monospace;
+      font-size: 12px;
+      line-height: 1.2;
+      color: #ffcc00;
       z-index: 500;
       pointer-events: none;
       white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
     }
     #hover-tooltip.hidden {
+      display: none;
+    }
+
+    /* Skill hover tooltip (OSRS-style progress detail) */
+    #skill-tooltip {
+      position: absolute;
+      background: rgba(70, 62, 55, 0.98);
+      border: 2px solid #b8a890;
+      border-radius: 2px;
+      padding: 6px 10px;
+      font-family: "Courier New", "Lucida Console", monospace;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #ffcc00;
+      z-index: 500;
+      pointer-events: none;
+      white-space: pre-line;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+    }
+    #skill-tooltip.hidden {
       display: none;
     }
 
@@ -832,13 +1113,11 @@
       color: #aaa;
     }
 
-    /* Chat */
-    .chat-box { width: 600px; }
-    .chat-body { max-height: 120px; }
+    /* Chat input row (chat cluster styled above) */
     .chat-input-row {
       display: flex;
       padding: 4px;
-      border-top: 1px solid #444;
+      border-top: 1px solid var(--ot-edge);
     }
     .chat-input {
       flex: 1;
@@ -1073,17 +1352,7 @@
       color: #ff8888;
     }
 
-    /* Minimap panel */
-    #minimap-panel {
-      width: 160px;
-    }
-    #minimap-panel canvas {
-      width: 100%;
-      height: 120px;
-      background: rgba(10, 20, 10, 0.9);
-      border-radius: 2px;
-      image-rendering: pixelated;
-    }
+    /* (Minimap is styled in the #minimap-cluster block above.) */
 
     /* Contract panel */
     #contract-panel {
@@ -1351,122 +1620,141 @@
     <div id="debug-log" class="debug-log"></div>
   </div>
   <div id="ui-container">
-    <div id="ui-left">
-      <div id="inventory-panel" class="ui-panel hidden">
-        <div class="ui-panel-header">Inventory</div>
-        <div class="ui-panel-body" id="inventory-body"></div>
+    <!-- ===== Top-right: minimap + orbs ===== -->
+    <div id="minimap-cluster">
+      <div id="minimap-orbs">
+        <button type="button" id="orb-xp" class="mm-orb mm-orb-xp" data-orb="xp" title="XP drops">XP</button>
+        <div class="mm-orb mm-orb-hp" data-orb="hitpoints" title="Hitpoints">
+          <span class="mm-orb-icon">♥</span><span class="mm-orb-value" id="orb-hp-value">10</span>
+        </div>
+        <div class="mm-orb mm-orb-prayer" data-orb="prayer" title="Prayer">
+          <span class="mm-orb-icon">✦</span><span class="mm-orb-value" id="orb-prayer-value">1</span>
+        </div>
+        <div class="mm-orb mm-orb-run" data-orb="run" title="Run energy">
+          <span class="mm-orb-icon">➤</span><span class="mm-orb-value" id="orb-run-value">100</span>
+        </div>
+        <div class="mm-orb mm-orb-spec" data-orb="special" title="Special attack">
+          <span class="mm-orb-icon">✷</span><span class="mm-orb-value" id="orb-spec-value">100</span>
+        </div>
       </div>
-      <div id="equipment-panel" class="ui-panel hidden">
-        <div class="ui-panel-header">Equipment</div>
-        <div class="ui-panel-body" id="equipment-body"></div>
+      <div id="minimap-frame">
+        <div id="minimap-compass" title="Compass"><span>N</span></div>
+        <canvas id="minimap-canvas" width="152" height="152"></canvas>
+        <button type="button" id="minimap-worldmap" class="mm-corner-btn" title="World map">🗺</button>
+        <button type="button" id="minimap-wiki" class="mm-corner-btn mm-wiki" title="Wiki">WIKI</button>
       </div>
-      <div id="combat-panel" class="ui-panel hidden">
-        <div class="ui-panel-header">Combat</div>
-        <div class="ui-panel-body" id="combat-body"></div>
-      </div>
-      <div id="bank-panel" class="ui-panel hidden">
-        <div class="ui-panel-header">Bank</div>
-        <div class="ui-panel-body" id="bank-body"></div>
-      </div>
+      <div id="minimap-level" data-slot="combat-level">☠ Level: -</div>
     </div>
-    <div id="ui-right">
-      <div id="skills-panel" class="ui-panel hidden">
-        <div class="ui-panel-header">Skills</div>
-        <div class="ui-panel-body" id="skills-body"></div>
+
+    <!-- ===== Bottom-right: tabbed menu sidebar ===== -->
+    <div id="sidebar-cluster">
+      <div id="sidebar-tabs-top" class="sidebar-tabs">
+        <button type="button" class="sb-tab" data-tab="combat" data-page="combat-panel" title="Combat Options">⚔</button>
+        <button type="button" class="sb-tab" data-tab="skills" data-page="skills-panel" title="Skills">📊</button>
+        <button type="button" class="sb-tab" data-tab="quests" data-page="quest-panel" title="Quest List">📜</button>
+        <button type="button" class="sb-tab" data-tab="inventory" data-page="inventory-panel" title="Inventory">🎒</button>
+        <button type="button" class="sb-tab" data-tab="equipment" data-page="equipment-panel" title="Worn Equipment">🛡</button>
+        <button type="button" class="sb-tab" data-tab="prayer" title="Prayer">✦</button>
+        <button type="button" class="sb-tab" data-tab="magic" data-page="spellbook-panel" title="Magic">✨</button>
       </div>
-      <div id="spellbook-panel" class="ui-panel hidden">
-        <div class="ui-panel-header">Spellbook</div>
-        <div class="ui-panel-body" id="spellbook-body"></div>
-      </div>
-      <div id="quest-panel" class="ui-panel hidden">
-        <div class="ui-panel-header">Quest Journal</div>
-        <div class="ui-panel-body" id="quest-body"></div>
-      </div>
-      <div id="shop-panel" class="ui-panel hidden">
-        <div class="ui-panel-header">Shop</div>
-        <div class="ui-panel-body" id="shop-body"></div>
-      </div>
-      <div id="recipe-panel" class="ui-panel hidden">
-        <div class="ui-panel-header" id="recipe-header">Recipe</div>
-        <div class="ui-panel-body" id="recipe-body">
-          <div id="recipe-list"></div>
-          <div id="recipe-detail" class="recipe-detail hidden">
-            <div id="recipe-ingredients"></div>
-            <div id="recipe-output"></div>
-            <div id="recipe-quantity" class="recipe-quantity">
-              <button type="button" class="qty-btn active" data-qty="1">1</button>
-              <button type="button" class="qty-btn" data-qty="5">5</button>
-              <button type="button" class="qty-btn" data-qty="10">10</button>
-              <button type="button" class="qty-btn" data-qty="x">X</button>
-            </div>
-            <button type="button" id="recipe-make-btn" class="recipe-make-btn">Make</button>
+      <div id="sidebar-body">
+        <div id="inventory-panel" class="sidebar-page hidden"><div class="sidebar-page-body" id="inventory-body"></div></div>
+        <div id="equipment-panel" class="sidebar-page hidden"><div class="sidebar-page-body" id="equipment-body"></div></div>
+        <div id="combat-panel" class="sidebar-page hidden"><div class="sidebar-page-body" id="combat-body"></div></div>
+        <div id="skills-panel" class="sidebar-page hidden"><div class="sidebar-page-body" id="skills-body"></div></div>
+        <div id="spellbook-panel" class="sidebar-page hidden"><div class="sidebar-page-body" id="spellbook-body"></div></div>
+        <div id="quest-panel" class="sidebar-page hidden"><div class="sidebar-page-body" id="quest-body"></div></div>
+        <div id="settings-panel" class="sidebar-page hidden"><div class="sidebar-page-body" id="settings-body"></div></div>
+        <!-- Shared scaffold page for tabs with no backing system yet -->
+        <div id="sidebar-placeholder" class="sidebar-page hidden">
+          <div class="sidebar-placeholder-inner">
+            <div class="sidebar-placeholder-title" id="sidebar-placeholder-title">Coming soon</div>
+            <div class="sidebar-placeholder-sub">This panel is not implemented yet.</div>
           </div>
-          <div id="recipe-feedback" class="recipe-feedback hidden"></div>
         </div>
       </div>
-      <div id="minimap-panel" class="ui-panel hidden">
-        <div class="ui-panel-header">Minimap</div>
-        <div class="ui-panel-body">
-          <canvas id="minimap-canvas" width="160" height="120"></canvas>
-        </div>
-      </div>
-      <div id="contract-panel" class="ui-panel hidden">
-        <div class="ui-panel-header">Contract</div>
-        <div class="ui-panel-body" id="contract-body">
-          <div class="text-dim">No active contract.</div>
-          <div id="contract-progress-bar"><div id="contract-progress-fill"></div></div>
-        </div>
-      </div>
-      <div id="activity-panel" class="ui-panel hidden">
-        <div class="ui-panel-header">Activity</div>
-        <div class="ui-panel-body" id="activity-body">
-          <div class="text-dim">No active activity.</div>
-        </div>
-      </div>
-      <div id="settings-panel" class="ui-panel hidden">
-        <div class="ui-panel-header">Settings</div>
-        <div class="ui-panel-body" id="settings-body"></div>
+      <div id="sidebar-tabs-bottom" class="sidebar-tabs">
+        <button type="button" class="sb-tab" data-tab="clan" title="Clan Chat">🛡️</button>
+        <button type="button" class="sb-tab" data-tab="friends" title="Friends List">🙂</button>
+        <button type="button" class="sb-tab" data-tab="account" title="Account Management">👤</button>
+        <button type="button" class="sb-tab" data-tab="logout" title="Logout">🚪</button>
+        <button type="button" class="sb-tab" data-tab="settings" data-page="settings-panel" title="Settings">🔧</button>
+        <button type="button" class="sb-tab" data-tab="emotes" title="Emotes">😀</button>
+        <button type="button" class="sb-tab" data-tab="music" title="Music Player">🎵</button>
       </div>
     </div>
-    <div id="ui-bottom">
-      <div id="chat-box" class="ui-panel hidden chat-box">
-        <div class="ui-panel-header">Chat</div>
-        <div class="ui-panel-body chat-body" id="chat-body"></div>
-        <div class="chat-input-row">
-          <input type="text" id="chat-input" class="chat-input" placeholder="Type message..." />
-          <button type="button" id="chat-send" class="chat-send-btn">Send</button>
-        </div>
+
+    <!-- ===== Bottom-left: chat ===== -->
+    <div id="chat-cluster">
+      <div id="chat-body" class="chat-body"></div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" class="chat-input" placeholder="Type here to chat..." />
+        <button type="button" id="chat-send" class="chat-send-btn">Send</button>
       </div>
-      <div id="dialogue-box" class="ui-panel hidden dialogue-box">
-        <div class="ui-panel-header" id="dialogue-npc">Dialogue</div>
-        <div class="ui-panel-body dialogue-body" id="dialogue-body">
-          <div id="dialogue-text" class="dialogue-text"></div>
-          <div id="dialogue-options"></div>
-        </div>
+      <div id="chat-tabs" class="chat-tabs">
+        <button type="button" class="chat-tab active" data-channel="all"><span class="chat-tab-name">All</span></button>
+        <button type="button" class="chat-tab" data-channel="game"><span class="chat-tab-name">Game</span><span class="chat-tab-state">On</span></button>
+        <button type="button" class="chat-tab" data-channel="public"><span class="chat-tab-name">Public</span><span class="chat-tab-state">On</span></button>
+        <button type="button" class="chat-tab" data-channel="private"><span class="chat-tab-name">Private</span><span class="chat-tab-state">On</span></button>
+        <button type="button" class="chat-tab" data-channel="clan"><span class="chat-tab-name">Clan</span><span class="chat-tab-state">On</span></button>
+        <button type="button" class="chat-tab" data-channel="trade"><span class="chat-tab-name">Trade</span><span class="chat-tab-state">On</span></button>
+        <div class="chat-report">Report</div>
+        <div class="chat-timer" id="chat-timer">00:00:00</div>
       </div>
     </div>
-    <div id="ui-bar-left">
-      <button type="button" class="ui-bar-btn" data-panel="inventory-panel">🎒</button>
-      <button type="button" class="ui-bar-btn" data-panel="equipment-panel">🛡️</button>
-      <button type="button" class="ui-bar-btn" data-panel="combat-panel">⚔️</button>
-      <button type="button" class="ui-bar-btn" data-panel="skills-panel">📊</button>
-      <button type="button" class="ui-bar-btn" data-panel="spellbook-panel">✨</button>
-      <button type="button" class="ui-bar-btn" data-panel="quest-panel">📜</button>
+
+    <!-- ===== Interaction-driven overlay windows (open from world interaction) ===== -->
+    <div id="bank-panel" class="ui-panel overlay-window hidden">
+      <div class="ui-panel-header">Bank</div>
+      <div class="ui-panel-body" id="bank-body"></div>
     </div>
-    <div id="ui-bar-right">
-      <button type="button" class="ui-bar-btn" data-panel="bank-panel">🏦</button>
-      <button type="button" class="ui-bar-btn" data-panel="shop-panel">🏪</button>
-      <button type="button" class="ui-bar-btn" data-panel="minimap-panel">🗺️</button>
-      <button type="button" class="ui-bar-btn" data-panel="recipe-panel">🔨</button>
-      <button type="button" class="ui-bar-btn" data-panel="contract-panel">📋</button>
-      <button type="button" class="ui-bar-btn" data-panel="activity-panel">⚙️</button>
-      <button type="button" class="ui-bar-btn" data-panel="settings-panel">🔧</button>
-      <button type="button" class="ui-bar-btn" data-panel="chat-box">💬</button>
-      <button type="button" class="ui-bar-btn" data-panel="debug-overlay">🐛</button>
+    <div id="shop-panel" class="ui-panel overlay-window hidden">
+      <div class="ui-panel-header">Shop</div>
+      <div class="ui-panel-body" id="shop-body"></div>
     </div>
+    <div id="recipe-panel" class="ui-panel overlay-window hidden">
+      <div class="ui-panel-header" id="recipe-header">Recipe</div>
+      <div class="ui-panel-body" id="recipe-body">
+        <div id="recipe-list"></div>
+        <div id="recipe-detail" class="recipe-detail hidden">
+          <div id="recipe-ingredients"></div>
+          <div id="recipe-output"></div>
+          <div id="recipe-quantity" class="recipe-quantity">
+            <button type="button" class="qty-btn active" data-qty="1">1</button>
+            <button type="button" class="qty-btn" data-qty="5">5</button>
+            <button type="button" class="qty-btn" data-qty="10">10</button>
+            <button type="button" class="qty-btn" data-qty="x">X</button>
+          </div>
+          <button type="button" id="recipe-make-btn" class="recipe-make-btn">Make</button>
+        </div>
+        <div id="recipe-feedback" class="recipe-feedback hidden"></div>
+      </div>
+    </div>
+    <div id="contract-panel" class="ui-panel overlay-window hidden">
+      <div class="ui-panel-header">Contract</div>
+      <div class="ui-panel-body" id="contract-body">
+        <div class="text-dim">No active contract.</div>
+        <div id="contract-progress-bar"><div id="contract-progress-fill"></div></div>
+      </div>
+    </div>
+    <div id="activity-panel" class="ui-panel overlay-window hidden">
+      <div class="ui-panel-header">Activity</div>
+      <div class="ui-panel-body" id="activity-body">
+        <div class="text-dim">No active activity.</div>
+      </div>
+    </div>
+    <div id="dialogue-box" class="ui-panel overlay-window hidden dialogue-box">
+      <div class="ui-panel-header" id="dialogue-npc">Dialogue</div>
+      <div class="ui-panel-body dialogue-body" id="dialogue-body">
+        <div id="dialogue-text" class="dialogue-text"></div>
+        <div id="dialogue-options"></div>
+      </div>
+    </div>
+
     <div id="spell-target-overlay">Select target for spell (Esc to cancel)</div>
     <div id="item-target-overlay">Select target for item (Esc to cancel)</div>
     <div id="hover-tooltip" class="hidden"></div>
+    <div id="skill-tooltip" class="hidden"></div>
     <div id="status-effects-panel" class="hidden"></div>
     <div id="notification-toast" class="hidden"></div>
   </div>

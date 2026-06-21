@@ -260,6 +260,52 @@ describe("GameEngine entity picking and context menu", () => {
     expect((call.payload as Record<string, unknown>).groundItemEntityId).toBe(30);
   });
 
+  it("sends NpcOption attack on left-click combat NPC with content loaded", () => {
+    // Inject content registries so InputInterpreter can resolve the NPC's options.
+    const content = asEngine(engine).content as {
+      _registries: Record<string, unknown>;
+      _ready: boolean;
+    };
+    content._registries = {
+      item: {},
+      npc: {
+        mud_goblin: {
+          id: "mud_goblin",
+          name: "Mud goblin",
+          size: 1,
+          combatLevel: 5,
+          respawnTicks: 50,
+          options: [
+            { label: "Attack", actionId: "attack", priority: 10, requiredDistance: 1 },
+          ],
+        },
+      },
+      object: {},
+      skill: {},
+      spell: {},
+      quest: {},
+      dialogue: {},
+      contract: {},
+      material: {},
+    };
+    content._ready = true;
+
+    const mockEntity = { entityId: 10, kind: "npc" as const, defId: "mud_goblin", distance: 1 };
+    (asEngine(engine) as { _pickEntityAt: ReturnType<typeof vi.fn> })._pickEntityAt = vi.fn(
+      () => mockEntity,
+    );
+
+    const clickEvent = new MouseEvent("click", { clientX: 400, clientY: 300, bubbles: true });
+    canvas.dispatchEvent(clickEvent);
+
+    expect(socket.sendCommand).toHaveBeenCalled();
+    const calls = socket.sendCommand.mock.calls as unknown[][];
+    const call = (calls[0] as unknown[])[0] as Record<string, unknown>;
+    expect(call.type).toBe(ClientCommandType.NpcOption);
+    expect((call.payload as Record<string, unknown>).actionId).toBe("attack");
+    expect((call.payload as Record<string, unknown>).npcEntityId).toBe(10);
+  });
+
   it("sends MoveClick on left-click player (default)", () => {
     engine.actors.spawn(entityId(42), { x: 30, y: 32, plane: 0 }, "hero", true, "player");
     const mockEntity = { entityId: 42, kind: "player" as const, defId: "hero", distance: 1 };

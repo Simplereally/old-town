@@ -9,6 +9,7 @@ import type { ChatSystem } from "../systems/chat-system";
 import { handleNpcCombatIntent } from "../systems/combat-system";
 import type { ConsumableSystem } from "../systems/consumable-system";
 import { handleContractBoardOpen } from "../systems/contract-system";
+import type { Footprint } from "../world/collision";
 import { handleGroundItemIntent } from "../systems/ground-item-system";
 import {
   type FootprintResolver,
@@ -17,6 +18,7 @@ import {
 } from "../systems/movement-system";
 import type { NookDef } from "../systems/nook-system";
 import { handleObjectIntent } from "../systems/object-interaction-router";
+import { handlePrayerIntent } from "../systems/prayer-system";
 import { handleServiceFeeIntent } from "../systems/service-fee-system";
 import { handleShopIntent } from "../systems/shop-system";
 import { handleRecipeSelect } from "../systems/skilling-system";
@@ -40,6 +42,8 @@ export interface IntentDispatcherContext {
   /** Routes dupe-sensitive item moves to an atomic snapshot+ledger commit (Phase 2 item 4). */
   readonly economyCommit?: EconomyCommitFn | undefined;
   readonly nooks?: readonly NookDef[] | undefined;
+  /** Resolves entity footprints for move-intent pathfinding (players ignore NPC occupancy). */
+  readonly footprintResolver?: FootprintResolver | undefined;
 }
 
 function emitSystemMessage(
@@ -49,6 +53,14 @@ function emitSystemMessage(
   serverTime: number,
 ): void {
   ctx.deltas.markChat({ entityId: owner, text, channel: "system", serverTime });
+}
+
+function resolveFootprintOption(
+  resolver: FootprintResolver | undefined,
+  entityId: EntityId,
+): Footprint | undefined {
+  if (!resolver) return undefined;
+  return typeof resolver === "function" ? resolver(entityId) : resolver;
 }
 
 /** System-reserved action IDs that are always valid for NPCs even if not in the def's options. */
@@ -125,13 +137,20 @@ function dispatchSingleIntent(
     case IntentKind.Move: {
       ctx.actionQueue.cancel(owner, { type: ActionQueueType.Weak });
       ctx.deltas.markInterfaceClose({ interfaceId: "recipe" });
+      // OSRS: issuing a move intent cancels any active combat target so that
+      // auto-retaliate/combat pathing cannot override the player's destination.
+      const combatant = ctx.world.getComponent(owner, "combatant");
+      if (combatant?.targetId !== undefined) {
+        ctx.world.setComponent(owner, "combatant", { ...combatant, targetId: undefined });
+      }
+      const footprint = resolveFootprintOption(ctx.footprintResolver, owner);
       handleMoveIntent(
         { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
         owner,
         {
           dest: intent.payload.dest,
         },
-        { tick },
+        { tick, ...(footprint ? { footprint } : {}) },
       );
       return;
     }
@@ -414,11 +433,20 @@ function dispatchSingleIntent(
     case IntentKind.SetCombatStyle: {
       const combatant = ctx.world.getComponent(owner, "combatant");
       if (combatant) {
-        ctx.world.setComponent(owner, "combatant", {
-          ...combatant,
-          combatStyle: intent.payload.style,
-        });
+        const { style, mode } = intent.payload;
+        const next = { ...combatant, combatStyle: style };
+        if (mode === undefined) {
+          delete next.combatStyleMode;
+        } else {
+          next.combatStyleMode = mode;
+        }
+        ctx.world.setComponent(owner, "combatant", next);
       }
+      return;
+    }
+
+    case IntentKind.SetPrayer: {
+      handlePrayerIntent(ctx, owner, intent.payload, serverTime);
       return;
     }
 

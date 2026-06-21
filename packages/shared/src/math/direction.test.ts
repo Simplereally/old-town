@@ -24,6 +24,12 @@ describe("directionFromDelta", () => {
     expect(directionFromDelta(-12, 0)).toBe(Direction.West);
   });
 
+  it("collapses negative multi-tile deltas by sign", () => {
+    expect(directionFromDelta(-5, -9)).toBe(Direction.SouthWest);
+    expect(directionFromDelta(-3, 4)).toBe(Direction.NorthWest);
+    expect(directionFromDelta(7, -2)).toBe(Direction.SouthEast);
+  });
+
   it("returns null for a zero delta", () => {
     expect(directionFromDelta(0, 0)).toBeNull();
   });
@@ -53,6 +59,22 @@ describe("facingFromTo", () => {
     expect(facingFromTo({ x: 5, y: 5 }, { x: 2, y: 5 })).toBe(Direction.West);
     expect(facingFromTo({ x: 5, y: 5 }, { x: 5, y: 5 })).toBeNull();
   });
+
+  it("faces south-west when the target is down-left", () => {
+    expect(facingFromTo({ x: 10, y: 10 }, { x: 3, y: 1 })).toBe(Direction.SouthWest);
+  });
+
+  it("faces south-east when the target is down-right", () => {
+    expect(facingFromTo({ x: 0, y: 10 }, { x: 7, y: 1 })).toBe(Direction.SouthEast);
+  });
+
+  it("faces north-east when the target is up-right", () => {
+    expect(facingFromTo({ x: 0, y: 0 }, { x: 7, y: 9 })).toBe(Direction.NorthEast);
+  });
+
+  it("faces north-west when the target is up-left", () => {
+    expect(facingFromTo({ x: 10, y: 0 }, { x: 3, y: 9 })).toBe(Direction.NorthWest);
+  });
 });
 
 describe("isDiagonalDirection", () => {
@@ -61,5 +83,22 @@ describe("isDiagonalDirection", () => {
     expect(isDiagonalDirection(Direction.East)).toBe(false);
     expect(isDiagonalDirection(Direction.NorthEast)).toBe(true);
     expect(isDiagonalDirection(Direction.SouthWest)).toBe(true);
+  });
+
+  it("is false for every cardinal direction", () => {
+    for (const direction of [Direction.North, Direction.East, Direction.South, Direction.West]) {
+      expect(isDiagonalDirection(direction)).toBe(false);
+    }
+  });
+
+  it("is true for every diagonal direction", () => {
+    for (const direction of [
+      Direction.NorthEast,
+      Direction.SouthEast,
+      Direction.SouthWest,
+      Direction.NorthWest,
+    ]) {
+      expect(isDiagonalDirection(direction)).toBe(true);
+    }
   });
 });

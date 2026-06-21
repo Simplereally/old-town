@@ -4,9 +4,18 @@
  * Run with: `bun run dev`
  */
 import { type ChildProcess, spawn } from "node:child_process";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 
 const root = process.cwd();
 const bun = process.execPath;
+const clientDir = join(root, "apps", "client");
+// Spawn Vite directly via `node <vite/bin/vite.js>` instead of `bun run --filter … dev`.
+// The latter wraps Vite in an intermediate `bun(client)` process, making the tree
+// `bun(dev) → bun(client) → node(vite)`. On Ctrl+C that intermediate dies first and
+// orphans the leaf node(vite), breaking `taskkill /T` and leaking port 5173. Spawning
+// Vite directly collapses the tree to `bun(dev) → node(vite)` with no intermediate.
+const viteBin = join(clientDir, "node_modules", "vite", "bin", "vite.js");
 
 // Persistence driver override: `--persist` forces postgres, `--nosave` is the explicit no-save
 // sandbox. With neither flag the server resolves its own default (postgres) from the environment
@@ -27,6 +36,19 @@ const serverUrl = process.env.VITE_SERVER_URL ?? `ws://${serverHost}:${serverPor
 const children: ChildProcess[] = [];
 let shuttingDown = false;
 
+/**
+ * Grace window before force-killing a child tree. On Ctrl+C, the Windows console
+ * delivers CTRL_C_EVENT to every process in its process group — which includes our
+ * children, because we spawn them WITHOUT `detached` (see start()) so they stay in
+ * this console's group. The server child therefore runs its own graceful shutdown
+ * (flush persistence, release leases, close the pg pool, close the HTTP/WS servers,
+ * process.exit) and Vite exits on its own; we just wait for them. Hard-killing
+ * immediately would race the server's persistence flush and can leave port 8080
+ * bound (EADDRINUSE on restart), so `taskkill /F` is only a fallback for a child
+ * that hasn't settled within this window.
+ */
+const GRACEFUL_EXIT_MS = 8_000;
+
 function prefixLines(label: string, chunk: Buffer): void {
   const text = chunk.toString();
   for (const line of text.split(/\r?\n/)) {
@@ -36,9 +58,22 @@ function prefixLines(label: string, chunk: Buffer): void {
   }
 }
 
-function start(label: string, args: readonly string[], env: NodeJS.ProcessEnv): ChildProcess {
-  const child = spawn(bun, [...args], {
-    cwd: root,
+function start(
+  label: string,
+  command: string,
+  args: readonly string[],
+  env: NodeJS.ProcessEnv,
+  cwd: string = root,
+): ChildProcess {
+  // NO `detached`: the children share this console's process group, so the Ctrl+C the
+  // user presses is delivered straight to them by Windows and each runs its own graceful
+  // shutdown (the server flushes persistence; Vite frees its port). A `detached` child
+  // gets CREATE_NEW_PROCESS_GROUP and would NOT receive that Ctrl+C — it would keep
+  // running and leak its port until the GRACEFUL_EXIT_MS force-kill fires, or forever if
+  // this parent is killed first (e.g. an impatient second Ctrl+C). killChildTree() stays
+  // as the fallback for a child that ignores the signal.
+  const child = spawn(command, [...args], {
+    cwd,
     env,
     stdio: ["ignore", "pipe", "pipe"],
   });
@@ -58,11 +93,11 @@ function start(label: string, args: readonly string[], env: NodeJS.ProcessEnv): 
 }
 
 /**
- * Terminate a child and ALL of its descendants. The client child is `bun run …` which
- * itself spawns `node vite.js`, so the real process tree is
- * `bun(dev) → bun(client) → node(vite)`. On Windows `child.kill()` only signals the
- * direct child, orphaning the grandchild Vite — which then keeps port 5173 bound and
- * makes the next `bun run dev` fail on `--strictPort`. `taskkill /T` kills the whole tree.
+ * Force-terminate a child and ALL of its descendants. This is the FALLBACK path used
+ * only after the grace window expires — the primary shutdown is the children exiting
+ * on their own from the console Ctrl+C broadcast (see GRACEFUL_EXIT_MS). With direct
+ * Vite spawning the tree is `bun(dev) → node(vite)` (no intermediate), so `taskkill /T`
+ * reliably reaches the leaf.
  */
 function killChildTree(child: ChildProcess): void {
   if (child.killed || child.pid === undefined) {
@@ -80,10 +115,35 @@ function shutdown(code = 0): void {
     return;
   }
   shuttingDown = true;
-  for (const child of children) {
-    killChildTree(child);
-  }
   process.exitCode = code;
+
+  // Track which children are still alive. Each child already received the console
+  // Ctrl+C broadcast and is running its own graceful shutdown; we just wait for it
+  // to exit. The force-kill timer is the fallback for a child that hangs (e.g. an
+  // unbounded DB close) so the dev stack never wedges. Children that already exited
+  // (e.g. Vite, which can die immediately on Ctrl+C before this handler runs) are
+  // excluded up front so we don't linger the whole grace window waiting on a corpse.
+  const pending = new Set(
+    children.filter((child) => child.exitCode === null && child.signalCode === null),
+  );
+  if (pending.size === 0) {
+    return;
+  }
+
+  const forceKillTimer = setTimeout(() => {
+    for (const child of pending) {
+      killChildTree(child);
+    }
+  }, GRACEFUL_EXIT_MS);
+
+  for (const child of pending) {
+    child.once("exit", () => {
+      pending.delete(child);
+      if (pending.size === 0) {
+        clearTimeout(forceKillTimer);
+      }
+    });
+  }
 }
 
 process.on("SIGINT", () => shutdown(0));
@@ -93,7 +153,7 @@ console.log("[dev] Old Town local POC");
 console.log(`[dev] server: http://${serverHost}:${serverPort} and ${serverUrl}`);
 console.log(`[dev] client: http://${clientHost}:${clientPort}`);
 
-start("server", ["apps/server/src/index.ts"], {
+start("server", bun, ["apps/server/src/index.ts"], {
   ...process.env,
   PORT: serverPort,
   CONTENT_DIR: process.env.CONTENT_DIR ?? "content",
@@ -102,21 +162,18 @@ start("server", ["apps/server/src/index.ts"], {
   ...(noSave ? { PERSISTENCE_UNSAFE_ALLOW_NOSAVE: "true" } : {}),
 });
 
-start(
-  "client",
-  [
-    "run",
-    "--filter",
-    "@old-town/client",
-    "dev",
-    "--host",
-    clientHost,
-    "--port",
-    clientPort,
-    "--strictPort",
-  ],
-  {
-    ...process.env,
-    VITE_SERVER_URL: serverUrl,
-  },
-);
+if (!existsSync(viteBin)) {
+  console.error(`[dev] client: vite binary not found at ${viteBin}. Run \`bun install\` first.`);
+  shutdown(1);
+} else {
+  start(
+    "client",
+    "node",
+    [viteBin, "--host", clientHost, "--port", clientPort, "--strictPort"],
+    {
+      ...process.env,
+      VITE_SERVER_URL: serverUrl,
+    },
+    clientDir,
+  );
+}

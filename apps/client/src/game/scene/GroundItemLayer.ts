@@ -2,8 +2,9 @@ import { TILE_SIZE_WORLD_UNITS, type TileCoord } from "@old-town/shared";
 import type { Scene } from "three";
 import {
   Group,
-  Mesh,
+  type Mesh,
   MeshLambertMaterial,
+  type Object3D,
   OctahedronGeometry,
   Sprite,
   SpriteMaterial,
@@ -130,12 +131,10 @@ export class GroundItemLayer {
     return this.meshPool.poolSize;
   }
 
-  getRaycastTargets(): Mesh[] {
-    const targets: Mesh[] = [];
+  getRaycastTargets(): Object3D[] {
+    const targets: Object3D[] = [];
     for (const item of this.items.values()) {
-      if (item.mesh instanceof Mesh) {
-        targets.push(item.mesh);
-      }
+      targets.push(item.mesh);
     }
     return targets;
   }

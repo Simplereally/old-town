@@ -143,10 +143,13 @@ function chebyshev(
 }
 
 describe("NPC AI", () => {
-  it("wanders deterministically without leaving its home radius", () => {
+  it("wanders within its home radius on the 1% per-tick roll", () => {
     const { ctx, world, npc, home } = setup();
+    let leftHome = false;
 
-    for (let tick = 1; tick <= 12; tick += 1) {
+    // OSRS: a 1% per-tick roll means wandering is rare; run enough ticks for the
+    // fixed seed to trigger it deterministically while proving the radius holds.
+    for (let tick = 1; tick <= 1000; tick += 1) {
       processMovementPhase(
         { world, collision: ctx.collision, deltas: ctx.deltas },
         tick,
@@ -155,8 +158,92 @@ describe("NPC AI", () => {
       syncNpcOccupancy(ctx);
       processNpcAiPhase(ctx, tick);
 
-      expect(chebyshev(tileOf(world, npc), home)).toBeLessThanOrEqual(NPC_DEF.wanderRadius);
+      const tile = tileOf(world, npc);
+      expect(chebyshev(tile, home)).toBeLessThanOrEqual(NPC_DEF.wanderRadius);
+      if (tile.x !== home.x || tile.y !== home.y) {
+        leftHome = true;
+      }
     }
+
+    expect(leftHome).toBe(true);
+  });
+
+  it("does not wander when wanderRadius is 0 (static)", () => {
+    const { ctx, world, npc, home } = setup({
+      npcDef: { ...NPC_DEF, wanderRadius: 0 },
+    });
+
+    for (let tick = 1; tick <= 200; tick += 1) {
+      processMovementPhase(
+        { world, collision: ctx.collision, deltas: ctx.deltas },
+        tick,
+        npcFootprintResolver(ctx),
+      );
+      syncNpcOccupancy(ctx);
+      processNpcAiPhase(ctx, tick);
+    }
+
+    expect(tileOf(world, npc)).toEqual(home);
+  });
+
+  it("does not pick a new wander target every tick (~1% chance per tick)", () => {
+    const { ctx, world, npc } = setup();
+    let moves = 0;
+    const ticks = 600;
+    for (let tick = 1; tick <= ticks; tick += 1) {
+      const before = tileOf(world, npc);
+      processMovementPhase(
+        { world, collision: ctx.collision, deltas: ctx.deltas },
+        tick,
+        npcFootprintResolver(ctx),
+      );
+      syncNpcOccupancy(ctx);
+      processNpcAiPhase(ctx, tick);
+      const after = tileOf(world, npc);
+      if (before.x !== after.x || before.y !== after.y) {
+        moves += 1;
+      }
+    }
+    // With a 1% chance per tick over 600 ticks, expect roughly 6 moves.
+    // Allow a wide band since this is random; the key assertion is that the
+    // NPC is NOT moving every tick (which would be ~600 moves).
+    expect(moves).toBeLessThan(ticks * 0.05);
+    expect(moves).toBeGreaterThan(0);
+  });
+
+  it("does not auto-aggro a player whose combat level is more than double the NPC's (unaggressive rule)", () => {
+    // NPC_DEF has combatLevel 3, aggressiveRadius 2 → 2× = 6.
+    const { ctx, world, npc } = setup();
+    const player = world.createEntity();
+    world.setComponent(player, "position", { entityId: player, x: 5, y: 6, plane: 0 });
+    world.setComponent(player, "player", {
+      entityId: player,
+      accountId: "a",
+      sessionId: "s",
+      interestRadius: 8,
+    });
+    world.setComponent(player, "combatant", { ...combatant(player, 10), combatLevel: 7 });
+
+    processNpcAiPhase(ctx, 1);
+
+    expect(world.getComponent(npc, "combatant")?.targetId).toBeUndefined();
+  });
+
+  it("still auto-aggros a player whose combat level is exactly double the NPC's", () => {
+    const { ctx, world, npc } = setup();
+    const player = world.createEntity();
+    world.setComponent(player, "position", { entityId: player, x: 5, y: 6, plane: 0 });
+    world.setComponent(player, "player", {
+      entityId: player,
+      accountId: "a",
+      sessionId: "s",
+      interestRadius: 8,
+    });
+    world.setComponent(player, "combatant", { ...combatant(player, 10), combatLevel: 6 });
+
+    processNpcAiPhase(ctx, 1);
+
+    expect(world.getComponent(npc, "combatant")?.targetId).toBe(player);
   });
 
   it("drops its target and paths home after exceeding leash distance", () => {

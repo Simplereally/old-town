@@ -5,7 +5,7 @@
  * and the discriminated union rejects unknown command types.
  */
 import { z } from "zod";
-import { combatStyleSchema } from "../content-schemas/common";
+import { combatStyleModeSchema, combatStyleSchema } from "../content-schemas/common";
 import { actionIdSchema } from "../content/action-id";
 import { type ClientCommand, ClientCommandType } from "./commands";
 import type { ParseResult } from "./parse-result";
@@ -118,7 +118,12 @@ const recipeSelectCommandSchema = command(
 
 const setCombatStyleCommandSchema = command(
   ClientCommandType.SetCombatStyle,
-  z.object({ style: combatStyleSchema }).strict(),
+  z.object({ style: combatStyleSchema, mode: combatStyleModeSchema.optional() }).strict(),
+);
+
+const setPrayerCommandSchema = command(
+  ClientCommandType.SetPrayer,
+  z.object({ prayerId: z.string().min(1).max(64), active: z.boolean() }).strict(),
 );
 
 const pingCommandSchema = command(
@@ -141,6 +146,7 @@ export const clientCommandSchema = z.discriminatedUnion("type", [
   shopActionCommandSchema,
   recipeSelectCommandSchema,
   setCombatStyleCommandSchema,
+  setPrayerCommandSchema,
   pingCommandSchema,
 ]);
 

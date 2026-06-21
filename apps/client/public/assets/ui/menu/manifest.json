@@ -1,0 +1,115 @@
+{
+  "sheet": "menu-sheet.png",
+  "bg": "rgb(18,18,17)",
+  "sprites": {
+    "tab-combat": {
+      "w": 113,
+      "h": 108
+    },
+    "tab-skills": {
+      "w": 112,
+      "h": 109
+    },
+    "tab-quests": {
+      "w": 113,
+      "h": 108
+    },
+    "tab-inventory": {
+      "w": 111,
+      "h": 108
+    },
+    "tab-equipment": {
+      "w": 112,
+      "h": 108
+    },
+    "tab-prayer": {
+      "w": 113,
+      "h": 109
+    },
+    "tab-magic": {
+      "w": 115,
+      "h": 109
+    },
+    "btn-clan": {
+      "w": 113,
+      "h": 109
+    },
+    "btn-friends": {
+      "w": 112,
+      "h": 109
+    },
+    "btn-account": {
+      "w": 113,
+      "h": 108
+    },
+    "btn-logout": {
+      "w": 113,
+      "h": 102
+    },
+    "btn-settings": {
+      "w": 112,
+      "h": 108
+    },
+    "btn-emotes": {
+      "w": 112,
+      "h": 109
+    },
+    "btn-music": {
+      "w": 113,
+      "h": 109
+    },
+    "slot": {
+      "w": 114,
+      "h": 110
+    },
+    "slot-selected": {
+      "w": 116,
+      "h": 112
+    },
+    "slot-alt": {
+      "w": 115,
+      "h": 111
+    },
+    "pillar-left": {
+      "w": 88,
+      "h": 594
+    },
+    "pillar-right": {
+      "w": 84,
+      "h": 594
+    },
+    "frame-top": {
+      "w": 366,
+      "h": 57
+    },
+    "frame-bottom": {
+      "w": 373,
+      "h": 72
+    },
+    "frame-corner-tl": {
+      "w": 85,
+      "h": 88
+    },
+    "frame-corner-tr": {
+      "w": 86,
+      "h": 89
+    },
+    "frame-corner-bl": {
+      "w": 67,
+      "h": 64
+    },
+    "frame-corner-br": {
+      "w": 59,
+      "h": 58
+    },
+    "panel": {
+      "w": 80,
+      "h": 80
+    }
+  },
+  "colors": {
+    "panel": "rgb(64,54,40)",
+    "stone": "rgb(133,118,98)",
+    "stoneDark": "rgb(6,3,1)"
+  }
+}

@@ -5,7 +5,7 @@
  * position, inventory/XP/HP changes, damage rolls, drops, quest state, and whether any
  * interaction is valid. There is deliberately no command that sets authoritative state.
  */
-import type { CombatStyle } from "../content-schemas/common";
+import type { CombatStyle, CombatStyleMode } from "../content-schemas/common";
 import type { TileCoord } from "../types/coords";
 import type { EntityId } from "../types/ids";
 
@@ -24,6 +24,7 @@ export const ClientCommandType = {
   ShopAction: "C2S_SHOP_ACTION",
   RecipeSelect: "C2S_RECIPE_SELECT",
   SetCombatStyle: "C2S_SET_COMBAT_STYLE",
+  SetPrayer: "C2S_SET_PRAYER",
   Ping: "C2S_PING",
 } as const;
 
@@ -119,6 +120,14 @@ export interface RecipeSelectIntent {
  *  The server clamps the choice to the equipped weapon's allowed styles at resolution time. */
 export interface SetCombatStyleIntent {
   readonly style: CombatStyle;
+  /** Optional XP distribution mode (POC_SPEC §13.5.2). Absent clears any chosen mode. */
+  readonly mode?: CombatStyleMode;
+}
+
+/** Request to activate or deactivate a prayer (POC_SPEC §13.8). `prayerId` is a content id. */
+export interface SetPrayerIntent {
+  readonly prayerId: string;
+  readonly active: boolean;
 }
 
 // --- Command envelope -------------------------------------------------------------
@@ -158,6 +167,7 @@ export type SetCombatStyleCommand = ClientCommandBase<
   typeof ClientCommandType.SetCombatStyle,
   SetCombatStyleIntent
 >;
+export type SetPrayerCommand = ClientCommandBase<typeof ClientCommandType.SetPrayer, SetPrayerIntent>;
 export type PingCommand = ClientCommandBase<typeof ClientCommandType.Ping, PingIntent>;
 
 /** The discriminated union of every client → server command. */
@@ -175,4 +185,5 @@ export type ClientCommand =
   | ShopActionCommand
   | RecipeSelectCommand
   | SetCombatStyleCommand
+  | SetPrayerCommand
   | PingCommand;

@@ -174,7 +174,12 @@
     "icon": "icon_prayer_knot",
     "value": 8,
     "weight": 0.1,
-    "options": ["use"],
-    "consumable": { "heal": 0, "consumeTicks": 1 }
+    "options": ["drink"],
+    "consumable": {
+      "heal": 0,
+      "consumeTicks": 1,
+      "effectType": "restore_prayer",
+      "effectValue": 7
+    }
   }
 ]

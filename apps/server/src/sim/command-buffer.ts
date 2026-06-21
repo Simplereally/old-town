@@ -13,6 +13,7 @@ import {
   parseClientCommand,
   type RecipeSelectCommand,
   type SetCombatStyleCommand,
+  type SetPrayerCommand,
   type ShopActionCommand,
   type UiActionCommand,
   type UseItemOnCommand,
@@ -32,6 +33,7 @@ export const IntentKind = {
   ShopAction: "shopAction",
   RecipeSelect: "recipeSelect",
   SetCombatStyle: "setCombatStyle",
+  SetPrayer: "setPrayer",
   Ping: "ping",
 } as const;
 
@@ -51,6 +53,7 @@ type NormalizedByCommand =
   | { readonly kind: typeof IntentKind.ShopAction; readonly command: ShopActionCommand }
   | { readonly kind: typeof IntentKind.RecipeSelect; readonly command: RecipeSelectCommand }
   | { readonly kind: typeof IntentKind.SetCombatStyle; readonly command: SetCombatStyleCommand }
+  | { readonly kind: typeof IntentKind.SetPrayer; readonly command: SetPrayerCommand }
   | { readonly kind: typeof IntentKind.Ping; readonly command: PingCommand };
 
 export type BufferedIntent = NormalizedByCommand extends infer T
@@ -172,6 +175,11 @@ function normalize(raw: unknown, source: CommandSource): CommandBufferAcceptResu
       return {
         ok: true,
         intent: { ...base, kind: IntentKind.SetCombatStyle, payload: parsed.value.payload },
+      };
+    case ClientCommandType.SetPrayer:
+      return {
+        ok: true,
+        intent: { ...base, kind: IntentKind.SetPrayer, payload: parsed.value.payload },
       };
     case ClientCommandType.Ping:
       return {

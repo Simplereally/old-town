@@ -44,6 +44,28 @@ describe("ActorRenderer", () => {
     expect(renderer.actorCount).toBe(1);
   });
 
+  it("stamps raycast metadata on creature meshes", () => {
+    renderer.spawn(ID2, TILE, "mud_goblin", false, "npc");
+    const mesh = renderer.getRaycastTargets()[0];
+    if (!mesh) throw new Error("Expected creature mesh");
+    expect(mesh.userData).toMatchObject({
+      entityId: ID2,
+      kind: "npc",
+      defId: "mud_goblin",
+    });
+  });
+
+  it("stamps raycast metadata on humanoid meshes", () => {
+    renderer.spawn(ID2, TILE, "townsfolk", false, "npc");
+    const mesh = renderer.getRaycastTargets()[0];
+    if (!mesh) throw new Error("Expected humanoid mesh");
+    expect(mesh.userData).toMatchObject({
+      entityId: ID2,
+      kind: "npc",
+      defId: "townsfolk",
+    });
+  });
+
   it("removes an actor", () => {
     renderer.spawn(ID1, TILE, "player", true);
     renderer.remove(ID1);

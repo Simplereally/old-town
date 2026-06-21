@@ -1,15 +1,14 @@
-import {
-  type ContentClientRegistries,
-  contentClientRegistriesSchema,
-  type DialogueDef,
-  type ItemDef,
-  type MaterialDef,
-  type NpcDef,
-  type ObjectDef,
-  type QuestDef,
-  type QuestStage,
-  type SkillDef,
-  type SpellDef,
+import type {
+  ContentClientRegistries,
+  DialogueDef,
+  ItemDef,
+  MaterialDef,
+  NpcDef,
+  ObjectDef,
+  QuestDef,
+  QuestStage,
+  SkillDef,
+  SpellDef,
 } from "@old-town/shared";
 
 export type { ContentClientRegistries } from "@old-town/shared";
@@ -34,11 +33,12 @@ export class ContentClient {
       throw new Error(`Failed to load content: ${response.status} ${response.statusText}`);
     }
     const raw: unknown = await response.json();
-    const result = contentClientRegistriesSchema.safeParse(raw);
-    if (!result.success) {
-      throw new Error(`Invalid content response: ${result.error.message}`);
+    if (raw === null || typeof raw !== "object") {
+      throw new Error("Invalid content response: expected an object");
     }
-    this._registries = result.data;
+    // The server is authoritative and validates content with Zod on boot.
+    // The client trusts the server's /api/content response — no runtime Zod needed.
+    this._registries = raw as ContentClientRegistries;
     this._ready = true;
   }
 

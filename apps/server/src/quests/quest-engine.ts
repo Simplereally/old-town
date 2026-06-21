@@ -146,9 +146,13 @@ function completeStage(
   serverTime: number,
   tick?: number,
 ): boolean {
-  const nextStage = quest.stages
-    .filter((candidate) => candidate.stage > stage.stage)
-    .toSorted((a, b) => a.stage - b.stage)[0];
+  let nextStage: QuestStage | undefined;
+  for (const candidate of quest.stages) {
+    if (candidate.stage <= stage.stage) continue;
+    if (nextStage === undefined || candidate.stage < nextStage.stage) {
+      nextStage = candidate;
+    }
+  }
   if (!nextStage) {
     const result = completeQuest(ctx, playerId, quest.id, serverTime, tick);
     if (result.applied) {

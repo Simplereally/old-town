@@ -86,5 +86,13 @@
     "xpTableId": "oldtown_default",
     "combat": true,
     "unlocks": []
+  },
+  {
+    "id": "prayer",
+    "name": "Prayer",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": true,
+    "unlocks": []
   }
 ]

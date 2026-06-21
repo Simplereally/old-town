@@ -133,7 +133,8 @@ export const skillDeltaSchema = z
   .object({
     skillId: contentIdSchema,
     level: z.number().int().nonnegative(),
-    xp: z.number().int().nonnegative(),
+    /** Fractional XP is valid (OSRS hitpoints XP is 1.33/damage = 4/3). */
+    xp: z.number().nonnegative(),
     effectiveLevel: z.number().int().nonnegative(),
   })
   .strict();
@@ -159,7 +160,7 @@ export const hitsplatPacketSchema = z
   .strict();
 
 export const xpDropPacketSchema = z
-  .object({ skillId: contentIdSchema, amount: z.number().int() })
+  .object({ skillId: contentIdSchema, amount: z.number().nonnegative() })
   .strict();
 
 export const projectilePacketSchema = z

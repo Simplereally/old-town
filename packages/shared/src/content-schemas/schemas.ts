@@ -12,6 +12,7 @@ import { itemDefSchema } from "./item";
 import { materialDefSchema } from "./material";
 import { npcDefSchema } from "./npc";
 import { objectDefSchema } from "./object";
+import { prayerDefSchema } from "./prayer";
 import { processingRecipeDefSchema } from "./processing-recipe";
 import { propertyDefSchema } from "./property";
 import { questDefSchema } from "./quest";
@@ -32,6 +33,7 @@ export const contentSchemas = {
   item: itemDefSchema,
   npc: npcDefSchema,
   object: objectDefSchema,
+  prayer: prayerDefSchema,
   processingRecipe: processingRecipeDefSchema,
   skill: skillDefSchema,
   resourceNode: resourceNodeDefSchema,

@@ -23,6 +23,7 @@ import type { ActionHandler } from "../sim/action-executor";
 import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { addXp, getCurrentLevel, type AddXpResult } from "../skills/skill-state";
+import { beginApproach } from "./approach";
 import { trackContractItemGain } from "./contract-system";
 import { handleMoveIntent } from "./movement-system";
 import { depleteResourceNode, type ResourceNodeContext } from "./resource-node-system";
@@ -157,12 +158,13 @@ function hasTool(
   inventory: InventoryComponent,
   tags: readonly string[],
 ): boolean {
+  const tagSet = new Set(tags);
   for (const slot of inventory.slots) {
     if (!slot) {
       continue;
     }
     const item = ctx.registries.item.get(slot.itemId);
-    if (item?.tags.some((tag) => tags.includes(tag)) === true) {
+    if (item?.tags.some((tag) => tagSet.has(tag)) === true) {
       return true;
     }
   }
@@ -173,7 +175,7 @@ function hasTool(
       continue;
     }
     const item = ctx.registries.item.get(itemId);
-    if (item?.tags.some((tag) => tags.includes(tag)) === true) {
+    if (item?.tags.some((tag) => tagSet.has(tag)) === true) {
       return true;
     }
   }
@@ -185,13 +187,14 @@ function bestToolPower(
   inventory: InventoryComponent,
   tags: readonly string[],
 ): number {
+  const tagSet = new Set(tags);
   let best = 0;
   for (const slot of inventory.slots) {
     if (!slot) {
       continue;
     }
     const item = ctx.registries.item.get(slot.itemId);
-    if (item?.tags.some((tag) => tags.includes(tag)) === true) {
+    if (item?.tags.some((tag) => tagSet.has(tag)) === true) {
       best = Math.max(best, item.tierOrder ?? 1);
     }
   }
@@ -201,7 +204,7 @@ function bestToolPower(
       continue;
     }
     const item = ctx.registries.item.get(itemId);
-    if (item?.tags.some((tag) => tags.includes(tag)) === true) {
+    if (item?.tags.some((tag) => tagSet.has(tag)) === true) {
       best = Math.max(best, item.tierOrder ?? 1);
     }
   }
@@ -268,19 +271,6 @@ function gatherSuccessChance(
   );
 }
 
-function enqueueBeginGather(ctx: SkillingContext, owner: EntityId, nodeEntityId: EntityId): void {
-  const payload: BeginGatherActionPayload = { kind: "begin_gather", nodeEntityId };
-  ctx.actionQueue.enqueue({
-    id: actionId("begin-gather", owner),
-    owner,
-    type: ActionQueueType.Weak,
-    delayTicks: 1,
-    repeat: { intervalTicks: 1 },
-    interruptGroup: InterruptGroup.Skilling,
-    payload,
-  });
-}
-
 function enqueueGather(
   ctx: SkillingContext,
   owner: EntityId,
@@ -322,15 +312,13 @@ export function handleObjectSkillingIntent(
     if (validation.reason === "out_of_range") {
       const nodeTile = tileOf(ctx.world, intent.objectEntityId);
       if (nodeTile) {
-        handleMoveIntent(
-          { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
+        beginApproach(
+          { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, actionQueue: ctx.actionQueue },
           owner,
-          {
-            dest: nodeTile,
-          },
-          tick !== undefined ? { tick } : {},
+          nodeTile,
+          () => ({ kind: "begin_gather", nodeEntityId: intent.objectEntityId }),
+          tick,
         );
-        enqueueBeginGather(ctx, owner, intent.objectEntityId);
         return true;
       }
     }
@@ -428,24 +416,6 @@ function validateProcessAction(
   return undefined;
 }
 
-function enqueueBeginProcess(
-  ctx: SkillingContext,
-  owner: EntityId,
-  stationEntityId: EntityId,
-  recipeId: string,
-): void {
-  const payload: BeginProcessActionPayload = { kind: "begin_process", stationEntityId, recipeId };
-  ctx.actionQueue.enqueue({
-    id: actionId("begin-process", owner),
-    owner,
-    type: ActionQueueType.Weak,
-    delayTicks: 1,
-    repeat: { intervalTicks: 1 },
-    interruptGroup: InterruptGroup.Skilling,
-    payload,
-  });
-}
-
 function enqueueProcess(
   ctx: SkillingContext,
   owner: EntityId,
@@ -492,15 +462,13 @@ function handleProcessingIntent(
     if (error === "You need to get closer.") {
       const stationTile = tileOf(ctx.world, stationEntityId);
       if (stationTile) {
-        handleMoveIntent(
-          { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
+        beginApproach(
+          { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, actionQueue: ctx.actionQueue },
           owner,
-          {
-            dest: stationTile,
-          },
-          tick !== undefined ? { tick } : {},
+          stationTile,
+          () => ({ kind: "begin_process", stationEntityId, recipeId: fallback.id }),
+          tick,
         );
-        enqueueBeginProcess(ctx, owner, stationEntityId, fallback.id);
         return true;
       }
     }
@@ -566,15 +534,13 @@ export function handleRecipeSelect(
   if (error === "You need to get closer.") {
     const stationTile = tileOf(ctx.world, stationEntityId);
     if (stationTile) {
-      handleMoveIntent(
-        { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
+      beginApproach(
+        { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, actionQueue: ctx.actionQueue },
         owner,
-        {
-          dest: stationTile,
-        },
-        tick !== undefined ? { tick } : {},
+        stationTile,
+        () => ({ kind: "begin_process", stationEntityId, recipeId: recipe.id }),
+        tick,
       );
-      enqueueBeginProcess(ctx, owner, stationEntityId, recipe.id);
       return true;
     }
   }

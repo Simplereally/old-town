@@ -1,4 +1,5 @@
 import {
+  combatLevelColor,
   entityId,
   type InteractionOptionDef,
   type SkillDelta,
@@ -17,6 +18,7 @@ export interface ContentResolver {
       }
     | undefined;
   getObject(id: string): { options: readonly InteractionOptionDef[] } | undefined;
+  getItem(id: string): { name: string } | undefined;
 }
 
 export type NpcAttackSetting =
@@ -45,19 +47,34 @@ export interface MenuResolveState {
   readonly itemMode?: { readonly itemUid: number };
 }
 
+/** A single colored segment of a context-menu row label (OSRS "Choose Option" style). */
+export interface ContextMenuPart {
+  readonly text: string;
+  /** CSS color for this segment; omit for the default menu text color (white). */
+  readonly color?: string;
+}
+
 export interface ContextMenuOption {
   readonly label: string;
   readonly actionId: string;
   readonly priority: number;
+  /**
+   * Optional rich segments for per-word coloring. When present the view renders
+   * these colored spans; otherwise it falls back to the plain `label`.
+   */
+  readonly parts?: readonly ContextMenuPart[];
 }
 
 const DEFAULT_INPUT_SETTINGS: InputInterpreterSettings = {
-  npcAttack: "depends-on-combat-levels",
+  npcAttack: "left-click-where-available",
   mouseButtons: "two-button",
   menuSwaps: [],
 };
 
 const PLAYER_MAX_COMBAT_LEVEL = 126;
+
+/** OSRS "Choose Option" highlights NPC names in yellow on every option row. */
+const NPC_NAME_COLOR = "#ffff00";
 
 export type ClientDecision =
   | { type: "move"; tile: TileCoord }
@@ -118,6 +135,19 @@ export class InputInterpreter {
   }
 
   /**
+   * Return the full hover tooltip label for the default action on an entity.
+   * For NPCs this is "Attack Giant rat (level-3)" or "Talk-to Hans"; for objects
+   * "Chop tree"; for ground items "Pick up Coins"; for players just the name.
+   */
+  getDefaultActionLabel(entity: PickedEntity, state: MenuResolveState = {}): string | undefined {
+    if (entity.kind === "player") {
+      return this.getEntityName(entity);
+    }
+    const top = this.resolveMenuEntries(entity, null, state)[0];
+    return top?.label;
+  }
+
+  /**
    * Build the full context-menu option list for an entity/tile.  Sorted by
    * ascending priority (lowest first, highest last — the UI may render top-to-bottom).
    */
@@ -126,7 +156,7 @@ export class InputInterpreter {
     tile: { x: number; y: number } | null,
     state: MenuResolveState = {},
   ): ContextMenuOption[] {
-    return this.resolveMenuEntries(entity, tile, state);
+    return this.sortMenuEntriesForDisplay(this.resolveMenuEntries(entity, tile, state));
   }
 
   /**
@@ -177,7 +207,8 @@ export class InputInterpreter {
     const options: ContextMenuOption[] = [];
 
     if (tile) {
-      options.push({ label: "Walk here", actionId: "walk_here", priority: 0 });
+      options.push({
+        label: "Walk here", actionId: "walk_here", priority: 0, parts: [{ text: "Walk here", color: "#ffffff" }] });
     }
 
     if (state.spellMode && (entity || tile)) {
@@ -201,24 +232,53 @@ export class InputInterpreter {
     }
 
     const name = this.getEntityName(entity);
-    options.push({ label: `Examine ${name}`, actionId: "examine", priority: -100 });
+    // OSRS "Choose Option": when an NPC has a combat level, the level appears in
+    // parentheses next to the name on every option row (e.g. "Attack Goblin (level-2)").
+    const npcDef = entity.kind === "npc" ? this.content.getNpc(entity.defId ?? "") : undefined;
+    const levelSuffix =
+      npcDef?.combatLevel !== undefined ? ` (level-${npcDef.combatLevel})` : "";
+    const isNpc = entity.kind === "npc";
+    // OSRS rows read "<verb> <name in yellow><level-suffix coloured by level diff>".
+    // The name is always yellow; the level suffix is tinted by the OSRS 9-tier
+    // combat-level-difference palette. Build the coloured segments here where the
+    // name and level are known; the view just renders them.
+    const levelColor = combatLevelColor(state.playerCombatLevel, npcDef?.combatLevel);
+    const npcNameParts = (verb: string): ContextMenuPart[] => [
+      { text: `${verb} ` },
+      { text: name, color: NPC_NAME_COLOR },
+      ...(levelSuffix ? [{ text: levelSuffix, color: levelColor }] : []),
+    ];
+    options.push({
+      label: `Examine ${name}${levelSuffix}`,
+      actionId: "examine",
+      priority: -100,
+      ...(isNpc ? { parts: npcNameParts("Examine") } : {}),
+    });
 
     switch (entity.kind) {
       case "npc": {
-        const def = this.content.getNpc(entity.defId ?? "");
-        const contentOptions = def?.options ?? [];
+        const contentOptions = npcDef?.options ?? [];
         for (const opt of contentOptions) {
           const adjusted = this.adjustNpcOptionPriority(
             opt,
-            def?.combatLevel,
+            npcDef?.combatLevel,
             state.playerCombatLevel,
           );
           if (adjusted) {
-            options.push(adjusted);
+            options.push({
+              ...adjusted,
+              label: `${opt.label} ${name}${levelSuffix}`,
+              parts: npcNameParts(opt.label),
+            });
           }
         }
         if (contentOptions.length === 0) {
-          options.push({ label: "Talk-to", actionId: "talk", priority: 1 });
+          options.push({
+            label: `Talk-to ${name}${levelSuffix}`,
+            actionId: "talk",
+            priority: 1,
+            parts: npcNameParts("Talk-to"),
+          });
         }
         break;
       }
@@ -226,19 +286,35 @@ export class InputInterpreter {
         const def = this.content.getObject(entity.defId ?? "");
         const contentOptions = def?.options ?? [];
         for (const opt of contentOptions) {
-          options.push({ label: opt.label, actionId: opt.actionId, priority: opt.priority });
+          options.push({
+            label: opt.label,
+            actionId: opt.actionId,
+            priority: opt.priority,
+            parts: [{ text: opt.label, color: "#ffffff" }],
+          });
         }
         if (contentOptions.length === 0) {
-          options.push({ label: "Use", actionId: "use", priority: 1 });
+          options.push({
+            label: "Use",
+            actionId: "use",
+            priority: 1,
+            parts: [{ text: "Use", color: "#ffffff" }],
+          });
         }
         break;
       }
       case "groundItem": {
-        const itemName = entity.itemId ?? "item";
+        const itemName = this.getItemName(entity.itemId);
+        const quantityText = entity.quantity && entity.quantity > 1 ? ` x${entity.quantity}` : "";
         options.push({
-          label: `Pick up ${itemName}${entity.quantity && entity.quantity > 1 ? ` x${entity.quantity}` : ""}`,
+          label: `Pick up ${itemName}${quantityText}`,
           actionId: "pickup",
           priority: 1,
+          parts: [
+            { text: "Pick up ", color: "#ffffff" },
+            { text: itemName, color: "#ffffff" },
+            { text: quantityText, color: "#ffffff" },
+          ],
         });
         break;
       }
@@ -347,9 +423,32 @@ export class InputInterpreter {
     return [...options].sort((a, b) => b.priority - a.priority);
   }
 
+  private sortMenuEntriesForDisplay(options: readonly ContextMenuOption[]): ContextMenuOption[] {
+    return [...options].sort((a, b) => {
+      // OSRS menu order: spell/item targeting first, then Attack, then the rest by priority.
+      const displayRank = (o: ContextMenuOption) => {
+        if (o.actionId === "cast_spell" || o.actionId === "use_item_on") return 2;
+        if (o.actionId === "attack" && o.priority >= 0) return 1;
+        return 0;
+      };
+      const aRank = displayRank(a);
+      const bRank = displayRank(b);
+      if (aRank !== bRank) return bRank - aRank;
+      return b.priority - a.priority;
+    });
+  }
+
+  private getItemName(itemId: string | undefined): string {
+    if (!itemId) return "item";
+    return this.content.getItem(itemId)?.name ?? itemId;
+  }
+
   getEntityName(entity: PickedEntity): string {
     if (entity.kind === "npc") {
       return this.content.getNpc(entity.defId ?? "")?.name ?? entity.defId ?? "npc";
+    }
+    if (entity.kind === "groundItem") {
+      return this.getItemName(entity.itemId);
     }
     return entity.defId ?? entity.itemId ?? "entity";
   }

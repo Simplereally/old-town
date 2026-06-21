@@ -209,6 +209,7 @@ function makeState(region: RegionMapDef = baseRegion): EditorState {
       activity: new Map(),
       boss: new Map(),
       trail: new Map(),
+      prayer: new Map(),
     },
     regions: [],
     selected: {

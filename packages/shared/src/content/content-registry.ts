@@ -22,6 +22,7 @@ import type { ItemDef } from "../content-schemas/item";
 import type { MaterialDef } from "../content-schemas/material";
 import type { NpcDef } from "../content-schemas/npc";
 import type { ObjectDef } from "../content-schemas/object";
+import type { PrayerDef } from "../content-schemas/prayer";
 import type { ProcessingRecipeDef } from "../content-schemas/processing-recipe";
 import type { PropertyDef } from "../content-schemas/property";
 import type { QuestDef } from "../content-schemas/quest";
@@ -67,6 +68,7 @@ const CONTENT_KINDS: readonly ContentKind[] = [
   "item",
   "npc",
   "object",
+  "prayer",
   "processingRecipe",
   "skill",
   "resourceNode",
@@ -179,6 +181,7 @@ export function validateContent(files: readonly LoadedContentFile[]): ContentVal
     item: maps.get("item") as Map<string, ItemDef>,
     npc: maps.get("npc") as Map<string, NpcDef>,
     object: maps.get("object") as Map<string, ObjectDef>,
+    prayer: maps.get("prayer") as Map<string, PrayerDef>,
     processingRecipe: maps.get("processingRecipe") as Map<string, ProcessingRecipeDef>,
     skill: maps.get("skill") as Map<string, SkillDef>,
     resourceNode: maps.get("resourceNode") as Map<string, ResourceNodeDef>,

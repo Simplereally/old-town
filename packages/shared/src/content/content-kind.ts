@@ -2,6 +2,7 @@ export const CONTENT_KINDS = [
   "item",
   "npc",
   "object",
+  "prayer",
   "processingRecipe",
   "skill",
   "resourceNode",

@@ -17,6 +17,7 @@ import type { ItemDef } from "../content-schemas/item";
 import type { MaterialDef } from "../content-schemas/material";
 import type { NpcDef } from "../content-schemas/npc";
 import type { ObjectDef } from "../content-schemas/object";
+import type { PrayerDef } from "../content-schemas/prayer";
 import type { ProcessingRecipeDef } from "../content-schemas/processing-recipe";
 import type { PropertyDef } from "../content-schemas/property";
 import type { QuestDef } from "../content-schemas/quest";
@@ -34,6 +35,7 @@ export interface ContentRegistries {
   readonly item: ReadonlyMap<string, ItemDef>;
   readonly npc: ReadonlyMap<string, NpcDef>;
   readonly object: ReadonlyMap<string, ObjectDef>;
+  readonly prayer: ReadonlyMap<string, PrayerDef>;
   readonly processingRecipe: ReadonlyMap<string, ProcessingRecipeDef>;
   readonly skill: ReadonlyMap<string, SkillDef>;
   readonly resourceNode: ReadonlyMap<string, ResourceNodeDef>;

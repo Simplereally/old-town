@@ -1,0 +1,128 @@
+[
+  {
+    "id": "thick_skin",
+    "name": "Thick Skin",
+    "requiredPrayer": 1,
+    "drainEffect": 10,
+    "conflictGroup": "defence_low",
+    "effects": [
+      { "stat": "defence", "mode": "add", "value": 1 }
+    ]
+  },
+  {
+    "id": "burst_of_strength",
+    "name": "Burst of Strength",
+    "requiredPrayer": 4,
+    "drainEffect": 10,
+    "conflictGroup": "strength_low",
+    "effects": [
+      { "stat": "strength", "mode": "add", "value": 1 }
+    ]
+  },
+  {
+    "id": "clarity_of_thought",
+    "name": "Clarity of Thought",
+    "requiredPrayer": 7,
+    "drainEffect": 10,
+    "conflictGroup": "attack_low",
+    "effects": [
+      { "stat": "attack", "mode": "add", "value": 1 }
+    ]
+  },
+  {
+    "id": "rock_skin",
+    "name": "Rock Skin",
+    "requiredPrayer": 10,
+    "drainEffect": 12,
+    "conflictGroup": "defence_low",
+    "effects": [
+      { "stat": "defence", "mode": "add", "value": 2 }
+    ]
+  },
+  {
+    "id": "superhuman_strength",
+    "name": "Superhuman Strength",
+    "requiredPrayer": 13,
+    "drainEffect": 12,
+    "conflictGroup": "strength_low",
+    "effects": [
+      { "stat": "strength", "mode": "add", "value": 2 }
+    ]
+  },
+  {
+    "id": "improved_reflexes",
+    "name": "Improved Reflexes",
+    "requiredPrayer": 16,
+    "drainEffect": 12,
+    "conflictGroup": "attack_low",
+    "effects": [
+      { "stat": "attack", "mode": "add", "value": 2 }
+    ]
+  },
+  {
+    "id": "steel_skin",
+    "name": "Steel Skin",
+    "requiredPrayer": 28,
+    "drainEffect": 16,
+    "conflictGroup": "defence_low",
+    "effects": [
+      { "stat": "defence", "mode": "add", "value": 3 }
+    ]
+  },
+  {
+    "id": "ultimate_strength",
+    "name": "Ultimate Strength",
+    "requiredPrayer": 31,
+    "drainEffect": 16,
+    "conflictGroup": "strength_low",
+    "effects": [
+      { "stat": "strength", "mode": "add", "value": 3 }
+    ]
+  },
+  {
+    "id": "incredible_reflexes",
+    "name": "Incredible Reflexes",
+    "requiredPrayer": 34,
+    "drainEffect": 16,
+    "conflictGroup": "attack_low",
+    "effects": [
+      { "stat": "attack", "mode": "add", "value": 3 }
+    ]
+  },
+  {
+    "id": "protect_from_magic",
+    "name": "Protect from Magic",
+    "requiredPrayer": 37,
+    "drainEffect": 20,
+    "conflictGroup": "overhead",
+    "protection": {
+      "style": "magic",
+      "npcReduction": 1.0,
+      "playerReduction": 0.4
+    }
+  },
+  {
+    "id": "protect_from_ranged",
+    "name": "Protect from Ranged",
+    "requiredPrayer": 40,
+    "drainEffect": 20,
+    "conflictGroup": "overhead",
+    "protection": {
+      "style": "ranged",
+      "npcReduction": 1.0,
+      "playerReduction": 0.4
+    }
+  },
+  {
+    "id": "protect_from_melee",
+    "name": "Protect from Melee",
+    "requiredPrayer": 43,
+    "drainEffect": 20,
+    "conflictGroup": "overhead",
+    "protection": {
+      "style": "melee",
+      "npcReduction": 1.0,
+      "playerReduction": 0.4
+    }
+  }
+]
