@@ -170,9 +170,44 @@ describe("CameraController", () => {
     input.remove();
   });
 
-  it("locks rotation by default in isometric mode", () => {
+  // Regression: a previous commit set controls.enableRotate = false in the
+  // constructor (because _isometricAngle defaults to true), which permanently
+  // killed arrow-key rotation since nothing in the game calls
+  // setIsometricAngle(false). This test captures the player-facing contract:
+  // arrow keys rotate the camera out of the box, no toggle required.
+  it("rotates camera via arrow keys by default (no setIsometricAngle call needed)", () => {
     const { controls, controller } = createController();
-    expect(controller.isometricAngle).toBe(true);
-    expect(controls.enableRotate).toBe(false);
+    // Do NOT call setIsometricAngle(false) — rotation must work by default.
+    const rotateLeft = vi.spyOn(controls, "rotateLeft");
+    const rotateUp = vi.spyOn(controls, "rotateUp");
+    const dt = 0.016;
+
+    dispatchArrow("ArrowLeft");
+    controller.update(dt);
+    expect(rotateLeft).toHaveBeenCalledTimes(1);
+    expect(rotateLeft.mock.calls.at(-1)?.[0]).toBeGreaterThan(0);
+
+    dispatchKeyUp("ArrowLeft");
+
+    dispatchArrow("ArrowRight");
+    controller.update(dt);
+    expect(rotateLeft).toHaveBeenLastCalledWith(
+      -(rotateLeft.mock.calls.at(0)?.[0] ?? 0),
+    );
+
+    dispatchKeyUp("ArrowRight");
+
+    dispatchArrow("ArrowUp");
+    controller.update(dt);
+    expect(rotateUp).toHaveBeenCalledTimes(1);
+    expect(rotateUp.mock.calls.at(-1)?.[0]).toBeGreaterThan(0);
+
+    dispatchKeyUp("ArrowUp");
+
+    dispatchArrow("ArrowDown");
+    controller.update(dt);
+    expect(rotateUp).toHaveBeenLastCalledWith(
+      -(rotateUp.mock.calls.at(0)?.[0] ?? 0),
+    );
   });
 });
