@@ -244,8 +244,9 @@ export class ThreeRenderer {
       this._fpsUpdateTime = time;
     }
 
-    this.cameraController.controls.update();
+    this.cameraController.update(deltaTime);
     this.onFrame?.(deltaTime, time / 1000, time);
+    this.cameraController.controls.update();
     this.renderer.render(this.scene, this.camera);
     this._lastFrameDurationMs = performance.now() - frameStart;
 
