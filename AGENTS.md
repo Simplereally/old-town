@@ -40,6 +40,7 @@
 ## Validation discipline
 
 - Always use `rg` (ripgrep) over `grep` for searching the codebase.
+- Prefer deep imports (`@old-town/shared/types/ids`) over barrel imports (`@old-town/shared`) to keep typecheck fast. The barrel is allowed but don't add new `export *` to it.
 - Every story lists validation commands. Run them before marking complete.
 - Typical validation: `bun run test`, `bun run lint`, `bun run typecheck`, `bun run content:validate`.
 - Never leave broken builds between completed stories.
