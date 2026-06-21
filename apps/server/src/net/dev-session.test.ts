@@ -59,13 +59,14 @@ describe("DevSessionManager", () => {
       changes: [
         { slot: 1, itemId: "pennywrought_axe", quantity: 1, uid: 2 },
         { slot: 2, itemId: "pennywrought_pickaxe", quantity: 1, uid: 3 },
-        { slot: 3, itemId: "bread", quantity: 5, uid: 4 },
-        { slot: 4, itemId: "raw_fish", quantity: 5, uid: 5 },
-        { slot: 5, itemId: "coin", quantity: 25, uid: 6 },
-        { slot: 6, itemId: "ember_bead", quantity: 20, uid: 7 },
-        { slot: 7, itemId: "gust_bead", quantity: 20, uid: 8 },
-        { slot: 8, itemId: "wit_bead", quantity: 20, uid: 9 },
-        { slot: 9, itemId: "writ_bead", quantity: 20, uid: 10 },
+        { slot: 3, itemId: "small_net", quantity: 1, uid: 4 },
+        { slot: 4, itemId: "bread", quantity: 5, uid: 5 },
+        { slot: 5, itemId: "raw_fish", quantity: 5, uid: 6 },
+        { slot: 6, itemId: "coin", quantity: 25, uid: 7 },
+        { slot: 7, itemId: "ember_bead", quantity: 20, uid: 8 },
+        { slot: 8, itemId: "gust_bead", quantity: 20, uid: 9 },
+        { slot: 9, itemId: "wit_bead", quantity: 20, uid: 10 },
+        { slot: 10, itemId: "writ_bead", quantity: 20, uid: 11 },
       ],
     });
     const skillIds = fullState.skills?.map((skill) => skill.skillId) ?? [];
@@ -152,8 +153,8 @@ describe("DevSessionManager", () => {
     const inventory = world.getComponent(playerId, "inventory");
     expect(inventory).toBeDefined();
     if (inventory) {
-      inventory.slots[9] = { itemId: "coin", quantity: 123, uid: 11 };
-      inventory.nextUid = 12;
+      inventory.slots[11] = { itemId: "coin", quantity: 123, uid: 12 };
+      inventory.nextUid = 13;
     }
     const equipment = world.getComponent(playerId, "equipment");
     expect(equipment).toBeDefined();
@@ -189,10 +190,10 @@ describe("DevSessionManager", () => {
       },
     });
     expect(saved?.inventory.slots).toContainEqual({
-      slot: 9,
+      slot: 11,
       itemId: "coin",
       quantity: 123,
-      uid: 11,
+      uid: 12,
     });
 
     const reconnect = { id: "session-2", characterId: "dev-a" };
@@ -206,10 +207,10 @@ describe("DevSessionManager", () => {
       boost: 1,
       drain: 0,
     });
-    expect(world.getComponent(reloadedId, "inventory")?.slots[9]).toEqual({
+    expect(world.getComponent(reloadedId, "inventory")?.slots[11]).toEqual({
       itemId: "coin",
       quantity: 123,
-      uid: 11,
+      uid: 12,
     });
     expect(world.getComponent(reloadedId, "equipment")?.slots.weapon).toBe(
       "pennywrought_shortblade",

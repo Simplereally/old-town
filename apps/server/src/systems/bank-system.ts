@@ -1,4 +1,10 @@
-import type { BankDef, BankIntent, ContentRegistries, EntityId } from "@old-town/shared";
+import type {
+  BankDef,
+  BankIntent,
+  ContentRegistries,
+  EntityId,
+  ItemTransactionAuditEvent,
+} from "@old-town/shared";
 import type { BankComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
 import {
@@ -15,12 +21,53 @@ import type { ItemAuditLog } from "../items/item-audit";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import type { CollisionMap } from "../world/collision";
 
+/**
+ * Enqueue a dupe-sensitive item move for atomic durable persistence (snapshot + ledger in one
+ * transaction). When provided, the bank routes its ledger writes here instead of the fire-and-forget
+ * audit sink so a bank move can never leave durable inventory and ledger disagreeing.
+ */
+export type EconomyCommitFn = (
+  entityId: EntityId,
+  ledger: readonly ItemTransactionAuditEvent[],
+  idempotencyKey: string,
+  tick: number,
+  serverTime: number,
+) => void;
+
 export interface BankSystemContext {
   readonly world: World;
   readonly collision: CollisionMap;
   readonly deltas: DeltaAccumulator;
   readonly registries: ContentRegistries;
   readonly itemAudit?: ItemAuditLog | undefined;
+  readonly economyCommit?: EconomyCommitFn | undefined;
+}
+
+/**
+ * Record an economic item move. With an {@link EconomyCommitFn} wired, the durable ledger row rides
+ * the atomic snapshot commit (and the audit sink only keeps an in-memory copy for /debug); without
+ * one, it falls back to the standalone audit persistence.
+ */
+function recordEconomicMove(
+  ctx: BankSystemContext,
+  owner: EntityId,
+  event: {
+    readonly itemId: string;
+    readonly quantity: number;
+    readonly reason: string;
+    readonly tick: number;
+    readonly beforeQuantity?: number;
+    readonly afterQuantity?: number;
+  },
+  idempotencyKey: string,
+  serverTime: number,
+): void {
+  const atomic = ctx.economyCommit !== undefined;
+  const record = ctx.itemAudit?.recordForEntity(owner, event, { persist: !atomic });
+  if (atomic && record) {
+    const { id: _id, ...ledgerEvent } = record;
+    ctx.economyCommit?.(owner, [ledgerEvent], idempotencyKey, event.tick, serverTime);
+  }
 }
 
 const BANK_INTERFACE_ID = "bank";
@@ -129,14 +176,20 @@ export function handleBankIntent(
       ctx.deltas.markInventoryDelta(buildDelta(inventory, removeResult.changes));
       ctx.deltas.markInventoryDelta(buildDelta(bank, addResult.changes));
 
-      ctx.itemAudit?.recordForEntity(owner, {
-        itemId: item.itemId,
-        quantity: quantity,
-        reason: "bank_deposit",
-        tick,
-        beforeQuantity: item.quantity,
-        afterQuantity: item.quantity - quantity,
-      });
+      recordEconomicMove(
+        ctx,
+        owner,
+        {
+          itemId: item.itemId,
+          quantity,
+          reason: "bank_deposit",
+          tick,
+          beforeQuantity: item.quantity,
+          afterQuantity: item.quantity - quantity,
+        },
+        `bank:deposit:${owner}:${intent.itemUid}:${item.itemId}:${quantity}:${tick}`,
+        serverTime,
+      );
 
       return true;
     }
@@ -174,14 +227,20 @@ export function handleBankIntent(
       ctx.deltas.markInventoryDelta(buildDelta(bank, removeResult.changes));
       ctx.deltas.markInventoryDelta(buildDelta(inventory, addResult.changes));
 
-      ctx.itemAudit?.recordForEntity(owner, {
-        itemId: item.itemId,
-        quantity: quantity,
-        reason: "bank_withdraw",
-        tick,
-        beforeQuantity: 0,
-        afterQuantity: quantity,
-      });
+      recordEconomicMove(
+        ctx,
+        owner,
+        {
+          itemId: item.itemId,
+          quantity,
+          reason: "bank_withdraw",
+          tick,
+          beforeQuantity: 0,
+          afterQuantity: quantity,
+        },
+        `bank:withdraw:${owner}:${intent.itemUid}:${item.itemId}:${quantity}:${tick}`,
+        serverTime,
+      );
 
       return true;
     }

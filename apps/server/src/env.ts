@@ -5,6 +5,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { GAME_TICK_MS } from "@old-town/shared";
+import type { PersistenceDriver } from "./persistence/factory";
 
 export interface RuntimeConfig {
   /** Port the WebSocket server listens on. */
@@ -15,16 +16,66 @@ export interface RuntimeConfig {
   tickMs: number;
   /** Content directory path relative to project root. */
   contentDir: string;
-  /** Persistence adapter configuration for accountless dev characters. */
+  /** Persistence subsystem configuration. */
   persistence: {
-    readonly enabled: boolean;
+    /** Selected driver. Defaults to postgres; legacy `PERSISTENCE_ENABLED` is still honoured. */
+    readonly driver: PersistenceDriver;
+    /** PostgreSQL connection string (required when driver is postgres). */
+    readonly databaseUrl: string | undefined;
+    /** Logical world id stamped onto saves and leases. */
+    readonly worldId: string;
+    /** Content build version stamped onto saves / ledger rows for later migration. */
+    readonly contentVersion: number;
+    /** Deprecated JSON-file path (debug export / sandbox only). */
     readonly filePath: string;
     readonly lazySaveIntervalTicks: number;
+    /** Enforce the one-live-owner-per-character lease on connect (items 5 & 7). */
+    readonly sessionLeasing: boolean;
+    /**
+     * Allow falling back to the no-save (disabled) adapter when the configured driver fails to
+     * start. UNSAFE: only `dev:nosave` sets this. Otherwise startup hard-fails (item 1).
+     */
+    readonly unsafeAllowNoSave: boolean;
+    /** Max time to wait for the persistence flush during graceful shutdown. */
+    readonly shutdownFlushMs: number;
+    /** Max pooled Postgres connections. */
+    readonly pgMaxConnections: number;
+    /** Pool connect timeout in ms. */
+    readonly pgConnectionTimeoutMillis: number;
+    /** Pool idle connection timeout in ms. */
+    readonly pgIdleTimeoutMillis: number;
+    /** Postgres statement_timeout in ms (per query). */
+    readonly pgStatementTimeoutMs: number;
+    /** Postgres lock_timeout in ms (row locks). */
+    readonly pgLockTimeoutMs: number;
+    /** Postgres idle_in_transaction_session_timeout in ms. */
+    readonly pgIdleInTransactionSessionTimeoutMs: number;
   };
   /** Whether to emit debug logs and extra runtime checks. */
   debug: boolean;
   /** Whether to log to console as JSON (structured) or plain text (human-readable). */
   logJson: boolean;
+}
+
+const PERSISTENCE_DRIVERS: readonly PersistenceDriver[] = [
+  "disabled",
+  "memory",
+  "json_file",
+  "postgres",
+];
+
+function resolvePersistenceDriverEnv(env: Map<string, string>): PersistenceDriver {
+  const raw = env.get("PERSISTENCE_DRIVER")?.trim().toLowerCase();
+  if (raw && (PERSISTENCE_DRIVERS as readonly string[]).includes(raw)) {
+    return raw as PersistenceDriver;
+  }
+  // Legacy fallback: PERSISTENCE_ENABLED=false → disabled, true → json_file.
+  const legacy = env.get("PERSISTENCE_ENABLED");
+  if (legacy !== undefined) {
+    return legacy === "true" || legacy === "1" ? "json_file" : "disabled";
+  }
+  // Postgres is the default development persistence (subsystem item 2).
+  return "postgres";
 }
 
 function parseIntEnv(value: string | undefined, defaultValue: number): number {
@@ -84,9 +135,24 @@ export function loadRuntimeConfig(): RuntimeConfig {
     tickMs: parseIntEnv(builtEnv.get("TICK_MS"), GAME_TICK_MS),
     contentDir: builtEnv.get("CONTENT_DIR") ?? "content",
     persistence: {
-      enabled: parseBoolEnv(builtEnv.get("PERSISTENCE_ENABLED"), false),
+      driver: resolvePersistenceDriverEnv(builtEnv),
+      databaseUrl: builtEnv.get("DATABASE_URL"),
+      worldId: builtEnv.get("WORLD_ID") ?? "old_town_dev",
+      contentVersion: parseIntEnv(builtEnv.get("CONTENT_VERSION"), 1),
       filePath: builtEnv.get("PERSISTENCE_FILE") ?? ".old-town/dev-persistence.json",
       lazySaveIntervalTicks: parseIntEnv(builtEnv.get("PERSISTENCE_LAZY_SAVE_TICKS"), 10),
+      sessionLeasing: parseBoolEnv(builtEnv.get("PERSISTENCE_SESSION_LEASING"), true),
+      unsafeAllowNoSave: parseBoolEnv(builtEnv.get("PERSISTENCE_UNSAFE_ALLOW_NOSAVE"), false),
+      shutdownFlushMs: parseIntEnv(builtEnv.get("PERSISTENCE_SHUTDOWN_FLUSH_MS"), 5_000),
+      pgMaxConnections: parseIntEnv(builtEnv.get("PG_MAX_CONNECTIONS"), 10),
+      pgConnectionTimeoutMillis: parseIntEnv(builtEnv.get("PG_CONNECTION_TIMEOUT_MS"), 2_000),
+      pgIdleTimeoutMillis: parseIntEnv(builtEnv.get("PG_IDLE_TIMEOUT_MS"), 30_000),
+      pgStatementTimeoutMs: parseIntEnv(builtEnv.get("PG_STATEMENT_TIMEOUT_MS"), 5_000),
+      pgLockTimeoutMs: parseIntEnv(builtEnv.get("PG_LOCK_TIMEOUT_MS"), 1_000),
+      pgIdleInTransactionSessionTimeoutMs: parseIntEnv(
+        builtEnv.get("PG_IDLE_IN_TRANSACTION_SESSION_TIMEOUT_MS"),
+        5_000,
+      ),
     },
     debug: parseBoolEnv(builtEnv.get("DEBUG"), false),
     logJson: parseBoolEnv(builtEnv.get("LOG_JSON"), false),

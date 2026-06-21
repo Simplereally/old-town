@@ -116,6 +116,24 @@ describe("persistence adapters", () => {
     ).rejects.toBeInstanceOf(PersistenceValidationError);
   });
 
+  it("applies idempotent ledger writes exactly once (memory and json-file)", async () => {
+    const key = "bank:dev-a:withdraw:tick-12";
+    const memory = new MemoryPersistenceAdapter();
+    await memory.recordItemTransaction({ ...auditRecord, idempotencyKey: key });
+    await memory.recordItemTransaction({ ...auditRecord, id: 2, idempotencyKey: key });
+    await expect(memory.recentItemTransactions()).resolves.toHaveLength(1);
+
+    const filePath = await tempFile("idempotent.json");
+    const file = new JsonFilePersistenceAdapter(filePath);
+    await file.recordItemTransaction({ ...auditRecord, idempotencyKey: key });
+    await file.recordItemTransaction({ ...auditRecord, id: 2, idempotencyKey: key });
+    await expect(file.recentItemTransactions()).resolves.toHaveLength(1);
+
+    // Distinct keys are still recorded independently.
+    await memory.recordItemTransaction({ ...auditRecord, id: 3, idempotencyKey: `${key}:b` });
+    await expect(memory.recentItemTransactions()).resolves.toHaveLength(2);
+  });
+
   it("uses disabled storage when config turns dev persistence off", async () => {
     const adapter = createPersistenceAdapter({ enabled: false, filePath: "unused.json" });
 

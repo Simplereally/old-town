@@ -1349,6 +1349,11 @@
           "id": "E45-S05",
           "title": "XP drops, level-ups, and skill panel wiring",
           "file": "stories/E45/E45-S05_xp-drops-level-ups-and-skill-panel-wiring.md"
+        },
+        {
+          "id": "E45-S06",
+          "title": "End-to-end integration smoke test",
+          "file": "stories/E45/E45-S06_end-to-end-integration-smoke-test.md"
         }
       ]
     },

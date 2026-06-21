@@ -8,6 +8,16 @@ import { type ChildProcess, spawn } from "node:child_process";
 const root = process.cwd();
 const bun = process.execPath;
 
+// Persistence driver override: `--persist` forces postgres, `--nosave` is the explicit no-save
+// sandbox. With neither flag the server resolves its own default (postgres) from the environment
+// and HARD-FAILS at boot if the database is unreachable (use `dev:nosave` to opt out).
+const noSave = process.argv.includes("--nosave");
+const persistenceDriver = noSave
+  ? "disabled"
+  : process.argv.includes("--persist")
+    ? "postgres"
+    : process.env.PERSISTENCE_DRIVER;
+
 const serverHost = process.env.SERVER_HOST ?? "localhost";
 const serverPort = process.env.PORT ?? "8080";
 const clientHost = process.env.CLIENT_HOST ?? "127.0.0.1";
@@ -88,7 +98,8 @@ start("server", ["apps/server/src/index.ts"], {
   PORT: serverPort,
   CONTENT_DIR: process.env.CONTENT_DIR ?? "content",
   TICK_MS: process.env.TICK_MS ?? "600",
-  PERSISTENCE_ENABLED: process.env.PERSISTENCE_ENABLED ?? "false",
+  ...(persistenceDriver ? { PERSISTENCE_DRIVER: persistenceDriver } : {}),
+  ...(noSave ? { PERSISTENCE_UNSAFE_ALLOW_NOSAVE: "true" } : {}),
 });
 
 start(

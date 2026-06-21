@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  lint-typecheck-test:
+    name: Lint, Typecheck & Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install
+      - run: bun run lint
+      - run: bun run typecheck
+      - run: bun run content:validate
+      - run: bun run test
+
+  postgres-integration:
+    name: PostgreSQL 18 Integration Tests
+    runs-on: ubuntu-latest
+    # Real Postgres integration suite — exercises literal SQL, constraints, concurrent idempotency,
+    # session leasing, outbox drain, and deadlock prevention against postgres:18.
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: old_town
+          POSTGRES_PASSWORD: old_town
+          POSTGRES_DB: old_town
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U old_town -d old_town"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      OLD_TOWN_TEST_DATABASE_URL: postgres://old_town:old_town@localhost:5432/old_town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install
+      - name: Run migrations
+        run: bun run db:migrate
+        env:
+          DATABASE_URL: postgres://old_town:old_town@localhost:5432/old_town
+      - name: Run Postgres integration suite
+        run: bun run test:postgres

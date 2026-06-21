@@ -12,10 +12,16 @@ import { createServer } from "node:http";
 import { extname, resolve } from "node:path";
 import { GAME_TICK_MS, PROTOCOL_VERSION } from "@old-town/shared";
 import { type BootContentResult, loadContent } from "./content-loader";
+import type { RuntimeConfig } from "./env";
 import { loadRuntimeConfig } from "./env";
+import type { Logger } from "./logger";
 import { createLogger } from "./logger";
 import { createWebSocketTransport, type WebSocketTransport } from "./net/websocket-transport";
-import { createPersistenceAdapter } from "./persistence";
+import {
+  createPersistenceAdapterAsync,
+  DisabledPersistenceAdapter,
+  type PersistenceAdapter,
+} from "./persistence";
 import { createSimulationKernel, type SimulationKernel } from "./sim/simulation-kernel";
 
 export interface GameServer {
@@ -62,10 +68,20 @@ export async function startServer(): Promise<GameServer> {
     .join(", ");
   logger.info("boot", "Content loaded", { registries: registryCounts });
 
-  const persistence = createPersistenceAdapter(config.persistence);
+  const persistence = await resolvePersistenceAdapter(config.persistence, logger);
   logger.info("boot", "Persistence configured", {
+    driver: config.persistence.driver,
     enabled: persistence.enabled,
     kind: persistence.kind,
+    sessionLeasing: config.persistence.sessionLeasing,
+    pgPool: {
+      maxConnections: config.persistence.pgMaxConnections,
+      connectionTimeoutMs: config.persistence.pgConnectionTimeoutMillis,
+      idleTimeoutMs: config.persistence.pgIdleTimeoutMillis,
+      statementTimeoutMs: config.persistence.pgStatementTimeoutMs,
+      lockTimeoutMs: config.persistence.pgLockTimeoutMs,
+      idleInTransactionSessionTimeoutMs: config.persistence.pgIdleInTransactionSessionTimeoutMs,
+    },
   });
 
   // --- Create simulation kernel ----------------------------------------------------
@@ -82,6 +98,8 @@ export async function startServer(): Promise<GameServer> {
     logger,
     persistence,
     lazySaveIntervalTicks: config.persistence.lazySaveIntervalTicks,
+    worldId: config.persistence.worldId,
+    sessionLeasing: config.persistence.sessionLeasing,
   });
 
   // --- HTTP server (health + readiness + content) -----------------------------------
@@ -131,6 +149,27 @@ export async function startServer(): Promise<GameServer> {
     if (url?.pathname === "/debug/stats" && req.method === "GET") {
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(kernel.stats()));
+      return;
+    }
+    if (url?.pathname === "/debug/persistence" && req.method === "GET") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          driver: config.persistence.driver,
+          kind: persistence.kind,
+          enabled: persistence.enabled,
+          sessionLeasing: config.persistence.sessionLeasing,
+          pgPool: {
+            maxConnections: config.persistence.pgMaxConnections,
+            connectionTimeoutMs: config.persistence.pgConnectionTimeoutMillis,
+            idleTimeoutMs: config.persistence.pgIdleTimeoutMillis,
+            statementTimeoutMs: config.persistence.pgStatementTimeoutMs,
+            lockTimeoutMs: config.persistence.pgLockTimeoutMs,
+            idleInTransactionSessionTimeoutMs: config.persistence.pgIdleInTransactionSessionTimeoutMs,
+          },
+          metrics: kernel.persistenceMetrics(),
+        }),
+      );
       return;
     }
     // Static file serving for client build
@@ -224,17 +263,112 @@ export async function startServer(): Promise<GameServer> {
   // --- Graceful shutdown ------------------------------------------------------------
   const shutdown = async (): Promise<void> => {
     logger.info("shutdown", "Graceful shutdown initiated");
+    // 1. Stop accepting input / new sessions and stop the tick loop.
     tickLoopStopped = true;
     if (tickTimer) clearTimeout(tickTimer);
-    await kernel.flushPersistence();
+    transport.stopAccepting();
+
+    // 2. Flush persistence under a bounded deadline — a hung DB must not hang shutdown forever.
+    let flushOk = true;
+    try {
+      await withTimeout(
+        kernel.flushPersistence(),
+        config.persistence.shutdownFlushMs,
+        "persistence flush",
+      );
+    } catch (error) {
+      flushOk = false;
+      logger.error("shutdown", "Persistence flush failed or timed out during shutdown", {
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
+
+    // 3. Release active session leases so a clean redeploy doesn't make players wait for TTL.
+    await kernel.releaseAllLeases().catch((error: unknown) => {
+      logger.warn("shutdown", "Lease release during shutdown failed", {
+        message: error instanceof Error ? error.message : String(error),
+      });
+    });
+
+    // 4. Close the adapter and network.
+    await persistence.close?.();
     await Promise.all([
       transport.close(),
       new Promise<void>((resolve) => httpServer.close(() => resolve())),
     ]);
-    logger.info("shutdown", "HTTP server closed");
+    logger.info("shutdown", "HTTP server closed", { flushOk });
+    if (!flushOk) {
+      process.exitCode = 1;
+    }
   };
 
   return { shutdown, httpServer, transport, kernel };
+}
+
+/** Reject if `promise` does not settle within `ms`. */
+async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<never>((_resolve, reject) => {
+        timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+/**
+ * Build the configured persistence adapter, falling back to a no-save adapter when initialisation
+ * fails (e.g. Postgres is the default but no database is running yet). A delayed/missing save must
+ * never stop the server from booting — only an immediate economic commit should ever block.
+ */
+async function resolvePersistenceAdapter(
+  persistence: RuntimeConfig["persistence"],
+  logger: Logger,
+): Promise<PersistenceAdapter> {
+  try {
+    const adapter = await createPersistenceAdapterAsync({
+      driver: persistence.driver,
+      databaseUrl: persistence.databaseUrl,
+      filePath: persistence.filePath,
+      worldId: persistence.worldId,
+      contentVersion: persistence.contentVersion,
+      pgMaxConnections: persistence.pgMaxConnections,
+      pgConnectionTimeoutMillis: persistence.pgConnectionTimeoutMillis,
+      pgIdleTimeoutMillis: persistence.pgIdleTimeoutMillis,
+      pgStatementTimeoutMs: persistence.pgStatementTimeoutMs,
+      pgLockTimeoutMs: persistence.pgLockTimeoutMs,
+      pgIdleInTransactionSessionTimeoutMs: persistence.pgIdleInTransactionSessionTimeoutMs,
+      logger,
+    });
+    await adapter.ping?.();
+    return adapter;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (!persistence.unsafeAllowNoSave) {
+      // Hard fail: prod/staging/dev/dev:persist must never silently run without durable persistence.
+      logger.error(
+        "persistence",
+        "Persistence initialisation failed and PERSISTENCE_UNSAFE_ALLOW_NOSAVE is not set — " +
+          "refusing to start without durable saves. Run `bun run db:up && bun run db:migrate`, " +
+          "or use `bun run dev:nosave` for an explicit no-save sandbox.",
+        { driver: persistence.driver, message },
+      );
+      throw error;
+    }
+    logger.warn(
+      "persistence",
+      "############################################################\n" +
+        "# PERSISTENCE DISABLED — NO CHARACTER OR ECONOMY SAVES.     #\n" +
+        "# Explicitly allowed via PERSISTENCE_UNSAFE_ALLOW_NOSAVE.   #\n" +
+        "############################################################",
+      { driver: persistence.driver, message },
+    );
+    return new DisabledPersistenceAdapter();
+  }
 }
 
 function serializeContentForClient(registries: BootContentResult["registries"]): unknown {

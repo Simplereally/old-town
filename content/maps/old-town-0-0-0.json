@@ -17374,6 +17374,20 @@
       "y": 26,
       "respawnTicks": 100,
       "initialDepletion": false
+    },
+    {
+      "resourceNodeId": "river_perch_spot",
+      "x": 56,
+      "y": 28,
+      "respawnTicks": 100,
+      "initialDepletion": false
+    },
+    {
+      "resourceNodeId": "river_perch_spot",
+      "x": 60,
+      "y": 24,
+      "respawnTicks": 100,
+      "initialDepletion": false
     }
   ],
   "playerSpawnPoints": [

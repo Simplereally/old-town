@@ -26,6 +26,12 @@ export const itemTransactionAuditEventSchema = z
     reason: z.string().min(1),
     beforeQuantity: z.number().int().nonnegative().optional(),
     afterQuantity: z.number().int().nonnegative().optional(),
+    /**
+     * Optional dedupe key for economic mutations that must apply exactly once
+     * (bank moves, trades, death resolution). When present, ledgers reject a
+     * second write carrying the same key. See POC persistence subsystem item 7.
+     */
+    idempotencyKey: z.string().min(1).max(200).optional(),
     metadata: z.record(jsonValueSchema).default({}),
   })
   .strict();

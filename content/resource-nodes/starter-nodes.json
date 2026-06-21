@@ -182,6 +182,20 @@
     "levelScale": 0.007
   },
   {
+    "id": "river_perch_spot",
+    "name": "River Perch Spot",
+    "skill": "fishing",
+    "requiredLevel": 1,
+    "baseXp": 10,
+    "actionTicks": 4,
+    "depletionChance": 0.15,
+    "respawnTicks": 8,
+    "toolTags": ["net"],
+    "outputItemId": "raw_fish",
+    "baseChance": 0.5,
+    "levelScale": 0.01
+  },
+  {
     "id": "ditch_shrimp_spot",
     "name": "Ditch Shrimp Spot",
     "skill": "fishing",

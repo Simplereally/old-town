@@ -21,6 +21,11 @@ import { InterestManager } from "../net/interest-manager";
 import type { TransportSession } from "../net/websocket-transport";
 import { DisabledPersistenceAdapter, type PersistenceAdapter } from "../persistence/adapter";
 import { createPersistenceDirtyObserver } from "../persistence/dirty-triggers";
+import { PersistenceMetrics, type PersistenceMetricsSnapshot } from "../persistence/metrics";
+import {
+  MemoryWorldSessionStore,
+  type WorldSessionStore,
+} from "../persistence/postgres/world-session-store";
 import { CharacterSaveQueue } from "../persistence/save-queue";
 import { processQuestTriggers } from "../quests/quest-engine";
 import {
@@ -82,12 +87,15 @@ export interface SimulationKernel {
   connectSession(session: TransportSession): Promise<FullStatePacket>;
   disconnectSession(session: TransportSession): Promise<void>;
   flushPersistence(): Promise<void>;
+  /** Release every active session lease (graceful shutdown / redeploy). */
+  releaseAllLeases(): Promise<void>;
   routeCommand(session: TransportSession, command: ClientCommand): CommandRouteResult;
   runOneTick(): number;
   runDueTicks(nowMs: number): number;
   attachDeltaTransport(transport: DeltaTransport): void;
   detachDeltaTransport(): void;
   recentItemTransactions(limit?: number): readonly ItemTransactionAuditRecord[];
+  persistenceMetrics(): PersistenceMetricsSnapshot;
   stats(): KernelStats;
 }
 
@@ -109,6 +117,7 @@ export interface KernelStats {
   readonly lastDeltaSizeBytes: number;
   readonly saveQueuePendingCount: number;
   readonly saveQueueInFlightCount: number;
+  readonly persistence: PersistenceMetricsSnapshot;
 }
 
 export interface SimulationKernelOptions {
@@ -119,6 +128,16 @@ export interface SimulationKernelOptions {
   readonly startServerTime?: number;
   readonly startTick?: number;
   readonly nooks?: readonly NookDef[];
+  /** Logical world id for session leases (item 5). */
+  readonly worldId?: string;
+  /** Enforce the one-live-owner-per-character lease on connect (item 5). */
+  readonly sessionLeasing?: boolean;
+  /** Lease store to use when leasing is enabled. Defaults to an in-memory store. */
+  readonly sessionStore?: WorldSessionStore;
+  /** Lease validity window without a heartbeat, in ms. */
+  readonly leaseDurationMs?: number;
+  /** Max concurrent durable writes before the save queue applies backpressure (item 9). */
+  readonly maxInFlightSaves?: number;
 }
 
 const DEFAULT_SPAM_CAP_PER_TICK = 8;
@@ -148,6 +167,11 @@ interface SimulationDeps {
   readonly itemAudit: ItemAuditLog;
   readonly persistence: PersistenceAdapter;
   readonly saveQueue: CharacterSaveQueue;
+  readonly persistenceMetrics: PersistenceMetrics;
+  readonly sessionLeasing: boolean;
+  readonly sessionStore: WorldSessionStore | undefined;
+  readonly worldId: string;
+  readonly leaseDurationMs: number;
   readonly collision: CollisionMap;
   readonly registries: ContentRegistries;
   readonly logger: Logger;
@@ -177,8 +201,15 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
   const map = createRuntimeMap();
   loadAllRegionMapsIntoWorld(world, map, registries);
   const persistence = options.persistence ?? new DisabledPersistenceAdapter();
-  const itemAudit = new ItemAuditLog({ persistence, logger });
+  const persistenceMetrics = new PersistenceMetrics();
+  const itemAudit = new ItemAuditLog({ persistence, logger, metrics: persistenceMetrics });
   const devSessions = new DevSessionManager(world, map, registries, persistence, itemAudit);
+  // One live owner per character is enforced by default (item 7); disable explicitly for sandboxes.
+  const sessionLeasing = options.sessionLeasing ?? true;
+  const sessionStore =
+    options.sessionStore ?? (sessionLeasing ? new MemoryWorldSessionStore() : undefined);
+  const worldId = options.worldId ?? "old_town_dev";
+  const leaseDurationMs = options.leaseDurationMs ?? 60_000;
   itemAudit.setCharacterResolver((entityId) => devSessions.characterIdForEntity(entityId));
   const collision = new CollisionMap(map);
   applyObjectCollision(world, registries, collision);
@@ -197,6 +228,10 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
     resolveCharacterId: (entityId) => devSessions.characterIdForEntity(entityId),
     lazySaveIntervalTicks: options.lazySaveIntervalTicks ?? 10,
     logger,
+    metrics: persistenceMetrics,
+    ...(options.maxInFlightSaves !== undefined
+      ? { maxInFlightSaves: options.maxInFlightSaves }
+      : {}),
   });
   deltas.setObserver(
     createPersistenceDirtyObserver({
@@ -282,6 +317,11 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
     itemAudit,
     persistence,
     saveQueue,
+    persistenceMetrics,
+    sessionLeasing,
+    sessionStore,
+    worldId,
+    leaseDurationMs,
     collision,
     registries,
     logger,
@@ -325,6 +365,19 @@ function wireTickPhases(
     chatSystem,
     consumableSystem,
     itemAudit,
+    // Atomic economy commits only when the adapter supports them; otherwise the bank falls back to
+    // the standalone audit-persist path (see recordEconomicMove).
+    ...(saveQueue.supportsEconomy
+      ? {
+          economyCommit: (
+            entityId: EntityId,
+            ledger: Parameters<typeof saveQueue.markEconomyCommit>[1],
+            idempotencyKey: string,
+            tick: number,
+            serverTime: number,
+          ) => saveQueue.markEconomyCommit(entityId, ledger, idempotencyKey, tick, serverTime),
+        }
+      : {}),
     nooks: deps.nooks,
   };
   const npcContext = {
@@ -531,8 +584,23 @@ function createKernelInterface(
     logger,
     saveQueue,
     itemAudit,
+    persistenceMetrics,
+    sessionLeasing,
+    sessionStore,
+    worldId,
+    leaseDurationMs,
   } = deps;
   const connectedSessions = new Set<string>();
+  /** sessionId -> characterId for sessions currently holding a lease (for bulk release on shutdown). */
+  const leasedSessions = new Map<string, string>();
+
+  const persistenceMetricsSnapshot = (): PersistenceMetricsSnapshot =>
+    persistenceMetrics.snapshot({
+      currentTick: tickLoop.currentTick,
+      pendingSaves: saveQueue.pendingCount,
+      inFlightSaves: saveQueue.inFlightCount,
+      oldestDirtyTick: saveQueue.oldestDirtyTick,
+    });
 
   function primeSessionInterest(
     session: TransportSession,
@@ -573,6 +641,30 @@ function createKernelInterface(
 
   return {
     async connectSession(session) {
+      if (sessionLeasing && sessionStore) {
+        const lease = await sessionStore.acquire({
+          characterId: session.characterId,
+          worldId,
+          sessionId: session.id,
+          now: Date.now(),
+          leaseDurationMs,
+        });
+        if (!lease.ok) {
+          logger.warn("kernel", "Rejected connect; character already owned by a live session", {
+            sessionId: session.id,
+            characterId: session.characterId,
+            heldBy: lease.heldBy.sessionId,
+          });
+          throw new Error("character_already_online");
+        }
+        if (lease.recoveredFromExpiredLease) {
+          logger.info("kernel", "Recovered character from an expired session lease", {
+            sessionId: session.id,
+            characterId: session.characterId,
+          });
+        }
+        leasedSessions.set(session.id, session.characterId);
+      }
       const fullState = await devSessions.bootstrap(
         session,
         tickLoop.currentTick,
@@ -613,6 +705,18 @@ function createKernelInterface(
           commandBuffer.removeConnection(session.id, entityId);
           saveQueue.discard(entityId);
           actionQueue.cancel(entityId, {});
+        }
+        if (sessionLeasing && sessionStore) {
+          leasedSessions.delete(session.id);
+          await sessionStore
+            .release({ characterId: session.characterId, sessionId: session.id })
+            .catch((error: unknown) => {
+              logger.warn("kernel", "Failed to release session lease", {
+                sessionId: session.id,
+                characterId: session.characterId,
+                message: error instanceof Error ? error.message : String(error),
+              });
+            });
         }
         connectedSessions.delete(session.id);
       }
@@ -679,8 +783,31 @@ function createKernelInterface(
       await itemAudit.flush();
     },
 
+    async releaseAllLeases() {
+      if (!sessionStore) {
+        return;
+      }
+      const entries = [...leasedSessions.entries()];
+      leasedSessions.clear();
+      await Promise.all(
+        entries.map(([sessionId, characterId]) =>
+          sessionStore.release({ characterId, sessionId }).catch((error: unknown) => {
+            logger.warn("kernel", "Failed to release session lease during shutdown", {
+              sessionId,
+              characterId,
+              message: error instanceof Error ? error.message : String(error),
+            });
+          }),
+        ),
+      );
+    },
+
     recentItemTransactions(limit = 50) {
       return itemAudit.recent(limit);
+    },
+
+    persistenceMetrics() {
+      return persistenceMetricsSnapshot();
     },
 
     stats() {
@@ -697,6 +824,7 @@ function createKernelInterface(
         lastDeltaSizeBytes: metrics.lastDeltaSizeBytes,
         saveQueuePendingCount: saveQueue.pendingCount,
         saveQueueInFlightCount: saveQueue.inFlightCount,
+        persistence: persistenceMetricsSnapshot(),
       };
     },
   };

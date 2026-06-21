@@ -55,6 +55,40 @@ describe("PostgreSQL persistence schema", () => {
   });
 });
 
+describe("PostgreSQL persistence subsystem schema (0002)", () => {
+  it("adds the versioned character_state snapshot table", async () => {
+    const sql = await readMigration("0002_persistence_subsystem.up.sql");
+    expect(sql).toMatch(/CREATE TABLE IF NOT EXISTS character_state\b/i);
+    expect(sql).toMatch(/character_state[\s\S]*version bigint NOT NULL/i);
+    expect(sql).toMatch(/character_state[\s\S]*content_version integer NOT NULL/i);
+    expect(sql).toMatch(/character_state[\s\S]*skills jsonb NOT NULL/i);
+  });
+
+  it("adds the world_sessions lease table for one-live-owner-per-character", async () => {
+    const sql = await readMigration("0002_persistence_subsystem.up.sql");
+    expect(sql).toMatch(/CREATE TABLE IF NOT EXISTS world_sessions\b/i);
+    expect(sql).toMatch(/world_sessions[\s\S]*lease_expires_at bigint NOT NULL/i);
+    expect(sql).toMatch(/world_sessions[\s\S]*session_id text NOT NULL/i);
+  });
+
+  it("hardens the item ledger with content version and an idempotency unique index", async () => {
+    const sql = await readMigration("0002_persistence_subsystem.up.sql");
+    expect(sql).toMatch(/ALTER TABLE audit_item_transactions[\s\S]*idempotency_key text/i);
+    expect(sql).toMatch(/ALTER TABLE audit_item_transactions[\s\S]*content_version integer/i);
+    expect(sql).toMatch(
+      /CREATE UNIQUE INDEX IF NOT EXISTS idx_audit_item_transactions_idempotency\b/i,
+    );
+    expect(sql).toMatch(/WHERE idempotency_key IS NOT NULL/i);
+  });
+
+  it("provides a reversible down migration", async () => {
+    const sql = await readMigration("0002_persistence_subsystem.down.sql");
+    expect(sql).toMatch(/DROP TABLE IF EXISTS world_sessions/i);
+    expect(sql).toMatch(/DROP TABLE IF EXISTS character_state/i);
+    expect(sql).toMatch(/DROP INDEX IF EXISTS idx_audit_item_transactions_idempotency/i);
+  });
+});
+
 async function readMigration(fileName: string): Promise<string> {
   return readFile(join(process.cwd(), "apps/server/migrations", fileName), "utf8");
 }

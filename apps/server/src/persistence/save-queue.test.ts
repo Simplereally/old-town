@@ -7,7 +7,8 @@ import { describe, expect, it, vi } from "vitest";
 import { createWorld } from "../ecs/world";
 import { createEquipment } from "../items/equipment";
 import { createInventory } from "../items/inventory";
-import type { PersistenceAdapter } from "./adapter";
+import { type PersistenceAdapter, PersistenceVersionConflictError } from "./adapter";
+import { PersistenceMetrics } from "./metrics";
 import { CharacterSaveQueue } from "./save-queue";
 
 const PLAYER = entityId(0);
@@ -32,7 +33,26 @@ class RecordingPersistenceAdapter implements PersistenceAdapter {
   }
 }
 
-function setup() {
+class ConflictPersistenceAdapter implements PersistenceAdapter {
+  readonly kind = "postgres";
+  readonly enabled = true;
+
+  async loadCharacter(): Promise<CharacterSnapshot | undefined> {
+    return undefined;
+  }
+
+  async saveCharacter(): Promise<void> {
+    throw new PersistenceVersionConflictError("dev-a", 1);
+  }
+
+  async recordItemTransaction(_record: ItemTransactionAuditRecord): Promise<void> {}
+
+  async recentItemTransactions(): Promise<readonly ItemTransactionAuditRecord[]> {
+    return [];
+  }
+}
+
+function buildWorld() {
   const world = createWorld();
   const player = world.createEntity();
   expect(player).toBe(PLAYER);
@@ -56,16 +76,36 @@ function setup() {
     combatLevel: 3,
     eatBlockedUntilTick: 0,
   });
-  const adapter = new RecordingPersistenceAdapter();
-  const logger = { debug: vi.fn(), warn: vi.fn() };
+  return world;
+}
+
+function makeQueue(
+  adapter: PersistenceAdapter,
+  options: { metrics?: PersistenceMetrics } = {},
+): {
+  logger: {
+    debug: ReturnType<typeof vi.fn>;
+    warn: ReturnType<typeof vi.fn>;
+    error: ReturnType<typeof vi.fn>;
+  };
+  queue: CharacterSaveQueue;
+} {
+  const logger = { debug: vi.fn(), warn: vi.fn(), error: vi.fn() };
   const queue = new CharacterSaveQueue({
-    world,
+    world: buildWorld(),
     registries: { item: new Map() },
     persistence: adapter,
     resolveCharacterId: (entityId) => (entityId === PLAYER ? "dev-a" : undefined),
     lazySaveIntervalTicks: 3,
     logger,
+    ...(options.metrics ? { metrics: options.metrics } : {}),
   });
+  return { logger, queue };
+}
+
+function setup() {
+  const adapter = new RecordingPersistenceAdapter();
+  const { logger, queue } = makeQueue(adapter);
   return { adapter, logger, queue };
 }
 
@@ -113,5 +153,61 @@ describe("CharacterSaveQueue", () => {
 
     expect(adapter.saves).toHaveLength(1);
     expect(adapter.saves[0]?.savedAt).toBe(1_200);
+  });
+
+  it("reports the oldest dirty tick as save lag input", () => {
+    const { queue } = setup();
+    expect(queue.oldestDirtyTick).toBeUndefined();
+
+    queue.markLazy(PLAYER, "position", 5, 3_000);
+    expect(queue.oldestDirtyTick).toBe(5);
+
+    queue.discard(PLAYER);
+    expect(queue.oldestDirtyTick).toBeUndefined();
+  });
+
+  it("feeds enqueue and completion counts to metrics", async () => {
+    const metrics = new PersistenceMetrics();
+    const adapter = new RecordingPersistenceAdapter();
+    const { queue } = makeQueue(adapter, { metrics });
+
+    queue.markImmediate(PLAYER, "inventory", 1, 600);
+    queue.markLazy(PLAYER, "position", 1, 600);
+    queue.flushDue(1, 600);
+    await queue.flushAll(1, 600);
+
+    const snapshot = metrics.snapshot({
+      currentTick: 1,
+      pendingSaves: queue.pendingCount,
+      inFlightSaves: queue.inFlightCount,
+      oldestDirtyTick: queue.oldestDirtyTick,
+    });
+    expect(snapshot.totalImmediateSaves).toBe(1);
+    expect(snapshot.totalLazySaves).toBe(1);
+    expect(snapshot.totalSavesCompleted).toBe(1);
+    expect(snapshot.lastSavedTick).toBe(1);
+  });
+
+  it("counts optimistic version conflicts as failures without throwing on the tick", async () => {
+    const metrics = new PersistenceMetrics();
+    const { queue, logger } = makeQueue(new ConflictPersistenceAdapter(), { metrics });
+
+    queue.markImmediate(PLAYER, "bank", 1, 600);
+    queue.flushDue(1, 600);
+    await queue.flushAll(1, 600);
+
+    const snapshot = metrics.snapshot({
+      currentTick: 1,
+      pendingSaves: 0,
+      inFlightSaves: 0,
+      oldestDirtyTick: undefined,
+    });
+    expect(snapshot.totalSaveFailures).toBe(1);
+    expect(snapshot.versionConflicts).toBe(1);
+    expect(logger.warn).toHaveBeenCalledWith(
+      "persistence",
+      "Character save failed",
+      expect.objectContaining({ characterId: "dev-a" }),
+    );
   });
 });

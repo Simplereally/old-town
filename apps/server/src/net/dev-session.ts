@@ -51,6 +51,7 @@ const STARTER_ITEMS: readonly { itemId: string; quantity: number }[] = [
   { itemId: "pennywrought_shortblade", quantity: 1 },
   { itemId: "pennywrought_axe", quantity: 1 },
   { itemId: "pennywrought_pickaxe", quantity: 1 },
+  { itemId: "small_net", quantity: 1 },
   { itemId: "bread", quantity: 5 },
   { itemId: "raw_fish", quantity: 5 },
   { itemId: "coin", quantity: 25 },

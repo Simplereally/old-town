@@ -4,7 +4,7 @@ import type { World } from "../ecs/world";
 import { handleItemIntent, handleUnequipIntent, handleUseItemOnIntent } from "../items/item-actions";
 import type { ItemAuditLog } from "../items/item-audit";
 import { dispatchQuestEvent } from "../quests/quest-engine";
-import { handleBankIntent } from "../systems/bank-system";
+import { type EconomyCommitFn, handleBankIntent } from "../systems/bank-system";
 import type { ChatSystem } from "../systems/chat-system";
 import { handleNpcCombatIntent } from "../systems/combat-system";
 import type { ConsumableSystem } from "../systems/consumable-system";
@@ -37,6 +37,8 @@ export interface IntentDispatcherContext {
   readonly chatSystem: ChatSystem;
   readonly consumableSystem: ConsumableSystem;
   readonly itemAudit?: ItemAuditLog | undefined;
+  /** Routes dupe-sensitive item moves to an atomic snapshot+ledger commit (Phase 2 item 4). */
+  readonly economyCommit?: EconomyCommitFn | undefined;
   readonly nooks?: readonly NookDef[] | undefined;
 }
 
@@ -340,6 +342,7 @@ function dispatchSingleIntent(
           deltas: ctx.deltas,
           registries: ctx.registries,
           itemAudit: ctx.itemAudit,
+          economyCommit: ctx.economyCommit,
         },
         owner,
         intent.payload,

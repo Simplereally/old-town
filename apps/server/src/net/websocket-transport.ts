@@ -36,6 +36,8 @@ export interface WebSocketTransport {
   readonly path: string;
   readonly sessions: ReadonlyMap<string, TransportSession>;
   send(sessionId: string, packet: TransportServerPacket): boolean;
+  /** Stop accepting new connections/authentications (graceful shutdown step 1). */
+  stopAccepting(): void;
   close(): Promise<void>;
 }
 
@@ -67,6 +69,7 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
   const socketsBySession = new Map<string, WebSocket>();
   const socketStates = new WeakMap<WebSocket, SocketState>();
   let nextSessionId = 1;
+  let accepting = true;
   const wss = new WebSocketServer({
     noServer: true,
     maxPayload: MAX_SOCKET_PAYLOAD_BYTES,
@@ -77,6 +80,11 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
     const pathname = parseUpgradePath(request.url);
     if (pathname !== SOCKET_PATH) {
       socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+      socket.destroy();
+      return;
+    }
+    if (!accepting) {
+      socket.write("HTTP/1.1 503 Service Unavailable\r\n\r\n");
       socket.destroy();
       return;
     }
@@ -129,12 +137,16 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
           return;
         }
 
+        const sessionId = `dev-${nextSessionId}`;
+        // Default to a per-connection character so two anonymous tabs are distinct characters and
+        // session leasing (one live owner per character) does not reject the second. Clients that
+        // want persistence/leasing semantics pass an explicit characterId.
         const characterId =
           typeof auth.characterId === "string" && auth.characterId.length > 0
             ? auth.characterId
-            : "dev-character";
+            : `dev-${sessionId}`;
         const session: TransportSession = {
-          id: `dev-${nextSessionId}`,
+          id: sessionId,
           characterId,
         };
         nextSessionId += 1;
@@ -226,6 +238,9 @@ export function createWebSocketTransport(options: WebSocketTransportOptions): We
       }
       send(socket, packet);
       return true;
+    },
+    stopAccepting: () => {
+      accepting = false;
     },
     close: () =>
       new Promise<void>((resolve) => {

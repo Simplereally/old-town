@@ -35,10 +35,17 @@ export interface ItemAuditSink {
   recordItemTransaction(record: ItemTransactionAuditRecord): Promise<void>;
 }
 
+/** Minimal ledger metrics sink (structural, so items/ stays decoupled from persistence/). */
+export interface ItemLedgerMetrics {
+  recordLedgerWrite(): void;
+  recordLedgerFailure(): void;
+}
+
 export interface ItemAuditLogOptions {
   readonly persistence?: ItemAuditSink;
   readonly logger?: Pick<Logger, "debug" | "warn">;
   readonly resolveCharacterId?: (entityId: EntityId) => string | undefined;
+  readonly metrics?: ItemLedgerMetrics;
 }
 
 export type ItemAuditInput = Omit<ItemTransactionAuditEvent, "reason" | "metadata"> & {
@@ -64,7 +71,7 @@ export class ItemAuditLog {
     this.resolveCharacterId = resolveCharacterId;
   }
 
-  record(event: ItemAuditInput): ItemTransactionAuditRecord {
+  record(event: ItemAuditInput, options: { readonly persist?: boolean } = {}): ItemTransactionAuditRecord {
     const record = parseItemTransactionAuditRecord({
       id: this.nextId,
       ...event,
@@ -83,11 +90,17 @@ export class ItemAuditLog {
       afterQuantity: record.afterQuantity,
     });
 
-    if (this.options.persistence) {
+    // Economic mutations set persist:false — their durable ledger row is written atomically with the
+    // character snapshot via the EconomyStore, so persisting here too would double-count.
+    if (options.persist !== false && this.options.persistence) {
       let write: Promise<void>;
       write = this.options.persistence
         .recordItemTransaction(record)
+        .then(() => {
+          this.options.metrics?.recordLedgerWrite();
+        })
         .catch((error: unknown) => {
+          this.options.metrics?.recordLedgerFailure();
           this.options.logger?.warn("item-audit", "Failed to persist item transaction", {
             id: record.id,
             characterId: record.characterId,
@@ -108,16 +121,20 @@ export class ItemAuditLog {
   recordForEntity(
     entityId: EntityId | undefined,
     event: EntityItemAuditInput,
+    options: { readonly persist?: boolean } = {},
   ): ItemTransactionAuditRecord {
     const metadata: ItemAuditMetadata = {
       ...(event.metadata ?? {}),
       ...(entityId !== undefined ? { actorEntityId: entityId } : {}),
     };
-    return this.record({
-      ...event,
-      characterId: event.characterId ?? this.characterIdFor(entityId),
-      metadata,
-    });
+    return this.record(
+      {
+        ...event,
+        characterId: event.characterId ?? this.characterIdFor(entityId),
+        metadata,
+      },
+      options,
+    );
   }
 
   recent(limit = 50): readonly ItemTransactionAuditRecord[] {

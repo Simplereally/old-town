@@ -7,7 +7,7 @@ E45 — Old Town Core Gameplay Loop
 ## Dependency chain
 
 - Depends on: E45-S04 (Combat Loop), E08-S05 (Character Skills and Derived Stats), E28-S03 (XP Drop Visualization), E12-S01 (Player Var and Quest Var Storage)
-- Blocks: E46-S01
+- Blocks: E45-S06
 
 ## Spec references
 
@@ -21,33 +21,35 @@ E45 — Old Town Core Gameplay Loop
 
 Wire the skill and XP systems so that every action produces a visible XP drop, level-ups trigger feedback, and the skill panel shows current levels and XP. This is the glue that makes the first-hour loop feel like progression.
 
-## Required architectural decisions
+## What already exists (verify, do not rebuild)
 
-- **XP delta packet:** The server sends `S2C_XP_DROP` with skill ID, amount, and current total XP. The client renders the XP drop above the player and updates the skill panel.
-- **Level-up detection:** On each XP gain, the server checks if the new total crosses a level threshold. If so, it sends a level-up packet and plays the level-up animation/overhead.
-- **Skill panel:** The client skill panel shows all skills, current level, XP to next level, and total XP. It updates from skill deltas.
-- **Derived stats:** When combat skills level up, derived stats (max HP, combat level) are recalculated. Equipment requirements may now be met.
-- **Var storage:** Skill levels and XP are stored in the player var system (E12-S01) for persistence.
+- **XP drop packet:** `XpDropPacket` is already defined in `packages/shared/src/protocol/packets.ts:83` as `{ skillId: string, amount: number }` and is wired into the tick delta as `xpDrops: readonly XpDropPacket[]` (line 322). The server's `addXp` function in `skills/skill-state.ts` already calls `deltas.markXpDrop()` to emit XP drops. E28-S03 implemented the client-side XP drop visualization. Do **not** reimplement this.
+- **Level-up detection:** The server's `addXp` function returns an `AddXpResult` that includes `levelUp: boolean` and `newLevel: number`. The `announceLevelUp` function in `skilling-system.ts:122` already sends a system chat message on level-up: `"Congratulations! You've advanced to level X <skill>."` This is the existing level-up feedback.
+- **Skill deltas:** The `FullStatePacket` already includes `skills: readonly SkillDelta[]` with `skillId`, `level`, `xp`, and `effectiveLevel` per skill. The tick delta protocol includes skill deltas for incremental updates.
+- **Combat style system:** `combat-system.ts:344-350` already implements combat style selection from the `combatant.combatStyle` component and weapon `allowedStyles`. XP distribution per style is already functional. Do **not** reimplement this.
+- **Derived stats:** `maxHealthForHitpointsLevel` in `skills/skill-state.ts` and `computeCombatLevel` in `skills/combat-level.ts` already exist for derived stat calculation.
 
-## Implementation checklist
+## Required work
 
-- [ ] Implement `S2C_XP_DROP` packet and client rendering.
-- [ ] Implement level-up detection and packet.
-- [ ] Wire the skill panel UI to skill deltas.
-- [ ] Add level-up animation/overhead text rendering.
-- [ ] Implement derived stat recalculation on level-up.
-- [ ] Write test: gaining Woodcutting XP sends the correct XP drop packet.
-- [ ] Write test: crossing a level threshold sends a level-up packet.
-- [ ] Write test: the skill panel shows updated levels after a level-up.
-- [ ] Write test: derived stats update when relevant skills level up.
+This story is a **gap-filling and client-wiring** story. The server-side XP and level-up detection is built; the work is the level-up packet, client skill panel, and derived stat recalculation on level-up.
+
+- [ ] **Level-up packet (genuinely new):** While `announceLevelUp` sends a chat message, there is no dedicated `LevelUpPacket` in the protocol. Add a `LevelUpPacket` to `packages/shared/src/protocol/packets.ts` with `{ skillId: string, newLevel: number }` and wire it into the tick delta. Update `announceLevelUp` in `skilling-system.ts` to emit this packet in addition to the chat message. This gives the client a structured signal to play the level-up animation/overhead graphic.
+- [ ] **Client skill panel:** Wire the client skill panel UI to display all skills with current level, XP, and effective level. The panel updates from `SkillDelta` updates in the tick delta. Verify the panel is opened by default (per S01) and updates live as XP is gained.
+- [ ] **Client XP drop rendering:** Verify the existing E28-S03 XP drop visualization works end-to-end: server emits `xpDrops` in the delta, client renders the floating XP drop above the player.
+- [ ] **Client level-up rendering:** On receiving a `LevelUpPacket`, the client plays the level-up animation and shows overhead text (e.g., "Level Up!" or the skill icon). Verify `content/animations/` has a level-up animation definition; add one if missing.
+- [ ] **Derived stat recalculation:** When a combat skill levels up, verify that `maxHealth` (from hitpoints level) and `combatLevel` are recalculated and the updated values are sent in the next delta. The `combatant` component's `maxHealth` and `combatLevel` must update on level-up, not just on session bootstrap.
+- [ ] Write test: gaining Woodcutting XP sends the correct `XpDropPacket` (verify existing coverage).
+- [ ] Write test: crossing a level threshold sends a `LevelUpPacket` with the correct skill and new level.
+- [ ] Write test: the skill panel shows updated levels after a level-up (client test).
+- [ ] Write test: derived stats (`maxHealth`, `combatLevel`) update when relevant skills level up.
 
 ## Acceptance criteria
 
-- [ ] Every skill XP gain produces a visible XP drop.
-- [ ] Level-ups are detected and broadcast with level-up feedback.
-- [ ] The skill panel shows current levels and XP.
-- [ ] Derived stats are recalculated on level-up.
-- [ ] XP and level data are stored in player vars.
+- [ ] Every skill XP gain produces a visible XP drop (existing — verify).
+- [ ] Level-ups are detected and broadcast via a structured `LevelUpPacket` (new) plus the existing chat message.
+- [ ] The client skill panel shows all skills with current level, XP, and effective level, updating live.
+- [ ] Level-up animation/overhead text renders on the client when a `LevelUpPacket` is received.
+- [ ] Derived stats (`maxHealth`, `combatLevel`) are recalculated on level-up and sent in deltas.
 - [ ] All feedback is driven by server packets, not client prediction.
 
 ## Validation commands
