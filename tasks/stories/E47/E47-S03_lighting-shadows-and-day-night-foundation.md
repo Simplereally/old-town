@@ -6,52 +6,69 @@ E47 — Old Town Audio, Atmosphere, and UI Juice
 
 ## Dependency chain
 
-- Depends on: E47-S01 (Ambient Sound), E42-S02 (Terrain Renderer), E33-S03 (Static Object Instancing)
+- Depends on: E47-S01, E42-S02, E33-S03
 - Blocks: E47-S04, E47-S05
 
 ## Spec references
 
-- `POC_SPEC.md` §7.1 (Visual style — low-poly, hand-painted, readable)
+- `POC_SPEC.md` §7.1 (Visual style)
 - `POC_SPEC.md` §7.3 (Renderer rules — cheap shadows, blob shadows first)
-- `POC_SPEC.md` §23.2 (Art constraints — no photoreal PBR)
+- `POC_SPEC.md` §23.2 (Art constraints)
+- `apps/client/src/game/renderer/ThreeRenderer.ts`
+- `apps/client/src/game/GameEngine.ts`
+- `apps/client/src/game/ui/DebugOverlay.ts`
 
 ## Objective
 
-Add lighting, simple shadows, and a foundational day/night cycle. The goal is to make the world readable and atmospheric, not photorealistic. Blob shadows under actors and objects are the first shadow pass; directional sun light provides depth.
+Add atmosphere control, blob shadows, and a day/night presentation foundation by reusing the renderer lighting and fog that already exist.
+
+## What already exists — verify, do not rebuild
+
+- `ThreeRenderer` already creates a `HemisphereLight`.
+- `ThreeRenderer` already creates a warm `DirectionalLight`.
+- `ThreeRenderer` already configures scene fog.
+- Renderer shadow maps are currently disabled.
+- Renderer/debug counters already expose draw-call and resource metrics.
 
 ## Required architectural decisions
 
-- **Lighting:** One directional sun light + ambient light. Use warm midday colors for the default. Shadows are soft and cheap.
-- **Blob shadows:** Actors and objects get a simple circular shadow decal projected onto the ground plane. This is cheap and readable.
-- **Day/night cycle:** A slow cycle (e.g., 20 real minutes per game day) changes the sun angle, ambient intensity, and sky color. The cycle is client-side presentation only; it does not affect gameplay truth.
-- **No gameplay dependency:** Time-of-day does not affect spawn rates, shop hours, or quest availability for POC.
-- **Performance:** Use a single shadow map with limited resolution. Avoid real-time shadows on many small objects.
+- Reuse or expose the existing hemisphere light, directional light, clear color, and fog. Do not add duplicate default lights.
+- Drive the visual day/night phase from server/render time so clients share the same presentation phase.
+- Update clear color, fog, hemisphere light, and directional light together; changing the sky while fog stays fixed is not acceptable.
+- Add cheap flat blob shadows under actors and selected static objects.
+- Keep full real-time shadow maps out of this story unless separately measured and justified.
+- Add a debug control to freeze or inspect time-of-day through existing debug UI.
+- Time-of-day is presentation-only and must not affect server truth.
 
 ## Implementation checklist
 
-- [ ] Add a directional sun light and ambient light to the scene.
-- [ ] Implement blob shadows for actors and objects.
-- [ ] Add a simple day/night cycle controller that adjusts light and sky color.
-- [ ] Add a debug toggle to freeze time-of-day.
-- [ ] Write test: blob shadows are created for spawned actors.
-- [ ] Write test: day/night cycle changes sun angle over time.
-- [ ] Write test: performance budget for shadow draw calls is not exceeded.
+- [ ] Audit `ThreeRenderer` and expose/update existing lights/fog instead of adding duplicates.
+- [ ] Add an `AtmosphereController` or equivalent small controller.
+- [ ] Drive the day/night phase from server/render time.
+- [ ] Update clear color, fog, hemisphere light, and directional light as a coherent set.
+- [ ] Implement blob shadows for actors.
+- [ ] Implement blob shadows for static objects where object placement/instancing makes it cheap.
+- [ ] Add debug freeze/inspect controls for time-of-day.
+- [ ] Add tests for atmosphere phase calculations.
+- [ ] Add tests proving light/fog values change coherently over the cycle.
+- [ ] Add tests proving blob shadows are created/disposed with actors or objects.
+- [ ] Add a renderer-budget assertion using existing debug counters where feasible.
 
 ## Acceptance criteria
 
-- [ ] The scene has directional lighting and ambient light.
-- [ ] Actors and objects cast cheap blob shadows.
-- [ ] A day/night cycle changes light and sky color smoothly.
-- [ ] The cycle is client-side only and does not affect gameplay.
-- [ ] Performance budget is maintained.
-- [ ] Visual style remains lo-fi.
+- [ ] No duplicate default light setup is introduced.
+- [ ] Day/night presentation changes sky, fog, hemisphere light, and sun light smoothly.
+- [ ] Blob shadows are readable, cheap, and disposed with their owners.
+- [ ] Full real-time shadow maps remain disabled unless measured and explicitly justified.
+- [ ] The cycle is presentation-only and does not affect gameplay truth.
+- [ ] Visual style remains lo-fi and readable at night/dusk.
 
 ## Validation commands
 
 - [ ] `bun run test`
 - [ ] `bun run typecheck`
 - [ ] `bun run lint`
-- [ ] `bun run dev` — observe shadows and cycle
+- [ ] `bun run dev` — observe shadows and the atmosphere cycle
 
 ## Agent completion protocol
 
