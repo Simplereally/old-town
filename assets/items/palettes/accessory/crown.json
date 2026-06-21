@@ -1,0 +1,11 @@
+{
+  "ladder": "accessory",
+  "tier": "crown",
+  "tierOrder": 11,
+  "regions": {
+    "cloth": "#c9b88a",
+    "metal": "#ffd700",
+    "seal": "#e8d48a",
+    "accent": "#f8e8a8"
+  }
+}

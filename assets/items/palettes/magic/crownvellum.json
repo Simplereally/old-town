@@ -1,0 +1,18 @@
+{
+  "ladder": "magic",
+  "tier": "crownvellum",
+  "tierOrder": 11,
+  "regions": {
+    "cloth": "#e8e8e8",
+    "script": "#c9a23c",
+    "seal": "#c9a23c",
+    "accent": "#c9a23c",
+    "shaft": "#c9a23c",
+    "tip": "#e8e8e8",
+    "bead": "#c9a23c",
+    "lens": "#e8e8e8",
+    "rim": "#c9a23c",
+    "cover": "#e8e8e8",
+    "page": "#c9a23c"
+  }
+}

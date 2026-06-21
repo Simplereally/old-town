@@ -1,0 +1,17 @@
+{
+  "ladder": "ranged",
+  "tier": "warden_yew",
+  "tierOrder": 5,
+  "regions": {
+    "limb": "#8a6a44",
+    "string": "#d8cfba",
+    "grip": "#4f7a3a",
+    "accent": "#3a6ea5",
+    "prod": "#8a6a44",
+    "stock": "#4f7a3a",
+    "mechanism": "#3a6ea5",
+    "shaft": "#8a6a44",
+    "fletch": "#d8cfba",
+    "head": "#3a6ea5"
+  }
+}

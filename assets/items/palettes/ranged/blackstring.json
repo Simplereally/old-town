@@ -1,0 +1,17 @@
+{
+  "ladder": "ranged",
+  "tier": "blackstring",
+  "tierOrder": 4,
+  "regions": {
+    "limb": "#4a3526",
+    "string": "#2e2a28",
+    "grip": "#3a3632",
+    "accent": "#6a6d6f",
+    "prod": "#4a3526",
+    "stock": "#3a3632",
+    "mechanism": "#6a6d6f",
+    "shaft": "#4a3526",
+    "fletch": "#2e2a28",
+    "head": "#6a6d6f"
+  }
+}

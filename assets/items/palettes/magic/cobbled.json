@@ -1,0 +1,18 @@
+{
+  "ladder": "magic",
+  "tier": "cobbled",
+  "tierOrder": 0,
+  "regions": {
+    "cloth": "#6a6a6a",
+    "script": "#9a8769",
+    "seal": "#4a3526",
+    "accent": "#6a6d6f",
+    "shaft": "#4a3526",
+    "tip": "#6a6d6f",
+    "bead": "#4a3526",
+    "lens": "#6a6d6f",
+    "rim": "#4a3526",
+    "cover": "#6a6a6a",
+    "page": "#9a8769"
+  }
+}

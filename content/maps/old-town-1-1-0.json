@@ -1,0 +1,527 @@
+{
+  "region": {
+    "rx": 1,
+    "ry": 1,
+    "plane": 0
+  },
+  "tiles": {
+    "default": {
+      "height": 0,
+      "underlayId": "grass",
+      "collision": 0
+    },
+    "overrides": [
+      {
+        "x": 0,
+        "y": 0,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 1,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 3,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 4,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 5,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 6,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 7,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 0,
+        "y": 7,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 2,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 3,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 4,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 5,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 6,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 7,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 1,
+        "y": 7,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 0,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 1,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 3,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 4,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 5,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 6,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 7,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 2,
+        "y": 7,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 0,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 1,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 2,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 3,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 4,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 5,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 6,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 7,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 3,
+        "y": 7,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 0,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 1,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 2,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 3,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 4,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 5,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 6,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 7,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 4,
+        "y": 7,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 0,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 1,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 2,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 3,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 4,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 5,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 6,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 7,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 5,
+        "y": 7,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 0,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 1,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 2,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 3,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 4,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 5,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 6,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 7,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 6,
+        "y": 7,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 0,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 0,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 1,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 1,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 2,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 2,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 3,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 3,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 4,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 4,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 5,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 5,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 6,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 6,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 7,
+        "underlayId": "packed_road",
+        "collision": 0
+      },
+      {
+        "x": 7,
+        "y": 7,
+        "underlayId": "grass_to_packed_road",
+        "collision": 0
+      }
+    ]
+  },
+  "objects": [
+    {
+      "objectId": "warden_board",
+      "x": 0,
+      "y": 2
+    }
+  ],
+  "npcSpawns": [
+    {
+      "npcId": "warden_holt",
+      "x": 0,
+      "y": 0,
+      "wanderRadius": 0
+    }
+  ],
+  "groundItemSpawns": [],
+  "triggers": [
+    {
+      "id": "warden_steps_part_d",
+      "x": 0,
+      "y": 0,
+      "width": 8,
+      "height": 8,
+      "tag": "warden_steps"
+    }
+  ],
+  "resourceNodeSpawns": [
+    {
+      "resourceNodeId": "oak_tree_node",
+      "x": 10,
+      "y": 10,
+      "respawnTicks": 100,
+      "initialDepletion": false
+    }
+  ],
+  "playerSpawnPoints": [],
+  "deathRespawnPoints": []
+}

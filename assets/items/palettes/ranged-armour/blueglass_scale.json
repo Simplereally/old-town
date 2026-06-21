@@ -1,0 +1,11 @@
+{
+  "ladder": "ranged-armour",
+  "tier": "blueglass_scale",
+  "tierOrder": 8,
+  "regions": {
+    "hide": "#9aa0a6",
+    "stitch": "#3a6ea5",
+    "buckle": "#3a6ea5",
+    "accent": "#c2c6cc"
+  }
+}

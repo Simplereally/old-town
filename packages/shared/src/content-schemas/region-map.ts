@@ -1,0 +1,180 @@
+/**
+ * Region map definitions (POC_SPEC §24.2). A region is 64×64 tiles. Tile data is stored
+ * sparsely — a default tile plus per-tile overrides — so maps are compact, diff-friendly,
+ * and editor-authored (E14). Local coordinates are 0..63 within the region.
+ */
+import { z } from "zod";
+import { isValidStaticCollisionMask, STATIC_COLLISION_MASK } from "../collision-flags";
+import { REGION_SIZE } from "../constants";
+import { planeSchema } from "../protocol/schema-primitives";
+import { contentIdSchema, nonNegInt } from "./common";
+
+const localAxis = z
+  .number()
+  .int()
+  .min(0)
+  .max(REGION_SIZE - 1);
+
+/** Region coordinate of the map. */
+export const regionCoordSchema = z
+  .object({ rx: z.number().int(), ry: z.number().int(), plane: planeSchema })
+  .strict();
+
+const collisionMaskSchema = nonNegInt.refine((mask) => isValidStaticCollisionMask(mask), {
+  message: `collision mask can only use static map bits (${STATIC_COLLISION_MASK})`,
+});
+
+/** Default tile applied across the whole region unless overridden. */
+export const defaultTileSchema = z
+  .object({
+    height: z.number().int().default(0),
+    underlayId: contentIdSchema,
+    collision: collisionMaskSchema.default(0),
+    water: z.boolean().optional(),
+    bridge: z.boolean().optional(),
+    zoneId: z.string().min(1).optional(),
+  })
+  .strict();
+
+/** A per-tile override (only changed fields need be present). */
+export const tileOverrideSchema = z
+  .object({
+    x: localAxis,
+    y: localAxis,
+    height: z.number().int().optional(),
+    underlayId: contentIdSchema.optional(),
+    overlayId: contentIdSchema.optional(),
+    collision: collisionMaskSchema.optional(),
+    water: z.boolean().optional(),
+    bridge: z.boolean().optional(),
+    zoneId: z.string().min(1).optional(),
+  })
+  .strict();
+
+/** An object placed in the region. */
+export const placedObjectSchema = z
+  .object({
+    objectId: contentIdSchema,
+    x: localAxis,
+    y: localAxis,
+    rotation: nonNegInt.max(3).default(0),
+  })
+  .strict();
+
+/** An NPC spawn point. */
+export const npcSpawnSchema = z
+  .object({
+    npcId: contentIdSchema,
+    x: localAxis,
+    y: localAxis,
+    wanderRadius: nonNegInt.optional(),
+  })
+  .strict();
+
+/** A ground item spawn. */
+export const groundItemSpawnSchema = z
+  .object({
+    itemId: contentIdSchema,
+    quantity: z.number().int().positive().default(1),
+    x: localAxis,
+    y: localAxis,
+  })
+  .strict();
+
+/** A resource node placed in the region. */
+export const resourceNodeSpawnSchema = z
+  .object({
+    resourceNodeId: contentIdSchema,
+    x: localAxis,
+    y: localAxis,
+    respawnTicks: nonNegInt.default(100),
+    initialDepletion: z.boolean().default(false),
+  })
+  .strict();
+
+/** A player spawn point in the region. */
+export const playerSpawnSchema = z
+  .object({
+    x: localAxis,
+    y: localAxis,
+    plane: planeSchema.default(0),
+    spawnType: z.enum(["new_player", "returning_player", "default"]).default("default"),
+    requiresQuest: contentIdSchema.optional(),
+  })
+  .strict();
+
+export type PlayerSpawnDef = z.infer<typeof playerSpawnSchema>;
+
+/** A death respawn point in the region. */
+export const deathRespawnSchema = z
+  .object({
+    x: localAxis,
+    y: localAxis,
+    plane: planeSchema.default(0),
+    respawnType: z.enum(["nearest", "fixed", "home"]).default("nearest"),
+    requiresQuest: contentIdSchema.optional(),
+    priority: nonNegInt.default(0),
+  })
+  .strict();
+
+export type DeathRespawnDef = z.infer<typeof deathRespawnSchema>;
+
+/** A named area trigger (quest hooks, zone markers). */
+export const areaTriggerSchema = z
+  .object({
+    id: z.string().min(1),
+    x: localAxis,
+    y: localAxis,
+    width: z.number().int().positive().default(1),
+    height: z.number().int().positive().default(1),
+    tag: z.string().min(1).optional(),
+  })
+  .strict()
+  .refine((trigger) => trigger.x + trigger.width <= REGION_SIZE, {
+    message: "trigger width must fit within region bounds",
+    path: ["width"],
+  })
+  .refine((trigger) => trigger.y + trigger.height <= REGION_SIZE, {
+    message: "trigger height must fit within region bounds",
+    path: ["height"],
+  });
+
+export const contractSpawnSchema = z
+  .object({
+    contractId: contentIdSchema,
+    x: localAxis,
+    y: localAxis,
+  })
+  .strict();
+
+export type ContractSpawnDef = z.infer<typeof contractSpawnSchema>;
+
+export const regionMapDefSchema = z
+  .object({
+    region: regionCoordSchema,
+    /** Sparse tile data. */
+    tiles: z
+      .object({
+        default: defaultTileSchema,
+        overrides: z.array(tileOverrideSchema).default([]),
+      })
+      .strict(),
+    objects: z.array(placedObjectSchema).default([]),
+    npcSpawns: z.array(npcSpawnSchema).default([]),
+    groundItemSpawns: z.array(groundItemSpawnSchema).default([]),
+    resourceNodeSpawns: z.array(resourceNodeSpawnSchema).default([]),
+    contractSpawns: z.array(contractSpawnSchema).default([]),
+    playerSpawnPoints: z.array(playerSpawnSchema).default([]),
+    deathRespawnPoints: z.array(deathRespawnSchema).default([]),
+    triggers: z.array(areaTriggerSchema).default([]),
+  })
+  .strict();
+
+export type RegionMapDef = z.infer<typeof regionMapDefSchema>;
+export type PlacedObjectDef = z.infer<typeof placedObjectSchema>;
+export type NpcSpawnDef = z.infer<typeof npcSpawnSchema>;
+export type GroundItemSpawnDef = z.infer<typeof groundItemSpawnSchema>;
+export type ResourceNodeSpawnDef = z.infer<typeof resourceNodeSpawnSchema>;
+export type AreaTriggerDef = z.infer<typeof areaTriggerSchema>;
+export type TileOverride = z.infer<typeof tileOverrideSchema>;
+export type DefaultTile = z.infer<typeof defaultTileSchema>;

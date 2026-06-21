@@ -1,0 +1,17 @@
+{
+  "ladder": "ranged",
+  "tier": "argentwood",
+  "tierOrder": 10,
+  "regions": {
+    "limb": "#c2c6cc",
+    "string": "#e8e8e8",
+    "grip": "#7a5a3a",
+    "accent": "#e8e8e8",
+    "prod": "#c2c6cc",
+    "stock": "#7a5a3a",
+    "mechanism": "#e8e8e8",
+    "shaft": "#c2c6cc",
+    "fletch": "#e8e8e8",
+    "head": "#e8e8e8"
+  }
+}

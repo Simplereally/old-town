@@ -1,0 +1,42 @@
+[
+  {
+    "id": "wayfaring",
+    "name": "Wayfaring",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  },
+  {
+    "id": "sleight",
+    "name": "Sleight",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  },
+  {
+    "id": "wardenry",
+    "name": "Wardenry",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  },
+  {
+    "id": "hearthcraft",
+    "name": "Hearthcraft",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  },
+  {
+    "id": "cartography",
+    "name": "Cartography",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  }
+]

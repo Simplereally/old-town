@@ -1,0 +1,11 @@
+{
+  "ladder": "accessory",
+  "tier": "starfall",
+  "tierOrder": 12,
+  "regions": {
+    "cloth": "#8ad0c0",
+    "metal": "#c9f8e8",
+    "seal": "#a8e8d8",
+    "accent": "#e8f8f0"
+  }
+}

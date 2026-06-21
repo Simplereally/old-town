@@ -1,0 +1,45 @@
+[
+  {
+    "id": "goblin_drops",
+    "name": "Cellar Goblin Drops",
+    "rolls": 1,
+    "alwaysDrops": [{ "itemId": "coin", "quantity": 3 }],
+    "entries": [
+      { "itemId": "bread", "min": 1, "max": 1, "weight": 12 },
+      { "itemId": "copper_ore", "min": 1, "max": 2, "weight": 8 },
+      { "itemId": "pennywrought_cudgel", "min": 1, "max": 1, "weight": 1 }
+    ]
+  },
+  {
+    "id": "rat_drops",
+    "name": "Cellar Rat Drops",
+    "rolls": 1,
+    "alwaysDrops": [{ "itemId": "smoke_over_old_town_cellar_rat_tail", "quantity": 1 }],
+    "entries": [
+      { "itemId": "coin", "min": 1, "max": 2, "weight": 10 },
+      { "itemId": "bread", "min": 1, "max": 1, "weight": 3 }
+    ]
+  },
+  {
+    "id": "man_drops",
+    "name": "Townsfolk Drops",
+    "rolls": 1,
+    "alwaysDrops": [{ "itemId": "coin", "quantity": 3 }],
+    "entries": [
+      { "itemId": "coin", "min": 4, "max": 12, "weight": 12 },
+      { "itemId": "bread", "min": 1, "max": 1, "weight": 6 },
+      { "itemId": "cobbled_sticker", "min": 1, "max": 1, "weight": 3 },
+      { "itemId": "pennywrought_shortblade", "min": 1, "max": 1, "weight": 1, "rarity": "rare" }
+    ]
+  },
+  {
+    "id": "stray_dog_drops",
+    "name": "Stray Dog Drops",
+    "rolls": 1,
+    "alwaysDrops": [{ "itemId": "small_bones", "quantity": 1 }],
+    "entries": [
+      { "itemId": "coin", "min": 1, "max": 3, "weight": 10 },
+      { "itemId": "bread", "min": 1, "max": 1, "weight": 2 }
+    ]
+  }
+]

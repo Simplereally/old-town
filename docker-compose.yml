@@ -1,0 +1,26 @@
+# Local development database for Old Town persistence.
+# Start with `bun run db:up`, then `bun run db:migrate`.
+services:
+  postgres:
+    image: postgres:18
+    container_name: old-town-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: old_town
+      POSTGRES_PASSWORD: old_town
+      POSTGRES_DB: old_town
+    ports:
+      - "5432:5432"
+    # postgres:18+ stores data in a version-specific subdirectory under this
+    # mount (pg_ctlcluster layout). Mounting at the parent — not .../data — is
+    # the upstream-recommended config and avoids the "unused mount/volume" error.
+    volumes:
+      - old-town-pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U old_town -d old_town"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  old-town-pgdata:

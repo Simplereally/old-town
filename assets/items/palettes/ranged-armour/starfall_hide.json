@@ -1,0 +1,11 @@
+{
+  "ladder": "ranged-armour",
+  "tier": "starfall_hide",
+  "tierOrder": 12,
+  "regions": {
+    "hide": "#2e3033",
+    "stitch": "#d8cfba",
+    "buckle": "#d8cfba",
+    "accent": "#8ad0c0"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "ladder": "ranged-armour",
+  "tier": "patchhide",
+  "tierOrder": 1,
+  "regions": {
+    "hide": "#8a5a32",
+    "stitch": "#6b4a2b",
+    "buckle": "#b87333",
+    "accent": "#c9b88a"
+  }
+}

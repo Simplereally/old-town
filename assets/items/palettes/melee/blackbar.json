@@ -1,0 +1,14 @@
+{
+  "ladder": "melee",
+  "tier": "blackbar",
+  "tierOrder": 4,
+  "regions": {
+    "blade": "#2e3033",
+    "head": "#2e3033",
+    "grip": "#4a3526",
+    "accent": "#6a6d6f",
+    "trim": "#1a1a1a",
+    "metal": "#2e3033",
+    "straps": "#4a3526"
+  }
+}

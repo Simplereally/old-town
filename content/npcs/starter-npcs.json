@@ -1,0 +1,777 @@
+[
+  {
+    "id": "mara_bellkeeper",
+    "name": "Mara Bellkeeper",
+    "examine": "The keeper of the Market Bell. She knows every ring and every silence.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "dialogueId": "mara_bellkeeper_arrival",
+    "options": [{ "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "tomas_tally",
+    "name": "Tomas Tally",
+    "examine": "The counting-house clerk. His ledger is always half-open, half-worried.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "dialogueId": "tomas_tally_rats_under_tallys",
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
+      { "label": "Bank", "actionId": "bank", "priority": 5, "requiredDistance": 1 },
+      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
+    ]
+  },
+  {
+    "id": "osric_penny",
+    "name": "Osric Penny",
+    "examine": "A smith who speaks in hammer-strokes and copper prices.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "dialogueId": "osric_penny_forge_intro",
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
+      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
+    ]
+  },
+  {
+    "id": "letha_lath",
+    "name": "Letha Lath",
+    "examine": "A bowyer who measures people the way she measures staves.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "dialogueId": "letha_lath_bowcraft_intro",
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
+      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
+    ]
+  },
+  {
+    "id": "nell_patch",
+    "name": "Nell Patch",
+    "examine": "A tailor who sews leather like she is patching the town itself.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "dialogueId": "nell_patch_tailoring_intro",
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
+      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
+    ]
+  },
+  {
+    "id": "mother_tallow",
+    "name": "Mother Tallow",
+    "examine": "The beadwife. Her kiln never cools and her eyes never blink at the same time.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "dialogueId": "mother_tallow_beadwife_intro",
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
+      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
+    ]
+  },
+  {
+    "id": "warden_holt",
+    "name": "Warden Holt",
+    "examine": "The warden who posts contracts and watches the alleys.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "dialogueId": "warden_holt_contracts",
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
+      { "label": "Contracts", "actionId": "contract", "priority": 8, "requiredDistance": 1 }
+    ]
+  },
+  {
+    "id": "sister_writ",
+    "name": "Sister Writ",
+    "examine": "A shrine-keeper who speaks in rites and bones.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "dialogueId": "sister_writ_favour_intro",
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 }
+    ]
+  },
+  {
+    "id": "finch_quill",
+    "name": "Finch Quill",
+    "examine": "A cartographer who maps what the town forgets.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "dialogueId": "finch_quill_cartography_intro",
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
+      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
+    ]
+  },
+  {
+    "id": "edda_tinfin",
+    "name": "Edda Tinfin",
+    "examine": "A fishmonger who knows the river's moods better than her own.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "dialogueId": "edda_tinfin_fishing_intro",
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
+      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
+    ]
+  },
+  {
+    "id": "bramble_hook",
+    "name": "Bramble Hook",
+    "examine": "A fisher who talks to the river and expects answers.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "dialogueId": "bramble_hook_river_intro",
+    "options": [{ "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "marn_lock",
+    "name": "Marn Lock",
+    "examine": "A shifty figure who knows more about the bell than he admits.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "dialogueId": "marn_lock_bell_clapper",
+    "options": [{ "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "pippa_hearth",
+    "name": "Pippa Hearth",
+    "examine": "A cook whose smoke signals mean more than hunger.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "dialogueId": "baker_dialogue",
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 }
+    ]
+  },
+  {
+    "id": "gravekeeper_soll",
+    "name": "Gravekeeper Soll",
+    "examine": "The gravekeeper who tends flowers and secrets with equal care.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "dialogueId": "gravekeeper_soll_gravegate_flowers",
+    "options": [{ "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "cellar_rat",
+    "name": "Cellar Rat",
+    "examine": "A small rat that has learned to live in the dark.",
+    "size": 1,
+    "combatLevel": 1,
+    "maxHp": 5,
+    "stats": {
+      "attack": 1,
+      "strength": 1,
+      "defence": 1,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 5
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 3,
+    "respawnTicks": 5,
+    "drops": "rat_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "soot_rat",
+    "name": "Soot Rat",
+    "examine": "A rat blackened by soot and slightly tougher than its cellar cousins.",
+    "size": 1,
+    "combatLevel": 3,
+    "maxHp": 10,
+    "stats": {
+      "attack": 2,
+      "strength": 2,
+      "defence": 2,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 10
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 3,
+    "respawnTicks": 5,
+    "drops": "soot_rat_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "stray_dog",
+    "name": "Stray Dog",
+    "examine": "A lean dog that has forgotten kindness but not territory.",
+    "size": 1,
+    "combatLevel": 2,
+    "maxHp": 8,
+    "stats": {
+      "attack": 2,
+      "strength": 2,
+      "defence": 1,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 8
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 5,
+    "respawnTicks": 10,
+    "drops": "stray_dog_drops",
+    "movementType": "wander",
+    "aggressionMode": "retaliate",
+    "creatureKind": "retaliating",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "man",
+    "name": "Man",
+    "examine": "An ordinary townsman of Old Town, minding his own business.",
+    "size": 1,
+    "combatLevel": 2,
+    "maxHp": 7,
+    "stats": {
+      "attack": 1,
+      "strength": 1,
+      "defence": 1,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 7
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 4,
+    "respawnTicks": 12,
+    "drops": "man_drops",
+    "movementType": "wander",
+    "aggressionMode": "retaliate",
+    "creatureKind": "retaliating",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "woman",
+    "name": "Woman",
+    "examine": "An ordinary townswoman of Old Town, watching the street go by.",
+    "size": 1,
+    "combatLevel": 2,
+    "maxHp": 7,
+    "stats": {
+      "attack": 1,
+      "strength": 1,
+      "defence": 1,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 7
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 4,
+    "respawnTicks": 12,
+    "drops": "man_drops",
+    "movementType": "wander",
+    "aggressionMode": "retaliate",
+    "creatureKind": "retaliating",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "mud_goblin",
+    "name": "Mud Goblin",
+    "examine": "A small goblin caked in mud and aggression.",
+    "size": 1,
+    "combatLevel": 5,
+    "maxHp": 15,
+    "stats": {
+      "attack": 3,
+      "strength": 3,
+      "defence": 3,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 15
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 3,
+    "wanderRadius": 5,
+    "respawnTicks": 15,
+    "drops": "goblin_drops",
+    "movementType": "wander",
+    "aggressionMode": "aggressive",
+    "creatureKind": "aggressive",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "bell_bat",
+    "name": "Bell Bat",
+    "examine": "A bat that nests in the old bell tower and smells of copper.",
+    "size": 1,
+    "combatLevel": 4,
+    "maxHp": 8,
+    "stats": {
+      "attack": 2,
+      "strength": 2,
+      "defence": 2,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 8
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 4,
+    "respawnTicks": 10,
+    "drops": "bell_bat_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "bog_fox",
+    "name": "Bog Fox",
+    "examine": "A quick fox that hunts the ditch edges and the marshy fields.",
+    "size": 1,
+    "combatLevel": 6,
+    "maxHp": 12,
+    "stats": {
+      "attack": 3,
+      "strength": 3,
+      "defence": 2,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 12
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 6,
+    "respawnTicks": 15,
+    "drops": "bog_fox_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "grave_mite",
+    "name": "Grave Mite",
+    "examine": "A crawling thing that feeds on what the graveyard forgets.",
+    "size": 1,
+    "combatLevel": 3,
+    "maxHp": 10,
+    "stats": {
+      "attack": 2,
+      "strength": 2,
+      "defence": 2,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 10
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 2,
+    "wanderRadius": 3,
+    "respawnTicks": 10,
+    "drops": "grave_mite_drops",
+    "movementType": "wander",
+    "aggressionMode": "aggressive",
+    "creatureKind": "aggressive",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "grave_wisp",
+    "name": "Grave Wisp",
+    "examine": "A faint light that drifts where the dead are buried.",
+    "size": 1,
+    "combatLevel": 8,
+    "maxHp": 18,
+    "stats": {
+      "attack": 1,
+      "strength": 1,
+      "defence": 3,
+      "ranged": 1,
+      "magic": 4,
+      "prayer": 1,
+      "hitpoints": 18
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 3,
+    "wanderRadius": 4,
+    "respawnTicks": 20,
+    "drops": "grave_wisp_drops",
+    "movementType": "wander",
+    "aggressionMode": "aggressive",
+    "creatureKind": "aggressive",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "ash_drake_whelp",
+    "name": "Ash Drake Whelp",
+    "examine": "A young drake whelp warm enough to singe your eyebrows.",
+    "size": 2,
+    "combatLevel": 12,
+    "maxHp": 25,
+    "stats": {
+      "attack": 4,
+      "strength": 4,
+      "defence": 4,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 25
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 4,
+    "wanderRadius": 3,
+    "respawnTicks": 30,
+    "drops": "ash_drake_whelp_drops",
+    "movementType": "wander",
+    "aggressionMode": "aggressive",
+    "creatureKind": "aggressive",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "blacksealed_cutpurse",
+    "name": "Blacksealed Cutpurse",
+    "examine": "A rogue with a black seal on his collar and quick hands.",
+    "size": 1,
+    "combatLevel": 3,
+    "maxHp": 10,
+    "stats": {
+      "attack": 1,
+      "strength": 1,
+      "defence": 2,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 10
+    },
+    "attackSpeedTicks": 6,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 4,
+    "respawnTicks": 20,
+    "drops": "blacksealed_cutpurse_drops",
+    "movementType": "wander",
+    "aggressionMode": "retaliate",
+    "creatureKind": "retaliating",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "road_crow",
+    "name": "Road Crow",
+    "examine": "A crow that watches the road and collects shiny things.",
+    "size": 1,
+    "combatLevel": 1,
+    "maxHp": 5,
+    "stats": {
+      "attack": 1,
+      "strength": 1,
+      "defence": 1,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 5
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 4,
+    "respawnTicks": 5,
+    "drops": "road_crow_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "river_snapper",
+    "name": "River Snapper",
+    "examine": "A turtle that lurks in the river shallows and snaps at bait.",
+    "size": 1,
+    "combatLevel": 4,
+    "maxHp": 12,
+    "stats": {
+      "attack": 2,
+      "strength": 2,
+      "defence": 4,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 12
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 2,
+    "respawnTicks": 15,
+    "drops": "river_snapper_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "general_stall_keeper",
+    "name": "General Stall Keeper",
+    "examine": "The keeper of the general stall. They sell a little of everything.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
+      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
+    ]
+  },
+  {
+    "id": "river_stoop_keeper",
+    "name": "River Stoop Keeper",
+    "examine": "The keeper of the river stoop. They know the catch of the day.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
+      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
+    ]
+  },
+  {
+    "id": "blacksealed_merchant",
+    "name": "Blacksealed Merchant",
+    "examine": "A merchant with a black seal on their collar and quick hands.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "options": [
+      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 },
+      { "label": "Trade", "actionId": "trade", "priority": 5, "requiredDistance": 1 }
+    ]
+  },
+  {
+    "id": "cellar_king",
+    "name": "The Cellar King",
+    "examine": "A swollen ledger-eating rat that has nested inside ruined account books.",
+    "size": 2,
+    "combatLevel": 5,
+    "maxHp": 30,
+    "stats": {
+      "attack": 3,
+      "strength": 3,
+      "defence": 2,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 30
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 2,
+    "respawnTicks": 30,
+    "drops": "cellar_king_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
+    "weakness": {
+      "element": "none",
+      "multiplier": 1.0
+    },
+    "trophyId": "cellar_king_whisker",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "mudhook_grib",
+    "name": "Mudhook Grib",
+    "examine": "A mud goblin foreman who wears quarry scrap as armour.",
+    "size": 1,
+    "combatLevel": 15,
+    "maxHp": 50,
+    "stats": {
+      "attack": 5,
+      "strength": 5,
+      "defence": 8,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 50
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 2,
+    "respawnTicks": 40,
+    "drops": "mudhook_grib_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
+    "weakness": {
+      "element": "none",
+      "multiplier": 1.0
+    },
+    "trophyId": "mudhook_jaw",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "ashling_in_the_kiln",
+    "name": "Ashling in the Kiln",
+    "examine": "A young ash drake nesting in the old municipal kiln.",
+    "size": 2,
+    "combatLevel": 20,
+    "maxHp": 60,
+    "stats": {
+      "attack": 6,
+      "strength": 6,
+      "defence": 5,
+      "ranged": 1,
+      "magic": 4,
+      "prayer": 1,
+      "hitpoints": 60
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 2,
+    "respawnTicks": 50,
+    "drops": "ashling_in_the_kiln_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
+    "weakness": {
+      "element": "water",
+      "multiplier": 1.5
+    },
+    "trophyId": "ashling_ember",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "bell_bat_mother",
+    "name": "The Bell Bat Mother",
+    "examine": "An enormous bell-roosting bat that carries stolen strings in its claws.",
+    "size": 2,
+    "combatLevel": 15,
+    "maxHp": 45,
+    "stats": {
+      "attack": 5,
+      "strength": 4,
+      "defence": 4,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 45
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 2,
+    "respawnTicks": 40,
+    "drops": "bell_bat_mother_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
+    "weakness": {
+      "element": "none",
+      "multiplier": 1.0
+    },
+    "trophyId": "bat_mother_claw",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "old_snapper",
+    "name": "Old Snapper",
+    "examine": "A scarred river snapper that knows where bait comes from.",
+    "size": 2,
+    "combatLevel": 15,
+    "maxHp": 40,
+    "stats": {
+      "attack": 4,
+      "strength": 4,
+      "defence": 6,
+      "ranged": 1,
+      "magic": 1,
+      "prayer": 1,
+      "hitpoints": 40
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 2,
+    "respawnTicks": 40,
+    "drops": "old_snapper_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
+    "weakness": {
+      "element": "none",
+      "multiplier": 1.0
+    },
+    "trophyId": "snapped_hook",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  },
+  {
+    "id": "wrong_flower",
+    "name": "The Wrong Flower",
+    "examine": "A grave flower planted in the wrong grave, now walking around wearing soil like a coat.",
+    "size": 1,
+    "combatLevel": 20,
+    "maxHp": 55,
+    "stats": {
+      "attack": 5,
+      "strength": 5,
+      "defence": 5,
+      "ranged": 1,
+      "magic": 3,
+      "prayer": 1,
+      "hitpoints": 55
+    },
+    "attackSpeedTicks": 5,
+    "attackRangeTiles": 1,
+    "aggressiveRadius": 0,
+    "wanderRadius": 3,
+    "respawnTicks": 50,
+    "drops": "wrong_flower_drops",
+    "movementType": "wander",
+    "aggressionMode": "peaceful",
+    "creatureKind": "passive",
+    "weakness": {
+      "element": "fire",
+      "multiplier": 1.5
+    },
+    "trophyId": "polite_root",
+    "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
+  }
+]

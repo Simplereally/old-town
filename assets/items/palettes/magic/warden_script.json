@@ -1,0 +1,18 @@
+{
+  "ladder": "magic",
+  "tier": "warden_script",
+  "tierOrder": 5,
+  "regions": {
+    "cloth": "#3a6ea5",
+    "script": "#c2c6cc",
+    "seal": "#9aa0a6",
+    "accent": "#d8cfba",
+    "shaft": "#4f7a3a",
+    "tip": "#c2c6cc",
+    "bead": "#3a6ea5",
+    "lens": "#c2c6cc",
+    "rim": "#4f7a3a",
+    "cover": "#3a6ea5",
+    "page": "#c2c6cc"
+  }
+}

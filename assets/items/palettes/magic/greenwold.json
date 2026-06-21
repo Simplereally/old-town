@@ -1,0 +1,18 @@
+{
+  "ladder": "magic",
+  "tier": "greenwold",
+  "tierOrder": 6,
+  "regions": {
+    "cloth": "#4f7a3a",
+    "script": "#8ad0c0",
+    "seal": "#cfc6ad",
+    "accent": "#8ad0c0",
+    "shaft": "#6b4a2b",
+    "tip": "#8ad0c0",
+    "bead": "#4f7a3a",
+    "lens": "#8ad0c0",
+    "rim": "#6b4a2b",
+    "cover": "#4f7a3a",
+    "page": "#8ad0c0"
+  }
+}

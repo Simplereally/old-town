@@ -1,0 +1,17 @@
+{
+  "ladder": "ranged",
+  "tier": "bellhorn",
+  "tierOrder": 3,
+  "regions": {
+    "limb": "#a07a3a",
+    "string": "#d8cfba",
+    "grip": "#7a5a3a",
+    "accent": "#c9a23c",
+    "prod": "#a07a3a",
+    "stock": "#7a5a3a",
+    "mechanism": "#c9a23c",
+    "shaft": "#a07a3a",
+    "fletch": "#d8cfba",
+    "head": "#c9a23c"
+  }
+}

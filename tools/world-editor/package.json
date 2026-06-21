@@ -1,0 +1,20 @@
+{
+  "name": "@old-town/world-editor",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist .vite"
+  },
+  "dependencies": {
+    "@old-town/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "rimraf": "^6.1.3",
+    "vite": "^6.0.0",
+    "vitest": "^3.2.0"
+  }
+}

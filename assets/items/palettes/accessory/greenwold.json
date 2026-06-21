@@ -1,0 +1,11 @@
+{
+  "ladder": "accessory",
+  "tier": "greenwold",
+  "tierOrder": 6,
+  "regions": {
+    "cloth": "#4f7a3a",
+    "metal": "#8aaa6a",
+    "seal": "#c9d8a8",
+    "accent": "#a8c888"
+  }
+}

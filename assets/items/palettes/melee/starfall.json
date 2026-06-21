@@ -1,0 +1,14 @@
+{
+  "ladder": "melee",
+  "tier": "starfall",
+  "tierOrder": 12,
+  "regions": {
+    "blade": "#2e3033",
+    "head": "#2e3033",
+    "grip": "#1a1a1a",
+    "accent": "#d8cfba",
+    "trim": "#8ad0c0",
+    "metal": "#2e3033",
+    "straps": "#1a1a1a"
+  }
+}

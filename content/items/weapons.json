@@ -1,0 +1,153 @@
+[
+  {
+    "id": "pennywrought_shortblade",
+    "name": "Pennywrought Shortblade",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A cheap copper-brown shortblade with rope around the grip.",
+    "icon": "icon_pennywrought_shortblade",
+    "model": "model_pennywrought_shortblade",
+    "value": 50,
+    "weight": 1.2,
+    "tier": "pennywrought",
+    "tierOrder": 1,
+    "family": "shortblade",
+    "category": "melee",
+    "visualIdentity": {
+      "baseColor": "dull_copper_brown",
+      "accents": "cheap_rivets",
+      "grip": "rope"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["stab", "slash", "crush"],
+      "bonuses": { "stabAttack": 5, "slashAttack": 5, "crushAttack": 2, "meleeStrength": 4 },
+      "requirements": []
+    }
+  },
+  {
+    "id": "pennywrought_cudgel",
+    "name": "Pennywrought Cudgel",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A crude starter mace with a riveted pennywrought head.",
+    "icon": "icon_pennywrought_cudgel",
+    "model": "model_pennywrought_cudgel",
+    "value": 42,
+    "weight": 1.8,
+    "tier": "pennywrought",
+    "tierOrder": 1,
+    "family": "cudgel",
+    "category": "melee",
+    "visualIdentity": {
+      "baseColor": "dull_copper_brown",
+      "accents": "rounded_rivets",
+      "grip": "plain_wood"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["crush"],
+      "bonuses": { "crushAttack": 5, "meleeStrength": 4 },
+      "requirements": []
+    }
+  },
+  {
+    "id": "lathwood_shortbow",
+    "name": "Lathwood Shortbow",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A pale, handmade bow that marks the first real step past scrap.",
+    "icon": "icon_lathwood_shortbow",
+    "model": "model_lathwood_shortbow",
+    "value": 45,
+    "weight": 0.8,
+    "tier": "lathwood",
+    "tierOrder": 1,
+    "family": "shortbow",
+    "category": "ranged",
+    "visualIdentity": {
+      "baseColor": "pale_lathwood",
+      "accents": "penny_copper_fittings",
+      "string": "waxed_cord"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 6,
+      "allowedStyles": ["ranged"],
+      "bonuses": { "rangedAttack": 3, "rangedStrength": 2 },
+      "requirements": []
+    }
+  },
+  {
+    "id": "cobbled_sticker",
+    "name": "Cobbled Sticker",
+    "stackable": false,
+    "tradeable": true,
+    "examine": "A crude pointed weapon cobbled from scrap metal and wood.",
+    "icon": "icon_cobbled_sticker",
+    "model": "model_cobbled_sticker",
+    "value": 8,
+    "weight": 0.8,
+    "tier": "cobbled",
+    "tierOrder": 0,
+    "family": "sticker",
+    "category": "melee",
+    "visualIdentity": {
+      "baseColor": "rust_grey",
+      "accents": "rough_wood"
+    },
+    "options": ["wield"],
+    "equipment": {
+      "slot": "weapon",
+      "attackSpeedTicks": 5,
+      "attackRangeTiles": 1,
+      "allowedStyles": ["stab", "slash"],
+      "bonuses": { "stabAttack": 1, "slashAttack": 1 },
+      "requirements": []
+    }
+  },
+  {
+    "id": "lathwood_arrows",
+    "name": "Lathwood Arrows",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "Simple arrows fletched with lathwood shafts.",
+    "icon": "icon_lathwood_arrows",
+    "model": "model_lathwood_arrows",
+    "value": 2,
+    "weight": 0.1,
+    "options": [],
+    "tags": ["ammo"],
+    "equipment": {
+      "slot": "ammo",
+      "bonuses": { "rangedStrength": 1 },
+      "requirements": []
+    }
+  },
+  {
+    "id": "lathwood_dart",
+    "name": "Lathwood Dart",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A light dart carved from lathwood for throwing.",
+    "icon": "icon_lathwood_dart",
+    "model": "model_lathwood_dart",
+    "value": 3,
+    "weight": 0.1,
+    "options": [],
+    "tags": ["ammo"],
+    "equipment": {
+      "slot": "ammo",
+      "bonuses": { "rangedStrength": 2 },
+      "requirements": []
+    }
+  }
+]

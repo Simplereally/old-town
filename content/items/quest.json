@@ -1,0 +1,115 @@
+[
+  {
+    "id": "smoke_over_old_town_cellar_rat_tail",
+    "name": "Cellar Rat Tail",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "Proof that a cellar rat will not be stealing from the bakery again.",
+    "icon": "icon_smoke_over_old_town_cellar_rat_tail",
+    "value": 0,
+    "options": [],
+    "tags": ["quest_item"]
+  },
+  {
+    "id": "smoke_over_old_town_baker_oven_key",
+    "name": "Baker Oven Key",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "A flour-dusted key for the baker's troublesome oven.",
+    "icon": "icon_smoke_over_old_town_baker_oven_key",
+    "model": "model_smoke_over_old_town_baker_oven_key",
+    "value": 0,
+    "options": [],
+    "tags": ["quest_item"]
+  },
+  {
+    "id": "smoke_over_old_town_old_town_bread",
+    "name": "Old Town Bread",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "A heroic loaf, dark-crusted and smoky in the best possible way.",
+    "icon": "icon_smoke_over_old_town_old_town_bread",
+    "value": 30,
+    "weight": 0.3,
+    "options": ["eat"],
+    "tags": ["quest_item"],
+    "consumable": { "heal": 20, "consumeTicks": 3 }
+  },
+  {
+    "id": "ledger_seven",
+    "name": "Ledger Seven",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "The seventh ledger. Proof of something important.",
+    "icon": "icon_ledger_seven",
+    "value": 0,
+    "options": [],
+    "tags": ["quest_item"]
+  },
+  {
+    "id": "listening_clay",
+    "name": "Listening Clay",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "Clay that listens, or so the old story says.",
+    "icon": "icon_listening_clay",
+    "value": 0,
+    "options": [],
+    "tags": ["quest_item"]
+  },
+  {
+    "id": "warm_scale",
+    "name": "Warm Scale",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "A warm scale from something that should not be warm.",
+    "icon": "icon_warm_scale",
+    "value": 0,
+    "options": [],
+    "tags": ["quest_item"]
+  },
+  {
+    "id": "sooted_receipt",
+    "name": "Sooted Receipt",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "A receipt blackened by soot and old fire.",
+    "icon": "icon_sooted_receipt",
+    "value": 0,
+    "options": [],
+    "tags": ["quest_item"]
+  },
+  {
+    "id": "grave_flower_bundle",
+    "name": "Grave Flower Bundle",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "A bundle of flowers from the graveyard edge.",
+    "icon": "icon_grave_flower_bundle",
+    "value": 0,
+    "options": [],
+    "tags": ["quest_item"]
+  },
+  {
+    "id": "ratcatcher_tail",
+    "name": "Ratcatcher Tail",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "Proof of a ratcatcher's work.",
+    "icon": "icon_ratcatcher_tail",
+    "value": 0,
+    "options": [],
+    "tags": ["quest_item"]
+  },
+  {
+    "id": "bell_token_proof",
+    "name": "Bell Token Proof",
+    "stackable": false,
+    "tradeable": false,
+    "examine": "Proof that the bell was rung.",
+    "icon": "icon_bell_token_proof",
+    "value": 0,
+    "options": [],
+    "tags": ["quest_item"]
+  }
+]

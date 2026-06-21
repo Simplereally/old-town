@@ -1,0 +1,32 @@
+[
+  {
+    "id": "oldroad_gate_path",
+    "name": "Oldroad Gate Path",
+    "startTile": { "x": 8, "y": 40, "plane": 0 },
+    "endTile": { "x": 56, "y": 54, "plane": 0 },
+    "hidden": false,
+    "discoveryRadius": 3,
+    "buff": "strength_boost",
+    "shortcutSpeed": 2
+  },
+  {
+    "id": "sootcellar_shortcut",
+    "name": "Sootcellar Shortcut",
+    "startTile": { "x": 30, "y": 26, "plane": 0 },
+    "endTile": { "x": 32, "y": 28, "plane": 0 },
+    "hidden": true,
+    "discoveryRadius": 2,
+    "buff": "strength_boost",
+    "shortcutSpeed": 3
+  },
+  {
+    "id": "bellwood_hidden_trail",
+    "name": "Bellwood Hidden Trail",
+    "startTile": { "x": 56, "y": 54, "plane": 0 },
+    "endTile": { "x": 62, "y": 28, "plane": 0 },
+    "hidden": true,
+    "discoveryRadius": 3,
+    "buff": "strength_boost",
+    "shortcutSpeed": 2
+  }
+]

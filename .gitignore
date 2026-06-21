@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.pnp.*
+.yarn/*
+
+# Build artifacts
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# Generated item-asset atlases (built by items:build-assets)
+assets/items/atlases/
+
+# Test / coverage output
+coverage/
+.nyc_output/
+
+# Caches
+.cache/
+.vite/
+.turbo/
+.eslintcache
+
+# Harness/agent session scratch
+.omo/
+.claude/worktrees/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+*.log
+
+# Bun
+bun.lockb.bak

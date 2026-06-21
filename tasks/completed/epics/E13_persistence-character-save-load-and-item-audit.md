@@ -1,0 +1,40 @@
+# E13 — Persistence, Character Save/Load, and Item Audit
+
+## Dependency chain
+
+- Depends on: E12
+- Unlocks: E14
+
+## Spec references
+
+- POC_SPEC.md §20
+- POC_SPEC.md §21
+- POC_SPEC.md §25
+- POC_SPEC.md §27
+
+## Epic goal
+
+Persist character state safely: position, skills, inventory, equipment, quest vars, bank-ready data shape, ground item policy, and item transaction audit trail.
+
+## Completion checklist
+
+- [X] Read `POC_SPEC.md` sections referenced above.
+- [X] Complete the stories below in exact order.
+- [X] Run all validation commands listed by completed stories.
+- [X] Confirm no unchecked acceptance criteria remain in this epic's stories.
+- [X] Move completed story files into `tasks/completed/stories/E13/`.
+- [X] Move this epic file into `tasks/completed/epics/` after all stories are complete.
+
+## Ordered stories
+
+- [X] `E13-S01` — [Define persistence adapter interface and dev storage](../completed/stories/E13/E13-S01_define-persistence-adapter-interface-and-dev-storage.md)
+- [X] `E13-S02` — [Persist character core state](../completed/stories/E13/E13-S02_persist-character-core-state.md)
+- [X] `E13-S03` — [Implement dirty-state persistence triggers](../completed/stories/E13/E13-S03_implement-dirty-state-persistence-triggers.md)
+- [X] `E13-S04` — [Implement item transaction audit](../completed/stories/E13/E13-S04_implement-item-transaction-audit.md)
+- [X] `E13-S05` — [Prepare PostgreSQL schema and migration files](../completed/stories/E13/E13-S05_prepare-postgresql-schema-and-migration-files.md)
+
+## Epic acceptance criteria
+
+- [X] All listed story files are complete and moved to the completed folder.
+- [X] The implementation still preserves server authority, integer tile truth, 600ms tick semantics, content-driven definitions, and client-only presentation.
+- [X] No later epic has been implemented in a way that bypasses this epic's contracts.

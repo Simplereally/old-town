@@ -1,0 +1,67 @@
+[
+  {
+    "id": "shape_bead_clay_blank",
+    "name": "Shape Bead Clay Blank",
+    "skill": "beadwork",
+    "requiredLevel": 1,
+    "actionTicks": 3,
+    "stationObjectIds": ["chalkhouse_bead_kiln"],
+    "inputItemId": "bead_clay",
+    "successItemId": "ember_bead",
+    "xp": 12,
+    "failureChance": 0.2,
+    "recipeGroupId": "beadwork"
+  },
+  {
+    "id": "drill_basic_bead",
+    "name": "Drill Basic Bead",
+    "skill": "beadwork",
+    "requiredLevel": 5,
+    "actionTicks": 3,
+    "stationObjectIds": ["chalkhouse_bead_loom"],
+    "inputItemId": "ember_bead",
+    "successItemId": "wit_bead",
+    "xp": 18,
+    "failureChance": 0.15,
+    "recipeGroupId": "beadwork"
+  },
+  {
+    "id": "fire_chalkmarked_bead",
+    "name": "Fire Chalkmarked Bead",
+    "skill": "beadwork",
+    "requiredLevel": 10,
+    "actionTicks": 4,
+    "stationObjectIds": ["chalkhouse_bead_kiln"],
+    "inputItemId": "wit_bead",
+    "successItemId": "writ_bead",
+    "xp": 25,
+    "failureChance": 0.1,
+    "recipeGroupId": "beadwork"
+  },
+  {
+    "id": "string_basic_bead_strand",
+    "name": "String Basic Bead Strand",
+    "skill": "beadwork",
+    "requiredLevel": 5,
+    "actionTicks": 3,
+    "stationObjectIds": ["chalkhouse_bead_loom"],
+    "inputItemId": "wit_bead",
+    "successItemId": "gust_bead",
+    "xp": 18,
+    "failureChance": 0.15,
+    "recipeGroupId": "beadwork"
+  },
+  {
+    "id": "make_threadbare_bead_pouch",
+    "name": "Make Threadbare Bead Pouch",
+    "skill": "beadwork",
+    "requiredLevel": 15,
+    "actionTicks": 5,
+    "stationObjectIds": ["chalkhouse_bead_loom"],
+    "inputItemId": "wit_bead",
+    "successItemId": "threadbare_bead_pouch",
+    "xp": 30,
+    "failureChance": 0.1,
+    "recipeGroupId": "beadwork"
+  }
+]

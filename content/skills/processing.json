@@ -1,0 +1,66 @@
+[
+  {
+    "id": "cooking",
+    "name": "Cooking",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  },
+  {
+    "id": "smithing",
+    "name": "Smithing",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  },
+  {
+    "id": "bowcraft",
+    "name": "Bowcraft",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  },
+  {
+    "id": "tailoring",
+    "name": "Tailoring",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  },
+  {
+    "id": "handicraft",
+    "name": "Handicraft",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  },
+  {
+    "id": "beadwork",
+    "name": "Beadwork",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  },
+  {
+    "id": "apothecary",
+    "name": "Apothecary",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  },
+  {
+    "id": "carpentry",
+    "name": "Carpentry",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  }
+]

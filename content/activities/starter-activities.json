@@ -1,0 +1,406 @@
+[
+  {
+    "id": "bell_run",
+    "name": "Bell Run",
+    "category": "course",
+    "risk": "safe",
+    "skills": ["wayfaring", "cartography"],
+    "entryRequirement": {
+      "skillId": "wayfaring",
+      "level": 1
+    },
+    "location": {
+      "description": "Market Bell to Oldroad Gate and back",
+      "x": 32,
+      "y": 32,
+      "plane": 0
+    },
+    "steps": [
+      {
+        "id": "receive_satchel",
+        "name": "Receive Message Satchel",
+        "description": "Receive a message satchel from the Market Bell keeper",
+        "actionTicks": 1
+      },
+      {
+        "id": "run_route",
+        "name": "Run the Route",
+        "description": "Carry the message to one of three district signposts",
+        "skillId": "wayfaring",
+        "requiredLevel": 1,
+        "actionTicks": 3,
+        "xpReward": [{ "skillId": "wayfaring", "amount": 15 }]
+      },
+      {
+        "id": "ring_bell",
+        "name": "Ring the Bell",
+        "description": "Ring the small bell at the destination signpost",
+        "actionTicks": 1
+      },
+      {
+        "id": "return",
+        "name": "Return to Market Bell",
+        "description": "Return before the message expires",
+        "skillId": "cartography",
+        "requiredLevel": 1,
+        "actionTicks": 3,
+        "xpReward": [{ "skillId": "cartography", "amount": 10 }]
+      }
+    ],
+    "rewards": [
+      { "type": "xp", "skillId": "wayfaring", "quantity": 15 },
+      { "type": "xp", "skillId": "cartography", "quantity": 10 },
+      { "type": "token", "tokenId": "bell_token", "quantity": 1 }
+    ],
+    "tokenId": "bell_token",
+    "loopDescription": "The player carries a message from the Market Bell to a district signpost, rings a bell, and returns before the message expires.",
+    "failureState": "If the player does not return before the message expires, the satchel disappears and the run fails. No penalty beyond lost time.",
+    "inputs": [],
+    "outputs": [{ "itemId": "bell_token", "quantity": 1 }]
+  },
+  {
+    "id": "soot_sweep",
+    "name": "Soot Sweep",
+    "category": "publicWork",
+    "risk": "safe",
+    "skills": ["arms", "guard", "sleight"],
+    "entryRequirement": {
+      "skillId": "arms",
+      "level": 1
+    },
+    "location": {
+      "description": "Sootcellar and lower sootstairs",
+      "x": 45,
+      "y": 45,
+      "plane": 0
+    },
+    "steps": [
+      {
+        "id": "sweep_pile",
+        "name": "Sweep Soot Pile",
+        "description": "Sweep a soot pile from the Sootcellar floor",
+        "skillId": "sleight",
+        "requiredLevel": 1,
+        "actionTicks": 2,
+        "xpReward": [{ "skillId": "sleight", "amount": 8 }]
+      },
+      {
+        "id": "clear_mites",
+        "name": "Clear Grave Mites",
+        "description": "Fight or flee Grave Mites that emerge from the soot",
+        "skillId": "arms",
+        "requiredLevel": 1,
+        "actionTicks": 3,
+        "xpReward": [{ "skillId": "arms", "amount": 12 }, { "skillId": "guard", "amount": 8 }],
+        "failureChance": 0.1
+      }
+    ],
+    "rewards": [
+      { "type": "xp", "skillId": "arms", "quantity": 12 },
+      { "type": "xp", "skillId": "guard", "quantity": 8 },
+      { "type": "xp", "skillId": "sleight", "quantity": 8 },
+      { "type": "token", "tokenId": "soot_mark", "quantity": 1 }
+    ],
+    "tokenId": "soot_mark",
+    "loopDescription": "The player sweeps soot piles from the Sootcellar floor, clearing paths and reducing Grave Mite spawn chances.",
+    "failureState": "If overwhelmed by Grave Mites, the player is forced to retreat. No death penalty, but the sweep is incomplete.",
+    "inputs": [],
+    "outputs": [{ "itemId": "soot_ash", "quantity": 1 }, { "itemId": "soot_mark", "quantity": 1 }]
+  },
+  {
+    "id": "ledger_sort",
+    "name": "Ledger Sort",
+    "category": "publicWork",
+    "risk": "safe",
+    "skills": ["cartography", "sleight"],
+    "entryRequirement": { "skillId": "cartography", "level": 1 },
+    "location": { "description": "Counting House", "x": 35, "y": 35, "plane": 0 },
+    "steps": [
+      {
+        "id": "receive_pages",
+        "name": "Receive Ledger Pages",
+        "description": "Receive a bundle of damaged ledger pages from the clerk",
+        "actionTicks": 1
+      },
+      {
+        "id": "sort_pages",
+        "name": "Sort Ledger Pages",
+        "description": "Sort damaged ledger pages into correct piles",
+        "skillId": "cartography",
+        "requiredLevel": 1,
+        "actionTicks": 3,
+        "xpReward": [{ "skillId": "cartography", "amount": 14 }]
+      },
+      {
+        "id": "submit_bundle",
+        "name": "Submit Bundle",
+        "description": "Shoo away rats and submit the correct bundles to the clerk",
+        "skillId": "sleight",
+        "requiredLevel": 1,
+        "actionTicks": 2,
+        "xpReward": [{ "skillId": "sleight", "amount": 8 }],
+        "failureChance": 0.1
+      }
+    ],
+    "rewards": [
+      { "type": "xp", "skillId": "cartography", "quantity": 14 },
+      { "type": "xp", "skillId": "sleight", "quantity": 8 },
+      { "type": "token", "tokenId": "ledger_sort_voucher", "quantity": 1 }
+    ],
+    "tokenId": "ledger_sort_voucher",
+    "tokenSink": [],
+    "loopDescription": "The player receives damaged ledger pages, sorts them into correct piles, then shooes away rats and submits the bundles to the clerk.",
+    "failureState": "If the rats scatter the sorted piles or the pages are mis-sorted, the bundle is rejected. No penalty beyond lost time.",
+    "inputs": [],
+    "outputs": [{ "itemId": "ledger_sort_voucher", "quantity": 1 }]
+  },
+  {
+    "id": "market_rush",
+    "name": "Market Rush",
+    "category": "publicWork",
+    "risk": "safe",
+    "skills": ["wayfaring", "cooking"],
+    "entryRequirement": { "skillId": "cooking", "level": 1 },
+    "location": { "description": "Market Bell", "x": 32, "y": 32, "plane": 0 },
+    "steps": [
+      {
+        "id": "gather_basket",
+        "name": "Gather Basket",
+        "description": "Collect a market basket and fresh ingredients",
+        "skillId": "wayfaring",
+        "requiredLevel": 1,
+        "actionTicks": 2,
+        "xpReward": [{ "skillId": "wayfaring", "amount": 10 }]
+      },
+      {
+        "id": "rush_delivery",
+        "name": "Rush Delivery",
+        "description": "Carry the basket to Market Bell before the ingredients spoil",
+        "skillId": "wayfaring",
+        "requiredLevel": 1,
+        "actionTicks": 3,
+        "xpReward": [{ "skillId": "wayfaring", "amount": 15 }],
+        "failureChance": 0.08
+      },
+      {
+        "id": "sort_deliver",
+        "name": "Sort and Deliver",
+        "description": "Sort the ingredients and deliver them to the correct vendors",
+        "skillId": "cooking",
+        "requiredLevel": 1,
+        "actionTicks": 2,
+        "xpReward": [{ "skillId": "cooking", "amount": 15 }]
+      }
+    ],
+    "rewards": [
+      { "type": "xp", "skillId": "wayfaring", "quantity": 25 },
+      { "type": "xp", "skillId": "cooking", "quantity": 15 },
+      { "type": "token", "tokenId": "market_token", "quantity": 1 }
+    ],
+    "tokenId": "market_token",
+    "tokenSink": [],
+    "loopDescription": "The player gathers a basket of fresh ingredients, rushes them to Market Bell before they spoil, and sorts them for the correct vendors.",
+    "failureState": "If the ingredients spoil during the rush, the basket is discarded and the delivery fails.",
+    "inputs": [],
+    "outputs": [{ "itemId": "market_token", "quantity": 1 }]
+  },
+  {
+    "id": "graveflower_round",
+    "name": "Graveflower Round",
+    "category": "skilling",
+    "risk": "safe",
+    "skills": ["favour", "gardening"],
+    "entryRequirement": { "skillId": "favour", "level": 1 },
+    "location": { "description": "Shrine Hearth to Gravegate", "x": 28, "y": 18, "plane": 0 },
+    "steps": [
+      {
+        "id": "plant_water",
+        "name": "Plant and Water Grave Flowers",
+        "description": "Plant grave flower seeds in a patch and water them",
+        "skillId": "gardening",
+        "requiredLevel": 1,
+        "actionTicks": 4,
+        "xpReward": [{ "skillId": "gardening", "amount": 12 }]
+      },
+      {
+        "id": "tend_offering",
+        "name": "Light Candles and Offer Bone Chips",
+        "description": "Prune overgrowth, light candles, and scatter bone chips",
+        "skillId": "favour",
+        "requiredLevel": 1,
+        "actionTicks": 3,
+        "xpReward": [{ "skillId": "favour", "amount": 14 }, { "skillId": "gardening", "amount": 6 }]
+      },
+      {
+        "id": "clear_mites",
+        "name": "Clear Grave Mites",
+        "description": "Clear occasional Grave Mites that infest the flower beds",
+        "skillId": "gardening",
+        "requiredLevel": 1,
+        "actionTicks": 3,
+        "xpReward": [{ "skillId": "gardening", "amount": 8 }, { "skillId": "favour", "amount": 5 }],
+        "failureChance": 0.15
+      }
+    ],
+    "rewards": [
+      { "type": "xp", "skillId": "gardening", "quantity": 26 },
+      { "type": "xp", "skillId": "favour", "quantity": 19 },
+      { "type": "token", "tokenId": "grave_token", "quantity": 1 }
+    ],
+    "tokenId": "grave_token",
+    "tokenSink": [],
+    "loopDescription": "The player tends a circuit of grave flower patches, planting and watering seeds, lighting candles, offering bone chips, and clearing occasional Grave Mites.",
+    "failureState": "If the player fails to clear Grave Mites, the patch is infested and the flowers wilt. They must be replanted on the next round.",
+    "inputs": [],
+    "outputs": [{ "itemId": "grave_token", "quantity": 1 }]
+  },
+  {
+    "id": "foundry_shift",
+    "name": "Foundry Shift",
+    "category": "production",
+    "risk": "safe",
+    "skills": ["smithing", "mining"],
+    "entryRequirement": { "skillId": "smithing", "level": 1 },
+    "location": { "description": "Foundry Row", "x": 40, "y": 40, "plane": 0 },
+    "steps": [
+      {
+        "id": "deliver_ore",
+        "name": "Deliver Ore and Sort Blackcoal",
+        "description": "Haul copper and tin ore to the furnace and sort blackcoal",
+        "skillId": "mining",
+        "requiredLevel": 1,
+        "actionTicks": 2,
+        "xpReward": [{ "skillId": "mining", "amount": 10 }]
+      },
+      {
+        "id": "smelt_batch",
+        "name": "Smelt Timed Batch",
+        "description": "Feed the furnace and smelt a timed batch of bronze",
+        "skillId": "smithing",
+        "requiredLevel": 1,
+        "actionTicks": 3,
+        "xpReward": [{ "skillId": "smithing", "amount": 15 }],
+        "failureChance": 0.15
+      },
+      {
+        "id": "hammer_ingots",
+        "name": "Hammer Flawed Ingots",
+        "description": "Hammer out flaws from cooled ingots and shape bronze rivets",
+        "skillId": "smithing",
+        "requiredLevel": 1,
+        "actionTicks": 2,
+        "xpReward": [{ "skillId": "smithing", "amount": 12 }],
+        "failureChance": 0.1
+      }
+    ],
+    "rewards": [
+      { "type": "xp", "skillId": "smithing", "quantity": 27 },
+      { "type": "xp", "skillId": "mining", "quantity": 10 },
+      { "type": "token", "tokenId": "foundry_token", "quantity": 1 }
+    ],
+    "tokenId": "foundry_token",
+    "tokenSink": [],
+    "loopDescription": "Work a shift at the Foundry Row furnace. Deliver ore, sort blackcoal, smelt timed batches, and hammer flawed ingots.",
+    "failureState": "If the furnace heat drops too low or a batch is mistimed, the smelt fails and the ingots are lost.",
+    "inputs": [],
+    "outputs": [{ "itemId": "foundry_token", "quantity": 1 }]
+  },
+  {
+    "id": "kilnwatch_primer",
+    "name": "Kilnwatch Primer",
+    "category": "production",
+    "risk": "safe",
+    "skills": ["hearthcraft", "beadwork"],
+    "entryRequirement": { "skillId": "hearthcraft", "level": 1 },
+    "location": { "description": "Chalkhouse Court", "x": 50, "y": 50, "plane": 0 },
+    "steps": [
+      {
+        "id": "gather_materials",
+        "name": "Gather Materials",
+        "description": "Gather bead clay or glass sand from the kiln stores",
+        "actionTicks": 1
+      },
+      {
+        "id": "fire_beads",
+        "name": "Fire Beads",
+        "description": "Load the kiln and fire beads, following the temperature curve",
+        "skillId": "hearthcraft",
+        "requiredLevel": 1,
+        "actionTicks": 3,
+        "xpReward": [{ "skillId": "hearthcraft", "amount": 15 }],
+        "failureChance": 0.15
+      },
+      {
+        "id": "sort_and_string",
+        "name": "Sort and String",
+        "description": "Sort fired beads by quality and string them into primer strands",
+        "skillId": "beadwork",
+        "requiredLevel": 1,
+        "actionTicks": 2,
+        "xpReward": [{ "skillId": "beadwork", "amount": 10 }]
+      }
+    ],
+    "rewards": [
+      { "type": "xp", "skillId": "hearthcraft", "quantity": 15 },
+      { "type": "xp", "skillId": "beadwork", "quantity": 10 },
+      { "type": "token", "tokenId": "kiln_token", "quantity": 1 }
+    ],
+    "tokenId": "kiln_token",
+    "tokenSink": [],
+    "loopDescription": "The player works a shift at the bead kiln, gathering clay or sand, firing beads, sorting them by quality, and stringing them into primer strands.",
+    "failureState": "If the kiln temperature is mismanaged, the beads crack into fragments and the firing step fails.",
+    "inputs": [],
+    "outputs": [{ "itemId": "kiln_token", "quantity": 1 }]
+  },
+  {
+    "id": "river_basket",
+    "name": "River Basket",
+    "category": "skilling",
+    "risk": "safe",
+    "skills": ["fishing", "cooking"],
+    "entryRequirement": { "skillId": "fishing", "level": 1 },
+    "location": { "description": "River Stoop", "x": 32, "y": 45, "plane": 0 },
+    "steps": [
+      {
+        "id": "cast_basket",
+        "name": "Cast the Basket",
+        "description": "Cast the fishing basket into the River Stoop and let it settle",
+        "skillId": "fishing",
+        "requiredLevel": 1,
+        "actionTicks": 2,
+        "xpReward": [{ "skillId": "fishing", "amount": 8 }]
+      },
+      {
+        "id": "haul_and_sort",
+        "name": "Haul and Sort",
+        "description": "Haul the basket back and sort the catch into edible and non-edible fish",
+        "skillId": "fishing",
+        "requiredLevel": 1,
+        "actionTicks": 3,
+        "xpReward": [{ "skillId": "fishing", "amount": 15 }],
+        "failureChance": 0.05
+      },
+      {
+        "id": "cook_fish",
+        "name": "Cook on the Range",
+        "description": "Cook the edible fish on the Kitchen Range",
+        "skillId": "cooking",
+        "requiredLevel": 1,
+        "actionTicks": 2,
+        "xpReward": [{ "skillId": "cooking", "amount": 10 }],
+        "failureChance": 0.1
+      }
+    ],
+    "rewards": [
+      { "type": "xp", "skillId": "fishing", "quantity": 23 },
+      { "type": "xp", "skillId": "cooking", "quantity": 10 },
+      { "type": "token", "tokenId": "river_token", "quantity": 1 }
+    ],
+    "tokenId": "river_token",
+    "tokenSink": [],
+    "loopDescription": "The player casts a fishing basket into the River Stoop, waits, hauls it back, sorts the catch, and cooks the edible fish on the Kitchen Range.",
+    "failureState": "If the basket overflows or the catch is spoiled, the haul is lost. If the fish burns on the range, no cooked fish is produced.",
+    "inputs": [],
+    "outputs": [{ "itemId": "river_token", "quantity": 1 }]
+  }
+]

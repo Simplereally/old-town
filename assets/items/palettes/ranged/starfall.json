@@ -1,0 +1,17 @@
+{
+  "ladder": "ranged",
+  "tier": "starfall",
+  "tierOrder": 12,
+  "regions": {
+    "limb": "#2e3033",
+    "string": "#d8cfba",
+    "grip": "#1a1a1a",
+    "accent": "#d8cfba",
+    "prod": "#2e3033",
+    "stock": "#1a1a1a",
+    "mechanism": "#d8cfba",
+    "shaft": "#2e3033",
+    "fletch": "#d8cfba",
+    "head": "#d8cfba"
+  }
+}

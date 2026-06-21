@@ -1,0 +1,11 @@
+{
+  "ladder": "accessory",
+  "tier": "waxed",
+  "tierOrder": 2,
+  "regions": {
+    "cloth": "#7a6a4a",
+    "metal": "#c9a23c",
+    "seal": "#b8902a",
+    "accent": "#d4b86a"
+  }
+}

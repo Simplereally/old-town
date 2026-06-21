@@ -1,0 +1,41 @@
+[
+  {
+    "id": "make_lathwood_arrows",
+    "name": "Make Lathwood Arrows",
+    "skill": "bowcraft",
+    "requiredLevel": 1,
+    "actionTicks": 3,
+    "stationObjectIds": ["lath_bow_bench"],
+    "inputItemId": "dry_log",
+    "successItemId": "lathwood_arrows",
+    "xp": 15,
+    "failureChance": 0.1,
+    "recipeGroupId": "bowcraft"
+  },
+  {
+    "id": "make_lathwood_darts",
+    "name": "Make Lathwood Darts",
+    "skill": "bowcraft",
+    "requiredLevel": 10,
+    "actionTicks": 3,
+    "stationObjectIds": ["lath_bow_bench"],
+    "inputItemId": "oldroad_oak_log",
+    "successItemId": "lathwood_dart",
+    "xp": 20,
+    "failureChance": 0.1,
+    "recipeGroupId": "bowcraft"
+  },
+  {
+    "id": "make_lathwood_bow_stave",
+    "name": "Make Lathwood Bow Stave",
+    "skill": "bowcraft",
+    "requiredLevel": 5,
+    "actionTicks": 4,
+    "stationObjectIds": ["lath_bow_bench"],
+    "inputItemId": "dry_log",
+    "successItemId": "lathwood_shortbow",
+    "xp": 25,
+    "failureChance": 0.15,
+    "recipeGroupId": "bowcraft"
+  }
+]

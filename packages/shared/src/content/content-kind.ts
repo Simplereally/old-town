@@ -1,0 +1,27 @@
+export const CONTENT_KINDS = [
+  "item",
+  "npc",
+  "object",
+  "processingRecipe",
+  "skill",
+  "resourceNode",
+  "spell",
+  "dropTable",
+  "quest",
+  "dialogue",
+  "regionMap",
+  "material",
+  "animation",
+  "shop",
+  "bank",
+  "serviceFee",
+  "statusEffect",
+  "contract",
+  "property",
+  "charter",
+  "activity",
+  "boss",
+  "trail",
+] as const;
+
+export type ContentKind = (typeof CONTENT_KINDS)[number];

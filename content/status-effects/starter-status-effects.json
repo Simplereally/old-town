@@ -1,0 +1,32 @@
+[
+  {
+    "id": "poison",
+    "name": "Poison",
+    "description": "Lose health over time.",
+    "durationTicks": 10,
+    "maxStacks": 1,
+    "effectType": "dot",
+    "statModifiers": [],
+    "cureItems": ["antidote"]
+  },
+  {
+    "id": "strength_boost",
+    "name": "Strength Boost",
+    "description": "Increased melee damage.",
+    "durationTicks": 20,
+    "maxStacks": 1,
+    "effectType": "buff",
+    "statModifiers": [{ "stat": "meleeStrength", "value": 5, "mode": "add" }],
+    "cureItems": []
+  },
+  {
+    "id": "stun",
+    "name": "Stun",
+    "description": "Unable to move or attack.",
+    "durationTicks": 5,
+    "maxStacks": 1,
+    "effectType": "cc",
+    "statModifiers": [],
+    "cureItems": []
+  }
+]

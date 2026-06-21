@@ -1,0 +1,17 @@
+{
+  "ladder": "ranged",
+  "tier": "lathwood",
+  "tierOrder": 1,
+  "regions": {
+    "limb": "#c9b88a",
+    "string": "#d8cfba",
+    "grip": "#8a6a44",
+    "accent": "#b87333",
+    "prod": "#c9b88a",
+    "stock": "#8a6a44",
+    "mechanism": "#b87333",
+    "shaft": "#c9b88a",
+    "fletch": "#d8cfba",
+    "head": "#b87333"
+  }
+}

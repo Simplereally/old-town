@@ -1,0 +1,11 @@
+{
+  "ladder": "accessory",
+  "tier": "blueglass",
+  "tierOrder": 8,
+  "regions": {
+    "cloth": "#4a7aaa",
+    "metal": "#8aaad4",
+    "seal": "#a8d4e8",
+    "accent": "#c9e8f8"
+  }
+}

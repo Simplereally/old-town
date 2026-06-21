@@ -1,0 +1,11 @@
+{
+  "ladder": "ranged-armour",
+  "tier": "crownhide",
+  "tierOrder": 11,
+  "regions": {
+    "hide": "#c9a23c",
+    "stitch": "#e8e8e8",
+    "buckle": "#e8e8e8",
+    "accent": "#c2c6cc"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "ladder": "melee",
+  "tier": "pennywrought",
+  "tierOrder": 1,
+  "regions": {
+    "blade": "#b87333",
+    "head": "#b87333",
+    "grip": "#8a6a44",
+    "accent": "#c9a23c",
+    "trim": "#6b4a2b",
+    "metal": "#b87333",
+    "straps": "#6b4a2b"
+  }
+}

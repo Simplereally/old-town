@@ -1,0 +1,14 @@
+{
+  "ladder": "melee",
+  "tier": "blueglass",
+  "tierOrder": 8,
+  "regions": {
+    "blade": "#9aa0a6",
+    "head": "#9aa0a6",
+    "grip": "#3a6ea5",
+    "accent": "#3a6ea5",
+    "trim": "#c2c6cc",
+    "metal": "#9aa0a6",
+    "straps": "#3a6ea5"
+  }
+}

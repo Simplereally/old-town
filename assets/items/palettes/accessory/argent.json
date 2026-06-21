@@ -1,0 +1,11 @@
+{
+  "ladder": "accessory",
+  "tier": "argent",
+  "tierOrder": 10,
+  "regions": {
+    "cloth": "#aaaaaa",
+    "metal": "#dddddd",
+    "seal": "#cccccc",
+    "accent": "#eeeeee"
+  }
+}

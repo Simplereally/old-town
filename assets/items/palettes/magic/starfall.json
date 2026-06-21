@@ -1,0 +1,18 @@
+{
+  "ladder": "magic",
+  "tier": "starfall",
+  "tierOrder": 12,
+  "regions": {
+    "cloth": "#2e3033",
+    "script": "#d8cfba",
+    "seal": "#d8cfba",
+    "accent": "#d8cfba",
+    "shaft": "#1a1a1a",
+    "tip": "#d8cfba",
+    "bead": "#8ad0c0",
+    "lens": "#d8cfba",
+    "rim": "#1a1a1a",
+    "cover": "#2e3033",
+    "page": "#d8cfba"
+  }
+}

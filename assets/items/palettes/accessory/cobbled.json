@@ -1,0 +1,11 @@
+{
+  "ladder": "accessory",
+  "tier": "cobbled",
+  "tierOrder": 0,
+  "regions": {
+    "cloth": "#6b5a4a",
+    "metal": "#8a7a6a",
+    "seal": "#6b4a2b",
+    "accent": "#5a4a3a"
+  }
+}

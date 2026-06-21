@@ -1,0 +1,18 @@
+{
+  "ladder": "magic",
+  "tier": "chalkmarked",
+  "tierOrder": 1,
+  "regions": {
+    "cloth": "#c9b88a",
+    "script": "#6a6d6f",
+    "seal": "#8a8a8a",
+    "accent": "#cfc6ad",
+    "shaft": "#8a6a44",
+    "tip": "#cfc6ad",
+    "bead": "#6a6d6f",
+    "lens": "#cfc6ad",
+    "rim": "#8a6a44",
+    "cover": "#c9b88a",
+    "page": "#6a6d6f"
+  }
+}

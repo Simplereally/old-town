@@ -1,0 +1,564 @@
+[
+  {
+    "id": "counting_house",
+    "name": "Counting House",
+    "npcId": "tomas_tally",
+    "stock": [],
+    "currency": "coin",
+    "sellMultiplier": 0.6,
+    "buyMultiplier": 1,
+    "restockTicks": 100,
+    "buyPolicy": "never",
+    "sellPolicy": "does_not_buy"
+  },
+  {
+    "id": "general_stall",
+    "name": "General Stall",
+    "npcId": "general_stall_keeper",
+    "stock": [
+      {
+        "itemId": "bellbread",
+        "quantity": 20,
+        "maxQuantity": 20,
+        "price": 3,
+        "restockRate": 1
+      },
+      {
+        "itemId": "rope_belt",
+        "quantity": 5,
+        "maxQuantity": 5,
+        "price": 18,
+        "restockRate": 1
+      },
+      {
+        "itemId": "threadbare_tool_roll",
+        "quantity": 3,
+        "maxQuantity": 3,
+        "price": 45,
+        "restockRate": 1
+      },
+      {
+        "itemId": "empty_phial",
+        "quantity": 30,
+        "maxQuantity": 30,
+        "price": 2,
+        "restockRate": 1
+      },
+      {
+        "itemId": "flintbox",
+        "quantity": 10,
+        "maxQuantity": 10,
+        "price": 12,
+        "restockRate": 1
+      },
+      {
+        "itemId": "blank_map",
+        "quantity": 10,
+        "maxQuantity": 10,
+        "price": 8,
+        "restockRate": 1
+      },
+      {
+        "itemId": "bone_needle",
+        "quantity": 10,
+        "maxQuantity": 10,
+        "price": 10,
+        "restockRate": 1
+      },
+      {
+        "itemId": "whittling_knife",
+        "quantity": 10,
+        "maxQuantity": 10,
+        "price": 10,
+        "restockRate": 1
+      },
+      {
+        "itemId": "market_pot",
+        "quantity": 5,
+        "maxQuantity": 5,
+        "price": 20,
+        "restockRate": 1
+      }
+    ],
+    "currency": "coin",
+    "sellMultiplier": 0.6,
+    "buyMultiplier": 1,
+    "restockTicks": 50,
+    "buyPolicy": "always",
+    "sellPolicy": "buys_junk"
+  },
+  {
+    "id": "penny_and_sons_forge",
+    "name": "Penny and Sons Forge",
+    "npcId": "osric_penny",
+    "stock": [
+      {
+        "itemId": "pennywrought_pickaxe",
+        "quantity": 5,
+        "maxQuantity": 5,
+        "price": 35,
+        "restockRate": 1
+      },
+      {
+        "itemId": "pig_iron_hammer",
+        "quantity": 5,
+        "maxQuantity": 5,
+        "price": 45,
+        "restockRate": 1
+      },
+      {
+        "itemId": "tongs",
+        "quantity": 5,
+        "maxQuantity": 5,
+        "price": 20,
+        "restockRate": 1
+      },
+      {
+        "itemId": "basic_mould",
+        "quantity": 5,
+        "maxQuantity": 5,
+        "price": 25,
+        "restockRate": 1
+      },
+      {
+        "itemId": "blackcoal_bundle",
+        "quantity": 10,
+        "maxQuantity": 10,
+        "price": 30,
+        "restockRate": 1
+      },
+      {
+        "itemId": "pennywrought_shortblade",
+        "quantity": 2,
+        "maxQuantity": 2,
+        "price": 110,
+        "restockRate": 1
+      },
+      {
+        "itemId": "pennywrought_helm",
+        "quantity": 2,
+        "maxQuantity": 2,
+        "price": 90,
+        "restockRate": 1
+      }
+    ],
+    "currency": "coin",
+    "sellMultiplier": 0.6,
+    "buyMultiplier": 1,
+    "restockTicks": 100,
+    "buyPolicy": "always",
+    "sellPolicy": "buys_category"
+  },
+  {
+    "id": "lath_and_twine",
+    "name": "Lath and Twine",
+    "npcId": "letha_lath",
+    "stock": [
+      {
+        "itemId": "whittling_knife",
+        "quantity": 10,
+        "maxQuantity": 10,
+        "price": 10,
+        "restockRate": 1
+      },
+      {
+        "itemId": "sinew_cord",
+        "quantity": 20,
+        "maxQuantity": 20,
+        "price": 6,
+        "restockRate": 1
+      },
+      {
+        "itemId": "bellfeathers",
+        "quantity": 100,
+        "maxQuantity": 100,
+        "price": 1,
+        "restockRate": 1
+      },
+      {
+        "itemId": "arrow_shafts",
+        "quantity": 100,
+        "maxQuantity": 100,
+        "price": 1,
+        "restockRate": 1
+      },
+      {
+        "itemId": "penny_arrowheads",
+        "quantity": 60,
+        "maxQuantity": 60,
+        "price": 2,
+        "restockRate": 1
+      },
+      {
+        "itemId": "lathwood_shortbow",
+        "quantity": 3,
+        "maxQuantity": 3,
+        "price": 95,
+        "restockRate": 1
+      },
+      {
+        "itemId": "lathwood_arrows",
+        "quantity": 200,
+        "maxQuantity": 200,
+        "price": 2,
+        "restockRate": 1
+      },
+      {
+        "itemId": "lathwood_knife",
+        "quantity": 30,
+        "maxQuantity": 30,
+        "price": 30,
+        "restockRate": 1
+      },
+      {
+        "itemId": "lathwood_dart",
+        "quantity": 50,
+        "maxQuantity": 50,
+        "price": 2,
+        "restockRate": 1
+      }
+    ],
+    "currency": "coin",
+    "sellMultiplier": 0.6,
+    "buyMultiplier": 1,
+    "restockTicks": 100,
+    "buyPolicy": "always",
+    "sellPolicy": "buys_category"
+  },
+  {
+    "id": "patch_and_awl",
+    "name": "Patch and Awl",
+    "npcId": "nell_patch",
+    "stock": [
+      {
+        "itemId": "bone_needle",
+        "quantity": 10,
+        "maxQuantity": 10,
+        "price": 10,
+        "restockRate": 1
+      },
+      {
+        "itemId": "awl",
+        "quantity": 5,
+        "maxQuantity": 5,
+        "price": 15,
+        "restockRate": 1
+      },
+      {
+        "itemId": "thread",
+        "quantity": 50,
+        "maxQuantity": 50,
+        "price": 1,
+        "restockRate": 1
+      },
+      {
+        "itemId": "patch_leather",
+        "quantity": 20,
+        "maxQuantity": 20,
+        "price": 8,
+        "restockRate": 1
+      },
+      {
+        "itemId": "patchhide_coif",
+        "quantity": 2,
+        "maxQuantity": 2,
+        "price": 70,
+        "restockRate": 1
+      },
+      {
+        "itemId": "patchhide_jerkin",
+        "quantity": 2,
+        "maxQuantity": 2,
+        "price": 120,
+        "restockRate": 1
+      },
+      {
+        "itemId": "patchhide_chaps",
+        "quantity": 2,
+        "maxQuantity": 2,
+        "price": 100,
+        "restockRate": 1
+      },
+      {
+        "itemId": "threadbare_belt",
+        "quantity": 5,
+        "maxQuantity": 5,
+        "price": 30,
+        "restockRate": 1
+      }
+    ],
+    "currency": "coin",
+    "sellMultiplier": 0.6,
+    "buyMultiplier": 1,
+    "restockTicks": 100,
+    "buyPolicy": "always",
+    "sellPolicy": "buys_category"
+  },
+  {
+    "id": "chalkhouse",
+    "name": "Chalkhouse",
+    "npcId": "mother_tallow",
+    "stock": [
+      {
+        "itemId": "chalkmarked_wand",
+        "quantity": 4,
+        "maxQuantity": 4,
+        "price": 75,
+        "restockRate": 1
+      },
+      {
+        "itemId": "chalkmarked_primer",
+        "quantity": 3,
+        "maxQuantity": 3,
+        "price": 90,
+        "restockRate": 1
+      },
+      {
+        "itemId": "threadbare_bead_pouch",
+        "quantity": 3,
+        "maxQuantity": 3,
+        "price": 60,
+        "restockRate": 1
+      },
+      {
+        "itemId": "bead_drill",
+        "quantity": 5,
+        "maxQuantity": 5,
+        "price": 25,
+        "restockRate": 1
+      },
+      {
+        "itemId": "glaze_bowl",
+        "quantity": 5,
+        "maxQuantity": 5,
+        "price": 20,
+        "restockRate": 1
+      },
+      {
+        "itemId": "gust_bead",
+        "quantity": 300,
+        "maxQuantity": 300,
+        "price": 1,
+        "restockRate": 1
+      },
+      {
+        "itemId": "tide_bead",
+        "quantity": 300,
+        "maxQuantity": 300,
+        "price": 1,
+        "restockRate": 1
+      },
+      {
+        "itemId": "loam_bead",
+        "quantity": 300,
+        "maxQuantity": 300,
+        "price": 1,
+        "restockRate": 1
+      },
+      {
+        "itemId": "ember_bead",
+        "quantity": 300,
+        "maxQuantity": 300,
+        "price": 1,
+        "restockRate": 1
+      },
+      {
+        "itemId": "wit_bead",
+        "quantity": 200,
+        "maxQuantity": 200,
+        "price": 2,
+        "restockRate": 1
+      }
+    ],
+    "currency": "coin",
+    "sellMultiplier": 0.6,
+    "buyMultiplier": 1,
+    "restockTicks": 100,
+    "buyPolicy": "always",
+    "sellPolicy": "buys_category"
+  },
+  {
+    "id": "warden_board",
+    "name": "Warden Board",
+    "stock": [
+      {
+        "itemId": "tin_badge",
+        "quantity": 10,
+        "maxQuantity": 10,
+        "price": 1,
+        "restockRate": 1
+      },
+      {
+        "itemId": "warden_contract_book",
+        "quantity": 5,
+        "maxQuantity": 5,
+        "price": 50,
+        "restockRate": 1
+      }
+    ],
+    "currency": "coin",
+    "sellMultiplier": 1,
+    "buyMultiplier": 0,
+    "restockTicks": 200,
+    "buyPolicy": "always",
+    "sellPolicy": "does_not_buy"
+  },
+  {
+    "id": "shrine_hearth",
+    "name": "Shrine Hearth",
+    "npcId": "sister_writ",
+    "stock": [
+      {
+        "itemId": "shrine_candle",
+        "quantity": 20,
+        "maxQuantity": 20,
+        "price": 5,
+        "restockRate": 1
+      },
+      {
+        "itemId": "prayer_knot",
+        "quantity": 10,
+        "maxQuantity": 10,
+        "price": 12,
+        "restockRate": 1
+      },
+      {
+        "itemId": "grave_flower",
+        "quantity": 5,
+        "maxQuantity": 5,
+        "price": 15,
+        "restockRate": 1
+      },
+      {
+        "itemId": "offering_bowl",
+        "quantity": 5,
+        "maxQuantity": 5,
+        "price": 25,
+        "restockRate": 1
+      },
+      {
+        "itemId": "favour_cordial",
+        "quantity": 3,
+        "maxQuantity": 3,
+        "price": 60,
+        "restockRate": 1
+      }
+    ],
+    "currency": "coin",
+    "sellMultiplier": 0.6,
+    "buyMultiplier": 1,
+    "restockTicks": 50,
+    "buyPolicy": "always",
+    "sellPolicy": "buys_category"
+  },
+  {
+    "id": "river_stoop",
+    "name": "River Stoop",
+    "npcId": "edda_tinfin",
+    "stock": [
+      {
+        "itemId": "reed_rod",
+        "quantity": 10,
+        "maxQuantity": 10,
+        "price": 15,
+        "restockRate": 1
+      },
+      {
+        "itemId": "small_net",
+        "quantity": 10,
+        "maxQuantity": 10,
+        "price": 12,
+        "restockRate": 1
+      },
+      {
+        "itemId": "bait_jar",
+        "quantity": 20,
+        "maxQuantity": 20,
+        "price": 4,
+        "restockRate": 1
+      },
+      {
+        "itemId": "market_pot",
+        "quantity": 5,
+        "maxQuantity": 5,
+        "price": 20,
+        "restockRate": 1
+      },
+      {
+        "itemId": "ditch_shrimp_skewer",
+        "quantity": 20,
+        "maxQuantity": 20,
+        "price": 4,
+        "restockRate": 1
+      },
+      {
+        "itemId": "tinfin_pie",
+        "quantity": 10,
+        "maxQuantity": 10,
+        "price": 10,
+        "restockRate": 1
+      },
+      {
+        "itemId": "warden_ration",
+        "quantity": 5,
+        "maxQuantity": 5,
+        "price": 25,
+        "restockRate": 1
+      }
+    ],
+    "currency": "coin",
+    "sellMultiplier": 0.6,
+    "buyMultiplier": 1,
+    "restockTicks": 50,
+    "buyPolicy": "always",
+    "sellPolicy": "buys_category"
+  },
+  {
+    "id": "sootcellar_blacksealed_shop",
+    "name": "Sootcellar Blacksealed Shop",
+    "stock": [
+      {
+        "itemId": "bent_pick",
+        "quantity": 5,
+        "maxQuantity": 5,
+        "price": 25,
+        "restockRate": 1
+      },
+      {
+        "itemId": "blank_writ",
+        "quantity": 3,
+        "maxQuantity": 3,
+        "price": 20,
+        "restockRate": 1
+      },
+      {
+        "itemId": "wax_seal",
+        "quantity": 5,
+        "maxQuantity": 5,
+        "price": 10,
+        "restockRate": 1
+      },
+      {
+        "itemId": "false_bottom_pouch",
+        "quantity": 1,
+        "maxQuantity": 1,
+        "price": 150,
+        "restockRate": 1
+      },
+      {
+        "itemId": "blacksealed_pickset",
+        "quantity": 0,
+        "maxQuantity": 1,
+        "price": 200,
+        "restockRate": 1
+      }
+    ],
+    "currency": "coin",
+    "sellMultiplier": 0.5,
+    "buyMultiplier": 1,
+    "restockTicks": 200,
+    "buyPolicy": "reputation_gated",
+    "sellPolicy": "fences_stolen",
+    "unlockCondition": "reputation:blacksealed"
+  }
+]

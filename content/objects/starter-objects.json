@@ -1,0 +1,516 @@
+[
+  {
+    "id": "dry_tree",
+    "name": "Dry Tree",
+    "examine": "Dead branches, dry bark, and enough wood for kindling.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": true,
+    "resourceNodeId": "dry_tree_node",
+    "options": [{ "label": "Chop", "actionId": "woodcut", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_dry_tree"
+  },
+  {
+    "id": "oak_tree",
+    "name": "Oak Tree",
+    "examine": "A young oak with timber worth the effort.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": true,
+    "resourceNodeId": "oak_tree_node",
+    "options": [{ "label": "Chop", "actionId": "woodcut", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_oak_tree"
+  },
+  {
+    "id": "copper_rock",
+    "name": "Copper Rock",
+    "examine": "A low rock face with copper showing through the cracks.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "resourceNodeId": "copper_rock_node",
+    "options": [{ "label": "Mine", "actionId": "mine", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_copper_rock"
+  },
+  {
+    "id": "iron_rock",
+    "name": "Iron Rock",
+    "examine": "A stubborn rock with dark iron veins.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "resourceNodeId": "iron_rock_node",
+    "options": [{ "label": "Mine", "actionId": "mine", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_iron_rock"
+  },
+  {
+    "id": "cooking_range",
+    "name": "Cooking Range",
+    "examine": "A blackened village range with steady heat.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Cook", "actionId": "cook", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_cooking_range"
+  },
+  {
+    "id": "furnace",
+    "name": "Furnace",
+    "examine": "A compact furnace hot enough to make honest ore nervous.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Smelt", "actionId": "smelt", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_furnace"
+  },
+  {
+    "id": "wooden_door",
+    "name": "Wooden Door",
+    "examine": "A plain plank door with a latch polished by use.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": true,
+    "options": [{ "label": "Open", "actionId": "open", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_wooden_door"
+  },
+  {
+    "id": "cellar_door",
+    "name": "Cellar Door",
+    "examine": "A low door leading down into old stone and colder air.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": true,
+    "options": [{ "label": "Open", "actionId": "open", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_cellar_door"
+  },
+  {
+    "id": "supply_chest",
+    "name": "Supply Chest",
+    "examine": "A scuffed chest for tools, crumbs, and things nobody admits losing.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Open", "actionId": "open", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_supply_chest"
+  },
+  {
+    "id": "quest_oven",
+    "name": "Smoking Oven",
+    "examine": "The baker's oven, coughing smoke from a flue that should know better.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [
+      { "label": "Light", "actionId": "light", "priority": 10, "requiredDistance": 1 },
+      { "label": "Inspect", "actionId": "inspect", "priority": 5, "requiredDistance": 1 }
+    ],
+    "model": "model_quest_oven"
+  },
+  {
+    "id": "market_bell",
+    "name": "Market Bell",
+    "examine": "The town bell. Its ring means safety, trade, and morning.",
+    "width": 2,
+    "length": 2,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [
+      { "label": "Ring", "actionId": "ring", "priority": 10, "requiredDistance": 1 },
+      { "label": "Start activity", "actionId": "activity", "priority": 5, "requiredDistance": 1 }
+    ],
+    "activityId": "bell_run",
+    "model": "model_market_bell"
+  },
+  {
+    "id": "oldroad_signpost",
+    "name": "Oldroad Signpost",
+    "examine": "A weathered sign pointing to places beyond the town wall.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": false,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Read", "actionId": "read", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_oldroad_signpost"
+  },
+  {
+    "id": "gravegate_arch",
+    "name": "Gravegate Arch",
+    "examine": "A crooked stone arch marking the threshold to the graveyard.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [
+      { "label": "Enter", "actionId": "enter", "priority": 10, "requiredDistance": 1 },
+      { "label": "Start activity", "actionId": "activity", "priority": 5, "requiredDistance": 1 }
+    ],
+    "activityId": "graveflower_round",
+    "model": "model_gravegate_arch"
+  },
+  {
+    "id": "sootcellar_hatch",
+    "name": "Sootcellar Hatch",
+    "examine": "A dark hatch leading down into the soot-stained cellar.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [
+      { "label": "Open", "actionId": "open", "priority": 10, "requiredDistance": 1 },
+      { "label": "Start activity", "actionId": "activity", "priority": 5, "requiredDistance": 1 }
+    ],
+    "activityId": "soot_sweep",
+    "model": "model_sootcellar_hatch"
+  },
+  {
+    "id": "counting_house_ledger_desk",
+    "name": "Counting House Ledger Desk",
+    "examine": "Tomas Tally's desk. Every deed in Old Town passes through here.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [
+      { "label": "Use", "actionId": "use", "priority": 10, "requiredDistance": 1 },
+      { "label": "Start activity", "actionId": "activity", "priority": 5, "requiredDistance": 1 }
+    ],
+    "activityId": "ledger_sort",
+    "model": "model_counting_house_ledger_desk"
+  },
+  {
+    "id": "counting_house_counter",
+    "name": "Counting House Counter",
+    "examine": "The bank counter where coins are weighed and stored.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Bank", "actionId": "bank", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_counting_house_counter"
+  },
+  {
+    "id": "general_stall",
+    "name": "General Stall",
+    "examine": "A market stall with basic goods and gossip.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Trade", "actionId": "trade", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_general_stall"
+  },
+  {
+    "id": "penny_forge_counter",
+    "name": "Penny Forge Counter",
+    "examine": "Osric Penny's counter. Copper and iron tools.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Trade", "actionId": "trade", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_penny_forge_counter"
+  },
+  {
+    "id": "lath_bowyer_counter",
+    "name": "Lath Bowyer Counter",
+    "examine": "Letha Lath's counter. Bows, arrows, and strings.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Trade", "actionId": "trade", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_lath_bowyer_counter"
+  },
+  {
+    "id": "patch_awl_counter",
+    "name": "Patch Awl Counter",
+    "examine": "Nell Patch's counter. Hides, leather, and needles.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Trade", "actionId": "trade", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_patch_awl_counter"
+  },
+  {
+    "id": "chalkhouse_counter",
+    "name": "Chalkhouse Counter",
+    "examine": "Mother Tallow's counter. Beads, clay, and chalk.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Trade", "actionId": "trade", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_chalkhouse_counter"
+  },
+  {
+    "id": "warden_board",
+    "name": "Warden Board",
+    "examine": "A board of nailed contracts and wanted notices.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [
+      { "label": "Read", "actionId": "read", "priority": 10, "requiredDistance": 1 },
+      { "label": "Accept", "actionId": "accept", "priority": 8, "requiredDistance": 1 }
+    ],
+    "model": "model_warden_board"
+  },
+  {
+    "id": "shrine_hearth",
+    "name": "Shrine Hearth",
+    "examine": "A low flame surrounded by candles. The shrine's heart.",
+    "width": 2,
+    "length": 2,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Pray", "actionId": "pray", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_shrine_hearth"
+  },
+  {
+    "id": "river_stoop_counter",
+    "name": "River Stoop Counter",
+    "examine": "Edda Tinfin's counter. Fish, bait, and river gossip.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [
+      { "label": "Trade", "actionId": "trade", "priority": 10, "requiredDistance": 1 },
+      { "label": "Start activity", "actionId": "activity", "priority": 5, "requiredDistance": 1 }
+    ],
+    "activityId": "river_basket",
+    "model": "model_river_stoop_counter"
+  },
+  {
+    "id": "foundry_furnace",
+    "name": "Foundry Furnace",
+    "examine": "A hot furnace for smelting ore and forging metal.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [
+      { "label": "Smelt", "actionId": "smelt", "priority": 10, "requiredDistance": 1 },
+      { "label": "Start activity", "actionId": "activity", "priority": 5, "requiredDistance": 1 }
+    ],
+    "activityId": "foundry_shift",
+    "model": "model_foundry_furnace"
+  },
+  {
+    "id": "foundry_anvil",
+    "name": "Foundry Anvil",
+    "examine": "A heavy anvil for shaping hot metal.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Smith", "actionId": "smith", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_foundry_anvil"
+  },
+  {
+    "id": "lath_bow_bench",
+    "name": "Lath Bow Bench",
+    "examine": "A workbench for shaping bows and stringing them.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Craft", "actionId": "craft", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_lath_bow_bench"
+  },
+  {
+    "id": "patch_tanning_frame",
+    "name": "Patch Tanning Frame",
+    "examine": "A wooden frame for stretching and curing hides.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Tan", "actionId": "tan", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_patch_tanning_frame"
+  },
+  {
+    "id": "patch_dye_vat",
+    "name": "Patch Dye Vat",
+    "examine": "A vat of dye for colouring leather and cloth.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Dye", "actionId": "dye", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_patch_dye_vat"
+  },
+  {
+    "id": "chalkhouse_bead_kiln",
+    "name": "Chalkhouse Bead Kiln",
+    "examine": "A small kiln for firing beads and clay.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [
+      { "label": "Fire", "actionId": "fire", "priority": 10, "requiredDistance": 1 },
+      { "label": "Start activity", "actionId": "activity", "priority": 5, "requiredDistance": 1 }
+    ],
+    "activityId": "kilnwatch_primer",
+    "model": "model_chalkhouse_bead_kiln"
+  },
+  {
+    "id": "chalkhouse_bead_loom",
+    "name": "Chalkhouse Bead Loom",
+    "examine": "A loom for weaving beads into strands and pouches.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Weave", "actionId": "weave", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_chalkhouse_bead_loom"
+  },
+  {
+    "id": "market_kitchen_hearth",
+    "name": "Market Kitchen Hearth",
+    "examine": "A warm hearth for cooking simple meals.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Cook", "actionId": "cook", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_market_kitchen_hearth"
+  },
+  {
+    "id": "apothecary_bench",
+    "name": "Apothecary Bench",
+    "examine": "A bench for mixing herbs and brewing remedies.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Mix", "actionId": "mix", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_apothecary_bench"
+  },
+  {
+    "id": "map_table",
+    "name": "Map Table",
+    "examine": "A table covered in maps, surveys, and chalked routes.",
+    "width": 2,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Survey", "actionId": "survey", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_map_table"
+  },
+  {
+    "id": "old_kiln",
+    "name": "Old Kiln",
+    "examine": "An abandoned kiln. Something warm still lives inside.",
+    "width": 2,
+    "length": 2,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "options": [
+      { "label": "Inspect", "actionId": "inspect", "priority": 10, "requiredDistance": 1 }
+    ],
+    "model": "model_old_kiln"
+  },
+  {
+    "id": "smoke_vent",
+    "name": "Smoke Vent",
+    "examine": "A vent coughing black smoke. Not a good sign.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": false,
+    "blocksLineOfSight": false,
+    "options": [
+      { "label": "Inspect", "actionId": "inspect", "priority": 10, "requiredDistance": 1 }
+    ],
+    "model": "model_smoke_vent"
+  },
+  {
+    "id": "rat_chewed_ledger",
+    "name": "Rat-chewed Ledger",
+    "examine": "A ledger gnawed by cellar rats. Some entries are still readable.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": false,
+    "blocksLineOfSight": false,
+    "options": [{ "label": "Read", "actionId": "read", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_rat_chewed_ledger"
+  },
+  {
+    "id": "broken_anvil_plate",
+    "name": "Broken Anvil Plate",
+    "examine": "A shattered plate from an anvil. Forge-worn and honest.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": false,
+    "blocksLineOfSight": false,
+    "options": [
+      { "label": "Inspect", "actionId": "inspect", "priority": 10, "requiredDistance": 1 }
+    ],
+    "model": "model_broken_anvil_plate"
+  },
+  {
+    "id": "split_bow_stave",
+    "name": "Split Bow Stave",
+    "examine": "A bow stave split along the grain. Almost usable.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": false,
+    "blocksLineOfSight": false,
+    "options": [
+      { "label": "Inspect", "actionId": "inspect", "priority": 10, "requiredDistance": 1 }
+    ],
+    "model": "model_split_bow_stave"
+  },
+  {
+    "id": "listening_clay_node",
+    "name": "Listening Clay",
+    "examine": "Clay that seems to hum. An old craft, perhaps.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": false,
+    "blocksLineOfSight": false,
+    "options": [
+      { "label": "Inspect", "actionId": "inspect", "priority": 10, "requiredDistance": 1 }
+    ],
+    "model": "model_listening_clay_node"
+  },
+  {
+    "id": "wrongly_planted_flower",
+    "name": "Wrongly-planted Flower",
+    "examine": "A flower planted in soil that does not want it.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": false,
+    "blocksLineOfSight": false,
+    "options": [
+      { "label": "Inspect", "actionId": "inspect", "priority": 10, "requiredDistance": 1 }
+    ],
+    "model": "model_wrongly_planted_flower"
+  },
+  {
+    "id": "bell_clapper_hook",
+    "name": "Bell Clapper Hook",
+    "examine": "A hook for the bell clapper. Missing from the Market Bell.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": false,
+    "blocksLineOfSight": false,
+    "options": [
+      { "label": "Inspect", "actionId": "inspect", "priority": 10, "requiredDistance": 1 }
+    ],
+    "model": "model_bell_clapper_hook"
+  }
+]

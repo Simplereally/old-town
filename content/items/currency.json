@@ -1,0 +1,42 @@
+[
+  {
+    "id": "coin",
+    "name": "Coin",
+    "stackable": true,
+    "tradeable": true,
+    "examine": "A small Old Town coin, bright where many hands have worn it.",
+    "icon": "icon_coin",
+    "value": 1,
+    "options": []
+  },
+  {
+    "id": "quest_point",
+    "name": "Quest Point",
+    "stackable": true,
+    "tradeable": false,
+    "examine": "A record of a promise kept in Old Town.",
+    "icon": "icon_quest_point",
+    "value": 0,
+    "options": []
+  },
+  {
+    "id": "bell_token",
+    "name": "Bell Token",
+    "stackable": true,
+    "tradeable": false,
+    "examine": "A token earned by ringing the Market Bell.",
+    "icon": "icon_bell_token",
+    "value": 0,
+    "options": []
+  },
+  {
+    "id": "warden_mark",
+    "name": "Warden Mark",
+    "stackable": true,
+    "tradeable": false,
+    "examine": "A mark of service to the Warden's Board.",
+    "icon": "icon_warden_mark",
+    "value": 0,
+    "options": []
+  }
+]

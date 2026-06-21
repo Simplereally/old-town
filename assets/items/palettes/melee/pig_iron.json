@@ -1,0 +1,14 @@
+{
+  "ladder": "melee",
+  "tier": "pig_iron",
+  "tierOrder": 2,
+  "regions": {
+    "blade": "#4a4a4a",
+    "head": "#4a4a4a",
+    "grip": "#4a3526",
+    "accent": "#6a6d6f",
+    "trim": "#3a3632",
+    "metal": "#4a4a4a",
+    "straps": "#4a3526"
+  }
+}

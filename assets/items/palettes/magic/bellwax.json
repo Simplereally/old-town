@@ -1,0 +1,18 @@
+{
+  "ladder": "magic",
+  "tier": "bellwax",
+  "tierOrder": 3,
+  "regions": {
+    "cloth": "#c9a23c",
+    "script": "#7a5a3a",
+    "seal": "#e0c060",
+    "accent": "#c9b88a",
+    "shaft": "#8a6a44",
+    "tip": "#e0c060",
+    "bead": "#c9a23c",
+    "lens": "#e0c060",
+    "rim": "#8a6a44",
+    "cover": "#c9a23c",
+    "page": "#7a5a3a"
+  }
+}

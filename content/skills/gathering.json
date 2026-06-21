@@ -1,0 +1,42 @@
+[
+  {
+    "id": "woodcutting",
+    "name": "Woodcutting",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  },
+  {
+    "id": "mining",
+    "name": "Mining",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  },
+  {
+    "id": "fishing",
+    "name": "Fishing",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  },
+  {
+    "id": "trapping",
+    "name": "Trapping",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  },
+  {
+    "id": "gardening",
+    "name": "Gardening",
+    "maxLevel": 99,
+    "xpTableId": "oldtown_default",
+    "combat": false,
+    "unlocks": []
+  }
+]

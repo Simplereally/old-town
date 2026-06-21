@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Old Town</title>
+    <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Login Screen */
+    #login-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #login-screen.hidden {
+      display: none;
+    }
+
+    .login-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(ellipse at 50% 80%, rgba(60, 40, 20, 0.8) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 50%, rgba(40, 30, 20, 0.6) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 50%, rgba(40, 30, 20, 0.6) 0%, transparent 50%),
+        linear-gradient(180deg, #1a1510 0%, #2a2018 40%, #1a1510 100%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .login-bg::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 4px
+      );
+    }
+
+    .login-vignette {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0, 0, 0, 0.7) 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Stone archways */
+    .arch {
+      position: absolute;
+      top: 0;
+      width: 120px;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .arch-left {
+      left: 0;
+      background: linear-gradient(90deg, rgba(20, 15, 10, 0.95) 0%, rgba(30, 25, 20, 0.7) 60%, transparent 100%);
+      border-right: 3px solid rgba(60, 50, 40, 0.5);
+    }
+    .arch-right {
+      right: 0;
+      background: linear-gradient(270deg, rgba(20, 15, 10, 0.95) 0%, rgba(30, 25, 20, 0.7) 60%, transparent 100%);
+      border-left: 3px solid rgba(60, 50, 40, 0.5);
+    }
+
+    /* World selector */
+    .world-selector {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+      background: rgba(20, 15, 10, 0.85);
+      border: 1px solid rgba(100, 80, 60, 0.5);
+      border-radius: 4px;
+      padding: 8px 14px;
+      text-align: center;
+      cursor: pointer;
+      pointer-events: none;
+    }
+    .world-selector-label {
+      color: #d4a843;
+      font-family: "Courier New", monospace;
+      font-size: 13px;
+      font-weight: bold;
+    }
+    .world-selector-change {
+      color: #4a9a4a;
+      font-family: "Courier New", monospace;
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    /* Online counter */
+    .online-counter {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(20, 15, 10, 0.85);
+      border: 1px solid rgba(100, 80, 60, 0.5);
+      border-radius: 4px;
+      padding: 8px 12px;
+      pointer-events: none;
+    }
+    .online-counter-shield {
+      font-size: 20px;
+      color: #d4a843;
+    }
+    .online-counter-text {
+      font-family: "Courier New", monospace;
+    }
+    .online-counter-number {
+      color: #e8dcc8;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .online-counter-players {
+      color: #a09080;
+      font-size: 10px;
+    }
+
+    /* Info sign */
+    .info-sign {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      z-index: 10;
+      background: rgba(60, 50, 35, 0.85);
+      border: 2px solid rgba(100, 85, 60, 0.6);
+      border-radius: 3px;
+      padding: 12px 16px;
+      font-family: "Courier New", monospace;
+      text-align: center;
+      pointer-events: none;
+    }
+    .info-sign-text {
+      color: #c8b8a0;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    /* Logo */
+    .login-logo-container {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+    }
+    .login-logo-shield {
+      font-size: 36px;
+      margin-bottom: 4px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    }
+    .login-logo {
+      font-family: "Courier New", monospace;
+      font-size: 42px;
+      font-weight: bold;
+      color: #c8b8a0;
+      text-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.8),
+        0 0 20px rgba(180, 160, 100, 0.3);
+      letter-spacing: 4px;
+    }
+    @supports (background-clip: text) {
+      .login-logo {
+        background: linear-gradient(180deg, #e8dcc8 0%, #b8a080 50%, #8a7050 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+      }
+    }
+    .login-logo-subtitle {
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      color: #a09080;
+      margin-top: 4px;
+      letter-spacing: 2px;
+    }
+
+    /* Login Panel */
+    .login-panel {
+      position: relative;
+      z-index: 20;
+      width: 360px;
+      background: rgba(20, 18, 25, 0.92);
+      border: 2px solid rgba(80, 70, 60, 0.6);
+      border-radius: 6px;
+      padding: 24px 28px;
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      pointer-events: auto;
+    }
+
+    .login-panel-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .login-panel-title {
+      font-family: "Courier New", monospace;
+      font-size: 16px;
+      color: #d4a843;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .login-panel-subtitle {
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      color: #a09080;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .login-label {
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      color: #b8a060;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: -4px;
+    }
+    .login-input {
+      background: rgba(10, 10, 15, 0.9);
+      border: 1px solid rgba(80, 70, 60, 0.5);
+      border-radius: 3px;
+      padding: 10px 12px;
+      color: #e8dcc8;
+      font-family: "Courier New", monospace;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .login-input:focus {
+      border-color: #d4a843;
+      box-shadow: 0 0 8px rgba(212, 168, 67, 0.2);
+    }
+    .login-btn {
+      font-family: "Courier New", monospace;
+      font-size: 14px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 4px;
+    }
+    .login-btn-primary {
+      background: linear-gradient(180deg, #5a6c3a 0%, #4a5c2a 50%, #3a4c1a 100%);
+      color: #e8dcc8;
+      border: 1px solid rgba(100, 120, 60, 0.5);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+    .login-btn-primary:hover {
+      background: linear-gradient(180deg, #6a7c4a 0%, #5a6c3a 50%, #4a5c2a 100%);
+      box-shadow: 0 4px 12px rgba(80, 100, 40, 0.3);
+    }
+    .login-btn:disabled {
+      cursor: wait;
+      opacity: 0.82;
+    }
+    .login-btn-loading {
+      background: linear-gradient(180deg, #766735 0%, #5c4e29 50%, #44391f 100%);
+      border-color: rgba(180, 150, 70, 0.6);
+      box-shadow: 0 0 14px rgba(212, 168, 67, 0.25);
+    }
+    .login-btn-secondary {
+      background: linear-gradient(180deg, #3a4a6c 0%, #2a3a5c 50%, #1a2a4c 100%);
+      color: #e8dcc8;
+      border: 1px solid rgba(60, 80, 120, 0.5);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+    .login-btn-secondary:hover {
+      background: linear-gradient(180deg, #4a5a7c 0%, #3a4a6c 50%, #2a3a5c 100%);
+      box-shadow: 0 4px 12px rgba(40, 60, 100, 0.3);
+    }
+    .login-forgot {
+      font-family: "Courier New", monospace;
+      font-size: 11px;
+      color: #4a9aaa;
+      text-align: center;
+      text-decoration: underline;
+      margin-top: 4px;
+      cursor: pointer;
+    }
+    .login-dev-note {
+      font-family: "Courier New", monospace;
+      font-size: 10px;
+      color: #888;
+      text-align: center;
+      margin-top: 4px;
+      font-style: italic;
+    }
+    .login-forgot:hover {
+      color: #6abaca;
+    }
+    @media (max-width: 480px) {
+      .login-panel {
+        width: 90%;
+        padding: 16px;
+      }
+      .login-logo {
+        font-size: 32px;
+      }
+      .arch {
+        width: 60px;
+      }
+      .world-selector {
+        top: 8px;
+        right: 8px;
+      }
+      .online-counter {
+        bottom: 8px;
+        left: 8px;
+      }
+      .info-sign {
+        display: none;
+      }
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #1a1a2e;
+      overscroll-behavior: none;
+      touch-action: none;
+      -webkit-text-size-adjust: 100%;
+    }
+    button,
+    input,
+    .world-selector,
+    .login-btn,
+    .ui-bar-btn,
+    .inventory-cell,
+    .dialogue-option,
+    .spell-row,
+    .context-menu,
+    .context-menu-item,
+    .chat-send-btn {
+      touch-action: manipulation;
+    }
+    button {
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    #game-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    #status-overlay {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      padding: 8px 12px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.4;
+      pointer-events: none;
+      user-select: none;
+      border-radius: 4px;
+      z-index: 10;
+    }
+    #status-overlay .disconnected {
+      color: #ff4444;
+    }
+    #status-overlay .connected {
+      color: #44ff44;
+    }
+    #debug-overlay {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 8px 12px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #0f0;
+      font-family: "Courier New", monospace;
+      font-size: 11px;
+      line-height: 1.4;
+      pointer-events: none;
+      user-select: none;
+      border-radius: 4px;
+      z-index: 10;
+      display: none;
+    }
+    #debug-overlay.visible {
+      display: block;
+    }
+    #ui-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 20;
+    }
+    #ui-container > * {
+      pointer-events: auto;
+    }
+    .ui-panel {
+      background: rgba(20, 20, 30, 0.92);
+      border: 1px solid #555;
+      border-radius: 4px;
+      color: #fff;
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      overflow: hidden;
+    }
+    .ui-panel-header {
+      padding: 6px 10px;
+      background: rgba(40, 40, 50, 0.95);
+      border-bottom: 1px solid #444;
+      font-weight: bold;
+      user-select: none;
+    }
+    .ui-panel-body {
+      padding: 8px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .ui-panel.hidden {
+      display: none;
+    }
+    #ui-left {
+      position: absolute;
+      top: 80px;
+      left: 8px;
+      width: 200px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    /* OSRS-style skill grid */
+    .skill-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      padding: 4px;
+    }
+    .skill-tile {
+      background: rgba(40, 40, 50, 0.9);
+      border: 2px solid;
+      border-color: #555 #333 #333 #555;
+      border-radius: 2px;
+      padding: 4px 2px;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+      min-height: 56px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+    .skill-tile:hover {
+      background: rgba(60, 60, 75, 0.9);
+      border-color: #666 #444 #444 #666;
+    }
+    .skill-tile-icon {
+      font-size: 20px;
+      line-height: 1;
+    }
+    .skill-tile-level {
+      color: #ffcc00;
+      font-size: 11px;
+      font-weight: bold;
+      line-height: 1;
+    }
+    /* Combat tab: stat summary + attack-style selector */
+    .combat-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .combat-stat {
+      background: rgba(40, 40, 50, 0.9);
+      border: 2px solid;
+      border-color: #555 #333 #333 #555;
+      border-radius: 2px;
+      padding: 4px 2px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .combat-stat-icon {
+      font-size: 16px;
+      line-height: 1;
+    }
+    .combat-stat-level {
+      color: #ffcc00;
+      font-size: 11px;
+      font-weight: bold;
+      line-height: 1;
+    }
+    .combat-weapon {
+      text-align: center;
+      color: #e8dcc8;
+      font-weight: bold;
+      padding: 4px 0 8px;
+      border-top: 1px solid #333;
+    }
+    .combat-style-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      width: 100%;
+      margin-bottom: 4px;
+      padding: 6px 4px;
+      background: rgba(40, 40, 50, 0.9);
+      border: 2px solid;
+      border-color: #555 #333 #333 #555;
+      border-radius: 2px;
+      color: #ccc;
+      font-family: "Courier New", monospace;
+      cursor: pointer;
+      user-select: none;
+    }
+    .combat-style-btn:hover:not(:disabled) {
+      background: rgba(60, 60, 75, 0.9);
+      border-color: #666 #444 #444 #666;
+    }
+    .combat-style-btn.active {
+      background: rgba(70, 60, 35, 0.95);
+      border-color: #d4a843;
+      box-shadow: inset 0 0 6px rgba(212, 168, 67, 0.4);
+    }
+    .combat-style-btn:disabled {
+      cursor: default;
+      opacity: 0.75;
+    }
+    .combat-style-name {
+      font-size: 13px;
+      font-weight: bold;
+      color: #e8dcc8;
+    }
+    .combat-style-btn.active .combat-style-name {
+      color: #ffcc00;
+    }
+    .combat-style-skill {
+      font-size: 10px;
+      color: #9a8d78;
+    }
+    .combat-hint {
+      margin-top: 6px;
+      font-size: 10px;
+      text-align: center;
+      line-height: 1.4;
+    }
+    .settings-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .settings-label {
+      font-size: 11px;
+      color: #9a8d78;
+      font-weight: bold;
+    }
+    .settings-select {
+      background: rgba(30, 30, 40, 0.95);
+      border: 1px solid #555;
+      border-radius: 3px;
+      color: #e8dcc8;
+      font-size: 12px;
+      padding: 4px 6px;
+      cursor: pointer;
+    }
+    .settings-select:focus {
+      outline: none;
+      border-color: #d4a843;
+    }
+    .settings-hint {
+      font-size: 10px;
+      color: #6a6a6a;
+      line-height: 1.3;
+    }
+    #skills-panel {
+      width: 220px;
+    }
+    @media (max-width: 480px) {
+      #skills-panel {
+        width: 180px;
+      }
+      .skill-tile {
+        min-height: 48px;
+      }
+      .skill-tile-icon {
+        font-size: 16px;
+      }
+      .skill-tile-level {
+        font-size: 10px;
+      }
+    }
+    #ui-right {
+      position: absolute;
+      top: 80px;
+      right: 8px;
+      width: 220px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    #ui-bottom {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      right: 8px;
+      display: flex;
+      justify-content: center;
+    }
+    #ui-bar-left {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 30;
+    }
+    #ui-bar-right {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 30;
+    }
+    .ui-bar-btn {
+      width: 36px;
+      height: 36px;
+      background: rgba(20, 20, 30, 0.85);
+      border: 1px solid #444;
+      color: #ccc;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 6px;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      line-height: 1;
+    }
+    .ui-bar-btn:hover {
+      background: rgba(60, 60, 80, 0.9);
+      border-color: #666;
+      color: #fff;
+    }
+    .ui-bar-btn.active {
+      background: rgba(80, 80, 110, 0.95);
+      border-color: #888;
+      color: #fff;
+    }
+    @media (max-width: 480px) {
+      .ui-bar-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+      }
+    }
+
+    /* Inventory */
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+    }
+    .inventory-cell {
+      width: 40px;
+      height: 40px;
+      background: rgba(40, 40, 50, 0.8);
+      border: 1px solid #444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      cursor: pointer;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 2px;
+      text-align: center;
+    }
+
+    /* Rows */
+    .ui-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .ui-row-padded {
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .ui-row-thin {
+      padding: 2px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Text colors */
+    .text-muted { color: #aaa; }
+    .text-dim { color: #555; }
+    .text-bright { color: #fff; }
+    .text-system { color: #ffcc00; }
+
+    /* Spellbook */
+    .spell-row {
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+    }
+    .spell-can-cast { color: #fff; }
+    .spell-cannot-cast { color: #555; }
+
+    /* Dialogue */
+    .dialogue-option {
+      padding: 4px;
+      margin-top: 4px;
+      background: rgba(60, 60, 80, 0.8);
+      cursor: pointer;
+      border-radius: 2px;
+    }
+    .dialogue-option:hover {
+      background: rgba(80, 80, 100, 0.9);
+    }
+
+    /* Context menu */
+    .context-menu {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.9);
+      border: 1px solid #888;
+      border-radius: 6px;
+      padding: 4px 0;
+      z-index: 1000;
+      min-width: 140px;
+      font-family: monospace;
+      font-size: 12px;
+      color: #fff;
+      user-select: none;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+    }
+    .context-menu-item {
+      padding: 4px 12px;
+      white-space: nowrap;
+      border-radius: 3px;
+      margin: 0 2px;
+      transition: background 0.08s ease;
+    }
+    .context-menu-item:hover {
+      background: rgba(120, 180, 255, 0.25);
+    }
+
+    /* Hover tooltip */
+    #hover-tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid #555;
+      border-radius: 3px;
+      padding: 2px 8px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #ddd;
+      z-index: 500;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    #hover-tooltip.hidden {
+      display: none;
+    }
+
+    /* Debug log */
+    .debug-log {
+      margin-top: 8px;
+      border-top: 1px solid #333;
+      padding-top: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .debug-log-entry {
+      font-size: 11px;
+      color: #aaa;
+    }
+
+    /* Chat */
+    .chat-box { width: 600px; }
+    .chat-body { max-height: 120px; }
+    .chat-input-row {
+      display: flex;
+      padding: 4px;
+      border-top: 1px solid #444;
+    }
+    .chat-input {
+      flex: 1;
+      background: rgba(30, 30, 40, 0.9);
+      border: 1px solid #444;
+      color: #fff;
+      padding: 4px 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+      border-radius: 2px;
+    }
+    .chat-send-btn {
+      margin-left: 4px;
+      background: rgba(60, 60, 80, 0.8);
+      border: 1px solid #444;
+      color: #ccc;
+      padding: 4px 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+    .chat-send-btn:hover {
+      background: rgba(80, 80, 100, 0.9);
+      color: #fff;
+    }
+
+    /* Dialogue box */
+    .dialogue-box { width: 400px; margin-bottom: 8px; }
+    .dialogue-body { max-height: 150px; }
+    .dialogue-text { margin-bottom: 8px; }
+
+    /* Spell target overlay */
+    #spell-target-overlay {
+      display: none;
+      position: absolute;
+      bottom: 220px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(80, 0, 0, 0.85);
+      border: 1px solid #ff4444;
+      color: #ff4444;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      z-index: 30;
+      pointer-events: none;
+    }
+    #spell-target-overlay.visible {
+      display: block;
+    }
+
+    /* Item target overlay */
+    #item-target-overlay {
+      display: none;
+      position: absolute;
+      bottom: 220px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 60, 80, 0.85);
+      border: 1px solid #44aaff;
+      color: #44aaff;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      z-index: 30;
+      pointer-events: none;
+    }
+    #item-target-overlay.visible {
+      display: block;
+    }
+
+    /* Recipe panel */
+    #recipe-panel {
+      width: 220px;
+    }
+
+    #recipe-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+
+    .recipe-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 6px;
+      background: rgba(40, 40, 50, 0.8);
+      border: 1px solid #444;
+      border-radius: 2px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .recipe-row:hover {
+      background: rgba(60, 60, 75, 0.9);
+      border-color: #666;
+    }
+
+    .recipe-row.selected {
+      background: rgba(80, 70, 50, 0.9);
+      border-color: #d4a843;
+    }
+
+    .recipe-row .recipe-name {
+      flex: 1;
+      font-size: 11px;
+    }
+
+    .recipe-row .recipe-level {
+      font-size: 10px;
+      color: #aaa;
+      margin-left: 4px;
+    }
+
+    .recipe-row .recipe-level.too-high {
+      color: #ff4444;
+    }
+
+    .recipe-row.unmet {
+      opacity: 0.6;
+    }
+
+    .recipe-detail {
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px solid #444;
+    }
+
+    .recipe-detail.hidden {
+      display: none;
+    }
+
+    #recipe-ingredients {
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+
+    #recipe-ingredients .ingredient-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 2px 0;
+      color: #ccc;
+    }
+
+    #recipe-ingredients .ingredient-row.missing {
+      color: #ff4444;
+    }
+
+    #recipe-output {
+      font-size: 11px;
+      color: #d4a843;
+      margin-bottom: 8px;
+    }
+
+    .recipe-make-btn {
+      width: 100%;
+      padding: 6px 0;
+      background: linear-gradient(180deg, #5a6c3a 0%, #4a5c2a 50%, #3a4c1a 100%);
+      border: 1px solid rgba(100, 120, 60, 0.5);
+      color: #e8dcc8;
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .recipe-make-btn:hover {
+      background: linear-gradient(180deg, #6a7c4a 0%, #5a6c3a 50%, #4a5c2a 100%);
+    }
+
+    .recipe-make-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .recipe-quantity {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 6px;
+    }
+
+    .qty-btn {
+      flex: 1;
+      padding: 3px 0;
+      background: rgba(40, 40, 50, 0.8);
+      border: 1px solid #444;
+      color: #ccc;
+      font-family: "Courier New", monospace;
+      font-size: 10px;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+
+    .qty-btn:hover {
+      background: rgba(60, 60, 75, 0.9);
+    }
+
+    .qty-btn.active {
+      background: rgba(80, 70, 50, 0.9);
+      border-color: #d4a843;
+      color: #d4a843;
+    }
+
+    .recipe-feedback {
+      margin-top: 8px;
+      padding: 6px;
+      border-radius: 2px;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .recipe-feedback.hidden {
+      display: none;
+    }
+
+    .recipe-feedback.success {
+      background: rgba(40, 80, 40, 0.8);
+      border: 1px solid #4a9a4a;
+      color: #88ff88;
+    }
+
+    .recipe-feedback.failure {
+      background: rgba(80, 40, 40, 0.8);
+      border: 1px solid #ff4444;
+      color: #ff8888;
+    }
+
+    /* Minimap panel */
+    #minimap-panel {
+      width: 160px;
+    }
+    #minimap-panel canvas {
+      width: 100%;
+      height: 120px;
+      background: rgba(10, 20, 10, 0.9);
+      border-radius: 2px;
+      image-rendering: pixelated;
+    }
+
+    /* Contract panel */
+    #contract-panel {
+      width: 220px;
+    }
+    #contract-body {
+      font-size: 11px;
+    }
+    #contract-progress-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(40, 40, 50, 0.9);
+      border-radius: 3px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    #contract-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #d4a843;
+      border-radius: 3px;
+      transition: width 0.2s;
+    }
+
+    /* Activity panel */
+    #activity-panel {
+      width: 220px;
+    }
+    #activity-body {
+      font-size: 11px;
+    }
+    .activity-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .activity-row:last-child {
+      border-bottom: none;
+    }
+    .activity-label {
+      color: #aaa;
+    }
+    .activity-value {
+      color: #e8dcc8;
+    }
+    .activity-risk-low {
+      color: #4a9a4a;
+    }
+    .activity-risk-medium {
+      color: #d4a843;
+    }
+    .activity-risk-high {
+      color: #ff4444;
+    }
+    .activity-stop-btn {
+      width: 100%;
+      margin-top: 8px;
+      padding: 6px 0;
+      background: linear-gradient(180deg, #6a3a3a 0%, #5a2a2a 50%, #4a1a1a 100%);
+      border: 1px solid rgba(180, 80, 80, 0.5);
+      color: #e8dcc8;
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    .activity-stop-btn:hover {
+      background: linear-gradient(180deg, #7a4a4a 0%, #6a3a3a 50%, #5a2a2a 100%);
+    }
+
+    /* Status effects panel */
+    #status-effects-panel {
+      position: absolute;
+      top: 48px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 4px;
+      z-index: 25;
+      pointer-events: none;
+    }
+    #status-effects-panel.hidden {
+      display: none;
+    }
+    .status-effect-badge {
+      position: relative;
+      width: 28px;
+      height: 28px;
+      background: rgba(20, 20, 30, 0.85);
+      border: 1px solid #555;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      pointer-events: auto;
+    }
+    .status-effect-badge .duration {
+      position: absolute;
+      bottom: 0;
+      right: 2px;
+      font-size: 9px;
+      color: #aaa;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 0 2px;
+      border-radius: 2px;
+      line-height: 1;
+    }
+
+    /* Death screen */
+    #death-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2000;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #ff4444;
+      font-family: "Courier New", monospace;
+      pointer-events: auto;
+    }
+    #death-screen.hidden {
+      display: none;
+    }
+    .death-title {
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      text-shadow: 0 0 16px rgba(255, 0, 0, 0.5);
+    }
+    .death-subtitle {
+      font-size: 14px;
+      color: #ccc;
+      margin-bottom: 24px;
+    }
+    .death-respawn-btn {
+      padding: 12px 24px;
+      background: linear-gradient(180deg, #5a3a3a 0%, #4a2a2a 50%, #3a1a1a 100%);
+      border: 1px solid rgba(180, 80, 80, 0.5);
+      color: #e8dcc8;
+      font-family: "Courier New", monospace;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .death-respawn-btn:hover {
+      background: linear-gradient(180deg, #6a4a4a 0%, #5a3a3a 50%, #4a2a2a 100%);
+    }
+
+    /* Notification toast */
+    #notification-toast {
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1500;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      pointer-events: none;
+      max-width: 320px;
+      width: 100%;
+    }
+    #notification-toast.hidden {
+      display: none;
+    }
+    .toast-item {
+      padding: 8px 14px;
+      border-radius: 4px;
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      text-align: center;
+      animation: toastIn 0.3s ease-out;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+    .toast-item.success {
+      background: rgba(40, 80, 40, 0.9);
+      border: 1px solid #4a9a4a;
+      color: #88ff88;
+    }
+    .toast-item.failure {
+      background: rgba(80, 40, 40, 0.9);
+      border: 1px solid #ff4444;
+      color: #ff8888;
+    }
+    .toast-item.info {
+      background: rgba(40, 60, 80, 0.9);
+      border: 1px solid #4a8aaa;
+      color: #88ccff;
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="login-screen" role="dialog" aria-modal="true" aria-labelledby="login-panel-title">
+    <div class="login-bg" aria-hidden="true"></div>
+    <div class="login-vignette" aria-hidden="true"></div>
+
+    <div class="arch arch-left" aria-hidden="true"></div>
+    <div class="arch arch-right" aria-hidden="true"></div>
+
+    <div class="world-selector" aria-hidden="true">
+      <div class="world-selector-label">World 301</div>
+      <div class="world-selector-change">Change</div>
+    </div>
+
+    <div class="online-counter" aria-hidden="true">
+      <div class="online-counter-shield">⚔</div>
+      <div class="online-counter-text">
+        <div class="online-counter-number">Online: 6,842</div>
+        <div class="online-counter-players">Players Online</div>
+      </div>
+    </div>
+
+    <div class="info-sign" aria-hidden="true">
+      <div class="info-sign-text">Train skills.</div>
+      <div class="info-sign-text">Meet friends.</div>
+      <div class="info-sign-text">Make your legend.</div>
+    </div>
+
+    <div class="login-logo-container">
+      <div class="login-logo-shield" aria-hidden="true">🏰</div>
+      <div class="login-logo">Old Town</div>
+      <div class="login-logo-subtitle">The adventure is yours.</div>
+    </div>
+
+    <div class="login-panel">
+      <div class="login-panel-header">
+        <div class="login-panel-title" id="login-panel-title">Welcome to Old Town</div>
+        <div class="login-panel-subtitle">The adventure is yours.</div>
+      </div>
+
+      <div class="login-form">
+        <label class="login-label" for="login-username">Username</label>
+        <input type="text" id="login-username" class="login-input" name="username" autocomplete="username" maxlength="32" spellcheck="false" />
+
+        <button type="button" id="login-btn" class="login-btn login-btn-primary">LOG IN</button>
+        <button type="button" id="create-account-btn" class="login-btn login-btn-secondary">CREATE ACCOUNT</button>
+
+        <div class="login-dev-note">Dev mode — no password required</div>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="game-canvas"></canvas>
+  <div id="status-overlay">
+    <div id="connection-status" class="disconnected">Disconnected</div>
+    <div id="tick-status">Tick: -</div>
+    <div id="fps-status">FPS: -</div>
+  </div>
+    <div id="debug-overlay">
+    <div id="debug-stats">Debug info</div>
+    <div id="debug-log" class="debug-log"></div>
+  </div>
+  <div id="ui-container">
+    <div id="ui-left">
+      <div id="inventory-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Inventory</div>
+        <div class="ui-panel-body" id="inventory-body"></div>
+      </div>
+      <div id="equipment-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Equipment</div>
+        <div class="ui-panel-body" id="equipment-body"></div>
+      </div>
+      <div id="combat-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Combat</div>
+        <div class="ui-panel-body" id="combat-body"></div>
+      </div>
+      <div id="bank-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Bank</div>
+        <div class="ui-panel-body" id="bank-body"></div>
+      </div>
+    </div>
+    <div id="ui-right">
+      <div id="skills-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Skills</div>
+        <div class="ui-panel-body" id="skills-body"></div>
+      </div>
+      <div id="spellbook-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Spellbook</div>
+        <div class="ui-panel-body" id="spellbook-body"></div>
+      </div>
+      <div id="quest-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Quest Journal</div>
+        <div class="ui-panel-body" id="quest-body"></div>
+      </div>
+      <div id="shop-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Shop</div>
+        <div class="ui-panel-body" id="shop-body"></div>
+      </div>
+      <div id="recipe-panel" class="ui-panel hidden">
+        <div class="ui-panel-header" id="recipe-header">Recipe</div>
+        <div class="ui-panel-body" id="recipe-body">
+          <div id="recipe-list"></div>
+          <div id="recipe-detail" class="recipe-detail hidden">
+            <div id="recipe-ingredients"></div>
+            <div id="recipe-output"></div>
+            <div id="recipe-quantity" class="recipe-quantity">
+              <button type="button" class="qty-btn active" data-qty="1">1</button>
+              <button type="button" class="qty-btn" data-qty="5">5</button>
+              <button type="button" class="qty-btn" data-qty="10">10</button>
+              <button type="button" class="qty-btn" data-qty="x">X</button>
+            </div>
+            <button type="button" id="recipe-make-btn" class="recipe-make-btn">Make</button>
+          </div>
+          <div id="recipe-feedback" class="recipe-feedback hidden"></div>
+        </div>
+      </div>
+      <div id="minimap-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Minimap</div>
+        <div class="ui-panel-body">
+          <canvas id="minimap-canvas" width="160" height="120"></canvas>
+        </div>
+      </div>
+      <div id="contract-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Contract</div>
+        <div class="ui-panel-body" id="contract-body">
+          <div class="text-dim">No active contract.</div>
+          <div id="contract-progress-bar"><div id="contract-progress-fill"></div></div>
+        </div>
+      </div>
+      <div id="activity-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Activity</div>
+        <div class="ui-panel-body" id="activity-body">
+          <div class="text-dim">No active activity.</div>
+        </div>
+      </div>
+      <div id="settings-panel" class="ui-panel hidden">
+        <div class="ui-panel-header">Settings</div>
+        <div class="ui-panel-body" id="settings-body"></div>
+      </div>
+    </div>
+    <div id="ui-bottom">
+      <div id="chat-box" class="ui-panel hidden chat-box">
+        <div class="ui-panel-header">Chat</div>
+        <div class="ui-panel-body chat-body" id="chat-body"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" class="chat-input" placeholder="Type message..." />
+          <button type="button" id="chat-send" class="chat-send-btn">Send</button>
+        </div>
+      </div>
+      <div id="dialogue-box" class="ui-panel hidden dialogue-box">
+        <div class="ui-panel-header" id="dialogue-npc">Dialogue</div>
+        <div class="ui-panel-body dialogue-body" id="dialogue-body">
+          <div id="dialogue-text" class="dialogue-text"></div>
+          <div id="dialogue-options"></div>
+        </div>
+      </div>
+    </div>
+    <div id="ui-bar-left">
+      <button type="button" class="ui-bar-btn" data-panel="inventory-panel">🎒</button>
+      <button type="button" class="ui-bar-btn" data-panel="equipment-panel">🛡️</button>
+      <button type="button" class="ui-bar-btn" data-panel="combat-panel">⚔️</button>
+      <button type="button" class="ui-bar-btn" data-panel="skills-panel">📊</button>
+      <button type="button" class="ui-bar-btn" data-panel="spellbook-panel">✨</button>
+      <button type="button" class="ui-bar-btn" data-panel="quest-panel">📜</button>
+    </div>
+    <div id="ui-bar-right">
+      <button type="button" class="ui-bar-btn" data-panel="bank-panel">🏦</button>
+      <button type="button" class="ui-bar-btn" data-panel="shop-panel">🏪</button>
+      <button type="button" class="ui-bar-btn" data-panel="minimap-panel">🗺️</button>
+      <button type="button" class="ui-bar-btn" data-panel="recipe-panel">🔨</button>
+      <button type="button" class="ui-bar-btn" data-panel="contract-panel">📋</button>
+      <button type="button" class="ui-bar-btn" data-panel="activity-panel">⚙️</button>
+      <button type="button" class="ui-bar-btn" data-panel="settings-panel">🔧</button>
+      <button type="button" class="ui-bar-btn" data-panel="chat-box">💬</button>
+      <button type="button" class="ui-bar-btn" data-panel="debug-overlay">🐛</button>
+    </div>
+    <div id="spell-target-overlay">Select target for spell (Esc to cancel)</div>
+    <div id="item-target-overlay">Select target for item (Esc to cancel)</div>
+    <div id="hover-tooltip" class="hidden"></div>
+    <div id="status-effects-panel" class="hidden"></div>
+    <div id="notification-toast" class="hidden"></div>
+  </div>
+  <div id="death-screen" class="hidden">
+    <div class="death-title">You have died</div>
+    <div class="death-subtitle">Your items have been placed in a grave.</div>
+    <button type="button" id="death-respawn-btn" class="death-respawn-btn">Respawn</button>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

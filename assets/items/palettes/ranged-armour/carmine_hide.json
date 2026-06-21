@@ -1,0 +1,11 @@
+{
+  "ladder": "ranged-armour",
+  "tier": "carmine_hide",
+  "tierOrder": 9,
+  "regions": {
+    "hide": "#8a3a32",
+    "stitch": "#2e2a28",
+    "buckle": "#c2c6cc",
+    "accent": "#6a6d6f"
+  }
+}

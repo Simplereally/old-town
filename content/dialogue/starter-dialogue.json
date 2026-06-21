@@ -1,0 +1,352 @@
+[
+  {
+    "id": "mara_bellkeeper_arrival",
+    "name": "Mara Bellkeeper Arrival",
+    "root": "greeting",
+    "nodes": [
+      {
+        "id": "greeting",
+        "npcText": "You heard the bell, then. Good. Means you're paying attention.",
+        "playerOptions": [
+          { "text": "What do you do here?", "next": "about" },
+          { "text": "Any work?", "next": "work" },
+          { "text": "Goodbye.", "next": "exit" }
+        ]
+      },
+      {
+        "id": "about",
+        "npcText": "I keep the bell. I keep the time. I keep the peace, when the peace needs keeping."
+      },
+      {
+        "id": "work",
+        "npcText": "Talk to the warden if you want contracts. I only ring bells."
+      },
+      { "id": "exit", "npcText": "The bell rings again. You'll know when." }
+    ]
+  },
+  {
+    "id": "pippa_hearth_smoke_over_old_town",
+    "name": "Pippa Hearth Smoke Over Old Town",
+    "root": "greeting",
+    "nodes": [
+      {
+        "id": "greeting",
+        "npcText": "You smell that? That's not dinner. That's the old kiln coughing again.",
+        "playerOptions": [
+          { "text": "What do you do here?", "next": "about" },
+          { "text": "Can I help?", "next": "quest_offer" },
+          { "text": "Goodbye.", "next": "exit" }
+        ]
+      },
+      {
+        "id": "about",
+        "npcText": "I cook. I bake. I watch the smoke. When the smoke changes, the town changes."
+      },
+      {
+        "id": "quest_offer",
+        "npcText": "Go check the old kiln. Find out what's burning. And bring me a receipt if there's one left."
+      },
+      { "id": "exit", "npcText": "Come back when you've sorted the smoke." }
+    ]
+  },
+  {
+    "id": "tomas_tally_rats_under_tallys",
+    "name": "Tomas Tally Rats Under Tallys",
+    "root": "greeting",
+    "nodes": [
+      {
+        "id": "greeting",
+        "npcText": "The ledger is wrong. The numbers don't lie, but the rats do.",
+        "playerOptions": [
+          { "text": "What do you do here?", "next": "about" },
+          { "text": "Can I help?", "next": "quest_offer" },
+          { "text": "Goodbye.", "next": "exit" }
+        ]
+      },
+      {
+        "id": "about",
+        "npcText": "I count. I weigh. I store. I lend. And I chase rats out of the cellar when nobody else will."
+      },
+      {
+        "id": "quest_offer",
+        "npcText": "The warden has a contract. Kill the rats, bring the tails. I'll pay. The ledger will balance."
+      },
+      { "id": "exit", "npcText": "Close the door on your way out. The rats are bold." }
+    ]
+  },
+  {
+    "id": "osric_penny_forge_intro",
+    "name": "Osric Penny Forge Intro",
+    "root": "greeting",
+    "nodes": [
+      {
+        "id": "greeting",
+        "npcText": "You want iron? Bring ore. You want copper? Bring tin. You want talk? Try the chapel.",
+        "playerOptions": [
+          { "text": "What do you do here?", "next": "about" },
+          { "text": "Can I learn smithing?", "next": "quest_offer" },
+          { "text": "Goodbye.", "next": "exit" }
+        ]
+      },
+      {
+        "id": "about",
+        "npcText": "I smelt. I forge. I sell what I make. I don't mend broken hearts or broken promises."
+      },
+      {
+        "id": "quest_offer",
+        "npcText": "Bring me copper and tin. I'll show you how the pennywrought is born. One ingot. One lesson."
+      },
+      { "id": "exit", "npcText": "Hammer's hot. Don't waste my heat." }
+    ]
+  },
+  {
+    "id": "letha_lath_bowcraft_intro",
+    "name": "Letha Lath Bowcraft Intro",
+    "root": "greeting",
+    "nodes": [
+      {
+        "id": "greeting",
+        "npcText": "You hold a bow like a stranger. That's fine. Strangers learn faster.",
+        "playerOptions": [
+          { "text": "What do you do here?", "next": "about" },
+          { "text": "Can I learn bowcraft?", "next": "quest_offer" },
+          { "text": "Goodbye.", "next": "exit" }
+        ]
+      },
+      {
+        "id": "about",
+        "npcText": "I shape staves. I string bows. I fletch arrows. I measure draw weights by the shoulder."
+      },
+      {
+        "id": "quest_offer",
+        "npcText": "Bring me oldroad oak, feathers, and sinew. I'll teach you to make a lathwood shortbow."
+      },
+      { "id": "exit", "npcText": "Come back when your hands are steady." }
+    ]
+  },
+  {
+    "id": "nell_patch_tailoring_intro",
+    "name": "Nell Patch Tailoring Intro",
+    "root": "greeting",
+    "nodes": [
+      {
+        "id": "greeting",
+        "npcText": "You need leather? You need thread? You need someone to tell you that coat is torn?",
+        "playerOptions": [
+          { "text": "What do you do here?", "next": "about" },
+          { "text": "Can I learn tailoring?", "next": "quest_offer" },
+          { "text": "Goodbye.", "next": "exit" }
+        ]
+      },
+      {
+        "id": "about",
+        "npcText": "I sew. I patch. I tan hides. I make what the town wears when the town still cares."
+      },
+      {
+        "id": "quest_offer",
+        "npcText": "Bring me hides and thread. I'll show you how to stitch a jerkin that holds."
+      },
+      { "id": "exit", "npcText": "Mind the pins on the floor. They bite." }
+    ]
+  },
+  {
+    "id": "mother_tallow_beadwife_intro",
+    "name": "Mother Tallow Beadwife Intro",
+    "root": "greeting",
+    "nodes": [
+      {
+        "id": "greeting",
+        "npcText": "The clay is listening. The kiln is warm. The beads are waiting. Are you?",
+        "playerOptions": [
+          { "text": "What do you do here?", "next": "about" },
+          { "text": "Can I learn beadwork?", "next": "quest_offer" },
+          { "text": "Goodbye.", "next": "exit" }
+        ]
+      },
+      {
+        "id": "about",
+        "npcText": "I fire beads. I glaze them. I string them into power. The old ways. The slow ways. The honest ways."
+      },
+      {
+        "id": "quest_offer",
+        "npcText": "Bring me clay and glass sand. I'll teach you to make a bead that holds a whisper."
+      },
+      { "id": "exit", "npcText": "Don't slam the door. The beads are sensitive." }
+    ]
+  },
+  {
+    "id": "warden_holt_contracts",
+    "name": "Warden Holt Contracts",
+    "root": "greeting",
+    "nodes": [
+      {
+        "id": "greeting",
+        "npcText": "You want work? The board is full. The board is always full.",
+        "playerOptions": [
+          { "text": "What do you do here?", "next": "about" },
+          { "text": "Any contracts?", "next": "contracts" },
+          { "text": "Goodbye.", "next": "exit" }
+        ]
+      },
+      {
+        "id": "about",
+        "npcText": "I post contracts. I verify kills. I pay what the town owes. I keep the peace by keeping the hunters busy."
+      },
+      {
+        "id": "contracts",
+        "npcText": "Rats in the cellar. Goblins on the north road. Bats in the bell tower. Foxes in the fields. Mites at the gravegate. And something warm in the old kiln. Pick one."
+      },
+      { "id": "exit", "npcText": "Don't start fights you can't finish. The board doesn't forget." }
+    ]
+  },
+  {
+    "id": "sister_writ_favour_intro",
+    "name": "Sister Writ Favour Intro",
+    "root": "greeting",
+    "nodes": [
+      {
+        "id": "greeting",
+        "npcText": "The shrine is warm. The bones are old. The favour is earned, not given.",
+        "playerOptions": [
+          { "text": "What do you do here?", "next": "about" },
+          { "text": "How do I earn favour?", "next": "favour" },
+          { "text": "Goodbye.", "next": "exit" }
+        ]
+      },
+      {
+        "id": "about",
+        "npcText": "I tend the shrine. I light the candles. I keep the rites. I speak for the dead when the living won't listen."
+      },
+      {
+        "id": "favour",
+        "npcText": "Pray at the shrine. Light candles. Offer flowers. Keep the graves clean. The shrine remembers."
+      },
+      { "id": "exit", "npcText": "Go with the rites. Go with the bones. Go." }
+    ]
+  },
+  {
+    "id": "finch_quill_cartography_intro",
+    "name": "Finch Quill Cartography Intro",
+    "root": "greeting",
+    "nodes": [
+      {
+        "id": "greeting",
+        "npcText": "You're new. I can tell by the way you look at the roads instead of the maps.",
+        "playerOptions": [
+          { "text": "What do you do here?", "next": "about" },
+          { "text": "Can I learn cartography?", "next": "quest_offer" },
+          { "text": "Goodbye.", "next": "exit" }
+        ]
+      },
+      {
+        "id": "about",
+        "npcText": "I map. I survey. I chart the old roads and the new ditches. I sell what I draw. I remember what I don't."
+      },
+      {
+        "id": "quest_offer",
+        "npcText": "Walk the oldroad. Mark the landmarks. Come back with a steady hand and I'll teach you proper survey."
+      },
+      { "id": "exit", "npcText": "Don't get lost. The town is older than it looks." }
+    ]
+  },
+  {
+    "id": "edda_tinfin_fishing_intro",
+    "name": "Edda Tinfin Fishing Intro",
+    "root": "greeting",
+    "nodes": [
+      {
+        "id": "greeting",
+        "npcText": "The river is generous today. Or maybe it's just hungry. Hard to tell.",
+        "playerOptions": [
+          { "text": "What do you do here?", "next": "about" },
+          { "text": "Can I learn fishing?", "next": "quest_offer" },
+          { "text": "Goodbye.", "next": "exit" }
+        ]
+      },
+      {
+        "id": "about",
+        "npcText": "I catch. I clean. I sell. I trade. I know the river's moods. I know what the river wants."
+      },
+      {
+        "id": "quest_offer",
+        "npcText": "Get a net. Get a rod. Get to the river. Catch something. Anything. Come back and I'll show you how to clean it proper."
+      },
+      { "id": "exit", "npcText": "Mind the current. It takes what it wants." }
+    ]
+  },
+  {
+    "id": "bramble_hook_river_intro",
+    "name": "Bramble Hook River Intro",
+    "root": "greeting",
+    "nodes": [
+      {
+        "id": "greeting",
+        "npcText": "The river told me you'd come. The river tells me a lot of things.",
+        "playerOptions": [
+          { "text": "What do you do here?", "next": "about" },
+          { "text": "Any fishing tips?", "next": "tips" },
+          { "text": "Goodbye.", "next": "exit" }
+        ]
+      },
+      {
+        "id": "about",
+        "npcText": "I fish. I mend nets. I talk to the river. Sometimes the river talks back. Sometimes it doesn't."
+      },
+      {
+        "id": "tips",
+        "npcText": "Use a net for shrimp. Use a rod for tinfin. Use patience for everything else."
+      },
+      { "id": "exit", "npcText": "Watch your line. The river bites harder than the fish." }
+    ]
+  },
+  {
+    "id": "marn_lock_bell_clapper",
+    "name": "Marn Lock Bell Clapper",
+    "root": "greeting",
+    "nodes": [
+      {
+        "id": "greeting",
+        "npcText": "You looking for something? Everyone's looking for something.",
+        "playerOptions": [
+          { "text": "What do you do here?", "next": "about" },
+          { "text": "The bell clapper is missing.", "next": "clapper" },
+          { "text": "Goodbye.", "next": "exit" }
+        ]
+      },
+      {
+        "id": "about",
+        "npcText": "I find things. I lose things. I trade what I find for what I need. That's business."
+      },
+      {
+        "id": "clapper",
+        "npcText": "Missing, is it? That's interesting. Very interesting. Maybe we can help each other. Maybe not."
+      },
+      { "id": "exit", "npcText": "Don't trust the bell. It rings when it wants to." }
+    ]
+  },
+  {
+    "id": "gravekeeper_soll_gravegate_flowers",
+    "name": "Gravekeeper Soll Gravegate Flowers",
+    "root": "greeting",
+    "nodes": [
+      {
+        "id": "greeting",
+        "npcText": "The flowers are blooming. The dead are quiet. It's a good day.",
+        "playerOptions": [
+          { "text": "What do you do here?", "next": "about" },
+          { "text": "Can I help?", "next": "quest_offer" },
+          { "text": "Goodbye.", "next": "exit" }
+        ]
+      },
+      {
+        "id": "about",
+        "npcText": "I tend the graves. I plant the flowers. I keep the gate. I keep the dead where they belong."
+      },
+      {
+        "id": "quest_offer",
+        "npcText": "The shrine needs flowers. The graveyard edge has them. Bring me a bundle and I'll show you the proper way to offer them."
+      },
+      { "id": "exit", "npcText": "Walk softly. The ground is older than you." }
+    ]
+  }
+]

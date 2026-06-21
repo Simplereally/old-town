@@ -1,0 +1,11 @@
+{
+  "ladder": "accessory",
+  "tier": "warden_issued",
+  "tierOrder": 5,
+  "regions": {
+    "cloth": "#4a6a4a",
+    "metal": "#8aaa8a",
+    "seal": "#c9d8c9",
+    "accent": "#a8c8a8"
+  }
+}
