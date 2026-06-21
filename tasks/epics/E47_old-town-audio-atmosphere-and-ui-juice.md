@@ -64,7 +64,7 @@ The forge should sound like a forge, the market should murmur, the river should 
 - [ ] `E47-S01` — `tasks/stories/E47/E47-S01_ambient-sound-and-district-audio-manager.md`
 - [ ] `E47-S02` — `tasks/stories/E47/E47-S02_ui-and-action-sound-effects.md`
 - [ ] `E47-S03` — `tasks/stories/E47/E47-S03_lighting-shadows-and-day-night-foundation.md`
-- [ ] `E47-S04` — `tasks/stories/E47/E47-S04_hitsplats-xp-drops-and-selection-rings.md`
+- [ ] `E47-S04` — `tasks/stories/E47/E47-S04_feedback-polish-and-selection-rings.md`
 - [ ] `E47-S05` — `tasks/stories/E47/E47-S05_atmosphere-validation-and-performance-pass.md`
 
 ## Epic acceptance criteria
