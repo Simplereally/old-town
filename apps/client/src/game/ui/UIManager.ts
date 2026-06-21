@@ -299,6 +299,7 @@ export class UIManager {
         panel.classList.add("hidden");
       }
       if (panelId === "skills-panel") {
+        this._hoveredSkillId = undefined;
         this._hideSkillTooltip();
       }
     }

@@ -1,4 +1,4 @@
-import { tileKey } from "@old-town/shared";
+import { tileKey, type ContractDef } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { createWorld, type World } from "../ecs/world";
 import { createInventory } from "../items/inventory";
@@ -62,7 +62,7 @@ const COLLECT_CONTRACT_DEF = {
   id: "collect_herbs",
   name: "Collect Herbs",
   description: "Gather simple herbs for the Wardenry.",
-  contractType: "gathering" as const,
+  contractType: "collection" as const,
   targetCreatureIds: [],
   targetCount: 20,
   rewardItems: [{ itemId: "coin", quantity: 50 }],
@@ -172,7 +172,7 @@ function setup() {
   const registries = makeRegistries({
     object: new Map([[WARDEN_BOARD_DEF.id, WARDEN_BOARD_DEF]]),
     item: new Map([[COIN_DEF.id, COIN_DEF]]),
-    contract: new Map([
+    contract: new Map<string, ContractDef>([
       [CONTRACT_DEF.id, CONTRACT_DEF],
       [HIGH_LEVEL_CONTRACT_DEF.id, HIGH_LEVEL_CONTRACT_DEF],
       [COLLECT_CONTRACT_DEF.id, COLLECT_CONTRACT_DEF],

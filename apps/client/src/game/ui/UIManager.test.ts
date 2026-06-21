@@ -13,7 +13,13 @@ function clearLocalStorage(): void {
 // jsdom in some Bun versions provides a localStorage object whose
 // getItem/setItem/removeItem/clear are undefined. Install a minimal in-memory
 // Storage shim so UIManager's persistence tests can run.
-if (typeof localStorage !== "undefined" && typeof localStorage.getItem !== "function") {
+if (
+  typeof localStorage !== "undefined" &&
+  (typeof localStorage.getItem !== "function" ||
+    typeof localStorage.setItem !== "function" ||
+    typeof localStorage.removeItem !== "function" ||
+    typeof localStorage.clear !== "function")
+) {
   const store = new Map<string, string>();
   const shim = {
     getItem: (key: string) => store.get(key) ?? null,

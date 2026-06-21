@@ -366,7 +366,7 @@ describe("validateContentGraph branch coverage", () => {
             resourceNodeId: "missing_node",
             dialogueId: "missing_dialogue",
             options: [],
-          },
+          } as unknown as ObjectDef,
         ],
       ]),
     });
@@ -557,7 +557,7 @@ describe("validateContentGraph branch coverage", () => {
             playerSpawnPoints: [{ x: 0, y: 0, requiresQuest: "missing_pquest" }],
             deathRespawnPoints: [{ x: 0, y: 0, requiresQuest: "missing_dquest" }],
             triggers: [],
-          },
+          } as unknown as RegionMapDef,
         ],
       ]),
     });

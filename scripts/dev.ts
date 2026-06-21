@@ -165,14 +165,15 @@ start("server", bun, ["apps/server/src/index.ts"], {
 if (!existsSync(viteBin)) {
   console.error(`[dev] client: vite binary not found at ${viteBin}. Run \`bun install\` first.`);
   shutdown(1);
+} else {
+  start(
+    "client",
+    "node",
+    [viteBin, "--host", clientHost, "--port", clientPort, "--strictPort"],
+    {
+      ...process.env,
+      VITE_SERVER_URL: serverUrl,
+    },
+    clientDir,
+  );
 }
-start(
-  "client",
-  "node",
-  [viteBin, "--host", clientHost, "--port", clientPort, "--strictPort"],
-  {
-    ...process.env,
-    VITE_SERVER_URL: serverUrl,
-  },
-  clientDir,
-);

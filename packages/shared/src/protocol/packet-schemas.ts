@@ -160,7 +160,7 @@ export const hitsplatPacketSchema = z
   .strict();
 
 export const xpDropPacketSchema = z
-  .object({ skillId: contentIdSchema, amount: z.number() })
+  .object({ skillId: contentIdSchema, amount: z.number().nonnegative() })
   .strict();
 
 export const projectilePacketSchema = z

@@ -97,6 +97,7 @@ export class SidebarTabs {
       this.opts.renderPage(pageId);
     } else {
       this._showPlaceholder(SCAFFOLD_TAB_LABELS[tabId] ?? tabId);
+      this.opts.renderPage("sidebar-placeholder");
     }
 
     for (const [, other] of this.tabs) {

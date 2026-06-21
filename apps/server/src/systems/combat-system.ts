@@ -469,13 +469,20 @@ function defaultStyleMode(style: CombatHitStyle): CombatStyleMode {
  * `combatStyleMode` when the weapon allows it, otherwise fall back to the style's
  * default mode.
  */
+function styleModeAllowed(style: CombatHitStyle, mode: CombatStyleMode): boolean {
+  if (style === "ranged" || style === "magic") {
+    return mode === "accurate" || mode === "longrange";
+  }
+  return mode === "accurate" || mode === "aggressive" || mode === "defensive" || mode === "controlled";
+}
+
 function resolveStyleMode(
   ctx: CombatSystemContext,
   entityId: EntityId,
   style: CombatHitStyle,
 ): CombatStyleMode {
   const chosen = ctx.world.getComponent(entityId, "combatant")?.combatStyleMode;
-  if (chosen) {
+  if (chosen && styleModeAllowed(style, chosen)) {
     return chosen;
   }
   return defaultStyleMode(style);

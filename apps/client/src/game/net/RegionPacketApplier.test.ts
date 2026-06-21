@@ -7,11 +7,11 @@ function rid(value: string): RegionLoadPacket["regionId"] {
   return value as RegionLoadPacket["regionId"];
 }
 
-function loadPacket(regionId: string, chunks: RegionLoadPacket["chunks"]): RegionLoadPacket {
+function loadPacket(regionId: string, chunks?: RegionLoadPacket["chunks"]): RegionLoadPacket {
   return {
     region: { rx: 0, ry: 0, plane: 0 },
     regionId: rid(regionId),
-    chunks,
+    ...(chunks !== undefined ? { chunks } : {}),
   };
 }
 
@@ -37,16 +37,22 @@ describe("applyRegionLoads", () => {
       type: "region.load",
       payload: { regionId: "r1", chunks: [{ cx: 0, cy: 0, tiles: [] }] },
     });
-    expect(events[1]?.type).toBe("region.load");
-    expect(events[1]?.payload.regionId).toBe("r2");
-    expect(events[1]?.payload.chunks).toHaveLength(2);
+    const second = events[1];
+    expect(second?.type).toBe("region.load");
+    if (second?.type === "region.load") {
+      expect(second.payload.regionId).toBe("r2");
+      expect(second.payload.chunks).toHaveLength(2);
+    }
   });
 
   it("substitutes an empty chunk array when chunks is undefined", () => {
     const events: PresentationEvent[] = [];
     applyRegionLoads([loadPacket("rX", undefined)], events);
     expect(events).toHaveLength(1);
-    expect(events[0]?.payload.chunks).toEqual([]);
+    const first = events[0];
+    if (first?.type === "region.load") {
+      expect(first.payload.chunks).toEqual([]);
+    }
   });
 
   it("does nothing when regions is undefined", () => {

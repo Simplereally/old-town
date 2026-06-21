@@ -51,7 +51,6 @@ export async function startServer(): Promise<GameServer> {
   logger.info("boot", "Old Town server booting", { port: config.port, tickMs: config.tickMs });
 
   const contentPromise = loadContent(config.contentDir);
-  const persistencePromise = resolvePersistenceAdapter(config.persistence, logger);
 
   // --- Load and validate content ----------------------------------------------------
   const content: BootContentResult = await contentPromise;
@@ -71,7 +70,7 @@ export async function startServer(): Promise<GameServer> {
     .join(", ");
   logger.info("boot", "Content loaded", { registries: registryCounts });
 
-  const persistence = await persistencePromise;
+  const persistence = await resolvePersistenceAdapter(config.persistence, logger);
   logger.info("boot", "Persistence configured", {
     driver: config.persistence.driver,
     enabled: persistence.enabled,

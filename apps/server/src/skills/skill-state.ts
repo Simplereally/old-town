@@ -146,16 +146,20 @@ export function syncCombatantLevelsFromSkills(world: World, entityId: EntityId):
 
   const statusEffects = world.getComponent(entityId, "statusEffects");
   if (statusEffects) {
+    let updatedStatusBase = false;
     if (statusEffects.baseAttackLevel !== undefined) {
       statusEffects.baseAttackLevel = attack;
+      updatedStatusBase = true;
     }
     if (statusEffects.baseStrengthLevel !== undefined) {
       statusEffects.baseStrengthLevel = strength;
+      updatedStatusBase = true;
     }
     if (statusEffects.baseDefenceLevel !== undefined) {
       statusEffects.baseDefenceLevel = defence;
+      updatedStatusBase = true;
     }
-    return;
+    if (updatedStatusBase) return;
   }
 
   const next: CombatantComponent = {

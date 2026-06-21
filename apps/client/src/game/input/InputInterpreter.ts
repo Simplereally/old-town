@@ -428,7 +428,7 @@ export class InputInterpreter {
       // OSRS menu order: spell/item targeting first, then Attack, then the rest by priority.
       const displayRank = (o: ContextMenuOption) => {
         if (o.actionId === "cast_spell" || o.actionId === "use_item_on") return 2;
-        if (o.actionId === "attack") return 1;
+        if (o.actionId === "attack" && o.priority >= 0) return 1;
         return 0;
       };
       const aRank = displayRank(a);

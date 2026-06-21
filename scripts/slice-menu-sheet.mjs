@@ -50,8 +50,8 @@ function trim(wx, wy, ww, wh, pad = 1) {
   return {
     x: Math.max(0, minX - pad),
     y: Math.max(0, minY - pad),
-    w: Math.min(W, maxX + pad) - Math.max(0, minX - pad) + 1,
-    h: Math.min(H, maxY + pad) - Math.max(0, minY - pad) + 1,
+    w: Math.min(W - 1, maxX + pad) - Math.max(0, minX - pad) + 1,
+    h: Math.min(H - 1, maxY + pad) - Math.max(0, minY - pad) + 1,
   };
 }
 

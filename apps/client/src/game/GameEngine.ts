@@ -901,7 +901,12 @@ export class GameEngine {
         position = new Vector3();
         this._actorPositions.set(p.entityId, position);
       }
-      position.set(p.renderX, p.renderY, p.renderZ);
+      const actorState = this.actors.getActorState(p.entityId);
+      if (actorState) {
+        position.copy(actorState.visualPosition);
+      } else {
+        position.set(p.renderX, p.renderY, p.renderZ);
+      }
       this._seenActorPositionIds.add(p.entityId);
     });
     for (const entityId of this._actorPositions.keys()) {
