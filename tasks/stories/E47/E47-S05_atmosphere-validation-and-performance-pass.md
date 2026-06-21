@@ -6,53 +6,58 @@ E47 — Old Town Audio, Atmosphere, and UI Juice
 
 ## Dependency chain
 
-- Depends on: E47-S02 (UI and Action Sounds), E47-S03 (Lighting and Shadows), E47-S04 (Hitsplats, XP Drops, Selection Rings)
+- Depends on: E47-S00, E47-S01, E47-S02, E47-S03, E47-S04
 - Blocks: none
 
 ## Spec references
 
-- `POC_SPEC.md` §7.1 (Visual style)
-- `POC_SPEC.md` §7.3 (Renderer rules — performance budgets)
-- `POC_SPEC.md` §31-S04 (Performance Budgets and Diagnostics Contract)
-- `POC_SPEC.md` §35-S06 (Heap and Draw-Call Gate)
+- `POC_SPEC.md` §7.1
+- `POC_SPEC.md` §7.3
+- `apps/client/src/game/renderer/ThreeRenderer.ts`
+- `apps/client/src/game/ui/DebugOverlay.ts`
 
 ## Objective
 
-Run a final atmosphere validation and performance pass. Ensure all audio, lighting, and feedback systems work together, do not leak, and stay within the render budget. This is the final story of the starter-town experience.
+Run a final validation pass for E47 using infrastructure that actually exists. Do not cite non-existent spec sections and do not require screenshot tests unless the story also adds screenshot tooling.
+
+## What already exists — verify, do not rebuild
+
+- `POC_SPEC.md` currently ends at §30. Do not cite §31 or §35 unless those sections are added first.
+- `ThreeRenderer.debugCounters()` already exposes render counters.
+- `DebugOverlay` already displays renderer metrics.
+- The normal test stack is Vitest/jsdom. Screenshot tooling is not currently part of the repo.
 
 ## Required architectural decisions
 
-- **Performance budget:**
-  - Terrain: < 50 draw calls
-  - Objects: < 200 draw calls
-  - Actors: < 50 draw calls
-  - UI: < 20 draw calls
-  - Total: < 320 draw calls
-  - Audio sources: < 16 active sources
-- **Memory leak checks:** Region crossing must dispose old terrain, object, and actor meshes/pools. Audio sources must stop when crossing districts.
-- **Validation tests:** Add automated tests that assert the draw-call budget after loading the starter region, after spawning 10 actors, and after a region crossing.
-- **Visual regression:** Add a screenshot test for the Market Bell view.
-- **Manual pass:** Walk the entire starter region, enter every district, open every UI panel, complete a combat, gather a resource, and verify no errors.
+- If numeric budgets are used, mark them as E47-local provisional budgets or add them to the spec first.
+- Use existing renderer/debug counters before adding new counters.
+- Validate audio-source counts, ambience transitions, disposal, and mute/volume behaviour.
+- Validate resource disposal for audio, feedback layers, atmosphere resources, and loaded scene resources.
+- Manual visual checks are acceptable. Automated screenshots are optional only if tooling is added.
+- Do not add vague starter-town prose to the epic as a completion step.
 
 ## Implementation checklist
 
-- [ ] Add a draw-call counter to the renderer metrics HUD.
-- [ ] Add automated tests for draw-call and audio source budgets.
-- [ ] Add a region crossing test that asserts old resources are disposed.
-- [ ] Add a visual regression screenshot for the Market Bell spawn.
-- [ ] Run a manual atmosphere pass in `bun run dev`.
-- [ ] Fix any audio leaks, shadow issues, or UI z-fighting.
-- [ ] Update the E47 epic checklist and move all stories to completed.
-- [ ] Write a short summary of the starter-town experience in the epic file.
+- [ ] Remove invalid references to non-existent `POC_SPEC.md` sections.
+- [ ] Define E47-local provisional budgets or add real spec text before asserting numeric budgets.
+- [ ] Use existing renderer/debug counters for render checks.
+- [ ] Add tests for audio manager disposal and active source limits.
+- [ ] Add tests for ambience transition cleanup.
+- [ ] Add tests for feedback/selection/atmosphere disposal where feasible.
+- [ ] Add a region/resource lifecycle test only against the current loading/disposal path.
+- [ ] Add screenshot tooling explicitly if automated screenshot checks are required; otherwise keep visual checks manual.
+- [ ] Run a manual E47 pass in `bun run dev`.
+- [ ] Update the E47 epic checklist and move stories only after all acceptance criteria pass.
 
 ## Acceptance criteria
 
-- [ ] The renderer stays within the defined draw-call budget.
-- [ ] Audio sources do not leak or accumulate on region changes.
-- [ ] Visual regression screenshot passes for the Market Bell view.
-- [ ] Manual atmosphere pass finds no critical issues.
-- [ ] All E47 stories and the epic are moved to completed.
-- [ ] The starter-town experience is playable and feels like an OSRS-style MMO.
+- [ ] No fabricated spec references remain.
+- [ ] Render checks use existing counters or documented E47-local budgets.
+- [ ] Audio resources do not accumulate across zone changes.
+- [ ] Outgoing ambience stops after transitions.
+- [ ] Visual feedback and atmosphere resources dispose cleanly.
+- [ ] Manual pass covers starter districts, UI audio, packet audio, selection ring, click marker, XP feedback, and atmosphere cycle.
+- [ ] Any automated screenshot requirement has real tooling or is removed.
 
 ## Validation commands
 
@@ -60,7 +65,7 @@ Run a final atmosphere validation and performance pass. Ensure all audio, lighti
 - [ ] `bun run typecheck`
 - [ ] `bun run lint`
 - [ ] `bun run content:validate`
-- [ ] `bun run dev` — full manual atmosphere pass
+- [ ] `bun run dev` — full manual E47 pass
 
 ## Agent completion protocol
 
@@ -68,4 +73,4 @@ Run a final atmosphere validation and performance pass. Ensure all audio, lighti
 - [ ] Run every validation command listed above.
 - [ ] Mark every completed checkbox in this file as `[X]`.
 - [ ] Move this story file to `tasks/completed/stories/E47/` only after all criteria pass.
-- [ ] Update the parent epic checklist and move the epic to `tasks/completed/epics/`.
+- [ ] Update the parent epic checklist and move the epic only when all E47 stories are complete.
