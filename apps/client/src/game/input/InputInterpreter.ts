@@ -17,6 +17,7 @@ export interface ContentResolver {
       }
     | undefined;
   getObject(id: string): { options: readonly InteractionOptionDef[] } | undefined;
+  getItem(id: string): { name: string } | undefined;
 }
 
 export type NpcAttackSetting =
@@ -45,19 +46,43 @@ export interface MenuResolveState {
   readonly itemMode?: { readonly itemUid: number };
 }
 
+export interface ContextMenuOptionPart {
+  readonly text: string;
+  readonly color?: string;
+  readonly className?: string;
+}
+
 export interface ContextMenuOption {
   readonly label: string;
   readonly actionId: string;
   readonly priority: number;
+  readonly parts?: readonly ContextMenuOptionPart[];
 }
 
 const DEFAULT_INPUT_SETTINGS: InputInterpreterSettings = {
-  npcAttack: "depends-on-combat-levels",
+  npcAttack: "left-click-where-available",
   mouseButtons: "two-button",
   menuSwaps: [],
 };
 
 const PLAYER_MAX_COMBAT_LEVEL = 126;
+
+/** OSRS combat level text color based on the gap between player and NPC levels. */
+export function combatLevelColor(playerLevel: number | undefined, npcLevel: number | undefined): string {
+  if (playerLevel === undefined || npcLevel === undefined) {
+    return "#ffff00"; // true yellow fallback
+  }
+  const diff = npcLevel - playerLevel;
+  if (diff <= -10) return "#00ff00"; // deep green
+  if (diff <= -6) return "#40ff00"; // light green
+  if (diff <= -1) return "#80ff00"; // yellow-green
+  if (diff === 0) return "#ffff00"; // true yellow
+  if (diff <= 5) return "#ffc000"; // yellow-orange
+  if (diff <= 10) return "#ff8000"; // light orange
+  if (diff <= 20) return "#ff4000"; // dark orange
+  if (diff <= 50) return "#ff2000"; // red-orange
+  return "#ff0000"; // deep red
+}
 
 export type ClientDecision =
   | { type: "move"; tile: TileCoord }
@@ -118,6 +143,19 @@ export class InputInterpreter {
   }
 
   /**
+   * Return the full hover tooltip label for the default action on an entity.
+   * For NPCs this is "Attack Giant rat (level-3)" or "Talk-to Hans"; for objects
+   * "Chop tree"; for ground items "Pick up Coins"; for players just the name.
+   */
+  getDefaultActionLabel(entity: PickedEntity, state: MenuResolveState = {}): string | undefined {
+    if (entity.kind === "player") {
+      return this.getEntityName(entity);
+    }
+    const top = this.resolveMenuEntries(entity, null, state)[0];
+    return top?.label;
+  }
+
+  /**
    * Build the full context-menu option list for an entity/tile.  Sorted by
    * ascending priority (lowest first, highest last — the UI may render top-to-bottom).
    */
@@ -126,7 +164,7 @@ export class InputInterpreter {
     tile: { x: number; y: number } | null,
     state: MenuResolveState = {},
   ): ContextMenuOption[] {
-    return this.resolveMenuEntries(entity, tile, state);
+    return this.sortMenuEntriesForDisplay(this.resolveMenuEntries(entity, tile, state));
   }
 
   /**
@@ -177,7 +215,8 @@ export class InputInterpreter {
     const options: ContextMenuOption[] = [];
 
     if (tile) {
-      options.push({ label: "Walk here", actionId: "walk_here", priority: 0 });
+      options.push({
+        label: "Walk here", actionId: "walk_here", priority: 0, parts: [{ text: "Walk here", color: "#ffffff" }] });
     }
 
     if (state.spellMode && (entity || tile)) {
@@ -201,24 +240,44 @@ export class InputInterpreter {
     }
 
     const name = this.getEntityName(entity);
-    options.push({ label: `Examine ${name}`, actionId: "examine", priority: -100 });
+    const npcDef = entity.kind === "npc" ? this.content.getNpc(entity.defId ?? "") : undefined;
+    const combatLevel = npcDef?.combatLevel;
+    const levelSuffix = combatLevel !== undefined ? ` (level-${combatLevel})` : "";
+    const examineLabel = `Examine ${name}${levelSuffix}`;
+    const examineParts = entity.kind === "npc"
+      ? this.buildNpcOptionParts("Examine", name, combatLevel, state.playerCombatLevel)
+      : [
+          { text: "Examine ", color: "#ffffff" },
+          { text: name, color: "#ffffff" },
+        ];
+    options.push({
+      label: examineLabel,
+      actionId: "examine",
+      priority: -100,
+      parts: examineParts,
+    });
 
     switch (entity.kind) {
       case "npc": {
-        const def = this.content.getNpc(entity.defId ?? "");
-        const contentOptions = def?.options ?? [];
+        const contentOptions = npcDef?.options ?? [];
         for (const opt of contentOptions) {
-          const adjusted = this.adjustNpcOptionPriority(
-            opt,
-            def?.combatLevel,
-            state.playerCombatLevel,
-          );
+          const showLevel = opt.actionId === "attack";
+          const adjusted = this.adjustNpcOptionPriority(opt, combatLevel, state.playerCombatLevel);
           if (adjusted) {
-            options.push(adjusted);
+            options.push({
+              ...adjusted,
+              label: this.formatNpcOptionLabel(opt.label, name, combatLevel, showLevel),
+              parts: this.buildNpcOptionParts(opt.label, name, showLevel ? combatLevel : undefined, state.playerCombatLevel),
+            });
           }
         }
         if (contentOptions.length === 0) {
-          options.push({ label: "Talk-to", actionId: "talk", priority: 1 });
+          options.push({
+            label: `Talk-to ${name}`,
+            actionId: "talk",
+            priority: 1,
+            parts: [{ text: "Talk-to ", color: "#ffffff" }, { text: name, color: "#ffffff" }],
+          });
         }
         break;
       }
@@ -226,19 +285,35 @@ export class InputInterpreter {
         const def = this.content.getObject(entity.defId ?? "");
         const contentOptions = def?.options ?? [];
         for (const opt of contentOptions) {
-          options.push({ label: opt.label, actionId: opt.actionId, priority: opt.priority });
+          options.push({
+            label: opt.label,
+            actionId: opt.actionId,
+            priority: opt.priority,
+            parts: [{ text: opt.label, color: "#ffffff" }],
+          });
         }
         if (contentOptions.length === 0) {
-          options.push({ label: "Use", actionId: "use", priority: 1 });
+          options.push({
+            label: "Use",
+            actionId: "use",
+            priority: 1,
+            parts: [{ text: "Use", color: "#ffffff" }],
+          });
         }
         break;
       }
       case "groundItem": {
-        const itemName = entity.itemId ?? "item";
+        const itemName = this.getItemName(entity.itemId);
+        const quantityText = entity.quantity && entity.quantity > 1 ? ` x${entity.quantity}` : "";
         options.push({
-          label: `Pick up ${itemName}${entity.quantity && entity.quantity > 1 ? ` x${entity.quantity}` : ""}`,
+          label: `Pick up ${itemName}${quantityText}`,
           actionId: "pickup",
           priority: 1,
+          parts: [
+            { text: "Pick up ", color: "#ffffff" },
+            { text: itemName, color: "#ffffff" },
+            { text: quantityText, color: "#ffffff" },
+          ],
         });
         break;
       }
@@ -347,9 +422,64 @@ export class InputInterpreter {
     return [...options].sort((a, b) => b.priority - a.priority);
   }
 
+  private sortMenuEntriesForDisplay(options: readonly ContextMenuOption[]): ContextMenuOption[] {
+    return [...options].sort((a, b) => {
+      // OSRS menu order: spell/item targeting first, then Attack, then the rest by priority.
+      const displayRank = (o: ContextMenuOption) => {
+        if (o.actionId === "cast_spell" || o.actionId === "use_item_on") return 2;
+        if (o.actionId === "attack") return 1;
+        return 0;
+      };
+      const aRank = displayRank(a);
+      const bRank = displayRank(b);
+      if (aRank !== bRank) return bRank - aRank;
+      return b.priority - a.priority;
+    });
+  }
+
+  private formatNpcOptionLabel(
+    baseLabel: string,
+    name: string,
+    combatLevel: number | undefined,
+    showLevel: boolean,
+  ): string {
+    const levelSuffix = showLevel && combatLevel !== undefined ? ` (level-${combatLevel})` : "";
+    return `${baseLabel} ${name}${levelSuffix}`;
+  }
+
+  private buildNpcOptionParts(
+    baseLabel: string,
+    name: string,
+    combatLevel: number | undefined,
+    playerCombatLevel: number | undefined,
+  ): ContextMenuOptionPart[] {
+    const nameColor = combatLevel !== undefined
+      ? combatLevelColor(playerCombatLevel, combatLevel)
+      : "#ffffff";
+    const parts: ContextMenuOptionPart[] = [
+      { text: `${baseLabel} `, color: "#ffffff" },
+      { text: name, color: nameColor },
+    ];
+    if (combatLevel !== undefined) {
+      parts.push({
+        text: ` (level-${combatLevel})`,
+        color: nameColor,
+      });
+    }
+    return parts;
+  }
+
+  private getItemName(itemId: string | undefined): string {
+    if (!itemId) return "item";
+    return this.content.getItem(itemId)?.name ?? itemId;
+  }
+
   getEntityName(entity: PickedEntity): string {
     if (entity.kind === "npc") {
       return this.content.getNpc(entity.defId ?? "")?.name ?? entity.defId ?? "npc";
+    }
+    if (entity.kind === "groundItem") {
+      return this.getItemName(entity.itemId);
     }
     return entity.defId ?? entity.itemId ?? "entity";
   }

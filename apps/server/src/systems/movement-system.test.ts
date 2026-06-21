@@ -95,6 +95,52 @@ describe("movement system", () => {
     expect(context.deltas.consume(1, 600).entityUpdates).toEqual([]);
   });
 
+  it("clears the destination on arrival and does not re-freeze while idle", () => {
+    const context = setup();
+    handleMoveIntent(context, context.player, { dest: tile(2, 0) }, { tick: 1 });
+
+    // Walk to the destination.
+    processMovementPhase(context, 1);
+    processMovementPhase(context, 2);
+    expect(context.world.getComponent(context.player, "position")).toMatchObject({ x: 2, y: 0 });
+
+    // Subsequent idle ticks must not renew a movement block: an entity sitting on
+    // its destination used to re-path to an empty path and set blockedUntilTick every
+    // tick, freezing it (and stalling combat) forever.
+    for (let tick = 3; tick <= 8; tick += 1) {
+      processMovementPhase(context, tick);
+      const movement = context.world.getComponent(context.player, "movement");
+      expect(movement?.path).toEqual([]);
+      expect(movement?.destination).toBeUndefined();
+      expect(movement?.blockedUntilTick).toBeUndefined();
+    }
+    expect(context.world.getComponent(context.player, "position")).toMatchObject({ x: 2, y: 0 });
+  });
+
+  it("stops re-pathing toward an unreachable destination instead of searching every tick", () => {
+    const context = setup();
+    // The destination tile itself is blocked, so it can only be approached, never
+    // stood on — the exact shape produced by clicking an NPC/object/bank.
+    context.collision.addDynamic(tile(4, 0), CollisionFlag.BLOCK_FULL);
+    handleMoveIntent(context, context.player, { dest: tile(4, 0) }, { tick: 1 });
+
+    // Walk as close as possible (the tile adjacent to the blocked destination).
+    for (let tick = 1; tick <= 4; tick += 1) {
+      processMovementPhase(context, tick);
+    }
+    expect(context.world.getComponent(context.player, "position")).toMatchObject({ x: 3, y: 0 });
+
+    // Once adjacent, the move is over: the destination is dropped and no perpetual
+    // re-path/freeze loop remains (this loop was saturating the tick scheduler).
+    for (let tick = 5; tick <= 10; tick += 1) {
+      processMovementPhase(context, tick);
+      const movement = context.world.getComponent(context.player, "movement");
+      expect(movement?.destination).toBeUndefined();
+      expect(movement?.blockedUntilTick).toBeUndefined();
+    }
+    expect(context.world.getComponent(context.player, "position")).toMatchObject({ x: 3, y: 0 });
+  });
+
   it("clears paths and rejects movement commands while a movement block is active", () => {
     const context = setup();
     handleMoveIntent(context, context.player, { dest: tile(3, 0) }, { tick: 1 });

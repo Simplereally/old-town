@@ -731,7 +731,7 @@ describe("UIManager", () => {
     it("renders NPC attack and mouse mode selects with persisted values", () => {
       localStorage.setItem(
         "old-town-input-settings",
-        JSON.stringify({ npcAttack: "always-right-click", mouseButtons: "one-button", menuSwaps: [] }),
+        JSON.stringify({ v: 1, npcAttack: "always-right-click", mouseButtons: "one-button", menuSwaps: [] }),
       );
       manager.togglePanel("settings-panel");
       const body = document.getElementById("settings-body");
@@ -763,6 +763,42 @@ describe("UIManager", () => {
       expect(callbacks.setInputSettings).toHaveBeenCalledWith({ mouseButtons: "one-button" });
       const stored = JSON.parse(localStorage.getItem("old-town-input-settings") ?? "{}");
       expect(stored.mouseButtons).toBe("one-button");
+    });
+  });
+
+  describe("loadInputSettings defaults", () => {
+    beforeEach(() => {
+      localStorage.clear();
+    });
+
+    it("defaults npcAttack to left-click-where-available when no stored settings", () => {
+      const settings = UIManager.loadInputSettings();
+      expect(settings.npcAttack).toBe("left-click-where-available");
+    });
+
+    it("respects an explicitly chosen depends-on-combat-levels persisted setting", () => {
+      localStorage.setItem(
+        "old-town-input-settings",
+        JSON.stringify({
+          v: 1,
+          npcAttack: "depends-on-combat-levels",
+          mouseButtons: "two-button",
+          menuSwaps: [],
+        }),
+      );
+      const settings = UIManager.loadInputSettings();
+      expect(settings.npcAttack).toBe("depends-on-combat-levels");
+    });
+
+    it("resets stale settings from a previous schema version to defaults", () => {
+      // Simulate a stale entry from before the settings version was introduced.
+      // Old-format entries have no `v` field; they should be discarded.
+      localStorage.setItem(
+        "old-town-input-settings",
+        JSON.stringify({ npcAttack: "depends-on-combat-levels", mouseButtons: "two-button", menuSwaps: [] }),
+      );
+      const settings = UIManager.loadInputSettings();
+      expect(settings.npcAttack).toBe("left-click-where-available");
     });
   });
 });

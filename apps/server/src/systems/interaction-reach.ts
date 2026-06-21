@@ -4,12 +4,22 @@ import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import type { CollisionMap, Footprint } from "../world/collision";
 import { findPath } from "../world/pathfinding";
 
+export type InteractionShape = "plus" | "square";
+
 export interface InteractionTarget {
   readonly origin: TileCoord;
   readonly footprint: Footprint;
   readonly requiredDistance: number;
   readonly requiresLineOfSight?: boolean;
   readonly faceTarget?: boolean;
+  /**
+   * Shape of the reachable area around the target. "square" (default) uses Chebyshev
+   * distance, so corner/diagonal tiles count — correct for ranged, magic and reach
+   * weapons (halberds). "plus" forbids pure-diagonal contact, matching OSRS melee
+   * (range 1), which cannot be performed diagonally. The distinction is only visible
+   * at corners and against multi-tile targets.
+   */
+  readonly requiredShape?: InteractionShape;
 }
 
 export interface InteractionRequest {
@@ -58,12 +68,16 @@ function rectangleMaxY(origin: TileCoord, footprint: Footprint): number {
   return origin.y + footprint.length - 1;
 }
 
-export function footprintDistance(
+/**
+ * Per-axis empty-tile gap between two footprints. Each axis is 0 when the rectangles
+ * overlap or touch on that axis, otherwise the number of empty tiles between them.
+ */
+export function footprintAxisGaps(
   aOrigin: TileCoord,
   aFootprint: Footprint,
   bOrigin: TileCoord,
   bFootprint: Footprint,
-): number {
+): { readonly dx: number; readonly dy: number } {
   const dx = Math.max(
     0,
     bOrigin.x - rectangleMaxX(aOrigin, aFootprint),
@@ -74,15 +88,43 @@ export function footprintDistance(
     bOrigin.y - rectangleMaxY(aOrigin, aFootprint),
     aOrigin.y - rectangleMaxY(bOrigin, bFootprint),
   );
+  return { dx, dy };
+}
+
+export function footprintDistance(
+  aOrigin: TileCoord,
+  aFootprint: Footprint,
+  bOrigin: TileCoord,
+  bFootprint: Footprint,
+): number {
+  const { dx, dy } = footprintAxisGaps(aOrigin, aFootprint, bOrigin, bFootprint);
   return Math.max(dx, dy);
 }
 
-function nearestTileInFootprint(from: TileCoord, target: InteractionTarget): TileCoord {
+/**
+ * Whether per-axis gaps satisfy the interaction shape. "plus" requires cardinal
+ * alignment (one axis gap is exactly 0), rejecting pure-diagonal/corner contact;
+ * "square" accepts any gap (the Chebyshev box).
+ */
+function shapeAllows(dx: number, dy: number, shape: InteractionShape): boolean {
+  return shape === "square" || dx === 0 || dy === 0;
+}
+
+/** Clamp a tile into a footprint rectangle — the nearest occupied tile of that footprint. */
+export function nearestFootprintTile(
+  from: TileCoord,
+  origin: TileCoord,
+  footprint: Footprint,
+): TileCoord {
   return {
-    x: Math.min(Math.max(from.x, target.origin.x), rectangleMaxX(target.origin, target.footprint)),
-    y: Math.min(Math.max(from.y, target.origin.y), rectangleMaxY(target.origin, target.footprint)),
-    plane: target.origin.plane,
+    x: Math.min(Math.max(from.x, origin.x), rectangleMaxX(origin, footprint)),
+    y: Math.min(Math.max(from.y, origin.y), rectangleMaxY(origin, footprint)),
+    plane: origin.plane,
   };
+}
+
+function nearestTileInFootprint(from: TileCoord, target: InteractionTarget): TileCoord {
+  return nearestFootprintTile(from, target.origin, target.footprint);
 }
 
 function hasTargetLineOfSight(
@@ -103,8 +145,11 @@ export function isWithinInteractionRange(
   if (actorTile.plane !== target.origin.plane) {
     return false;
   }
-  const distance = footprintDistance(actorTile, actorFootprint, target.origin, target.footprint);
-  if (distance > target.requiredDistance) {
+  const { dx, dy } = footprintAxisGaps(actorTile, actorFootprint, target.origin, target.footprint);
+  if (Math.max(dx, dy) > target.requiredDistance) {
+    return false;
+  }
+  if (!shapeAllows(dx, dy, target.requiredShape ?? "square")) {
     return false;
   }
   return target.requiresLineOfSight === true
@@ -120,6 +165,7 @@ export function interactionCandidateTiles(
   const targetOrigin = target.origin;
   const targetFootprint = target.footprint;
   const requiredDistance = target.requiredDistance;
+  const shape = target.requiredShape ?? "square";
   const minX = targetOrigin.x - requiredDistance - actorFootprint.width + 1;
   const maxX = rectangleMaxX(targetOrigin, targetFootprint) + requiredDistance;
   const minY = targetOrigin.y - requiredDistance - actorFootprint.length + 1;
@@ -129,8 +175,18 @@ export function interactionCandidateTiles(
   for (let x = minX; x <= maxX; x += 1) {
     for (let y = minY; y <= maxY; y += 1) {
       const candidate = { x, y, plane: targetPlane };
-      const distance = footprintDistance(candidate, actorFootprint, targetOrigin, targetFootprint);
-      if (distance <= requiredDistance && (requiredDistance === 0 || distance > 0)) {
+      const { dx, dy } = footprintAxisGaps(
+        candidate,
+        actorFootprint,
+        targetOrigin,
+        targetFootprint,
+      );
+      const distance = Math.max(dx, dy);
+      if (
+        distance <= requiredDistance &&
+        (requiredDistance === 0 || distance > 0) &&
+        shapeAllows(dx, dy, shape)
+      ) {
         candidates.push(candidate);
       }
     }

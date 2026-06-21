@@ -290,9 +290,20 @@ export async function startServer(): Promise<GameServer> {
       });
     });
 
-    // 4. Close the adapter and network.
-    await persistence.close?.();
+    // 4. Close the adapter and network. The adapter close (pg pool.end) is bounded
+    //    so a hung/unreachable DB does not block httpServer.close() — an unbounded
+    //    close would keep the process alive until the dev runner force-kills it,
+    //    re-introducing the port-bound race on restart.
     await Promise.all([
+      withTimeout(
+        persistence.close?.() ?? Promise.resolve(),
+        config.persistence.shutdownFlushMs,
+        "persistence close",
+      ).catch((error: unknown) => {
+        logger.warn("shutdown", "Persistence close failed or timed out during shutdown", {
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }),
       transport.close(),
       new Promise<void>((resolve) => httpServer.close(() => resolve())),
     ]);

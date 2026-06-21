@@ -4,7 +4,7 @@ import type { World } from "../ecs/world";
 import { projectEntity } from "../net/entity-spawn-projector";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { CollisionFlag, type CollisionMap, type Footprint } from "../world/collision";
-import { type FootprintResolver, handleMoveIntent } from "./movement-system";
+import { type FootprintResolver, handleMoveIntent, type MoveIntentResult } from "./movement-system";
 
 export interface NpcSystemContext {
   readonly world: World;
@@ -42,7 +42,12 @@ export function npcFootprint(
   ctx: Pick<NpcSystemContext, "world" | "registries">,
   entityId: EntityId,
 ): Footprint {
-  const size = npcDef(ctx, entityId)?.size ?? 1;
+  const def = npcDef(ctx, entityId);
+  if (!def) {
+    // Player or other non-NPC entity: players pass through NPC-occupied tiles (OSRS).
+    return { width: 1, length: 1, ignoreNpcOccupancy: true };
+  }
+  const size = def.size ?? 1;
   return { width: size, length: size };
 }
 
@@ -110,17 +115,25 @@ export function syncNpcOccupancy(
   }
 }
 
+/**
+ * NPCs path locally toward a wander/chase/return target and re-path every tick, so they
+ * never need a region-wide search. Capping exploration keeps a target that is unreachable
+ * for the NPC's footprint (common for multi-tile NPCs in tight terrain) cheap instead of
+ * triggering an exhaustive A* per attempt.
+ */
+const NPC_PATH_MAX_VISITED = 256;
+
 function moveNpcToward(
   ctx: NpcSystemContext,
   entityId: EntityId,
   dest: TileCoord,
   tick: number,
-): void {
-  handleMoveIntent(
+): MoveIntentResult {
+  return handleMoveIntent(
     { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
     entityId,
     { dest },
-    { footprint: npcFootprint(ctx, entityId), tick },
+    { footprint: npcFootprint(ctx, entityId), tick, maxVisited: NPC_PATH_MAX_VISITED },
   );
 }
 
@@ -255,6 +268,13 @@ function returnHome(
   setNpc(ctx, entityId, { ...npc, brainState: "returnHome" });
 }
 
+/**
+ * OSRS wander roll: an idle, out-of-combat NPC that supports wandering rolls a
+ * 1% chance per tick (10 in 1000) to pick a wander destination. See
+ * docs/spatial/movement-ecology.md and POC_SPEC §14.3.
+ */
+const WANDER_ROLL_CHANCE_ONE_IN = 100;
+
 function maybeWander(
   ctx: NpcSystemContext,
   entityId: EntityId,
@@ -267,32 +287,23 @@ function maybeWander(
     return;
   }
 
+  // OSRS: the probability check only runs when no movement is pending; a roll of
+  // 10 in 1000 (1%) gates whether a wander destination is selected this tick.
+  if (!ctx.rng.chanceOneIn(WANDER_ROLL_CHANCE_ONE_IN)) {
+    return;
+  }
+
+  // OSRS: select a random coordinate within the NPC's wander range measured from
+  // its static origin spawn point, then path to it. The pathfinder falls back to
+  // the closest approach point when the exact tile is blocked.
   const home = npc.home ?? position;
-  const candidates: TileCoord[] = [];
-  for (let dx = -1; dx <= 1; dx += 1) {
-    for (let dy = -1; dy <= 1; dy += 1) {
-      if (dx === 0 && dy === 0) {
-        continue;
-      }
-      const tile = { x: position.x + dx, y: position.y + dy, plane: position.plane };
-      if (
-        chebyshev(home, tile) <= radius &&
-        ctx.collision.canOccupy(tile, npcFootprint(ctx, entityId))
-      ) {
-        candidates.push(tile);
-      }
-    }
-  }
-  if (candidates.length === 0) {
-    setNpc(ctx, entityId, { ...npc, brainState: "idle" });
-    return;
-  }
-  const candidate = candidates[ctx.rng.nextInt(0, candidates.length - 1)];
-  if (!candidate) {
-    return;
-  }
-  moveNpcToward(ctx, entityId, candidate, tick);
-  setNpc(ctx, entityId, { ...npc, brainState: "wander" });
+  const dest: TileCoord = {
+    x: ctx.rng.nextInt(home.x - radius, home.x + radius),
+    y: ctx.rng.nextInt(home.y - radius, home.y + radius),
+    plane: home.plane,
+  };
+  const result = moveNpcToward(ctx, entityId, dest, tick);
+  setNpc(ctx, entityId, { ...npc, brainState: result.pathLength > 0 ? "wander" : "idle" });
 }
 
 export function processNpcAiPhase(ctx: NpcSystemContext, tick: number): void {

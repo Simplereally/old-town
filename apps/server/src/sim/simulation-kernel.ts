@@ -379,6 +379,7 @@ function wireTickPhases(
         }
       : {}),
     nooks: deps.nooks,
+    footprintResolver: npcFootprintResolver({ world, registries }),
   };
   const npcContext = {
     world,

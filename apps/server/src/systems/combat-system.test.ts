@@ -26,7 +26,8 @@ import {
   processCombatTargetValidation,
   processDamageResolutionEvents,
 } from "./combat-system";
-import { syncNpcOccupancy } from "./npc-system";
+import { processMovementPhase } from "./movement-system";
+import { npcFootprintResolver, processNpcAiPhase, syncNpcOccupancy } from "./npc-system";
 
 const NPC_DEF: NpcDef = {
   id: "goblin",
@@ -291,7 +292,9 @@ describe("combat target acquisition", () => {
 
     expect(world.getComponent(player, "combatant")?.targetId).toBe(npc);
     expect(world.getComponent(player, "movement")?.path.length).toBeGreaterThan(0);
-    expect(world.getComponent(player, "movement")?.destination).toEqual({ x: 4, y: 0, plane: 0 });
+    // Melee uses the cardinal "plus" reach, so it approaches the west edge tile of the
+    // NPC at (5,1) rather than a diagonal corner like (4,0).
+    expect(world.getComponent(player, "movement")?.destination).toEqual({ x: 4, y: 1, plane: 0 });
   });
 
   it("rejects spoofed NPC attack intents against non-NPC entities", () => {
@@ -377,7 +380,7 @@ describe("melee attack timing and rolls", () => {
     });
     expect(world.getComponent(player, "combatant")?.nextAttackTick).toBe(16);
     expect(deltas.peek().entityUpdates[0]?.changes).toMatchObject({
-      facingEntity: npc,
+      facingTile: { x: 4, y: 4, plane: 0 },
       animation: { id: MELEE_ATTACK_ANIMATION_ID, startTick: 10 },
     });
 
@@ -484,5 +487,102 @@ describe("damage resolution", () => {
     expect(deltas.peek().hitsplats).toBeUndefined();
     expect(deltas.peek().xpDrops).toBeUndefined();
     expect(xp(world, player, "attack")).toBe(0);
+  });
+});
+
+describe("melee against a multi-tile (2x2) NPC", () => {
+  const COW_DEF: NpcDef = {
+    id: "cow",
+    name: "Cow",
+    size: 2,
+    combatLevel: 2,
+    maxHp: 8,
+    stats: { attack: 1, strength: 1, defence: 1, ranged: 1, magic: 1, prayer: 1, hitpoints: 8 },
+    attackRangeTiles: 1,
+    aggressiveRadius: 0,
+    wanderRadius: 0,
+    respawnTicks: 12,
+    options: [{ label: "Attack", actionId: "attack", priority: 10, requiredDistance: 1 }],
+    movementType: "static",
+    aggressionMode: "retaliate",
+    contractEligible: false,
+  };
+
+  // Cow origin (4,4) occupies (4,4),(5,4),(4,5),(5,5).
+  const onCowFootprint = (x: number, y: number): boolean => x >= 4 && x <= 5 && y >= 4 && y <= 5;
+  const isCardinalToCow = (x: number, y: number): boolean =>
+    (x >= 4 && x <= 5) || (y >= 4 && y <= 5);
+
+  it("does not consider a diagonal-corner tile in melee range, but a cardinal edge is", () => {
+    const corner = setup({
+      npcDef: COW_DEF,
+      npcTile: { x: 4, y: 4, plane: 0 },
+      playerTile: { x: 3, y: 3, plane: 0 }, // diagonally off the SW corner (4,4)
+    });
+    handleNpcCombatIntent(
+      corner.ctx,
+      corner.player,
+      { npcEntityId: corner.npc, actionId: "attack" },
+      600,
+    );
+    // From a corner the attacker is out of plus range, so it must path to a cardinal tile.
+    const dest = corner.world.getComponent(corner.player, "movement")?.destination;
+    expect(dest).toBeDefined();
+    if (dest) {
+      expect(onCowFootprint(dest.x, dest.y)).toBe(false);
+      expect(isCardinalToCow(dest.x, dest.y)).toBe(true);
+    }
+
+    const edge = setup({
+      npcDef: COW_DEF,
+      npcTile: { x: 4, y: 4, plane: 0 },
+      playerTile: { x: 3, y: 4, plane: 0 }, // west of the cow's west edge — cardinally adjacent
+    });
+    handleNpcCombatIntent(
+      edge.ctx,
+      edge.player,
+      { npcEntityId: edge.npc, actionId: "attack" },
+      600,
+    );
+    // Already in range: no path is needed.
+    expect(edge.world.getComponent(edge.player, "movement")?.path ?? []).toEqual([]);
+  });
+
+  it("walks up from a diagonal approach and lands a blow from a cardinal tile", () => {
+    const { ctx, world, player, npc } = setup({
+      npcDef: COW_DEF,
+      npcTile: { x: 4, y: 4, plane: 0 },
+      playerTile: { x: 2, y: 2, plane: 0 },
+      rng: createRng(7),
+    });
+    const pc = world.getComponent(player, "combatant");
+    if (!pc) throw new Error("missing player combatant");
+    world.setComponent(player, "combatant", { ...pc, attackLevel: 40, strengthLevel: 40 });
+
+    handleNpcCombatIntent(ctx, player, { npcEntityId: npc, actionId: "attack" }, 600, 1);
+    const footprint = npcFootprintResolver(ctx);
+
+    let landed = false;
+    for (let tick = 1; tick <= 16 && !landed; tick += 1) {
+      processMovementPhase(
+        { world, collision: ctx.collision, deltas: ctx.deltas },
+        tick,
+        footprint,
+      );
+      syncNpcOccupancy(ctx);
+      processCombatTargetValidation(ctx);
+      processNpcAiPhase(ctx, tick);
+      processCombatStartEvents(ctx, tick);
+      processDamageResolutionEvents(ctx, tick);
+      if ((world.getComponent(npc, "combatant")?.health ?? 8) < 8) {
+        landed = true;
+      }
+    }
+
+    expect(landed).toBe(true);
+    const p = world.getComponent(player, "position");
+    if (!p) throw new Error("missing player position");
+    expect(onCowFootprint(p.x, p.y)).toBe(false);
+    expect(isCardinalToCow(p.x, p.y)).toBe(true);
   });
 });

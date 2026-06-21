@@ -8,6 +8,8 @@ export { CollisionFlag } from "@old-town/shared";
 export interface Footprint {
   readonly width: number;
   readonly length: number;
+  /** When true, NPC occupancy flags do not block this entity (players pass through NPCs). */
+  readonly ignoreNpcOccupancy?: boolean;
 }
 
 export interface LineOfSightOptions {
@@ -22,6 +24,13 @@ const OCCUPANCY_BLOCKERS =
   CollisionFlag.BLOCK_DECORATION |
   CollisionFlag.OCCUPIED_PLAYER |
   CollisionFlag.OCCUPIED_NPC |
+  CollisionFlag.OCCUPIED_OBJECT;
+
+const OCCUPANCY_BLOCKERS_IGNORE_NPC =
+  CollisionFlag.BLOCK_FULL |
+  CollisionFlag.BLOCK_FLOOR |
+  CollisionFlag.BLOCK_DECORATION |
+  CollisionFlag.OCCUPIED_PLAYER |
   CollisionFlag.OCCUPIED_OBJECT;
 
 function assertFootprint(footprint: Footprint): void {
@@ -100,10 +109,11 @@ export class CollisionMap {
     assertFootprint(footprint);
     const width = footprint.width;
     const length = footprint.length;
+    const blockers = footprint.ignoreNpcOccupancy ? OCCUPANCY_BLOCKERS_IGNORE_NPC : OCCUPANCY_BLOCKERS;
     for (let x = 0; x < width; x += 1) {
       for (let y = 0; y < length; y += 1) {
         const tile = tileAt(origin, x, y);
-        if ((this.getMask(tile) & OCCUPANCY_BLOCKERS) !== 0) {
+        if ((this.getMask(tile) & blockers) !== 0) {
           return false;
         }
         if (this.tileBlocksOccupancy(tile)) {

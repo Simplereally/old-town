@@ -14,11 +14,16 @@ import type { World } from "../ecs/world";
 import type { ActionQueue } from "../sim/action-queue";
 import { InterruptGroup } from "../sim/action-queue";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
-import { addXp, getCurrentLevel, type AddXpResult } from "../skills/skill-state";
+import { type AddXpResult, addXp, getCurrentLevel } from "../skills/skill-state";
 import type { CollisionMap, Footprint } from "../world/collision";
 import { validateBossAccess } from "./boss-system";
 import { trackContractObjective } from "./contract-system";
-import { type InteractionTarget, resolveInteraction } from "./interaction-reach";
+import {
+  type InteractionShape,
+  type InteractionTarget,
+  nearestFootprintTile,
+  resolveInteraction,
+} from "./interaction-reach";
 import { handleMoveIntent } from "./movement-system";
 import { npcFootprint } from "./npc-system";
 
@@ -255,11 +260,17 @@ export function handleNpcCombatIntent(
   }
 
   assignCombatTarget(ctx, owner, intent.npcEntityId);
+  const range = attackRangeTiles(ctx, owner);
   const resolution = resolveInteraction(ctx, {
     actor: owner,
     actorTile: validation.actorTile,
     actorFootprint: entityFootprint(ctx, owner),
-    target: validation.target,
+    target: {
+      ...validation.target,
+      requiredDistance: range,
+      requiredShape: attackShape(range),
+      faceTarget: true,
+    },
   });
   if (resolution.kind === "ready") {
     return true;
@@ -292,6 +303,12 @@ export function assignAutoRetaliateTarget(
     return false;
   }
   if (isDead(ctx, defenderId) || isDead(ctx, attackerId)) {
+    return false;
+  }
+  // Don't auto-retaliate while the defender is actively walking somewhere.
+  // This prevents combat pathing from overriding a player's move destination.
+  const movement = ctx.world.getComponent(defenderId, "movement");
+  if (movement && (movement.path.length > 0 || movement.destination !== undefined)) {
     return false;
   }
   ctx.world.setComponent(defenderId, "combatant", { ...defender, targetId: attackerId });
@@ -338,6 +355,15 @@ function attackRangeTiles(ctx: CombatSystemContext, entityId: EntityId): number 
     return defRange;
   }
   return meleeWeapon(ctx, entityId)?.equipment?.attackRangeTiles ?? DEFAULT_MELEE_RANGE_TILES;
+}
+
+/**
+ * OSRS: melee (reach of a single tile) cannot strike diagonally — its reachable
+ * tiles form a cardinal "plus". Reach weapons, ranged and magic (range >= 2) use the
+ * Chebyshev "square" where diagonals count.
+ */
+function attackShape(range: number): InteractionShape {
+  return range <= 1 ? "plus" : "square";
 }
 
 function meleeStyle(ctx: CombatSystemContext, entityId: EntityId): CombatHitStyle {
@@ -553,8 +579,20 @@ function scheduleMeleeAttack(
     ...attacker,
     nextAttackTick: tick + attackSpeedTicks(ctx, attackerId),
   });
+  // Face the nearest occupied tile of the target's footprint (not its south-west
+  // origin), so an attacker turns toward the adjacent edge of a multi-tile target.
+  const attackerPosition = ctx.world.getComponent(attackerId, "position");
+  const targetPosition = ctx.world.getComponent(targetId, "position");
+  const facingTile =
+    attackerPosition && targetPosition
+      ? nearestFootprintTile(
+          positionTile(attackerPosition),
+          positionTile(targetPosition),
+          entityFootprint(ctx, targetId),
+        )
+      : undefined;
   ctx.deltas.markEntityUpdate(attackerId, {
-    facingEntity: targetId,
+    ...(facingTile ? { facingTile } : {}),
     animation: { id: MELEE_ATTACK_ANIMATION_ID, startTick: tick },
   });
 }
@@ -572,9 +610,11 @@ export function processCombatStartEvents(ctx: CombatAttackContext, tick: number)
       continue;
     }
 
+    const range = attackRangeTiles(ctx, entityId);
     const target: InteractionTarget = {
       ...validation.target,
-      requiredDistance: attackRangeTiles(ctx, entityId),
+      requiredDistance: range,
+      requiredShape: attackShape(range),
       faceTarget: true,
     };
     const resolution = resolveInteraction(ctx, {

@@ -774,46 +774,58 @@
       background: rgba(80, 80, 100, 0.9);
     }
 
-    /* Context menu */
+    /* Context menu (OSRS-style choose-option popover) */
     .context-menu {
       position: absolute;
-      background: rgba(0, 0, 0, 0.9);
-      border: 1px solid #888;
-      border-radius: 6px;
-      padding: 4px 0;
+      background: rgba(70, 62, 55, 0.98);
+      border: 2px solid #b8a890;
+      border-radius: 2px;
+      padding: 1px 0;
       z-index: 1000;
-      min-width: 140px;
-      font-family: monospace;
+      min-width: 170px;
+      font-family: "Courier New", "Lucida Console", monospace;
       font-size: 12px;
-      color: #fff;
+      line-height: 1.2;
+      color: #ffffff;
       user-select: none;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+    }
+    .context-menu-title {
+      padding: 2px 12px 1px;
+      color: #ffffff;
+      font-weight: bold;
+      white-space: nowrap;
+      font-size: 12px;
+      line-height: 1.2;
     }
     .context-menu-item {
-      padding: 4px 12px;
+      padding: 0 12px;
       white-space: nowrap;
-      border-radius: 3px;
+      border-radius: 1px;
       margin: 0 2px;
-      transition: background 0.08s ease;
+      transition: background 0.08s ease, color 0.08s ease;
     }
     .context-menu-item:hover {
-      background: rgba(120, 180, 255, 0.25);
+      background: rgba(55, 95, 145, 0.55);
+      color: #ffffff;
     }
 
-    /* Hover tooltip */
+    /* Hover tooltip (OSRS-style default action hint) */
     #hover-tooltip {
       position: absolute;
-      background: rgba(0, 0, 0, 0.85);
-      border: 1px solid #555;
-      border-radius: 3px;
-      padding: 2px 8px;
-      font-family: monospace;
-      font-size: 11px;
-      color: #ddd;
+      background: rgba(70, 62, 55, 0.98);
+      border: 2px solid #b8a890;
+      border-radius: 2px;
+      padding: 2px 10px;
+      font-family: "Courier New", "Lucida Console", monospace;
+      font-size: 12px;
+      line-height: 1.2;
+      color: #ffcc00;
       z-index: 500;
       pointer-events: none;
       white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
     }
     #hover-tooltip.hidden {
       display: none;

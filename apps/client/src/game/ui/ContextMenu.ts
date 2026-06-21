@@ -65,10 +65,25 @@ export class ContextMenu {
     this._menuElement.style.left = `${screenX}px`;
     this._menuElement.style.top = `${screenY}px`;
 
+    const title = document.createElement("div");
+    title.className = "context-menu-title";
+    title.textContent = "Choose Option";
+    this._menuElement.appendChild(title);
+
     for (const option of options) {
       const item = document.createElement("div");
       item.className = "context-menu-item";
-      item.textContent = option.label;
+      if (option.parts && option.parts.length > 0) {
+        for (const part of option.parts) {
+          const span = document.createElement("span");
+          span.textContent = part.text;
+          if (part.color) span.style.color = part.color;
+          if (part.className) span.className = part.className;
+          item.appendChild(span);
+        }
+      } else {
+        item.textContent = option.label;
+      }
       item.addEventListener("click", (e) => {
         e.stopPropagation();
         this.callbacks.onOptionSelected(option.actionId, this._lastEntity, this._lastTile);
@@ -76,6 +91,16 @@ export class ContextMenu {
       });
       this._menuElement.appendChild(item);
     }
+
+    const cancel = document.createElement("div");
+    cancel.className = "context-menu-item";
+    cancel.textContent = "Cancel";
+    cancel.style.color = "#ffffff";
+    cancel.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.hide();
+    });
+    this._menuElement.appendChild(cancel);
 
     this.container.appendChild(this._menuElement);
     this._visible = true;

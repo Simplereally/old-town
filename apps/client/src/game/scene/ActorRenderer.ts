@@ -105,10 +105,14 @@ interface ActorState {
   isLocalPlayer: boolean;
   name: string;
   kind: "player" | "npc";
+  /** Content definition id used for picking / context menu labels. */
+  defId: string | undefined;
   healthBar?: { current: number; max: number };
   lastHitTick: number;
   resourceKey: string;
   poolSlot: number;
+  /** World-space offset added to centre a multi-tile actor on its footprint (0 for 1x1). */
+  readonly renderOffset: number;
 }
 
 export interface ActorMeshes {
@@ -140,6 +144,8 @@ interface CreatureSpec {
   readonly body: number;
   readonly accent: number;
   readonly scale: number;
+  /** Footprint edge length in tiles for multi-tile NPCs; presentational, defaults to 1. */
+  readonly size?: number;
 }
 
 // Local-space layout for the blocky low-poly humanoid (feet at y = 0).
@@ -214,6 +220,16 @@ function resolveCreature(defId: string, kind: "player" | "npc"): CreatureSpec {
   }
   if (has("snapper", "turtle", "crab", "eel", "snake", "serpent")) {
     return { archetype: "serpent", body: PALETTE.furGrey, accent: PALETTE.leafDark, scale: 0.92 };
+  }
+  if (has("cow", "cattle", "bull", "heifer", "calf")) {
+    // A 2x2 quadruped: reuse the canine body plan, brown-and-cream and scaled up.
+    return {
+      archetype: "canine",
+      body: PALETTE.clothCream,
+      accent: PALETTE.furBrown,
+      scale: 1.5,
+      size: 2,
+    };
   }
   return { archetype: "humanoid", body: PALETTE.clothBrown, accent: PALETTE.skin, scale: 1 };
 }
@@ -634,6 +650,9 @@ export class ActorRenderer {
         ? `${HUMANOID_RESOURCE_KEY}:${kind}`
         : `creature:${spec.archetype}`;
     const poolSlot = this._nextPoolSlot++;
+    // A multi-tile NPC is anchored at its south-west tile (server truth); shift the
+    // visual so the body sits over the centre of its NxN footprint.
+    const renderOffset = (((spec.size ?? 1) - 1) * TILE_SIZE_WORLD_UNITS) / 2;
 
     const state: ActorState = {
       entityId,
@@ -646,9 +665,11 @@ export class ActorRenderer {
       isLocalPlayer,
       name: defId ?? "Actor",
       kind,
+      defId,
       lastHitTick: -Infinity,
       resourceKey,
       poolSlot,
+      renderOffset,
     };
 
     this.actors.set(entityId, state);
@@ -1016,7 +1037,11 @@ export class ActorRenderer {
       const meshes = this.meshes.get(actor.entityId);
       if (!presentation || !meshes) continue;
 
-      actor.visualPosition.set(presentation.renderX, presentation.renderY, presentation.renderZ);
+      actor.visualPosition.set(
+        presentation.renderX + actor.renderOffset,
+        presentation.renderY,
+        presentation.renderZ + actor.renderOffset,
+      );
       meshes.group.position.copy(actor.visualPosition);
       meshes.group.position.y += GROUND_OFFSET;
       meshes.group.rotation.y = this._directionToRotation(presentation.heading as Direction);
@@ -1248,7 +1273,7 @@ export class ActorRenderer {
     if (spec.archetype === "humanoid") {
       return this._acquireHumanoidMeshes(state);
     }
-    return this._acquireCreatureMeshes(spec);
+    return this._acquireCreatureMeshes(state, spec);
   }
 
   private _releaseMeshes(meshes: ActorMeshes): void {
@@ -1314,7 +1339,7 @@ export class ActorRenderer {
       if (part) part.material = tunicMaterial;
     }
 
-    meshes.body.userData = { entityId: state.entityId, kind };
+    meshes.body.userData = { entityId: state.entityId, kind, defId: state.defId };
     if (meshes.marker) {
       meshes.marker.visible = isLocalPlayer;
     }
@@ -1325,7 +1350,7 @@ export class ActorRenderer {
     return meshes;
   }
 
-  private _acquireCreatureMeshes(spec: CreatureSpec): ActorMeshes {
+  private _acquireCreatureMeshes(state: ActorState, spec: CreatureSpec): ActorMeshes {
     const archetype = spec.archetype;
     this._ensureCreaturePool(archetype, spec);
 
@@ -1348,6 +1373,7 @@ export class ActorRenderer {
     }
     activeSet.add(meshes);
 
+    meshes.body.userData = { entityId: state.entityId, kind: state.kind, defId: state.defId };
     meshes.group.scale.setScalar(spec.scale);
     meshes.group.visible = true;
     this.actorGroup.add(meshes.group);

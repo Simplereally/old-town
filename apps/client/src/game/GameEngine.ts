@@ -577,9 +577,9 @@ export class GameEngine {
         this._hoverHighlighter.setTargetEntityId(entity.entityId);
       }
       if (tooltip) {
-        const name = this._inputInterpreter.getEntityName(entity);
-        if (name) {
-          tooltip.textContent = name;
+        const label = this._inputInterpreter.getDefaultActionLabel(entity, this._getMenuResolveState());
+        if (label) {
+          tooltip.textContent = label;
           tooltip.style.left = `${event.clientX + 12}px`;
           tooltip.style.top = `${event.clientY + 12}px`;
           tooltip.classList.remove("hidden");

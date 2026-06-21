@@ -34,6 +34,7 @@ export interface UIManagerCallbacks {
 const ITEM_ACTIONS = new Set(["drop", "equip", "eat", "drink"]);
 
 const SETTINGS_STORAGE_KEY = "old-town-input-settings";
+const SETTINGS_VERSION = 1;
 
 const NPC_ATTACK_OPTIONS: ReadonlyArray<{ value: NpcAttackSetting; label: string; hint: string }> = [
   {
@@ -72,7 +73,7 @@ const MOUSE_BUTTON_OPTIONS: ReadonlyArray<{ value: MouseButtonMode; label: strin
 ];
 
 const DEFAULT_INPUT_SETTINGS: InputInterpreterSettings = {
-  npcAttack: "depends-on-combat-levels",
+  npcAttack: "left-click-where-available",
   mouseButtons: "two-button",
   menuSwaps: [],
 };
@@ -81,7 +82,9 @@ function loadStoredSettings(): InputInterpreterSettings {
   try {
     const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
     if (!raw) return DEFAULT_INPUT_SETTINGS;
-    const parsed = JSON.parse(raw) as Partial<InputInterpreterSettings>;
+    const parsed = JSON.parse(raw) as { v?: number } & Partial<InputInterpreterSettings>;
+    // Discard entries from a previous schema version so default changes take effect.
+    if (parsed.v !== SETTINGS_VERSION) return DEFAULT_INPUT_SETTINGS;
     return {
       npcAttack: parsed.npcAttack ?? DEFAULT_INPUT_SETTINGS.npcAttack,
       mouseButtons: parsed.mouseButtons ?? DEFAULT_INPUT_SETTINGS.mouseButtons,
@@ -94,7 +97,7 @@ function loadStoredSettings(): InputInterpreterSettings {
 
 function saveStoredSettings(settings: InputInterpreterSettings): void {
   try {
-    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify({ v: SETTINGS_VERSION, ...settings }));
   } catch {
     // Ignore storage errors (e.g. private mode quota).
   }

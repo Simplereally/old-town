@@ -5,8 +5,10 @@ import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { CollisionFlag, CollisionMap } from "../world/collision";
 import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
 import {
+  footprintAxisGaps,
   footprintDistance,
   isWithinInteractionRange,
+  nearestFootprintTile,
   resolveInteraction,
 } from "./interaction-reach";
 
@@ -149,5 +151,56 @@ describe("interaction reach", () => {
     const update = deltas.consume(1, 600).entityUpdates[0];
     expect(update?.mask).toBe(EntityUpdateMask.FACING_TILE);
     expect(update?.changes.facingTile).toEqual(tile(2, 0));
+  });
+});
+
+describe("interaction reach — shape and multi-tile targets", () => {
+  // A 2x2 "cow" occupying (3,3),(4,3),(3,4),(4,4); south-west origin at (3,3).
+  const cow = { origin: tile(3, 3), footprint: { width: 2, length: 2 }, requiredDistance: 1 };
+  const unit = { width: 1, length: 1 };
+
+  it("plus shape rejects diagonal corners of a 2x2 target that square accepts", () => {
+    const collision = new CollisionMap(testMap());
+    const corner = tile(5, 5); // diagonally off the NE corner (4,4)
+    expect(footprintDistance(corner, unit, cow.origin, cow.footprint)).toBe(1);
+    expect(isWithinInteractionRange(collision, corner, { ...cow, requiredShape: "square" })).toBe(
+      true,
+    );
+    expect(isWithinInteractionRange(collision, corner, { ...cow, requiredShape: "plus" })).toBe(
+      false,
+    );
+
+    const cardinal = tile(5, 4); // directly east of the cow's east edge
+    expect(isWithinInteractionRange(collision, cardinal, { ...cow, requiredShape: "plus" })).toBe(
+      true,
+    );
+  });
+
+  it("defaults to the square shape when none is given (back-compat)", () => {
+    const collision = new CollisionMap(testMap());
+    expect(isWithinInteractionRange(collision, tile(5, 5), cow)).toBe(true);
+  });
+
+  it("plus-shape pathing approaches a cardinal edge tile, never a corner", () => {
+    const collision = new CollisionMap(testMap());
+    const resolution = resolveInteraction(
+      { collision },
+      { actor: entityId(1), actorTile: tile(6, 1), target: { ...cow, requiredShape: "plus" } },
+    );
+    expect(resolution.kind).toBe("path");
+    if (resolution.kind === "path") {
+      const { dx, dy } = footprintAxisGaps(resolution.destination, unit, cow.origin, cow.footprint);
+      expect(Math.max(dx, dy)).toBe(1);
+      expect(dx === 0 || dy === 0).toBe(true);
+    }
+  });
+
+  it("nearestFootprintTile clamps a point into the target rectangle", () => {
+    expect(nearestFootprintTile(tile(6, 6), tile(3, 3), { width: 2, length: 2 })).toEqual(
+      tile(4, 4),
+    );
+    expect(nearestFootprintTile(tile(0, 4), tile(3, 3), { width: 2, length: 2 })).toEqual(
+      tile(3, 4),
+    );
   });
 });

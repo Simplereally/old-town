@@ -93,6 +93,23 @@ describe("ContextMenu view adapter", () => {
     expect(menu.visible).toBe(false);
   });
 
+  it("renders the OSRS-style title 'Choose Option'", () => {
+    menu.show(100, 100, NPC_OPTIONS, npcEntity("goblin"), { x: 5, y: 5 });
+    const title = document.querySelector(".context-menu-title");
+    expect(title).not.toBeNull();
+    expect(title?.textContent).toBe("Choose Option");
+  });
+
+  it("renders a Cancel item that closes the menu without firing a callback", () => {
+    menu.show(100, 100, NPC_OPTIONS, npcEntity("goblin"), { x: 5, y: 5 });
+    const items = document.querySelectorAll(".context-menu > .context-menu-item");
+    const cancel = Array.from(items).find((el) => el.textContent === "Cancel");
+    if (!(cancel instanceof HTMLDivElement)) throw new Error("Expected HTMLDivElement");
+    cancel.click();
+    expect(callbacks.onOptionSelected).not.toHaveBeenCalled();
+    expect(menu.visible).toBe(false);
+  });
+
   it("does not block render loop", () => {
     menu.show(100, 100, NPC_OPTIONS, npcEntity("goblin"), { x: 5, y: 5 });
     expect(menu.visible).toBe(true);
