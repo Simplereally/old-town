@@ -349,14 +349,22 @@ describe.skipIf(!DATABASE_URL)("PostgreSQL integration", () => {
     expect(resultA.status).toBe("committed");
     expect(resultB.status).toBe("committed");
 
-    // Final state: both commits applied. Alice's last write wins (0 from commitB), which means
-    // empty slots (snapshot with coins=0 produces slots: []). Bob has 20 coins from commitB.
+    // Final state: both commits applied. Each transaction writes both characters atomically, so
+    // the final snapshot depends on which transaction commits last — non-deterministic under
+    // Promise.all. The test's purpose is deadlock prevention, not commit ordering.
+    // commitA wins → alice=10, bob=0. commitB wins → alice=0, bob=20.
     const aliceLoaded = await adapter.loadCharacter(alice);
     const bobLoaded = await adapter.loadCharacter(bob);
-    expect(aliceLoaded?.inventory.slots.length === 0
+    const aliceCoins = aliceLoaded?.inventory.slots.length === 0
       ? 0
-      : aliceLoaded?.inventory.slots[0]?.quantity).toBe(0);
-    expect(bobLoaded?.inventory.slots[0]?.quantity).toBe(20);
+      : aliceLoaded?.inventory.slots[0]?.quantity;
+    const bobCoins = bobLoaded?.inventory.slots.length === 0
+      ? 0
+      : bobLoaded?.inventory.slots[0]?.quantity;
+    expect([
+      [10, 0],
+      [0, 20],
+    ]).toContainEqual([aliceCoins, bobCoins]);
 
     // Two ledger rows per character (one from each commit).
     const recent = await adapter.recentItemTransactions(50);
