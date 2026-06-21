@@ -228,6 +228,10 @@ _Avoid_: description, tooltip, info, detail
 The valid distance for interacting with an entity, measured in tiles.
 _Avoid_: range, distance, proximity, radius
 
+**Approach:**
+The act of moving an actor toward a target that is out of reach and queuing a begin_* poll action that re-validates reach each tick, auto-starting the interaction on arrival. Distinct from Reach (the distance) and from the Action Queue (where the poll lives). Combat does not use Approach — it is target-led, not action-led. Spells do not use Approach — out-of-range casts are rejected, not walked.
+_Avoid_: walk-to, move-and-act, auto-walk, path-to-interact
+
 ### Tier & Classification
 
 **Tier:**

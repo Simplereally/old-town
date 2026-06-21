@@ -21,6 +21,7 @@ import type { ContentRegistries, EntityId } from "@old-town/shared";
 import type { World } from "../ecs/world";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { boostSkill, restoreSkill } from "../skills/skill-state";
+import { restorePrayerPoints } from "./prayer-system";
 import { applyStatusEffect, cureStatusEffect } from "./status-system";
 
 export interface ConsumableContext {
@@ -67,6 +68,12 @@ interface PendingRemoveStatus {
   readonly statusEffectId: string;
 }
 
+/** A prayer-point restore queued at input close, awaiting application in the stat-change phase. */
+interface PendingPrayerRestore {
+  readonly entityId: EntityId;
+  readonly amount: number;
+}
+
 export class ConsumableSystem {
   /** Heals queued this tick, drained (FIFO) during {@link processConsumablePhase}. */
   private pending: PendingHeal[] = [];
@@ -80,6 +87,8 @@ export class ConsumableSystem {
   private pendingRestores: PendingRestore[] = [];
   /** Status removals queued this tick, drained (FIFO) during {@link processConsumablePhase}. */
   private pendingRemoveStatus: PendingRemoveStatus[] = [];
+  /** Prayer restores queued this tick, drained (FIFO) during {@link processConsumablePhase}. */
+  private pendingPrayerRestores: PendingPrayerRestore[] = [];
 
   /**
    * Queue a heal of `heal` hitpoints for `entityId`, to be applied during this tick's
@@ -121,6 +130,13 @@ export class ConsumableSystem {
     this.pendingRemoveStatus.push({ entityId, statusEffectId });
   }
 
+  /** Queue a prayer-point restore of `amount` for `entityId`. */
+  enqueuePrayerRestore(entityId: EntityId, amount: number): void {
+    if (amount > 0) {
+      this.pendingPrayerRestores.push({ entityId, amount });
+    }
+  }
+
   /** Whether any heals are queued (for tests/diagnostics). */
   get pendingCount(): number {
     return this.pending.length;
@@ -149,6 +165,11 @@ export class ConsumableSystem {
   /** Whether any status removals are queued (for tests/diagnostics). */
   get pendingRemoveStatusCount(): number {
     return this.pendingRemoveStatus.length;
+  }
+
+  /** Whether any prayer restores are queued (for tests/diagnostics). */
+  get pendingPrayerRestoreCount(): number {
+    return this.pendingPrayerRestores.length;
   }
 
   /**
@@ -192,6 +213,12 @@ export class ConsumableSystem {
     this.pendingRemoveStatus = [];
     for (const { entityId, statusEffectId } of removals) {
       cureStatusEffect(ctx, entityId, statusEffectId);
+    }
+
+    const prayerRestores = this.pendingPrayerRestores;
+    this.pendingPrayerRestores = [];
+    for (const { entityId, amount } of prayerRestores) {
+      restorePrayerPoints(ctx, entityId, amount);
     }
   }
 }

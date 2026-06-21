@@ -22,6 +22,9 @@ export default defineConfig({
   test: {
     globals: false,
     environment: "jsdom",
+    environmentOptions: {
+      jsdom: { url: "http://localhost/" },
+    },
     include: ["{apps,packages,tools}/**/src/**/*.{test,spec}.ts"],
     setupFiles: ["./vitest.setup.ts"],
     coverage: {

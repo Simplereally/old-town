@@ -83,7 +83,9 @@
       "attackRangeTiles": 6,
       "allowedStyles": ["ranged"],
       "bonuses": { "rangedAttack": 3, "rangedStrength": 2 },
-      "requirements": []
+      "requirements": [],
+      "projectileId": "projectile_lathwood_arrow",
+      "hitDelayTicks": 2
     }
   },
   {

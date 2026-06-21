@@ -13,6 +13,7 @@ export function makeRegistries(overrides: Partial<ContentRegistries> = {}): Cont
     item: new Map(),
     npc: new Map(),
     object: new Map(),
+    prayer: new Map(),
     processingRecipe: new Map(),
     skill: new Map(),
     resourceNode: new Map(),

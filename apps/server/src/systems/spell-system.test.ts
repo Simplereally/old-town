@@ -360,8 +360,8 @@ describe("SpellSystem", () => {
       healthBar: { current: 8, max: 10 },
     });
     expect(deltas.peek().skillDelta).toEqual([
-      { skillId: "hitpoints", level: 1, xp: 2, effectiveLevel: 1 },
-      { skillId: "magic", level: 1, xp: 13.5, effectiveLevel: 1 },
+      { skillId: "hitpoints", level: 1, xp: 2.66, effectiveLevel: 1 },
+      { skillId: "magic", level: 1, xp: 9.5, effectiveLevel: 1 },
     ]);
   });
 

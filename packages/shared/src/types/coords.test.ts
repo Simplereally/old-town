@@ -65,8 +65,18 @@ describe("chunkToRegion", () => {
     expect(chunkToRegion({ cx: 8, cy: 16, plane: 2 })).toEqual({ rx: 1, ry: 2, plane: 2 });
   });
 
+  it("floors negative chunk coordinates toward -infinity", () => {
+    expect(chunkToRegion({ cx: -1, cy: -1, plane: 0 })).toEqual({ rx: -1, ry: -1, plane: 0 });
+    expect(chunkToRegion({ cx: -9, cy: -8, plane: 1 })).toEqual({ rx: -2, ry: -1, plane: 1 });
+  });
+
   it("is consistent with tileToRegion via tileToChunk", () => {
     const tile: TileCoord = { x: 130, y: 200, plane: 1 };
+    expect(chunkToRegion(tileToChunk(tile))).toEqual(tileToRegion(tile));
+  });
+
+  it("is consistent with tileToRegion for negative tiles", () => {
+    const tile: TileCoord = { x: -130, y: -200, plane: 2 };
     expect(chunkToRegion(tileToChunk(tile))).toEqual(tileToRegion(tile));
   });
 });
@@ -107,8 +117,23 @@ describe("packed tile keys (optional fast path)", () => {
     }
   });
 
+  it("produces distinct packed values for tiles differing only by plane", () => {
+    const packedByPlane = [0, 1, 2, 3].map((plane) =>
+      packTile({ x: 100, y: 200, plane: plane as 0 | 1 | 2 | 3 }),
+    );
+    expect(new Set(packedByPlane).size).toBe(4);
+  });
+
+  it("produces distinct packed values for tiles differing only by x or y", () => {
+    const a = packTile({ x: 1, y: 2, plane: 0 });
+    const b = packTile({ x: 2, y: 1, plane: 0 });
+    expect(a).not.toBe(b);
+  });
+
   it("rejects coordinates outside the packable range", () => {
     expect(() => packTile({ x: -1, y: 0, plane: 0 })).toThrow(RangeError);
     expect(() => packTile({ x: PACKED_TILE_AXIS_MAX + 1, y: 0, plane: 0 })).toThrow(RangeError);
+    expect(() => packTile({ x: 0, y: -1, plane: 0 })).toThrow(RangeError);
+    expect(() => packTile({ x: 0, y: PACKED_TILE_AXIS_MAX + 1, plane: 0 })).toThrow(RangeError);
   });
 });

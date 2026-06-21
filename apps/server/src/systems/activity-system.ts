@@ -29,7 +29,7 @@ import {
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import { addXp, getCurrentLevel } from "../skills/skill-state";
 import type { CollisionMap } from "../world/collision";
-import { handleMoveIntent } from "./movement-system";
+import { approach } from "./approach";
 
 export interface ActivityContext {
   readonly world: World;
@@ -284,28 +284,6 @@ function enqueueActivity(
   });
 }
 
-function _enqueueBeginActivity(
-  ctx: ActivityContext,
-  owner: EntityId,
-  activityDef: ActivityDef,
-  objectEntityId: EntityId,
-): void {
-  const payload: BeginActivityPayload = {
-    kind: "begin_activity",
-    activityId: activityDef.id,
-    objectEntityId,
-  };
-  ctx.actionQueue.enqueue({
-    id: `begin-activity:${activityDef.id}:${owner}`,
-    owner,
-    type: ActionQueueType.Weak,
-    delayTicks: 1,
-    repeat: { intervalTicks: 1 },
-    interruptGroup: InterruptGroup.Skilling,
-    payload,
-  });
-}
-
 export function handleActivityIntent(
   ctx: ActivityContext,
   owner: EntityId,
@@ -332,16 +310,19 @@ export function handleActivityIntent(
     return true;
   }
 
-  const actorTile = tileOf(ctx.world, owner);
   const objectTile = tileOf(ctx.world, objectEntityId);
-  if (!actorTile || !objectTile) {
+  if (!objectTile) {
     return false;
   }
 
-  if (chebyshev(actorTile, objectTile) > 1) {
-    handleMoveIntent({ world: ctx.world, collision: ctx.collision, deltas: ctx.deltas }, owner, {
-      dest: objectTile,
-    });
+  const reach = approach(
+    { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, actionQueue: ctx.actionQueue },
+    owner,
+    objectTile,
+    () => ({ kind: "begin_activity", activityId: activityDef.id, objectEntityId }),
+    tick,
+  );
+  if (reach === "approaching") {
     return true;
   }
 

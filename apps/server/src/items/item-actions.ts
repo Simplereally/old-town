@@ -232,6 +232,9 @@ export function handleItemIntent(
     if (def.consumable.effectType === "remove_status" && def.consumable.statusEffectId) {
       ctx.consumables.enqueueRemoveStatus(owner, def.consumable.statusEffectId);
     }
+    if (def.consumable.effectType === "restore_prayer") {
+      ctx.consumables.enqueuePrayerRestore(owner, def.consumable.effectValue ?? 0);
+    }
     combatant.eatBlockedUntilTick = tick + def.consumable.consumeTicks;
     ctx.itemAudit?.recordForEntity(owner, {
       tick,

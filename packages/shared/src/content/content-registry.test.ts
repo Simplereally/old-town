@@ -125,3 +125,46 @@ describe("validateContent — schema failures", () => {
     expect(result.ok).toBe(true);
   });
 });
+
+describe("validateContent — region map indexing", () => {
+  it("indexes region maps by `rx:ry:plane` and reports ok for a valid map", () => {
+    const result = validateContent([
+      file("material", "materials/ground.json", [grass]),
+      file("regionMap", "maps/seed.json", [
+        {
+          region: { rx: 0, ry: 0, plane: 0 },
+          tiles: { default: { underlayId: "grass" } },
+        },
+      ]),
+    ]);
+    expect(result.ok).toBe(true);
+    expect(result.registries.regionMap.has("0:0:0")).toBe(true);
+  });
+
+  it("reports undefined id for a region map with a malformed region coordinate", () => {
+    const result = validateContent([
+      file("regionMap", "maps/bad.json", [
+        {
+          region: { rx: "oops", ry: 0, plane: 0 },
+          tiles: { default: { underlayId: "grass" } },
+        },
+      ]),
+    ]);
+    expect(result.ok).toBe(false);
+    const issue = result.issues.find((i) => i.path === "maps/bad.json");
+    expect(issue?.id).toBeUndefined();
+  });
+});
+
+describe("validateContent — unknown kind", () => {
+  it("skips files whose kind has no registered schema map", () => {
+    // The registry builder initialises maps for every ContentKind, so an unknown
+    // kind hits the `if (!registry) continue` guard. Cast to satisfy the typed
+    // LoadedContentFile interface; this mirrors defensive runtime behaviour.
+    const result = validateContent([
+      file("unknown_kind" as LoadedContentFile["kind"], "x.json", [{ id: "x" }]),
+    ]);
+    expect(result.ok).toBe(true);
+    expect(result.issues).toEqual([]);
+  });
+});

@@ -15,6 +15,12 @@ export const contentIdSchema = z
 /** A non-negative integer. */
 export const nonNegInt = z.number().int().nonnegative();
 
+/** A non-negative finite number (may be fractional). Used for cumulative XP,
+ *  which OSRS accumulates as a float (e.g. 1.33 XP/damage → 3.99 for a 3-damage
+ *  hit) and the DB stores as `numeric(20, 4)`. The derived `level` is always an
+ *  integer via `levelForXp`, but the raw `xp` counter is not. */
+export const nonNegNumber = z.number().finite().nonnegative();
+
 /** A positive integer (>= 1). */
 export const positiveInt = z.number().int().positive();
 
@@ -58,6 +64,25 @@ export const combatStyleSchema = z.enum(["stab", "slash", "crush", "ranged", "ma
 /** A melee/ranged/magic attack style. Determines the attack/defence bonus used and,
  *  via the style→skill map, which combat skill receives XP. */
 export type CombatStyle = z.infer<typeof combatStyleSchema>;
+
+/**
+ * Combat style mode (POC_SPEC §13.5.2). Determines how combat XP is distributed
+ * across skills for a given hit style. OSRS wiki (Combat §Experience gain):
+ *  - `accurate`: full XP to the style's primary skill (melee Attack / Ranged / Magic).
+ *  - `aggressive`: full XP to Strength (melee only).
+ *  - `defensive`: full XP to Defence (melee only).
+ *  - `controlled`: split 1.33 each to Attack, Strength, Defence (shared melee weapons).
+ *  - `longrange`: split 2 Ranged + 2 Defence (ranged), or 1.33 Magic + 1 Defence (magic).
+ */
+export const combatStyleModeSchema = z.enum([
+  "accurate",
+  "aggressive",
+  "defensive",
+  "controlled",
+  "longrange",
+]);
+
+export type CombatStyleMode = z.infer<typeof combatStyleModeSchema>;
 
 /** Combat class an item belongs to (`docs/*-tiers.md`). */
 export const combatClassSchema = z.enum(["melee", "ranged", "magic"]);

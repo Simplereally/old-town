@@ -9,6 +9,7 @@ export const CONTENT_DIR_KINDS: Readonly<Record<string, ContentKind>> = {
   items: "item",
   npcs: "npc",
   objects: "object",
+  prayers: "prayer",
   "processing-recipes": "processingRecipe",
   skills: "skill",
   "resource-nodes": "resourceNode",

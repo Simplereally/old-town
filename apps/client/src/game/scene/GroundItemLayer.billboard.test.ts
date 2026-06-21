@@ -29,9 +29,17 @@ describe("GroundItemLayer billboard (E41-S09)", () => {
     layer.setIconResolver(resolver);
     layer.spawn(ID1, TILE, "coin", 1, "icon_coin");
     expect(layer.itemCount).toBe(1);
-    // Sprites are not raycast targets (only Mesh instances are)
+    // Sprites are raycast targets alongside Meshes so icon-billboard ground
+    // items remain clickable (EntityPicker accepts Object3D).
     const targets = layer.getRaycastTargets();
-    expect(targets).toHaveLength(0);
+    expect(targets).toHaveLength(1);
+    // The sprite must carry the same userData shape EntityPicker reads.
+    expect(targets[0]?.userData).toMatchObject({
+      entityId: 1,
+      kind: "groundItem",
+      itemId: "coin",
+      quantity: 1,
+    });
   });
 
   it("falls back to gem when icon resolver returns null", () => {

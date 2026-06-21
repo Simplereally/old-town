@@ -1037,14 +1037,16 @@ export class ActorRenderer {
       const meshes = this.meshes.get(actor.entityId);
       if (!presentation || !meshes) continue;
 
+      const renderOffset = actor.renderOffset;
       actor.visualPosition.set(
-        presentation.renderX + actor.renderOffset,
+        presentation.renderX + renderOffset,
         presentation.renderY,
-        presentation.renderZ + actor.renderOffset,
+        presentation.renderZ + renderOffset,
       );
-      meshes.group.position.copy(actor.visualPosition);
-      meshes.group.position.y += GROUND_OFFSET;
-      meshes.group.rotation.y = this._directionToRotation(presentation.heading as Direction);
+      const group = meshes.group;
+      group.position.copy(actor.visualPosition);
+      group.position.y += GROUND_OFFSET;
+      group.rotation.y = this._directionToRotation(presentation.heading as Direction);
 
       // Drive the locomotion pose from the movement presentation kind. This is
       // continuous and recomputed every frame, but it must not clobber a live
@@ -1071,15 +1073,17 @@ export class ActorRenderer {
       // Apply quantized CPU-side animation pose
       this._sampleAnimation(actor, meshes, nowMs);
 
-      if (meshes.healthBar) {
+      const healthBar = meshes.healthBar;
+      if (healthBar) {
         const elapsed = currentTick - actor.lastHitTick;
-        meshes.healthBar.group.visible = elapsed <= HP_BAR_LIFETIME_TICKS && !!actor.healthBar;
+        healthBar.group.visible = elapsed <= HP_BAR_LIFETIME_TICKS && !!actor.healthBar;
       }
 
       // Update appearance metadata if cache provides it
-      if (presentation.appearance) {
-        if (presentation.appearance.name) {
-          actor.name = presentation.appearance.name;
+      const appearance = presentation.appearance;
+      if (appearance) {
+        if (appearance.name) {
+          actor.name = appearance.name;
         }
       }
     }
@@ -1270,10 +1274,21 @@ export class ActorRenderer {
   }
 
   private _acquireMeshes(state: ActorState, spec: CreatureSpec): ActorMeshes {
-    if (spec.archetype === "humanoid") {
-      return this._acquireHumanoidMeshes(state);
-    }
-    return this._acquireCreatureMeshes(state, spec);
+    const meshes =
+      spec.archetype === "humanoid"
+        ? this._acquireHumanoidMeshes(state)
+        : this._acquireCreatureMeshes(state, spec);
+    // Tag the body mesh for entity picking. Both archetypes (humanoid and
+    // creature) need entityId, kind, and defId so EntityPicker can resolve the
+    // NPC's content definition (name, combat level, attack option) for the
+    // right-click "Choose Option" menu. Creatures previously had no userData,
+    // so they were unpickable and only showed "Walk here".
+    meshes.body.userData = {
+      entityId: state.entityId,
+      kind: state.kind,
+      defId: state.defId,
+    };
+    return meshes;
   }
 
   private _releaseMeshes(meshes: ActorMeshes): void {
@@ -1339,7 +1354,6 @@ export class ActorRenderer {
       if (part) part.material = tunicMaterial;
     }
 
-    meshes.body.userData = { entityId: state.entityId, kind, defId: state.defId };
     if (meshes.marker) {
       meshes.marker.visible = isLocalPlayer;
     }

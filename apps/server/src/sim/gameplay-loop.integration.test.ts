@@ -461,10 +461,10 @@ describe("gameplay loop integration", () => {
     processDamageResolutionEvents(harness.ctx, 2);
     processDeathResolution(harness.ctx, 2, 1_200);
 
-    // Unarmed melee defaults to the crush style, which trains defence (+4/dmg) and hitpoints (+1/dmg).
+    // Unarmed melee defaults to the crush style, which trains defence (+4/dmg) and hitpoints (+1.33/dmg).
     expect(harness.world.getComponent(man, "combatant")?.dead).toBe(true);
     expect(skillXp(harness, player, "defence")).toBe(4);
-    expect(skillXp(harness, player, "hitpoints")).toBe(1);
+    expect(skillXp(harness, player, "hitpoints")).toBe(1.33);
 
     // man_drops always yields coins, privately owned by the killer.
     const coinDrop = harness.world

@@ -1,5 +1,6 @@
 import type { ContextMenuOption } from "../input/InputInterpreter";
 import type { PickedEntity } from "../picking/EntityPicker";
+import { GlobalKeydownBus } from "./GlobalKeydownBus";
 
 export interface ContextMenuCallbacks {
   /**
@@ -65,20 +66,21 @@ export class ContextMenu {
     this._menuElement.style.left = `${screenX}px`;
     this._menuElement.style.top = `${screenY}px`;
 
-    const title = document.createElement("div");
-    title.className = "context-menu-title";
-    title.textContent = "Choose Option";
-    this._menuElement.appendChild(title);
+    // OSRS "Choose Option" header bar atop every right-click menu.
+    const header = document.createElement("div");
+    header.className = "context-menu-header";
+    header.textContent = "Choose Option";
+    this._menuElement.appendChild(header);
 
     for (const option of options) {
       const item = document.createElement("div");
       item.className = "context-menu-item";
       if (option.parts && option.parts.length > 0) {
+        // Render each segment as its own span so names/levels can be colored.
         for (const part of option.parts) {
           const span = document.createElement("span");
           span.textContent = part.text;
           if (part.color) span.style.color = part.color;
-          if (part.className) span.className = part.className;
           item.appendChild(span);
         }
       } else {
@@ -92,15 +94,15 @@ export class ContextMenu {
       this._menuElement.appendChild(item);
     }
 
-    const cancel = document.createElement("div");
-    cancel.className = "context-menu-item";
-    cancel.textContent = "Cancel";
-    cancel.style.color = "#ffffff";
-    cancel.addEventListener("click", (e) => {
+    // OSRS "Choose Option" always ends with a Cancel row that dismisses the menu.
+    const cancelItem = document.createElement("div");
+    cancelItem.className = "context-menu-item context-menu-cancel";
+    cancelItem.textContent = "Cancel";
+    cancelItem.addEventListener("click", (e) => {
       e.stopPropagation();
       this.hide();
     });
-    this._menuElement.appendChild(cancel);
+    this._menuElement.appendChild(cancelItem);
 
     this.container.appendChild(this._menuElement);
     this._visible = true;
@@ -120,7 +122,7 @@ export class ContextMenu {
         document.addEventListener("click", this._clickOutsideListener);
       }
       if (this._visible && this._keydownListener) {
-        document.addEventListener("keydown", this._keydownListener);
+        GlobalKeydownBus.register("context-menu", this._keydownListener);
       }
     }, 0);
   }
@@ -139,7 +141,7 @@ export class ContextMenu {
       this._clickOutsideListener = undefined;
     }
     if (this._keydownListener) {
-      document.removeEventListener("keydown", this._keydownListener);
+      GlobalKeydownBus.unregister("context-menu");
       this._keydownListener = undefined;
     }
   }

@@ -1,5 +1,4 @@
-import type { OrthographicCamera } from "three";
-import { Mesh, Raycaster, Vector2 } from "three";
+import { type Object3D, type OrthographicCamera, Raycaster, Vector2 } from "three";
 
 export interface EntityPickerOptions {
   readonly camera: OrthographicCamera;
@@ -31,19 +30,19 @@ export class EntityPicker {
   }
 
   /**
-   * Raycast against a list of meshes and return the closest picked entity.
+   * Raycast against a list of objects and return the closest picked entity.
+   * Accepts both Meshes (actors, objects, fallback gem ground items) and
+   * Sprites (icon-billboard ground items) — both carry the same userData shape.
    */
-  pick(screenX: number, screenY: number, meshes: Mesh[]): PickedEntity | null {
+  pick(screenX: number, screenY: number, targets: Object3D[]): PickedEntity | null {
     const ndc = this._screenToNDC(screenX, screenY);
     this.raycaster.setFromCamera(ndc, this.camera);
-    const intersects = this.raycaster.intersectObjects(meshes, false);
+    const intersects = this.raycaster.intersectObjects(targets, false);
     if (intersects.length === 0) return null;
 
     const closest = intersects[0];
     if (!closest) return null;
-    if (!(closest.object instanceof Mesh)) return null;
-    const mesh = closest.object;
-    const userData = mesh.userData;
+    const userData = closest.object.userData as Record<string, unknown>;
 
     const VALID_KINDS = new Set<string>(["player", "npc", "object", "groundItem"]);
 
@@ -54,7 +53,8 @@ export class EntityPicker {
     let quantity: number | undefined;
 
     if (closest.instanceId !== undefined && userData?.instanceMap) {
-      const meta = userData.instanceMap[closest.instanceId];
+      const instanceMap = userData.instanceMap as Record<number, { entityId: number; defId?: string }>;
+      const meta = instanceMap[closest.instanceId];
       if (meta) {
         entityId = meta.entityId;
         const rawKind = userData.kind;
@@ -69,9 +69,12 @@ export class EntityPicker {
       kind = typeof rawKind === "string" && VALID_KINDS.has(rawKind)
         ? (rawKind as PickedEntity["kind"])
         : undefined;
-      defId = userData.defId;
-      itemId = userData.itemId;
-      quantity = userData.quantity;
+      const rawDefId = userData.defId;
+      defId = typeof rawDefId === "string" ? rawDefId : undefined;
+      const rawItemId = userData.itemId;
+      itemId = typeof rawItemId === "string" ? rawItemId : undefined;
+      const rawQuantity = userData.quantity;
+      quantity = typeof rawQuantity === "number" ? rawQuantity : undefined;
     }
 
     if (entityId === undefined || kind === undefined) return null;

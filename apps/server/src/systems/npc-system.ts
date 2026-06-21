@@ -149,11 +149,22 @@ function nearestAggroTarget(
   ctx: NpcSystemContext,
   origin: TileCoord,
   radius: number,
+  npcCombatLevel: number | undefined,
 ): EntityId | undefined {
   let best: { entityId: EntityId; distance: number } | undefined;
   for (const playerId of ctx.world.entityIdsWith("player")) {
     if (isDeadTarget(ctx, playerId)) {
       continue;
+    }
+    // OSRS unaggressive rule: an NPC will not auto-attack a player whose combat
+    // level is more than double its own. When the NPC has no combat level we
+    // leave the gate open (default to aggressive) so content without levels is
+    // unaffected.
+    if (npcCombatLevel !== undefined) {
+      const playerCombat = ctx.world.getComponent(playerId, "combatant")?.combatLevel;
+      if (playerCombat !== undefined && playerCombat > npcCombatLevel * 2) {
+        continue;
+      }
     }
     const position = ctx.world.getComponent(playerId, "position");
     if (!position) {
@@ -286,7 +297,6 @@ function maybeWander(
   if (radius <= 0 || (ctx.world.getComponent(entityId, "movement")?.path.length ?? 0) > 0) {
     return;
   }
-
   // OSRS: the probability check only runs when no movement is pending; a roll of
   // 10 in 1000 (1%) gates whether a wander destination is selected this tick.
   if (!ctx.rng.chanceOneIn(WANDER_ROLL_CHANCE_ONE_IN)) {
@@ -351,7 +361,8 @@ export function processNpcAiPhase(ctx: NpcSystemContext, tick: number): void {
     }
 
     const aggroRadius = def.aggressiveRadius ?? 0;
-    const aggroTarget = aggroRadius > 0 ? nearestAggroTarget(ctx, tile, aggroRadius) : undefined;
+    const aggroTarget =
+      aggroRadius > 0 ? nearestAggroTarget(ctx, tile, aggroRadius, def.combatLevel) : undefined;
     if (aggroTarget !== undefined && combatant) {
       ctx.world.setComponent(entityId, "combatant", { ...combatant, targetId: aggroTarget });
       const targetPosition = ctx.world.getComponent(aggroTarget, "position");

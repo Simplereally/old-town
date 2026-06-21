@@ -5,10 +5,12 @@ import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { computeCombatLevel } from "./combat-level";
 import {
   addXp,
+  boostSkill,
   getBaseLevel,
   getCurrentLevel,
   maxHealthForHitpointsLevel,
   restoreSkill,
+  syncCombatantLevelsFromSkills,
 } from "./skill-state";
 
 function skill(skills: SkillsComponent, id: string) {
@@ -111,6 +113,28 @@ describe("addXp", () => {
       { skillId: "woodcutting", level: 2, xp: 100, effectiveLevel: 2 },
     ]);
     expect(dirty.xpDrops).toEqual([{ skillId: "woodcutting", amount: 100 }]);
+  });
+
+  it("accumulates fractional XP amounts (OSRS hitpoints XP is 1.33/damage)", () => {
+    const { world, owner, deltas, skills } = setupSkills();
+    // Simulates hitpoints XP from a 3-damage hit at 1.33 per damage = 3.99.
+    const result = addXp({ world, deltas }, owner, "hitpoints", 3 * 1.33);
+
+    expect(result).toBeDefined();
+    if (result) {
+      expect(result.newXp).toBeCloseTo(3.99, 10);
+    }
+    expect(skill(skills, "hitpoints").xp).toBeCloseTo(3.99, 10);
+
+    const dirty = deltas.peek();
+    expect(dirty.xpDrops).toEqual([{ skillId: "hitpoints", amount: 3.99 }]);
+  });
+
+  it("accepts small fractional XP amounts", () => {
+    const { world, owner, deltas, skills } = setupSkills();
+    const result = addXp({ world, deltas }, owner, "hitpoints", 0.5);
+    expect(result).toBeDefined();
+    expect(skill(skills, "hitpoints").xp).toBe(0.5);
   });
 
   it("returns undefined for non-positive XP", () => {
@@ -242,6 +266,32 @@ describe("maxHealthForHitpointsLevel", () => {
 
   it("returns 990 for level 99", () => {
     expect(maxHealthForHitpointsLevel(99)).toBe(990);
+  });
+});
+
+describe("syncCombatantLevelsFromSkills", () => {
+  it("writes boosted skill levels onto the combatant component", () => {
+    const { world, owner, deltas, skills } = setupCombatant();
+    skill(skills, "attack").level = 5;
+    boostSkill({ world, deltas }, owner, "attack", 3);
+
+    expect(world.getComponent(owner, "combatant")?.attackLevel).toBe(8);
+  });
+
+  it("writes restored (de-drained) strength onto the combatant component", () => {
+    const { world, owner, deltas, skills } = setupCombatant();
+    skill(skills, "strength").level = 10;
+    skill(skills, "strength").drain = 4;
+    syncCombatantLevelsFromSkills(world, owner);
+    expect(world.getComponent(owner, "combatant")?.strengthLevel).toBe(6);
+
+    restoreSkill({ world, deltas }, owner, "strength", 4);
+    expect(world.getComponent(owner, "combatant")?.strengthLevel).toBe(10);
+  });
+
+  it("is a no-op when there is no combatant component", () => {
+    const { world, owner } = setupSkills();
+    expect(() => syncCombatantLevelsFromSkills(world, owner)).not.toThrow();
   });
 });
 

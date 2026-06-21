@@ -19,6 +19,18 @@ export default defineConfig({
   build: {
     outDir: resolve(__dirname, "dist"),
     sourcemap: true,
+    rollupOptions: {
+      // The @old-town/shared alias points at source files, bypassing the
+      // package.json `sideEffects: false` field. Tell Rollup explicitly so
+      // unused Zod schemas and content validators are tree-shaken from the
+      // client bundle.
+      treeshake: {
+        moduleSideEffects: (id) => {
+          if (id.includes("/packages/shared/src/")) return false;
+          return undefined;
+        },
+      },
+    },
   },
   server: {
     port: 5174,

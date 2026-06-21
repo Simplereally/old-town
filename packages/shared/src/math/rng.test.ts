@@ -62,4 +62,41 @@ describe("createRng (deterministic)", () => {
     const b = createRng(555);
     expect(a.chanceOneIn(20)).toBe(b.chanceOneIn(20));
   });
+
+  it("throws when chanceOneIn is given a value less than 1", () => {
+    const rng = createRng(3);
+    expect(() => rng.chanceOneIn(0)).toThrow(RangeError);
+    expect(() => rng.chanceOneIn(-5)).toThrow(RangeError);
+  });
+
+  it("truncates a non-integer chance toward zero (chanceOneIn(5.9) behaves like 5)", () => {
+    const a = createRng(100);
+    const b = createRng(100);
+    expect(a.chanceOneIn(5.9)).toBe(b.chanceOneIn(5));
+  });
+
+  it("chanceOneIn(N) only ever returns true or false (boolean)", () => {
+    const rng = createRng(7);
+    for (let i = 0; i < 100; i++) {
+      expect(typeof rng.chanceOneIn(10)).toBe("boolean");
+    }
+  });
+
+  it("nextInt accepts a negative min within an inclusive range", () => {
+    const rng = createRng(11);
+    for (let i = 0; i < 500; i++) {
+      const value = rng.nextInt(-3, 3);
+      expect(value).toBeGreaterThanOrEqual(-3);
+      expect(value).toBeLessThanOrEqual(3);
+      expect(Number.isInteger(value)).toBe(true);
+    }
+  });
+
+  it("nextInt is deterministic for the same seed across a mixed range", () => {
+    const a = createRng(2024);
+    const b = createRng(2024);
+    const seqA = Array.from({ length: 10 }, () => a.nextInt(-5, 5));
+    const seqB = Array.from({ length: 10 }, () => b.nextInt(-5, 5));
+    expect(seqA).toEqual(seqB);
+  });
 });

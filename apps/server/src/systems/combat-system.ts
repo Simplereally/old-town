@@ -1,5 +1,6 @@
 import {
   type CombatBonuses,
+  type CombatStyleMode,
   type ContentRegistries,
   type EntityId,
   GAME_TICK_MS,
@@ -26,6 +27,12 @@ import {
 } from "./interaction-reach";
 import { handleMoveIntent } from "./movement-system";
 import { npcFootprint } from "./npc-system";
+import {
+  applyPrayerProtection,
+  hitStyleToProtectionStyle,
+  prayerBoostedLevel,
+  type PrayerSystemContext,
+} from "./prayer-system";
 
 export interface CombatSystemContext {
   readonly world: World;
@@ -61,8 +68,15 @@ export const DEFAULT_UNARMED_SPEED_TICKS = 4;
 export const DEFAULT_MELEE_RANGE_TILES = 1;
 export const MELEE_HIT_DELAY_TICKS = 1;
 export const MELEE_ATTACK_ANIMATION_ID = "melee_attack";
+export const RANGED_ATTACK_ANIMATION_ID = "ranged_attack";
+export const DEFAULT_RANGED_HIT_DELAY_TICKS = 2;
 const COMBAT_XP_PER_DAMAGE = 4;
-const HITPOINTS_XP_PER_DAMAGE = 1;
+const MAGIC_XP_PER_DAMAGE = 2;
+const HITPOINTS_XP_PER_DAMAGE = 1.33;
+
+function prayerContext(ctx: CombatSystemContext): PrayerSystemContext {
+  return { world: ctx.world, deltas: ctx.deltas, registries: ctx.registries };
+}
 
 function positionTile(position: {
   readonly x: number;
@@ -341,12 +355,31 @@ function meleeWeapon(ctx: CombatSystemContext, entityId: EntityId): ItemDef | un
   return item && hasMeleeStyle(item) ? item : undefined;
 }
 
+function hasRangedStyle(item: ItemDef): boolean {
+  return item.equipment?.allowedStyles?.some((style) => style === "ranged") === true;
+}
+
+function rangedWeapon(ctx: CombatSystemContext, entityId: EntityId): ItemDef | undefined {
+  const item = equippedWeapon(ctx, entityId);
+  return item && hasRangedStyle(item) ? item : undefined;
+}
+
+/** Whether the entity's equipped weapon (or npc def) fights at range. */
+function isRangedAttacker(ctx: CombatSystemContext, entityId: EntityId): boolean {
+  if (rangedWeapon(ctx, entityId)) {
+    return true;
+  }
+  const def = npcDef(ctx, entityId);
+  return def?.attackRangeTiles !== undefined && def.attackRangeTiles > 1;
+}
+
 export function attackSpeedTicks(ctx: CombatSystemContext, entityId: EntityId): number {
   const defSpeed = npcDef(ctx, entityId)?.attackSpeedTicks;
   if (defSpeed !== undefined) {
     return defSpeed;
   }
-  return meleeWeapon(ctx, entityId)?.equipment?.attackSpeedTicks ?? DEFAULT_UNARMED_SPEED_TICKS;
+  const weapon = meleeWeapon(ctx, entityId) ?? rangedWeapon(ctx, entityId);
+  return weapon?.equipment?.attackSpeedTicks ?? DEFAULT_UNARMED_SPEED_TICKS;
 }
 
 function attackRangeTiles(ctx: CombatSystemContext, entityId: EntityId): number {
@@ -354,7 +387,8 @@ function attackRangeTiles(ctx: CombatSystemContext, entityId: EntityId): number 
   if (defRange !== undefined) {
     return defRange;
   }
-  return meleeWeapon(ctx, entityId)?.equipment?.attackRangeTiles ?? DEFAULT_MELEE_RANGE_TILES;
+  const weapon = meleeWeapon(ctx, entityId) ?? rangedWeapon(ctx, entityId);
+  return weapon?.equipment?.attackRangeTiles ?? DEFAULT_MELEE_RANGE_TILES;
 }
 
 /**
@@ -414,19 +448,81 @@ function defenceBonusField(style: CombatHitStyle): keyof CombatBonuses {
   }
 }
 
-function styleSkill(style: CombatHitStyle): string {
+/**
+ * Default combat style mode when the player hasn't chosen one (POC_SPEC §13.5.2).
+ * Matches OSRS wiki defaults: stab→accurate (Attack), slash→aggressive (Strength),
+ * crush→defensive (Defence), ranged/magic→accurate.
+ */
+function defaultStyleMode(style: CombatHitStyle): CombatStyleMode {
   switch (style) {
-    case "stab":
-      return "attack";
     case "slash":
-      return "strength";
+      return "aggressive";
     case "crush":
-      return "defence";
-    case "ranged":
-      return "ranged";
-    case "magic":
-      return "magic";
+      return "defensive";
+    default:
+      return "accurate";
   }
+}
+
+/**
+ * Resolve the effective style mode for an attacker: honour the player's chosen
+ * `combatStyleMode` when the weapon allows it, otherwise fall back to the style's
+ * default mode.
+ */
+function resolveStyleMode(
+  ctx: CombatSystemContext,
+  entityId: EntityId,
+  style: CombatHitStyle,
+): CombatStyleMode {
+  const chosen = ctx.world.getComponent(entityId, "combatant")?.combatStyleMode;
+  if (chosen) {
+    return chosen;
+  }
+  return defaultStyleMode(style);
+}
+
+/**
+ * XP award targets for a hit, derived from the style + mode (POC_SPEC §13.5.2).
+ * Each entry is `{ skill, xpPerDamage }`.
+ */
+function styleXpTargets(
+  style: CombatHitStyle,
+  mode: CombatStyleMode,
+): readonly { readonly skill: string; readonly xpPerDamage: number }[] {
+  const melee = style === "stab" || style === "slash" || style === "crush";
+  if (melee) {
+    switch (mode) {
+      case "aggressive":
+        return [{ skill: "strength", xpPerDamage: COMBAT_XP_PER_DAMAGE }];
+      case "defensive":
+        return [{ skill: "defence", xpPerDamage: COMBAT_XP_PER_DAMAGE }];
+      case "controlled":
+        return [
+          { skill: "attack", xpPerDamage: COMBAT_XP_PER_DAMAGE / 3 },
+          { skill: "strength", xpPerDamage: COMBAT_XP_PER_DAMAGE / 3 },
+          { skill: "defence", xpPerDamage: COMBAT_XP_PER_DAMAGE / 3 },
+        ];
+      default:
+        return [{ skill: "attack", xpPerDamage: COMBAT_XP_PER_DAMAGE }];
+    }
+  }
+  if (style === "ranged") {
+    if (mode === "longrange") {
+      return [
+        { skill: "ranged", xpPerDamage: COMBAT_XP_PER_DAMAGE / 2 },
+        { skill: "defence", xpPerDamage: COMBAT_XP_PER_DAMAGE / 2 },
+      ];
+    }
+    return [{ skill: "ranged", xpPerDamage: COMBAT_XP_PER_DAMAGE }];
+  }
+  // magic defensive casting: 1.33 Magic + 1.0 Defence per damage (OSRS Wiki – Combat).
+  if (mode === "longrange") {
+    return [
+      { skill: "magic", xpPerDamage: HITPOINTS_XP_PER_DAMAGE },
+      { skill: "defence", xpPerDamage: 1 },
+    ];
+  }
+  return [{ skill: "magic", xpPerDamage: MAGIC_XP_PER_DAMAGE }];
 }
 
 function effectiveLevel(level: number): number {
@@ -484,17 +580,18 @@ export function rollMeleeHit(
   }
 
   const style = meleeStyle(ctx, attackerId);
+  const pctx = prayerContext(ctx);
   const attackRoll = computeAttackRoll(
-    attacker.attackLevel,
+    prayerBoostedLevel(pctx, attackerId, "attack", attacker.attackLevel),
     bonus(ctx, attackerId, attackBonusField(style)),
   );
   const defenceRoll = computeDefenceRoll(
-    target.defenceLevel,
+    prayerBoostedLevel(pctx, targetId, "defence", target.defenceLevel),
     bonus(ctx, targetId, defenceBonusField(style)),
   );
   const hitChance = calculateHitChance(attackRoll, defenceRoll);
   const maxHit = computeMaxMeleeHit(
-    attacker.strengthLevel,
+    prayerBoostedLevel(pctx, attackerId, "strength", attacker.strengthLevel),
     bonus(ctx, attackerId, "meleeStrength"),
   );
   const hitLanded = ctx.rng.nextFloat() < hitChance;
@@ -515,6 +612,26 @@ function magicLevel(ctx: CombatSystemContext, entityId: EntityId): number {
   );
 }
 
+/**
+ * Effective defence level against magic attacks (POC_SPEC §13.4.1).
+ *
+ * Players use 70% Magic + 30% Defence (OSRS wiki, Combat §Player magic defence).
+ * Monsters use Magic level only — Defence does not contribute (OSRS wiki, Combat
+ * §Monster magic defence).
+ */
+export function effectiveMagicDefenceLevel(
+  ctx: CombatSystemContext,
+  targetId: EntityId,
+): number {
+  const targetSkills = ctx.world.getComponent(targetId, "skills");
+  if (targetSkills) {
+    const magic = getCurrentLevel(targetSkills, "magic");
+    const defence = getCurrentLevel(targetSkills, "defence");
+    return Math.floor(0.7 * magic + 0.3 * defence);
+  }
+  return magicLevel(ctx, targetId);
+}
+
 export function rollMagicHit(
   ctx: CombatAttackContext,
   casterId: EntityId,
@@ -527,16 +644,68 @@ export function rollMagicHit(
   }
 
   const style: CombatHitStyle = "magic";
+  const pctx = prayerContext(ctx);
   const attackRoll = computeAttackRoll(
-    magicLevel(ctx, casterId),
+    prayerBoostedLevel(pctx, casterId, "magic", magicLevel(ctx, casterId)),
     bonus(ctx, casterId, attackBonusField(style)),
   );
   const defenceRoll = computeDefenceRoll(
-    Math.max(target.defenceLevel, magicLevel(ctx, targetId)),
+    prayerBoostedLevel(pctx, targetId, "magic", effectiveMagicDefenceLevel(ctx, targetId)),
     bonus(ctx, targetId, defenceBonusField(style)),
   );
   const hitChance = calculateHitChance(attackRoll, defenceRoll);
   const maxHit = computeMaxMagicHit(spellMaxHit, bonus(ctx, casterId, "magicDamage"));
+  const hitLanded = ctx.rng.nextFloat() < hitChance;
+  const damage = hitLanded ? ctx.rng.nextInt(0, maxHit) : 0;
+
+  return { style, attackRoll, defenceRoll, hitChance, maxHit, damage, hitLanded };
+}
+
+function rangedLevel(ctx: CombatSystemContext, entityId: EntityId): number {
+  const skills = ctx.world.getComponent(entityId, "skills");
+  if (skills) {
+    return getCurrentLevel(skills, "ranged");
+  }
+  return (
+    npcDef(ctx, entityId)?.stats?.ranged ??
+    ctx.world.getComponent(entityId, "combatant")?.attackLevel ??
+    1
+  );
+}
+
+export function computeMaxRangedHit(rangedLevel: number, rangedStrengthBonus: number): number {
+  return Math.max(
+    0,
+    Math.floor(0.5 + (effectiveLevel(rangedLevel) * Math.max(0, rangedStrengthBonus + 64)) / 640),
+  );
+}
+
+export function rollRangedHit(
+  ctx: CombatAttackContext,
+  attackerId: EntityId,
+  targetId: EntityId,
+): MeleeHitRoll | undefined {
+  const attacker = ctx.world.getComponent(attackerId, "combatant");
+  const target = ctx.world.getComponent(targetId, "combatant");
+  if (!attacker || !target) {
+    return undefined;
+  }
+
+  const style: CombatHitStyle = "ranged";
+  const pctx = prayerContext(ctx);
+  const attackRoll = computeAttackRoll(
+    prayerBoostedLevel(pctx, attackerId, "ranged", rangedLevel(ctx, attackerId)),
+    bonus(ctx, attackerId, attackBonusField(style)),
+  );
+  const defenceRoll = computeDefenceRoll(
+    prayerBoostedLevel(pctx, targetId, "defence", target.defenceLevel),
+    bonus(ctx, targetId, defenceBonusField(style)),
+  );
+  const hitChance = calculateHitChance(attackRoll, defenceRoll);
+  const maxHit = computeMaxRangedHit(
+    prayerBoostedLevel(pctx, attackerId, "ranged", rangedLevel(ctx, attackerId)),
+    bonus(ctx, attackerId, "rangedStrength"),
+  );
   const hitLanded = ctx.rng.nextFloat() < hitChance;
   const damage = hitLanded ? ctx.rng.nextInt(0, maxHit) : 0;
 
@@ -569,10 +738,12 @@ function scheduleMeleeAttack(
   if (!attacker || !roll) {
     return;
   }
+  const styleMode = resolveStyleMode(ctx, attackerId, roll.style);
   appendPendingHit(ctx, targetId, {
     sourceId: attackerId,
     targetId,
     applyTick: tick + MELEE_HIT_DELAY_TICKS,
+    styleMode,
     ...roll,
   });
   ctx.world.setComponent(attackerId, "combatant", {
@@ -595,6 +766,62 @@ function scheduleMeleeAttack(
     ...(facingTile ? { facingTile } : {}),
     animation: { id: MELEE_ATTACK_ANIMATION_ID, startTick: tick },
   });
+}
+
+function rangedHitDelayTicks(ctx: CombatSystemContext, entityId: EntityId): number {
+  return rangedWeapon(ctx, entityId)?.equipment?.hitDelayTicks ?? DEFAULT_RANGED_HIT_DELAY_TICKS;
+}
+
+function rangedProjectileId(ctx: CombatSystemContext, entityId: EntityId): string | undefined {
+  return rangedWeapon(ctx, entityId)?.equipment?.projectileId;
+}
+
+function scheduleRangedAttack(
+  ctx: CombatAttackContext,
+  attackerId: EntityId,
+  targetId: EntityId,
+  tick: number,
+): void {
+  const attacker = ctx.world.getComponent(attackerId, "combatant");
+  const roll = rollRangedHit(ctx, attackerId, targetId);
+  if (!attacker || !roll) {
+    return;
+  }
+  const hitDelay = rangedHitDelayTicks(ctx, attackerId);
+  const applyTick = tick + hitDelay;
+  const styleMode = resolveStyleMode(ctx, attackerId, roll.style);
+  appendPendingHit(ctx, targetId, {
+    sourceId: attackerId,
+    targetId,
+    applyTick,
+    styleMode,
+    ...roll,
+  });
+  ctx.world.setComponent(attackerId, "combatant", {
+    ...attacker,
+    nextAttackTick: tick + attackSpeedTicks(ctx, attackerId),
+  });
+  ctx.deltas.markEntityUpdate(attackerId, {
+    facingEntity: targetId,
+    animation: { id: RANGED_ATTACK_ANIMATION_ID, startTick: tick },
+  });
+  const projectileId = rangedProjectileId(ctx, attackerId);
+  if (projectileId) {
+    const actorPosition = ctx.world.getComponent(attackerId, "position");
+    const targetPosition = ctx.world.getComponent(targetId, "position");
+    if (actorPosition && targetPosition) {
+      ctx.deltas.markProjectile({
+        id: `${tick}:${attackerId}:${projectileId}:${targetId}`,
+        projectileId,
+        sourceEntityId: attackerId,
+        targetEntityId: targetId,
+        startTile: positionTile(actorPosition),
+        endTile: positionTile(targetPosition),
+        startTick: tick,
+        hitTick: applyTick,
+      });
+    }
+  }
 }
 
 export function processCombatStartEvents(ctx: CombatAttackContext, tick: number): void {
@@ -641,7 +868,11 @@ export function processCombatStartEvents(ctx: CombatAttackContext, tick: number)
       continue;
     }
 
-    scheduleMeleeAttack(ctx, entityId, targetId, tick);
+    if (isRangedAttacker(ctx, entityId)) {
+      scheduleRangedAttack(ctx, entityId, targetId, tick);
+    } else {
+      scheduleMeleeAttack(ctx, entityId, targetId, tick);
+    }
   }
 }
 
@@ -662,6 +893,7 @@ function awardCombatXp(
   ctx: CombatSystemContext,
   sourceId: EntityId,
   style: CombatHitStyle,
+  styleMode: CombatStyleMode | undefined,
   damage: number,
   serverTime: number,
 ): void {
@@ -672,9 +904,13 @@ function awardCombatXp(
   if (!source || source.dead || source.health <= 0) {
     return;
   }
-  const styleResult = addXp(ctx, sourceId, styleSkill(style), damage * COMBAT_XP_PER_DAMAGE);
+  const mode = styleMode ?? defaultStyleMode(style);
+  const targets = styleXpTargets(style, mode);
+  for (const { skill, xpPerDamage } of targets) {
+    const result = addXp(ctx, sourceId, skill, damage * xpPerDamage);
+    announceCombatLevelUp(ctx.deltas, sourceId, result, serverTime);
+  }
   const hpResult = addXp(ctx, sourceId, "hitpoints", damage * HITPOINTS_XP_PER_DAMAGE);
-  announceCombatLevelUp(ctx.deltas, sourceId, styleResult, serverTime);
   announceCombatLevelUp(ctx.deltas, sourceId, hpResult, serverTime);
 }
 
@@ -689,7 +925,16 @@ function applyPendingHit(
     return combatant;
   }
 
-  const damage = Math.min(Math.max(0, hit.damage), combatant.health);
+  // Overhead protection prayers reduce incoming damage (POC_SPEC §13.8).
+  const attackerIsPlayer = ctx.world.hasComponent(hit.sourceId, "player");
+  const protectedDamage = applyPrayerProtection(
+    prayerContext(ctx),
+    targetId,
+    hitStyleToProtectionStyle(hit.style),
+    hit.damage,
+    attackerIsPlayer,
+  );
+  const damage = Math.min(Math.max(0, protectedDamage), combatant.health);
   const after = combatant.health - damage;
   const hitsplat = {
     amount: damage,
@@ -707,7 +952,7 @@ function applyPendingHit(
     ctx.deltas.markEntityUpdate(targetId, {
       healthBar: { current: after, max: combatant.maxHealth },
     });
-    awardCombatXp(ctx, hit.sourceId, hit.style, damage, serverTime);
+    awardCombatXp(ctx, hit.sourceId, hit.style, hit.styleMode, damage, serverTime);
   }
   if (after > 0) {
     assignAutoRetaliateTarget(ctx, targetId, hit.sourceId);

@@ -1,4 +1,5 @@
 import {
+  combatLevelColor,
   entityId,
   type InteractionOptionDef,
   type SkillDelta,
@@ -46,17 +47,22 @@ export interface MenuResolveState {
   readonly itemMode?: { readonly itemUid: number };
 }
 
-export interface ContextMenuOptionPart {
+/** A single colored segment of a context-menu row label (OSRS "Choose Option" style). */
+export interface ContextMenuPart {
   readonly text: string;
+  /** CSS color for this segment; omit for the default menu text color (white). */
   readonly color?: string;
-  readonly className?: string;
 }
 
 export interface ContextMenuOption {
   readonly label: string;
   readonly actionId: string;
   readonly priority: number;
-  readonly parts?: readonly ContextMenuOptionPart[];
+  /**
+   * Optional rich segments for per-word coloring. When present the view renders
+   * these colored spans; otherwise it falls back to the plain `label`.
+   */
+  readonly parts?: readonly ContextMenuPart[];
 }
 
 const DEFAULT_INPUT_SETTINGS: InputInterpreterSettings = {
@@ -67,22 +73,8 @@ const DEFAULT_INPUT_SETTINGS: InputInterpreterSettings = {
 
 const PLAYER_MAX_COMBAT_LEVEL = 126;
 
-/** OSRS combat level text color based on the gap between player and NPC levels. */
-export function combatLevelColor(playerLevel: number | undefined, npcLevel: number | undefined): string {
-  if (playerLevel === undefined || npcLevel === undefined) {
-    return "#ffff00"; // true yellow fallback
-  }
-  const diff = npcLevel - playerLevel;
-  if (diff <= -10) return "#00ff00"; // deep green
-  if (diff <= -6) return "#40ff00"; // light green
-  if (diff <= -1) return "#80ff00"; // yellow-green
-  if (diff === 0) return "#ffff00"; // true yellow
-  if (diff <= 5) return "#ffc000"; // yellow-orange
-  if (diff <= 10) return "#ff8000"; // light orange
-  if (diff <= 20) return "#ff4000"; // dark orange
-  if (diff <= 50) return "#ff2000"; // red-orange
-  return "#ff0000"; // deep red
-}
+/** OSRS "Choose Option" highlights NPC names in yellow on every option row. */
+const NPC_NAME_COLOR = "#ffff00";
 
 export type ClientDecision =
   | { type: "move"; tile: TileCoord }
@@ -240,43 +232,52 @@ export class InputInterpreter {
     }
 
     const name = this.getEntityName(entity);
+    // OSRS "Choose Option": when an NPC has a combat level, the level appears in
+    // parentheses next to the name on every option row (e.g. "Attack Goblin (level-2)").
     const npcDef = entity.kind === "npc" ? this.content.getNpc(entity.defId ?? "") : undefined;
-    const combatLevel = npcDef?.combatLevel;
-    const levelSuffix = combatLevel !== undefined ? ` (level-${combatLevel})` : "";
-    const examineLabel = `Examine ${name}${levelSuffix}`;
-    const examineParts = entity.kind === "npc"
-      ? this.buildNpcOptionParts("Examine", name, combatLevel, state.playerCombatLevel)
-      : [
-          { text: "Examine ", color: "#ffffff" },
-          { text: name, color: "#ffffff" },
-        ];
+    const levelSuffix =
+      npcDef?.combatLevel !== undefined ? ` (level-${npcDef.combatLevel})` : "";
+    const isNpc = entity.kind === "npc";
+    // OSRS rows read "<verb> <name in yellow><level-suffix coloured by level diff>".
+    // The name is always yellow; the level suffix is tinted by the OSRS 9-tier
+    // combat-level-difference palette. Build the coloured segments here where the
+    // name and level are known; the view just renders them.
+    const levelColor = combatLevelColor(state.playerCombatLevel, npcDef?.combatLevel);
+    const npcNameParts = (verb: string): ContextMenuPart[] => [
+      { text: `${verb} ` },
+      { text: name, color: NPC_NAME_COLOR },
+      ...(levelSuffix ? [{ text: levelSuffix, color: levelColor }] : []),
+    ];
     options.push({
-      label: examineLabel,
+      label: `Examine ${name}${levelSuffix}`,
       actionId: "examine",
       priority: -100,
-      parts: examineParts,
+      ...(isNpc ? { parts: npcNameParts("Examine") } : {}),
     });
 
     switch (entity.kind) {
       case "npc": {
         const contentOptions = npcDef?.options ?? [];
         for (const opt of contentOptions) {
-          const showLevel = opt.actionId === "attack";
-          const adjusted = this.adjustNpcOptionPriority(opt, combatLevel, state.playerCombatLevel);
+          const adjusted = this.adjustNpcOptionPriority(
+            opt,
+            npcDef?.combatLevel,
+            state.playerCombatLevel,
+          );
           if (adjusted) {
             options.push({
               ...adjusted,
-              label: this.formatNpcOptionLabel(opt.label, name, combatLevel, showLevel),
-              parts: this.buildNpcOptionParts(opt.label, name, showLevel ? combatLevel : undefined, state.playerCombatLevel),
+              label: `${opt.label} ${name}${levelSuffix}`,
+              parts: npcNameParts(opt.label),
             });
           }
         }
         if (contentOptions.length === 0) {
           options.push({
-            label: `Talk-to ${name}`,
+            label: `Talk-to ${name}${levelSuffix}`,
             actionId: "talk",
             priority: 1,
-            parts: [{ text: "Talk-to ", color: "#ffffff" }, { text: name, color: "#ffffff" }],
+            parts: npcNameParts("Talk-to"),
           });
         }
         break;
@@ -435,38 +436,6 @@ export class InputInterpreter {
       if (aRank !== bRank) return bRank - aRank;
       return b.priority - a.priority;
     });
-  }
-
-  private formatNpcOptionLabel(
-    baseLabel: string,
-    name: string,
-    combatLevel: number | undefined,
-    showLevel: boolean,
-  ): string {
-    const levelSuffix = showLevel && combatLevel !== undefined ? ` (level-${combatLevel})` : "";
-    return `${baseLabel} ${name}${levelSuffix}`;
-  }
-
-  private buildNpcOptionParts(
-    baseLabel: string,
-    name: string,
-    combatLevel: number | undefined,
-    playerCombatLevel: number | undefined,
-  ): ContextMenuOptionPart[] {
-    const nameColor = combatLevel !== undefined
-      ? combatLevelColor(playerCombatLevel, combatLevel)
-      : "#ffffff";
-    const parts: ContextMenuOptionPart[] = [
-      { text: `${baseLabel} `, color: "#ffffff" },
-      { text: name, color: nameColor },
-    ];
-    if (combatLevel !== undefined) {
-      parts.push({
-        text: ` (level-${combatLevel})`,
-        color: nameColor,
-      });
-    }
-    return parts;
   }
 
   private getItemName(itemId: string | undefined): string {

@@ -17,6 +17,7 @@ import type {
   ObjectComponent,
   PlayerComponent,
   PositionComponent,
+  PrayerComponent,
   PublicWorkComponent,
   ResourceNodeComponent,
   ShopComponent,
@@ -49,6 +50,7 @@ export type WorldComponentMap = {
   contract: ContractComponent;
   deed: DeedComponent;
   charter: CharterComponent;
+  prayer: PrayerComponent;
   publicWork: PublicWorkComponent;
   statusEffects: StatusEffectsComponent;
   statusEffect: StatusEffectComponent;
@@ -117,6 +119,7 @@ export function createWorld(): World {
     contract: new Map(),
     deed: new Map(),
     charter: new Map(),
+    prayer: new Map(),
     publicWork: new Map(),
     statusEffects: new Map(),
     statusEffect: new Map(),
@@ -144,6 +147,7 @@ export function createWorld(): World {
     componentTables.contract,
     componentTables.deed,
     componentTables.charter,
+    componentTables.prayer,
     componentTables.publicWork,
     componentTables.statusEffects,
     componentTables.statusEffect,

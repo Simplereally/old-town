@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   calculateCombatLevel,
-  combatLevelColor,
   InputInterpreter,
   shouldNpcAttackBeLeftClick,
 } from "./InputInterpreter";
+import { combatLevelColor } from "@old-town/shared";
 
 function createMockResolver(): ConstructorParameters<typeof InputInterpreter>[0] {
   return {
@@ -163,11 +163,11 @@ describe("InputInterpreter content-driven", () => {
       expect(labels).toContain("Examine Goblin (level-2)");
     });
 
-    it("formats non-combat NPC labels with name only, no level suffix", () => {
+    it("formats non-combat NPC labels with name and level suffix on every row", () => {
       const entity = { entityId: 10, kind: "npc" as const, defId: "guard", distance: 1 };
       const options = interpreter.getContextMenuOptions(entity, { x: 10, y: 20 });
       const labels = options.map((o) => o.label);
-      expect(labels).toContain("Talk-to Guard");
+      expect(labels).toContain("Talk-to Guard (level-21)");
       expect(labels).toContain("Examine Guard (level-21)");
       expect(labels).toContain("Attack Guard (level-21)");
     });
@@ -213,6 +213,66 @@ describe("InputInterpreter content-driven", () => {
     it("only shows walk_here when no entity", () => {
       const options = interpreter.getContextMenuOptions(null, { x: 10, y: 20 });
       expect(options.map((o) => o.actionId)).toEqual(["walk_here"]);
+    });
+
+    it("appends NPC name and combat level to attackable NPC options (OSRS Choose Option)", () => {
+      const entity = { entityId: 11, kind: "npc" as const, defId: "goblin", distance: 1 };
+      const options = interpreter.getContextMenuOptions(entity, { x: 1, y: 2 }, {
+        playerCombatLevel: 3,
+      });
+      const labels = options.map((o) => o.label);
+      expect(labels).toContain("Attack Goblin (level-2)");
+      expect(labels).toContain("Walk here");
+      expect(labels).toContain("Examine Goblin (level-2)");
+      // OSRS order: Attack (left-clickable) > Walk here > Examine.
+      expect(options.map((o) => o.actionId)).toEqual(["attack", "walk_here", "examine"]);
+    });
+
+    it("colors the NPC name yellow and the level suffix by level difference", () => {
+      const entity = { entityId: 11, kind: "npc" as const, defId: "goblin", distance: 1 };
+      const options = interpreter.getContextMenuOptions(entity, { x: 1, y: 2 }, {
+        playerCombatLevel: 3,
+      });
+      // Goblin is level 2, player is 3 → diff -1 → yellow-green (#80ff00).
+      const attack = options.find((o) => o.actionId === "attack");
+      expect(attack?.parts).toEqual([
+        { text: "Attack " },
+        { text: "Goblin", color: "#ffff00" },
+        { text: " (level-2)", color: "#80ff00" },
+      ]);
+      const examine = options.find((o) => o.actionId === "examine");
+      expect(examine?.parts).toEqual([
+        { text: "Examine " },
+        { text: "Goblin", color: "#ffff00" },
+        { text: " (level-2)", color: "#80ff00" },
+      ]);
+      // "Walk here" is a generic tile action with no entity name to highlight,
+      // but it still carries a plain white parts array for consistent rendering.
+      const walkParts = options.find((o) => o.actionId === "walk_here")?.parts;
+      expect(walkParts).toEqual([{ text: "Walk here", color: "#ffffff" }]);
+    });
+
+    it("tints the level suffix across OSRS color tiers by level difference", () => {
+      const entity = (defId: string) =>
+        ({ entityId: 11, kind: "npc" as const, defId, distance: 1 });
+      // goblin is level 2: player 2 → diff 0 → true yellow.
+      const equal = interpreter.getContextMenuOptions(entity("goblin"), { x: 1, y: 2 }, {
+        playerCombatLevel: 2,
+      });
+      const equalSuffix = equal.find((o) => o.actionId === "examine")?.parts?.[2];
+      expect(equalSuffix?.color).toBe("#ffff00");
+      // goblin is level 2: player 50 → diff -48 → deep green.
+      const deepGreen = interpreter.getContextMenuOptions(entity("goblin"), { x: 1, y: 2 }, {
+        playerCombatLevel: 50,
+      });
+      const deepGreenSuffix = deepGreen.find((o) => o.actionId === "examine")?.parts?.[2];
+      expect(deepGreenSuffix?.color).toBe("#00ff00");
+      // guard is level 21: player 3 → diff +18 → dark orange.
+      const darkOrange = interpreter.getContextMenuOptions(entity("guard"), { x: 1, y: 2 }, {
+        playerCombatLevel: 3,
+      });
+      const darkOrangeSuffix = darkOrange.find((o) => o.actionId === "examine")?.parts?.[2];
+      expect(darkOrangeSuffix?.color).toBe("#ff4000");
     });
   });
 

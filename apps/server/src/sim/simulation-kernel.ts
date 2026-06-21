@@ -69,6 +69,7 @@ import { createSpellActionHandlers, type SpellHandlerTable } from "../systems/sp
 import { processStatusEffectTick } from "../systems/status-effect-system";
 import { processStatusEffects } from "../systems/status-system";
 import { checkTrailDiscovery, processTrailBuffs } from "../systems/trail-system";
+import { processPrayerDrainPhase } from "../systems/prayer-system";
 import { applyObjectCollision, CollisionMap } from "../world/collision";
 import { loadAllRegionMapsIntoWorld } from "../world/region-loader";
 import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
@@ -413,6 +414,7 @@ function wireTickPhases(
 
   tickLoop.registerPhase(TickPhase.Interruptions, ({ tick }) => {
     const blockedOwners = new Set<EntityId>();
+    const statusEffectRegistry = registries.statusEffect;
     for (const [entityId, _player] of world.componentEntries("player")) {
       // Blocked by dialogue modal
       if (world.getComponent(entityId, "dialogue")) {
@@ -431,7 +433,7 @@ function wireTickPhases(
       const statusEffects = world.getComponent(entityId, "statusEffects");
       if (statusEffects) {
         for (const effect of statusEffects.effects) {
-          const def = registries.statusEffect.get(effect.statusEffectId);
+          const def = statusEffectRegistry.get(effect.statusEffectId);
           if (def && (def.id === "freeze" || def.id === "stun") && effect.remainingTicks > 0) {
             blockedOwners.add(entityId);
             break;
@@ -520,7 +522,8 @@ function wireTickPhases(
     processGraveLifecycle(combatContext, tick, serverTime);
   });
 
-  tickLoop.registerPhase(TickPhase.FoodPotionPrayerStatChanges, () => {
+  tickLoop.registerPhase(TickPhase.FoodPotionPrayerStatChanges, ({ tick }) => {
+    processPrayerDrainPhase({ world, deltas, registries }, tick);
     dispatchConsumablePhase(dispatchContext);
   });
 
@@ -780,8 +783,10 @@ function createKernelInterface(
     },
 
     async flushPersistence() {
-      await saveQueue.flushAll(tickLoop.currentTick, tickLoop.currentServerTime);
-      await itemAudit.flush();
+      await Promise.all([
+        saveQueue.flushAll(tickLoop.currentTick, tickLoop.currentServerTime),
+        itemAudit.flush(),
+      ]);
     },
 
     async releaseAllLeases() {

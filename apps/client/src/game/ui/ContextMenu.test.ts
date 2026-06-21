@@ -93,13 +93,6 @@ describe("ContextMenu view adapter", () => {
     expect(menu.visible).toBe(false);
   });
 
-  it("renders the OSRS-style title 'Choose Option'", () => {
-    menu.show(100, 100, NPC_OPTIONS, npcEntity("goblin"), { x: 5, y: 5 });
-    const title = document.querySelector(".context-menu-title");
-    expect(title).not.toBeNull();
-    expect(title?.textContent).toBe("Choose Option");
-  });
-
   it("renders a Cancel item that closes the menu without firing a callback", () => {
     menu.show(100, 100, NPC_OPTIONS, npcEntity("goblin"), { x: 5, y: 5 });
     const items = document.querySelectorAll(".context-menu > .context-menu-item");
@@ -113,5 +106,43 @@ describe("ContextMenu view adapter", () => {
   it("does not block render loop", () => {
     menu.show(100, 100, NPC_OPTIONS, npcEntity("goblin"), { x: 5, y: 5 });
     expect(menu.visible).toBe(true);
+  });
+
+  it("renders an OSRS 'Choose Option' header that is not a clickable option row", () => {
+    menu.show(100, 100, NPC_OPTIONS, npcEntity("goblin"), { x: 5, y: 5 });
+    const header = document.querySelector(".context-menu > .context-menu-header");
+    expect(header?.textContent).toBe("Choose Option");
+    // The header must not be counted among the selectable option rows.
+    const items = document.querySelectorAll(".context-menu > .context-menu-item");
+    expect(Array.from(items).some((el) => el.textContent === "Choose Option")).toBe(false);
+  });
+
+  it("renders colored segments when an option supplies parts", () => {
+    const attack = {
+      label: "Attack Guard (level-20)",
+      actionId: "attack",
+      priority: 90,
+      parts: [
+        { text: "Attack " },
+        { text: "Guard", color: "#ffff00" },
+        { text: " (level-20)" },
+      ],
+    };
+    menu.show(100, 100, [attack], npcEntity("guard"), { x: 5, y: 5 });
+    const item = document.querySelector(".context-menu > .context-menu-item");
+    expect(item?.textContent).toBe("Attack Guard (level-20)");
+    const colored = item?.querySelector("span[style]") as HTMLSpanElement | null;
+    expect(colored?.textContent).toBe("Guard");
+    expect(colored?.style.color).toBe("rgb(255, 255, 0)");
+  });
+
+  it("renders an OSRS-style Cancel row that dismisses the menu without dispatching an action", () => {
+    menu.show(100, 100, NPC_OPTIONS, npcEntity("goblin"), { x: 5, y: 5 });
+    const items = document.querySelectorAll(".context-menu > .context-menu-item");
+    const cancel = Array.from(items).find((el) => el.textContent?.includes("Cancel"));
+    if (!(cancel instanceof HTMLDivElement)) throw new Error("Expected HTMLDivElement");
+    cancel.click();
+    expect(menu.visible).toBe(false);
+    expect(callbacks.onOptionSelected).not.toHaveBeenCalled();
   });
 });

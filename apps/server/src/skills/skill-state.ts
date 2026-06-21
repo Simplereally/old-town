@@ -1,8 +1,10 @@
 import type { EntityId } from "@old-town/shared";
 import { levelForXp } from "@old-town/shared";
-import type { SkillState, SkillsComponent } from "../ecs/components";
+import type { CombatantComponent, SkillState, SkillsComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
+
+const MELEE_COMBAT_SKILLS = new Set(["attack", "strength", "defence"]);
 
 export interface SkillStateContext {
   readonly world: World;
@@ -120,6 +122,51 @@ export function getCurrentLevel(skills: SkillsComponent, skillId: string): numbe
   return Math.max(1, skill.level + skill.boost - skill.drain);
 }
 
+/**
+ * Sync the combatant's melee stat levels from the skill-derived current levels
+ * (base + boost - drain). Melee rolls read `combatant.attackLevel/strengthLevel/
+ * defenceLevel`, so without this sync potion boosts and drains never reach the
+ * accuracy/strength/max-hit maths.
+ *
+ * When status effects are active, `status-system` captures a `baseAttackLevel` and
+ * recomputes `combatant.attackLevel = base + statusMods` each tick. In that case we
+ * update the captured base (so the next status recompute picks up the new boosted
+ * base) instead of writing `combatant` directly — otherwise the status recompute
+ * would overwrite our write with a stale base.
+ */
+export function syncCombatantLevelsFromSkills(world: World, entityId: EntityId): void {
+  const skills = world.getComponent(entityId, "skills");
+  const combatant = world.getComponent(entityId, "combatant");
+  if (!skills || !combatant) {
+    return;
+  }
+  const attack = getCurrentLevel(skills, "attack");
+  const strength = getCurrentLevel(skills, "strength");
+  const defence = getCurrentLevel(skills, "defence");
+
+  const statusEffects = world.getComponent(entityId, "statusEffects");
+  if (statusEffects) {
+    if (statusEffects.baseAttackLevel !== undefined) {
+      statusEffects.baseAttackLevel = attack;
+    }
+    if (statusEffects.baseStrengthLevel !== undefined) {
+      statusEffects.baseStrengthLevel = strength;
+    }
+    if (statusEffects.baseDefenceLevel !== undefined) {
+      statusEffects.baseDefenceLevel = defence;
+    }
+    return;
+  }
+
+  const next: CombatantComponent = {
+    ...combatant,
+    attackLevel: attack,
+    strengthLevel: strength,
+    defenceLevel: defence,
+  };
+  world.setComponent(entityId, "combatant", next);
+}
+
 export function boostSkill(
   ctx: SkillStateContext,
   entityId: EntityId,
@@ -149,6 +196,10 @@ export function boostSkill(
     xp: skill.xp,
     effectiveLevel: getEffectiveLevel(skill),
   });
+
+  if (MELEE_COMBAT_SKILLS.has(skillId)) {
+    syncCombatantLevelsFromSkills(ctx.world, entityId);
+  }
 
   return true;
 }
@@ -185,6 +236,10 @@ export function restoreSkill(
     xp: skill.xp,
     effectiveLevel: getEffectiveLevel(skill),
   });
+
+  if (MELEE_COMBAT_SKILLS.has(skillId)) {
+    syncCombatantLevelsFromSkills(ctx.world, entityId);
+  }
 
   return true;
 }

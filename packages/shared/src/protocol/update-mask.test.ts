@@ -9,6 +9,7 @@ import {
   decomposeMask,
   EntityUpdateMask,
   hasFlag,
+  MASK_FIELDS,
   maskFromPayload,
   payloadMatchesMask,
 } from "./update-mask";
@@ -38,6 +39,14 @@ describe("mask composition/decomposition", () => {
     expect(hasFlag(mask, EntityUpdateMask.ANIMATION)).toBe(false);
   });
 
+  it("composes an empty mask when no flags are given", () => {
+    expect(composeMask()).toBe(0);
+  });
+
+  it("decomposes a zero mask into an empty array", () => {
+    expect(decomposeMask(0)).toEqual([]);
+  });
+
   it("decomposes a mask into its flags in canonical order", () => {
     const mask = composeMask(
       EntityUpdateMask.HITSPLAT,
@@ -49,6 +58,20 @@ describe("mask composition/decomposition", () => {
       EntityUpdateMask.ANIMATION,
       EntityUpdateMask.HITSPLAT,
     ]);
+  });
+
+  it("decomposes the full mask into every flag in canonical order", () => {
+    expect(decomposeMask(ALL_MASKS)).toEqual(MASK_FIELDS.map(([bit]) => bit));
+  });
+
+  it("hasFlag returns false for every flag on a zero mask", () => {
+    for (const [bit] of MASK_FIELDS) {
+      expect(hasFlag(0, bit)).toBe(false);
+    }
+  });
+
+  it("composeMask is idempotent for a single flag", () => {
+    expect(composeMask(EntityUpdateMask.POSITION)).toBe(EntityUpdateMask.POSITION);
   });
 });
 

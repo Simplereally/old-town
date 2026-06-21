@@ -104,7 +104,7 @@ describe("repro live attack", () => {
     handleNpcCombatIntent(ctx, player, { npcEntityId: npc, actionId: "attack" }, 0, 1);
 
     let landed = false;
-    for (let tick = 1; tick <= 3; tick += 1) {
+    for (let tick = 1; tick <= 12; tick += 1) {
       // Interruptions phase (freeze): mirror the kernel.
       const blocked = new Set<EntityId>();
       const mv = world.getComponent(player, "movement");

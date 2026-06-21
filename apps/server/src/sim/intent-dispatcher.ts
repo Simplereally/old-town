@@ -18,6 +18,7 @@ import {
 } from "../systems/movement-system";
 import type { NookDef } from "../systems/nook-system";
 import { handleObjectIntent } from "../systems/object-interaction-router";
+import { handlePrayerIntent } from "../systems/prayer-system";
 import { handleServiceFeeIntent } from "../systems/service-fee-system";
 import { handleShopIntent } from "../systems/shop-system";
 import { handleRecipeSelect } from "../systems/skilling-system";
@@ -432,11 +433,20 @@ function dispatchSingleIntent(
     case IntentKind.SetCombatStyle: {
       const combatant = ctx.world.getComponent(owner, "combatant");
       if (combatant) {
-        ctx.world.setComponent(owner, "combatant", {
-          ...combatant,
-          combatStyle: intent.payload.style,
-        });
+        const { style, mode } = intent.payload;
+        const next = { ...combatant, combatStyle: style };
+        if (mode === undefined) {
+          delete next.combatStyleMode;
+        } else {
+          next.combatStyleMode = mode;
+        }
+        ctx.world.setComponent(owner, "combatant", next);
       }
+      return;
+    }
+
+    case IntentKind.SetPrayer: {
+      handlePrayerIntent(ctx, owner, intent.payload, serverTime);
       return;
     }
 

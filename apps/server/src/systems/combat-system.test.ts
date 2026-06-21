@@ -1,4 +1,5 @@
 import {
+  type CombatStyleMode,
   type ContentRegistries,
   createRng,
   type EntityId,
@@ -15,16 +16,27 @@ import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
 import {
+  appendPendingHit,
   assignAutoRetaliateTarget,
+  assignCombatTarget,
   attackSpeedTicks,
   type CombatAttackContext,
   calculateHitChance,
+  computeAttackRoll,
+  computeDefenceRoll,
+  computeMaxMagicHit,
   computeMaxMeleeHit,
+  computeMaxRangedHit,
+  effectiveMagicDefenceLevel,
   handleNpcCombatIntent,
   MELEE_ATTACK_ANIMATION_ID,
   processCombatStartEvents,
   processCombatTargetValidation,
   processDamageResolutionEvents,
+  rollMagicHit,
+  rollMeleeHit,
+  rollRangedHit,
+  validateCombatTarget,
 } from "./combat-system";
 import { processMovementPhase } from "./movement-system";
 import { npcFootprintResolver, processNpcAiPhase, syncNpcOccupancy } from "./npc-system";
@@ -186,6 +198,31 @@ function weapon(id: string, speed: number, meleeStrength: number): ItemDef {
   };
 }
 
+function rangedWeapon(id: string, speed: number, rangedStrength: number, range = 6): ItemDef {
+  return {
+    id,
+    name: id,
+    stackable: false,
+    tradeable: true,
+    examine: id,
+    icon: `icon_${id}`,
+    value: 1,
+    options: ["wield"],
+    tags: [],
+    category: "ranged",
+    equipment: {
+      slot: "weapon",
+      attackSpeedTicks: speed,
+      attackRangeTiles: range,
+      allowedStyles: ["ranged"],
+      bonuses: { rangedAttack: 8, rangedStrength },
+      requirements: [],
+      projectileId: `projectile_${id}`,
+      hitDelayTicks: 2,
+    },
+  };
+}
+
 function equip(world: World, entityId: EntityId, item: ItemDef): void {
   world.setComponent(entityId, "equipment", {
     entityId,
@@ -237,6 +274,7 @@ function queueHit(
     readonly applyTick: number;
     readonly damage: number;
     readonly style?: CombatHitStyle;
+    readonly styleMode?: CombatStyleMode;
     readonly hitLanded?: boolean;
   },
 ): void {
@@ -255,6 +293,7 @@ function queueHit(
     maxHit: options.damage,
     damage: options.damage,
     hitLanded: options.hitLanded ?? options.damage > 0,
+    ...(options.styleMode ? { styleMode: options.styleMode } : {}),
   };
   world.setComponent(targetId, "combatant", {
     ...combatant,
@@ -465,10 +504,10 @@ describe("damage resolution", () => {
     processDamageResolutionEvents(ctx, 18);
 
     expect(xp(world, player, "strength")).toBe(8);
-    expect(xp(world, player, "hitpoints")).toBe(2);
+    expect(xp(world, player, "hitpoints")).toBeCloseTo(2 * 1.33, 10);
     expect(deltas.peek().xpDrops).toEqual([
       { skillId: "strength", amount: 8 },
-      { skillId: "hitpoints", amount: 2 },
+      { skillId: "hitpoints", amount: 2 * 1.33 },
     ]);
   });
 
@@ -584,5 +623,365 @@ describe("melee against a multi-tile (2x2) NPC", () => {
     if (!p) throw new Error("missing player position");
     expect(onCowFootprint(p.x, p.y)).toBe(false);
     expect(isCardinalToCow(p.x, p.y)).toBe(true);
+  });
+});
+
+describe("effectiveMagicDefenceLevel", () => {
+  it("uses 70% magic + 30% defence for player targets", () => {
+    const { ctx, world, player } = setup();
+    world.setComponent(player, "skills", {
+      entityId: player,
+      skills: {
+        attack: { level: 1, xp: 0, boost: 0, drain: 0 },
+        strength: { level: 1, xp: 0, boost: 0, drain: 0 },
+        defence: { level: 10, xp: 0, boost: 0, drain: 0 },
+        ranged: { level: 1, xp: 0, boost: 0, drain: 0 },
+        magic: { level: 20, xp: 0, boost: 0, drain: 0 },
+        prayer: { level: 1, xp: 0, boost: 0, drain: 0 },
+        hitpoints: { level: 1, xp: 0, boost: 0, drain: 0 },
+      },
+    });
+
+    // floor(0.7 * 20 + 0.3 * 10) = floor(14 + 3) = 17
+    expect(effectiveMagicDefenceLevel(ctx, player)).toBe(17);
+  });
+
+  it("uses magic level only for monster targets (defence irrelevant)", () => {
+    const { ctx, npc } = setup();
+    // NPC_DEF has stats.magic = 1, stats.defence = 2. Wiki: monsters use magic only.
+    expect(effectiveMagicDefenceLevel(ctx, npc)).toBe(1);
+  });
+
+  it("a high-magic player resists spells better than a low-magic one", () => {
+    const { ctx, world, player } = setup();
+    const lowMagic = world.createEntity();
+    world.setComponent(lowMagic, "combatant", {
+      entityId: lowMagic,
+      health: 10,
+      maxHealth: 10,
+      attackLevel: 1,
+      strengthLevel: 1,
+      defenceLevel: 50,
+      targetId: undefined,
+      attackCooldown: 0,
+      combatLevel: 3,
+      eatBlockedUntilTick: 0,
+    });
+    world.setComponent(lowMagic, "skills", {
+      entityId: lowMagic,
+      skills: {
+        attack: { level: 1, xp: 0, boost: 0, drain: 0 },
+        strength: { level: 1, xp: 0, boost: 0, drain: 0 },
+        defence: { level: 50, xp: 0, boost: 0, drain: 0 },
+        ranged: { level: 1, xp: 0, boost: 0, drain: 0 },
+        magic: { level: 1, xp: 0, boost: 0, drain: 0 },
+        prayer: { level: 1, xp: 0, boost: 0, drain: 0 },
+        hitpoints: { level: 1, xp: 0, boost: 0, drain: 0 },
+      },
+    });
+
+    world.setComponent(player, "skills", {
+      entityId: player,
+      skills: {
+        attack: { level: 1, xp: 0, boost: 0, drain: 0 },
+        strength: { level: 1, xp: 0, boost: 0, drain: 0 },
+        defence: { level: 1, xp: 0, boost: 0, drain: 0 },
+        ranged: { level: 1, xp: 0, boost: 0, drain: 0 },
+        magic: { level: 50, xp: 0, boost: 0, drain: 0 },
+        prayer: { level: 1, xp: 0, boost: 0, drain: 0 },
+        hitpoints: { level: 1, xp: 0, boost: 0, drain: 0 },
+      },
+    });
+
+    // High-magic player: floor(0.7*50 + 0.3*1) = floor(35.3) = 35
+    // Low-magic/high-defence player: floor(0.7*1 + 0.3*50) = floor(15.7) = 15
+    expect(effectiveMagicDefenceLevel(ctx, player)).toBe(35);
+    expect(effectiveMagicDefenceLevel(ctx, lowMagic)).toBe(15);
+  });
+});
+
+describe("ranged combat", () => {
+  it("computeMaxRangedHit scales with ranged level and rangedStrength bonus", () => {
+    // effectiveLevel adds 8: level 1 -> 9. floor(0.5 + 9 * 64 / 640) = floor(1.4) = 1
+    expect(computeMaxRangedHit(1, 0)).toBe(1);
+    // level 50 -> 58, bonus 10: floor(0.5 + 58 * 74 / 640) = floor(7.21) = 7
+    expect(computeMaxRangedHit(50, 10)).toBe(7);
+  });
+
+  it("schedules a ranged attack with a projectile and delayed pending hit", () => {
+    const bow = rangedWeapon("lathwood_shortbow", 5, 2, 6);
+    const { ctx, world, player, npc, deltas } = setup({
+      playerTile: { x: 4, y: 5, plane: 0 },
+      npcTile: { x: 4, y: 4, plane: 0 },
+      items: [bow],
+      rng: createRng(1),
+    });
+    addSkills(world, player);
+    equip(world, player, bow);
+    target(world, player, npc, 0);
+
+    processCombatStartEvents(ctx, 1);
+
+    const pending = world.getComponent(npc, "combatant")?.pendingHits;
+    expect(pending).toHaveLength(1);
+    const first = pending?.[0];
+    expect(first?.style).toBe("ranged");
+    expect(first?.applyTick).toBe(3); // tick 1 + 2 travel delay
+    expect(deltas.peek().projectiles?.[0]).toMatchObject({
+      projectileId: "projectile_lathwood_shortbow",
+      sourceEntityId: player,
+      targetEntityId: npc,
+      startTick: 1,
+      hitTick: 3,
+    });
+  });
+
+  it("awards ranged and hitpoints XP on ranged damage", () => {
+    const { ctx, world, player, npc } = setup();
+    addSkills(world, player);
+    queueHit(world, player, npc, { applyTick: 5, damage: 3, style: "ranged" });
+
+    processDamageResolutionEvents(ctx, 5);
+
+    expect(xp(world, player, "ranged")).toBe(12); // 3 * 4
+    expect(xp(world, player, "hitpoints")).toBeCloseTo(3 * 1.33, 10);
+  });
+
+  it("longrange ranged splits XP 2 ranged + 2 defence per damage", () => {
+    const { ctx, world, player, npc } = setup();
+    addSkills(world, player);
+    queueHit(world, player, npc, {
+      applyTick: 5,
+      damage: 3,
+      style: "ranged",
+      styleMode: "longrange",
+    });
+
+    processDamageResolutionEvents(ctx, 5);
+
+    expect(xp(world, player, "ranged")).toBe(6); // 3 * 2
+    expect(xp(world, player, "defence")).toBe(6); // 3 * 2
+    expect(xp(world, player, "hitpoints")).toBeCloseTo(3 * 1.33, 10);
+  });
+
+  it("controlled melee splits XP 1.33 to attack, strength, defence per damage", () => {
+    const { ctx, world, player, npc } = setup();
+    addSkills(world, player);
+    queueHit(world, player, npc, {
+      applyTick: 5,
+      damage: 3,
+      style: "stab",
+      styleMode: "controlled",
+    });
+
+    processDamageResolutionEvents(ctx, 5);
+
+    expect(xp(world, player, "attack")).toBe(4); // 3 * 1.33
+    expect(xp(world, player, "strength")).toBe(4); // 3 * 1.33
+    expect(xp(world, player, "defence")).toBe(4); // 3 * 1.33
+  });
+
+  it("defensive melee mode awards full XP to defence", () => {
+    const { ctx, world, player, npc } = setup();
+    addSkills(world, player);
+    queueHit(world, player, npc, {
+      applyTick: 5,
+      damage: 2,
+      style: "stab",
+      styleMode: "defensive",
+    });
+
+    processDamageResolutionEvents(ctx, 5);
+
+    expect(xp(world, player, "defence")).toBe(8); // 2 * 4
+    expect(xp(world, player, "attack")).toBe(0);
+  });
+
+  it("longrange magic splits XP 1.33 magic + 1 defence per damage", () => {
+    const { ctx, world, player, npc } = setup();
+    addSkills(world, player);
+    queueHit(world, player, npc, {
+      applyTick: 5,
+      damage: 3,
+      style: "magic",
+      styleMode: "longrange",
+    });
+
+    processDamageResolutionEvents(ctx, 5);
+
+    expect(xp(world, player, "magic")).toBeCloseTo(3 * 1.33, 10);
+    expect(xp(world, player, "defence")).toBe(3); // 3 * 1 = 3
+  });
+});
+
+describe("combat roll math", () => {
+  it("computeAttackRoll uses effective level and clamps negative bonus", () => {
+    // effectiveLevel(1) = 1 + 8 = 9; (0 + 64) = 64 => 576
+    expect(computeAttackRoll(1, 0)).toBe(9 * 64);
+    // negative bonus clamps to 0 via max(0, bonus+64)
+    expect(computeAttackRoll(1, -100)).toBe(9 * 0);
+    expect(computeAttackRoll(99, 20)).toBe(107 * 84);
+  });
+
+  it("computeDefenceRoll mirrors attack roll formula", () => {
+    expect(computeDefenceRoll(1, 0)).toBe(9 * 64);
+    expect(computeDefenceRoll(70, 150)).toBe(78 * 214);
+  });
+
+  it("computeMaxMagicHit adds floor(magicDamageBonus/10) to spell max", () => {
+    expect(computeMaxMagicHit(20, 0)).toBe(20);
+    expect(computeMaxMagicHit(20, 15)).toBe(21); // 20 + floor(15/10) = 21
+    expect(computeMaxMagicHit(20, 25)).toBe(22); // 20 + floor(25/10) = 22
+    expect(computeMaxMagicHit(20, -5)).toBe(20); // negative bonus clamped to 0
+  });
+});
+
+describe("rollMeleeHit / rollMagicHit / rollRangedHit", () => {
+  it("rollMeleeHit returns undefined when combatant missing", () => {
+    const { ctx, player, npc } = setup();
+    // Remove combatant from npc
+    ctx.world.removeComponent(npc, "combatant");
+    expect(rollMeleeHit(ctx as CombatAttackContext, player, npc)).toBeUndefined();
+  });
+
+  it("rollMeleeHit produces a bounded deterministic roll", () => {
+    const sword = weapon("test_sword", 4, 10);
+    const { ctx, world, player, npc } = setup({ items: [sword] });
+    addSkills(world, player);
+    equip(world, player, sword);
+    const roll = rollMeleeHit(ctx as CombatAttackContext, player, npc);
+    if (!roll) throw new Error("expected roll");
+    expect(roll.style).toBe("stab");
+    expect(roll.attackRoll).toBeGreaterThan(0);
+    expect(roll.defenceRoll).toBeGreaterThan(0);
+    expect(roll.hitChance).toBeGreaterThan(0);
+    expect(roll.hitChance).toBeLessThanOrEqual(1);
+    expect(roll.maxHit).toBeGreaterThanOrEqual(0);
+    expect(roll.damage).toBeGreaterThanOrEqual(0);
+    expect(roll.damage).toBeLessThanOrEqual(roll.maxHit);
+  });
+
+  it("rollMagicHit returns undefined when combatant missing", () => {
+    const { ctx, player, npc } = setup();
+    ctx.world.removeComponent(npc, "combatant");
+    expect(rollMagicHit(ctx as CombatAttackContext, player, npc, 20)).toBeUndefined();
+  });
+
+  it("rollMagicHit computes max hit from spell + magic damage bonus", () => {
+    const { ctx, world, player, npc } = setup();
+    addSkills(world, player);
+    const roll = rollMagicHit(ctx as CombatAttackContext, player, npc, 20);
+    if (!roll) throw new Error("expected roll");
+    expect(roll.style).toBe("magic");
+    expect(roll.maxHit).toBe(20); // no magicDamage bonus => 20 + 0
+    expect(roll.damage).toBeGreaterThanOrEqual(0);
+    expect(roll.damage).toBeLessThanOrEqual(20);
+  });
+
+  it("rollRangedHit returns undefined when combatant missing", () => {
+    const { ctx, player, npc } = setup();
+    ctx.world.removeComponent(npc, "combatant");
+    expect(rollRangedHit(ctx as CombatAttackContext, player, npc)).toBeUndefined();
+  });
+
+  it("rollRangedHit produces a bounded deterministic roll", () => {
+    const bow = rangedWeapon("test_bow", 4, 10);
+    const { ctx, world, player, npc } = setup({ items: [bow] });
+    addSkills(world, player);
+    equip(world, player, bow);
+    const roll = rollRangedHit(ctx as CombatAttackContext, player, npc);
+    if (!roll) throw new Error("expected roll");
+    expect(roll.style).toBe("ranged");
+    expect(roll.maxHit).toBeGreaterThan(0);
+    expect(roll.damage).toBeGreaterThanOrEqual(0);
+    expect(roll.damage).toBeLessThanOrEqual(roll.maxHit);
+  });
+});
+
+describe("appendPendingHit", () => {
+  it("appends a pending hit to the target combatant", () => {
+    const { ctx, world, player, npc } = setup();
+    const hit: PendingHit = {
+      sourceId: player,
+      targetId: npc,
+      applyTick: 5,
+      style: "stab",
+      attackRoll: 100,
+      defenceRoll: 100,
+      hitChance: 0.5,
+      maxHit: 10,
+      damage: 5,
+      hitLanded: true,
+    };
+    appendPendingHit(ctx, npc, hit);
+    const combatant = world.getComponent(npc, "combatant");
+    expect(combatant?.pendingHits).toHaveLength(1);
+    expect(combatant?.pendingHits?.[0]).toEqual(hit);
+  });
+
+  it("does nothing when target has no combatant component", () => {
+    const { ctx, world, player, npc } = setup();
+    ctx.world.removeComponent(npc, "combatant");
+    const hit: PendingHit = {
+      sourceId: player,
+      targetId: npc,
+      applyTick: 5,
+      style: "stab",
+      attackRoll: 100,
+      defenceRoll: 100,
+      hitChance: 0.5,
+      maxHit: 10,
+      damage: 5,
+      hitLanded: true,
+    };
+    appendPendingHit(ctx, npc, hit);
+    expect(world.getComponent(npc, "combatant")).toBeUndefined();
+  });
+});
+
+describe("validateCombatTarget and assignCombatTarget", () => {
+  it("validateCombatTarget rejects missing attacker", () => {
+    const { ctx, player, npc } = setup();
+    ctx.world.removeComponent(player, "combatant");
+    const result = validateCombatTarget(ctx, player, npc);
+    expect(result.ok).toBe(false);
+    expect(result.reason).toBe("missing_attacker");
+  });
+
+  it("validateCombatTarget rejects missing target", () => {
+    const { ctx, player, npc } = setup();
+    ctx.world.removeComponent(npc, "combatant");
+    const result = validateCombatTarget(ctx, player, npc);
+    expect(result.ok).toBe(false);
+    expect(result.reason).toBe("missing_target");
+  });
+
+  it("validateCombatTarget rejects dead target", () => {
+    const { ctx, world, player, npc } = setup();
+    const combatant = world.getComponent(npc, "combatant");
+    if (!combatant) throw new Error("missing combatant");
+    world.setComponent(npc, "combatant", { ...combatant, health: 0 });
+    const result = validateCombatTarget(ctx, player, npc);
+    expect(result.ok).toBe(false);
+    expect(result.reason).toBe("dead");
+  });
+
+  it("validateCombatTarget accepts a valid adjacent target", () => {
+    const { ctx, player, npc } = setup();
+    const result = validateCombatTarget(ctx, player, npc);
+    expect(result.ok).toBe(true);
+  });
+
+  it("assignCombatTarget sets the targetId on the attacker combatant", () => {
+    const { ctx, world, player, npc } = setup();
+    assignCombatTarget(ctx, player, npc);
+    expect(world.getComponent(player, "combatant")?.targetId).toBe(npc);
+  });
+
+  it("assignCombatTarget does nothing when attacker has no combatant", () => {
+    const { ctx, world, player, npc } = setup();
+    ctx.world.removeComponent(player, "combatant");
+    assignCombatTarget(ctx, player, npc);
+    expect(world.getComponent(player, "combatant")).toBeUndefined();
   });
 });

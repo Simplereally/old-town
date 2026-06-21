@@ -2,14 +2,14 @@ import type { EntityId, ObjectDef, ObjectIntent, Rng, TileCoord } from "@old-tow
 import { openDialogueNode } from "../dialogue/dialogue-engine";
 import type { World } from "../ecs/world";
 import type { ItemAuditLog } from "../items/item-audit";
-import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
+import type { ActionExecution } from "../sim/action-queue";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
+import { approach } from "./approach";
 import { handleActivityIntent } from "./activity-system";
 import { handleSurveyIntent } from "./cartography-system";
 import { handleContractAcceptIntent } from "./contract-system";
 import { handleDoorOpenIntent } from "./door-system";
 import { handlePrayIntent } from "./favour-system";
-import { handleMoveIntent } from "./movement-system";
 import { enterNook, type NookDef } from "./nook-system";
 import type { ResourceNodeContext } from "./resource-node-system";
 import { handleObjectSkillingIntent } from "./skilling-system";
@@ -90,27 +90,6 @@ const PROCESS_ACTION_IDS = new Set([
   "dye",
   "mix",
 ]);
-
-function enqueueBeginInteract(
-  ctx: ObjectInteractionContext,
-  owner: EntityId,
-  intent: ObjectIntent,
-): void {
-  const payload: BeginInteractPayload = {
-    kind: "begin_interact",
-    objectEntityId: intent.objectEntityId,
-    actionId: intent.actionId,
-  };
-  ctx.actionQueue.enqueue({
-    id: `begin-interact:${owner}`,
-    owner,
-    type: ActionQueueType.Weak,
-    delayTicks: 1,
-    repeat: { intervalTicks: 1 },
-    interruptGroup: InterruptGroup.Skilling,
-    payload,
-  });
-}
 
 function loadObjectInteractionTarget(
   ctx: ObjectInteractionContext,
@@ -441,14 +420,14 @@ export function handleObjectIntent(
   if (!target) {
     return false;
   }
-  if (chebyshev(target.actorTile, target.objectTile) > 1) {
-    handleMoveIntent(
-      { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas },
-      owner,
-      { dest: target.objectTile },
-      tick !== undefined ? { tick } : {},
-    );
-    enqueueBeginInteract(ctx, owner, intent);
+  const reach = approach(
+    { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, actionQueue: ctx.actionQueue },
+    owner,
+    target.objectTile,
+    () => ({ kind: "begin_interact", objectEntityId: intent.objectEntityId, actionId: intent.actionId }),
+    tick,
+  );
+  if (reach === "approaching") {
     return true;
   }
 
