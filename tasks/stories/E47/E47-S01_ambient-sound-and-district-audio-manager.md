@@ -6,48 +6,71 @@ E47 — Old Town Audio, Atmosphere, and UI Juice
 
 ## Dependency chain
 
-- Depends on: E46-S05 (Quest Journal UI), E42-S03 (District Material Painting), E43-S06 (Starter Region Topology)
-- Blocks: E47-S02, E47-S03, E47-S04, E47-S05
+- Depends on: E47-S00 (Audio Content Pipeline), E42-S03 (District Material Painting), E43-S06 (Starter Region Topology)
+- Blocks: E47-S02, E47-S03, E47-S05
 
 ## Spec references
 
 - `POC_SPEC.md` §23.1 (Asset formats — audio: OGG/WebM)
 - `POC_SPEC.md` §7.1 (Visual style — readable, restrained)
 - `docs/world/districts-and-routes.md` — district identity
-- `content/maps/old-town-0-0-0.json` — district triggers
+- `content/maps/old-town-0-0-0.json` and neighbouring starter-region maps — source trigger/zone data
+- `packages/shared/src/protocol/packets.ts` — region-load tile payloads
+- `apps/server/src/world/runtime-region.ts` — runtime tile/trigger data
+- `apps/server/src/net/region-payload.ts` — server-to-client region chunk serialization
+- `apps/client/src/game/net/ClientPacketApplier.ts` — region packet application
+- `apps/client/src/game/ui/UIManager.ts` — existing settings panel and persisted UI settings pattern
 
 ## Objective
 
-Add an ambient sound system that plays district-specific ambience based on the player's current location. The Market Bell should have a distant bell and market murmur, the Foundry Row should have forge sounds, the River Stoop should have water, and the Shrine Hearth should have quiet candle/wind ambience.
+Add ambient audio that changes with the player's current district or zone. This story must first give the client a real district-data path; the client cannot currently infer district ambience from map triggers because trigger/zone identity is not exposed in region packets.
+
+## What already exists — verify, do not rebuild
+
+- Starter maps contain trigger/zone-like areas such as Market Bell, Foundry Row, River Stoop, and Shrine Hearth.
+- Server runtime tiles already carry zone identity after trigger-zone application.
+- Region tile payloads currently serialize terrain/collision/material data, not zone IDs or raw triggers.
+- `ContentClient` does not expose raw map files/triggers to the client.
+- The client already has UI settings patterns through `UIManager`; reuse that area for audio controls.
+- E47-S00 must expose audio definitions before this story adds ambience content.
 
 ## Required architectural decisions
 
-- **Audio manager:** A single `AudioManager` in the client that owns all ambient loops, 3D positional sources, and UI sounds.
-- **District ambience mapping:** A content file `content/audio/district-ambience.json` maps district trigger IDs to ambience loops.
-- **Cross-fade:** When the player crosses a district boundary, the old ambience fades out and the new ambience fades in over ~1 second. No jarring cuts.
-- **Positional sources:** Forges, the Market Bell, and the river have 3D positional sound sources placed at object coordinates.
-- **No OSRS audio:** All sounds must be original or licensed-free generated audio. Do not use OSRS music or sound effects.
-- **Mute control:** Add a master mute and ambient volume slider to the UI.
+- **Authoritative zone source:** Prefer adding optional `zoneId` to region tile data and filling it from server runtime tiles. Do not make the client parse raw map JSON unless a clear reason is documented.
+- **Tile lookup:** The client must map the local player's tile to the loaded region/chunk tile and read its zone identity.
+- **Ambience mapping:** Audio content maps district/zone IDs to ambience loop IDs, volume, fade timing, and optional fallback behaviour.
+- **Cross-fade:** Changing zones fades old ambience out and new ambience in over a short configurable duration.
+- **Positional sources:** Forges, Market Bell, river/water sources, and similar static sources are content-defined with tile coordinates and simple distance falloff.
+- **Single manager:** One client `AudioManager` owns ambience, positional sources, UI/action one-shots, mute state, volume state, and disposal.
+- **UI controls:** Add master mute, master volume, and ambient volume to the existing settings UI. Persist them with the existing settings/localStorage pattern.
+- **Presentation only:** Ambience must not affect collision, quests, combat, skilling, NPC behaviour, or server simulation.
 
 ## Implementation checklist
 
-- [ ] Create `packages/shared/src/content-schemas/audio.ts` for audio content definitions.
-- [ ] Create `content/audio/district-ambience.json` with ambience loops for each district.
-- [ ] Create `content/audio/positional-sources.json` for forge, bell, and river sources.
-- [ ] Implement `AudioManager` in the client with ambient and positional source support.
-- [ ] Detect district changes from the player's tile position and trigger ambience cross-fades.
-- [ ] Add volume/mute controls to the UI.
-- [ ] Write test: entering a district starts the correct ambience loop.
-- [ ] Write test: leaving a district fades out the old ambience.
-- [ ] Write test: positional source volume changes with distance (POC: simple distance falloff).
+- [ ] Extend shared region tile data with optional `zoneId` or an equivalent compact district/zone field.
+- [ ] Populate that field in the server region payload from runtime tile zone data.
+- [ ] Update client region/chunk application so loaded tiles retain `zoneId`.
+- [ ] Add a client utility/service that resolves the local player's current tile to the current zone ID.
+- [ ] Add ambience and positional-source audio definitions using the E47-S00 audio registry.
+- [ ] Implement `AudioManager` ambience loop playback with cross-fade and disposal.
+- [ ] Implement simple positional source gain/falloff based on player tile distance.
+- [ ] Add master mute, master volume, and ambient volume controls to the existing settings UI.
+- [ ] Persist audio settings through the existing settings storage pattern.
+- [ ] Write test: loaded region tile with `zoneId` can be resolved from player tile position.
+- [ ] Write test: entering a zone starts the configured ambience loop.
+- [ ] Write test: leaving a zone fades/stops the previous ambience.
+- [ ] Write test: positional source gain changes with distance.
+- [ ] Write test: `AudioManager.dispose()` stops loops/sources and releases resources.
 
 ## Acceptance criteria
 
-- [ ] Each district has a distinct ambient sound.
-- [ ] Ambience cross-fades smoothly on district change.
-- [ ] Positional sources are audible near their objects.
-- [ ] Volume and mute controls work.
-- [ ] All audio assets are original or properly licensed; no OSRS audio.
+- [ ] The client can determine current zone/district from loaded region data without reading raw map files.
+- [ ] Each starter-town district has an ambience mapping or explicit fallback.
+- [ ] Ambience cross-fades smoothly on zone change.
+- [ ] Positional sources are audible near their objects and quiet/faded when far away.
+- [ ] Master mute/volume and ambient volume work and persist.
+- [ ] Audio resources do not leak on district changes, region changes, or client shutdown.
+- [ ] All audio assets are original/generated/licensed; no OSRS/Jagex audio.
 
 ## Validation commands
 
@@ -55,7 +78,7 @@ Add an ambient sound system that plays district-specific ambience based on the p
 - [ ] `bun run typecheck`
 - [ ] `bun run lint`
 - [ ] `bun run content:validate`
-- [ ] `bun run dev` — walk between districts and listen to ambience changes
+- [ ] `bun run dev` — walk between starter-town districts and verify ambience transitions
 
 ## Agent completion protocol
 
