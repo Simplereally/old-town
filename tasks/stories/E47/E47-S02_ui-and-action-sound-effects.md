@@ -1,4 +1,4 @@
-# E47-S02 — UI and action sound effects
+# E47-S02 — UI and packet audio cues
 
 ## Epic
 
@@ -6,57 +6,53 @@ E47 — Old Town Audio, Atmosphere, and UI Juice
 
 ## Dependency chain
 
-- Depends on: E47-S01 (Ambient Sound Manager), E07-S02 (Entity Picking and Context Menu), E45-S04 (Combat Loop)
+- Depends on: E47-S00, E47-S01, E07-S02, E45-S04
 - Blocks: E47-S03, E47-S04, E47-S05
-
-## Spec references
-
-- `POC_SPEC.md` §23.1 (Asset formats — audio: OGG/WebM)
-- `POC_SPEC.md` §22 (UI system — right-click menu, feedback)
-- `POC_SPEC.md` §2.4 (Client feel must be immediate)
-- `content/audio/ui-sounds.json` (to create)
 
 ## Objective
 
-Add short, original sound effects for common UI actions and player actions. These provide immediate feedback and make the game feel responsive. Sounds must be subtle and not repetitive.
+Connect the existing server audio packet path to the client audio manager, then add local UI cues through the same registry and volume controls.
+
+## What already exists — verify, do not rebuild
+
+- The shared protocol already has server audio cue packets.
+- Tick deltas can carry cue packets.
+- The client currently receives those packets but does not play them.
+- E47-S00 provides the audio registry.
+- E47-S01 provides `AudioManager`.
 
 ## Required architectural decisions
 
-- **UI sounds:**
-  - `ui_click` — tile click
-  - `ui_menu_open` — right-click menu / panel open
-  - `ui_select` — menu option selected
-  - `ui_error` — invalid action
-  - `ui_levelup` — level up
-- **Action sounds:**
-  - `action_attack` — melee swing
-  - `action_chop` — woodcutting
-  - `action_mine` — mining
-  - `action_cook` — cooking
-  - `action_pickup` — item picked up
-  - `action_door` — door open/close
-- **Audio content:** Store sound definitions in `content/audio/action-sounds.json` and `content/audio/ui-sounds.json`. Files are OGG/WebM in `assets/audio/`.
-- **Playback:** The client plays sounds immediately on input or on receiving the relevant server packet. Combat sounds are triggered by the animation packet, not by the client guessing.
-- **No spam:** Action sounds are rate-limited or tied to animations so rapid actions do not stack audio.
+- Add one presentation event for audio playback.
+- Convert incoming server cue packets into that presentation event.
+- Route the event from `GameEngine` to `AudioManager`.
+- UI cues may play immediately on local UI input.
+- World cues must come from server packets or authoritative update events.
+- Playback must respect mute, volume, and rate limiting.
 
 ## Implementation checklist
 
-- [ ] Create sound definitions in `content/audio/` for UI and action sounds.
-- [ ] Add placeholder audio files in `assets/audio/` (or generate simple synthetic sounds).
-- [ ] Implement sound playback triggers in the client input, UI, and packet applier.
-- [ ] Tie combat sounds to attack animation packets.
-- [ ] Tie gathering sounds to successful gather events.
-- [ ] Write test: a click plays the click sound.
-- [ ] Write test: a successful attack plays the attack sound.
-- [ ] Write test: a level-up plays the level-up sound.
+- [ ] Add an audio playback presentation event.
+- [ ] Convert incoming server audio cue packets into that event.
+- [ ] Route the event from `GameEngine` to `AudioManager`.
+- [ ] Add UI cue definitions to the E47-S00 registry.
+- [ ] Add definitions for existing server cue IDs.
+- [ ] Wire UI click, menu, select, error, panel, and level-up cues where appropriate.
+- [ ] Document the chosen path for any extra world cues.
+- [ ] Add light cue de-dupe/rate limiting.
+- [ ] Test: a server cue packet becomes a client presentation event.
+- [ ] Test: the game engine routes the event to `AudioManager`.
+- [ ] Test: a UI action calls `AudioManager` immediately.
+- [ ] Test: repeated identical cues are rate-limited.
 
 ## Acceptance criteria
 
-- [ ] UI actions have audible feedback.
-- [ ] Combat, gathering, and processing actions have audible feedback.
-- [ ] Sounds are triggered by server packets or immediate input, not by client prediction.
-- [ ] No audio spam or overlapping loops.
-- [ ] All audio assets are original.
+- [ ] Existing server cue packets are audible on the client.
+- [ ] UI cues are immediate, subtle, and volume-controlled.
+- [ ] World cues are authoritative, not local-only guesses.
+- [ ] Cue IDs resolve through the audio registry.
+- [ ] Repeated cues do not create uncontrolled overlap.
+- [ ] Assets are original/generated/licensed.
 
 ## Validation commands
 
@@ -64,7 +60,7 @@ Add short, original sound effects for common UI actions and player actions. Thes
 - [ ] `bun run typecheck`
 - [ ] `bun run lint`
 - [ ] `bun run content:validate`
-- [ ] `bun run dev` — perform actions and verify sounds
+- [ ] `bun run dev` — verify UI and packet audio cues
 
 ## Agent completion protocol
 
