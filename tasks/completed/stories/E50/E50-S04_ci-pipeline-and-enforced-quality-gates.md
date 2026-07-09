@@ -47,4 +47,5 @@ Enforce the repo's quality gates in CI on every push/PR so no agent or human can
 - Unit job: typecheck → check → test → test:no-sleeps → content:validate → render:boundaries.
 - Heavy job: test:heavy + stress:render:ci (headless; WebGL heap-gate self-skips).
 - Postgres job: service container + db:migrate + test:postgres (accepts DATABASE_URL / OLD_TOWN_TEST_DATABASE_URL).
-- CI run URL recorded after push (see below / PR checks).
+- Green CI run: https://github.com/Simplereally/old-town/actions/runs/29022018267
+  - unit (2m21s), heavy (29s), postgres — all success on `fix/test-suite-perf` @ `aa7e896`.
