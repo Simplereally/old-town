@@ -28,9 +28,9 @@ World Expansion and Exploration Systems. This epic addresses the remaining gaps 
 - [X] Move this epic file into `tasks/completed/epics/` after all stories are complete.
 
 ## Ordered stories
-- [X] `E39-S01` — [Equipment Appearance System](stories/E39/E39-S01_equipment-appearance-system.md)
-- [X] `E39-S02` — [Drop Table Rarity and Conditional Drops](stories/E39/E39-S02_drop-table-rarity-and-conditional-drops.md)
-- [X] `E39-S03` — [Ledger Deed and Nook System](stories/E39/E39-S03_ledger-deed-and-nook-system.md)
+- [X] `E39-S01` — [Equipment Appearance System](../stories/E39/E39-S01_equipment-appearance-system.md)
+- [X] `E39-S02` — [Drop Table Rarity and Conditional Drops](../stories/E39/E39-S02_drop-table-rarity-and-conditional-drops.md)
+- [X] `E39-S03` — [Ledger Deed and Nook System](../stories/E39/E39-S03_ledger-deed-and-nook-system.md)
 
 ## Epic acceptance criteria
 

@@ -147,8 +147,10 @@ export class ChunkBakeWorkerClient {
   private readonly _onSuccess: ChunkBakeWorkerClientOptions["onSuccess"];
   private readonly _onFailure: ChunkBakeWorkerClientOptions["onFailure"];
   private readonly _createWorker: () => WorkerLike;
+  private readonly _workerEpochs = new Map<WorkerLike, number>();
   private _disposed = false;
   private _nextJobId = 0;
+  private _nextWorkerEpoch = 0;
 
   constructor(options: ChunkBakeWorkerClientOptions) {
     this._onSuccess = options.onSuccess;
@@ -157,11 +159,7 @@ export class ChunkBakeWorkerClient {
     const poolSize = options.poolSize ?? createDefaultWorkerPoolSize();
 
     for (let i = 0; i < poolSize; i++) {
-      const worker = this._createWorker();
-      worker.onmessage = (event) => this._onWorkerMessage(event);
-      worker.onerror = (event) => this._onWorkerError(event, worker);
-      this._workers.push(worker);
-      this._available.push(worker);
+      this._available.push(this._createConfiguredWorker());
     }
   }
 
@@ -191,10 +189,13 @@ export class ChunkBakeWorkerClient {
     const active = this._active.get(jobId);
     if (active) {
       this._active.delete(jobId);
-      this._available.push(active.worker);
       const cancelMsg: CancelBakeChunk = { type: "cancel_bake_chunk", jobId };
-      active.worker.postMessage(cancelMsg);
-      this._drainQueue();
+      try {
+        active.worker.postMessage(cancelMsg);
+      } finally {
+        this._replaceWorker(active.worker);
+        this._drainQueue();
+      }
     }
   }
 
@@ -208,6 +209,7 @@ export class ChunkBakeWorkerClient {
     this._workers.length = 0;
     this._available.length = 0;
     this._active.clear();
+    this._workerEpochs.clear();
   }
 
   private _ensureNotDisposed(): void {
@@ -221,41 +223,89 @@ export class ChunkBakeWorkerClient {
     worker.postMessage(request);
   }
 
-  private _onWorkerMessage(event: MessageEvent): void {
+  private _createConfiguredWorker(): WorkerLike {
+    const worker = this._createWorker();
+    const epoch = ++this._nextWorkerEpoch;
+    this._workerEpochs.set(worker, epoch);
+    worker.onmessage = (event) => this._onWorkerMessage(event, worker, epoch);
+    worker.onerror = (event) => this._onWorkerError(event, worker, epoch);
+    this._workers.push(worker);
+    return worker;
+  }
+
+  private _replaceWorker(worker: WorkerLike): void {
+    const workerIndex = this._workers.indexOf(worker);
+    if (workerIndex < 0) {
+      return;
+    }
+
+    this._workers.splice(workerIndex, 1);
+    const availableIndex = this._available.indexOf(worker);
+    if (availableIndex >= 0) {
+      this._available.splice(availableIndex, 1);
+    }
+    this._workerEpochs.delete(worker);
+    worker.onmessage = null;
+    worker.onerror = null;
+    worker.terminate();
+
+    if (!this._disposed) {
+      this._available.push(this._createConfiguredWorker());
+    }
+  }
+
+  private _onWorkerMessage(event: MessageEvent, worker: WorkerLike, epoch: number): void {
+    if (this._workerEpochs.get(worker) !== epoch) {
+      return;
+    }
+
     const msg = event.data as BakeChunkSuccess | BakeChunkFailure;
     if (!msg || typeof msg.jobId !== "string") return;
 
     const active = this._active.get(msg.jobId);
-    if (!active) return;
+    if (!active || active.worker !== worker) return;
 
     this._active.delete(msg.jobId);
     this._available.push(active.worker);
 
-    if (msg.type === "bake_chunk_success") {
-      this._onSuccess(msg.jobId, msg.regionId, msg.chunkCoord, msg.payload, msg.transferables);
-    } else if (msg.type === "bake_chunk_failure") {
-      this._onFailure(msg.jobId, msg.regionId, msg.chunkCoord, msg.errorCode, msg.message);
+    try {
+      if (msg.type === "bake_chunk_success") {
+        this._onSuccess(msg.jobId, msg.regionId, msg.chunkCoord, msg.payload, msg.transferables);
+      } else if (msg.type === "bake_chunk_failure") {
+        this._onFailure(msg.jobId, msg.regionId, msg.chunkCoord, msg.errorCode, msg.message);
+      }
+    } finally {
+      this._drainQueue();
     }
-
-    this._drainQueue();
   }
 
-  private _onWorkerError(event: ErrorEvent, worker: WorkerLike): void {
+  private _onWorkerError(event: ErrorEvent, worker: WorkerLike, epoch: number): void {
+    if (this._workerEpochs.get(worker) !== epoch) {
+      return;
+    }
+
+    let failedJob: { jobId: string; record: JobRecord } | undefined;
     for (const [jobId, record] of this._active) {
       if (record.worker === worker) {
         this._active.delete(jobId);
-        this._available.push(record.worker);
-        this._onFailure(
-          jobId,
-          record.request.regionId,
-          record.request.chunkCoord,
-          "worker_error",
-          event.message || "Worker error",
-        );
+        failedJob = { jobId, record };
         break;
       }
     }
-    this._drainQueue();
+    this._replaceWorker(worker);
+    try {
+      if (failedJob) {
+        this._onFailure(
+          failedJob.jobId,
+          failedJob.record.request.regionId,
+          failedJob.record.request.chunkCoord,
+          "worker_error",
+          event.message || "Worker error",
+        );
+      }
+    } finally {
+      this._drainQueue();
+    }
   }
 
   private _drainQueue(): void {
@@ -286,8 +336,7 @@ class SynchronousWorker implements WorkerLike {
     if (msg.type === "bake_chunk") {
       const { jobId, regionId, chunkCoord, tiles, materialColors } = msg;
       const DEFAULT_COLOR = 0x4f8f3a;
-      const resolveColor = (id: string): number =>
-        materialColors?.[id] ?? DEFAULT_COLOR;
+      const resolveColor = (id: string): number => materialColors?.[id] ?? DEFAULT_COLOR;
       const hexToRgb = (hex: number): [number, number, number] => [
         ((hex >> 16) & 0xff) / 255,
         ((hex >> 8) & 0xff) / 255,
@@ -361,7 +410,10 @@ class SynchronousWorker implements WorkerLike {
       for (const [materialId, quadIndices] of byMaterial) {
         const groupStart = newIdx;
         for (const qi of quadIndices) {
-          const sv = quadStartVertices[qi]!;
+          const sv = quadStartVertices[qi];
+          if (sv === undefined) {
+            throw new Error(`Missing start vertex for quad ${qi}`);
+          }
           newIndices[newIdx + 0] = sv;
           newIndices[newIdx + 1] = sv + 2;
           newIndices[newIdx + 2] = sv + 1;

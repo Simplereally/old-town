@@ -22,7 +22,7 @@ import { dispatchQuestEvent } from "../quests/quest-engine";
 import type { ActionHandler } from "../sim/action-executor";
 import { type ActionExecution, ActionQueueType, InterruptGroup } from "../sim/action-queue";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
-import { addXp, getCurrentLevel, type AddXpResult } from "../skills/skill-state";
+import { type AddXpResult, addXp, getCurrentLevel } from "../skills/skill-state";
 import { beginApproach } from "./approach";
 import { trackContractItemGain } from "./contract-system";
 import { handleMoveIntent } from "./movement-system";
@@ -102,9 +102,7 @@ function actionId(prefix: string, owner: EntityId): string {
 
 function tileOf(world: World, entityId: EntityId): TileCoord | undefined {
   const position = world.getComponent(entityId, "position");
-  return position
-    ? { x: position.x, y: position.y, plane: position.plane }
-    : undefined;
+  return position ? { x: position.x, y: position.y, plane: position.plane } : undefined;
 }
 
 function chebyshev(a: TileCoord, b: TileCoord): number {
@@ -313,7 +311,12 @@ export function handleObjectSkillingIntent(
       const nodeTile = tileOf(ctx.world, intent.objectEntityId);
       if (nodeTile) {
         beginApproach(
-          { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, actionQueue: ctx.actionQueue },
+          {
+            world: ctx.world,
+            collision: ctx.collision,
+            deltas: ctx.deltas,
+            actionQueue: ctx.actionQueue,
+          },
           owner,
           nodeTile,
           () => ({ kind: "begin_gather", nodeEntityId: intent.objectEntityId }),
@@ -463,7 +466,12 @@ function handleProcessingIntent(
       const stationTile = tileOf(ctx.world, stationEntityId);
       if (stationTile) {
         beginApproach(
-          { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, actionQueue: ctx.actionQueue },
+          {
+            world: ctx.world,
+            collision: ctx.collision,
+            deltas: ctx.deltas,
+            actionQueue: ctx.actionQueue,
+          },
           owner,
           stationTile,
           () => ({ kind: "begin_process", stationEntityId, recipeId: fallback.id }),
@@ -535,7 +543,12 @@ export function handleRecipeSelect(
     const stationTile = tileOf(ctx.world, stationEntityId);
     if (stationTile) {
       beginApproach(
-        { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, actionQueue: ctx.actionQueue },
+        {
+          world: ctx.world,
+          collision: ctx.collision,
+          deltas: ctx.deltas,
+          actionQueue: ctx.actionQueue,
+        },
         owner,
         stationTile,
         () => ({ kind: "begin_process", stationEntityId, recipeId: recipe.id }),

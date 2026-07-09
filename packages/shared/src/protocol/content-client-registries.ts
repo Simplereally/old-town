@@ -7,6 +7,7 @@
  * caught immediately (protocol drift between server and client content shape).
  */
 import { z } from "zod";
+import { audioDefSchema } from "../content-schemas/audio";
 import { contractDefSchema } from "../content-schemas/contract";
 import { dialogueDefSchema } from "../content-schemas/dialogue";
 import { itemDefSchema } from "../content-schemas/item";
@@ -28,6 +29,7 @@ export const contentClientRegistriesSchema = z
     dialogue: z.record(z.string(), dialogueDefSchema),
     contract: z.record(z.string(), contractDefSchema),
     material: z.record(z.string(), materialDefSchema),
+    audio: z.record(z.string(), audioDefSchema),
   })
   .strict();
 

@@ -34,6 +34,7 @@ export function makeRegistries(overrides: Partial<ContentRegistries> = {}): Cont
     activity: new Map(),
     boss: new Map(),
     trail: new Map(),
+    audio: new Map(),
     ...overrides,
   };
 }

@@ -26,9 +26,9 @@ Extend the region map schema to include resource node placement, player spawn po
 
 ## Ordered stories
 
-- [X] `E17-S01` — [Add Resource Node Placement to Region Map](stories/E17/E17-S01_add-resource-node-placement-to-region-map.md)
-- [X] `E17-S02` — [Add Player Spawn and Respawn to Region Map](stories/E17/E17-S02_add-player-spawn-and-respawn-to-region-map.md)
-- [X] `E17-S03` — [Validate Map Environment Content](stories/E17/E17-S03_validate-map-environment-content.md)
+- [X] `E17-S01` — [Add Resource Node Placement to Region Map](../stories/E17/E17-S01_add-resource-node-placement-to-region-map.md)
+- [X] `E17-S02` — [Add Player Spawn and Respawn to Region Map](../stories/E17/E17-S02_add-player-spawn-and-respawn-to-region-map.md)
+- [X] `E17-S03` — [Validate Map Environment Content](../stories/E17/E17-S03_validate-map-environment-content.md)
 
 ## Epic acceptance criteria
 

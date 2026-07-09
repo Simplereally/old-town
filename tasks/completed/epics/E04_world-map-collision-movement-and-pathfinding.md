@@ -28,11 +28,11 @@ Make the authoritative world navigable: load regions, maintain tile/collision st
 
 ## Ordered stories
 
-- [X] `E04-S01` — [Load map regions into server world](../completed/stories/E04/E04-S01_load-map-regions-into-server-world.md)
-- [X] `E04-S02` — [Implement collision mask system](../completed/stories/E04/E04-S02_implement-collision-mask-system.md)
-- [X] `E04-S03` — [Implement A* tile pathfinding](../completed/stories/E04/E04-S03_implement-a-tile-pathfinding.md)
-- [X] `E04-S04` — [Implement movement system](../completed/stories/E04/E04-S04_implement-movement-system.md)
-- [X] `E04-S05` — [Implement interaction reach resolution](../completed/stories/E04/E04-S05_implement-interaction-reach-resolution.md)
+- [X] `E04-S01` — [Load map regions into server world](../stories/E04/E04-S01_load-map-regions-into-server-world.md)
+- [X] `E04-S02` — [Implement collision mask system](../stories/E04/E04-S02_implement-collision-mask-system.md)
+- [X] `E04-S03` — [Implement A* tile pathfinding](../stories/E04/E04-S03_implement-a-tile-pathfinding.md)
+- [X] `E04-S04` — [Implement movement system](../stories/E04/E04-S04_implement-movement-system.md)
+- [X] `E04-S05` — [Implement interaction reach resolution](../stories/E04/E04-S05_implement-interaction-reach-resolution.md)
 
 ## Epic acceptance criteria
 

@@ -71,7 +71,10 @@ export class ItemAuditLog {
     this.resolveCharacterId = resolveCharacterId;
   }
 
-  record(event: ItemAuditInput, options: { readonly persist?: boolean } = {}): ItemTransactionAuditRecord {
+  record(
+    event: ItemAuditInput,
+    options: { readonly persist?: boolean } = {},
+  ): ItemTransactionAuditRecord {
     const record = parseItemTransactionAuditRecord({
       id: this.nextId,
       ...event,

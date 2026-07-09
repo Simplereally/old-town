@@ -7,6 +7,7 @@
 
 import type { ActivityDef } from "../content-schemas/activity";
 import type { AnimationDef } from "../content-schemas/animation";
+import type { AudioDef } from "../content-schemas/audio";
 import type { BankDef } from "../content-schemas/bank";
 import type { BossDef } from "../content-schemas/boss";
 import type { CharterDef } from "../content-schemas/charter";
@@ -56,4 +57,5 @@ export interface ContentRegistries {
   readonly activity: ReadonlyMap<string, ActivityDef>;
   readonly boss: ReadonlyMap<string, BossDef>;
   readonly trail: ReadonlyMap<string, TrailDef>;
+  readonly audio: ReadonlyMap<string, AudioDef>;
 }

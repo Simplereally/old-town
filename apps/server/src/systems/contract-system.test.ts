@@ -1,4 +1,4 @@
-import { tileKey, type ContractDef } from "@old-town/shared";
+import { type ContractDef, tileKey } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { createWorld, type World } from "../ecs/world";
 import { createInventory } from "../items/inventory";
@@ -7,7 +7,6 @@ import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
-import { handleObjectIntent } from "./object-interaction-router";
 import {
   buildContractBoard,
   handleContractAcceptIntent,
@@ -16,6 +15,7 @@ import {
   trackContractItemGain,
   updateContractObjective,
 } from "./contract-system";
+import { handleObjectIntent } from "./object-interaction-router";
 
 const WARDEN_BOARD_DEF = {
   id: "warden_board",

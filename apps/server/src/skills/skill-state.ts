@@ -3,8 +3,18 @@ import { levelForXp } from "@old-town/shared";
 import type { CombatantComponent, SkillState, SkillsComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
+import { computeCombatLevel } from "./combat-level";
 
 const MELEE_COMBAT_SKILLS = new Set(["attack", "strength", "defence"]);
+const COMBAT_LEVEL_SKILLS = new Set([
+  "attack",
+  "strength",
+  "defence",
+  "hitpoints",
+  "ranged",
+  "magic",
+  "prayer",
+]);
 
 export interface SkillStateContext {
   readonly world: World;
@@ -62,7 +72,48 @@ export function addXp(
   });
   ctx.deltas.markXpDrop({ skillId, amount });
 
+  if (levelUp) {
+    ctx.deltas.markLevelUp({ skillId, newLevel });
+    syncDerivedCombatStats(ctx, entityId, skillId);
+  }
+
   return { skillId, oldLevel, newLevel, oldXp, newXp, levelUp };
+}
+
+function syncDerivedCombatStats(
+  ctx: SkillStateContext,
+  entityId: EntityId,
+  levelledSkillId: string,
+): void {
+  if (!COMBAT_LEVEL_SKILLS.has(levelledSkillId)) {
+    return;
+  }
+  if (MELEE_COMBAT_SKILLS.has(levelledSkillId)) {
+    syncCombatantLevelsFromSkills(ctx.world, entityId);
+  }
+
+  const combatant = ctx.world.getComponent(entityId, "combatant");
+  const skills = ctx.world.getComponent(entityId, "skills");
+  if (!combatant || !skills) {
+    return;
+  }
+
+  const nextMaxHealth =
+    levelledSkillId === "hitpoints"
+      ? maxHealthForHitpointsLevel(getBaseLevel(skills, "hitpoints"))
+      : combatant.maxHealth;
+  const nextCombatant: CombatantComponent = {
+    ...combatant,
+    maxHealth: nextMaxHealth,
+    combatLevel: computeCombatLevel(ctx.world, entityId),
+  };
+  ctx.world.setComponent(entityId, "combatant", nextCombatant);
+
+  if (nextMaxHealth !== combatant.maxHealth) {
+    ctx.deltas.markEntityUpdate(entityId, {
+      healthBar: { current: nextCombatant.health, max: nextMaxHealth },
+    });
+  }
 }
 
 export function deductXp(

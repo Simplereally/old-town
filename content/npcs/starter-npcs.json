@@ -96,9 +96,7 @@
     "respawnTicks": 1,
     "wanderRadius": 0,
     "dialogueId": "sister_writ_favour_intro",
-    "options": [
-      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 }
-    ]
+    "options": [{ "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 }]
   },
   {
     "id": "finch_quill",
@@ -145,18 +143,6 @@
     "wanderRadius": 0,
     "dialogueId": "marn_lock_bell_clapper",
     "options": [{ "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 }]
-  },
-  {
-    "id": "pippa_hearth",
-    "name": "Pippa Hearth",
-    "examine": "A cook whose smoke signals mean more than hunger.",
-    "size": 1,
-    "respawnTicks": 1,
-    "wanderRadius": 0,
-    "dialogueId": "baker_dialogue",
-    "options": [
-      { "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 }
-    ]
   },
   {
     "id": "gravekeeper_soll",
@@ -308,7 +294,7 @@
     "name": "Mud Goblin",
     "examine": "A small goblin caked in mud and aggression.",
     "size": 1,
-    "combatLevel": 2,
+    "combatLevel": 5,
     "maxHp": 5,
     "stats": {
       "attack": 1,
@@ -321,13 +307,13 @@
     },
     "attackSpeedTicks": 4,
     "attackRangeTiles": 1,
-    "aggressiveRadius": 0,
+    "aggressiveRadius": 3,
     "wanderRadius": 5,
     "respawnTicks": 15,
     "drops": "goblin_drops",
     "movementType": "wander",
-    "aggressionMode": "retaliate",
-    "creatureKind": "retaliating",
+    "aggressionMode": "aggressive",
+    "creatureKind": "aggressive",
     "options": [{ "label": "Attack", "actionId": "attack", "priority": 10, "requiredDistance": 1 }]
   },
   {
@@ -352,6 +338,7 @@
     "wanderRadius": 3,
     "respawnTicks": 12,
     "drops": "cow_drops",
+    "bonuses": { "crushAttack": -36 },
     "movementType": "wander",
     "aggressionMode": "retaliate",
     "creatureKind": "retaliating",

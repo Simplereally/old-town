@@ -23,6 +23,7 @@ async function setup(persistence?: PersistenceAdapter) {
   loadAllRegionMapsIntoWorld(world, map, content.registries);
   return {
     world,
+    map,
     registries: content.registries,
     manager: new DevSessionManager(world, map, content.registries, persistence),
   };
@@ -45,7 +46,11 @@ describe("DevSessionManager", () => {
     expect(second.entities.map((entity) => entity.kind)).toEqual(
       expect.arrayContaining(["object", "npc", "ground_item", "player"]),
     );
-    expect(world.getComponent(first.selfEntityId, "position")).toMatchObject({ x: 45, y: 45, plane: 0 });
+    expect(world.getComponent(first.selfEntityId, "position")).toMatchObject({
+      x: 45,
+      y: 45,
+      plane: 0,
+    });
     expect(world.getComponent(first.selfEntityId, "player")?.sessionId).toBe("session-1");
   });
 
@@ -89,6 +94,44 @@ describe("DevSessionManager", () => {
     const regionLoads = fullState.regionLoads ?? [];
     expect(regionLoads.length).toBe(4);
     expect(regionLoads.map((r) => r.regionId).sort()).toEqual(["0:0:0", "0:1:0", "1:0:0", "1:1:0"]);
+
+    // E47-S01: region tile payloads expose authoritative zone identity.
+    const home = regionLoads.find((r) => r.regionId === "0:0:0");
+    expect(home?.chunks?.length).toBeGreaterThan(0);
+    const zoned = home?.chunks?.flatMap((c) => c.tiles).find((t) => t.zoneId === "market_bell");
+    expect(zoned).toBeDefined();
+    expect(zoned?.x).toBeGreaterThanOrEqual(40);
+    expect(zoned?.y).toBeGreaterThanOrEqual(40);
+  });
+
+  it("spawns a new dev character at the Market Bell spawn point from the region map", async () => {
+    const { world, map, manager } = await setup();
+
+    // The canonical default spawn is read from the region map playerSpawnPoints.
+    const defaultSpawn = map.playerSpawnPoints.find(
+      (p) => p.spawnType === "default" || p.spawnType === "new_player",
+    );
+    expect(defaultSpawn).toBeDefined();
+    expect(defaultSpawn?.tile).toMatchObject({ x: 45, y: 45, plane: 0 });
+
+    // The Market Bell trigger zone must contain the spawn tile.
+    const marketBell = map.triggers.get("market_bell");
+    expect(marketBell).toBeDefined();
+    if (marketBell) {
+      const { x, y, width, height } = marketBell;
+      expect(defaultSpawn?.tile.x).toBeGreaterThanOrEqual(x);
+      expect(defaultSpawn?.tile.x).toBeLessThan(x + width);
+      expect(defaultSpawn?.tile.y).toBeGreaterThanOrEqual(y);
+      expect(defaultSpawn?.tile.y).toBeLessThan(y + height);
+    }
+
+    // A bootstrapped character lands on that server-authoritative spawn tile.
+    const fullState = await manager.bootstrap({ id: "session-1", characterId: "dev-a" }, 0, 0);
+    expect(world.getComponent(fullState.selfEntityId, "position")).toMatchObject({
+      x: 45,
+      y: 45,
+      plane: 0,
+    });
   });
 
   it("hides private ground items from full-state bootstraps until reveal", async () => {

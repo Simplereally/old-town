@@ -69,9 +69,7 @@ describe("item transaction audit schema", () => {
   });
 
   it("rejects a negative tick", () => {
-    expect(() =>
-      parseItemTransactionAuditEvent({ ...validEvent, tick: -1 }),
-    ).toThrow();
+    expect(() => parseItemTransactionAuditEvent({ ...validEvent, tick: -1 })).toThrow();
   });
 
   it("rejects an empty characterId or itemId", () => {
@@ -95,9 +93,9 @@ describe("item transaction audit schema", () => {
   });
 
   it("rejects extra fields on the event schema (strict)", () => {
-    expect(
-      itemTransactionAuditEventSchema.safeParse({ ...validEvent, hack: true }).success,
-    ).toBe(false);
+    expect(itemTransactionAuditEventSchema.safeParse({ ...validEvent, hack: true }).success).toBe(
+      false,
+    );
   });
 
   it("rejects a record missing the required id field", () => {
@@ -120,11 +118,7 @@ describe("item transaction audit schema", () => {
   });
 
   it("rejects negative beforeQuantity or afterQuantity", () => {
-    expect(() =>
-      parseItemTransactionAuditEvent({ ...validEvent, beforeQuantity: -1 }),
-    ).toThrow();
-    expect(() =>
-      parseItemTransactionAuditEvent({ ...validEvent, afterQuantity: -1 }),
-    ).toThrow();
+    expect(() => parseItemTransactionAuditEvent({ ...validEvent, beforeQuantity: -1 })).toThrow();
+    expect(() => parseItemTransactionAuditEvent({ ...validEvent, afterQuantity: -1 })).toThrow();
   });
 });

@@ -15,10 +15,11 @@
 - The repo contains a linear epic/story task tree in `tasks/`.
 - [`TASK_MANIFEST.json`](tasks/TASK_MANIFEST.json) is the machine-readable index.
 - `tasks/README.md` defines execution rules: work by epic number, then by story number.
-- Start at the lowest-numbered remaining epic (run `bun run tasks:status` to identify it). Do not skip ahead.
+- Start at the lowest-numbered remaining epic (run `bun run tasks:status` to identify it and validate task-tree metadata). Do not skip ahead.
 - Within an epic, complete stories in numeric order.
 - When a story is complete, mark its checkboxes `[X]`, move it to `tasks/completed/stories/E##/`, and update the parent epic checklist.
 - When an epic is complete, move it to `tasks/completed/epics/`.
+- After moving or renaming task files, update `TASK_MANIFEST.json` and run `bun run tasks:check`.
 
 ## Engineering invariants (never violate)
 
@@ -42,7 +43,11 @@
 - Always use `rg` (ripgrep) over `grep` for searching the codebase.
 - Prefer deep imports (`@old-town/shared/types/ids`) over barrel imports (`@old-town/shared`) to keep typecheck fast. The barrel is allowed but don't add new `export *` to it.
 - Every story lists validation commands. Run them before marking complete.
-- Typical validation: `bun run test`, `bun run lint`, `bun run typecheck`, `bun run content:validate`.
+- Typical validation: `bun run test` (fast/unit lane), `bun run test:heavy` (integration/perf), `bun run lint`, `bun run typecheck`, `bun run content:validate`. Use `bun run test:all` to run both lanes. **CI** (`.github/workflows/ci.yml`) runs typecheck, `bun run check`, unit lane, `test:no-sleeps`, content validate, render boundaries, heavy lane (+ render stress report), and postgres integration on every push/PR. A story is not complete if CI would fail.
+- **Test lanes (E50):** Vitest projects `unit` and `heavy`. Heavy membership is by filename only:
+  - `*.integration.test.ts` — multiplayer / websocket / long gameplay loops
+  - `*.perf.test.ts` — render stress, balance sims, other expensive suites
+  - Default `*.test.ts` stays in the unit lane. Do not put real sleeps > 50 ms in unit tests (`bun run test:no-sleeps`).
 - Never leave broken builds between completed stories.
 - Add or improve tests for any deterministic logic a story creates.
 
@@ -69,6 +74,10 @@ tools/
   world-editor/      — tile/object/NPC placement, export
   content-validator/ — CLI to validate JSON against schemas
 ```
+
+## Equipment attachment
+
+Hand-held equipment (weapons, shields, off-hand foci) attaches via `handSocketR` / `handSocketL` on the humanoid arm meshes plus a `GripSpec` from `apps/client/src/game/scene/models/weapon-grips.ts`. New families get a category default first; add a per-family override only when the default looks wrong. **Never** attach equipment to `meshes.group` (the actor root) — that floats gear at the torso and breaks walk/attack follow.
 
 ## Important notes
 

@@ -36,6 +36,18 @@
     "model": "model_copper_rock"
   },
   {
+    "id": "penny_copper_rock",
+    "name": "Penny Copper Rock",
+    "examine": "A low penny-brown outcrop with workable copper close to the surface.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "resourceNodeId": "penny_copper_deposit",
+    "options": [{ "label": "Mine", "actionId": "mine", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_copper_rock"
+  },
+  {
     "id": "iron_rock",
     "name": "Iron Rock",
     "examine": "A stubborn rock with dark iron veins.",
@@ -46,6 +58,30 @@
     "resourceNodeId": "iron_rock_node",
     "options": [{ "label": "Mine", "actionId": "mine", "priority": 10, "requiredDistance": 1 }],
     "model": "model_iron_rock"
+  },
+  {
+    "id": "tin_rock",
+    "name": "Tin Rock",
+    "examine": "A pale rock streaked with tin ore, easy enough for a beginner.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": false,
+    "resourceNodeId": "tin_rock_node",
+    "options": [{ "label": "Mine", "actionId": "mine", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_tin_rock"
+  },
+  {
+    "id": "scrub_tree",
+    "name": "Scrub Tree",
+    "examine": "A scraggly tree that barely qualifies as wood, but it burns well enough.",
+    "width": 1,
+    "length": 1,
+    "blocksMovement": true,
+    "blocksLineOfSight": true,
+    "resourceNodeId": "scrub_tree",
+    "options": [{ "label": "Chop", "actionId": "woodcut", "priority": 10, "requiredDistance": 1 }],
+    "model": "model_dry_tree"
   },
   {
     "id": "cooking_range",
@@ -386,7 +422,10 @@
     "length": 1,
     "blocksMovement": true,
     "blocksLineOfSight": false,
-    "options": [{ "label": "Cook", "actionId": "cook", "priority": 10, "requiredDistance": 1 }],
+    "options": [
+      { "label": "Cook", "actionId": "cook", "priority": 10, "requiredDistance": 1 },
+      { "label": "Light", "actionId": "light", "priority": 8, "requiredDistance": 1 }
+    ],
     "model": "model_market_kitchen_hearth"
   },
   {

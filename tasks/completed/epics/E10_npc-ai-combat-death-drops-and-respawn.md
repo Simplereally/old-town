@@ -29,11 +29,11 @@ Implement the OSRS-like tick combat core: NPC brains, target validation, melee a
 
 ## Ordered stories
 
-- [X] `E10-S01` — [Implement NPC spawn, wander, leash, and respawn AI](../completed/stories/E10/E10-S01_implement-npc-spawn-wander-leash-and-respawn-ai.md)
-- [X] `E10-S02` — [Implement combat target acquisition and validation](../completed/stories/E10/E10-S02_implement-combat-target-acquisition-and-validation.md)
-- [X] `E10-S03` — [Implement melee attack timing and rolls](../completed/stories/E10/E10-S03_implement-melee-attack-timing-and-rolls.md)
-- [X] `E10-S04` — [Apply hits, health bars, hitsplats, and XP](../completed/stories/E10/E10-S04_apply-hits-health-bars-hitsplats-and-xp.md)
-- [X] `E10-S05` — [Implement death, drops, ground items, and ownership](../completed/stories/E10/E10-S05_implement-death-drops-ground-items-and-ownership.md)
+- [X] `E10-S01` — [Implement NPC spawn, wander, leash, and respawn AI](../stories/E10/E10-S01_implement-npc-spawn-wander-leash-and-respawn-ai.md)
+- [X] `E10-S02` — [Implement combat target acquisition and validation](../stories/E10/E10-S02_implement-combat-target-acquisition-and-validation.md)
+- [X] `E10-S03` — [Implement melee attack timing and rolls](../stories/E10/E10-S03_implement-melee-attack-timing-and-rolls.md)
+- [X] `E10-S04` — [Apply hits, health bars, hitsplats, and XP](../stories/E10/E10-S04_apply-hits-health-bars-hitsplats-and-xp.md)
+- [X] `E10-S05` — [Implement death, drops, ground items, and ownership](../stories/E10/E10-S05_implement-death-drops-ground-items-and-ownership.md)
 
 ## Epic acceptance criteria
 

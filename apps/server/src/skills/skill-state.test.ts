@@ -113,6 +113,15 @@ describe("addXp", () => {
       { skillId: "woodcutting", level: 2, xp: 100, effectiveLevel: 2 },
     ]);
     expect(dirty.xpDrops).toEqual([{ skillId: "woodcutting", amount: 100 }]);
+    expect(dirty.levelUps).toEqual([{ skillId: "woodcutting", newLevel: 2 }]);
+  });
+
+  it("does not emit a level-up packet below the next threshold", () => {
+    const { world, owner, deltas } = setupSkills();
+
+    addXp({ world, deltas }, owner, "woodcutting", 50);
+
+    expect(deltas.peek().levelUps).toBeUndefined();
   });
 
   it("accumulates fractional XP amounts (OSRS hitpoints XP is 1.33/damage)", () => {
@@ -135,6 +144,33 @@ describe("addXp", () => {
     const result = addXp({ world, deltas }, owner, "hitpoints", 0.5);
     expect(result).toBeDefined();
     expect(skill(skills, "hitpoints").xp).toBe(0.5);
+  });
+
+  it("recalculates max health and combat level when hitpoints levels up", () => {
+    const { world, owner, deltas } = setupCombatant();
+
+    addXp({ world, deltas }, owner, "hitpoints", 100);
+
+    const combatant = world.getComponent(owner, "combatant");
+    expect(combatant?.health).toBe(10);
+    expect(combatant?.maxHealth).toBe(20);
+    expect(combatant?.combatLevel).toBe(computeCombatLevel(world, owner));
+    expect(deltas.peek().entityUpdates[0]?.changes.healthBar).toEqual({
+      current: 10,
+      max: 20,
+    });
+  });
+
+  it("syncs melee roll levels and combat level when a combat skill levels up", () => {
+    const { world, owner, deltas } = setupCombatant();
+    const beforeCombatLevel = world.getComponent(owner, "combatant")?.combatLevel ?? 0;
+
+    addXp({ world, deltas }, owner, "attack", 13_034_431);
+
+    const combatant = world.getComponent(owner, "combatant");
+    expect(combatant?.attackLevel).toBe(99);
+    expect(combatant?.combatLevel).toBeGreaterThan(beforeCombatLevel);
+    expect(combatant?.combatLevel).toBe(computeCombatLevel(world, owner));
   });
 
   it("returns undefined for non-positive XP", () => {

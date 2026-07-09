@@ -20,8 +20,7 @@ export function buildBakedChunkPayload(
   materialColors?: Record<string, number>,
 ): BakedChunkPayload {
   const DEFAULT_COLOR = 0x4f8f3a;
-  const resolveColor = (id: string): number =>
-    materialColors?.[id] ?? DEFAULT_COLOR;
+  const resolveColor = (id: string): number => materialColors?.[id] ?? DEFAULT_COLOR;
 
   // Each tile produces up to 2 quads: underlay + optional overlay.
   const maxQuads = tiles.length * 2;
@@ -150,10 +149,30 @@ export function buildBakedChunkPayload(
     indices.set(newIndices.subarray(0, newIdx));
     // Truncate to actual used length.
     const finalIndices = indices.subarray(0, newIdx);
-    return buildResult(chunkCoord, tiles, objectRefs, positions, normals, colors, finalIndices, materialQuadRanges, v);
+    return buildResult(
+      chunkCoord,
+      tiles,
+      objectRefs,
+      positions,
+      normals,
+      colors,
+      finalIndices,
+      materialQuadRanges,
+      v,
+    );
   }
 
-  return buildResult(chunkCoord, tiles, objectRefs, positions, normals, colors, indices.subarray(0, iIdx), materialQuadRanges, v);
+  return buildResult(
+    chunkCoord,
+    tiles,
+    objectRefs,
+    positions,
+    normals,
+    colors,
+    indices.subarray(0, iIdx),
+    materialQuadRanges,
+    v,
+  );
 }
 
 function buildResult(

@@ -3,18 +3,18 @@ import { regionId } from "../types/coords";
 import { entityId } from "../types/ids";
 import type { EntitySpawnPacket, EntityUpdatePacket } from "./entity-update";
 import {
+  fullStatePacketSchema,
+  parseServerPacket,
+  parseTransportServerPacket,
+  tickDeltaPacketSchema,
+} from "./packet-schemas";
+import {
   type FullStatePacket,
   PROTOCOL_VERSION,
   ServerPacketType,
   type TickDeltaPacket,
 } from "./packets";
 import { TransportServerMessageType } from "./transport";
-import {
-  fullStatePacketSchema,
-  parseServerPacket,
-  parseTransportServerPacket,
-  tickDeltaPacketSchema,
-} from "./packet-schemas";
 
 const spawn: EntitySpawnPacket = {
   entityId: entityId(1),
@@ -64,9 +64,7 @@ const fullStateAll: FullStatePacket = {
         {
           cx: 0,
           cy: 0,
-          tiles: [
-            { x: 0, y: 0, height: 0, underlayId: "grass", collision: 0, water: false },
-          ],
+          tiles: [{ x: 0, y: 0, height: 0, underlayId: "grass", collision: 0, water: false }],
         },
       ],
     },
@@ -80,12 +78,23 @@ const tickDeltaAll: TickDeltaPacket = {
   entityAdds: [spawn],
   entityRemoves: [entityId(7)],
   entityUpdates: [update],
-  inventoryDeltas: [{ containerId: "inventory", changes: [{ slot: 0, itemId: "penny_hatchet", quantity: 1 }] }],
+  inventoryDeltas: [
+    { containerId: "inventory", changes: [{ slot: 0, itemId: "penny_hatchet", quantity: 1 }] },
+  ],
   skillDelta: [{ skillId: "attack", level: 1, xp: 16, effectiveLevel: 1 }],
   varbitDelta: [{ varId: "quest_smoke", value: 1 }],
-  chat: [{ text: "hello", channel: "public", serverTime: 1700000000600, entityId: entityId(42), name: "Bob" }],
+  chat: [
+    {
+      text: "hello",
+      channel: "public",
+      serverTime: 1700000000600,
+      entityId: entityId(42),
+      name: "Bob",
+    },
+  ],
   hitsplats: [{ entityId: entityId(1), hitsplat: { amount: 4, type: "damage" } }],
   xpDrops: [{ skillId: "attack", amount: 16 }],
+  levelUps: [{ skillId: "attack", newLevel: 2 }],
   projectiles: [
     {
       id: "proj-1",
@@ -99,7 +108,9 @@ const tickDeltaAll: TickDeltaPacket = {
     },
   ],
   sounds: [{ soundId: "hit_splat", tile: { x: 5, y: 6, plane: 0 }, volume: 0.8 }],
-  regionLoads: [{ region: { rx: 0, ry: 1, plane: 0 }, regionId: regionId({ rx: 0, ry: 1, plane: 0 }) }],
+  regionLoads: [
+    { region: { rx: 0, ry: 1, plane: 0 }, regionId: regionId({ rx: 0, ry: 1, plane: 0 }) },
+  ],
   regionUnloads: [{ regionId: regionId({ rx: 0, ry: 0, plane: 0 }) }],
   interfaceOpens: [
     {
@@ -156,7 +167,9 @@ const tickDeltaAll: TickDeltaPacket = {
   interfaceCloses: [{ interfaceId: "bank" }],
   deathNotices: [{ entityId: entityId(7) }],
   respawnNotices: [{ entityId: entityId(7), tile: { x: 0, y: 0, plane: 0 } }],
-  contractComplete: [{ entityId: entityId(1), contractId: "rat_extermination", name: "Rat Extermination" }],
+  contractComplete: [
+    { entityId: entityId(1), contractId: "rat_extermination", name: "Rat Extermination" },
+  ],
   contractProgress: [
     {
       entityId: entityId(1),
@@ -186,9 +199,26 @@ const tickDeltaAll: TickDeltaPacket = {
       ],
     },
   ],
-  recipeResults: [{ recipeId: "bread_recipe", success: true, productItemId: "bread", productQuantity: 1, xpReward: 10, message: "Cooked bread." }],
+  recipeResults: [
+    {
+      recipeId: "bread_recipe",
+      success: true,
+      productItemId: "bread",
+      productQuantity: 1,
+      xpReward: 10,
+      message: "Cooked bread.",
+    },
+  ],
   debug: {
-    paths: [{ entityId: entityId(1), path: [{ x: 5, y: 6, plane: 0 }, { x: 6, y: 6, plane: 0 }] }],
+    paths: [
+      {
+        entityId: entityId(1),
+        path: [
+          { x: 5, y: 6, plane: 0 },
+          { x: 6, y: 6, plane: 0 },
+        ],
+      },
+    ],
     trueTiles: [{ entityId: entityId(1), tile: { x: 6, y: 6, plane: 0 } }],
     collisionTiles: [{ x: 7, y: 7, plane: 0 }],
     footprints: [{ x: 6, y: 6, plane: 0 }],
@@ -256,6 +286,14 @@ describe("S2C packet schemas", () => {
     const bad = {
       ...tickDeltaMinimal,
       hitsplats: [{ entityId: 1, hitsplat: { amount: 4, type: "burn" } }],
+    };
+    expect(tickDeltaPacketSchema.safeParse(bad).success).toBe(false);
+  });
+
+  it("rejects an invalid level-up packet", () => {
+    const bad = {
+      ...tickDeltaMinimal,
+      levelUps: [{ skillId: "attack", newLevel: 0 }],
     };
     expect(tickDeltaPacketSchema.safeParse(bad).success).toBe(false);
   });

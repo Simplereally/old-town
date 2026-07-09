@@ -1,0 +1,26 @@
+{
+  "archetypes": [
+    "anvil_shed",
+    "bead_loom_hall",
+    "bowyer_workshop",
+    "cellar_ruin",
+    "chalkhouse",
+    "counting_house",
+    "dock",
+    "foundry_forge",
+    "garden_plot",
+    "gatehouse",
+    "generic_house_a",
+    "generic_house_b",
+    "generic_house_c",
+    "graveyard_crypt",
+    "kitchen_hearth",
+    "market_bell_tower",
+    "market_stall",
+    "river_fishmonger",
+    "shrine_hall",
+    "tannery",
+    "warden_post",
+    "well"
+  ]
+}

@@ -208,7 +208,11 @@ export class InputInterpreter {
 
     if (tile) {
       options.push({
-        label: "Walk here", actionId: "walk_here", priority: 0, parts: [{ text: "Walk here", color: "#ffffff" }] });
+        label: "Walk here",
+        actionId: "walk_here",
+        priority: 0,
+        parts: [{ text: "Walk here", color: "#ffffff" }],
+      });
     }
 
     if (state.spellMode && (entity || tile)) {
@@ -235,8 +239,7 @@ export class InputInterpreter {
     // OSRS "Choose Option": when an NPC has a combat level, the level appears in
     // parentheses next to the name on every option row (e.g. "Attack Goblin (level-2)").
     const npcDef = entity.kind === "npc" ? this.content.getNpc(entity.defId ?? "") : undefined;
-    const levelSuffix =
-      npcDef?.combatLevel !== undefined ? ` (level-${npcDef.combatLevel})` : "";
+    const levelSuffix = npcDef?.combatLevel !== undefined ? ` (level-${npcDef.combatLevel})` : "";
     const isNpc = entity.kind === "npc";
     // OSRS rows read "<verb> <name in yellow><level-suffix coloured by level diff>".
     // The name is always yellow; the level suffix is tinted by the OSRS 9-tier

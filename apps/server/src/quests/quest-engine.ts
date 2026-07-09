@@ -1,5 +1,6 @@
 import type { ContentRegistries, EntityId, QuestDef, QuestStage } from "@old-town/shared";
 import type { World } from "../ecs/world";
+import { count } from "../items/inventory";
 import type { ItemAuditLog, ItemAuditMetadata } from "../items/item-audit";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import {
@@ -16,6 +17,7 @@ import {
 } from "../vars/player-vars";
 import { applyEffects, completeQuest } from "./effects";
 import { areObjectivesComplete } from "./objectives";
+import { meetsAllRequirements } from "./requirements";
 
 export type QuestEvent =
   | { readonly kind: "dialogue"; readonly npcId: string }
@@ -110,20 +112,30 @@ function recordEventProgress(ctx: QuestEngineContext, playerId: EntityId, event:
         case "dialogue":
           if (objective.kind === "talk" && objective.npcId === event.npcId) {
             setVar(ctx, playerId, questTalkVarKey(quest, event.npcId), true);
+            if (objective.progressVar) {
+              setVar(ctx, playerId, objective.progressVar, true);
+            }
           }
           break;
         case "npc_killed":
           if (objective.kind === "kill" && objective.npcId === event.npcId) {
-            incrementVar(ctx, playerId, questKillCountVarKey(quest, event.npcId));
+            const killCount = incrementVar(ctx, playerId, questKillCountVarKey(quest, event.npcId));
+            if (objective.progressVar) {
+              setVar(ctx, playerId, objective.progressVar, killCount);
+            }
           }
           break;
         case "object_interacted":
           if (
             objective.kind === "object" &&
             objective.objectId === event.objectId &&
-            objective.option === event.option
+            objective.option === event.option &&
+            meetsAllRequirements(ctx, playerId, objective.requirements ?? [])
           ) {
             setVar(ctx, playerId, questObjectVarKey(quest, event.objectId, event.option), true);
+            if (objective.progressVar) {
+              setVar(ctx, playerId, objective.progressVar, true);
+            }
           }
           break;
         case "area_entered":
@@ -131,6 +143,20 @@ function recordEventProgress(ctx: QuestEngineContext, playerId: EntityId, event:
           break;
         case "item_gained":
         case "item_removed":
+          if (
+            (objective.kind === "gather" || objective.kind === "have_item") &&
+            objective.itemId === event.itemId &&
+            objective.progressVar
+          ) {
+            const inventory = ctx.world.getComponent(playerId, "inventory");
+            setVar(
+              ctx,
+              playerId,
+              objective.progressVar,
+              inventory ? count(inventory, objective.itemId) : 0,
+            );
+          }
+          break;
         case "skill_xp_gained":
           break;
       }

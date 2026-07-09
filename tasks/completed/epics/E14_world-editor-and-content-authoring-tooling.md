@@ -27,11 +27,11 @@ Create the tooling loop that prevents hand-coded maps and enables rapid content 
 
 ## Ordered stories
 
-- [X] `E14-S01` — [Upgrade content validator CLI for authoring](../completed/stories/E14/E14-S01_upgrade-content-validator-cli-for-authoring.md)
-- [X] `E14-S02` — [Create world editor shell](../completed/stories/E14/E14-S02_create-world-editor-shell.md)
-- [X] `E14-S03` — [Implement tile paint and height/collision editing](../completed/stories/E14/E14-S03_implement-tile-paint-and-height-collision-editing.md)
-- [X] `E14-S04` — [Implement object, NPC, resource node, and trigger placement](../completed/stories/E14/E14-S04_implement-object-npc-resource-node-and-trigger-placement.md)
-- [X] `E14-S05` — [Implement pathing, LoS, and interaction probe tools](../completed/stories/E14/E14-S05_implement-pathing-los-and-interaction-probe-tools.md)
+- [X] `E14-S01` — [Upgrade content validator CLI for authoring](../stories/E14/E14-S01_upgrade-content-validator-cli-for-authoring.md)
+- [X] `E14-S02` — [Create world editor shell](../stories/E14/E14-S02_create-world-editor-shell.md)
+- [X] `E14-S03` — [Implement tile paint and height/collision editing](../stories/E14/E14-S03_implement-tile-paint-and-height-collision-editing.md)
+- [X] `E14-S04` — [Implement object, NPC, resource node, and trigger placement](../stories/E14/E14-S04_implement-object-npc-resource-node-and-trigger-placement.md)
+- [X] `E14-S05` — [Implement pathing, LoS, and interaction probe tools](../stories/E14/E14-S05_implement-pathing-los-and-interaction-probe-tools.md)
 
 ## Epic acceptance criteria
 

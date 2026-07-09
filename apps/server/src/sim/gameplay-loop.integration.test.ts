@@ -20,7 +20,7 @@ import {
   processDamageResolutionEvents,
 } from "../systems/combat-system";
 import { handleGroundItemIntent, processDeathResolution } from "../systems/ground-item-system";
-import { syncNpcOccupancy } from "../systems/npc-system";
+import { processNpcAiPhase, syncNpcOccupancy } from "../systems/npc-system";
 import { createResourceNodeActionHandlers } from "../systems/resource-node-system";
 import {
   createSkillingActionHandlers,
@@ -313,6 +313,17 @@ function skillXp(harness: GameplayHarness, entityId: EntityId, skillId: string):
   return harness.world.getComponent(entityId, "skills")?.skills[skillId]?.xp ?? 0;
 }
 
+function groundItemQuantities(harness: GameplayHarness): Map<string, number> {
+  const quantities = new Map<string, number>();
+  for (const entityId of harness.world.entityIdsWith("groundItem")) {
+    const item = harness.world.getComponent(entityId, "groundItem");
+    if (item) {
+      quantities.set(item.itemId, (quantities.get(item.itemId) ?? 0) + item.quantity);
+    }
+  }
+  return quantities;
+}
+
 describe("gameplay loop integration", () => {
   it("loads resource-node content into the seed map", () => {
     const world = createWorld();
@@ -379,8 +390,8 @@ describe("gameplay loop integration", () => {
     expect(skillXp(harness, player, "mining")).toBe(15);
   });
 
-  it("kills a goblin, creates a private drop, and picks it up", () => {
-    const harness = makeHarness(fixedRng({ floats: [0], ints: [99, 0, 5] }));
+  it("kills a mud goblin, awards XP, emits combat feedback, and rolls goblin_drops", () => {
+    const harness = makeHarness(fixedRng({ floats: [0], ints: [99, 1, 1] }));
     const player = addPlayer(harness, tile(1, 1), {
       attackLevel: 99,
       strengthLevel: 99,
@@ -412,14 +423,29 @@ describe("gameplay loop integration", () => {
     processDeathResolution(harness.ctx, 2, 1_200);
 
     expect(harness.world.getComponent(goblin, "combatant")?.dead).toBe(true);
-    const groundItem = harness.world.entityIdsWith("groundItem")[0];
-    expect(groundItem).toBeDefined();
-    if (groundItem === undefined) {
-      throw new Error("Expected private goblin drop");
+    expect(skillXp(harness, player, "attack")).toBe(4);
+    expect(skillXp(harness, player, "hitpoints")).toBe(1.33);
+    expect(harness.deltas.peek().hitsplats).toContainEqual({
+      entityId: goblin,
+      hitsplat: { amount: 1, type: "damage" },
+    });
+
+    const quantities = groundItemQuantities(harness);
+    expect(quantities.get("coin")).toBe(3);
+    expect(quantities.get("bread")).toBe(1);
+    const groundItems = harness.world.entityIdsWith("groundItem");
+    expect(groundItems).toHaveLength(2);
+    for (const entityId of groundItems) {
+      expect(harness.world.getComponent(entityId, "groundItem")?.ownerId).toBe(player);
     }
-    const drop = harness.world.getComponent(groundItem, "groundItem");
-    expect(drop?.ownerId).toBe(player);
-    const dropPosition = harness.world.getComponent(groundItem, "position");
+
+    const coinDrop = groundItems.find(
+      (entityId) => harness.world.getComponent(entityId, "groundItem")?.itemId === "coin",
+    );
+    if (coinDrop === undefined) {
+      throw new Error("Expected private goblin coin drop");
+    }
+    const dropPosition = harness.world.getComponent(coinDrop, "position");
     if (!dropPosition) {
       throw new Error("Expected drop position");
     }
@@ -434,13 +460,82 @@ describe("gameplay loop integration", () => {
       handleGroundItemIntent(
         harness.ctx,
         player,
-        { groundItemEntityId: groundItem, actionId: "pickup" },
+        { groundItemEntityId: coinDrop, actionId: "pickup" },
         2,
         1_200,
       ),
     ).toBe(true);
-    expect(harness.world.isAlive(groundItem)).toBe(false);
-    expect(inventoryCount(harness, player, drop?.itemId ?? "coin")).toBeGreaterThan(0);
+    expect(harness.world.isAlive(coinDrop)).toBe(false);
+    expect(inventoryCount(harness, player, "coin")).toBe(3);
+  });
+
+  it("kills a peaceful cellar rat, rolls rat_drops, and respawns it at home", () => {
+    const harness = makeHarness(fixedRng({ floats: [0], ints: [99, 1, 1] }));
+    const player = addPlayer(harness, tile(1, 1), {
+      attackLevel: 99,
+      strengthLevel: 99,
+      defenceLevel: 99,
+      weaponId: "pennywrought_shortblade",
+    });
+    const home = tile(1, 2);
+    const rat = addNpc(harness, "cellar_rat", home);
+    const ratCombat = harness.world.getComponent(rat, "combatant");
+    if (!ratCombat) {
+      throw new Error("Expected cellar rat combatant");
+    }
+    harness.world.setComponent(rat, "combatant", {
+      ...ratCombat,
+      health: 1,
+      maxHealth: 1,
+    });
+
+    handleNpcCombatIntent(harness.ctx, player, { npcEntityId: rat, actionId: "attack" }, 600, 1);
+    processCombatStartEvents(harness.ctx, 1);
+    processDamageResolutionEvents(harness.ctx, 2);
+    processDeathResolution(harness.ctx, 2, 1_200);
+
+    expect(harness.world.getComponent(rat, "combatant")?.dead).toBe(true);
+    expect(harness.world.getComponent(rat, "npc")?.respawnTick).toBe(7);
+    expect(skillXp(harness, player, "attack")).toBe(4);
+    expect(skillXp(harness, player, "hitpoints")).toBe(1.33);
+    const quantities = groundItemQuantities(harness);
+    expect(quantities.get("smoke_over_old_town_cellar_rat_tail")).toBe(1);
+    expect(quantities.get("coin")).toBe(1);
+
+    processNpcAiPhase(harness.ctx, 6);
+    expect(harness.world.getComponent(rat, "combatant")?.dead).toBe(true);
+    processNpcAiPhase(harness.ctx, 7);
+
+    expect(harness.world.getComponent(rat, "combatant")).toMatchObject({
+      dead: false,
+      health: 1,
+    });
+    expect(harness.world.getComponent(rat, "position")).toMatchObject(home);
+    expect(harness.deltas.peek().entityAdds?.some((entity) => entity.entityId === rat)).toBe(true);
+  });
+
+  it("honours the starter creature aggression contract", () => {
+    expect(registries.npc.get("cellar_rat")).toMatchObject({
+      combatLevel: 1,
+      aggressionMode: "peaceful",
+      aggressiveRadius: 0,
+      drops: "rat_drops",
+    });
+    expect(registries.npc.get("mud_goblin")).toMatchObject({
+      combatLevel: 5,
+      aggressionMode: "aggressive",
+      aggressiveRadius: 3,
+      drops: "goblin_drops",
+    });
+
+    const harness = makeHarness();
+    const player = addPlayer(harness, tile(1, 1));
+    const goblin = addNpc(harness, "mud_goblin", tile(1, 4));
+
+    processNpcAiPhase(harness.ctx, 1);
+
+    expect(harness.world.getComponent(goblin, "combatant")?.targetId).toBe(player);
+    expect(harness.world.getComponent(goblin, "npc")?.brainState).toBe("chase");
   });
 
   it("punches a Man unarmed at spawn, gains defence and hitpoints XP, then loots the coins", () => {

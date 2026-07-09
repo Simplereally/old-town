@@ -15,6 +15,7 @@ import {
   type InterfaceOpenPacket,
   type InventoryDelta,
   type InventorySlotChange,
+  type LevelUpPacket,
   type ProjectilePacket,
   type RecipeListPacket,
   type RecipeResultPacket,
@@ -38,6 +39,7 @@ export interface DirtyState {
   readonly chat?: readonly ChatPacket[];
   readonly hitsplats?: readonly HitsplatPacket[];
   readonly xpDrops?: readonly XpDropPacket[];
+  readonly levelUps?: readonly LevelUpPacket[];
   readonly projectiles?: readonly ProjectilePacket[];
   readonly interfaceOpens?: readonly InterfaceOpenPacket[];
   readonly interfaceCloses?: readonly InterfaceClosePacket[];
@@ -81,6 +83,7 @@ export class DeltaAccumulator {
   private chatPackets: ChatPacket[] = [];
   private hitsplatPackets: HitsplatPacket[] = [];
   private xpDropPackets: XpDropPacket[] = [];
+  private levelUpPackets: LevelUpPacket[] = [];
   private projectilePackets: ProjectilePacket[] = [];
   private interfaceOpenPackets: InterfaceOpenPacket[] = [];
   private interfaceClosePackets: InterfaceClosePacket[] = [];
@@ -163,6 +166,10 @@ export class DeltaAccumulator {
 
   markXpDrop(packet: XpDropPacket): void {
     this.xpDropPackets.push(packet);
+  }
+
+  markLevelUp(packet: LevelUpPacket): void {
+    this.levelUpPackets.push(packet);
   }
 
   markProjectile(packet: ProjectilePacket): void {
@@ -251,6 +258,7 @@ export class DeltaAccumulator {
       ...(this.chatPackets.length > 0 ? { chat: [...this.chatPackets] } : {}),
       ...(this.hitsplatPackets.length > 0 ? { hitsplats: [...this.hitsplatPackets] } : {}),
       ...(this.xpDropPackets.length > 0 ? { xpDrops: [...this.xpDropPackets] } : {}),
+      ...(this.levelUpPackets.length > 0 ? { levelUps: [...this.levelUpPackets] } : {}),
       ...(this.projectilePackets.length > 0 ? { projectiles: [...this.projectilePackets] } : {}),
       ...(this.interfaceOpenPackets.length > 0
         ? { interfaceOpens: [...this.interfaceOpenPackets] }
@@ -325,6 +333,7 @@ export class DeltaAccumulator {
     this.chatPackets = [];
     this.hitsplatPackets = [];
     this.xpDropPackets = [];
+    this.levelUpPackets = [];
     this.projectilePackets = [];
     this.interfaceOpenPackets = [];
     this.interfaceClosePackets = [];

@@ -9,7 +9,13 @@ import {
 } from "@old-town/shared";
 import type { ContractObjective } from "../ecs/components";
 import type { World } from "../ecs/world";
-import type { RuntimeAreaTrigger, RuntimeMap, RuntimeTile, PlayerSpawnPoint, DeathRespawnPoint } from "./runtime-map";
+import type {
+  DeathRespawnPoint,
+  PlayerSpawnPoint,
+  RuntimeAreaTrigger,
+  RuntimeMap,
+  RuntimeTile,
+} from "./runtime-map";
 
 export interface LoadedRegionSummary {
   readonly regionId: string;
@@ -203,7 +209,7 @@ export function loadRegionMapIntoWorld(
         attackCooldown: 0,
         combatLevel: npcDef.combatLevel ?? 3,
         eatBlockedUntilTick: 0,
-        autoRetaliate: true,
+        autoRetaliate: npcDef.aggressionMode !== "peaceful",
         nextAttackTick: 0,
         dead: false,
         spellCooldowns: {},

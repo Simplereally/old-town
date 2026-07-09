@@ -23,13 +23,25 @@ if (
   const store = new Map<string, string>();
   const shim = {
     getItem: (key: string) => store.get(key) ?? null,
-    setItem: (key: string, value: string) => { store.set(key, String(value)); },
-    removeItem: (key: string) => { store.delete(key); },
-    clear: () => { store.clear(); },
+    setItem: (key: string, value: string) => {
+      store.set(key, String(value));
+    },
+    removeItem: (key: string) => {
+      store.delete(key);
+    },
+    clear: () => {
+      store.clear();
+    },
     key: (index: number) => Array.from(store.keys())[index] ?? null,
-    get length() { return store.size; },
+    get length() {
+      return store.size;
+    },
   };
-  Object.defineProperty(globalThis, "localStorage", { value: shim, configurable: true, writable: true });
+  Object.defineProperty(globalThis, "localStorage", {
+    value: shim,
+    configurable: true,
+    writable: true,
+  });
 }
 
 function mockCanvas(): void {
@@ -82,6 +94,7 @@ function setupTestEnv(): void {
     <div id="quest-panel" class="hidden"></div>
     <div id="quest-body"></div>
     <div id="chat-box" class="hidden"></div>
+    <div id="chat-cluster" class="hidden"></div>
     <div id="chat-body"></div>
     <input id="chat-input" />
     <button id="chat-send"></button>
@@ -122,6 +135,7 @@ function setupTestEnv(): void {
         <canvas id="minimap-canvas" width="160" height="120"></canvas>
       </div>
     </div>
+    <div id="minimap-cluster" class="hidden"></div>
     <div id="contract-panel" class="hidden">
       <div class="ui-panel-body" id="contract-body"></div>
       <div id="contract-progress-bar"><div id="contract-progress-fill"></div></div>
@@ -170,6 +184,9 @@ describe("UIManager", () => {
       sendRecipeCommand: vi.fn(),
       sendSetCombatStyle: vi.fn(),
       setInputSettings: vi.fn(),
+      setRenderSettings: vi.fn(),
+      setAudioSettings: vi.fn(),
+      playUiSound: vi.fn(),
     };
     manager = new UIManager(uiState, content, callbacks);
   });
@@ -177,10 +194,50 @@ describe("UIManager", () => {
   it("shows panel on sidebar tab click", () => {
     const btn = document.querySelector(".sb-tab[data-tab='equipment']");
     const panel = document.getElementById("equipment-panel");
-    if (!(btn instanceof HTMLButtonElement) || !(panel instanceof HTMLDivElement)) throw new Error("Missing elements");
+    if (!(btn instanceof HTMLButtonElement) || !(panel instanceof HTMLDivElement))
+      throw new Error("Missing elements");
     expect(panel.classList.contains("hidden")).toBe(true);
     btn.click();
     expect(panel.classList.contains("hidden")).toBe(false);
+  });
+
+  it("openDefaultPanels shows inventory tab, chat cluster, and minimap cluster on first load", () => {
+    const fresh = new UIManager(uiState, content, callbacks);
+    const inventoryPanel = document.getElementById("inventory-panel");
+    const equipmentPanel = document.getElementById("equipment-panel");
+    const chatCluster = document.getElementById("chat-cluster");
+    const minimapCluster = document.getElementById("minimap-cluster");
+    if (
+      !(inventoryPanel instanceof HTMLDivElement) ||
+      !(equipmentPanel instanceof HTMLDivElement) ||
+      !(chatCluster instanceof HTMLDivElement) ||
+      !(minimapCluster instanceof HTMLDivElement)
+    ) {
+      throw new Error("Missing cluster elements");
+    }
+
+    // Switch away from the default inventory tab to prove openDefaultPanels
+    // actively re-selects it.
+    const equipmentTab = document.querySelector<HTMLButtonElement>(".sb-tab[data-tab='equipment']");
+    equipmentTab?.click();
+    expect(inventoryPanel.classList.contains("hidden")).toBe(true);
+    expect(equipmentPanel.classList.contains("hidden")).toBe(false);
+
+    // Clusters start hidden in the fixture.
+    expect(chatCluster.classList.contains("hidden")).toBe(true);
+    expect(minimapCluster.classList.contains("hidden")).toBe(true);
+
+    fresh.openDefaultPanels();
+
+    // Inventory sidebar page is the default visible page again.
+    expect(inventoryPanel.classList.contains("hidden")).toBe(false);
+    expect(equipmentPanel.classList.contains("hidden")).toBe(true);
+    // Chat and minimap clusters are always visible.
+    expect(chatCluster.classList.contains("hidden")).toBe(false);
+    expect(minimapCluster.classList.contains("hidden")).toBe(false);
+    // The inventory sidebar tab is the active tab.
+    const invTab = document.querySelector(".sb-tab[data-tab='inventory']");
+    expect(invTab?.classList.contains("active")).toBe(true);
   });
 
   it("renders weapon attack styles and selecting one sends the command optimistically", () => {
@@ -203,9 +260,9 @@ describe("UIManager", () => {
     const buttons = body?.querySelectorAll(".combat-style-btn");
     expect(buttons?.length).toBe(3);
     // Default active style is the weapon's first style: stab → Attack.
-    expect(
-      body?.querySelector(".combat-style-btn.active .combat-style-name")?.textContent,
-    ).toBe("Stab");
+    expect(body?.querySelector(".combat-style-btn.active .combat-style-name")?.textContent).toBe(
+      "Stab",
+    );
 
     const slash = [...(buttons ?? [])].find((b) => b.textContent?.includes("Slash"));
     (slash as HTMLButtonElement).click();
@@ -269,7 +326,8 @@ describe("UIManager", () => {
   it("does not intercept keyboard shortcuts when input is focused", () => {
     const input = document.getElementById("chat-input");
     const panel = document.getElementById("equipment-panel");
-    if (!(input instanceof HTMLInputElement) || !(panel instanceof HTMLDivElement)) throw new Error("Missing elements");
+    if (!(input instanceof HTMLInputElement) || !(panel instanceof HTMLDivElement))
+      throw new Error("Missing elements");
     expect(panel.classList.contains("hidden")).toBe(true);
     const event = new KeyboardEvent("keydown", { key: "e" });
     Object.defineProperty(event, "target", { value: input, writable: false });
@@ -631,7 +689,10 @@ describe("UIManager", () => {
   });
 
   describe("skills panel hover tooltip (OSRS-style progress)", () => {
-    function makeSkill(id: string, name: string): {
+    function makeSkill(
+      id: string,
+      name: string,
+    ): {
       id: string;
       name: string;
       maxLevel: number;
@@ -647,9 +708,7 @@ describe("UIManager", () => {
       content.getSkill = vi.fn((id: string) => (id === "cooking" ? cooking : undefined));
       content.getAllSkills = vi.fn(() => [cooking]);
       // 1154 xp = exactly level 10; next level (11) at 1358 → 204 to next.
-      uiState.setSkills([
-        { skillId: "cooking", level: 10, xp: 1154, effectiveLevel: 10 },
-      ]);
+      uiState.setSkills([{ skillId: "cooking", level: 10, xp: 1154, effectiveLevel: 10 }]);
       manager.togglePanel("skills-panel");
 
       const tile = document.querySelector<HTMLDivElement>(".skill-tile");
@@ -669,13 +728,26 @@ describe("UIManager", () => {
       expect(tooltip?.textContent).toContain("XP to next: 204");
     });
 
+    it("updates the visible level and XP details after a level-up delta", () => {
+      const cooking = makeSkill("cooking", "Cooking");
+      content.getSkill = vi.fn((id: string) => (id === "cooking" ? cooking : undefined));
+      content.getAllSkills = vi.fn(() => [cooking]);
+      uiState.setSkills([{ skillId: "cooking", level: 1, xp: 0, effectiveLevel: 1 }]);
+      manager.togglePanel("skills-panel");
+
+      uiState.applySkillDelta([{ skillId: "cooking", level: 2, xp: 100, effectiveLevel: 3 }]);
+
+      const tile = document.querySelector<HTMLDivElement>(".skill-tile");
+      expect(tile?.textContent).toContain("3/2");
+      expect(tile?.title).toContain("Level 3 / 2");
+      expect(tile?.title).toContain("XP 100");
+    });
+
     it("shows Max and no xp-to-next at level 99", () => {
       const attack = makeSkill("attack", "Attack");
       content.getSkill = vi.fn((id: string) => (id === "attack" ? attack : undefined));
       content.getAllSkills = vi.fn(() => [attack]);
-      uiState.setSkills([
-        { skillId: "attack", level: 99, xp: 13_034_431, effectiveLevel: 99 },
-      ]);
+      uiState.setSkills([{ skillId: "attack", level: 99, xp: 13_034_431, effectiveLevel: 99 }]);
       manager.togglePanel("skills-panel");
 
       const tile = document.querySelector<HTMLDivElement>(".skill-tile");
@@ -713,9 +785,7 @@ describe("UIManager", () => {
       const cooking = makeSkill("cooking", "Cooking");
       content.getSkill = vi.fn((id: string) => (id === "cooking" ? cooking : undefined));
       content.getAllSkills = vi.fn(() => [cooking]);
-      uiState.setSkills([
-        { skillId: "cooking", level: 10, xp: 1154, effectiveLevel: 10 },
-      ]);
+      uiState.setSkills([{ skillId: "cooking", level: 10, xp: 1154, effectiveLevel: 10 }]);
       manager.togglePanel("skills-panel");
 
       const tile = document.querySelector<HTMLDivElement>(".skill-tile");
@@ -725,9 +795,7 @@ describe("UIManager", () => {
       expect(tooltip?.textContent).toContain("XP to next: 204");
 
       // Simulate an XP drop arriving: 200 XP gained → 1354 total, 4 to next.
-      uiState.applySkillDelta([
-        { skillId: "cooking", level: 10, xp: 1354, effectiveLevel: 10 },
-      ]);
+      uiState.applySkillDelta([{ skillId: "cooking", level: 10, xp: 1354, effectiveLevel: 10 }]);
 
       // Tooltip should now reflect the new XP without re-hovering.
       expect(tooltip?.textContent).toContain("XP: 1,354");
@@ -890,14 +958,32 @@ describe("UIManager", () => {
     it("renders NPC attack and mouse mode selects with persisted values", () => {
       localStorage.setItem(
         "old-town-input-settings",
-        JSON.stringify({ v: 1, npcAttack: "always-right-click", mouseButtons: "one-button", menuSwaps: [] }),
+        JSON.stringify({
+          v: 1,
+          npcAttack: "always-right-click",
+          mouseButtons: "one-button",
+          menuSwaps: [],
+        }),
       );
       manager.togglePanel("settings-panel");
       const body = document.getElementById("settings-body");
       const selects = body?.querySelectorAll<HTMLSelectElement>(".settings-select");
-      expect(selects?.length).toBe(2);
+      expect(selects?.length).toBe(4);
       expect(selects?.[0]?.value).toBe("always-right-click");
       expect(selects?.[1]?.value).toBe("one-button");
+      expect(selects?.[3]?.value).toBe("false");
+    });
+
+    it("calls setAudioSettings and persists when mute changes", () => {
+      manager.togglePanel("settings-panel");
+      const body = document.getElementById("settings-body");
+      const muteSelect = body?.querySelectorAll<HTMLSelectElement>(".settings-select")[3];
+      if (!muteSelect) throw new Error("Expected mute select");
+      muteSelect.value = "true";
+      muteSelect.dispatchEvent(new Event("change"));
+      expect(callbacks.setAudioSettings).toHaveBeenCalledWith({ muted: true });
+      const stored = JSON.parse(localStorage.getItem("old-town-audio-settings") ?? "{}");
+      expect(stored.muted).toBe(true);
     });
 
     it("calls setInputSettings and persists when NPC attack option changes", () => {
@@ -922,6 +1008,18 @@ describe("UIManager", () => {
       expect(callbacks.setInputSettings).toHaveBeenCalledWith({ mouseButtons: "one-button" });
       const stored = JSON.parse(localStorage.getItem("old-town-input-settings") ?? "{}");
       expect(stored.mouseButtons).toBe("one-button");
+    });
+
+    it("calls setRenderSettings and persists when weapon model source changes", () => {
+      manager.togglePanel("settings-panel");
+      const body = document.getElementById("settings-body");
+      const weaponSelect = body?.querySelectorAll<HTMLSelectElement>(".settings-select")[2];
+      if (!weaponSelect) throw new Error("Expected weapon models select");
+      weaponSelect.value = "procedural";
+      weaponSelect.dispatchEvent(new Event("change"));
+      expect(callbacks.setRenderSettings).toHaveBeenCalledWith({ weaponModels: "procedural" });
+      const stored = JSON.parse(localStorage.getItem("old-town-render-settings") ?? "{}");
+      expect(stored.weaponModels).toBe("procedural");
     });
   });
 
@@ -954,7 +1052,11 @@ describe("UIManager", () => {
       // Old-format entries have no `v` field; they should be discarded.
       localStorage.setItem(
         "old-town-input-settings",
-        JSON.stringify({ npcAttack: "depends-on-combat-levels", mouseButtons: "two-button", menuSwaps: [] }),
+        JSON.stringify({
+          npcAttack: "depends-on-combat-levels",
+          mouseButtons: "two-button",
+          menuSwaps: [],
+        }),
       );
       const settings = UIManager.loadInputSettings();
       expect(settings.npcAttack).toBe("left-click-where-available");

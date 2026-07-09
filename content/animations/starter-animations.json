@@ -46,5 +46,11 @@
     "name": "Teleport",
     "durationTicks": 5,
     "asset": "anim_teleport"
+  },
+  {
+    "id": "level_up",
+    "name": "Level Up",
+    "durationTicks": 2,
+    "asset": "anim_level_up"
   }
 ]

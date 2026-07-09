@@ -20,7 +20,14 @@ interface RegionMapFile {
   objects: Array<{ objectId: string; x: number; y: number; rotation?: number }>;
   npcSpawns: Array<{ npcId: string; x: number; y: number; wanderRadius?: number }>;
   groundItemSpawns: Array<{ itemId: string; quantity: number; x: number; y: number }>;
-  triggers: Array<{ id: string; x: number; y: number; width: number; height: number; tag?: string }>;
+  triggers: Array<{
+    id: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    tag?: string;
+  }>;
   resourceNodeSpawns: Array<{
     resourceNodeId: string;
     x: number;

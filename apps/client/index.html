@@ -566,26 +566,37 @@
       border: 2px solid;
       border-color: #555 #333 #333 #555;
       border-radius: 2px;
-      padding: 4px 2px;
+      padding: 1px;
       text-align: center;
       cursor: pointer;
       user-select: none;
-      min-height: 56px;
+      height: 28px;
+      min-height: 28px;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
       justify-content: center;
-      gap: 2px;
+      gap: 0;
     }
     .skill-tile:hover {
       background: rgba(60, 60, 75, 0.9);
       border-color: #666 #444 #444 #666;
     }
     .skill-tile-icon {
-      font-size: 20px;
+      flex: 1 1 50%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
       line-height: 1;
     }
     .skill-tile-level {
+      flex: 1 1 50%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: #ffcc00;
       font-size: 11px;
       font-weight: bold;
@@ -703,18 +714,18 @@
       color: #6a6a6a;
       line-height: 1.3;
     }
-    #skills-panel {
-      width: 220px;
+    .settings-range {
+      width: 100%;
+      accent-color: #d4a843;
+      cursor: pointer;
     }
     @media (max-width: 480px) {
-      #skills-panel {
-        width: 180px;
-      }
       .skill-tile {
-        min-height: 48px;
+        height: 24px;
+        min-height: 24px;
       }
       .skill-tile-icon {
-        font-size: 16px;
+        font-size: 12px;
       }
       .skill-tile-level {
         font-size: 10px;
@@ -918,6 +929,15 @@
     .sidebar-page-body {
       max-height: 252px;
       overflow-y: auto;
+    }
+    /* Stats page: fixed-size panel, no internal scroll, all tiles visible. */
+    #skills-panel {
+      height: 324px;
+    }
+    #skills-body {
+      height: 100%;
+      max-height: none;
+      overflow-y: hidden;
     }
     .sidebar-placeholder-inner {
       display: flex;

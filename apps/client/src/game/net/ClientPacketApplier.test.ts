@@ -245,6 +245,47 @@ describe("ClientPacketApplier (pure)", () => {
     expect(ctx.uiState.vars.get("quest")).toBe(1);
   });
 
+  it("applyFullState emits setWeaponModel/setArmourModel/setAccessoryModel for initial equipment", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    // Slots: head(0), cape(1), amulet(2), weapon(3), body(4), shield(5),
+    // legs(6), hands(7), feet(8).
+    const equipment = {
+      slots: [
+        "helm", // head
+        "cape", // cape
+        "amulet", // amulet
+        "pennywrought_shortblade", // weapon
+        "body", // body
+        "shield", // shield
+        "legs", // legs
+        "hands", // hands
+        "feet", // feet
+      ],
+    };
+
+    const result = applier.applyFullState(fullStatePacket({ equipment, selfEntityId: eid(42) }));
+
+    const weaponEvent = result.presentationEvents.find((e) => e.type === "actors.setWeaponModel");
+    expect(weaponEvent).toBeDefined();
+    expect(weaponEvent?.payload).toMatchObject({
+      entityId: 42,
+      weaponItemId: "pennywrought_shortblade",
+    });
+
+    const armourEvents = result.presentationEvents.filter(
+      (e) => e.type === "actors.setArmourModel",
+    );
+    const headEvent = armourEvents.find((e) => e.payload.slot === "head");
+    expect(headEvent?.payload.itemId).toBe("helm");
+
+    const accessoryEvents = result.presentationEvents.filter(
+      (e) => e.type === "actors.setAccessoryModel",
+    );
+    const capeEvent = accessoryEvents.find((e) => e.payload.slot === "cape");
+    expect(capeEvent?.payload.itemId).toBe("cape");
+  });
+
   it("applyFullState returns tick, serverTime, and selfEntityId", () => {
     const ctx = createMockContext();
     const applier = new ClientPacketApplier(ctx);
@@ -305,6 +346,30 @@ describe("ClientPacketApplier (pure)", () => {
     expect(eventTypes).toContain("objects.remove");
     expect(eventTypes).toContain("actors.remove");
     expect(eventTypes).toContain("groundItems.remove");
+  });
+
+  it("emits lethal hitsplats before removing their actor presentation", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(
+      fullStatePacket({
+        tick: 1,
+        selfEntityId: eid(1),
+        entities: [spawnNpc(5, { x: 0, y: 0, plane: 0 })],
+      }),
+    );
+
+    const result = applier.applyTickDelta(
+      tickDeltaPacket({
+        tick: 2,
+        entityRemoves: [eid(5)],
+        hitsplats: [{ entityId: eid(5), hitsplat: { amount: 4, type: "damage" } }],
+      }),
+      1,
+    );
+
+    const eventTypes = result?.presentationEvents.map((event) => event.type) ?? [];
+    expect(eventTypes.indexOf("hitsplats.show")).toBeLessThan(eventTypes.indexOf("actors.remove"));
   });
 
   it("applyTickDelta updates store on entity add and remove", () => {
@@ -484,6 +549,45 @@ describe("ClientPacketApplier (pure)", () => {
     if (!result) throw new Error("unexpected null");
     const xpEvents = result.presentationEvents.filter((e) => e.type === "xpDrops.show");
     expect(xpEvents.length).toBe(2);
+  });
+
+  it("applyTickDelta emits structured level-up presentation events for self", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(fullStatePacket({ selfEntityId: eid(42) }));
+
+    const result = applier.applyTickDelta(
+      tickDeltaPacket({
+        tick: 9,
+        levelUps: [{ skillId: "woodcutting", newLevel: 2 }],
+      }),
+      8,
+    );
+
+    const event = result?.presentationEvents.find((entry) => entry.type === "levelUps.show");
+    expect(event?.payload).toEqual({
+      entityId: eid(42),
+      skillId: "woodcutting",
+      newLevel: 2,
+      tick: 9,
+    });
+  });
+
+  it("applyTickDelta emits sounds.play for server sound packets", () => {
+    const ctx = createMockContext();
+    const applier = new ClientPacketApplier(ctx);
+    applier.applyFullState(fullStatePacket({ selfEntityId: eid(42) }));
+
+    const result = applier.applyTickDelta(
+      tickDeltaPacket({
+        tick: 3,
+        sounds: [{ soundId: "door_open", volume: 1 }],
+      }),
+      2,
+    );
+
+    const event = result?.presentationEvents.find((entry) => entry.type === "sounds.play");
+    expect(event?.payload).toEqual({ soundId: "door_open", volume: 1 });
   });
 
   it("applyFullState emits xpDrops.clear event", () => {

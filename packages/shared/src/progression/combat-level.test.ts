@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   COMBAT_LEVEL_COLORS,
+  type CombatLevelInput,
   combatLevelColor,
   combatLevelFromLevels,
-  type CombatLevelInput,
 } from "./combat-level";
 
 describe("combatLevelColor", () => {
@@ -136,9 +136,9 @@ describe("combatLevelFromLevels", () => {
     // base = 0.25 * (1 + 1 + 0) = 0.5
     // melee = 0.325 * 2 = 0.65
     // level = floor(0.5 + 0.65) = floor(1.15) = 1
-    expect(combatLevelFromLevels({ attack: 1, strength: 1, defence: 1, hitpoints: 1, prayer: 1 })).toBe(
-      1,
-    );
+    expect(
+      combatLevelFromLevels({ attack: 1, strength: 1, defence: 1, hitpoints: 1, prayer: 1 }),
+    ).toBe(1);
   });
 
   it("is pure: the same input always yields the same output", () => {

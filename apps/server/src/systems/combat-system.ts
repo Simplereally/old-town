@@ -30,8 +30,8 @@ import { npcFootprint } from "./npc-system";
 import {
   applyPrayerProtection,
   hitStyleToProtectionStyle,
-  prayerBoostedLevel,
   type PrayerSystemContext,
+  prayerBoostedLevel,
 } from "./prayer-system";
 
 export interface CombatSystemContext {
@@ -316,6 +316,10 @@ export function assignAutoRetaliateTarget(
   if (!defender || defender.autoRetaliate === false || defender.targetId !== undefined) {
     return false;
   }
+  const defenderNpc = npcDef(ctx, defenderId);
+  if (defenderNpc?.aggressionMode === "peaceful") {
+    return false;
+  }
   if (isDead(ctx, defenderId) || isDead(ctx, attackerId)) {
     return false;
   }
@@ -473,7 +477,9 @@ function styleModeAllowed(style: CombatHitStyle, mode: CombatStyleMode): boolean
   if (style === "ranged" || style === "magic") {
     return mode === "accurate" || mode === "longrange";
   }
-  return mode === "accurate" || mode === "aggressive" || mode === "defensive" || mode === "controlled";
+  return (
+    mode === "accurate" || mode === "aggressive" || mode === "defensive" || mode === "controlled"
+  );
 }
 
 function resolveStyleMode(
@@ -626,10 +632,7 @@ function magicLevel(ctx: CombatSystemContext, entityId: EntityId): number {
  * Monsters use Magic level only — Defence does not contribute (OSRS wiki, Combat
  * §Monster magic defence).
  */
-export function effectiveMagicDefenceLevel(
-  ctx: CombatSystemContext,
-  targetId: EntityId,
-): number {
+export function effectiveMagicDefenceLevel(ctx: CombatSystemContext, targetId: EntityId): number {
   const targetSkills = ctx.world.getComponent(targetId, "skills");
   if (targetSkills) {
     const magic = getCurrentLevel(targetSkills, "magic");

@@ -166,6 +166,7 @@ export class ClientPacketApplier {
     }
     if (packet.equipment) {
       ctx.uiState.setEquipment(packet.equipment.slots);
+      this._emitEquipmentEvents(packet.selfEntityId, packet.equipment.slots, presentationEvents);
     }
     if (packet.skills) {
       ctx.uiState.setSkills(packet.skills);
@@ -238,9 +239,6 @@ export class ClientPacketApplier {
     // Entity removes
     for (const id of packet.entityRemoves) {
       store.removeEntity(id);
-      presentationEvents.push({ type: "objects.remove", payload: { entityId: id } });
-      presentationEvents.push({ type: "actors.remove", payload: { entityId: id } });
-      presentationEvents.push({ type: "groundItems.remove", payload: { entityId: id } });
     }
 
     // Entity updates
@@ -289,12 +287,12 @@ export class ClientPacketApplier {
             entityId,
             amount: changes.hitsplat.amount,
             type: changes.hitsplat.type,
-            tick: currentTick,
+            tick: packet.tick,
           },
         });
         presentationEvents.push({
           type: "actors.notifyHit",
-          payload: { entityId, tick: currentTick },
+          payload: { entityId, tick: packet.tick },
         });
       }
       if (changes.healthBar) {
@@ -315,39 +313,7 @@ export class ClientPacketApplier {
         if (entityId === store.selfEntityId) {
           ctx.uiState.setEquipment(changes.equipment.slots);
         }
-        const weaponItemId = changes.equipment.slots[3] ?? null;
-        presentationEvents.push({
-          type: "actors.setWeaponModel",
-          payload: { entityId, weaponItemId },
-        });
-        // Armour slots: head(0), body(4), legs(6), feet(8), hands(7), shield(5)
-        const armourSlots: Array<{ slot: string; index: number }> = [
-          { slot: "head", index: 0 },
-          { slot: "body", index: 4 },
-          { slot: "legs", index: 6 },
-          { slot: "feet", index: 8 },
-          { slot: "hands", index: 7 },
-          { slot: "shield", index: 5 },
-        ];
-        for (const { slot, index } of armourSlots) {
-          const itemId = changes.equipment.slots[index] ?? null;
-          presentationEvents.push({
-            type: "actors.setArmourModel",
-            payload: { entityId, slot, itemId },
-          });
-        }
-        // Accessory slots: cape(1), neck/amulet(2)
-        const accessorySlots: Array<{ slot: string; index: number }> = [
-          { slot: "cape", index: 1 },
-          { slot: "amulet", index: 2 },
-        ];
-        for (const { slot, index } of accessorySlots) {
-          const itemId = changes.equipment.slots[index] ?? null;
-          presentationEvents.push({
-            type: "actors.setAccessoryModel",
-            payload: { entityId, slot, itemId },
-          });
-        }
+        this._emitEquipmentEvents(entityId, changes.equipment.slots, presentationEvents);
       }
       if (changes.appearance) {
         if (entity) {
@@ -435,14 +401,23 @@ export class ClientPacketApplier {
             entityId: hitsplat.entityId,
             amount: hitsplat.hitsplat.amount,
             type: hitsplat.hitsplat.type,
-            tick: currentTick,
+            tick: packet.tick,
           },
         });
         presentationEvents.push({
           type: "actors.notifyHit",
-          payload: { entityId: hitsplat.entityId, tick: currentTick },
+          payload: { entityId: hitsplat.entityId, tick: packet.tick },
         });
       }
+    }
+
+    // Keep removed actors alive in the presentation layer until packet-local
+    // hitsplats have captured their final visual position. Authoritative state
+    // is already gone from the store above; this ordering is presentation-only.
+    for (const id of packet.entityRemoves) {
+      presentationEvents.push({ type: "objects.remove", payload: { entityId: id } });
+      presentationEvents.push({ type: "actors.remove", payload: { entityId: id } });
+      presentationEvents.push({ type: "groundItems.remove", payload: { entityId: id } });
     }
 
     // XP drops
@@ -454,11 +429,25 @@ export class ClientPacketApplier {
             entityId: store.selfEntityId,
             skillId: xpDrop.skillId,
             amount: xpDrop.amount,
-            tick: currentTick,
+            tick: packet.tick,
           },
         });
       }
       ctx.uiState.addXpDrops(packet.xpDrops);
+    }
+
+    if (packet.levelUps) {
+      for (const levelUp of packet.levelUps) {
+        presentationEvents.push({
+          type: "levelUps.show",
+          payload: {
+            entityId: store.selfEntityId,
+            skillId: levelUp.skillId,
+            newLevel: levelUp.newLevel,
+            tick: packet.tick,
+          },
+        });
+      }
     }
 
     // Death notices
@@ -502,9 +491,17 @@ export class ClientPacketApplier {
       }
     }
 
-    // Sounds
+    // Sounds — authoritative server cues → presentation event (E47-S02).
     if (packet.sounds) {
       for (const sound of packet.sounds) {
+        presentationEvents.push({
+          type: "sounds.play",
+          payload: {
+            soundId: sound.soundId,
+            ...(sound.tile ? { tile: sound.tile } : {}),
+            ...(sound.volume !== undefined ? { volume: sound.volume } : {}),
+          },
+        });
         ctx.logDebug(`Sound: ${sound.soundId}`);
       }
     }
@@ -762,6 +759,43 @@ export class ClientPacketApplier {
       });
     } else {
       this.ctx.logDebug(`Unknown entity kind in spawn: ${kind}`);
+    }
+  }
+
+  /**
+   * Emit `actors.setWeaponModel` / `setArmourModel` / `setAccessoryModel`
+   * presentation events for an equipment snapshot. Shared by the full-state
+   * and tick-delta paths so initial equipment renders on first load.
+   *
+   * Equipment slot indices: head(0), cape(1), amulet(2), weapon(3), body(4),
+   * shield(5), legs(6), hands(7), feet(8).
+   */
+  private _emitEquipmentEvents(
+    entityId: number,
+    slots: readonly (string | null)[],
+    events: PresentationEvent[],
+  ): void {
+    const weaponItemId = slots[3] ?? null;
+    events.push({ type: "actors.setWeaponModel", payload: { entityId, weaponItemId } });
+    const armourSlots: Array<{ slot: string; index: number }> = [
+      { slot: "head", index: 0 },
+      { slot: "body", index: 4 },
+      { slot: "legs", index: 6 },
+      { slot: "feet", index: 8 },
+      { slot: "hands", index: 7 },
+      { slot: "shield", index: 5 },
+    ];
+    for (const { slot, index } of armourSlots) {
+      const itemId = slots[index] ?? null;
+      events.push({ type: "actors.setArmourModel", payload: { entityId, slot, itemId } });
+    }
+    const accessorySlots: Array<{ slot: string; index: number }> = [
+      { slot: "cape", index: 1 },
+      { slot: "amulet", index: 2 },
+    ];
+    for (const { slot, index } of accessorySlots) {
+      const itemId = slots[index] ?? null;
+      events.push({ type: "actors.setAccessoryModel", payload: { entityId, slot, itemId } });
     }
   }
 

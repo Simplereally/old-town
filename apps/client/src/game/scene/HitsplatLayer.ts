@@ -14,6 +14,7 @@ interface Hitsplat {
   readonly sprite: Sprite;
   readonly material: SpriteMaterial;
   readonly texture: CanvasTexture;
+  readonly lastPosition?: Vector3;
 }
 
 export interface HitsplatLayerOptions {
@@ -157,7 +158,13 @@ export class HitsplatLayer {
    * @param type      The kind of hitsplat (damage, block, heal, poison).
    * @param tick      The authoritative server tick this hitsplat was created on.
    */
-  show(entityId: number, amount: number, type: HitsplatType, tick: number): void {
+  show(
+    entityId: number,
+    amount: number,
+    type: HitsplatType,
+    tick: number,
+    initialPosition?: Vector3,
+  ): void {
     const sprite = this.spritePool.acquire();
     if (!sprite) return;
 
@@ -178,6 +185,7 @@ export class HitsplatLayer {
       sprite,
       material,
       texture,
+      ...(initialPosition ? { lastPosition: initialPosition.clone() } : {}),
     });
   }
 
@@ -202,7 +210,11 @@ export class HitsplatLayer {
         continue;
       }
 
-      const pos = entityPositions.get(hitsplat.entityId);
+      const livePosition = entityPositions.get(hitsplat.entityId);
+      if (livePosition) {
+        hitsplat.lastPosition?.copy(livePosition);
+      }
+      const pos = livePosition ?? hitsplat.lastPosition;
       if (!pos) {
         this._remove(id);
         continue;

@@ -44,15 +44,15 @@ The design goal is the OSRS feel: a player can look at an inventory icon or a wo
 
 ## Ordered stories
 
-- [X] `E41-S01` — [Asset directory, manifest schema, and build pipeline](stories/E41/E41-S01_asset-directory-manifest-and-build-pipeline.md)
-- [X] `E41-S02` — [Flat icon rendering in inventory, bank, and equipment UI](stories/E41/E41-S02_flat-icon-rendering-inventory-bank-equipment-ui.md)
-- [X] `E41-S03` — [Melee weapon icons and wielded models](stories/E41/E41-S03_melee-weapon-icons-and-wielded-models.md)
-- [X] `E41-S04` — [Ranged and thrown weapon icons and models](stories/E41/E41-S04_ranged-and-thrown-weapon-icons-and-models.md)
-- [X] `E41-S05` — [Magic weapon icons and models](stories/E41/E41-S05_magic-weapon-icons-and-models.md)
-- [X] `E41-S06` — [Melee armour icons and worn models](stories/E41/E41-S06_melee-armour-icons-and-worn-models.md)
-- [X] `E41-S07` — [Ranged and magic armour icons and worn models](stories/E41/E41-S07_ranged-and-magic-armour-icons-and-worn-models.md)
-- [X] `E41-S08` — [Accessory and ammunition icons and models](stories/E41/E41-S08_accessory-and-ammunition-icons-and-models.md)
-- [X] `E41-S09` — [Equipment appearance wiring, ground item billboards, and final validation](stories/E41/E41-S09_equipment-appearance-wiring-ground-item-billboards-final-validation.md)
+- [X] `E41-S01` — [Asset directory, manifest schema, and build pipeline](../stories/E41/E41-S01_asset-directory-manifest-and-build-pipeline.md)
+- [X] `E41-S02` — [Flat icon rendering in inventory, bank, and equipment UI](../stories/E41/E41-S02_flat-icon-rendering-inventory-bank-equipment-ui.md)
+- [X] `E41-S03` — [Melee weapon icons and wielded models](../stories/E41/E41-S03_melee-weapon-icons-and-wielded-models.md)
+- [X] `E41-S04` — [Ranged and thrown weapon icons and models](../stories/E41/E41-S04_ranged-and-thrown-weapon-icons-and-models.md)
+- [X] `E41-S05` — [Magic weapon icons and models](../stories/E41/E41-S05_magic-weapon-icons-and-models.md)
+- [X] `E41-S06` — [Melee armour icons and worn models](../stories/E41/E41-S06_melee-armour-icons-and-worn-models.md)
+- [X] `E41-S07` — [Ranged and magic armour icons and worn models](../stories/E41/E41-S07_ranged-and-magic-armour-icons-and-worn-models.md)
+- [X] `E41-S08` — [Accessory and ammunition icons and models](../stories/E41/E41-S08_accessory-and-ammunition-icons-and-models.md)
+- [X] `E41-S09` — [Equipment appearance wiring, ground item billboards, and final validation](../stories/E41/E41-S09_equipment-appearance-wiring-ground-item-billboards-final-validation.md)
 
 ## Epic acceptance criteria
 

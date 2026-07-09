@@ -53,22 +53,27 @@ export class EntityPicker {
     let quantity: number | undefined;
 
     if (closest.instanceId !== undefined && userData?.instanceMap) {
-      const instanceMap = userData.instanceMap as Record<number, { entityId: number; defId?: string }>;
+      const instanceMap = userData.instanceMap as Record<
+        number,
+        { entityId: number; defId?: string }
+      >;
       const meta = instanceMap[closest.instanceId];
       if (meta) {
         entityId = meta.entityId;
         const rawKind = userData.kind;
-        kind = typeof rawKind === "string" && VALID_KINDS.has(rawKind)
-          ? (rawKind as PickedEntity["kind"])
-          : undefined;
+        kind =
+          typeof rawKind === "string" && VALID_KINDS.has(rawKind)
+            ? (rawKind as PickedEntity["kind"])
+            : undefined;
         defId = meta.defId;
       }
     } else if (userData && typeof userData.entityId === "number") {
       entityId = userData.entityId;
       const rawKind = userData.kind;
-      kind = typeof rawKind === "string" && VALID_KINDS.has(rawKind)
-        ? (rawKind as PickedEntity["kind"])
-        : undefined;
+      kind =
+        typeof rawKind === "string" && VALID_KINDS.has(rawKind)
+          ? (rawKind as PickedEntity["kind"])
+          : undefined;
       const rawDefId = userData.defId;
       defId = typeof rawDefId === "string" ? rawDefId : undefined;
       const rawItemId = userData.itemId;

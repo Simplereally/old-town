@@ -11,6 +11,7 @@ interface ClickMarker {
   readonly id: number;
   readonly mesh: Mesh;
   readonly startServerTimeMs: number;
+  readonly tile: TileCoord;
 }
 
 /** Client-only visual feedback for walk clicks. Fades out over 1.5 s. */
@@ -58,8 +59,21 @@ export class ClickMarkerLayer {
     mesh.visible = true;
     this.group.add(mesh);
 
-    this.markers.set(id, { id, mesh, startServerTimeMs: serverTimeMs });
+    this.markers.set(id, { id, mesh, startServerTimeMs: serverTimeMs, tile });
     return id;
+  }
+
+  /** Remove markers whose destination tile matches the player's current tile. */
+  clearIfArrived(tile: TileCoord): void {
+    for (const [id, marker] of this.markers) {
+      if (
+        marker.tile.x === tile.x &&
+        marker.tile.y === tile.y &&
+        marker.tile.plane === tile.plane
+      ) {
+        this.remove(id);
+      }
+    }
   }
 
   remove(id: number): void {

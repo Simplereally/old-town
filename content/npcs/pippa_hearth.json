@@ -1,0 +1,12 @@
+[
+  {
+    "id": "pippa_hearth",
+    "name": "Pippa Hearth",
+    "examine": "A baker whose smoke signals mean more than hunger.",
+    "size": 1,
+    "respawnTicks": 1,
+    "wanderRadius": 0,
+    "dialogueId": "pippa_hearth_dialogue",
+    "options": [{ "label": "Talk-to", "actionId": "talk", "priority": 10, "requiredDistance": 1 }]
+  }
+]

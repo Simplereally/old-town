@@ -2,6 +2,7 @@ import type { z } from "zod";
 import type { ContentKind } from "../content/content-kind";
 import { activityDefSchema } from "./activity";
 import { animationDefSchema } from "./animation";
+import { audioDefSchema } from "./audio";
 import { bankDefSchema } from "./bank";
 import { bossDefSchema } from "./boss";
 import { charterDefSchema } from "./charter";
@@ -54,6 +55,7 @@ export const contentSchemas = {
   activity: activityDefSchema,
   boss: bossDefSchema,
   trail: trailDefSchema,
+  audio: audioDefSchema,
 } as const satisfies Record<ContentKind, z.ZodTypeAny>;
 
 /** The schema object type for a given kind. */

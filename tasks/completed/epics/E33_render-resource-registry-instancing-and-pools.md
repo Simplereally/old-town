@@ -32,12 +32,12 @@ Move repeated renderable resources behind registries, instance buckets, and pool
 
 ## Ordered stories
 
-- [X] `E33-S01` - [Render Resource Registry](stories/E33/E33-S01_render-resource-registry.md)
-- [X] `E33-S02` - [Instance Bucket Core](stories/E33/E33-S02_instance-bucket-core.md)
-- [X] `E33-S03` - [Static Object Instancing](../completed/stories/E33/E33-S03_static-object-instancing.md)
-- [X] `E33-S04` - [Transient Effect Pools](../completed/stories/E33/E33-S04_transient-effect-pools.md)
-- [X] `E33-S05` - [Actor Presentation Pool](../completed/stories/E33/E33-S05_actor-presentation-pool.md)
-- [X] `E33-S06` - [Render Mutation Boundary Enforcement](../completed/stories/E33/E33-S06_render-mutation-boundary-enforcement.md)
+- [X] `E33-S01` - [Render Resource Registry](../stories/E33/E33-S01_render-resource-registry.md)
+- [X] `E33-S02` - [Instance Bucket Core](../stories/E33/E33-S02_instance-bucket-core.md)
+- [X] `E33-S03` - [Static Object Instancing](../stories/E33/E33-S03_static-object-instancing.md)
+- [X] `E33-S04` - [Transient Effect Pools](../stories/E33/E33-S04_transient-effect-pools.md)
+- [X] `E33-S05` - [Actor Presentation Pool](../stories/E33/E33-S05_actor-presentation-pool.md)
+- [X] `E33-S06` - [Render Mutation Boundary Enforcement](../stories/E33/E33-S06_render-mutation-boundary-enforcement.md)
 
 ## Epic acceptance criteria
 

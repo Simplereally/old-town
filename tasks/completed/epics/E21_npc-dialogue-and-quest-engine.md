@@ -25,10 +25,10 @@ Implement the runtime NPC dialogue engine and quest objective tracker so players
 
 ## Ordered stories
 
-- [X] `E21-S01` — [NPC Dialogue Runtime Routing](completed/stories/E21/E21-S01_npc-dialogue-runtime-routing.md)
-- [X] `E21-S02` — [Quest State Machine and Progress Tracking](completed/stories/E21/E21-S02_quest-state-machine-and-progress-tracking.md)
-- [X] `E21-S03` — [Quest Completion and Reward Application](completed/stories/E21/E21-S03_quest-completion-and-reward-application.md)
-- [X] `E21-S04` — [Dialogue UI Protocol and Client Rendering](completed/stories/E21/E21-S04_dialogue-ui-protocol-and-client-rendering.md)
+- [X] `E21-S01` — [NPC Dialogue Runtime Routing](../stories/E21/E21-S01_npc-dialogue-runtime-routing.md)
+- [X] `E21-S02` — [Quest State Machine and Progress Tracking](../stories/E21/E21-S02_quest-state-machine-and-progress-tracking.md)
+- [X] `E21-S03` — [Quest Completion and Reward Application](../stories/E21/E21-S03_quest-completion-and-reward-application.md)
+- [X] `E21-S04` — [Dialogue UI Protocol and Client Rendering](../stories/E21/E21-S04_dialogue-ui-protocol-and-client-rendering.md)
 
 ## Epic acceptance criteria
 

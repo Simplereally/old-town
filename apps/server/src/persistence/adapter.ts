@@ -12,8 +12,8 @@ import { z } from "zod";
 import {
   type EconomyCommitInput,
   type EconomyCommitResult,
-  economyPayloadHash,
   type EconomyStore,
+  economyPayloadHash,
 } from "./economy";
 
 const JSON_STORE_VERSION = 1;

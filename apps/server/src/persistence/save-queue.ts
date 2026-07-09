@@ -1,8 +1,4 @@
-import type {
-  ContentRegistries,
-  EntityId,
-  ItemTransactionAuditEvent,
-} from "@old-town/shared";
+import type { ContentRegistries, EntityId, ItemTransactionAuditEvent } from "@old-town/shared";
 import type { World } from "../ecs/world";
 import type { Logger } from "../logger";
 import {
@@ -104,7 +100,12 @@ export class CharacterSaveQueue {
     this.pending.delete(entityId);
   }
 
-  markImmediate(entityId: EntityId, reason: CharacterSaveReason, tick: number, serverTime: number): void {
+  markImmediate(
+    entityId: EntityId,
+    reason: CharacterSaveReason,
+    tick: number,
+    serverTime: number,
+  ): void {
     const pending = this.pendingSave(entityId, reason, tick);
     pending.immediate = true;
     pending.dueTick = tick;
@@ -118,7 +119,12 @@ export class CharacterSaveQueue {
     });
   }
 
-  markLazy(entityId: EntityId, reason: CharacterSaveReason, tick: number, serverTime: number): void {
+  markLazy(
+    entityId: EntityId,
+    reason: CharacterSaveReason,
+    tick: number,
+    serverTime: number,
+  ): void {
     const pending = this.pendingSave(entityId, reason, tick);
     pending.lastDirtyTick = tick;
     this.options.metrics?.recordSaveEnqueued("lazy");

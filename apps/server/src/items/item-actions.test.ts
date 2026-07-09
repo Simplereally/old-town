@@ -5,7 +5,12 @@ import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { ConsumableSystem } from "../systems/consumable-system";
 import { createEquipment } from "./equipment";
 import { addItem, catalogFromItems, count, createInventory } from "./inventory";
-import { handleItemIntent, handleUnequipIntent, handleUseItemOnIntent, type ItemActionContext } from "./item-actions";
+import {
+  handleItemIntent,
+  handleUnequipIntent,
+  handleUseItemOnIntent,
+  type ItemActionContext,
+} from "./item-actions";
 import { ItemAuditLog } from "./item-audit";
 
 function defItem(over: Partial<ItemDef> & { id: string }): ItemDef {
@@ -21,6 +26,7 @@ function defItem(over: Partial<ItemDef> & { id: string }): ItemDef {
     tags: over.tags ?? [],
     ...(over.equipment ? { equipment: over.equipment } : {}),
     ...(over.consumable ? { consumable: over.consumable } : {}),
+    ...(over.bury ? { bury: over.bury } : {}),
   };
 }
 
@@ -46,12 +52,21 @@ const BREAD = defItem({
   consumable: { heal: 5, consumeTicks: 3 },
 });
 const AXE = defItem({ id: "test_axe", name: "Test Axe", options: ["drop"], tags: ["axe"] });
+const BONE = defItem({
+  id: "test_bone",
+  name: "Test Bone",
+  stackable: true,
+  examine: "A dry bone.",
+  options: ["bury"],
+  bury: { favourXp: 12 },
+});
 
-const ITEMS = new Map([BLADE, HELM, BREAD, AXE].map((d) => [d.id, d]));
+const ITEMS = new Map([BLADE, HELM, BREAD, AXE, BONE].map((d) => [d.id, d]));
 
 function setup(
   seed: readonly { itemId: string; quantity: number }[],
   combat?: { health: number; maxHealth: number },
+  skills?: boolean,
 ) {
   const world = createWorld();
   const owner = world.createEntity();
@@ -70,6 +85,14 @@ function setup(
       attackCooldown: 0,
       combatLevel: 3,
       eatBlockedUntilTick: 0,
+    });
+  }
+  if (skills) {
+    world.setComponent(owner, "skills", {
+      entityId: owner,
+      skills: {
+        favour: { level: 1, xp: 0, boost: 0, drain: 0 },
+      },
     });
   }
   const catalog = catalogFromItems(ITEMS);
@@ -370,6 +393,109 @@ describe("handleItemIntent — eat", () => {
   });
 });
 
+describe("handleItemIntent — bury", () => {
+  it("consumes one bone, grants favour XP, and signals the bury animation", () => {
+    const { ctx, owner, world, inventory, deltas, itemAudit } = setup(
+      [{ itemId: "test_bone", quantity: 3 }],
+      undefined,
+      true,
+    );
+    const result = handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), actionId: "bury" },
+      TICK,
+      SERVER_TIME,
+    );
+
+    expect(result.outcome).toBe("buried");
+    expect(result.message).toBe("You bury the Test Bone.");
+    expect(count(inventory, "test_bone")).toBe(2);
+    expect(deltas.peek().inventoryDeltas?.[0]?.changes[0]).toMatchObject({
+      slot: 0,
+      itemId: "test_bone",
+      quantity: 2,
+    });
+    // Favour XP granted.
+    const favour = world.getComponent(owner, "skills")?.skills.favour;
+    expect(favour?.xp).toBe(12);
+    const xpDrops = deltas.peek().xpDrops;
+    expect(xpDrops?.[0]).toMatchObject({ skillId: "favour", amount: 12 });
+    // Bury animation signalled.
+    const update = deltas.peek().entityUpdates.find((u) => u.entityId === owner);
+    expect(update?.changes.animation).toMatchObject({ id: "bury_bones" });
+    expect(itemAudit.snapshot()[0]).toMatchObject({
+      reason: "bury_bones",
+      itemId: "test_bone",
+      quantity: 1,
+      beforeQuantity: 3,
+      afterQuantity: 2,
+      metadata: expect.objectContaining({ favourXp: 12 }),
+    });
+  });
+
+  it("announces a Favour level up when burying crosses the threshold", () => {
+    const { ctx, owner, world, inventory, deltas } = setup(
+      [{ itemId: "test_bone", quantity: 1 }],
+      undefined,
+      true,
+    );
+    const favour = world.getComponent(owner, "skills")?.skills.favour;
+    if (!favour) throw new Error("Expected favour skill");
+    // Burying a test bone grants 12 XP; level 2 is reached at 83 XP in the default table.
+    favour.xp = 80;
+    favour.level = 1;
+
+    const result = handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), actionId: "bury" },
+      TICK,
+      SERVER_TIME,
+    );
+
+    expect(result.outcome).toBe("buried");
+    expect(result.message).toContain("Your Favour level is now");
+    const skillDeltas = deltas.peek().skillDelta;
+    expect(skillDeltas?.some((d) => d.skillId === "favour" && d.level > 1)).toBe(true);
+  });
+
+  it("leaves the bone untouched when the actor has no favour skill", () => {
+    const { ctx, owner, inventory, deltas } = setup([{ itemId: "test_bone", quantity: 1 }]);
+    const result = handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), actionId: "bury" },
+      TICK,
+      SERVER_TIME,
+    );
+
+    expect(result.outcome).toBe("invalid");
+    expect(count(inventory, "test_bone")).toBe(1);
+    expect(deltas.peek().inventoryDeltas).toBeUndefined();
+    expect(deltas.peek().xpDrops).toBeUndefined();
+  });
+
+  it("refuses to bury a non-buryable item without mutating", () => {
+    const { ctx, owner, inventory, deltas } = setup(
+      [{ itemId: "test_axe", quantity: 1 }],
+      undefined,
+      true,
+    );
+    const result = handleItemIntent(
+      ctx,
+      owner,
+      { itemUid: uidOf(inventory), actionId: "bury" },
+      TICK,
+      SERVER_TIME,
+    );
+
+    expect(result.outcome).toBe("invalid");
+    expect(count(inventory, "test_axe")).toBe(1);
+    expect(deltas.peek().inventoryDeltas).toBeUndefined();
+  });
+});
+
 describe("handleItemIntent — use / unknown", () => {
   it("acknowledges use without mutating until a target is selected", () => {
     const { ctx, owner, inventory, deltas } = setup([{ itemId: "test_axe", quantity: 1 }]);
@@ -479,7 +605,13 @@ describe("handleUseItemOnIntent", () => {
     const uid = inventory.slots[0]?.uid;
     if (uid === undefined) throw new Error("Expected item uid");
     const npcEntity = world.createEntity();
-    world.setComponent(npcEntity, "npc", { entityId: npcEntity, npcId: "guard", brainState: "idle", respawnTick: 0, wanderRadius: 5 });
+    world.setComponent(npcEntity, "npc", {
+      entityId: npcEntity,
+      npcId: "guard",
+      brainState: "idle",
+      respawnTick: 0,
+      wanderRadius: 5,
+    });
     const result = handleUseItemOnIntent(
       ctx,
       owner,

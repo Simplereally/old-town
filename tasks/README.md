@@ -30,7 +30,8 @@ Work strictly linearly by epic number, then by story number:
    preserving the filename.
 5. When every story in an epic is complete, mark the epic file's checklist complete and
    move the epic file to `completed/epics/`.
-6. Continue until `tasks/epics/` is empty.
+6. Update `TASK_MANIFEST.json` and run `bun run tasks:check`.
+7. Continue until `tasks/epics/` is empty.
 
 ## Determining the next story
 
@@ -44,6 +45,10 @@ It prints the lowest-numbered remaining epic, the lowest-numbered remaining stor
 epic, and a per-epic summary of what is left. The first story it prints is the one to work
 on next. (You can also read it directly: the next epic is the lowest-numbered file in
 `epics/`, and the next story is the lowest-numbered file in the matching `stories/E##/`.)
+
+`tasks:status` first validates that the filesystem, `TASK_MANIFEST.json`, and parent epic
+checklists agree. Run `bun run tasks:check` directly when repairing or reviewing task-tree
+metadata.
 
 ## Marking progress
 

@@ -24,7 +24,9 @@ const KNOWN_TYPES = new Set<string>([
   TransportServerMessageType.Error,
 ]);
 
-export function discriminateTransportServerPacket(raw: unknown): DiscriminatedResult<TransportServerPacket> {
+export function discriminateTransportServerPacket(
+  raw: unknown,
+): DiscriminatedResult<TransportServerPacket> {
   if (raw === null || typeof raw !== "object") {
     return { ok: false, error: "Expected an object" };
   }
@@ -38,7 +40,10 @@ export function discriminateTransportServerPacket(raw: unknown): DiscriminatedRe
 /** Game-state packets only — FullState and TickDelta. Transport-only types
  * (Pong, CommandRejected, Error) are handled before world application and are
  * rejected here so callers can route them separately. */
-const SERVER_PACKET_TYPES = new Set<string>([ServerPacketType.FullState, ServerPacketType.TickDelta]);
+const SERVER_PACKET_TYPES = new Set<string>([
+  ServerPacketType.FullState,
+  ServerPacketType.TickDelta,
+]);
 
 export function discriminateServerPacket(raw: unknown): DiscriminatedResult<ServerPacket> {
   if (raw === null || typeof raw !== "object") {

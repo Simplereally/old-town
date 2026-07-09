@@ -29,10 +29,10 @@ Implement the first spellbook: bead-cost validation, targeted combat spell, proj
 
 ## Ordered stories
 
-- [X] `E11-S01` — [Implement spell validation and bead costs](../completed/stories/E11/E11-S01_implement-spell-validation-and-bead-costs.md)
-- [X] `E11-S02` — [Implement combat spell projectile and delayed hit](../completed/stories/E11/E11-S02_implement-combat-spell-projectile-and-delayed-hit.md)
-- [X] `E11-S03` — [Implement bind/snare-style movement block hook](../completed/stories/E11/E11-S03_implement-bind-snare-style-movement-block-hook.md)
-- [X] `E11-S04` — [Implement interruptible home teleport](../completed/stories/E11/E11-S04_implement-interruptible-home-teleport.md)
+- [X] `E11-S01` — [Implement spell validation and bead costs](../stories/E11/E11-S01_implement-spell-validation-and-bead-costs.md)
+- [X] `E11-S02` — [Implement combat spell projectile and delayed hit](../stories/E11/E11-S02_implement-combat-spell-projectile-and-delayed-hit.md)
+- [X] `E11-S03` — [Implement bind/snare-style movement block hook](../stories/E11/E11-S03_implement-bind-snare-style-movement-block-hook.md)
+- [X] `E11-S04` — [Implement interruptible home teleport](../stories/E11/E11-S04_implement-interruptible-home-teleport.md)
 
 ## Epic acceptance criteria
 

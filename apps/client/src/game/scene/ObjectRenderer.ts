@@ -81,13 +81,21 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
       const trunk = woodTone(defId);
       if (dead) {
         return compose([
-          { geometry: new CylinderGeometry(0.12, 0.18, 1.6, 5), color: trunk, y: 0.8 },
+          {
+            geometry: new CylinderGeometry(0.12, 0.18, 1.6, 5),
+            color: trunk,
+            y: 0.8,
+            jitter: 0.03,
+            seed: 9,
+          },
           {
             geometry: new CylinderGeometry(0.05, 0.08, 0.7, 4),
             color: trunk,
             x: 0.2,
             y: 1.4,
             rotZ: -0.7,
+            jitter: 0.02,
+            seed: 14,
           },
           {
             geometry: new CylinderGeometry(0.05, 0.08, 0.6, 4),
@@ -95,14 +103,40 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
             x: -0.18,
             y: 1.5,
             rotZ: 0.8,
+            jitter: 0.02,
+            seed: 19,
           },
         ]);
       }
       return compose([
-        { geometry: new CylinderGeometry(0.13, 0.17, 0.85, 6), color: trunk, y: 0.42 },
-        { geometry: new ConeGeometry(0.75, 0.95, 7), color: PALETTE.leafDark, y: 1.05 },
-        { geometry: new ConeGeometry(0.58, 0.85, 7), color: PALETTE.leafMid, y: 1.55 },
-        { geometry: new ConeGeometry(0.4, 0.75, 7), color: PALETTE.leafLight, y: 2.0 },
+        {
+          geometry: new CylinderGeometry(0.13, 0.17, 0.85, 6),
+          color: trunk,
+          y: 0.42,
+          jitter: 0.02,
+          seed: 7,
+        },
+        {
+          geometry: new ConeGeometry(0.75, 0.95, 7),
+          color: PALETTE.leafDark,
+          y: 1.05,
+          jitter: 0.05,
+          seed: 11,
+        },
+        {
+          geometry: new ConeGeometry(0.58, 0.85, 7),
+          color: PALETTE.leafMid,
+          y: 1.55,
+          jitter: 0.05,
+          seed: 13,
+        },
+        {
+          geometry: new ConeGeometry(0.4, 0.75, 7),
+          color: PALETTE.leafLight,
+          y: 2.0,
+          jitter: 0.04,
+          seed: 17,
+        },
       ]);
     }
     case "ore_rock": {
@@ -301,6 +335,8 @@ function buildGeometry(archetype: string, defId: string): BufferGeometry {
           rotY: Math.PI / 4,
           y: 1.62,
         },
+        { geometry: new BoxGeometry(0.3, 0.5, 0.04), color: PALETTE.barkDark, y: 0.25, z: 0.52 },
+        { geometry: new BoxGeometry(0.24, 0.24, 0.04), color: PALETTE.clothBlue, y: 0.85, z: 0.52 },
       ]);
     }
     case "rock": {
@@ -486,6 +522,18 @@ export class ObjectRenderer {
     this.objectGroup.clear();
     this.scene.remove(this.objectGroup);
     this._regionVisibility.clear();
+  }
+
+  /** Look up a placed object's authoritative tile. */
+  getObjectTile(entityId: number): TileCoord | undefined {
+    return this.objects.get(entityId)?.tile;
+  }
+
+  /** Iterate placed objects (entityId, tile, defId) for presentation helpers. */
+  forEachObject(callback: (entityId: number, tile: TileCoord, defId: string) => void): void {
+    for (const obj of this.objects.values()) {
+      callback(obj.entityId, obj.tile, obj.defId);
+    }
   }
 
   /** Number of rendered objects. */

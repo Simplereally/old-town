@@ -1,4 +1,11 @@
-import { BufferAttribute, type BufferGeometry, Color, MeshLambertMaterial, Vector3 } from "three";
+import {
+  BoxGeometry,
+  BufferAttribute,
+  type BufferGeometry,
+  Color,
+  MeshLambertMaterial,
+  Vector3,
+} from "three";
 import { mergeGeometries, mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 /**
@@ -112,6 +119,35 @@ export function jitter(geometry: BufferGeometry, amount: number, seed = 1): void
     position.setXYZ(i, x + dx, y + dy, z + dz);
   }
   position.needsUpdate = true;
+}
+
+/**
+ * A box that tapers from bottom to top — wider or narrower at the top than the
+ * bottom. Built by scaling the +Y face vertices of a {@link BoxGeometry} in X/Z.
+ * `topScale > 1` widens the top (shoulders), `< 1` narrows it (waist, ankles).
+ * Use directly as a part geometry or pass to {@link compose}.
+ */
+export function taperedBox(w: number, h: number, d: number, topScale = 1): BufferGeometry {
+  const geo = new BoxGeometry(w, h, d);
+  if (topScale === 1) return geo;
+  const pos = geo.getAttribute("position");
+  for (let i = 0; i < pos.count; i++) {
+    if (pos.getY(i) > 0) {
+      pos.setX(i, pos.getX(i) * topScale);
+      pos.setZ(i, pos.getZ(i) * topScale);
+    }
+  }
+  pos.needsUpdate = true;
+  geo.computeVertexNormals();
+  return geo;
+}
+
+/**
+ * A tiny dark beady eye — a flat box that reads as an eye at low-poly scale.
+ * Returns a ready-to-merge {@link Part}; override `color` for glowing/red eyes.
+ */
+export function eyePart(x: number, y: number, z: number, color: number = PALETTE.shadow): Part {
+  return { geometry: new BoxGeometry(0.04, 0.04, 0.02), color, x, y, z };
 }
 
 /** A single coloured chunk of a composite low-poly asset, in local space. */

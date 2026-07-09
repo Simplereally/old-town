@@ -34,9 +34,7 @@ export function resourceRespawnActionId(nodeEntityId: EntityId): string {
 
 function nodeTile(world: World, entityId: EntityId): TileCoord | undefined {
   const position = world.getComponent(entityId, "position");
-  return position
-    ? { x: position.x, y: position.y, plane: position.plane }
-    : undefined;
+  return position ? { x: position.x, y: position.y, plane: position.plane } : undefined;
 }
 
 function depletedTransformId(object: ObjectComponent, def: ResourceNodeDef): string {

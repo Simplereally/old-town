@@ -7,6 +7,7 @@
 export * from "./activity";
 export * from "./animation";
 export * from "./asset";
+export * from "./audio";
 export * from "./bank";
 export * from "./boss";
 export * from "./charter";
@@ -34,6 +35,7 @@ export * from "./trail";
 import type { z } from "zod";
 import { activityDefSchema } from "./activity";
 import { animationDefSchema } from "./animation";
+import { audioDefSchema } from "./audio";
 import { bankDefSchema } from "./bank";
 import { bossDefSchema } from "./boss";
 import { charterDefSchema } from "./charter";
@@ -86,6 +88,7 @@ export const contentSchemas = {
   activity: activityDefSchema,
   boss: bossDefSchema,
   trail: trailDefSchema,
+  audio: audioDefSchema,
 } as const;
 
 /** Discriminator for a content definition kind. */

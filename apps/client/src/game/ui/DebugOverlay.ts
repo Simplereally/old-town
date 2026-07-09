@@ -1,8 +1,8 @@
 import type { TileCoord } from "@old-town/shared";
+import type { PresentationSample } from "../net/SnapshotBuffer";
 import type { ChunkBakeQueueStats } from "../renderer/ChunkBakeQueue";
 import type { ChunkResidencyStats } from "../renderer/ChunkResidencyManager";
 import type { RenderClockSample } from "../renderer/RenderClock";
-import type { PresentationSample } from "../net/SnapshotBuffer";
 
 interface OverlayElements {
   readonly connectionStatus: HTMLDivElement;
@@ -47,6 +47,9 @@ export interface DebugOverlayUpdateInput {
   readonly presentationSample?: PresentationSample | undefined;
   readonly queueStats?: ChunkBakeQueueStats | undefined;
   readonly residencyStats?: ChunkResidencyStats | undefined;
+  readonly atmospherePhase?: string | undefined;
+  readonly atmosphereFrozen?: boolean | undefined;
+  readonly blobShadowCount?: number | undefined;
   readonly debugState?: DebugOverlayDebugState | undefined;
 }
 
@@ -169,6 +172,14 @@ export class DebugOverlay {
             lines.push(
               `Residency GPU: ${(input.residencyStats.approximateGpuBytes / 1024 / 1024).toFixed(1)}MB`,
             );
+          }
+          if (input.atmospherePhase) {
+            lines.push(
+              `Atmosphere: ${input.atmospherePhase}${input.atmosphereFrozen ? " (frozen)" : ""}`,
+            );
+          }
+          if (input.blobShadowCount !== undefined) {
+            lines.push(`Blob shadows: ${input.blobShadowCount}`);
           }
           if (input.debugState) {
             const queue = input.debugState.actionQueue;

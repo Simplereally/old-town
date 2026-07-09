@@ -49,6 +49,15 @@ describe("ClickMarkerLayer", () => {
     expect(layer.poolSize).toBeLessThanOrEqual(4);
   });
 
+  it("clears markers when the player arrives on the destination tile", () => {
+    layer.show(TILE, 0);
+    expect(layer.activeCount).toBe(1);
+    layer.clearIfArrived({ x: 1, y: 1, plane: 0 });
+    expect(layer.activeCount).toBe(1);
+    layer.clearIfArrived(TILE);
+    expect(layer.activeCount).toBe(0);
+  });
+
   it("disposes all resources", () => {
     layer.show(TILE, 0);
     layer.dispose();

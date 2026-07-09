@@ -16,8 +16,7 @@
  *
  * The server is authoritative: the client only sends activate/deactivate intents.
  */
-import type { ContentRegistries, EntityId } from "@old-town/shared";
-import type { PrayerDef } from "@old-town/shared";
+import type { ContentRegistries, EntityId, PrayerDef } from "@old-town/shared";
 import type { CombatHitStyle, PrayerComponent } from "../ecs/components";
 import type { World } from "../ecs/world";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
@@ -143,7 +142,9 @@ export function applyPrayerProtection(
     if (def.protection?.style !== style) {
       continue;
     }
-    const reduction = attackerIsPlayer ? def.protection.playerReduction : def.protection.npcReduction;
+    const reduction = attackerIsPlayer
+      ? def.protection.playerReduction
+      : def.protection.npcReduction;
     return Math.max(0, Math.floor(damage * (1 - reduction)));
   }
   return damage;
@@ -159,11 +160,19 @@ function prayerLevel(ctx: PrayerSystemContext, entityId: EntityId): number {
 }
 
 /** Whether the entity meets the required Prayer level for `def`. */
-function meetsPrayerRequirement(ctx: PrayerSystemContext, entityId: EntityId, def: PrayerDef): boolean {
+function meetsPrayerRequirement(
+  ctx: PrayerSystemContext,
+  entityId: EntityId,
+  def: PrayerDef,
+): boolean {
   return prayerLevel(ctx, entityId) >= def.requiredPrayer;
 }
 
-function setPrayerComponent(ctx: PrayerSystemContext, entityId: EntityId, next: PrayerComponent): void {
+function setPrayerComponent(
+  ctx: PrayerSystemContext,
+  entityId: EntityId,
+  next: PrayerComponent,
+): void {
   ctx.world.setComponent(entityId, "prayer", next);
 }
 

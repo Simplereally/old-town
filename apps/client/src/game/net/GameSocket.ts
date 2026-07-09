@@ -99,9 +99,6 @@ export class GameSocket {
           protocolVersion: this.protocolVersion,
           characterId: this.characterId,
         };
-        console.log("[GameSocket] Sending DevAuth", {
-          protocolVersion: authMessage.protocolVersion,
-        });
         socket.send(JSON.stringify(authMessage));
       };
 

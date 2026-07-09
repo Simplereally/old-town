@@ -75,6 +75,7 @@ const REGISTRY_ORDER: readonly (keyof ContentRegistries & ContentKind)[] = [
   "bank",
   "serviceFee",
   "statusEffect",
+  "audio",
 ];
 
 async function main(): Promise<void> {

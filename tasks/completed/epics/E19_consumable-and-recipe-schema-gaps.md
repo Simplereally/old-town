@@ -28,9 +28,9 @@ Expand consumable schemas beyond basic healing and define the recipe selection p
 
 ## Ordered stories
 
-- [X] `E19-S01` — [Expand Consumable Effects Beyond Heal](stories/E19/E19-S01_expand-consumable-effects-beyond-heal.md)
-- [X] `E19-S02` — [Define Recipe Selection Protocol](stories/E19/E19-S02_define-recipe-selection-protocol.md)
-- [X] `E19-S03` — [Validate Consumable and Recipe Content](stories/E19/E19-S03_validate-consumable-and-recipe-content.md)
+- [X] `E19-S01` — [Expand Consumable Effects Beyond Heal](../stories/E19/E19-S01_expand-consumable-effects-beyond-heal.md)
+- [X] `E19-S02` — [Define Recipe Selection Protocol](../stories/E19/E19-S02_define-recipe-selection-protocol.md)
+- [X] `E19-S03` — [Validate Consumable and Recipe Content](../stories/E19/E19-S03_validate-consumable-and-recipe-content.md)
 
 ## Epic acceptance criteria
 

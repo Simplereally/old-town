@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import type { BankDef, ContractDef, ItemDef, NpcDef, ObjectDef, ShopDef } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { createWorld } from "../ecs/world";
@@ -284,10 +286,15 @@ function setupContractCtx() {
 // ============================================================
 // S01: NPC options and dialogue content
 // ============================================================
+function loadNpcContent(): NpcDef[] {
+  return readdirSync("content/npcs")
+    .filter((file) => file.endsWith(".json"))
+    .flatMap((file) => JSON.parse(readFileSync(join("content/npcs", file), "utf8")) as NpcDef[]);
+}
+
 describe("E44-S01: NPC options", () => {
-  it("warden_holt has contract option", async () => {
-    const fs = await import("node:fs");
-    const npcs = JSON.parse(fs.readFileSync("content/npcs/starter-npcs.json", "utf8")) as NpcDef[];
+  it("warden_holt has contract option", () => {
+    const npcs = loadNpcContent();
     const holt = npcs.find((n) => n.id === "warden_holt");
     expect(holt).toBeDefined();
     const contractOpt = holt?.options?.find((o) => o.actionId === "contract");
@@ -295,9 +302,8 @@ describe("E44-S01: NPC options", () => {
     expect(contractOpt?.label).toBe("Contracts");
   });
 
-  it("all service NPCs have talk option", async () => {
-    const fs = await import("node:fs");
-    const npcs = JSON.parse(fs.readFileSync("content/npcs/starter-npcs.json", "utf8")) as NpcDef[];
+  it("all service NPCs have talk option", () => {
+    const npcs = loadNpcContent();
     const serviceIds = [
       "mara_bellkeeper",
       "tomas_tally",
@@ -322,9 +328,8 @@ describe("E44-S01: NPC options", () => {
     }
   });
 
-  it("trade NPCs have trade option and examine text", async () => {
-    const fs = await import("node:fs");
-    const npcs = JSON.parse(fs.readFileSync("content/npcs/starter-npcs.json", "utf8")) as NpcDef[];
+  it("trade NPCs have trade option and examine text", () => {
+    const npcs = loadNpcContent();
     const tradeNpcs = npcs.filter((n) => n.options?.some((o) => o.actionId === "trade"));
     expect(tradeNpcs.length).toBeGreaterThan(0);
     for (const npc of tradeNpcs) {

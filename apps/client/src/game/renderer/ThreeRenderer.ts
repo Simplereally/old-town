@@ -39,6 +39,10 @@ export class ThreeRenderer {
   readonly cameraController: CameraController;
   readonly tilePicker: TilePicker;
   readonly gridOverlay: GridOverlay;
+  /** Existing hemisphere fill light — reused by AtmosphereController (E47-S03). */
+  readonly hemisphereLight: HemisphereLight;
+  /** Existing directional sun — reused by AtmosphereController (E47-S03). */
+  readonly directionalLight: DirectionalLight;
 
   private _running = false;
   private _animationFrameId: number | null = null;
@@ -84,14 +88,15 @@ export class ThreeRenderer {
     // Lighting — without this every MeshLambertMaterial in the scene renders
     // pure black. The hemisphere light fills shadows with a sky/ground tint
     // while the directional "sun" defines the facet edges that give the
-    // low-poly world its readable shape.
-    const skyLight = new HemisphereLight(0xdcefff, 0x4a6b3a, 2.1);
-    skyLight.position.set(0, 60, 0);
-    this.scene.add(skyLight);
+    // low-poly world its readable shape. AtmosphereController mutates these
+    // in place for day/night — do not add duplicate default lights.
+    this.hemisphereLight = new HemisphereLight(0xdcefff, 0x4a6b3a, 2.1);
+    this.hemisphereLight.position.set(0, 60, 0);
+    this.scene.add(this.hemisphereLight);
 
-    const sunLight = new DirectionalLight(0xfff3df, 2.6);
-    sunLight.position.set(45, 90, 30);
-    this.scene.add(sunLight);
+    this.directionalLight = new DirectionalLight(0xfff3df, 2.6);
+    this.directionalLight.position.set(45, 90, 30);
+    this.scene.add(this.directionalLight);
 
     // Distance haze: the streamed chunk edge dissolves into the sky colour
     // instead of revealing a hard horizon line.

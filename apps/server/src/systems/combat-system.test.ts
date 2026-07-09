@@ -367,12 +367,23 @@ describe("combat target acquisition", () => {
   });
 
   it("assigns auto-retaliate targets when a defender receives a hit", () => {
-    const { ctx, world, player, npc } = setup();
+    const { ctx, world, player, npc } = setup({
+      npcDef: { ...NPC_DEF, aggressionMode: "retaliate" },
+    });
 
     expect(assignAutoRetaliateTarget(ctx, npc, player)).toBe(true);
 
     expect(world.getComponent(npc, "combatant")?.targetId).toBe(player);
     expect(world.getComponent(npc, "npc")?.brainState).toBe("chase");
+  });
+
+  it("does not assign auto-retaliate targets to peaceful NPCs", () => {
+    const { ctx, world, player, npc } = setup();
+
+    expect(assignAutoRetaliateTarget(ctx, npc, player)).toBe(false);
+
+    expect(world.getComponent(npc, "combatant")?.targetId).toBeUndefined();
+    expect(world.getComponent(npc, "npc")?.brainState).toBe("idle");
   });
 
   it("clears invalid targets and puts leashed NPCs into return-home state", () => {

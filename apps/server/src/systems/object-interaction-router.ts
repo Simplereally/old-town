@@ -2,10 +2,11 @@ import type { EntityId, ObjectDef, ObjectIntent, Rng, TileCoord } from "@old-tow
 import { openDialogueNode } from "../dialogue/dialogue-engine";
 import type { World } from "../ecs/world";
 import type { ItemAuditLog } from "../items/item-audit";
+import { dispatchQuestEvent } from "../quests/quest-engine";
 import type { ActionExecution } from "../sim/action-queue";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
-import { approach } from "./approach";
 import { handleActivityIntent } from "./activity-system";
+import { approach } from "./approach";
 import { handleSurveyIntent } from "./cartography-system";
 import { handleContractAcceptIntent } from "./contract-system";
 import { handleDoorOpenIntent } from "./door-system";
@@ -41,9 +42,7 @@ function systemMessage(
 
 function tileOf(world: World, entityId: EntityId): TileCoord | undefined {
   const position = world.getComponent(entityId, "position");
-  return position
-    ? { x: position.x, y: position.y, plane: position.plane }
-    : undefined;
+  return position ? { x: position.x, y: position.y, plane: position.plane } : undefined;
 }
 
 function chebyshev(a: TileCoord, b: TileCoord): number {
@@ -76,6 +75,8 @@ type AdjacentObjectOptionRoute = {
 };
 
 type ObjectOptionRoute = { readonly kind: "skilling" } | AdjacentObjectOptionRoute;
+
+export type ObjectInteractionDisposition = "unhandled" | "approaching" | "interacted";
 
 const GATHER_ACTION_IDS = new Set(["chop", "woodcut", "mine", "fish"]);
 const PROCESS_ACTION_IDS = new Set([
@@ -315,6 +316,10 @@ function handleActivityOption(
   );
 }
 
+function handleQuestObjectiveOption(): boolean {
+  return true;
+}
+
 const OBJECT_OPTION_ROUTES = new Map<string, AdjacentObjectOptionRoute>([
   ["inspect", { kind: "adjacent", handler: handleInspectOption }],
   ["read", { kind: "adjacent", handler: handleReadOption }],
@@ -331,6 +336,10 @@ const SKILLING_OBJECT_ROUTE: ObjectOptionRoute = { kind: "skilling" };
 const TRAPPING_OBJECT_ROUTE: AdjacentObjectOptionRoute = {
   kind: "adjacent",
   handler: handleTrappingOption,
+};
+const QUEST_OBJECT_ROUTE: AdjacentObjectOptionRoute = {
+  kind: "adjacent",
+  handler: handleQuestObjectiveOption,
 };
 
 function resolveObjectOptionRoute(actionId: string): ObjectOptionRoute | undefined {
@@ -350,6 +359,28 @@ function resolveObjectOptionRoute(actionId: string): ObjectOptionRoute | undefin
   return undefined;
 }
 
+function isQuestObjectiveOption(
+  ctx: ObjectInteractionContext,
+  objectId: string,
+  actionId: string,
+): boolean {
+  for (const quest of ctx.registries.quest.values()) {
+    for (const stage of quest.stages) {
+      if (
+        stage.objectives.some(
+          (objective) =>
+            objective.kind === "object" &&
+            objective.objectId === objectId &&
+            objective.option === actionId,
+        )
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 function invokeAdjacentObjectOption(
   ctx: ObjectInteractionContext,
   route: AdjacentObjectOptionRoute,
@@ -366,16 +397,19 @@ export function handleBeginInteract(
   tick?: number,
 ): void {
   const owner = action.entry.owner;
-  const route = resolveObjectOptionRoute(payload.actionId);
-  if (!route || route.kind === "skilling") {
-    ctx.actionQueue.cancel(owner, { id: action.entry.id });
-    systemMessage(ctx.deltas, owner, "You cannot do that.", serverTime);
-    return;
-  }
-
   const target = loadObjectInteractionTarget(ctx, owner, payload.objectEntityId);
   if (!target) {
     ctx.actionQueue.cancel(owner, { id: action.entry.id });
+    return;
+  }
+  const route =
+    resolveObjectOptionRoute(payload.actionId) ??
+    (isQuestObjectiveOption(ctx, target.object.objectId, payload.actionId)
+      ? QUEST_OBJECT_ROUTE
+      : undefined);
+  if (!route || route.kind === "skilling") {
+    ctx.actionQueue.cancel(owner, { id: action.entry.id });
+    systemMessage(ctx.deltas, owner, "You cannot do that.", serverTime);
     return;
   }
   if (chebyshev(target.actorTile, target.objectTile) > 1) {
@@ -383,7 +417,7 @@ export function handleBeginInteract(
   }
 
   ctx.actionQueue.cancel(owner, { id: action.entry.id });
-  const result = invokeAdjacentObjectOption(
+  const interacted = invokeAdjacentObjectOption(
     ctx,
     route,
     createObjectOptionInvocation(
@@ -395,9 +429,82 @@ export function handleBeginInteract(
       ctx.nooks,
     ),
   );
-  if (!result) {
+  if (!interacted) {
     systemMessage(ctx.deltas, owner, "You cannot do that.", serverTime);
+    return;
   }
+  dispatchQuestEvent(
+    ctx,
+    owner,
+    {
+      kind: "object_interacted",
+      objectId: target.object.objectId,
+      option: payload.actionId,
+    },
+    serverTime,
+    tick,
+  );
+}
+
+export function routeObjectIntent(
+  ctx: ObjectInteractionContext,
+  owner: EntityId,
+  intent: ObjectIntent,
+  serverTime: number,
+  tick?: number,
+  nooks?: readonly NookDef[],
+): ObjectInteractionDisposition {
+  const target = loadObjectInteractionTarget(ctx, owner, intent.objectEntityId);
+  const route =
+    resolveObjectOptionRoute(intent.actionId) ??
+    (target && isQuestObjectiveOption(ctx, target.object.objectId, intent.actionId)
+      ? QUEST_OBJECT_ROUTE
+      : undefined);
+  if (!route) {
+    return "unhandled";
+  }
+  if (route.kind === "skilling") {
+    const inRange = target
+      ? chebyshev(target.actorTile, target.objectTile) <=
+        (target.objectDef.options.find((option) => option.actionId === intent.actionId)
+          ?.requiredDistance ?? 1)
+      : false;
+    if (!handleObjectSkillingIntent(ctx, owner, intent, serverTime, tick)) {
+      return "unhandled";
+    }
+    return inRange ? "interacted" : "approaching";
+  }
+
+  if (!target) {
+    return "unhandled";
+  }
+  const reach = approach(
+    {
+      world: ctx.world,
+      collision: ctx.collision,
+      deltas: ctx.deltas,
+      actionQueue: ctx.actionQueue,
+    },
+    owner,
+    target.objectTile,
+    () => ({
+      kind: "begin_interact",
+      objectEntityId: intent.objectEntityId,
+      actionId: intent.actionId,
+    }),
+    tick,
+  );
+  if (reach === "approaching") {
+    return "approaching";
+  }
+
+  return invokeAdjacentObjectOption(
+    ctx,
+    route,
+    createObjectOptionInvocation(target, owner, intent, serverTime, tick, nooks),
+  )
+    ? "interacted"
+    : "unhandled";
 }
 
 export function handleObjectIntent(
@@ -408,32 +515,5 @@ export function handleObjectIntent(
   tick?: number,
   nooks?: readonly NookDef[],
 ): boolean {
-  const route = resolveObjectOptionRoute(intent.actionId);
-  if (!route) {
-    return false;
-  }
-  if (route.kind === "skilling") {
-    return handleObjectSkillingIntent(ctx, owner, intent, serverTime, tick);
-  }
-
-  const target = loadObjectInteractionTarget(ctx, owner, intent.objectEntityId);
-  if (!target) {
-    return false;
-  }
-  const reach = approach(
-    { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, actionQueue: ctx.actionQueue },
-    owner,
-    target.objectTile,
-    () => ({ kind: "begin_interact", objectEntityId: intent.objectEntityId, actionId: intent.actionId }),
-    tick,
-  );
-  if (reach === "approaching") {
-    return true;
-  }
-
-  return invokeAdjacentObjectOption(
-    ctx,
-    route,
-    createObjectOptionInvocation(target, owner, intent, serverTime, tick, nooks),
-  );
+  return routeObjectIntent(ctx, owner, intent, serverTime, tick, nooks) !== "unhandled";
 }

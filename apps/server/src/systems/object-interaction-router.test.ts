@@ -376,7 +376,9 @@ describe("object interaction router", () => {
 
     const queue = ctx.actionQueue.getDebugState();
     expect(queue.some((q) => q.id === `approach:${player}`)).toBe(true);
-    expect(queue.some((q) => (q.payload as { kind: string })?.kind === "begin_interact")).toBe(true);
+    expect(queue.some((q) => (q.payload as { kind: string })?.kind === "begin_interact")).toBe(
+      true,
+    );
   });
 
   it("cancels impossible begin_interact skilling actions", () => {

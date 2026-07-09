@@ -34,7 +34,13 @@ interface RegionPayload {
     tag?: string;
   }>;
   tileOverrides: Array<{ x: number; y: number; underlayId: string; collision?: number }>;
-  resourceNodeSpawns: Array<{ resourceNodeId: string; x: number; y: number; respawnTicks: number; initialDepletion: boolean }>;
+  resourceNodeSpawns: Array<{
+    resourceNodeId: string;
+    x: number;
+    y: number;
+    respawnTicks: number;
+    initialDepletion: boolean;
+  }>;
   playerSpawnPoints: Array<{ x: number; y: number; plane: number; spawnType: string }>;
   deathRespawnPoints: Array<{ x: number; y: number; plane: number; respawnType: string }>;
 }
@@ -227,24 +233,143 @@ const districtTriggers: Array<{ id: string; x: number; y: number; width: number;
   ];
 
 // District definitions: material and transition border material per district.
-const districtDefs: Array<{ id: string; x: number; y: number; width: number; height: number; material: string; border: string }> = [
-  { id: "market_bell", x: 40, y: 40, width: 16, height: 16, material: "bellstone_plaza", border: "grass_to_bellstone" },
-  { id: "foundry_row", x: 56, y: 40, width: 16, height: 16, material: "soot_cobble", border: "grass_to_soot_cobble" },
-  { id: "lath_yard", x: 40, y: 56, width: 16, height: 16, material: "chalk_flagstone", border: "grass_to_chalk_flagstone" },
-  { id: "patch_lane", x: 40, y: 24, width: 16, height: 16, material: "patch_grass", border: "grass_to_patch_grass" },
-  { id: "chalkhouse_court", x: 24, y: 56, width: 16, height: 16, material: "chalk_flagstone", border: "grass_to_chalk_flagstone" },
-  { id: "warden_steps", x: 56, y: 56, width: 16, height: 16, material: "packed_road", border: "grass_to_packed_road" },
-  { id: "shrine_hearth", x: 24, y: 40, width: 16, height: 16, material: "stone_floor", border: "grass_to_stone_floor" },
-  { id: "counting_house", x: 32, y: 44, width: 8, height: 8, material: "wood_floor", border: "grass_to_wood_floor" },
-  { id: "river_stoop", x: 56, y: 24, width: 16, height: 16, material: "river_mud", border: "grass_to_river_mud" },
-  { id: "oldroad_gate", x: 8, y: 40, width: 16, height: 16, material: "oldroad_slabs", border: "grass_to_oldroad_slabs" },
-  { id: "gravegate", x: 56, y: 8, width: 16, height: 16, material: "grave_soil", border: "grass_to_grave_soil" },
-  { id: "sootcellar", x: 24, y: 24, width: 16, height: 16, material: "dark_cellar_floor", border: "grass_to_dark_cellar" },
-  { id: "north_quarry_road", x: 40, y: 72, width: 16, height: 16, material: "quarry_grit", border: "grass_to_quarry_grit" },
+const districtDefs: Array<{
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  material: string;
+  border: string;
+}> = [
+  {
+    id: "market_bell",
+    x: 40,
+    y: 40,
+    width: 16,
+    height: 16,
+    material: "bellstone_plaza",
+    border: "grass_to_bellstone",
+  },
+  {
+    id: "foundry_row",
+    x: 56,
+    y: 40,
+    width: 16,
+    height: 16,
+    material: "soot_cobble",
+    border: "grass_to_soot_cobble",
+  },
+  {
+    id: "lath_yard",
+    x: 40,
+    y: 56,
+    width: 16,
+    height: 16,
+    material: "chalk_flagstone",
+    border: "grass_to_chalk_flagstone",
+  },
+  {
+    id: "patch_lane",
+    x: 40,
+    y: 24,
+    width: 16,
+    height: 16,
+    material: "patch_grass",
+    border: "grass_to_patch_grass",
+  },
+  {
+    id: "chalkhouse_court",
+    x: 24,
+    y: 56,
+    width: 16,
+    height: 16,
+    material: "chalk_flagstone",
+    border: "grass_to_chalk_flagstone",
+  },
+  {
+    id: "warden_steps",
+    x: 56,
+    y: 56,
+    width: 16,
+    height: 16,
+    material: "packed_road",
+    border: "grass_to_packed_road",
+  },
+  {
+    id: "shrine_hearth",
+    x: 24,
+    y: 40,
+    width: 16,
+    height: 16,
+    material: "stone_floor",
+    border: "grass_to_stone_floor",
+  },
+  {
+    id: "counting_house",
+    x: 32,
+    y: 44,
+    width: 8,
+    height: 8,
+    material: "wood_floor",
+    border: "grass_to_wood_floor",
+  },
+  {
+    id: "river_stoop",
+    x: 56,
+    y: 24,
+    width: 16,
+    height: 16,
+    material: "river_mud",
+    border: "grass_to_river_mud",
+  },
+  {
+    id: "oldroad_gate",
+    x: 8,
+    y: 40,
+    width: 16,
+    height: 16,
+    material: "oldroad_slabs",
+    border: "grass_to_oldroad_slabs",
+  },
+  {
+    id: "gravegate",
+    x: 56,
+    y: 8,
+    width: 16,
+    height: 16,
+    material: "grave_soil",
+    border: "grass_to_grave_soil",
+  },
+  {
+    id: "sootcellar",
+    x: 24,
+    y: 24,
+    width: 16,
+    height: 16,
+    material: "dark_cellar_floor",
+    border: "grass_to_dark_cellar",
+  },
+  {
+    id: "north_quarry_road",
+    x: 40,
+    y: 72,
+    width: 16,
+    height: 16,
+    material: "quarry_grit",
+    border: "grass_to_quarry_grit",
+  },
 ];
 
 // Terrain overrides (sparse, by district)
-const terrainOverrides: Array<{ x: number; y: number; underlayId: string; collision?: number; water?: boolean; bridge?: boolean }> = [
+const terrainOverrides: Array<{
+  x: number;
+  y: number;
+  underlayId: string;
+  collision?: number;
+  water?: boolean;
+  bridge?: boolean;
+}> = [
   // District fills
   ...districtDefs.flatMap((d) => fillRect(d.x, d.y, d.width, d.height, d.material, 0)),
   // District transition borders (1-tile inset ring, applied after fills so they override)
@@ -352,7 +477,13 @@ function getRegion(rx: number, ry: number): RegionPayload {
 }
 
 // Place all objects (including resource node visuals)
-for (const p of [...landmarks, ...serviceObjects, ...stations, ...questObjects, ...resourceNodeObjects]) {
+for (const p of [
+  ...landmarks,
+  ...serviceObjects,
+  ...stations,
+  ...questObjects,
+  ...resourceNodeObjects,
+]) {
   const { rx, ry, lx, ly } = toRuntimeCoords(p.x, p.y);
   assertLocalBounds(lx, ly, p.id);
   getRegion(rx, ry).objects.push({ objectId: p.id, x: lx, y: ly });
@@ -584,12 +715,14 @@ async function emit() {
       groundItemSpawns: region.groundItemSpawns.sort((a, b) => a.x - b.x || a.y - b.y),
       triggers: region.triggers.sort((a, b) => a.x - b.x || a.y - b.y),
       resourceNodeSpawns: region.resourceNodeSpawns.sort((a, b) => a.x - b.x || a.y - b.y),
-      playerSpawnPoints: region.rx === 0 && region.ry === 0
-        ? [{ x: 46, y: 46, plane: 0, spawnType: "default" }]
-        : [],
-      deathRespawnPoints: region.rx === 0 && region.ry === 0
-        ? [{ x: 34, y: 46, plane: 0, respawnType: "nearest" }]
-        : [],
+      playerSpawnPoints:
+        region.rx === 0 && region.ry === 0
+          ? [{ x: 46, y: 46, plane: 0, spawnType: "default" }]
+          : [],
+      deathRespawnPoints:
+        region.rx === 0 && region.ry === 0
+          ? [{ x: 34, y: 46, plane: 0, respawnType: "nearest" }]
+          : [],
     };
 
     await writeFile(filename, `${JSON.stringify(payload, null, 2)}\n`);

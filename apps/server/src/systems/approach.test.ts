@@ -5,7 +5,7 @@ import { ActionQueue, ActionQueueType, InterruptGroup } from "../sim/action-queu
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
-import { approach, beginApproach, type ApproachContext } from "./approach";
+import { type ApproachContext, approach, beginApproach } from "./approach";
 
 function tile(x: number, y: number): TileCoord {
   return { x, y, plane: 0 };
@@ -73,7 +73,10 @@ describe("approach", () => {
   it("returns approaching and enqueues a begin_* poll when out of reach", () => {
     const { ctx, player, actionQueue } = setup(tile(0, 0));
 
-    const result = approach(ctx, player, tile(3, 0), () => ({ kind: "begin_gather", nodeEntityId: 99 }));
+    const result = approach(ctx, player, tile(3, 0), () => ({
+      kind: "begin_gather",
+      nodeEntityId: 99,
+    }));
 
     expect(result).toBe("approaching");
     const queued = actionQueue.getDebugState();

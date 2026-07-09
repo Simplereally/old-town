@@ -28,8 +28,8 @@ Define the Wardenry contract schema and create starter contract content. This ep
 
 ## Ordered stories
 
-- [X] `E20-S01` — [Define Wardenry Contract Schema](stories/E20/E20-S01_define-wardenry-contract-schema.md)
-- [X] `E20-S02` — [Create Contract Content and Validation](stories/E20/E20-S02_create-contract-content-and-validation.md)
+- [X] `E20-S01` — [Define Wardenry Contract Schema](../stories/E20/E20-S01_define-wardenry-contract-schema.md)
+- [X] `E20-S02` — [Create Contract Content and Validation](../stories/E20/E20-S02_create-contract-content-and-validation.md)
 
 ## Epic acceptance criteria
 

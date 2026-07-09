@@ -15,9 +15,10 @@ import type { ItemAuditLog } from "../items/item-audit";
 import { projectEntity } from "../net/entity-spawn-projector";
 import { dispatchQuestEvent } from "../quests/quest-engine";
 import { meetsAllRequirements } from "../quests/requirements";
-import type { ActionQueue } from "../sim/action-queue";
+import type { ActionExecution, ActionQueue } from "../sim/action-queue";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
 import type { CollisionMap } from "../world/collision";
+import { beginApproach } from "./approach";
 import {
   checkContractCompletion,
   findActiveContractEntity,
@@ -40,6 +41,12 @@ export const GROUND_ITEM_DESPAWN_TICKS = 300;
 export const GRAVE_DESPAWN_TICKS = 1000; // 10 minutes at 600ms/tick
 
 const PICKUP_ACTIONS = new Set(["pickup", "take"]);
+
+/** Payload for the poll action enqueued while walking toward a ground item. */
+export interface BeginPickupPayload {
+  readonly kind: "begin_pickup";
+  readonly groundItemEntityId: EntityId;
+}
 
 function tileFromPosition(position: {
   readonly x: number;
@@ -517,31 +524,101 @@ export function handleGroundItemIntent(
   }
 
   const ownerPosition = ctx.world.getComponent(owner, "position");
-  if (
-    !ownerPosition ||
-    !sameTile(tileFromPosition(ownerPosition), tileFromPosition(itemPosition))
-  ) {
-    systemMessage(ctx.deltas, owner, "Move onto the item first.", serverTime);
+  if (!ownerPosition) {
+    return true;
+  }
+  const itemTile = tileFromPosition(itemPosition);
+  if (!sameTile(tileFromPosition(ownerPosition), itemTile)) {
+    if (!ctx.actionQueue) {
+      systemMessage(ctx.deltas, owner, "Move onto the item first.", serverTime);
+      return true;
+    }
+    // Pickup requires standing on the item's tile (not adjacency), so walk to
+    // the tile and enqueue a begin_pickup poll that completes on arrival.
+    beginApproach(
+      {
+        world: ctx.world,
+        collision: ctx.collision,
+        deltas: ctx.deltas,
+        actionQueue: ctx.actionQueue,
+      },
+      owner,
+      itemTile,
+      () => ({ kind: "begin_pickup", groundItemEntityId: intent.groundItemEntityId }),
+      tick,
+    );
     return true;
   }
 
+  completePickup(ctx, owner, intent.groundItemEntityId, groundItem, tick, serverTime);
+  return true;
+}
+
+/**
+ * Poll action executed each tick while the actor walks toward a ground item.
+ * Completes the pickup once the actor stands on the item's tile; cancels
+ * itself if the item vanishes mid-approach.
+ */
+export function handleBeginPickup(
+  ctx: GroundItemSystemContext,
+  action: ActionExecution,
+  payload: BeginPickupPayload,
+  tick: number,
+  serverTime: number,
+): void {
+  const owner = action.entry.owner;
+  const cancelSelf = () => ctx.actionQueue?.cancel(owner, { id: action.entry.id });
+
+  const groundItem = ctx.world.getComponent(payload.groundItemEntityId, "groundItem");
+  const itemPosition = ctx.world.getComponent(payload.groundItemEntityId, "position");
+  if (!groundItem || !itemPosition) {
+    cancelSelf();
+    systemMessage(ctx.deltas, owner, "That item is no longer there.", serverTime);
+    return;
+  }
+
+  const ownerPosition = ctx.world.getComponent(owner, "position");
+  if (!ownerPosition) {
+    cancelSelf();
+    return;
+  }
+  if (!sameTile(tileFromPosition(ownerPosition), tileFromPosition(itemPosition))) {
+    return;
+  }
+
+  cancelSelf();
+  if (!groundItemVisibleToPlayer(groundItem, owner, tick)) {
+    systemMessage(ctx.deltas, owner, "That item is not yours to take yet.", serverTime);
+    return;
+  }
+  completePickup(ctx, owner, payload.groundItemEntityId, groundItem, tick, serverTime);
+}
+
+function completePickup(
+  ctx: GroundItemSystemContext,
+  owner: EntityId,
+  groundItemEntityId: EntityId,
+  groundItem: GroundItemComponent,
+  tick: number,
+  serverTime: number,
+): void {
   const inventory = ctx.world.getComponent(owner, "inventory");
   if (!inventory) {
     systemMessage(ctx.deltas, owner, "You have nowhere to put that.", serverTime);
-    return true;
+    return;
   }
 
   const catalog = catalogFromItems(ctx.registries.item);
   if (!hasSpaceFor(inventory, catalog, groundItem.itemId, groundItem.quantity)) {
     systemMessage(ctx.deltas, owner, "Your inventory is full.", serverTime);
-    return true;
+    return;
   }
 
   const beforeQuantity = count(inventory, groundItem.itemId);
   const result = addItem(inventory, catalog, groundItem.itemId, groundItem.quantity);
   if (result.added !== groundItem.quantity) {
     systemMessage(ctx.deltas, owner, "Your inventory is full.", serverTime);
-    return true;
+    return;
   }
 
   ctx.deltas.markInventoryDelta(buildDelta(inventory, result.changes));
@@ -553,7 +630,7 @@ export function handleGroundItemIntent(
     beforeQuantity,
     afterQuantity: count(inventory, groundItem.itemId),
     metadata: {
-      groundItemEntityId: intent.groundItemEntityId,
+      groundItemEntityId,
       ...(groundItem.ownerId !== undefined ? { ownerEntityId: groundItem.ownerId } : {}),
     },
   });
@@ -564,7 +641,6 @@ export function handleGroundItemIntent(
     serverTime,
   );
   trackContractItemGain(ctx, owner, groundItem.itemId, groundItem.quantity);
-  ctx.world.destroyEntity(intent.groundItemEntityId);
-  ctx.deltas.markEntityRemove(intent.groundItemEntityId);
-  return true;
+  ctx.world.destroyEntity(groundItemEntityId);
+  ctx.deltas.markEntityRemove(groundItemEntityId);
 }

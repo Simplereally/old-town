@@ -15,8 +15,7 @@ export class MaterialColorResolver {
 
   constructor(materials: ReadonlyMap<string, MaterialDef> | Record<string, MaterialDef>) {
     const map = new Map<string, number>();
-    const entries =
-      materials instanceof Map ? materials.entries() : Object.entries(materials);
+    const entries = materials instanceof Map ? materials.entries() : Object.entries(materials);
     for (const [id, def] of entries) {
       if (def.color !== undefined) {
         map.set(id, def.color);

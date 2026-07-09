@@ -27,11 +27,11 @@ Create the empty-codebase foundation required for every later epic: monorepo lay
 
 ## Ordered stories
 
-- [X] `E00-S01` — [Initialize monorepo workspace](../completed/stories/E00/E00-S01_initialize-monorepo-workspace.md)
-- [X] `E00-S02` — [Configure TypeScript project references](../completed/stories/E00/E00-S02_configure-typescript-project-references.md)
-- [X] `E00-S03` — [Configure formatting, linting, and import hygiene](../completed/stories/E00/E00-S03_configure-formatting-linting-and-import-hygiene.md)
-- [X] `E00-S04` — [Configure test runner and coverage shell](../completed/stories/E00/E00-S04_configure-test-runner-and-coverage-shell.md)
-- [X] `E00-S05` — [Create task workflow conventions](../completed/stories/E00/E00-S05_create-task-workflow-conventions.md)
+- [X] `E00-S01` — [Initialize monorepo workspace](../stories/E00/E00-S01_initialize-monorepo-workspace.md)
+- [X] `E00-S02` — [Configure TypeScript project references](../stories/E00/E00-S02_configure-typescript-project-references.md)
+- [X] `E00-S03` — [Configure formatting, linting, and import hygiene](../stories/E00/E00-S03_configure-formatting-linting-and-import-hygiene.md)
+- [X] `E00-S04` — [Configure test runner and coverage shell](../stories/E00/E00-S04_configure-test-runner-and-coverage-shell.md)
+- [X] `E00-S05` — [Create task workflow conventions](../stories/E00/E00-S05_create-task-workflow-conventions.md)
 
 ## Epic acceptance criteria
 

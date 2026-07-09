@@ -93,6 +93,21 @@ export class RenderResourceRegistry {
   }
 
   /**
+   * Replace an existing geometry factory and dispose any live geometry so the
+   * next {@link getGeometry} call re-creates it from the new factory. Used by
+   * the GLB weapon loader to override procedural factories at preload time.
+   */
+  replaceGeometryFactory(key: RenderResourceKey, factory: RenderGeometryFactory): void {
+    const k = normalizeKey(key);
+    this.geometryFactories.set(k, factory);
+    const existing = this.geometries.get(k);
+    if (existing && !existing.disposed) {
+      existing.resource.dispose();
+      existing.disposed = true;
+    }
+  }
+
+  /**
    * Register a material factory for a given key.
    *
    * If the factory returns a ShaderMaterial, a `justification` MUST be

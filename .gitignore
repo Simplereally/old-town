@@ -9,8 +9,10 @@ build/
 out/
 *.tsbuildinfo
 
-# Generated item-asset atlases (built by items:build-assets)
+# Generated item-asset atlases (built by items:build-assets / icons:pack-png)
 assets/items/atlases/
+# Generated Blender-rendered icon PNGs (built by icons:render)
+assets/items/icons-png/
 
 # Test / coverage output
 coverage/

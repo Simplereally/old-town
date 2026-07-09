@@ -28,11 +28,11 @@ Implement the content-defined quest system using dialogue graphs, player variabl
 
 ## Ordered stories
 
-- [X] `E12-S01` — [Implement player var and quest var storage](../completed/stories/E12/E12-S01_implement-player-var-and-quest-var-storage.md)
-- [X] `E12-S02` — [Implement dialogue graph engine](../completed/stories/E12/E12-S02_implement-dialogue-graph-engine.md)
-- [X] `E12-S03` — [Implement quest requirement/objective/trigger engine](../completed/stories/E12/E12-S03_implement-quest-requirement-objective-trigger-engine.md)
-- [X] `E12-S04` — [Implement quest rewards and completion safety](../completed/stories/E12/E12-S04_implement-quest-rewards-and-completion-safety.md)
-- [X] `E12-S05` — [Wire Smoke Over Old Town end-to-end](../completed/stories/E12/E12-S05_wire-smoke-over-old-town-end-to-end.md)
+- [X] `E12-S01` — [Implement player var and quest var storage](../stories/E12/E12-S01_implement-player-var-and-quest-var-storage.md)
+- [X] `E12-S02` — [Implement dialogue graph engine](../stories/E12/E12-S02_implement-dialogue-graph-engine.md)
+- [X] `E12-S03` — [Implement quest requirement/objective/trigger engine](../stories/E12/E12-S03_implement-quest-requirement-objective-trigger-engine.md)
+- [X] `E12-S04` — [Implement quest rewards and completion safety](../stories/E12/E12-S04_implement-quest-rewards-and-completion-safety.md)
+- [X] `E12-S05` — [Wire Smoke Over Old Town end-to-end](../stories/E12/E12-S05_wire-smoke-over-old-town-end-to-end.md)
 
 ## Epic acceptance criteria
 

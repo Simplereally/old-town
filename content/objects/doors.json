@@ -8,9 +8,7 @@
     "blocksMovement": true,
     "blocksLineOfSight": true,
     "isDoor": true,
-    "options": [
-      { "label": "Open", "actionId": "open", "priority": 10, "requiredDistance": 1 }
-    ],
+    "options": [{ "label": "Open", "actionId": "open", "priority": 10, "requiredDistance": 1 }],
     "model": "model_building_door_wood"
   },
   {
@@ -22,9 +20,7 @@
     "blocksMovement": true,
     "blocksLineOfSight": true,
     "isDoor": true,
-    "options": [
-      { "label": "Open", "actionId": "open", "priority": 10, "requiredDistance": 1 }
-    ],
+    "options": [{ "label": "Open", "actionId": "open", "priority": 10, "requiredDistance": 1 }],
     "model": "model_building_door_iron"
   },
   {
@@ -37,9 +33,7 @@
     "blocksLineOfSight": true,
     "isDoor": true,
     "isGate": true,
-    "options": [
-      { "label": "Open", "actionId": "open", "priority": 10, "requiredDistance": 1 }
-    ],
+    "options": [{ "label": "Open", "actionId": "open", "priority": 10, "requiredDistance": 1 }],
     "model": "model_building_gate_town"
   }
 ]

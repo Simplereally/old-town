@@ -1,8 +1,8 @@
-import { describe, expect, it } from "vitest";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { materialDefSchema } from "./material";
+import { describe, expect, it } from "vitest";
 import { type LoadedContentFile, validateContent } from "../content/content-registry";
+import { materialDefSchema } from "./material";
 
 const CONTENT_DIR = resolve(process.cwd(), "content");
 
@@ -126,7 +126,10 @@ describe("E42-S01 — starter-materials.json content", () => {
 
 describe("E42-S01 — map material cross-reference validation", () => {
   it("every underlayId/overlayId in content/maps/*.json is defined in the material registry", async () => {
-    const matRaw = await readFile(resolve(CONTENT_DIR, "materials/starter-materials.json"), "utf-8");
+    const matRaw = await readFile(
+      resolve(CONTENT_DIR, "materials/starter-materials.json"),
+      "utf-8",
+    );
     const materials = JSON.parse(matRaw) as Array<{ id: string }>;
     const materialIds = new Set(materials.map((m) => m.id));
 

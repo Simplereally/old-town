@@ -302,9 +302,10 @@ describe("RenderResourceRecovery", () => {
   // ---------------------------------------------------------------------------
 
   it("ChunkUploadQueue dispose is idempotent", () => {
-    uploadQueue.dispose();
-    uploadQueue.dispose();
-    expect(true).toBe(true);
+    expect(() => {
+      uploadQueue.dispose();
+      uploadQueue.dispose();
+    }).not.toThrow();
   });
 
   it("ChunkUploadQueue evictChunk is idempotent", () => {

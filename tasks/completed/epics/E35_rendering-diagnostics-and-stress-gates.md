@@ -30,12 +30,12 @@ Make the renderer measurable. Add debug HUD metrics, deterministic stress harnes
 
 ## Ordered stories
 
-- [X] `E35-S01` - [Renderer Metrics HUD and Budget Constants](stories/E35/E35-S01_renderer-metrics-hud-and-budget-constants.md)
-- [X] `E35-S02` - [Snapshot Jitter Stress Harness](stories/E35/E35-S02_snapshot-jitter-stress-harness.md)
-- [X] `E35-S03` - [Region Crossing Stress Harness](stories/E35/E35-S03_region-crossing-stress-harness.md)
-- [X] `E35-S04` - [Entity Scale Stress Harness](stories/E35/E35-S04_entity-scale-stress-harness.md)
-- [X] `E35-S05` - [Instanced Prop Scale Stress Harness](stories/E35/E35-S05_instanced-prop-scale-stress-harness.md)
-- [X] `E35-S06` - [Heap and Draw-Call Gate](stories/E35/E35-S06_heap-and-draw-call-gate.md)
+- [X] `E35-S01` - [Renderer Metrics HUD and Budget Constants](../stories/E35/E35-S01_renderer-metrics-hud-and-budget-constants.md)
+- [X] `E35-S02` - [Snapshot Jitter Stress Harness](../stories/E35/E35-S02_snapshot-jitter-stress-harness.md)
+- [X] `E35-S03` - [Region Crossing Stress Harness](../stories/E35/E35-S03_region-crossing-stress-harness.md)
+- [X] `E35-S04` - [Entity Scale Stress Harness](../stories/E35/E35-S04_entity-scale-stress-harness.md)
+- [X] `E35-S05` - [Instanced Prop Scale Stress Harness](../stories/E35/E35-S05_instanced-prop-scale-stress-harness.md)
+- [X] `E35-S06` - [Heap and Draw-Call Gate](../stories/E35/E35-S06_heap-and-draw-call-gate.md)
 
 ## Epic acceptance criteria
 

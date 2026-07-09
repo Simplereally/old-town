@@ -64,12 +64,7 @@ function buildTileMap(overrides: TileOverride[]): Map<string, string> {
 
 describe("E42-S03 — District material painting and transitions", () => {
   it("each district trigger box contains at least one tile with the expected material", async () => {
-    const maps = await Promise.all([
-      loadMap(0, 0),
-      loadMap(1, 0),
-      loadMap(0, 1),
-      loadMap(1, 1),
-    ]);
+    const maps = await Promise.all([loadMap(0, 0), loadMap(1, 0), loadMap(0, 1), loadMap(1, 1)]);
 
     const allTriggers = maps.flatMap((m) =>
       m.triggers.map((t) => ({ ...t, rx: m.region.rx, ry: m.region.ry })),
@@ -87,9 +82,7 @@ describe("E42-S03 — District material painting and transitions", () => {
       // Check if any tile within the trigger boxes has the expected material.
       let found = false;
       for (const trigger of triggers) {
-        const map = maps.find(
-          (m) => m.region.rx === trigger.rx && m.region.ry === trigger.ry,
-        );
+        const map = maps.find((m) => m.region.rx === trigger.rx && m.region.ry === trigger.ry);
         if (!map) continue;
         const tileMap = buildTileMap(map.tiles.overrides);
         for (let dx = 0; dx < trigger.width; dx++) {
@@ -116,12 +109,7 @@ describe("E42-S03 — District material painting and transitions", () => {
   });
 
   it("transition border materials appear in the generated maps", async () => {
-    const maps = await Promise.all([
-      loadMap(0, 0),
-      loadMap(1, 0),
-      loadMap(0, 1),
-      loadMap(1, 1),
-    ]);
+    const maps = await Promise.all([loadMap(0, 0), loadMap(1, 0), loadMap(0, 1), loadMap(1, 1)]);
 
     const allMaterials = new Set<string>();
     for (const map of maps) {
@@ -139,17 +127,15 @@ describe("E42-S03 — District material painting and transitions", () => {
     ];
 
     for (const transitionId of expectedTransitions) {
-      expect(allMaterials.has(transitionId), `Transition material "${transitionId}" should appear in maps`).toBe(true);
+      expect(
+        allMaterials.has(transitionId),
+        `Transition material "${transitionId}" should appear in maps`,
+      ).toBe(true);
     }
   });
 
   it("each district material appears at least once across all maps", async () => {
-    const maps = await Promise.all([
-      loadMap(0, 0),
-      loadMap(1, 0),
-      loadMap(0, 1),
-      loadMap(1, 1),
-    ]);
+    const maps = await Promise.all([loadMap(0, 0), loadMap(1, 0), loadMap(0, 1), loadMap(1, 1)]);
 
     const allMaterials = new Set<string>();
     for (const map of maps) {
@@ -159,7 +145,10 @@ describe("E42-S03 — District material painting and transitions", () => {
     }
 
     for (const [districtId, material] of Object.entries(DISTRICT_MATERIALS)) {
-      expect(allMaterials.has(material), `District "${districtId}" material "${material}" should appear in maps`).toBe(true);
+      expect(
+        allMaterials.has(material),
+        `District "${districtId}" material "${material}" should appear in maps`,
+      ).toBe(true);
     }
   });
 });

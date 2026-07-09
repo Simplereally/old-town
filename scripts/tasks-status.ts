@@ -11,11 +11,22 @@
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { auditTaskTree } from "./tasks-check";
 
 const root = process.cwd();
 const tasksDir = join(root, "tasks");
 const epicsDir = join(tasksDir, "epics");
 const storiesDir = join(tasksDir, "stories");
+
+const audit = auditTaskTree(root);
+if (audit.issues.length > 0) {
+  console.error(`Task tree validation failed with ${audit.issues.length} issue(s):`);
+  for (const issue of audit.issues) {
+    console.error(`  - ${issue}`);
+  }
+  console.error("\nRun `bun run tasks:check` after repairing the task tree.");
+  process.exit(1);
+}
 
 function listMarkdown(dir: string): string[] {
   if (!existsSync(dir)) {

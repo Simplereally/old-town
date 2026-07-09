@@ -44,6 +44,8 @@ import { ConsumableSystem } from "../systems/consumable-system";
 import { processContractLifecycle } from "../systems/contract-system";
 import { processPlayerRespawn } from "../systems/death-system";
 import {
+  type BeginPickupPayload,
+  handleBeginPickup,
   processDeathResolution,
   processGraveLifecycle,
   processGroundItemLifecycle,
@@ -56,6 +58,7 @@ import {
   type BeginInteractPayload,
   handleBeginInteract,
 } from "../systems/object-interaction-router";
+import { processPrayerDrainPhase } from "../systems/prayer-system";
 import {
   createResourceNodeActionHandlers,
   type ResourceNodeHandlerTable,
@@ -69,7 +72,6 @@ import { createSpellActionHandlers, type SpellHandlerTable } from "../systems/sp
 import { processStatusEffectTick } from "../systems/status-effect-system";
 import { processStatusEffects } from "../systems/status-system";
 import { checkTrailDiscovery, processTrailBuffs } from "../systems/trail-system";
-import { processPrayerDrainPhase } from "../systems/prayer-system";
 import { applyObjectCollision, CollisionMap } from "../world/collision";
 import { loadAllRegionMapsIntoWorld } from "../world/region-loader";
 import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
@@ -124,6 +126,8 @@ export interface KernelStats {
 export interface SimulationKernelOptions {
   readonly registries: ContentRegistries;
   readonly logger: Logger;
+  /** Seed for deterministic simulation rolls. Defaults to the stable development-world seed. */
+  readonly rngSeed?: number;
   readonly persistence?: PersistenceAdapter;
   readonly lazySaveIntervalTicks?: number;
   readonly startServerTime?: number;
@@ -151,6 +155,7 @@ type ActionHandlerTable = SkillingHandlerTable &
   DialogueHandlerTable &
   ActivityHandlerTable & {
     begin_interact: ActionHandler<BeginInteractPayload>;
+    begin_pickup: ActionHandler<BeginPickupPayload>;
   };
 
 interface SimulationDeps {
@@ -247,7 +252,7 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
   const chatSystem = new ChatSystem();
   const consumableSystem = new ConsumableSystem();
   const actionQueue = new ActionQueue();
-  const rng = createRng(0x1d70a0d);
+  const rng = createRng(options.rngSeed ?? 0x1d70a0d);
   const skillingContext = {
     world,
     collision,
@@ -283,6 +288,14 @@ function createSimulationDeps(options: SimulationKernelOptions): SimulationDeps 
         payload,
         actionCtx.serverTime,
         actionCtx.tick,
+      ),
+    begin_pickup: (payload, actionCtx) =>
+      handleBeginPickup(
+        skillingContext,
+        actionCtx.execution,
+        payload,
+        actionCtx.tick,
+        actionCtx.serverTime,
       ),
   };
   const actionExecutor = new ActionExecutor(

@@ -46,10 +46,7 @@ async function main(): Promise<void> {
 }
 
 async function migrateUp(client: PgClientLike): Promise<void> {
-  const [applied, migrations] = await Promise.all([
-    appliedVersions(client),
-    listMigrations("up"),
-  ]);
+  const [applied, migrations] = await Promise.all([appliedVersions(client), listMigrations("up")]);
   let count = 0;
   for (const { version, file } of migrations) {
     if (applied.has(version)) {

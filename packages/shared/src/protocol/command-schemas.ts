@@ -5,8 +5,8 @@
  * and the discriminated union rejects unknown command types.
  */
 import { z } from "zod";
-import { combatStyleModeSchema, combatStyleSchema } from "../content-schemas/common";
 import { actionIdSchema } from "../content/action-id";
+import { combatStyleModeSchema, combatStyleSchema } from "../content-schemas/common";
 import { type ClientCommand, ClientCommandType } from "./commands";
 import type { ParseResult } from "./parse-result";
 import {

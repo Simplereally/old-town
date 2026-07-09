@@ -7,7 +7,14 @@
  * entry requirement, then enqueues a repeating action that executes the activity
  * loop.
  */
-import { type ActivityDef, type ContentRegistries, type EntityId, isPlane, type Rng, type TileCoord } from "@old-town/shared";
+import {
+  type ActivityDef,
+  type ContentRegistries,
+  type EntityId,
+  isPlane,
+  type Rng,
+  type TileCoord,
+} from "@old-town/shared";
 import type { World } from "../ecs/world";
 import {
   addItem,
@@ -73,9 +80,7 @@ function systemMessage(
 
 function tileOf(world: World, entityId: EntityId): TileCoord | undefined {
   const position = world.getComponent(entityId, "position");
-  return position
-    ? { x: position.x, y: position.y, plane: position.plane }
-    : undefined;
+  return position ? { x: position.x, y: position.y, plane: position.plane } : undefined;
 }
 
 function chebyshev(a: TileCoord, b: TileCoord): number {
@@ -316,7 +321,12 @@ export function handleActivityIntent(
   }
 
   const reach = approach(
-    { world: ctx.world, collision: ctx.collision, deltas: ctx.deltas, actionQueue: ctx.actionQueue },
+    {
+      world: ctx.world,
+      collision: ctx.collision,
+      deltas: ctx.deltas,
+      actionQueue: ctx.actionQueue,
+    },
     owner,
     objectTile,
     () => ({ kind: "begin_activity", activityId: activityDef.id, objectEntityId }),

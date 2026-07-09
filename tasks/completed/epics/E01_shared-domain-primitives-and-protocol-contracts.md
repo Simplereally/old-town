@@ -28,12 +28,12 @@ Create the shared type system that prevents drift between server truth and clien
 
 ## Ordered stories
 
-- [X] `E01-S01` — [Define integer world primitives](../completed/stories/E01/E01-S01_define-integer-world-primitives.md)
-- [X] `E01-S02` — [Define constants and deterministic math utilities](../completed/stories/E01/E01-S02_define-constants-and-deterministic-math-utilities.md)
-- [X] `E01-S03` — [Define client-to-server command contracts](../completed/stories/E01/E01-S03_define-client-to-server-command-contracts.md)
-- [X] `E01-S04` — [Define server-to-client delta protocol](../completed/stories/E01/E01-S04_define-server-to-client-delta-protocol.md)
-- [X] `E01-S05` — [Define entity update masks](../completed/stories/E01/E01-S05_define-entity-update-masks.md)
-- [X] `E01-S06` — [Define content ID and asset reference conventions](../completed/stories/E01/E01-S06_define-content-id-and-asset-reference-conventions.md)
+- [X] `E01-S01` — [Define integer world primitives](../stories/E01/E01-S01_define-integer-world-primitives.md)
+- [X] `E01-S02` — [Define constants and deterministic math utilities](../stories/E01/E01-S02_define-constants-and-deterministic-math-utilities.md)
+- [X] `E01-S03` — [Define client-to-server command contracts](../stories/E01/E01-S03_define-client-to-server-command-contracts.md)
+- [X] `E01-S04` — [Define server-to-client delta protocol](../stories/E01/E01-S04_define-server-to-client-delta-protocol.md)
+- [X] `E01-S05` — [Define entity update masks](../stories/E01/E01-S05_define-entity-update-masks.md)
+- [X] `E01-S06` — [Define content ID and asset reference conventions](../stories/E01/E01-S06_define-content-id-and-asset-reference-conventions.md)
 
 ## Epic acceptance criteria
 

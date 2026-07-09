@@ -29,12 +29,12 @@ Build the data-driven content layer so gameplay systems consume validated defini
 
 ## Ordered stories
 
-- [X] `E02-S01` — [Implement content schema package](../completed/stories/E02/E02-S01_implement-content-schema-package.md)
-- [X] `E02-S02` — [Create content loader and dependency validator](../completed/stories/E02/E02-S02_create-content-loader-and-dependency-validator.md)
-- [X] `E02-S03` — [Seed core skills and XP table](../completed/stories/E02/E02-S03_seed-core-skills-and-xp-table.md)
-- [X] `E02-S04` — [Seed item and equipment definitions](../completed/stories/E02/E02-S04_seed-item-and-equipment-definitions.md)
-- [X] `E02-S05` — [Seed NPCs, objects, resource nodes, and drops](../completed/stories/E02/E02-S05_seed-npcs-objects-resource-nodes-and-drops.md)
-- [X] `E02-S06` — [Seed spellbook, dialogue, quest, and map content](../completed/stories/E02/E02-S06_seed-spellbook-dialogue-quest-and-map-content.md)
+- [X] `E02-S01` — [Implement content schema package](../stories/E02/E02-S01_implement-content-schema-package.md)
+- [X] `E02-S02` — [Create content loader and dependency validator](../stories/E02/E02-S02_create-content-loader-and-dependency-validator.md)
+- [X] `E02-S03` — [Seed core skills and XP table](../stories/E02/E02-S03_seed-core-skills-and-xp-table.md)
+- [X] `E02-S04` — [Seed item and equipment definitions](../stories/E02/E02-S04_seed-item-and-equipment-definitions.md)
+- [X] `E02-S05` — [Seed NPCs, objects, resource nodes, and drops](../stories/E02/E02-S05_seed-npcs-objects-resource-nodes-and-drops.md)
+- [X] `E02-S06` — [Seed spellbook, dialogue, quest, and map content](../stories/E02/E02-S06_seed-spellbook-dialogue-quest-and-map-content.md)
 
 ## Epic acceptance criteria
 

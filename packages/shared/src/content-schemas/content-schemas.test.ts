@@ -222,6 +222,14 @@ describe("contentSchemas — one entry point validates every kind", () => {
         expiryTicks: 0,
       }).success,
     ).toBe(true);
+    expect(
+      validate("audio", {
+        id: "ui_click",
+        name: "UI Click",
+        category: "ui",
+        assetPath: "assets/audio/ui/click.ogg",
+      }).success,
+    ).toBe(true);
   });
 });
 

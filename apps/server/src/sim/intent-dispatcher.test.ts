@@ -1,9 +1,17 @@
-import { type ContentRegistries, createRng } from "@old-town/shared";
+import {
+  type ContentRegistries,
+  createRng,
+  type ItemDef,
+  type ObjectDef,
+  type QuestDef,
+} from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import { createWorld } from "../ecs/world";
+import { addItem, catalogFromItems, createInventory } from "../items/inventory";
 import { ChatSystem } from "../systems/chat-system";
 import { ConsumableSystem } from "../systems/consumable-system";
 import { makeRegistries } from "../test-support/registries";
+import { getBooleanVar, getQuestStage, setQuestStage } from "../vars/player-vars";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
 import { ActionQueue, ActionQueueType, InterruptGroup } from "./action-queue";
@@ -183,6 +191,123 @@ describe("IntentDispatcher", () => {
     const packet = deltas.consume(1, 600);
     expect(packet.chat?.[0]?.text).toBe("Nothing interesting happens.");
     expect(packet.chat?.[0]?.channel).toBe("system");
+  });
+
+  it("only advances content-declared object objectives in reach with their requirements", () => {
+    const world = createWorld();
+    const player = world.createEntity();
+    const hearth = world.createEntity();
+    world.setComponent(player, "position", { entityId: player, x: 4, y: 5, plane: 0 });
+    world.setComponent(player, "inventory", createInventory(player, `inventory:${player}`, 28));
+    world.setComponent(hearth, "position", { entityId: hearth, x: 5, y: 5, plane: 0 });
+    world.setComponent(hearth, "object", {
+      entityId: hearth,
+      objectId: "test_hearth",
+      facing: 0,
+      variant: 0,
+    });
+
+    const dryLog = {
+      id: "dry_log",
+      name: "Dry log",
+      stackable: false,
+      tradeable: true,
+      examine: "Dry enough to burn.",
+      icon: "icon_dry_log",
+      value: 1,
+      options: [],
+      tags: [],
+    } satisfies ItemDef;
+    const hearthDef = {
+      id: "test_hearth",
+      name: "Test Hearth",
+      width: 1,
+      length: 1,
+      blocksMovement: true,
+      blocksLineOfSight: false,
+      options: [{ label: "Light", actionId: "light", priority: 10, requiredDistance: 1 }],
+      defaultRotation: 0,
+    } satisfies ObjectDef;
+    const quest = {
+      id: "hearth_test",
+      name: "Hearth Test",
+      questPoints: 1,
+      requirements: [],
+      varPrefix: "hearth_test",
+      stages: [
+        { stage: 0, journalText: "Not started.", objectives: [], triggers: [] },
+        {
+          stage: 1,
+          journalText: "Light the hearth.",
+          objectives: [
+            {
+              kind: "object",
+              objectId: "test_hearth",
+              option: "light",
+              progressVar: "quest.hearth_test.lit",
+              requirements: [{ kind: "item", itemId: "dry_log", quantity: 3 }],
+            },
+          ],
+          triggers: [],
+        },
+        { stage: 2, journalText: "Done.", objectives: [], triggers: [] },
+      ],
+      variables: [{ key: "quest.hearth_test.lit", initialValue: false }],
+      rewards: [],
+    } satisfies QuestDef;
+    const registries = makeRegistries({
+      item: new Map([[dryLog.id, dryLog]]),
+      object: new Map([[hearthDef.id, hearthDef]]),
+      quest: new Map([[quest.id, quest]]),
+    });
+    const deltas = new DeltaAccumulator();
+    const actionQueue = new ActionQueue();
+    const ctx = {
+      world,
+      collision: new CollisionMap(createRuntimeMap()),
+      deltas,
+      actionQueue,
+      registries,
+      rng: createRng(1),
+      chatSystem: new ChatSystem(),
+      consumableSystem: new ConsumableSystem(),
+    };
+    setQuestStage({ world, deltas }, player, quest, 1);
+    deltas.consume(0, 0);
+
+    const lightIntent = (commandId: number): ConsumedCommandGroup["intents"][number] => ({
+      kind: IntentKind.Object,
+      ownerEntityId: player,
+      connectionId: "c1",
+      commandId,
+      receivedTick: commandId - 1,
+      targetTick: commandId,
+      payload: { objectEntityId: hearth, actionId: "light" },
+    });
+
+    dispatchIntentGroup(ctx, makeGroup(player, [lightIntent(1)]), 1, 600);
+    expect(getQuestStage(world, player, quest)).toBe(1);
+    expect(getBooleanVar(world, player, "quest.hearth_test.lit")).toBe(false);
+
+    const inventory = world.getComponent(player, "inventory");
+    expect(inventory).toBeDefined();
+    if (!inventory) {
+      throw new Error("Missing test inventory");
+    }
+    expect(addItem(inventory, catalogFromItems(registries.item), "dry_log", 3).added).toBe(3);
+    world.setComponent(player, "position", { entityId: player, x: 0, y: 0, plane: 0 });
+    dispatchIntentGroup(ctx, makeGroup(player, [lightIntent(2)]), 2, 1_200);
+    expect(getQuestStage(world, player, quest)).toBe(1);
+    expect(getBooleanVar(world, player, "quest.hearth_test.lit")).toBe(false);
+
+    world.setComponent(player, "position", { entityId: player, x: 4, y: 5, plane: 0 });
+    dispatchIntentGroup(ctx, makeGroup(player, [lightIntent(3)]), 3, 1_800);
+    expect(getQuestStage(world, player, quest)).toBe(2);
+    expect(getBooleanVar(world, player, "quest.hearth_test.lit")).toBe(true);
+    expect(deltas.peek().varbitDelta).toContainEqual({
+      varId: "quest.hearth_test.lit",
+      value: true,
+    });
   });
 
   it("npc intent emits explicit feedback and cancels weak actions", () => {

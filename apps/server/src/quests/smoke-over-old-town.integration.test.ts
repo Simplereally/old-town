@@ -11,10 +11,16 @@ import { createWorld, type World } from "../ecs/world";
 import { addItem, catalogFromItems, count, createInventory } from "../items/inventory";
 import { ActionQueue } from "../sim/action-queue";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
-import { getBooleanVar, getNumberVar, getQuestStage } from "../vars/player-vars";
+import {
+  getBooleanVar,
+  getNumberVar,
+  getQuestStage,
+  setQuestStage,
+  setVar,
+} from "../vars/player-vars";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap } from "../world/runtime-map";
-import { dispatchQuestEvent } from "./quest-engine";
+import { dispatchQuestEvent, processQuestTriggers } from "./quest-engine";
 
 const PLAYER = entityId(0);
 const PIPPA = entityId(1);
@@ -51,6 +57,12 @@ function setup(): SmokeQuestHarness {
   expect(player).toBe(PLAYER);
   expect(pippa).toBe(PIPPA);
 
+  world.setComponent(PLAYER, "player", {
+    entityId: PLAYER,
+    accountId: "test",
+    sessionId: "test",
+    interestRadius: 16,
+  });
   world.setComponent(PLAYER, "position", { entityId: PLAYER, x: 45, y: 46, plane: 0 });
   world.setComponent(PLAYER, "movement", { entityId: PLAYER, mode: "walk", path: [] });
   world.setComponent(PLAYER, "inventory", createInventory(PLAYER, "inventory:player", 28));
@@ -172,79 +184,268 @@ function expectQuestStage(harness: SmokeQuestHarness, stage: number, journalText
 }
 
 describe("Smoke Over Old Town seed quest", () => {
+  it("shows Pippa's pre-quest introduction", () => {
+    const harness = setup();
+
+    const greeting = openPippaDialogue(harness, 600);
+
+    expect(greeting).toMatchObject({
+      dialogueId: "pippa_hearth_dialogue",
+      speakerName: "Pippa Hearth",
+      options: [
+        { index: 0, text: "What's with all the smoke?" },
+        { index: 6, text: "I should go." },
+      ],
+    });
+  });
+
+  it("starts the quest from the explicit help option", () => {
+    const harness = setup();
+
+    openPippaDialogue(harness, 600);
+    selectDialogueOption(harness, "What's with all the smoke?", 1_200);
+    const accepted = selectDialogueOption(harness, "Yes, I'll help.", 1_800);
+
+    expect(accepted.npcText).toContain("First bring me three dry logs");
+    expect(getQuestStage(harness.world, PLAYER, harness.quest)).toBe(1);
+    expect(getBooleanVar(harness.world, PLAYER, "quest.smoke_over_old_town.spoke_to_pippa")).toBe(
+      true,
+    );
+  });
+
+  it("selects stage-specific reminders and the post-quest thank-you from vars", () => {
+    const reminders = [
+      [2, "I'm gathering the dry logs.", "Three dry logs"],
+      [3, "The cellar rats are next.", "Two cellar rats"],
+      [4, "I'm ready to light the hearth.", "Market Kitchen Hearth"],
+    ] as const;
+
+    for (const [stage, option, expectedText] of reminders) {
+      const harness = setup();
+      setQuestStage({ world: harness.world, deltas: harness.deltas }, PLAYER, harness.quest, stage);
+      openPippaDialogue(harness, stage * 600);
+      const reminder = selectDialogueOption(harness, option, stage * 600 + 600);
+      expect(reminder.npcText).toContain(expectedText);
+    }
+
+    const completedHarness = setup();
+    setQuestStage(
+      { world: completedHarness.world, deltas: completedHarness.deltas },
+      PLAYER,
+      completedHarness.quest,
+      5,
+    );
+    setVar(
+      { world: completedHarness.world, deltas: completedHarness.deltas },
+      PLAYER,
+      "quest.smoke_over_old_town.completed",
+      true,
+    );
+    openPippaDialogue(completedHarness, 3_600);
+    const thanks = selectDialogueOption(completedHarness, "The hearth is drawing cleanly.", 4_200);
+    expect(thanks.npcText).toContain("Thank you");
+  });
+
+  it("requires three dry logs before the hearth can be lit", () => {
+    const harness = setup();
+    setQuestStage({ world: harness.world, deltas: harness.deltas }, PLAYER, harness.quest, 4);
+    harness.deltas.consume(1, 600);
+
+    expect(
+      questEvent(
+        harness,
+        { kind: "object_interacted", objectId: "market_kitchen_hearth", option: "light" },
+        1_200,
+        2,
+      ),
+    ).toEqual([]);
+    expectQuestStage(
+      harness,
+      4,
+      "The cellar is clear. I should light the Market Kitchen Hearth with the dry logs.",
+    );
+    expect(getBooleanVar(harness.world, PLAYER, "quest.smoke_over_old_town.oven_lit")).toBe(false);
+    expect(
+      getBooleanVar(
+        harness.world,
+        PLAYER,
+        "quest.smoke_over_old_town.object.market_kitchen_hearth.light",
+      ),
+    ).toBe(false);
+  });
+
   it("plays from baker dialogue through oven lighting and final rewards", () => {
     const harness = setup();
 
     const greeting = openPippaDialogue(harness, 600);
     expect(greeting).toMatchObject({
-      dialogueId: "baker_dialogue",
+      dialogueId: "pippa_hearth_dialogue",
       speakerName: "Pippa Hearth",
       options: [
-        { index: 0, text: "What happened to the oven?" },
-        { index: 3, text: "I should go." },
+        { index: 0, text: "What's with all the smoke?" },
+        { index: 6, text: "I should go." },
       ],
     });
 
-    selectDialogueOption(harness, "What happened to the oven?", 1_200);
-    selectDialogueOption(harness, "I'll sort it out.", 1_800);
-    expectQuestStage(
-      harness,
-      10,
-      "Pippa Hearth needs a clean fire for the bakery oven. I should gather three dry logs.",
-    );
-    expect(inventoryCount(harness, "smoke_over_old_town_baker_oven_key")).toBe(1);
+    selectDialogueOption(harness, "What's with all the smoke?", 1_200);
+    selectDialogueOption(harness, "Yes, I'll help.", 1_800);
+    expectQuestStage(harness, 1, "Pippa Hearth asked me to help clear the bakery's smoke.");
+    expect(questEvent(harness, { kind: "dialogue", npcId: "pippa_hearth" }, 2_400)).toEqual([
+      "smoke_over_old_town",
+    ]);
+    expectQuestStage(harness, 2, "Pippa needs a clean fire. I should gather three dry logs.");
 
-    addInventory(harness, "dry_log", 3);
-    expect(
-      questEvent(harness, { kind: "item_gained", itemId: "dry_log", quantity: 3 }, 2_400),
-    ).toEqual(["smoke_over_old_town"]);
-    expectQuestStage(
-      harness,
-      20,
-      "I have the dry logs. I should clear two cellar rats before the oven can be lit.",
-    );
+    harness.deltas.consume(4, 2_400);
+    for (let gathered = 1; gathered <= 3; gathered += 1) {
+      addInventory(harness, "dry_log", 1);
+      expect(
+        questEvent(
+          harness,
+          { kind: "item_gained", itemId: "dry_log", quantity: 1 },
+          2_400 + gathered * 600,
+          4 + gathered,
+        ),
+      ).toEqual(gathered === 3 ? ["smoke_over_old_town"] : []);
+      expect(getNumberVar(harness.world, PLAYER, "quest.smoke_over_old_town.dry_logs")).toBe(
+        gathered,
+      );
+      expect(harness.deltas.peek().varbitDelta).toContainEqual({
+        varId: "quest.smoke_over_old_town.dry_logs",
+        value: gathered,
+      });
+      if (gathered < 3) {
+        expectQuestStage(harness, 2, "Pippa needs a clean fire. I should gather three dry logs.");
+      }
+      harness.deltas.consume(4 + gathered, 2_400 + gathered * 600);
+    }
+    expectQuestStage(harness, 3, "I have the dry logs. I should clear two cellar rats.");
     expect(inventoryCount(harness, "dry_log")).toBe(3);
 
-    expect(questEvent(harness, { kind: "npc_killed", npcId: "cellar_rat" }, 3_000)).toEqual([]);
+    expect(questEvent(harness, { kind: "npc_killed", npcId: "cellar_rat" }, 4_800, 8)).toEqual([]);
     expect(getNumberVar(harness.world, PLAYER, "quest.smoke_over_old_town.kill.cellar_rat")).toBe(
       1,
     );
-    expect(questEvent(harness, { kind: "npc_killed", npcId: "cellar_rat" }, 3_600)).toEqual([
+    expect(getNumberVar(harness.world, PLAYER, "quest.smoke_over_old_town.rats_killed")).toBe(1);
+    expect(harness.deltas.peek().varbitDelta).toContainEqual({
+      varId: "quest.smoke_over_old_town.rats_killed",
+      value: 1,
+    });
+    harness.deltas.consume(8, 4_800);
+
+    expect(questEvent(harness, { kind: "npc_killed", npcId: "cellar_rat" }, 5_400, 9)).toEqual([
       "smoke_over_old_town",
     ]);
+    expect(getNumberVar(harness.world, PLAYER, "quest.smoke_over_old_town.rats_killed")).toBe(2);
+    expect(harness.deltas.peek().varbitDelta).toContainEqual({
+      varId: "quest.smoke_over_old_town.rats_killed",
+      value: 2,
+    });
     expectQuestStage(
       harness,
-      30,
-      "The cellar rats are handled. I should light the Smoking Oven with the dry logs and Pippa's key.",
+      4,
+      "The cellar is clear. I should light the Market Kitchen Hearth with the dry logs.",
     );
 
+    harness.deltas.consume(9, 5_400);
     expect(
       questEvent(
         harness,
-        { kind: "object_interacted", objectId: "quest_oven", option: "light" },
-        4_200,
+        { kind: "object_interacted", objectId: "market_kitchen_hearth", option: "light" },
+        6_000,
+        10,
       ),
     ).toEqual(["smoke_over_old_town"]);
+    expect(getBooleanVar(harness.world, PLAYER, "quest.smoke_over_old_town.oven_lit")).toBe(true);
+    expect(harness.deltas.peek().varbitDelta).toContainEqual({
+      varId: "quest.smoke_over_old_town.oven_lit",
+      value: true,
+    });
     expectQuestStage(
       harness,
-      40,
-      "The bakery oven is lit. I should return to Pippa Hearth for my reward.",
+      5,
+      "The bakery hearth burns cleanly. Smoke Over Old Town is complete.",
     );
     expect(inventoryCount(harness, "dry_log")).toBe(0);
-    expect(inventoryCount(harness, "smoke_over_old_town_baker_oven_key")).toBe(0);
 
-    harness.deltas.consume(7, 4_200);
-    const finalDialogue = openPippaDialogue(harness, 4_800);
+    harness.deltas.consume(10, 6_000);
+    const finalDialogue = openPippaDialogue(harness, 6_600);
     expect(finalDialogue.options).toContainEqual({
-      index: 2,
-      text: "The oven's breathing again.",
+      index: 5,
+      text: "The hearth is drawing cleanly.",
     });
     expect(currentJournal(harness)).toBe("Completed.");
-    expect(inventoryCount(harness, "smoke_over_old_town_old_town_bread")).toBe(1);
-    expect(inventoryCount(harness, "coin")).toBe(10);
-    expect(harness.world.getComponent(PLAYER, "skills")?.skills.cooking?.xp).toBe(50);
+    expect(inventoryCount(harness, "bread")).toBe(5);
+    expect(inventoryCount(harness, "coin")).toBe(50);
+    expect(harness.world.getComponent(PLAYER, "skills")?.skills.cooking?.xp).toBe(100);
     expect(getNumberVar(harness.world, PLAYER, "quest.points")).toBe(1);
     expect(getBooleanVar(harness.world, PLAYER, "unlock.bakery_range")).toBe(true);
     expect(getBooleanVar(harness.world, PLAYER, "quest.smoke_over_old_town.completed")).toBe(true);
+  });
+
+  it("does not duplicate rewards when the quest is completed again", () => {
+    const harness = setup();
+
+    // Fast-forward to stage 5 (oven lit, quest not yet completed).
+    setQuestStage({ world: harness.world, deltas: harness.deltas }, PLAYER, harness.quest, 5);
+    setVar(
+      { world: harness.world, deltas: harness.deltas },
+      PLAYER,
+      "quest.smoke_over_old_town.oven_lit",
+      true,
+    );
+    harness.deltas.consume(1, 600);
+
+    // Complete the quest via the tick-loop trigger phase.
+    expect(
+      processQuestTriggers(
+        { world: harness.world, registries: harness.registries, deltas: harness.deltas },
+        1_200,
+        2,
+      ).progressedQuestIds,
+    ).toEqual(["smoke_over_old_town"]);
+    expect(getBooleanVar(harness.world, PLAYER, "quest.smoke_over_old_town.completed")).toBe(true);
+    expect(inventoryCount(harness, "bread")).toBe(5);
+    expect(inventoryCount(harness, "coin")).toBe(50);
+    expect(getNumberVar(harness.world, PLAYER, "quest.points")).toBe(1);
+
+    // A second trigger pass must not re-apply rewards.
+    harness.deltas.consume(2, 1_200);
+    expect(
+      processQuestTriggers(
+        { world: harness.world, registries: harness.registries, deltas: harness.deltas },
+        1_800,
+        3,
+      ).progressedQuestIds,
+    ).toEqual([]);
+    expect(inventoryCount(harness, "bread")).toBe(5);
+    expect(inventoryCount(harness, "coin")).toBe(50);
+    expect(getNumberVar(harness.world, PLAYER, "quest.points")).toBe(1);
+  });
+
+  it("completes the quest via the tick-loop trigger phase from stage 5", () => {
+    const harness = setup();
+
+    // Simulate the player having lit the oven: stage 5 with no objectives.
+    setQuestStage({ world: harness.world, deltas: harness.deltas }, PLAYER, harness.quest, 5);
+    harness.deltas.consume(1, 600);
+
+    const result = processQuestTriggers(
+      { world: harness.world, registries: harness.registries, deltas: harness.deltas },
+      1_200,
+      2,
+    );
+
+    expect(result.progressedQuestIds).toEqual(["smoke_over_old_town"]);
+    expect(getQuestStage(harness.world, PLAYER, harness.quest)).toBe(6);
+    expect(getBooleanVar(harness.world, PLAYER, "quest.smoke_over_old_town.completed")).toBe(true);
+    expect(getBooleanVar(harness.world, PLAYER, "unlock.bakery_range")).toBe(true);
+    expect(inventoryCount(harness, "bread")).toBe(5);
+    expect(inventoryCount(harness, "coin")).toBe(50);
+    expect(harness.world.getComponent(PLAYER, "skills")?.skills.cooking?.xp).toBe(100);
+    expect(getNumberVar(harness.world, PLAYER, "quest.points")).toBe(1);
+    expect(harness.deltas.peek().varbitDelta).toContainEqual({
+      varId: "quest.smoke_over_old_town.completed",
+      value: true,
+    });
   });
 });

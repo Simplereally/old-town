@@ -345,7 +345,10 @@ export class InMemorySqlClient implements SqlClient {
   }
 
   /** INSERT ON CONFLICT DO NOTHING RETURNING — owns the key if it returns a row. */
-  private tryInsertEconomyCommit(params: readonly SqlValue[]): { rows: SqlRow[]; rowCount: number } {
+  private tryInsertEconomyCommit(params: readonly SqlValue[]): {
+    rows: SqlRow[];
+    rowCount: number;
+  } {
     const key = str(params[0]);
     const hash = str(params[1]);
     if (this.economyCommits.has(key)) {
@@ -372,7 +375,9 @@ export class InMemorySqlClient implements SqlClient {
 
   private drainOutbox(limit: number): { rows: SqlRow[]; rowCount: number } {
     const pending = this.outbox.filter((event) => !event.processed).slice(0, limit);
-    return rows(pending.map((event) => ({ id: event.id, topic: event.topic, payload: event.payload })));
+    return rows(
+      pending.map((event) => ({ id: event.id, topic: event.topic, payload: event.payload })),
+    );
   }
 
   private markOutbox(params: readonly SqlValue[]): { rows: SqlRow[]; rowCount: number } {

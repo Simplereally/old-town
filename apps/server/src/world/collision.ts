@@ -109,7 +109,9 @@ export class CollisionMap {
     assertFootprint(footprint);
     const width = footprint.width;
     const length = footprint.length;
-    const blockers = footprint.ignoreNpcOccupancy ? OCCUPANCY_BLOCKERS_IGNORE_NPC : OCCUPANCY_BLOCKERS;
+    const blockers = footprint.ignoreNpcOccupancy
+      ? OCCUPANCY_BLOCKERS_IGNORE_NPC
+      : OCCUPANCY_BLOCKERS;
     for (let x = 0; x < width; x += 1) {
       for (let y = 0; y < length; y += 1) {
         const tile = tileAt(origin, x, y);
@@ -348,11 +350,7 @@ export function applyObjectCollision(
         );
       }
     } else {
-      collision.applyFootprint(
-        origin,
-        { width: def.width, length: def.length },
-        flags,
-      );
+      collision.applyFootprint(origin, { width: def.width, length: def.length }, flags);
     }
   }
 }

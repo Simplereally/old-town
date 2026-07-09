@@ -28,11 +28,11 @@ Implement repeatable tick-based gathering/processing loops for woodcutting, mini
 
 ## Ordered stories
 
-- [X] `E09-S01` — [Implement resource node runtime state](../completed/stories/E09/E09-S01_implement-resource-node-runtime-state.md)
-- [X] `E09-S02` — [Implement gathering action validator](../completed/stories/E09/E09-S02_implement-gathering-action-validator.md)
-- [X] `E09-S03` — [Implement woodcutting loop](../completed/stories/E09/E09-S03_implement-woodcutting-loop.md)
-- [X] `E09-S04` — [Implement mining loop](../completed/stories/E09/E09-S04_implement-mining-loop.md)
-- [X] `E09-S05` — [Implement cooking processing loop](../completed/stories/E09/E09-S05_implement-cooking-processing-loop.md)
+- [X] `E09-S01` — [Implement resource node runtime state](../stories/E09/E09-S01_implement-resource-node-runtime-state.md)
+- [X] `E09-S02` — [Implement gathering action validator](../stories/E09/E09-S02_implement-gathering-action-validator.md)
+- [X] `E09-S03` — [Implement woodcutting loop](../stories/E09/E09-S03_implement-woodcutting-loop.md)
+- [X] `E09-S04` — [Implement mining loop](../stories/E09/E09-S04_implement-mining-loop.md)
+- [X] `E09-S05` — [Implement cooking processing loop](../stories/E09/E09-S05_implement-cooking-processing-loop.md)
 
 ## Epic acceptance criteria
 

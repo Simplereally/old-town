@@ -1,7 +1,11 @@
 import type { ContentRegistries, EntityId, Rng } from "@old-town/shared";
 import { handleDialogueUiIntent, handleNpcDialogueIntent } from "../dialogue/dialogue-engine";
 import type { World } from "../ecs/world";
-import { handleItemIntent, handleUnequipIntent, handleUseItemOnIntent } from "../items/item-actions";
+import {
+  handleItemIntent,
+  handleUnequipIntent,
+  handleUseItemOnIntent,
+} from "../items/item-actions";
 import type { ItemAuditLog } from "../items/item-audit";
 import { dispatchQuestEvent } from "../quests/quest-engine";
 import { type EconomyCommitFn, handleBankIntent } from "../systems/bank-system";
@@ -9,7 +13,6 @@ import type { ChatSystem } from "../systems/chat-system";
 import { handleNpcCombatIntent } from "../systems/combat-system";
 import type { ConsumableSystem } from "../systems/consumable-system";
 import { handleContractBoardOpen } from "../systems/contract-system";
-import type { Footprint } from "../world/collision";
 import { handleGroundItemIntent } from "../systems/ground-item-system";
 import {
   type FootprintResolver,
@@ -17,13 +20,13 @@ import {
   processMovementPhase,
 } from "../systems/movement-system";
 import type { NookDef } from "../systems/nook-system";
-import { handleObjectIntent } from "../systems/object-interaction-router";
+import { routeObjectIntent } from "../systems/object-interaction-router";
 import { handlePrayerIntent } from "../systems/prayer-system";
 import { handleServiceFeeIntent } from "../systems/service-fee-system";
 import { handleShopIntent } from "../systems/shop-system";
 import { handleRecipeSelect } from "../systems/skilling-system";
 import { handleSpellIntent } from "../systems/spell-system";
-import type { CollisionMap } from "../world/collision";
+import type { CollisionMap, Footprint } from "../world/collision";
 import type { ActionQueue } from "./action-queue";
 import { ActionQueueType } from "./action-queue";
 import { type BufferedIntent, type ConsumedCommandGroup, IntentKind } from "./command-buffer";
@@ -236,8 +239,16 @@ function dispatchSingleIntent(
         return;
       }
       const object = ctx.world.getComponent(intent.payload.objectEntityId, "object");
-      if (handleObjectIntent(ctx, owner, intent.payload, serverTime, tick, ctx.nooks)) {
-        if (object) {
+      const interaction = routeObjectIntent(
+        ctx,
+        owner,
+        intent.payload,
+        serverTime,
+        tick,
+        ctx.nooks,
+      );
+      if (interaction !== "unhandled") {
+        if (object && interaction === "interacted") {
           dispatchQuestEvent(
             ctx,
             owner,

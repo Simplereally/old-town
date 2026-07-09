@@ -40,6 +40,7 @@ function makeTile(x: number, y: number, height = 0): RegionTileData {
 class DeferredWorker implements WorkerLike {
   onmessage: ((event: MessageEvent) => void) | null = null;
   onerror: ((event: ErrorEvent) => void) | null = null;
+  terminated = false;
   private _pending = new Map<string, BakeChunkRequest>();
   private _shouldFail = false;
 
@@ -105,6 +106,7 @@ class DeferredWorker implements WorkerLike {
   }
 
   terminate(): void {
+    this.terminated = true;
     this._pending.clear();
   }
 }
@@ -483,6 +485,40 @@ describe("ChunkBakeWorkerClient", () => {
     client.dispose();
   });
 
+  it("retires a cancelled active worker before dispatching the next job", () => {
+    const failures: string[] = [];
+    const successes: string[] = [];
+    const workers: DeferredWorker[] = [];
+    const client = new ChunkBakeWorkerClient({
+      poolSize: 1,
+      createWorker: () => {
+        const worker = new DeferredWorker();
+        workers.push(worker);
+        return worker;
+      },
+      onSuccess: (jobId) => successes.push(jobId),
+      onFailure: (jobId) => failures.push(jobId),
+    });
+
+    const jobIdA = client.submit(makeRequest());
+    const jobIdB = client.submit(makeRequest());
+    const cancelledWorker = workers[0];
+    const staleErrorHandler = cancelledWorker?.onerror;
+
+    client.cancel(jobIdA);
+
+    expect(workers).toHaveLength(2);
+    expect(cancelledWorker?.terminated).toBe(true);
+
+    staleErrorHandler?.(new ErrorEvent("error", { message: "Late error from cancelled job" }));
+    expect(failures).toEqual([]);
+
+    workers[1]?.flush(jobIdB);
+    expect(successes).toEqual([jobIdB]);
+
+    client.dispose();
+  });
+
   // ---------------------------------------------------------------------------
   // Pool size and concurrency
   // ---------------------------------------------------------------------------
@@ -622,9 +658,10 @@ describe("ChunkBakeWorkerClient", () => {
       () => {},
       () => {},
     );
-    client.dispose();
-    client.dispose(); // should not throw
-    expect(true).toBe(true);
+    expect(() => {
+      client.dispose();
+      client.dispose();
+    }).not.toThrow();
   });
 
   it("ignores worker messages for unknown job ids", () => {

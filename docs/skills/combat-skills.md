@@ -17,21 +17,21 @@ Authority references:
 
 # Combat Skills
 
-> **The seven combat skills that define every player's fighting capability in Old Town.** Arms, Might, Guard, Vitality, Ranged, Magic, and Favour form the complete combat identity. Each skill is trained through repeated combat action and carries a 1–99 progression curve.
+> **The seven combat skills that define every player's fighting capability in Old Town.** Attack, Strength, Defence, Hitpoints, Ranged, Magic, and Favour form the complete combat identity. Each skill is trained through repeated combat action and carries a 1–99 progression curve.
 >
 > **Rule:** No combat skill is a dead end. Every skill feeds into equipment access, damage calculation, or survival.
 
 ---
 
-## Arms
+## Attack
 
-### What Arms Governs
+### What Attack Governs
 
-Arms governs melee accuracy and determines which melee weapons a player can equip. Higher Arms means more hits land, and higher tiers of weapons become available.
+Attack governs melee accuracy and determines which melee weapons a player can equip. Higher Attack means more hits land, and higher tiers of weapons become available.
 
-### How to Train Arms
+### How to Train Attack
 
-Arms is trained by dealing melee damage and successfully hitting targets. Every landed melee blow grants XP based on damage dealt.
+Attack is trained by dealing melee damage and successfully hitting targets. Every landed melee blow grants XP based on damage dealt.
 
 ### Key Unlocks
 
@@ -67,23 +67,23 @@ Arms is trained by dealing melee damage and successfully hitting targets. Every 
 | **Lunge** | A thrusting strike | "Lunge with the bellmetal sabre" |
 | **Parry** | Deflect an incoming blow | "Parry the drake's claw" |
 | **Riposte** | Counter after a parry | "Riposte with the blueglass glaive" |
-| **Cleave** | A wide, heavy swing | "Cleave through the warden's guard" |
+| **Cleave** | A wide, heavy swing | "Cleave through the warden's defence" |
 
 ---
 
-## Might
+## Strength
 
-### What Might Governs
+### What Strength Governs
 
-Might governs melee damage output and heavy weapon scaling. While Arms determines whether you hit, Might determines how hard. Heavy weapons such as Mauls and Greatblades scale more with Might than lighter weapons do.
+Strength governs melee damage output and heavy weapon scaling. While Attack determines whether you hit, Strength determines how hard. Heavy weapons such as Mauls and Greatblades scale more with Strength than lighter weapons do.
 
-### How to Train Might
+### How to Train Strength
 
-Might is trained by dealing melee damage. The more damage you deal, the more Might XP you earn.
+Strength is trained by dealing melee damage. The more damage you deal, the more Strength XP you earn.
 
 ### Key Unlocks
 
-Might uses the same tier scale as Arms, but the unlocks govern damage scaling rather than equip requirements. A player can equip a heavy weapon with sufficient Arms, but the weapon only reaches its full damage potential with sufficient Might.
+Strength uses the same tier scale as Attack, but the unlocks govern damage scaling rather than equip requirements. A player can equip a heavy weapon with sufficient Attack, but the weapon only reaches its full damage potential with sufficient Strength.
 
 | Tier | Cultural Name | Required Level | Example Item |
 |------|---------------|---------------|--------------|
@@ -101,7 +101,7 @@ Might uses the same tier scale as Arms, but the unlocks govern damage scaling ra
 | 11 | Crownsteel | 90 | `crownsteel_fellaxe` |
 | 12 | Starfall | 99 | `starfall_greatblade` |
 
-**Heavy weapon example:** `carmine_steel_maul` requires Might 75 to reach its full damage scaling.
+**Heavy weapon example:** `carmine_steel_maul` requires Strength 75 to reach its full damage scaling.
 
 ### Key Milestones
 
@@ -121,15 +121,15 @@ Might uses the same tier scale as Arms, but the unlocks govern damage scaling ra
 
 ---
 
-## Guard
+## Defence
 
-### What Guard Governs
+### What Defence Governs
 
-Guard governs armour access and damage avoidance. Higher Guard unlocks heavier armour tiers and improves the chance to block or mitigate incoming damage.
+Defence governs armour access and damage avoidance. Higher Defence unlocks heavier armour tiers and improves the chance to block or mitigate incoming damage.
 
-### How to Train Guard
+### How to Train Defence
 
-Guard is trained by taking damage and blocking hits. Every hit absorbed or blocked grants Guard XP.
+Defence is trained by taking damage and blocking hits. Every hit absorbed or blocked grants Defence XP.
 
 ### Key Unlocks
 
@@ -165,31 +165,32 @@ Guard is trained by taking damage and blocking hits. Every hit absorbed or block
 | **Brace** | Set yourself against impact | "Brace for the drake's charge" |
 | **Deflect** | Turn aside a projectile | "Deflect the argent arrow" |
 | **Shield** | Hide behind cover | "Shield behind the graveiron ward" |
-| **Absorb** | Take damage and endure | "Absorb the blow, guard unbroken" |
+| **Absorb** | Take damage and endure | "Absorb the blow, defence unbroken" |
 
 ---
 
-## Vitality
+## Hitpoints
 
-### What Vitality Governs
+### What Hitpoints Governs
 
-Vitality governs health pool and survival. Every player benefits from Vitality regardless of equipment choices. Higher Vitality means more hit points and faster recovery scaling.
+Hitpoints governs health pool and survival. Every player benefits from Hitpoints regardless of equipment choices. Higher Hitpoints means more hit points and faster recovery scaling. New players start at Hitpoints level 1 with 10 HP.
 
-### How to Train Vitality
+### How to Train Hitpoints
 
-Vitality is trained by taking damage and eating food. Survival actions and consumption both contribute to Vitality growth.
+Hitpoints is trained by taking damage and eating food. Survival actions and consumption both contribute to Hitpoints growth.
 
 ### Key Milestones
 
-Vitality has no equipment requirements. All players benefit from its level automatically.
+Hitpoints has no equipment requirements. All players benefit from its level automatically. Maximum health equals Hitpoints level × 10.
 
 | Level | Hit Points | Notes |
 |-------|-----------|-------|
-| 10 | 200 | Early survival threshold |
-| 50 | 600 | Midgame durability |
+| 1 | 10 | Starting health for new players |
+| 10 | 100 | Early survival threshold |
+| 50 | 500 | Midgame durability |
 | 99 | 990 | Maximum health pool |
 
-**Rule:** No armour or weapon requires Vitality. It is a passive survival skill.
+**Rule:** No armour or weapon requires Hitpoints. It is a passive survival skill.
 
 ### Skill Verbs
 
@@ -342,10 +343,10 @@ Favour has no equipment requirements. All players benefit from its level automat
 
 | Skill | ID | Primary Equipment | Equip Requirement |
 |-------|----|-------------------|-------------------|
-| Arms | `arms` | Melee weapons | Arms level |
-| Might | `might` | Heavy weapon damage scaling | Might level for scaling |
-| Guard | `guard` | Armour | Guard level |
-| Vitality | `vitality` | None | All players benefit |
+| Attack | `attack` | Melee weapons | Attack level |
+| Strength | `strength` | Heavy weapon damage scaling | Strength level for scaling |
+| Defence | `defence` | Armour | Defence level |
+| Hitpoints | `hitpoints` | None | All players benefit |
 | Ranged | `ranged` | Bows, crossbows, thrown weapons | Ranged level |
 | Magic | `magic` | Magic weapons, beads, spells | Magic level |
 | Favour | `favour` | None | All players benefit |
@@ -355,10 +356,10 @@ Favour has no equipment requirements. All players benefit from its level automat
 ## Design Rules
 
 1. **Combat skills train through combat.** Every combat skill is trained by doing the action, not by turning in items or completing quests.
-2. **Arms for access, Might for damage.** Arms unlocks weapons. Might unlocks their full damage potential. A player needs both to be effective.
-3. **Guard gates armour.** No armour is equippable without sufficient Guard. Heavy armour requires high Guard.
-4. **Vitality and Favour are universal.** Every player benefits from these skills regardless of build. They have no equipment requirements.
-5. **Heavy weapons favour Might.** Mauls and Greatblades scale more with Might than with Arms. A player with high Arms but low Might will hit often but softly.
+2. **Attack for access, Strength for damage.** Attack unlocks weapons. Strength unlocks their full damage potential. A player needs both to be effective.
+3. **Defence gates armour.** No armour is equippable without sufficient Defence. Heavy armour requires high Defence.
+4. **Hitpoints and Favour are universal.** Every player benefits from these skills regardless of build. They have no equipment requirements.
+5. **Heavy weapons favour Strength.** Mauls and Greatblades scale more with Strength than with Attack. A player with high Attack but low Strength will hit often but softly.
 6. **Beads require Magic.** Every bead has a Magic level requirement. Beads are not usable by non-magic builds.
 7. **Favour points are a resource.** Favour level determines maximum points, but points are spent and must be replenished through rituals.
 8. **No combat skill is optional for full access.** A player who ignores any combat skill will miss equipment, damage, or survival potential.

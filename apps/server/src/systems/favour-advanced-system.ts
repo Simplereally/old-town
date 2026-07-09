@@ -3,7 +3,7 @@ import type { EntityId } from "@old-town/shared/types/ids";
 import type { World } from "../ecs/world";
 import { count, removeItem } from "../items/inventory";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
-import { deductXp, addXp } from "../skills/skill-state";
+import { addXp, deductXp } from "../skills/skill-state";
 import { applyStatusEffect, type StatusEffectContext } from "./status-effect-system";
 
 export interface BoonDef {

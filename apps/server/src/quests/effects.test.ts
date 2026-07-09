@@ -103,7 +103,13 @@ function setup() {
 describe("applyEffect", () => {
   it("add_item adds to inventory, emits delta, and records audit", () => {
     const { ctx, world, deltas } = setup();
-    const result = applyEffect(ctx, PLAYER, { kind: "add_item", itemId: "coin", quantity: 5 }, 600, 1);
+    const result = applyEffect(
+      ctx,
+      PLAYER,
+      { kind: "add_item", itemId: "coin", quantity: 5 },
+      600,
+      1,
+    );
 
     expect(result).toEqual({ applied: true });
     expect(world.getComponent(PLAYER, "inventory")?.slots[0]).toMatchObject({
@@ -120,7 +126,13 @@ describe("applyEffect", () => {
     if (!inventory) return;
     addItem(inventory, catalogFromItems(ctx.registries.item), "badge", 28);
 
-    const result = applyEffect(ctx, PLAYER, { kind: "add_item", itemId: "badge", quantity: 1 }, 600, 1);
+    const result = applyEffect(
+      ctx,
+      PLAYER,
+      { kind: "add_item", itemId: "badge", quantity: 1 },
+      600,
+      1,
+    );
     expect(result).toEqual({ applied: false, reason: "inventory_full" });
   });
 
@@ -128,7 +140,13 @@ describe("applyEffect", () => {
     const { ctx, world } = setup();
     world.removeComponent(PLAYER, "inventory");
 
-    const result = applyEffect(ctx, PLAYER, { kind: "add_item", itemId: "coin", quantity: 1 }, 600, 1);
+    const result = applyEffect(
+      ctx,
+      PLAYER,
+      { kind: "add_item", itemId: "coin", quantity: 1 },
+      600,
+      1,
+    );
     expect(result).toEqual({ applied: false, reason: "missing_inventory" });
   });
 
@@ -184,7 +202,13 @@ describe("applyEffect", () => {
 
   it("add_xp grants XP to the named skill", () => {
     const { ctx, world } = setup();
-    const result = applyEffect(ctx, PLAYER, { kind: "add_xp", skillId: "cooking", amount: 50 }, 600, 1);
+    const result = applyEffect(
+      ctx,
+      PLAYER,
+      { kind: "add_xp", skillId: "cooking", amount: 50 },
+      600,
+      1,
+    );
     expect(result).toEqual({ applied: true });
     expect(world.getComponent(PLAYER, "skills")?.skills.cooking?.xp).toBe(50);
   });
@@ -217,20 +241,20 @@ describe("applyEffect", () => {
 
   it("unlock writes an unlock var", () => {
     const { ctx, world } = setup();
-    const result = applyEffect(
-      ctx,
-      PLAYER,
-      { kind: "unlock", unlockId: "bakery_range" },
-      600,
-      1,
-    );
+    const result = applyEffect(ctx, PLAYER, { kind: "unlock", unlockId: "bakery_range" }, 600, 1);
     expect(result).toEqual({ applied: true });
     expect(world.getComponent(PLAYER, "vars")?.values["unlock.bakery_range"]).toBe(true);
   });
 
   it("start_quest sets the first stage and marks the quest started", () => {
     const { ctx, world } = setup();
-    const result = applyEffect(ctx, PLAYER, { kind: "start_quest", questId: "errand_quest" }, 600, 1);
+    const result = applyEffect(
+      ctx,
+      PLAYER,
+      { kind: "start_quest", questId: "errand_quest" },
+      600,
+      1,
+    );
     expect(result).toEqual({ applied: true });
     expect(world.getComponent(PLAYER, "vars")?.values).toMatchObject({
       "quest.errand_quest.stage": 1,
@@ -247,7 +271,13 @@ describe("applyEffect", () => {
   it("start_quest returns already_started when the quest is past stage 0", () => {
     const { ctx } = setup();
     applyEffect(ctx, PLAYER, { kind: "start_quest", questId: "errand_quest" }, 600, 1);
-    const result = applyEffect(ctx, PLAYER, { kind: "start_quest", questId: "errand_quest" }, 600, 1);
+    const result = applyEffect(
+      ctx,
+      PLAYER,
+      { kind: "start_quest", questId: "errand_quest" },
+      600,
+      1,
+    );
     expect(result).toEqual({ applied: false, reason: "already_started" });
   });
 

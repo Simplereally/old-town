@@ -71,6 +71,20 @@ describe("HitsplatLayer", () => {
     expect(scene.children.length).toBe(1);
   });
 
+  it("keeps a lethal hitsplat anchored after its actor is removed", () => {
+    const finalPosition = new Vector3(5, 0, -5);
+    layer.show(ID1, 5, "damage", 10, finalPosition);
+
+    layer.update(11, 11 * GAME_TICK_MS, new Map());
+
+    expect(layer.activeHitsplats).toBe(1);
+    expect(scene.children[0]?.children[0]?.position).toMatchObject({
+      x: 5,
+      y: 1.15,
+      z: -5,
+    });
+  });
+
   it("removes hitsplats after lifetime ticks", () => {
     layer.show(ID1, 5, "damage", 10);
     const positions = new Map<number, Vector3>([[1, new Vector3(5, 0, -5)]]);

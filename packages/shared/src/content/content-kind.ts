@@ -23,6 +23,7 @@ export const CONTENT_KINDS = [
   "activity",
   "boss",
   "trail",
+  "audio",
 ] as const;
 
 export type ContentKind = (typeof CONTENT_KINDS)[number];

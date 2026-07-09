@@ -85,6 +85,12 @@ export interface XpDropPacket {
   readonly amount: number;
 }
 
+/** A base skill level increase that drives authoritative level-up feedback. */
+export interface LevelUpPacket {
+  readonly skillId: string;
+  readonly newLevel: number;
+}
+
 /** Presentational projectile travel between authoritative tiles/entities. */
 export interface ProjectilePacket {
   readonly id: string;
@@ -231,6 +237,8 @@ export interface RegionTileData {
   readonly collision: number;
   readonly water?: boolean;
   readonly bridge?: boolean;
+  /** Authoritative audio/district zone id painted from map triggers (E47-S01). */
+  readonly zoneId?: string;
 }
 
 /** A chunk (8x8 tiles) within a region. */
@@ -320,6 +328,7 @@ export interface TickDeltaPacket {
   readonly chat?: readonly ChatPacket[];
   readonly hitsplats?: readonly HitsplatPacket[];
   readonly xpDrops?: readonly XpDropPacket[];
+  readonly levelUps?: readonly LevelUpPacket[];
   readonly projectiles?: readonly ProjectilePacket[];
   readonly sounds?: readonly SoundPacket[];
   readonly regionLoads?: readonly RegionLoadPacket[];

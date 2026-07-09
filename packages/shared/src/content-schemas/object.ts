@@ -4,13 +4,9 @@ import { tileCoordSchema } from "../protocol/schema-primitives";
 import { contentIdSchema, nonNegInt, positiveInt } from "./common";
 import { interactionOptionDefSchema } from "./npc";
 
-export const footprintOffsetSchema = z
-  .object({ dx: nonNegInt, dy: nonNegInt })
-  .strict();
+export const footprintOffsetSchema = z.object({ dx: nonNegInt, dy: nonNegInt }).strict();
 
-export const roofCoverageSchema = z
-  .object({ width: positiveInt, length: positiveInt })
-  .strict();
+export const roofCoverageSchema = z.object({ width: positiveInt, length: positiveInt }).strict();
 
 export const objectDefSchema = z
   .object({

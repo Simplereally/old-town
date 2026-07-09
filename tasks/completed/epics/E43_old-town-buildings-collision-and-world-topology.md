@@ -41,12 +41,12 @@ This epic also defines the building object family and the collision generation p
 
 ## Ordered stories
 
-- [X] `E43-S01` — [Building object definitions and wall/door assets](stories/E43/E43-S01_building-object-definitions-and-wall-door-assets.md)
-- [X] `E43-S02` — [Collision mask generation from objects and buildings](stories/E43/E43-S02_collision-mask-generation-from-objects-and-buildings.md)
-- [X] `E43-S03` — [Door and gate interaction with dynamic collision](stories/E43/E43-S03_door-and-gate-interaction-with-dynamic-collision.md)
-- [X] `E43-S04` — [Pathfinding through interactable doors](stories/E43/E43-S04_pathfinding-through-interactable-doors.md)
-- [X] `E43-S05` — [Roof and interior rendering](stories/E43/E43-S05_roof-and-interior-rendering.md)
-- [X] `E43-S06` — [Starter-region topology pass and collision validation](stories/E43/E43-S06_starter-region-topology-pass-and-collision-validation.md)
+- [X] `E43-S01` — [Building object definitions and wall/door assets](../stories/E43/E43-S01_building-object-definitions-and-wall-door-assets.md)
+- [X] `E43-S02` — [Collision mask generation from objects and buildings](../stories/E43/E43-S02_collision-mask-generation-from-objects-and-buildings.md)
+- [X] `E43-S03` — [Door and gate interaction with dynamic collision](../stories/E43/E43-S03_door-and-gate-interaction-with-dynamic-collision.md)
+- [X] `E43-S04` — [Pathfinding through interactable doors](../stories/E43/E43-S04_pathfinding-through-interactable-doors.md)
+- [X] `E43-S05` — [Roof and interior rendering](../stories/E43/E43-S05_roof-and-interior-rendering.md)
+- [X] `E43-S06` — [Starter-region topology pass and collision validation](../stories/E43/E43-S06_starter-region-topology-pass-and-collision-validation.md)
 
 ## Epic acceptance criteria
 

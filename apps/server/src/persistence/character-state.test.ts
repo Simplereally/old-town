@@ -76,7 +76,12 @@ describe("snapshotCharacter / applyCharacterSnapshot", () => {
     });
     applyCharacterSnapshot({ world, registries }, entityId, original);
 
-    const reSnapshotted = snapshotCharacter({ world, registries }, entityId, "dev-a", 1_700_000_600);
+    const reSnapshotted = snapshotCharacter(
+      { world, registries },
+      entityId,
+      "dev-a",
+      1_700_000_600,
+    );
     expect(reSnapshotted).toMatchObject({
       characterId: "dev-a",
       savedAt: 1_700_000_600,
@@ -161,7 +166,11 @@ describe("snapshotCharacter / applyCharacterSnapshot", () => {
 
   it("restores bank slots with their stored uid on apply", () => {
     const snapshot = baseSnapshot({
-      bank: { capacity: 400, nextUid: 5, slots: [{ slot: 0, itemId: "coin", quantity: 1, uid: 4 }] },
+      bank: {
+        capacity: 400,
+        nextUid: 5,
+        slots: [{ slot: 0, itemId: "coin", quantity: 1, uid: 4 }],
+      },
     });
     const { world, entityId } = setupPlayer(snapshot);
 
@@ -212,7 +221,11 @@ describe("snapshotCharacter / applyCharacterSnapshot", () => {
       eatBlockedUntilTick: 0,
     });
 
-    applyCharacterSnapshot({ world, registries }, entityId, baseSnapshot({ hitpoints: { health: 0, maxHealth: 10 } }));
+    applyCharacterSnapshot(
+      { world, registries },
+      entityId,
+      baseSnapshot({ hitpoints: { health: 0, maxHealth: 10 } }),
+    );
     const combatant = world.getComponent(entityId, "combatant");
     expect(combatant?.health).toBe(0);
     expect(combatant?.maxHealth).toBe(10);

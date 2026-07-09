@@ -27,11 +27,11 @@ Persist character state safely: position, skills, inventory, equipment, quest va
 
 ## Ordered stories
 
-- [X] `E13-S01` — [Define persistence adapter interface and dev storage](../completed/stories/E13/E13-S01_define-persistence-adapter-interface-and-dev-storage.md)
-- [X] `E13-S02` — [Persist character core state](../completed/stories/E13/E13-S02_persist-character-core-state.md)
-- [X] `E13-S03` — [Implement dirty-state persistence triggers](../completed/stories/E13/E13-S03_implement-dirty-state-persistence-triggers.md)
-- [X] `E13-S04` — [Implement item transaction audit](../completed/stories/E13/E13-S04_implement-item-transaction-audit.md)
-- [X] `E13-S05` — [Prepare PostgreSQL schema and migration files](../completed/stories/E13/E13-S05_prepare-postgresql-schema-and-migration-files.md)
+- [X] `E13-S01` — [Define persistence adapter interface and dev storage](../stories/E13/E13-S01_define-persistence-adapter-interface-and-dev-storage.md)
+- [X] `E13-S02` — [Persist character core state](../stories/E13/E13-S02_persist-character-core-state.md)
+- [X] `E13-S03` — [Implement dirty-state persistence triggers](../stories/E13/E13-S03_implement-dirty-state-persistence-triggers.md)
+- [X] `E13-S04` — [Implement item transaction audit](../stories/E13/E13-S04_implement-item-transaction-audit.md)
+- [X] `E13-S05` — [Prepare PostgreSQL schema and migration files](../stories/E13/E13-S05_prepare-postgresql-schema-and-migration-files.md)
 
 ## Epic acceptance criteria
 

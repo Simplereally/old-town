@@ -1,6 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { validateContentGraph } from "./content-references";
-import type { ContentRegistries } from "./content-registries";
 import type { ActivityDef } from "../content-schemas/activity";
 import type { BossDef } from "../content-schemas/boss";
 import type { ContractDef } from "../content-schemas/contract";
@@ -17,6 +15,8 @@ import type { ShopDef } from "../content-schemas/shop";
 import type { SpellDef } from "../content-schemas/spell";
 import type { StatusEffectDef } from "../content-schemas/status-effect";
 import type { TrailDef } from "../content-schemas/trail";
+import { validateContentGraph } from "./content-references";
+import type { ContentRegistries } from "./content-registries";
 
 function buildRegistries(overrides: Partial<ContentRegistries> = {}): ContentRegistries {
   return {
@@ -44,6 +44,7 @@ function buildRegistries(overrides: Partial<ContentRegistries> = {}): ContentReg
     activity: new Map(),
     boss: new Map(),
     trail: new Map(),
+    audio: new Map(),
     ...overrides,
   };
 }
@@ -774,9 +775,7 @@ describe("validateContentGraph branch coverage", () => {
             category: "starter",
             npcId: "missing_boss_npc",
             combatLevelBand: { low: 1, high: 10 },
-            accessRequirements: [
-              { kind: "skill", skillId: "missing_access_skill", level: 1 },
-            ],
+            accessRequirements: [{ kind: "skill", skillId: "missing_access_skill", level: 1 }],
             mechanics: [],
             lair: { type: "room", threshold: "door", area: "a", safeRating: "safe" },
             dropTableId: "missing_boss_drops",

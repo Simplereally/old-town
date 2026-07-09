@@ -1,0 +1,138 @@
+[
+  {
+    "id": "smoke_over_old_town",
+    "name": "Smoke Over Old Town",
+    "questPoints": 1,
+    "requirements": [],
+    "varPrefix": "smoke_over_old_town",
+    "variables": [
+      { "key": "quest.smoke_over_old_town.stage", "initialValue": 0 },
+      { "key": "quest.smoke_over_old_town.spoke_to_pippa", "initialValue": false },
+      { "key": "quest.smoke_over_old_town.dry_logs", "initialValue": 0 },
+      { "key": "quest.smoke_over_old_town.rats_killed", "initialValue": 0 },
+      { "key": "quest.smoke_over_old_town.oven_lit", "initialValue": false },
+      { "key": "quest.smoke_over_old_town.completed", "initialValue": false }
+    ],
+    "stages": [
+      {
+        "stage": 0,
+        "journalText": "I have not started this quest.",
+        "objectives": [],
+        "triggers": []
+      },
+      {
+        "stage": 1,
+        "journalText": "Pippa Hearth asked me to help clear the bakery's smoke.",
+        "objectives": [
+          {
+            "kind": "talk",
+            "npcId": "pippa_hearth",
+            "progressVar": "quest.smoke_over_old_town.spoke_to_pippa"
+          }
+        ],
+        "triggers": [
+          {
+            "on": "stage_complete",
+            "effects": [
+              {
+                "kind": "set_var",
+                "key": "quest.smoke_over_old_town.spoke_to_pippa",
+                "value": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "stage": 2,
+        "journalText": "Pippa needs a clean fire. I should gather three dry logs.",
+        "objectives": [
+          {
+            "kind": "gather",
+            "itemId": "dry_log",
+            "quantity": 3,
+            "progressVar": "quest.smoke_over_old_town.dry_logs"
+          }
+        ],
+        "triggers": [
+          {
+            "on": "stage_complete",
+            "effects": [
+              {
+                "kind": "set_var",
+                "key": "quest.smoke_over_old_town.dry_logs",
+                "value": 3
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "stage": 3,
+        "journalText": "I have the dry logs. I should clear two cellar rats.",
+        "objectives": [
+          {
+            "kind": "kill",
+            "npcId": "cellar_rat",
+            "count": 2,
+            "progressVar": "quest.smoke_over_old_town.rats_killed"
+          }
+        ],
+        "triggers": [
+          {
+            "on": "stage_complete",
+            "effects": [
+              {
+                "kind": "set_var",
+                "key": "quest.smoke_over_old_town.rats_killed",
+                "value": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "stage": 4,
+        "journalText": "The cellar is clear. I should light the Market Kitchen Hearth with the dry logs.",
+        "objectives": [
+          {
+            "kind": "object",
+            "objectId": "market_kitchen_hearth",
+            "option": "light",
+            "progressVar": "quest.smoke_over_old_town.oven_lit",
+            "requirements": [{ "kind": "item", "itemId": "dry_log", "quantity": 3 }]
+          }
+        ],
+        "triggers": [
+          {
+            "on": "stage_complete",
+            "effects": [
+              { "kind": "remove_item", "itemId": "dry_log", "quantity": 3 },
+              {
+                "kind": "set_var",
+                "key": "quest.smoke_over_old_town.oven_lit",
+                "value": true
+              },
+              {
+                "kind": "send_message",
+                "text": "The bakery hearth catches with a clean, steady flame."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "stage": 5,
+        "journalText": "The bakery hearth burns cleanly. Smoke Over Old Town is complete.",
+        "objectives": [],
+        "triggers": []
+      }
+    ],
+    "rewards": [
+      { "kind": "add_item", "itemId": "bread", "quantity": 5 },
+      { "kind": "add_item", "itemId": "coin", "quantity": 50 },
+      { "kind": "add_xp", "skillId": "cooking", "amount": 100 },
+      { "kind": "unlock", "unlockId": "bakery_range" }
+    ]
+  }
+]

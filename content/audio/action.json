@@ -1,0 +1,37 @@
+[
+  {
+    "id": "door_open",
+    "name": "Door Open",
+    "category": "action",
+    "assetPath": "assets/audio/action/door_open.ogg",
+    "volume": 0.55
+  },
+  {
+    "id": "door_close",
+    "name": "Door Close",
+    "category": "action",
+    "assetPath": "assets/audio/action/door_close.ogg",
+    "volume": 0.55
+  },
+  {
+    "id": "chest_open",
+    "name": "Chest Open",
+    "category": "action",
+    "assetPath": "assets/audio/action/chest_open.ogg",
+    "volume": 0.55
+  },
+  {
+    "id": "chest_close",
+    "name": "Chest Close",
+    "category": "action",
+    "assetPath": "assets/audio/action/chest_close.ogg",
+    "volume": 0.55
+  },
+  {
+    "id": "bell_ring",
+    "name": "Bell Ring",
+    "category": "action",
+    "assetPath": "assets/audio/action/bell_ring.ogg",
+    "volume": 0.65
+  }
+]

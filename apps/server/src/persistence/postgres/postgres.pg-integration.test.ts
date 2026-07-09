@@ -7,9 +7,10 @@
  * economy commits, same-key/different-payload rejection, atomic snapshot+ledger, and the session
  * lease race + expiry.
  */
+
+import { randomUUID } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
-import { randomUUID } from "node:crypto";
 import {
   CHARACTER_SNAPSHOT_VERSION,
   type CharacterSnapshot,
@@ -18,7 +19,7 @@ import {
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { PersistenceIdempotencyConflictError, PersistenceVersionConflictError } from "../adapter";
 import { createPgSqlClient } from "./pg-sql-client";
-import { PostgresPersistenceAdapter, type OutboxRow } from "./postgres-adapter";
+import { type OutboxRow, PostgresPersistenceAdapter } from "./postgres-adapter";
 import type { SqlClient } from "./sql-client";
 import { PostgresWorldSessionStore } from "./world-session-store";
 
@@ -100,9 +101,9 @@ describe.skipIf(!DATABASE_URL)("PostgreSQL integration", () => {
     await b.loadCharacter(name);
     await b.saveCharacter({ ...snapshot(name, 2), savedAt: 1_700_000_600 });
 
-    await expect(a.saveCharacter({ ...snapshot(name, 3), savedAt: 1_700_000_900 })).rejects.toBeInstanceOf(
-      PersistenceVersionConflictError,
-    );
+    await expect(
+      a.saveCharacter({ ...snapshot(name, 3), savedAt: 1_700_000_900 }),
+    ).rejects.toBeInstanceOf(PersistenceVersionConflictError);
   });
 
   it("applies an idempotent economy commit exactly once and rejects a different payload", async () => {
@@ -210,8 +211,20 @@ describe.skipIf(!DATABASE_URL)("PostgreSQL integration", () => {
     const store = new PostgresWorldSessionStore(client);
     // Two brand-new concurrent acquires for a character with no existing row.
     const [a, b] = await Promise.all([
-      store.acquire({ characterId: name, worldId: "w", sessionId: "a", now: 1, leaseDurationMs: 60_000 }),
-      store.acquire({ characterId: name, worldId: "w", sessionId: "b", now: 1, leaseDurationMs: 60_000 }),
+      store.acquire({
+        characterId: name,
+        worldId: "w",
+        sessionId: "a",
+        now: 1,
+        leaseDurationMs: 60_000,
+      }),
+      store.acquire({
+        characterId: name,
+        worldId: "w",
+        sessionId: "b",
+        now: 1,
+        leaseDurationMs: 60_000,
+      }),
     ]);
     expect([a.ok, b.ok].filter(Boolean)).toHaveLength(1);
   });
@@ -355,12 +368,10 @@ describe.skipIf(!DATABASE_URL)("PostgreSQL integration", () => {
     // commitA wins → alice=10, bob=0. commitB wins → alice=0, bob=20.
     const aliceLoaded = await adapter.loadCharacter(alice);
     const bobLoaded = await adapter.loadCharacter(bob);
-    const aliceCoins = aliceLoaded?.inventory.slots.length === 0
-      ? 0
-      : aliceLoaded?.inventory.slots[0]?.quantity;
-    const bobCoins = bobLoaded?.inventory.slots.length === 0
-      ? 0
-      : bobLoaded?.inventory.slots[0]?.quantity;
+    const aliceCoins =
+      aliceLoaded?.inventory.slots.length === 0 ? 0 : aliceLoaded?.inventory.slots[0]?.quantity;
+    const bobCoins =
+      bobLoaded?.inventory.slots.length === 0 ? 0 : bobLoaded?.inventory.slots[0]?.quantity;
     expect([
       [10, 0],
       [0, 20],
@@ -375,10 +386,10 @@ describe.skipIf(!DATABASE_URL)("PostgreSQL integration", () => {
   it("concurrent outbox drainers do not double-handle events (FOR UPDATE SKIP LOCKED)", async () => {
     // Insert 6 outbox rows directly so we control the batch sizes.
     for (let i = 0; i < 6; i++) {
-      await client.query(
-        "INSERT INTO economy_outbox (topic, payload) VALUES ($1, $2)",
-        [`drain-test-${i}`, { index: i }],
-      );
+      await client.query("INSERT INTO economy_outbox (topic, payload) VALUES ($1, $2)", [
+        `drain-test-${i}`,
+        { index: i },
+      ]);
     }
 
     const adapter = new PostgresPersistenceAdapter({ client });

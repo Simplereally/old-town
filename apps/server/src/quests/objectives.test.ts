@@ -33,8 +33,28 @@ const QUEST: QuestDef = {
   rewards: [],
 };
 
-const WHEAT = { id: "wheat", name: "Wheat", stackable: true, tradeable: true, examine: "", icon: "", value: 1, options: [], tags: [] };
-const COINS = { id: "coin", name: "Coin", stackable: true, tradeable: true, examine: "", icon: "", value: 1, options: [], tags: [] };
+const WHEAT = {
+  id: "wheat",
+  name: "Wheat",
+  stackable: true,
+  tradeable: true,
+  examine: "",
+  icon: "",
+  value: 1,
+  options: [],
+  tags: [],
+};
+const COINS = {
+  id: "coin",
+  name: "Coin",
+  stackable: true,
+  tradeable: true,
+  examine: "",
+  icon: "",
+  value: 1,
+  options: [],
+  tags: [],
+};
 
 function setup() {
   const world = createWorld();
@@ -56,30 +76,60 @@ function setup() {
 describe("isObjectiveComplete", () => {
   it("talk objective reads the quest talk var", () => {
     const { ctx } = setup();
-    expect(isObjectiveComplete(ctx.world, PLAYER, QUEST, { kind: "talk", npcId: "baker" })).toBe(false);
+    expect(isObjectiveComplete(ctx.world, PLAYER, QUEST, { kind: "talk", npcId: "baker" })).toBe(
+      false,
+    );
     setVar(ctx, PLAYER, "quest.obj_quest.talk.baker", true);
-    expect(isObjectiveComplete(ctx.world, PLAYER, QUEST, { kind: "talk", npcId: "baker" })).toBe(true);
+    expect(isObjectiveComplete(ctx.world, PLAYER, QUEST, { kind: "talk", npcId: "baker" })).toBe(
+      true,
+    );
   });
 
   it("gather objective checks the inventory for the required quantity", () => {
     const { ctx, world, registries } = setup();
     expect(
-      isObjectiveComplete(ctx.world, PLAYER, QUEST, { kind: "gather", itemId: "wheat", quantity: 3 }),
+      isObjectiveComplete(ctx.world, PLAYER, QUEST, {
+        kind: "gather",
+        itemId: "wheat",
+        quantity: 3,
+      }),
     ).toBe(false);
-    addItem(world.getComponent(PLAYER, "inventory")!, catalogFromItems(registries.item), "wheat", 3);
+    addItem(
+      world.getComponent(PLAYER, "inventory")!,
+      catalogFromItems(registries.item),
+      "wheat",
+      3,
+    );
     expect(
-      isObjectiveComplete(ctx.world, PLAYER, QUEST, { kind: "gather", itemId: "wheat", quantity: 3 }),
+      isObjectiveComplete(ctx.world, PLAYER, QUEST, {
+        kind: "gather",
+        itemId: "wheat",
+        quantity: 3,
+      }),
     ).toBe(true);
   });
 
   it("have_item objective checks the inventory", () => {
     const { ctx, world, registries } = setup();
     expect(
-      isObjectiveComplete(ctx.world, PLAYER, QUEST, { kind: "have_item", itemId: "coin", quantity: 10 }),
+      isObjectiveComplete(ctx.world, PLAYER, QUEST, {
+        kind: "have_item",
+        itemId: "coin",
+        quantity: 10,
+      }),
     ).toBe(false);
-    addItem(world.getComponent(PLAYER, "inventory")!, catalogFromItems(registries.item), "coin", 10);
+    addItem(
+      world.getComponent(PLAYER, "inventory")!,
+      catalogFromItems(registries.item),
+      "coin",
+      10,
+    );
     expect(
-      isObjectiveComplete(ctx.world, PLAYER, QUEST, { kind: "have_item", itemId: "coin", quantity: 10 }),
+      isObjectiveComplete(ctx.world, PLAYER, QUEST, {
+        kind: "have_item",
+        itemId: "coin",
+        quantity: 10,
+      }),
     ).toBe(true);
   });
 
@@ -87,7 +137,11 @@ describe("isObjectiveComplete", () => {
     const { ctx, world } = setup();
     world.removeComponent(PLAYER, "inventory");
     expect(
-      isObjectiveComplete(ctx.world, PLAYER, QUEST, { kind: "have_item", itemId: "coin", quantity: 1 }),
+      isObjectiveComplete(ctx.world, PLAYER, QUEST, {
+        kind: "have_item",
+        itemId: "coin",
+        quantity: 1,
+      }),
     ).toBe(false);
   });
 
@@ -129,8 +183,18 @@ describe("areObjectivesComplete", () => {
     expect(areObjectivesComplete(ctx.world, PLAYER, QUEST, stage)).toBe(false);
 
     setVar(ctx, PLAYER, "quest.obj_quest.talk.baker", true);
-    addItem(world.getComponent(PLAYER, "inventory")!, catalogFromItems(registries.item), "wheat", 3);
-    addItem(world.getComponent(PLAYER, "inventory")!, catalogFromItems(registries.item), "coin", 10);
+    addItem(
+      world.getComponent(PLAYER, "inventory")!,
+      catalogFromItems(registries.item),
+      "wheat",
+      3,
+    );
+    addItem(
+      world.getComponent(PLAYER, "inventory")!,
+      catalogFromItems(registries.item),
+      "coin",
+      10,
+    );
     setVar(ctx, PLAYER, "quest.obj_quest.kill.rat", 2);
     setVar(ctx, PLAYER, "quest.obj_quest.object.oven.light", true);
 

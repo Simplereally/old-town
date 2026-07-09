@@ -8,8 +8,8 @@
 // (`--probe`) cross-checked against the full-resolution sheet. Clean isolated
 // sprites use exact boxes; frame chrome uses a generous window that we trim to
 // the tight foreground bounding box. Run: `node scripts/slice-menu-sheet.mjs`.
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import pkg from "pngjs";
 
@@ -36,7 +36,10 @@ const isFg = (x, y) => {
 
 // Tight foreground bounding box within a window (for frame chrome pieces).
 function trim(wx, wy, ww, wh, pad = 1) {
-  let minX = wx + ww, maxX = wx, minY = wy + wh, maxY = wy;
+  let minX = wx + ww,
+    maxX = wx,
+    minY = wy + wh,
+    maxY = wy;
   for (let y = wy; y < wy + wh; y++) {
     for (let x = wx; x < wx + ww; x++) {
       if (!isFg(x, y)) continue;
@@ -89,7 +92,7 @@ const SPRITES = {
   "btn-emotes": { x: 629, y: 914, w: 112, h: 109 },
   "btn-music": { x: 750, y: 914, w: 113, h: 109 },
   // inventory slot backgrounds
-  "slot": { x: 911, y: 739, w: 114, h: 110 },
+  slot: { x: 911, y: 739, w: 114, h: 110 },
   "slot-selected": { x: 1063, y: 738, w: 116, h: 112 },
   "slot-alt": { x: 1249, y: 738, w: 115, h: 111 },
   // window chrome (trimmed from windows)
@@ -101,7 +104,7 @@ const SPRITES = {
   "frame-corner-tr": { win: [626, 232, 104, 96] },
   "frame-corner-bl": { win: [150, 636, 100, 104] },
   "frame-corner-br": { win: [624, 636, 104, 104] },
-  "panel": { x: 300, y: 420, w: 80, h: 80 },
+  panel: { x: 300, y: 420, w: 80, h: 80 },
 };
 
 mkdirSync(OUT_DIR, { recursive: true });

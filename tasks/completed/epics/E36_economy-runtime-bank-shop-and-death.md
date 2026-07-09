@@ -27,9 +27,9 @@ Implement economy runtime systems: bank inventory/storage, player death and resp
 
 ## Ordered stories
 
-- [X] `E36-S01` — [Player Death and Respawn System](stories/E36/E36-S01_player-death-and-respawn-system.md)
-- [X] `E36-S02` — [Bank Inventory and Storage System](stories/E36/E36-S02_bank-inventory-and-storage-system.md)
-- [X] `E36-S03` — [Shop Stock Schema and Transaction Runtime](stories/E36/E36-S03_shop-stock-schema-and-transaction-runtime.md)
+- [X] `E36-S01` — [Player Death and Respawn System](../stories/E36/E36-S01_player-death-and-respawn-system.md)
+- [X] `E36-S02` — [Bank Inventory and Storage System](../stories/E36/E36-S02_bank-inventory-and-storage-system.md)
+- [X] `E36-S03` — [Shop Stock Schema and Transaction Runtime](../stories/E36/E36-S03_shop-stock-schema-and-transaction-runtime.md)
 
 ## Epic acceptance criteria
 

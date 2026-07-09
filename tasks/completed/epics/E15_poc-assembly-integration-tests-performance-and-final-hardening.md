@@ -28,11 +28,11 @@ Turn the built systems into a coherent minimal playable POC and lock it down wit
 
 ## Ordered stories
 
-- [X] `E15-S01` — [Create end-to-end POC route and bootstrap script](../completed/stories/E15/E15-S01_create-end-to-end-poc-route-and-bootstrap-script.md)
-- [X] `E15-S02` — [Write movement, interaction, and networking integration tests](../completed/stories/E15/E15-S02_write-movement-interaction-and-networking-integration-tests.md)
-- [X] `E15-S03` — [Write gameplay loop integration tests](../completed/stories/E15/E15-S03_write-gameplay-loop-integration-tests.md)
-- [X] `E15-S04` — [Add performance and leak checks](../completed/stories/E15/E15-S04_add-performance-and-leak-checks.md)
-- [X] `E15-S05` — [Run final spec compliance pass](../completed/stories/E15/E15-S05_run-final-spec-compliance-pass.md)
+- [X] `E15-S01` — [Create end-to-end POC route and bootstrap script](../stories/E15/E15-S01_create-end-to-end-poc-route-and-bootstrap-script.md)
+- [X] `E15-S02` — [Write movement, interaction, and networking integration tests](../stories/E15/E15-S02_write-movement-interaction-and-networking-integration-tests.md)
+- [X] `E15-S03` — [Write gameplay loop integration tests](../stories/E15/E15-S03_write-gameplay-loop-integration-tests.md)
+- [X] `E15-S04` — [Add performance and leak checks](../stories/E15/E15-S04_add-performance-and-leak-checks.md)
+- [X] `E15-S05` — [Run final spec compliance pass](../stories/E15/E15-S05_run-final-spec-compliance-pass.md)
 
 ## Epic acceptance criteria
 

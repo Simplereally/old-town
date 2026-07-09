@@ -32,12 +32,12 @@ Replace packet-arrival rendering with a snapshot playout architecture. The clien
 
 ## Ordered stories
 
-- [X] `E32-S01` - [Snapshot Buffer](stories/E32/E32-S01_snapshot-buffer.md)
-- [X] `E32-S02` - [Render Clock](stories/E32/E32-S02_render-clock.md)
-- [X] `E32-S03` - [Render Transform Cache](stories/E32/E32-S03_render-transform-cache.md)
-- [X] `E32-S04` - [Pure Packet Ingestion](completed/stories/E32/E32-S04_pure-packet-ingestion.md)
-- [X] `E32-S05` - [Presentation Movement Policies](completed/stories/E32/E32-S05_presentation-movement-policies.md)
-- [X] `E32-S06` - [Render Frame Integration](completed/stories/E32/E32-S06_render-frame-integration.md)
+- [X] `E32-S01` - [Snapshot Buffer](../stories/E32/E32-S01_snapshot-buffer.md)
+- [X] `E32-S02` - [Render Clock](../stories/E32/E32-S02_render-clock.md)
+- [X] `E32-S03` - [Render Transform Cache](../stories/E32/E32-S03_render-transform-cache.md)
+- [X] `E32-S04` - [Pure Packet Ingestion](../stories/E32/E32-S04_pure-packet-ingestion.md)
+- [X] `E32-S05` - [Presentation Movement Policies](../stories/E32/E32-S05_presentation-movement-policies.md)
+- [X] `E32-S06` - [Render Frame Integration](../stories/E32/E32-S06_render-frame-integration.md)
 
 ## Epic acceptance criteria
 

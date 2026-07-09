@@ -25,8 +25,8 @@ Implement player death handling, respawn logic, and death penalties. This epic c
 
 ## Ordered stories
 
-- [X] `E24-S01` — [Player Death State and Respawn Logic](completed/stories/E24/E24-S01_player-death-state-and-respawn-logic.md)
-- [X] `E24-S02` — [Death Penalty and Grave System](completed/stories/E24/E24-S02_death-penalty-and-grave-system.md)
+- [X] `E24-S01` — [Player Death State and Respawn Logic](../stories/E24/E24-S01_player-death-state-and-respawn-logic.md)
+- [X] `E24-S02` — [Death Penalty and Grave System](../stories/E24/E24-S02_death-penalty-and-grave-system.md)
 
 ## Epic acceptance criteria
 

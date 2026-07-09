@@ -1,6 +1,6 @@
 import {
-  chunkToRegion,
   type CombatStyle,
+  chunkToRegion,
   type FullStatePacket,
   GAME_TICK_MS,
   type Plane,
@@ -11,20 +11,24 @@ import {
   type TickDeltaPacket,
   type TileCoord,
 } from "@old-town/shared";
+import type { Color, Fog } from "three";
 import { Vector3 } from "three";
+import { AudioManager } from "./audio/AudioManager";
+import { type AudioSettings, loadAudioSettings, saveAudioSettings } from "./audio/AudioSettings";
+import { resolveZoneIdAtTile } from "./audio/zone-lookup";
 import {
-  calculateCombatLevel,
   type ClientDecision,
+  calculateCombatLevel,
   InputInterpreter,
   type InputInterpreterSettings,
   type MenuResolveState,
 } from "./input/InputInterpreter";
 import { ClientCommandDispatcher } from "./net/ClientCommandDispatcher";
-import type { DebugEvent, PresentationEvent } from "./net/presentation-events";
 import { ClientPacketApplier } from "./net/ClientPacketApplier";
 import { ClientPacketIngestor } from "./net/ClientPacketIngestor";
 import { ClientWorldStore } from "./net/ClientWorldStore";
 import { GameSocket } from "./net/GameSocket";
+import type { DebugEvent, PresentationEvent } from "./net/presentation-events";
 import { SnapshotBuffer } from "./net/SnapshotBuffer";
 import { EntityPicker, type PickedEntity } from "./picking/EntityPicker";
 import { ChunkBakeQueue, type ChunkMetadata } from "./renderer/ChunkBakeQueue";
@@ -40,6 +44,8 @@ import { RenderResourceRegistry } from "./renderer/RenderResourceRegistry";
 import { RenderTransformCache } from "./renderer/RenderTransformCache";
 import { ThreeRenderer } from "./renderer/ThreeRenderer";
 import { ActorRenderer } from "./scene/ActorRenderer";
+import { AtmosphereController } from "./scene/AtmosphereController";
+import { BlobShadowLayer } from "./scene/BlobShadowLayer";
 import { ChatOverheadLayer } from "./scene/ChatOverheadLayer";
 import { ClickMarkerLayer } from "./scene/ClickMarkerLayer";
 import { DebugLayer } from "./scene/DebugLayer";
@@ -49,6 +55,7 @@ import { HoverHighlighter } from "./scene/HoverHighlighter";
 import { IconTextureFactory } from "./scene/IconTextureFactory";
 import { ObjectRenderer } from "./scene/ObjectRenderer";
 import { ProjectileLayer } from "./scene/ProjectileLayer";
+import { SelectionRingLayer } from "./scene/SelectionRingLayer";
 import { TerrainLayer } from "./scene/TerrainLayer";
 import { XpDropLayer } from "./scene/XpDropLayer";
 import { ContentClient } from "./ui/ContentClient";
@@ -56,6 +63,7 @@ import { ContextMenu } from "./ui/ContextMenu";
 import { DebugOverlay } from "./ui/DebugOverlay";
 import { GlobalKeydownBus } from "./ui/GlobalKeydownBus";
 import { IconAtlas } from "./ui/IconAtlas";
+import { loadRenderSettings, type RenderSettings } from "./ui/RenderSettings";
 import { UIManager, type UIManagerCallbacks } from "./ui/UIManager";
 import { UIState } from "./ui/UIState";
 
@@ -99,12 +107,15 @@ export class GameEngine {
   readonly groundItems: GroundItemLayer;
   readonly chatOverhead: ChatOverheadLayer;
   readonly xpDrops: XpDropLayer;
+  readonly blobShadows: BlobShadowLayer;
+  readonly atmosphere: AtmosphereController;
   readonly debug: DebugLayer | undefined;
   readonly uiState = new UIState();
   readonly content = new ContentClient();
   readonly icons = new IconAtlas();
   readonly iconTextures = new IconTextureFactory();
   readonly renderClock: RenderClock;
+  readonly audio: AudioManager;
   private readonly socket: GameSocket;
   private readonly _dispatcher: ClientCommandDispatcher;
   private readonly _inputInterpreter: InputInterpreter;
@@ -115,6 +126,7 @@ export class GameEngine {
   private readonly _canvas: HTMLCanvasElement;
   private readonly _entityPicker: EntityPicker;
   private readonly _hoverHighlighter: HoverHighlighter;
+  private readonly _selectionRing: SelectionRingLayer;
   private readonly _contextMenu: ContextMenu;
   private _uiManager: UIManager | undefined;
   private _running = false;
@@ -151,12 +163,33 @@ export class GameEngine {
 
     this.renderer = new ThreeRenderer({ canvas });
     this._registry = new RenderResourceRegistry();
-    this.terrain = new TerrainLayer({ scene: this.renderer.scene, colorResolver: this._colorResolver });
+    this.terrain = new TerrainLayer({
+      scene: this.renderer.scene,
+      colorResolver: this._colorResolver,
+    });
     this.objects = new ObjectRenderer({ scene: this.renderer.scene, registry: this._registry });
     this.actors = new ActorRenderer({ scene: this.renderer.scene });
     this.projectiles = new ProjectileLayer({ scene: this.renderer.scene });
     this.hitsplats = new HitsplatLayer({ scene: this.renderer.scene });
     this.xpDrops = new XpDropLayer({ scene: this.renderer.scene });
+    this.blobShadows = new BlobShadowLayer({ scene: this.renderer.scene });
+    const fog = this.renderer.scene.fog;
+    const background = this.renderer.scene.background;
+    if (!fog || !("color" in fog) || !("near" in fog)) {
+      throw new Error("ThreeRenderer must configure scene.fog as Fog");
+    }
+    if (
+      !(background && typeof background === "object" && "r" in background && "setHex" in background)
+    ) {
+      throw new Error("ThreeRenderer must configure scene.background as Color");
+    }
+    this.atmosphere = new AtmosphereController({
+      renderer: this.renderer.renderer,
+      sceneBackground: background as Color,
+      fog: fog as Fog,
+      hemisphereLight: this.renderer.hemisphereLight,
+      directionalLight: this.renderer.directionalLight,
+    });
     this.groundItems = new GroundItemLayer({ scene: this.renderer.scene });
     this.chatOverhead = new ChatOverheadLayer({ scene: this.renderer.scene });
     this._clickMarkers = new ClickMarkerLayer({ scene: this.renderer.scene });
@@ -208,6 +241,8 @@ export class GameEngine {
     this.socket = new GameSocket(serverUrl, { characterId });
     this._dispatcher = new ClientCommandDispatcher(this.socket);
     this._inputInterpreter = new InputInterpreter(this.content, UIManager.loadInputSettings());
+    this.audio = new AudioManager();
+    this.audio.setSettings(loadAudioSettings());
 
     this.renderClock = new RenderClock({
       tickMs: GAME_TICK_MS,
@@ -240,10 +275,12 @@ export class GameEngine {
     this._overlay = new DebugOverlay({ statusOverlay, debugOverlay });
     this._entityPicker = new EntityPicker({ camera: this.renderer.camera, canvas });
     this._hoverHighlighter = new HoverHighlighter({ scene: this.renderer.scene });
+    this._selectionRing = new SelectionRingLayer({ scene: this.renderer.scene });
     this._contextMenu = new ContextMenu({
       container: document.body,
       callbacks: {
         onOptionSelected: (actionId, entity, tile) => {
+          this.audio.play("ui_select");
           const decision = this._inputInterpreter.interpretContextMenu(
             entity,
             tile,
@@ -253,6 +290,7 @@ export class GameEngine {
           );
           this._applyDecision(decision);
           if (decision.type === "move") {
+            this._selectionRing.clear();
             this._showClickMarker(decision.tile);
             this._packetIngestor.recordClickTile(decision.tile, this._currentTick);
             this._logDebug(`Context: Walk here (${decision.tile.x}, ${decision.tile.y})`);
@@ -272,9 +310,11 @@ export class GameEngine {
             this._logDebug(`Examine: ${entity?.defId ?? entity?.itemId ?? "entity"}`);
           }
           if (decision.type === "npcOption") {
+            this._selectEntity(entity);
             this._logDebug(`Context: ${actionId} ${entity?.defId ?? "NPC"}`);
           }
           if (decision.type === "objectOption") {
+            this._selectEntity(entity);
             this._logDebug(`Context: ${actionId} ${entity?.defId ?? "object"}`);
           }
           if (decision.type === "groundItemOption") {
@@ -308,15 +348,22 @@ export class GameEngine {
       latestAcceptedTick: this._snapshotBuffer.latestAcceptedTick,
     });
 
-    const contentLoad = this.content.load(this.socket.httpUrl).then(() => {
-      this._colorResolver = new MaterialColorResolver(this.content.getAllMaterials());
-      this.terrain.setColorResolver(this._colorResolver);
-      this._chunkUploadQueue.setColorResolver(this._colorResolver);
-    }).catch((error) => {
-      console.warn("Failed to load content registries:", error);
-    });
+    const contentLoad = this.content
+      .load(this.socket.httpUrl)
+      .then(() => {
+        this._colorResolver = new MaterialColorResolver(this.content.getAllMaterials());
+        this.terrain.setColorResolver(this._colorResolver);
+        this._chunkUploadQueue.setColorResolver(this._colorResolver);
+        this.audio.setDefinitions(this.content.getAllAudio());
+      })
+      .catch((error) => {
+        console.warn("Failed to load content registries:", error);
+      });
     const iconLoad = this.icons.load(this.socket.httpUrl).catch((error) => {
       console.warn("Failed to load icon atlas:", error);
+    });
+    const weaponGlbLoad = this.actors.preloadWeaponModels().catch((error) => {
+      console.warn("Failed to preload weapon GLB models:", error);
     });
     const iconTextureLoad = this.iconTextures
       .load(this.socket.httpUrl)
@@ -338,6 +385,9 @@ export class GameEngine {
     await contentLoad;
     await iconLoad;
     await iconTextureLoad;
+    await weaponGlbLoad;
+    // Apply the persisted weapon model preference (GLB vs procedural).
+    this.actors.setWeaponModelMode(loadRenderSettings().weaponModels);
 
     const uiCallbacks: UIManagerCallbacks = {
       sendItemCommand: (uid, actionId) => this.sendItemCommand(uid, actionId),
@@ -353,8 +403,14 @@ export class GameEngine {
         this.sendRecipeCommand(recipeId, stationEntityId),
       sendSetCombatStyle: (style) => this.sendSetCombatStyle(style),
       setInputSettings: (settings) => this.setInputSettings(settings),
+      setRenderSettings: (settings) => this.setRenderSettings(settings),
+      setAudioSettings: (settings) => this.setAudioSettings(settings),
+      playUiSound: (soundId) => {
+        this.audio.play(soundId);
+      },
     };
     this._uiManager = new UIManager(this.uiState, this.content, uiCallbacks, this.icons);
+    this._uiManager.openDefaultPanels();
 
     this.socket.onTickDelta = (packet) => {
       this._handleTickDelta(packet);
@@ -402,7 +458,6 @@ export class GameEngine {
     this._debugEventQueue.push(...result.debugEvents);
     this.actors.setSelfEntityId(this._selfEntityId);
     this._connected = true;
-    this._uiManager?.openDefaultPanels();
     this._overlay.update({
       nowMs: performance.now(),
       connected: this._connected,
@@ -444,6 +499,7 @@ export class GameEngine {
     GlobalKeydownBus.unregister("game-engine");
     this._contextMenu.hide();
     this._hoverHighlighter.dispose();
+    this._selectionRing.dispose();
     this._clickMarkers.dispose();
     this._uiManager?.dispose();
     this._chunkBakeWorker.dispose();
@@ -456,10 +512,12 @@ export class GameEngine {
     this.projectiles.dispose();
     this.hitsplats.dispose();
     this.xpDrops.dispose();
+    this.blobShadows.dispose();
     this.groundItems.dispose();
     this.iconTextures.dispose();
     this.chatOverhead.dispose();
     this.debug?.dispose();
+    this.audio.dispose();
     this.renderer.dispose();
   }
 
@@ -486,6 +544,17 @@ export class GameEngine {
         this._logDebug("Item target mode cancelled");
         this._updateItemTargetOverlay();
       }
+    }
+    // E47-S03: freeze/inspect time-of-day (Shift+T cycles, Shift+Y clears).
+    if (event.shiftKey && (event.key === "T" || event.key === "t")) {
+      const current = this.atmosphere.lastSample?.phase01 ?? 0;
+      const next = (Math.floor(current * 4) + 1) % 4;
+      this.atmosphere.setFrozenPhase(next / 4);
+      this._logDebug(`Atmosphere frozen at phase ${next}/4`);
+    }
+    if (event.shiftKey && (event.key === "Y" || event.key === "y")) {
+      this.atmosphere.setFrozenPhase(undefined);
+      this._logDebug("Atmosphere freeze cleared");
     }
   };
 
@@ -517,6 +586,9 @@ export class GameEngine {
           : menuState;
       const options = this._inputInterpreter.getContextMenuOptions(entity, tile, resolveState);
       this._contextMenu.show(event.clientX, event.clientY, options, entity, tile);
+      if (options.length > 0) {
+        this.audio.play("ui_menu_open");
+      }
       return;
     }
     const playerTile =
@@ -550,20 +622,39 @@ export class GameEngine {
 
     this._applyDecision(decision);
     if (decision.type === "move") {
+      this._selectionRing.clear();
       this._showClickMarker(decision.tile);
       this._packetIngestor.recordClickTile(decision.tile, this._currentTick);
       this._logDebug(`Click: move to (${decision.tile.x}, ${decision.tile.y})`);
     }
     if (decision.type === "npcOption") {
+      this._selectEntity(entity);
       this._logDebug(`Click: ${decision.actionId} ${entity?.defId ?? "NPC"}`);
     }
     if (decision.type === "objectOption") {
+      this._selectEntity(entity);
       this._logDebug(`Click: ${decision.actionId} ${entity?.defId ?? "object"}`);
     }
     if (decision.type === "groundItemOption") {
+      this._selectEntity(entity);
       this._logDebug(`Click: ${decision.actionId} ${entity?.itemId ?? "item"}`);
     }
   };
+
+  private _selectEntity(entity: PickedEntity | null): void {
+    if (!entity) {
+      this._selectionRing.clear();
+      return;
+    }
+    const pos = this._getEntityWorldPosition(entity);
+    if (!pos) {
+      // Objects may not have a world mesh position helper — use tile from pick if available.
+      this._selectionRing.clear();
+      return;
+    }
+    const yOffset = entity.kind === "player" || entity.kind === "npc" ? 0.05 : 0.04;
+    this._selectionRing.select(entity.entityId, pos, yOffset);
+  }
 
   private _handleMouseMove = (event: MouseEvent): void => {
     if (!this._connected) return;
@@ -577,7 +668,10 @@ export class GameEngine {
         this._hoverHighlighter.setTargetEntityId(entity.entityId);
       }
       if (tooltip) {
-        const label = this._inputInterpreter.getDefaultActionLabel(entity, this._getMenuResolveState());
+        const label = this._inputInterpreter.getDefaultActionLabel(
+          entity,
+          this._getMenuResolveState(),
+        );
         if (label) {
           tooltip.textContent = label;
           tooltip.style.left = `${event.clientX + 12}px`;
@@ -609,20 +703,32 @@ export class GameEngine {
         : menuState;
     const options = this._inputInterpreter.getContextMenuOptions(entity, tile, resolveState);
     this._contextMenu.show(event.clientX, event.clientY, options, entity, tile);
+    if (options.length > 0) {
+      this.audio.play("ui_menu_open");
+    }
   };
 
   setInputSettings(settings: Partial<InputInterpreterSettings>): void {
     this._inputInterpreter.setSettings(settings);
   }
 
+  setRenderSettings(settings: Partial<RenderSettings>): void {
+    if (settings.weaponModels !== undefined) {
+      this.actors.setWeaponModelMode(settings.weaponModels);
+    }
+  }
+
+  setAudioSettings(settings: Partial<AudioSettings>): void {
+    const next = { ...loadAudioSettings(), ...settings };
+    saveAudioSettings(next);
+    this.audio.setSettings(next);
+  }
+
   private _getMenuResolveState(): MenuResolveState {
     return { playerCombatLevel: calculateCombatLevel(this.uiState.skills) };
   }
 
-  private _pickEntityAt(
-    screenX: number,
-    screenY: number,
-  ): PickedEntity | null {
+  private _pickEntityAt(screenX: number, screenY: number): PickedEntity | null {
     const actorTargets = this.actors.getRaycastTargets();
     const objectTargets = this.objects.getRaycastTargets();
     const groundItemTargets = this.groundItems.getRaycastTargets();
@@ -630,15 +736,20 @@ export class GameEngine {
     return this._entityPicker.pick(screenX, screenY, meshes);
   }
 
-  private _getEntityWorldPosition(
-    entity: PickedEntity,
-  ): Vector3 | null {
+  private _getEntityWorldPosition(entity: PickedEntity): Vector3 | null {
     if (entity.kind === "player" || entity.kind === "npc") {
       const actor = this.actors.getActorState(entity.entityId);
       return actor ? actor.visualPosition.clone() : null;
     }
     if (entity.kind === "object") {
-      return null;
+      const tile = this.objects.getObjectTile(entity.entityId);
+      if (!tile) return null;
+      return new Vector3(tile.x * TILE_SIZE_WORLD_UNITS, 0, tile.y * TILE_SIZE_WORLD_UNITS);
+    }
+    if (entity.kind === "groundItem") {
+      const presentation = this._renderTransformCache.getPresentation(entity.entityId);
+      if (!presentation) return null;
+      return new Vector3(presentation.renderX, presentation.renderY, presentation.renderZ);
     }
     return null;
   }
@@ -793,7 +904,11 @@ export class GameEngine {
     const selfActor = this.actors.getActorState(this._selfEntityId);
     if (selfActor) {
       this._chunkResidency.setFocusTile(selfActor.serverTile);
+      const zoneId = resolveZoneIdAtTile(this._loadedChunkData, selfActor.serverTile);
+      this.audio.setZone(zoneId);
+      this.audio.updateListenerTile(selfActor.serverTile);
     }
+    this.audio.update(_deltaTime * 1000);
 
     // --- Drive chunk bake pipeline ---
     // 1. Dequeue jobs from ChunkBakeQueue and submit to worker
@@ -931,8 +1046,32 @@ export class GameEngine {
     this.hitsplats.update(this._currentTick, clockSample.renderServerTimeMs, this._actorPositions);
     this.xpDrops.update(this._currentTick, this._actorPositions);
     this.chatOverhead.update(this._actorPositions);
+    this.blobShadows.syncActors(this._actorPositions);
+    // Cheap static object shadows for a small set of landmark defs.
+    this.objects.forEachObject((entityId, tile, defId) => {
+      if (
+        defId === "market_bell" ||
+        defId === "foundry_furnace" ||
+        defId === "foundry_anvil" ||
+        defId.includes("forge")
+      ) {
+        this.blobShadows.ensureObject(
+          entityId,
+          tile.x * TILE_SIZE_WORLD_UNITS,
+          tile.y * TILE_SIZE_WORLD_UNITS,
+        );
+      }
+    });
+    this.atmosphere.update(clockSample.renderServerTimeMs);
     this._hoverHighlighter.updateFromCache(this._renderTransformCache);
+    this._selectionRing.updateFromCache(this._renderTransformCache);
     this._clickMarkers.update(clockSample.renderServerTimeMs);
+
+    // Clear click markers once the local player arrives on the destination tile.
+    const selfForMarkers = this.actors.getActorState(this._selfEntityId);
+    if (selfForMarkers) {
+      this._clickMarkers.clearIfArrived(selfForMarkers.serverTile);
+    }
     this._overlay.update({
       nowMs: clockSample.rafNowMs,
       connected: this._connected,
@@ -957,6 +1096,9 @@ export class GameEngine {
       presentationSample,
       queueStats,
       residencyStats: stats,
+      atmospherePhase: this.atmosphere.lastSample?.phaseName,
+      atmosphereFrozen: this.atmosphere.frozen,
+      blobShadowCount: this.blobShadows.count,
       debugState: this.debug
         ? {
             actionQueue: this.debug.getActionQueue(),
@@ -1111,6 +1253,7 @@ export class GameEngine {
           event.payload.amount,
           event.payload.type,
           event.payload.tick,
+          this.actors.getActorState(event.payload.entityId)?.visualPosition,
         );
         break;
       case "xpDrops.clear":
@@ -1123,6 +1266,23 @@ export class GameEngine {
           event.payload.amount,
           event.payload.tick,
         );
+        break;
+      case "levelUps.show": {
+        this.actors.playAction(event.payload.entityId, "level_up", event.payload.tick);
+        const actor = this.actors.getActorState(event.payload.entityId);
+        if (actor) {
+          const skillName = event.payload.skillId.replaceAll("_", " ");
+          this.chatOverhead.show(
+            event.payload.entityId,
+            `Level Up! ${skillName} ${event.payload.newLevel}`,
+            actor.visualPosition,
+          );
+        }
+        this.audio.play("ui_level_up");
+        break;
+      }
+      case "sounds.play":
+        this.audio.play(event.payload.soundId, event.payload.volume ?? 1);
         break;
       case "projectiles.clear":
         this.projectiles.clear();
@@ -1177,7 +1337,11 @@ export class GameEngine {
         this.debug.markReachTiles(event.payload.center, event.payload.radius);
         break;
       case "debug.markLoSRay": {
-        const start = new Vector3(event.payload.start.x, event.payload.start.y, event.payload.start.z);
+        const start = new Vector3(
+          event.payload.start.x,
+          event.payload.start.y,
+          event.payload.start.z,
+        );
         const end = new Vector3(event.payload.end.x, event.payload.end.y, event.payload.end.z);
         this.debug.markLoSRay(start, end);
         break;

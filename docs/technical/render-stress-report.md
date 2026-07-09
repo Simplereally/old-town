@@ -95,7 +95,7 @@ Possible results:
 
 ### 3.1 Region Crossing Gate
 
-- **File:** `region-crossing.stress.test.ts`
+- **File:** `region-crossing.perf.test.ts`
 - **Harness:** `RegionCrossingHarness`
 - **What it tests:** The chunk residency, bake queue, and upload queue lifecycle under rapid region boundary crossings with jitter, out-of-order worker completions, and upload budget exhaustion.
 - **Pass criteria:** All seven assertions pass:
@@ -109,7 +109,7 @@ Possible results:
 
 ### 3.2 Snapshot Jitter Gate
 
-- **File:** `snapshot-jitter.stress.test.ts`
+- **File:** `snapshot-jitter.perf.test.ts`
 - **Harness:** `SnapshotJitterHarness`
 - **What it tests:** Snapshot interpolation under network jitter, duplicates, drops, and reordering.
 - **Pass criteria:** All seven assertions pass:
@@ -123,7 +123,7 @@ Possible results:
 
 ### 3.3 Entity Scale Gate
 
-- **File:** `entity-scale.stress.test.ts`
+- **File:** `entity-scale.perf.test.ts`
 - **Harness:** `EntityScaleHarness`
 - **What it tests:** RenderTransformCache capacity growth, hot-loop allocation, and frame metrics under 1,000 deterministic entities.
 - **Pass criteria:** The automated assertions pass for:
@@ -137,7 +137,7 @@ Possible results:
 
 ### 3.4 Instanced Prop Gate
 
-- **File:** `instanced-props.stress.test.ts`
+- **File:** `instanced-props.perf.test.ts`
 - **Harness:** `InstancedPropHarness`
 - **What it tests:** InstanceBucket at scale (10,000 and 30,000 props) without a real WebGL context.
 - **Pass criteria:** All eleven assertions pass:
@@ -155,7 +155,7 @@ Possible results:
 
 ### 3.5 Heap Gate
 
-- **File:** `heap-gate.stress.test.ts`
+- **File:** `heap-gate.perf.test.ts`
 - **What it tests:** Memory and draw-call budget assertion helpers, pool growth limits, and packet-callback purity.
 - **Pass criteria:** The automated assertions pass for:
   1. `HeapSampler` — reports `unavailable` when `performance.memory` is absent.

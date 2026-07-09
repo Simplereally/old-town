@@ -80,6 +80,7 @@ describe("DeltaAccumulator", () => {
     });
     deltas.markHitsplat({ entityId: npc, hitsplat: { amount: 3, type: "damage" } });
     deltas.markXpDrop({ skillId: "woodcutting", amount: 25 });
+    deltas.markLevelUp({ skillId: "woodcutting", newLevel: 2 });
     deltas.markInterfaceOpen({ interfaceId: "bank" });
     deltas.markInterfaceClose({ interfaceId: "dialogue" });
 
@@ -101,6 +102,7 @@ describe("DeltaAccumulator", () => {
     expect(packet.chat).toHaveLength(1);
     expect(packet.hitsplats).toHaveLength(1);
     expect(packet.xpDrops).toEqual([{ skillId: "woodcutting", amount: 25 }]);
+    expect(packet.levelUps).toEqual([{ skillId: "woodcutting", newLevel: 2 }]);
     expect(packet.interfaceOpens).toEqual([{ interfaceId: "bank" }]);
     expect(packet.interfaceCloses).toEqual([{ interfaceId: "dialogue" }]);
   });

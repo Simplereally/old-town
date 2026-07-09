@@ -16892,6 +16892,16 @@
       "y": 48
     },
     {
+      "objectId": "foundry_furnace",
+      "x": 60,
+      "y": 46
+    },
+    {
+      "objectId": "cooking_range",
+      "x": 46,
+      "y": 42
+    },
+    {
       "objectId": "building_wall_straight",
       "x": 20,
       "y": 20
@@ -16940,6 +16950,36 @@
       "objectId": "building_gate_town",
       "x": 40,
       "y": 40
+    },
+    {
+      "objectId": "oak_tree",
+      "x": 10,
+      "y": 15
+    },
+    {
+      "objectId": "dry_tree",
+      "x": 20,
+      "y": 25
+    },
+    {
+      "objectId": "copper_rock",
+      "x": 30,
+      "y": 35
+    },
+    {
+      "objectId": "tin_rock",
+      "x": 32,
+      "y": 35
+    },
+    {
+      "objectId": "penny_copper_rock",
+      "x": 34,
+      "y": 35
+    },
+    {
+      "objectId": "scrub_tree",
+      "x": 42,
+      "y": 26
     }
   ],
   "npcSpawns": [
@@ -17342,6 +17382,20 @@
     {
       "resourceNodeId": "copper_rock_node",
       "x": 30,
+      "y": 35,
+      "respawnTicks": 100,
+      "initialDepletion": false
+    },
+    {
+      "resourceNodeId": "tin_rock_node",
+      "x": 32,
+      "y": 35,
+      "respawnTicks": 100,
+      "initialDepletion": false
+    },
+    {
+      "resourceNodeId": "penny_copper_deposit",
+      "x": 34,
       "y": 35,
       "respawnTicks": 100,
       "initialDepletion": false

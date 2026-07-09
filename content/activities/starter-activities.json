@@ -63,9 +63,9 @@
     "name": "Soot Sweep",
     "category": "publicWork",
     "risk": "safe",
-    "skills": ["arms", "guard", "sleight"],
+    "skills": ["attack", "defence", "sleight"],
     "entryRequirement": {
-      "skillId": "arms",
+      "skillId": "attack",
       "level": 1
     },
     "location": {
@@ -88,16 +88,16 @@
         "id": "clear_mites",
         "name": "Clear Grave Mites",
         "description": "Fight or flee Grave Mites that emerge from the soot",
-        "skillId": "arms",
+        "skillId": "attack",
         "requiredLevel": 1,
         "actionTicks": 3,
-        "xpReward": [{ "skillId": "arms", "amount": 12 }, { "skillId": "guard", "amount": 8 }],
+        "xpReward": [{ "skillId": "attack", "amount": 12 }, { "skillId": "defence", "amount": 8 }],
         "failureChance": 0.1
       }
     ],
     "rewards": [
-      { "type": "xp", "skillId": "arms", "quantity": 12 },
-      { "type": "xp", "skillId": "guard", "quantity": 8 },
+      { "type": "xp", "skillId": "attack", "quantity": 12 },
+      { "type": "xp", "skillId": "defence", "quantity": 8 },
       { "type": "xp", "skillId": "sleight", "quantity": 8 },
       { "type": "token", "tokenId": "soot_mark", "quantity": 1 }
     ],

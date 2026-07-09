@@ -23,7 +23,17 @@ const QUEST: QuestDef = {
   rewards: [],
 };
 
-const COINS = { id: "coin", name: "Coin", stackable: true, tradeable: true, examine: "", icon: "", value: 1, options: [], tags: [] };
+const COINS = {
+  id: "coin",
+  name: "Coin",
+  stackable: true,
+  tradeable: true,
+  examine: "",
+  icon: "",
+  value: 1,
+  options: [],
+  tags: [],
+};
 
 function setup() {
   const world = createWorld();
@@ -46,39 +56,37 @@ function setup() {
 describe("meetsRequirement", () => {
   it("skill requirement passes when the level is high enough", () => {
     const { ctx } = setup();
-    expect(
-      meetsRequirement(ctx, PLAYER, { kind: "skill", skillId: "attack", level: 1 }),
-    ).toBe(true);
-    expect(
-      meetsRequirement(ctx, PLAYER, { kind: "skill", skillId: "attack", level: 5 }),
-    ).toBe(false);
+    expect(meetsRequirement(ctx, PLAYER, { kind: "skill", skillId: "attack", level: 1 })).toBe(
+      true,
+    );
+    expect(meetsRequirement(ctx, PLAYER, { kind: "skill", skillId: "attack", level: 5 })).toBe(
+      false,
+    );
   });
 
   it("skill requirement returns false when there is no skills component", () => {
     const { ctx, world } = setup();
     world.removeComponent(PLAYER, "skills");
-    expect(
-      meetsRequirement(ctx, PLAYER, { kind: "skill", skillId: "attack", level: 1 }),
-    ).toBe(false);
+    expect(meetsRequirement(ctx, PLAYER, { kind: "skill", skillId: "attack", level: 1 })).toBe(
+      false,
+    );
   });
 
   it("item requirement checks inventory contents", () => {
     const { ctx, world, registries } = setup();
-    expect(
-      meetsRequirement(ctx, PLAYER, { kind: "item", itemId: "coin", quantity: 5 }),
-    ).toBe(false);
+    expect(meetsRequirement(ctx, PLAYER, { kind: "item", itemId: "coin", quantity: 5 })).toBe(
+      false,
+    );
     addItem(world.getComponent(PLAYER, "inventory")!, catalogFromItems(registries.item), "coin", 5);
-    expect(
-      meetsRequirement(ctx, PLAYER, { kind: "item", itemId: "coin", quantity: 5 }),
-    ).toBe(true);
+    expect(meetsRequirement(ctx, PLAYER, { kind: "item", itemId: "coin", quantity: 5 })).toBe(true);
   });
 
   it("item requirement returns false when there is no inventory component", () => {
     const { ctx, world } = setup();
     world.removeComponent(PLAYER, "inventory");
-    expect(
-      meetsRequirement(ctx, PLAYER, { kind: "item", itemId: "coin", quantity: 1 }),
-    ).toBe(false);
+    expect(meetsRequirement(ctx, PLAYER, { kind: "item", itemId: "coin", quantity: 1 })).toBe(
+      false,
+    );
   });
 
   it("quest_stage requirement reads the current quest stage", () => {

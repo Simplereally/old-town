@@ -26,9 +26,9 @@ Wardenry Contracts and Identity Systems. This epic addresses the remaining gaps 
 - [X] Move this epic file into `tasks/completed/epics/` after all stories are complete.
 
 ## Ordered stories
-- [X] `E38-S01` — [Wardenry Contract Schema and Runtime](stories/E38/E38-S01_wardenry-contract-schema-and-runtime.md)
-- [X] `E38-S02` — [Combat Contract Kill Tracking](stories/E38/E38-S02_combat-contract-kill-tracking.md)
-- [X] `E38-S03` — [Advanced Status Effects System](stories/E38/E38-S03_advanced-status-effects-system.md)
+- [X] `E38-S01` — [Wardenry Contract Schema and Runtime](../stories/E38/E38-S01_wardenry-contract-schema-and-runtime.md)
+- [X] `E38-S02` — [Combat Contract Kill Tracking](../stories/E38/E38-S02_combat-contract-kill-tracking.md)
+- [X] `E38-S03` — [Advanced Status Effects System](../stories/E38/E38-S03_advanced-status-effects-system.md)
 
 ## Epic acceptance criteria
 

@@ -82,7 +82,11 @@ function emitSystemMessage(
   ctx.deltas.markChat({ entityId: owner, text, channel: "system", serverTime });
 }
 
-function getOrCreateBank(ctx: BankSystemContext, owner: EntityId, npcEntityId?: EntityId): BankComponent {
+function getOrCreateBank(
+  ctx: BankSystemContext,
+  owner: EntityId,
+  npcEntityId?: EntityId,
+): BankComponent {
   const existing = ctx.world.getComponent(owner, "bank");
   if (existing) return existing;
 

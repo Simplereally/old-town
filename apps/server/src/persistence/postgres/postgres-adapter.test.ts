@@ -152,12 +152,16 @@ describe("PostgresPersistenceAdapter", () => {
     await writer.saveCharacter(baseSnapshot());
 
     const reader = new PostgresPersistenceAdapter({ client, contentVersion: 2 });
-    await expect(reader.loadCharacter("dev-a")).rejects.toBeInstanceOf(PersistenceContentVersionError);
+    await expect(reader.loadCharacter("dev-a")).rejects.toBeInstanceOf(
+      PersistenceContentVersionError,
+    );
   });
 
   it("migrates a stale-content save through the registered migrator on load", async () => {
     const client = new InMemorySqlClient();
-    await new PostgresPersistenceAdapter({ client, contentVersion: 1 }).saveCharacter(baseSnapshot());
+    await new PostgresPersistenceAdapter({ client, contentVersion: 1 }).saveCharacter(
+      baseSnapshot(),
+    );
 
     const reader = new PostgresPersistenceAdapter({
       client,

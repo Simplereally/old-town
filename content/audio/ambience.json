@@ -1,0 +1,142 @@
+[
+  {
+    "id": "ambience_fallback",
+    "name": "Quiet Town Bed",
+    "category": "ambience",
+    "assetPath": "assets/audio/ambience/fallback_silence.ogg",
+    "volume": 0.2,
+    "loop": true,
+    "fadeMs": 1200,
+    "fallback": true
+  },
+  {
+    "id": "ambience_market_bell",
+    "name": "Market Bell Murmur",
+    "category": "ambience",
+    "assetPath": "assets/audio/ambience/market_murmur.ogg",
+    "volume": 0.35,
+    "loop": true,
+    "fadeMs": 1000,
+    "zoneIds": ["market_bell", "player_spawn_market_bell"]
+  },
+  {
+    "id": "ambience_foundry_row",
+    "name": "Foundry Row Hum",
+    "category": "ambience",
+    "assetPath": "assets/audio/ambience/foundry_hum.ogg",
+    "volume": 0.4,
+    "loop": true,
+    "fadeMs": 1000,
+    "zoneIds": ["foundry_row"]
+  },
+  {
+    "id": "ambience_river_stoop",
+    "name": "River Stoop Flow",
+    "category": "ambience",
+    "assetPath": "assets/audio/ambience/river_flow.ogg",
+    "volume": 0.38,
+    "loop": true,
+    "fadeMs": 1000,
+    "zoneIds": ["river_stoop"]
+  },
+  {
+    "id": "ambience_shrine_hearth",
+    "name": "Shrine Hearth Calm",
+    "category": "ambience",
+    "assetPath": "assets/audio/ambience/shrine_calm.ogg",
+    "volume": 0.3,
+    "loop": true,
+    "fadeMs": 1200,
+    "zoneIds": ["shrine_hearth"]
+  },
+  {
+    "id": "ambience_warden_steps",
+    "name": "Warden Steps",
+    "category": "ambience",
+    "assetPath": "assets/audio/ambience/warden_steps.ogg",
+    "volume": 0.32,
+    "loop": true,
+    "fadeMs": 1000,
+    "zoneIds": ["warden_steps"]
+  },
+  {
+    "id": "ambience_gravegate",
+    "name": "Gravegate Quiet",
+    "category": "ambience",
+    "assetPath": "assets/audio/ambience/gravegate.ogg",
+    "volume": 0.28,
+    "loop": true,
+    "fadeMs": 1200,
+    "zoneIds": ["gravegate"]
+  },
+  {
+    "id": "ambience_counting_house",
+    "name": "Counting House",
+    "category": "ambience",
+    "assetPath": "assets/audio/ambience/counting_house.ogg",
+    "volume": 0.3,
+    "loop": true,
+    "fadeMs": 800,
+    "zoneIds": ["counting_house", "death_respawn_counting_house"]
+  },
+  {
+    "id": "ambience_lath_yard",
+    "name": "Lath Yard",
+    "category": "ambience",
+    "assetPath": "assets/audio/ambience/lath_yard.ogg",
+    "volume": 0.32,
+    "loop": true,
+    "fadeMs": 1000,
+    "zoneIds": ["lath_yard"]
+  },
+  {
+    "id": "ambience_patch_lane",
+    "name": "Patch Lane",
+    "category": "ambience",
+    "assetPath": "assets/audio/ambience/patch_lane.ogg",
+    "volume": 0.32,
+    "loop": true,
+    "fadeMs": 1000,
+    "zoneIds": ["patch_lane"]
+  },
+  {
+    "id": "ambience_chalkhouse_court",
+    "name": "Chalkhouse Court",
+    "category": "ambience",
+    "assetPath": "assets/audio/ambience/chalkhouse.ogg",
+    "volume": 0.3,
+    "loop": true,
+    "fadeMs": 1000,
+    "zoneIds": ["chalkhouse_court"]
+  },
+  {
+    "id": "ambience_oldroad_gate",
+    "name": "Oldroad Gate",
+    "category": "ambience",
+    "assetPath": "assets/audio/ambience/oldroad_gate.ogg",
+    "volume": 0.3,
+    "loop": true,
+    "fadeMs": 1000,
+    "zoneIds": ["oldroad_gate"]
+  },
+  {
+    "id": "ambience_sootcellar",
+    "name": "Sootcellar",
+    "category": "ambience",
+    "assetPath": "assets/audio/ambience/sootcellar.ogg",
+    "volume": 0.35,
+    "loop": true,
+    "fadeMs": 1000,
+    "zoneIds": ["sootcellar"]
+  },
+  {
+    "id": "ambience_north_quarry_road",
+    "name": "North Quarry Road",
+    "category": "ambience",
+    "assetPath": "assets/audio/ambience/fallback_silence.ogg",
+    "volume": 0.22,
+    "loop": true,
+    "fadeMs": 1000,
+    "zoneIds": ["north_quarry_road"]
+  }
+]

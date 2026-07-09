@@ -9,7 +9,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock ThreeRenderer before importing GameEngine
 vi.mock("./renderer/ThreeRenderer", () => {
-  const mockScene = { add: vi.fn(), remove: vi.fn(), background: null };
+  const { Color, Fog } = require("three") as typeof import("three");
+  const mockScene = {
+    add: vi.fn(),
+    remove: vi.fn(),
+    background: new Color(0x87ceeb),
+    fog: new Fog(0x87ceeb, 75, 150),
+  };
   const mockCamera = {
     position: { set: vi.fn(), copy: vi.fn() },
     lookAt: vi.fn(),
@@ -39,6 +45,21 @@ vi.mock("./renderer/ThreeRenderer", () => {
     running: false,
     onFrame: undefined,
     onResize: undefined,
+    hemisphereLight: {
+      color: { copy: vi.fn() },
+      groundColor: { copy: vi.fn() },
+      intensity: 2.1,
+      position: { set: vi.fn() },
+    },
+    directionalLight: {
+      color: { copy: vi.fn() },
+      intensity: 2.6,
+      position: { set: vi.fn() },
+    },
+    renderer: {
+      setClearColor: vi.fn(),
+      info: { render: { calls: 10 }, memory: { geometries: 5, textures: 2 } },
+    },
     debugCounters: vi.fn(() => ({
       fps: 60,
       frameTimeMs: 16,
@@ -53,6 +74,16 @@ vi.mock("./renderer/ThreeRenderer", () => {
     ThreeRenderer: vi.fn(() => mockRenderer),
   };
 });
+
+// EntityPicker has its own raycasting tests. GameEngine tests replace
+// _pickEntityAt when they need a hit, so keep the default path isolated from
+// Three.js camera internals instead of passing the renderer's lightweight mock
+// camera into a real Raycaster.
+vi.mock("./picking/EntityPicker", () => ({
+  EntityPicker: vi.fn(() => ({
+    pick: vi.fn(() => null),
+  })),
+}));
 
 // Mock GameSocket
 vi.mock("./net/GameSocket", () => {
@@ -275,9 +306,7 @@ describe("GameEngine entity picking and context menu", () => {
           size: 1,
           combatLevel: 5,
           respawnTicks: 50,
-          options: [
-            { label: "Attack", actionId: "attack", priority: 10, requiredDistance: 1 },
-          ],
+          options: [{ label: "Attack", actionId: "attack", priority: 10, requiredDistance: 1 }],
         },
       },
       object: {},
@@ -287,6 +316,7 @@ describe("GameEngine entity picking and context menu", () => {
       dialogue: {},
       contract: {},
       material: {},
+      audio: {},
     };
     content._ready = true;
 
@@ -348,8 +378,9 @@ describe("GameEngine entity picking and context menu", () => {
     (asEngine(engine) as { _pickEntityAt: ReturnType<typeof vi.fn> })._pickEntityAt = vi.fn(
       () => mockEntity,
     );
-    (engine as { setInputSettings: (settings: { mouseButtons: "one-button" }) => void })
-      .setInputSettings({ mouseButtons: "one-button" });
+    (
+      engine as { setInputSettings: (settings: { mouseButtons: "one-button" }) => void }
+    ).setInputSettings({ mouseButtons: "one-button" });
     const contextMenu = asEngine(engine)._contextMenu as {
       show: ReturnType<typeof vi.fn>;
     };
@@ -495,8 +526,9 @@ describe("GameEngine entity picking and context menu", () => {
     (asEngine(engine) as { _pickEntityAt: ReturnType<typeof vi.fn> })._pickEntityAt = vi.fn(
       () => mockEntity,
     );
-    (asEngine(engine) as { enterSpellTargetMode: (spellId: string) => void })
-      .enterSpellTargetMode("wind_strike");
+    (asEngine(engine) as { enterSpellTargetMode: (spellId: string) => void }).enterSpellTargetMode(
+      "wind_strike",
+    );
 
     const rightClickEvent = new MouseEvent("contextmenu", {
       clientX: 400,
@@ -785,5 +817,45 @@ describe("GameEngine click-to-move", () => {
     (asEngine(engine)._applyPresentationEvents as () => void)();
 
     expect(engine.xpDrops.activeCount).toBe(2);
+  });
+
+  it("plays level-up feedback from a structured level-up packet", () => {
+    (asEngine(engine)._handleFullState as (s: FullStatePacket) => void)(createFullStatePacket());
+    (asEngine(engine)._applyPresentationEvents as () => void)();
+    engine.actors.spawn(entityId(42), { x: 30, y: 32, plane: 0 }, "hero", true, "player");
+
+    const tickDelta: TickDeltaPacket = {
+      ...createTickDeltaPacket(2),
+      levelUps: [{ skillId: "woodcutting", newLevel: 2 }],
+    };
+
+    (asEngine(engine)._handleTickDelta as (d: TickDeltaPacket) => void)(tickDelta);
+    (asEngine(engine)._applyPresentationEvents as () => void)();
+
+    expect(engine.chatOverhead.bubbleCount).toBe(1);
+    expect(
+      (
+        engine.actors.getActorState(entityId(42)) as unknown as {
+          action?: { state: string };
+        }
+      )?.action?.state,
+    ).toBe("cast");
+  });
+
+  it("routes sounds.play presentation events to AudioManager", () => {
+    const playSpy = vi.spyOn(engine.audio, "play").mockReturnValue(true);
+    (asEngine(engine)._handleFullState as (s: FullStatePacket) => void)(createFullStatePacket());
+    (asEngine(engine)._applyPresentationEvents as () => void)();
+
+    const tickDelta: TickDeltaPacket = {
+      ...createTickDeltaPacket(2),
+      sounds: [{ soundId: "bell_ring", volume: 0.8 }],
+    };
+
+    (asEngine(engine)._handleTickDelta as (d: TickDeltaPacket) => void)(tickDelta);
+    (asEngine(engine)._applyPresentationEvents as () => void)();
+
+    expect(playSpy).toHaveBeenCalledWith("bell_ring", 0.8);
+    playSpy.mockRestore();
   });
 });

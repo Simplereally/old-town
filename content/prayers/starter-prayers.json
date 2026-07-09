@@ -5,9 +5,7 @@
     "requiredPrayer": 1,
     "drainEffect": 10,
     "conflictGroup": "defence_low",
-    "effects": [
-      { "stat": "defence", "mode": "add", "value": 1 }
-    ]
+    "effects": [{ "stat": "defence", "mode": "add", "value": 1 }]
   },
   {
     "id": "burst_of_strength",
@@ -15,9 +13,7 @@
     "requiredPrayer": 4,
     "drainEffect": 10,
     "conflictGroup": "strength_low",
-    "effects": [
-      { "stat": "strength", "mode": "add", "value": 1 }
-    ]
+    "effects": [{ "stat": "strength", "mode": "add", "value": 1 }]
   },
   {
     "id": "clarity_of_thought",
@@ -25,9 +21,7 @@
     "requiredPrayer": 7,
     "drainEffect": 10,
     "conflictGroup": "attack_low",
-    "effects": [
-      { "stat": "attack", "mode": "add", "value": 1 }
-    ]
+    "effects": [{ "stat": "attack", "mode": "add", "value": 1 }]
   },
   {
     "id": "rock_skin",
@@ -35,9 +29,7 @@
     "requiredPrayer": 10,
     "drainEffect": 12,
     "conflictGroup": "defence_low",
-    "effects": [
-      { "stat": "defence", "mode": "add", "value": 2 }
-    ]
+    "effects": [{ "stat": "defence", "mode": "add", "value": 2 }]
   },
   {
     "id": "superhuman_strength",
@@ -45,9 +37,7 @@
     "requiredPrayer": 13,
     "drainEffect": 12,
     "conflictGroup": "strength_low",
-    "effects": [
-      { "stat": "strength", "mode": "add", "value": 2 }
-    ]
+    "effects": [{ "stat": "strength", "mode": "add", "value": 2 }]
   },
   {
     "id": "improved_reflexes",
@@ -55,9 +45,7 @@
     "requiredPrayer": 16,
     "drainEffect": 12,
     "conflictGroup": "attack_low",
-    "effects": [
-      { "stat": "attack", "mode": "add", "value": 2 }
-    ]
+    "effects": [{ "stat": "attack", "mode": "add", "value": 2 }]
   },
   {
     "id": "steel_skin",
@@ -65,9 +53,7 @@
     "requiredPrayer": 28,
     "drainEffect": 16,
     "conflictGroup": "defence_low",
-    "effects": [
-      { "stat": "defence", "mode": "add", "value": 3 }
-    ]
+    "effects": [{ "stat": "defence", "mode": "add", "value": 3 }]
   },
   {
     "id": "ultimate_strength",
@@ -75,9 +61,7 @@
     "requiredPrayer": 31,
     "drainEffect": 16,
     "conflictGroup": "strength_low",
-    "effects": [
-      { "stat": "strength", "mode": "add", "value": 3 }
-    ]
+    "effects": [{ "stat": "strength", "mode": "add", "value": 3 }]
   },
   {
     "id": "incredible_reflexes",
@@ -85,9 +69,7 @@
     "requiredPrayer": 34,
     "drainEffect": 16,
     "conflictGroup": "attack_low",
-    "effects": [
-      { "stat": "attack", "mode": "add", "value": 3 }
-    ]
+    "effects": [{ "stat": "attack", "mode": "add", "value": 3 }]
   },
   {
     "id": "protect_from_magic",

@@ -9,7 +9,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock ThreeRenderer before importing GameEngine
 vi.mock("./renderer/ThreeRenderer", () => {
-  const mockScene = { add: vi.fn(), remove: vi.fn(), background: null };
+  const { Color, Fog } = require("three") as typeof import("three");
+  const mockScene = {
+    add: vi.fn(),
+    remove: vi.fn(),
+    background: new Color(0x87ceeb),
+    fog: new Fog(0x87ceeb, 75, 150),
+  };
   const mockCamera = {
     position: { set: vi.fn(), copy: vi.fn() },
     lookAt: vi.fn(),
@@ -39,6 +45,21 @@ vi.mock("./renderer/ThreeRenderer", () => {
     running: false,
     onFrame: undefined,
     onResize: undefined,
+    hemisphereLight: {
+      color: { copy: vi.fn() },
+      groundColor: { copy: vi.fn() },
+      intensity: 2.1,
+      position: { set: vi.fn() },
+    },
+    directionalLight: {
+      color: { copy: vi.fn() },
+      intensity: 2.6,
+      position: { set: vi.fn() },
+    },
+    renderer: {
+      setClearColor: vi.fn(),
+      info: { render: { calls: 10 }, memory: { geometries: 5, textures: 2 } },
+    },
     debugCounters: vi.fn(() => ({
       fps: 60,
       frameTimeMs: 16,
@@ -419,7 +440,9 @@ describe("GameEngine snapshot playout", () => {
     expect(input).toHaveProperty("presentationSample");
     expect(input).toHaveProperty("queueStats");
     expect(input).toHaveProperty("residencyStats");
-    expect((input.clockSample as unknown as Record<string, unknown>).renderServerTimeMs).toBeDefined();
+    expect(
+      (input.clockSample as unknown as Record<string, unknown>).renderServerTimeMs,
+    ).toBeDefined();
     expect((input.presentationSample as unknown as Record<string, unknown>).mode).toBeDefined();
     expect((input.presentationSample as unknown as Record<string, unknown>).alpha).toBeDefined();
     expect((input.queueStats as unknown as Record<string, unknown>).queued).toBeDefined();

@@ -191,9 +191,7 @@ describe("CameraController", () => {
 
     dispatchArrow("ArrowRight");
     controller.update(dt);
-    expect(rotateLeft).toHaveBeenLastCalledWith(
-      -(rotateLeft.mock.calls.at(0)?.[0] ?? 0),
-    );
+    expect(rotateLeft).toHaveBeenLastCalledWith(-(rotateLeft.mock.calls.at(0)?.[0] ?? 0));
 
     dispatchKeyUp("ArrowRight");
 
@@ -206,8 +204,6 @@ describe("CameraController", () => {
 
     dispatchArrow("ArrowDown");
     controller.update(dt);
-    expect(rotateUp).toHaveBeenLastCalledWith(
-      -(rotateUp.mock.calls.at(0)?.[0] ?? 0),
-    );
+    expect(rotateUp).toHaveBeenLastCalledWith(-(rotateUp.mock.calls.at(0)?.[0] ?? 0));
   });
 });

@@ -1,14 +1,17 @@
-import { MAX_SKILL_LEVEL, xpForLevel } from "@old-town/shared";
 import type { CombatStyle } from "@old-town/shared";
-import type { ContentClient } from "./ContentClient";
-import { GlobalKeydownBus } from "./GlobalKeydownBus";
-import type { IconAtlas } from "./IconAtlas";
-import { PLACEHOLDER_DATA_URI } from "./IconAtlas";
+import { MAX_SKILL_LEVEL, type SkillDef, xpForLevel } from "@old-town/shared";
+import { type AudioSettings, loadAudioSettings, saveAudioSettings } from "../audio/AudioSettings";
 import type {
   InputInterpreterSettings,
   MouseButtonMode,
   NpcAttackSetting,
 } from "../input/InputInterpreter";
+import type { WeaponModelMode } from "../scene/WeaponGltfLoader";
+import type { ContentClient } from "./ContentClient";
+import { GlobalKeydownBus } from "./GlobalKeydownBus";
+import type { IconAtlas } from "./IconAtlas";
+import { PLACEHOLDER_DATA_URI } from "./IconAtlas";
+import { loadRenderSettings, type RenderSettings, saveRenderSettings } from "./RenderSettings";
 import { SidebarTabs } from "./SidebarTabs";
 import type { UIState, UIStateChange } from "./UIState";
 
@@ -31,48 +34,74 @@ export interface UIManagerCallbacks {
   sendRecipeCommand(recipeId: string, stationEntityId: number): void;
   sendSetCombatStyle(style: CombatStyle): void;
   setInputSettings(settings: Partial<InputInterpreterSettings>): void;
+  setRenderSettings(settings: Partial<RenderSettings>): void;
+  setAudioSettings(settings: Partial<AudioSettings>): void;
+  /** Immediate client-local UI cue (E47-S02). */
+  playUiSound(soundId: string): void;
 }
 
-const ITEM_ACTIONS = new Set(["drop", "equip", "eat", "drink"]);
+const ITEM_ACTIONS = new Set(["drop", "equip", "wield", "wear", "eat", "drink", "bury"]);
+
+/**
+ * Item options that a left-click performs directly (OSRS-style primary action).
+ * "drop" is intentionally excluded (destructive) and "use" enters target mode.
+ */
+const PRIMARY_ITEM_ACTIONS = new Set(["equip", "wield", "wear", "eat", "drink", "bury"]);
 
 const SETTINGS_STORAGE_KEY = "old-town-input-settings";
 const SETTINGS_VERSION = 1;
 
-const NPC_ATTACK_OPTIONS: ReadonlyArray<{ value: NpcAttackSetting; label: string; hint: string }> = [
-  {
-    value: "depends-on-combat-levels",
-    label: "Depends on combat levels",
-    hint: "Left-click Attack only on NPCs at or below your combat level.",
-  },
-  {
-    value: "left-click-where-available",
-    label: "Left-click where available",
-    hint: "Always left-click Attack on NPCs.",
-  },
-  {
-    value: "always-right-click",
-    label: "Always right-click",
-    hint: "Attack is never left-click; right-click to target.",
-  },
-  {
-    value: "hidden",
-    label: "Hidden",
-    hint: "Attack option is removed from the menu entirely.",
-  },
-];
+const NPC_ATTACK_OPTIONS: ReadonlyArray<{ value: NpcAttackSetting; label: string; hint: string }> =
+  [
+    {
+      value: "depends-on-combat-levels",
+      label: "Depends on combat levels",
+      hint: "Left-click Attack only on NPCs at or below your combat level.",
+    },
+    {
+      value: "left-click-where-available",
+      label: "Left-click where available",
+      hint: "Always left-click Attack on NPCs.",
+    },
+    {
+      value: "always-right-click",
+      label: "Always right-click",
+      hint: "Attack is never left-click; right-click to target.",
+    },
+    {
+      value: "hidden",
+      label: "Hidden",
+      hint: "Attack option is removed from the menu entirely.",
+    },
+  ];
 
-const MOUSE_BUTTON_OPTIONS: ReadonlyArray<{ value: MouseButtonMode; label: string; hint: string }> = [
-  {
-    value: "two-button",
-    label: "Two-button mouse",
-    hint: "Left-click acts, right-click opens menu.",
-  },
-  {
-    value: "one-button",
-    label: "One-button mouse",
-    hint: "Left-click always opens the context menu.",
-  },
-];
+const MOUSE_BUTTON_OPTIONS: ReadonlyArray<{ value: MouseButtonMode; label: string; hint: string }> =
+  [
+    {
+      value: "two-button",
+      label: "Two-button mouse",
+      hint: "Left-click acts, right-click opens menu.",
+    },
+    {
+      value: "one-button",
+      label: "One-button mouse",
+      hint: "Left-click always opens the context menu.",
+    },
+  ];
+
+const WEAPON_MODEL_OPTIONS: ReadonlyArray<{ value: WeaponModelMode; label: string; hint: string }> =
+  [
+    {
+      value: "glb",
+      label: "Blender models",
+      hint: "Stylized low-poly weapon meshes authored in Blender.",
+    },
+    {
+      value: "procedural",
+      label: "Procedural models",
+      hint: "Classic Three.js primitive weapon shapes.",
+    },
+  ];
 
 const DEFAULT_INPUT_SETTINGS: InputInterpreterSettings = {
   npcAttack: "left-click-where-available",
@@ -99,7 +128,10 @@ function loadStoredSettings(): InputInterpreterSettings {
 
 function saveStoredSettings(settings: InputInterpreterSettings): void {
   try {
-    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify({ v: SETTINGS_VERSION, ...settings }));
+    localStorage.setItem(
+      SETTINGS_STORAGE_KEY,
+      JSON.stringify({ v: SETTINGS_VERSION, ...settings }),
+    );
   } catch {
     // Ignore storage errors (e.g. private mode quota).
   }
@@ -292,6 +324,7 @@ export class UIManager {
       } else {
         panel.classList.remove("hidden");
       }
+      this.callbacks.playUiSound("ui_panel_open");
     } else {
       if (isDebugOverlay) {
         panel.classList.remove("visible");
@@ -302,6 +335,7 @@ export class UIManager {
         this._hoveredSkillId = undefined;
         this._hideSkillTooltip();
       }
+      this.callbacks.playUiSound("ui_click");
     }
     this._updateButtonState(panelId, isHidden);
     if (isHidden && !isDebugOverlay && panelId !== "activity-panel") {
@@ -311,18 +345,15 @@ export class UIManager {
 
   /**
    * Open the default set of UI panels on first load after receiving the
-   * initial full-state packet. Inventory, skills, and chat are shown by
-   * default; the minimap is always visible.
+   * initial full-state packet. The sidebar is tabbed (one page visible at a
+   * time), so the inventory tab is selected as the default page; skills,
+   * equipment, combat, etc. are reachable via their sidebar tabs. The chat
+   * and minimap clusters are always visible.
    */
   openDefaultPanels(): void {
-    for (const panelId of ["inventory-panel", "skills-panel", "chat-box"]) {
-      const panel = this.panels.get(panelId);
-      if (panel?.classList.contains("hidden")) {
-        panel.classList.remove("hidden");
-        this._updateButtonState(panelId, true);
-        this._renderPanel(panelId);
-      }
-    }
+    this.sidebar.select(DEFAULT_TAB);
+    document.getElementById("chat-cluster")?.classList.remove("hidden");
+    document.getElementById("minimap-cluster")?.classList.remove("hidden");
   }
 
   private _updateButtonState(_panelId: string, _visible: boolean): void {
@@ -513,9 +544,18 @@ export class UIManager {
         cell.title = `${name}${quantity > 1 ? ` x${quantity}` : ""}`;
         const uid = item.uid;
         if (uid !== undefined) {
-          cell.addEventListener("click", () => {
-            this.callbacks.enterItemTargetMode(uid);
-          });
+          const primaryAction = def?.options?.find((o) => PRIMARY_ITEM_ACTIONS.has(o));
+          if (primaryAction) {
+            cell.addEventListener("click", () => {
+              this.callbacks.playUiSound("ui_click");
+              this.callbacks.sendItemCommand(uid, primaryAction);
+            });
+          } else {
+            cell.addEventListener("click", () => {
+              this.callbacks.playUiSound("ui_click");
+              this.callbacks.enterItemTargetMode(uid);
+            });
+          }
           const extraActions = def?.options?.filter((o) => ITEM_ACTIONS.has(o));
           if (extraActions && extraActions.length > 0) {
             cell.addEventListener("contextmenu", (e) => {
@@ -657,9 +697,44 @@ export class UIManager {
     const grid = document.createElement("div");
     grid.classList.add("skill-grid");
 
-    const skills = [...this.content.getAllSkills()].toSorted((a, b) =>
-      a.name.localeCompare(b.name),
-    );
+    const columnOneOrder = [
+      "attack",
+      "strength",
+      "defence",
+      "hitpoints",
+      "ranged",
+      "prayer",
+      "magic",
+      "favour",
+      "beadwork",
+      "carpentry",
+    ];
+    const allSkills = [...this.content.getAllSkills()];
+    const columnOneSkills = columnOneOrder
+      .map((id) => allSkills.find((s) => s.id === id))
+      .filter((s): s is SkillDef => s !== undefined);
+    const otherSkills = allSkills
+      .filter((s) => !columnOneOrder.includes(s.id))
+      .toSorted((a, b) => a.name.localeCompare(b.name));
+
+    const columns = 3;
+    const rows = Math.ceil(allSkills.length / columns);
+    const gridSkills: (SkillDef | undefined)[] = new Array(rows * columns).fill(undefined);
+    const columnOnePositions = Array.from({ length: rows }, (_, row) => row * columns);
+    for (let i = 0; i < columnOneSkills.length; i += 1) {
+      const position = columnOnePositions[i];
+      if (position !== undefined) {
+        gridSkills[position] = columnOneSkills[i];
+      }
+    }
+    let otherIndex = 0;
+    for (let i = 0; i < gridSkills.length; i += 1) {
+      if (gridSkills[i] === undefined && otherIndex < otherSkills.length) {
+        gridSkills[i] = otherSkills[otherIndex];
+        otherIndex += 1;
+      }
+    }
+    const skills = gridSkills.filter((s): s is SkillDef => s !== undefined);
     const uiSkills = this.uiState.skills;
     for (const skillDef of skills) {
       const state = uiSkills.get(skillDef.id);
@@ -686,7 +761,6 @@ export class UIManager {
       const levelText = document.createElement("div");
       levelText.classList.add("skill-tile-level");
       levelText.textContent = `${effectiveLevel}/${baseLevel}`;
-      levelText.style.color = "#ffcc00";
 
       tile.appendChild(icon);
       tile.appendChild(levelText);
@@ -735,11 +809,7 @@ export class UIManager {
     const nextXp = isMaxed ? 0 : xpForLevel(Math.min(baseLevel + 1, MAX_SKILL_LEVEL));
     const xpToNext = isMaxed ? 0 : Math.max(0, nextXp - xp);
     const fmt = (n: number): string => n.toLocaleString("en-US");
-    const lines = [
-      def.name,
-      `Level: ${effectiveLevel}/${baseLevel}`,
-      `XP: ${fmt(xp)}`,
-    ];
+    const lines = [def.name, `Level: ${effectiveLevel}/${baseLevel}`, `XP: ${fmt(xp)}`];
     if (isMaxed) {
       lines.push("Next Level At: Max");
     } else {
@@ -895,6 +965,7 @@ export class UIManager {
       close.classList.add("dialogue-option");
       close.textContent = "Continue";
       close.addEventListener("click", () => {
+        this.callbacks.playUiSound("ui_select");
         this.callbacks.sendUiActionCommand("dialogue_close", dialogue.dialogueId);
       });
       optionsEl.appendChild(close);
@@ -904,6 +975,7 @@ export class UIManager {
         opt.classList.add("dialogue-option");
         opt.textContent = option.text;
         opt.addEventListener("click", () => {
+          this.callbacks.playUiSound("ui_select");
           this.callbacks.sendUiActionCommand("dialogue_option", dialogue.dialogueId, option.index);
         });
         optionsEl.appendChild(opt);
@@ -988,7 +1060,15 @@ export class UIManager {
     const feedbackEl = document.getElementById("recipe-feedback");
     const headerEl = document.getElementById("recipe-header");
     const makeBtn = document.getElementById("recipe-make-btn");
-    if (!body || !listEl || !detailEl || !feedbackEl || !headerEl || !(makeBtn instanceof HTMLButtonElement)) return;
+    if (
+      !body ||
+      !listEl ||
+      !detailEl ||
+      !feedbackEl ||
+      !headerEl ||
+      !(makeBtn instanceof HTMLButtonElement)
+    )
+      return;
 
     for (const listener of this._recipeClickListeners) {
       listener();
@@ -1325,8 +1405,7 @@ export class UIManager {
       const next = { ...loadStoredSettings(), npcAttack: value };
       saveStoredSettings(next);
       this.callbacks.setInputSettings({ npcAttack: value });
-      npcHint.textContent =
-        NPC_ATTACK_OPTIONS.find((o) => o.value === value)?.hint ?? "";
+      npcHint.textContent = NPC_ATTACK_OPTIONS.find((o) => o.value === value)?.hint ?? "";
     });
     body.appendChild(npcRow);
 
@@ -1357,10 +1436,106 @@ export class UIManager {
       const next = { ...loadStoredSettings(), mouseButtons: value };
       saveStoredSettings(next);
       this.callbacks.setInputSettings({ mouseButtons: value });
-      mouseHint.textContent =
-        MOUSE_BUTTON_OPTIONS.find((o) => o.value === value)?.hint ?? "";
+      mouseHint.textContent = MOUSE_BUTTON_OPTIONS.find((o) => o.value === value)?.hint ?? "";
     });
     body.appendChild(mouseRow);
+
+    // Weapon model source setting.
+    const renderSettings = loadRenderSettings();
+    const weaponRow = document.createElement("div");
+    weaponRow.classList.add("settings-row");
+    const weaponLabel = document.createElement("div");
+    weaponLabel.classList.add("settings-label");
+    weaponLabel.textContent = "Weapon Models";
+    weaponRow.appendChild(weaponLabel);
+    const weaponSelect = document.createElement("select");
+    weaponSelect.classList.add("settings-select");
+    for (const opt of WEAPON_MODEL_OPTIONS) {
+      const option = document.createElement("option");
+      option.value = opt.value;
+      option.textContent = opt.label;
+      if (opt.value === renderSettings.weaponModels) option.selected = true;
+      weaponSelect.appendChild(option);
+    }
+    weaponRow.appendChild(weaponSelect);
+    const weaponHint = document.createElement("div");
+    weaponHint.classList.add("settings-hint");
+    weaponHint.textContent =
+      WEAPON_MODEL_OPTIONS.find((o) => o.value === renderSettings.weaponModels)?.hint ?? "";
+    weaponRow.appendChild(weaponHint);
+    weaponSelect.addEventListener("change", () => {
+      const value = weaponSelect.value as WeaponModelMode;
+      const next = { ...loadRenderSettings(), weaponModels: value };
+      saveRenderSettings(next);
+      this.callbacks.setRenderSettings({ weaponModels: value });
+      weaponHint.textContent = WEAPON_MODEL_OPTIONS.find((o) => o.value === value)?.hint ?? "";
+    });
+    body.appendChild(weaponRow);
+
+    // Audio settings (E47-S01).
+    const audioSettings = loadAudioSettings();
+
+    const muteRow = document.createElement("div");
+    muteRow.classList.add("settings-row");
+    const muteLabel = document.createElement("div");
+    muteLabel.classList.add("settings-label");
+    muteLabel.textContent = "Mute Audio";
+    muteRow.appendChild(muteLabel);
+    const muteSelect = document.createElement("select");
+    muteSelect.classList.add("settings-select");
+    for (const opt of [
+      { value: "false", label: "Off" },
+      { value: "true", label: "On" },
+    ]) {
+      const option = document.createElement("option");
+      option.value = opt.value;
+      option.textContent = opt.label;
+      if ((audioSettings.muted ? "true" : "false") === opt.value) option.selected = true;
+      muteSelect.appendChild(option);
+    }
+    muteRow.appendChild(muteSelect);
+    muteSelect.addEventListener("change", () => {
+      const muted = muteSelect.value === "true";
+      const next = { ...loadAudioSettings(), muted };
+      saveAudioSettings(next);
+      this.callbacks.setAudioSettings({ muted });
+    });
+    body.appendChild(muteRow);
+
+    const addVolumeRow = (
+      label: string,
+      key: "masterVolume" | "ambientVolume",
+      hint: string,
+    ): void => {
+      const row = document.createElement("div");
+      row.classList.add("settings-row");
+      const rowLabel = document.createElement("div");
+      rowLabel.classList.add("settings-label");
+      rowLabel.textContent = label;
+      row.appendChild(rowLabel);
+      const slider = document.createElement("input");
+      slider.type = "range";
+      slider.min = "0";
+      slider.max = "100";
+      slider.step = "1";
+      slider.value = String(Math.round(audioSettings[key] * 100));
+      slider.classList.add("settings-range");
+      row.appendChild(slider);
+      const rowHint = document.createElement("div");
+      rowHint.classList.add("settings-hint");
+      rowHint.textContent = hint;
+      row.appendChild(rowHint);
+      slider.addEventListener("input", () => {
+        const value = Number(slider.value) / 100;
+        const next = { ...loadAudioSettings(), [key]: value };
+        saveAudioSettings(next);
+        this.callbacks.setAudioSettings({ [key]: value });
+      });
+      body.appendChild(row);
+    };
+
+    addVolumeRow("Master Volume", "masterVolume", "Overall audio level.");
+    addVolumeRow("Ambient Volume", "ambientVolume", "District ambience and positional sources.");
   }
 
   /** Load persisted input settings at construction time so the engine can apply them immediately. */

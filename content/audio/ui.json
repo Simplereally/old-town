@@ -1,0 +1,44 @@
+[
+  {
+    "id": "ui_click",
+    "name": "UI Click",
+    "category": "ui",
+    "assetPath": "assets/audio/ui/click.ogg",
+    "volume": 0.45
+  },
+  {
+    "id": "ui_menu_open",
+    "name": "UI Menu Open",
+    "category": "ui",
+    "assetPath": "assets/audio/ui/menu_open.ogg",
+    "volume": 0.4
+  },
+  {
+    "id": "ui_select",
+    "name": "UI Select",
+    "category": "ui",
+    "assetPath": "assets/audio/ui/select.ogg",
+    "volume": 0.4
+  },
+  {
+    "id": "ui_error",
+    "name": "UI Error",
+    "category": "ui",
+    "assetPath": "assets/audio/ui/error.ogg",
+    "volume": 0.5
+  },
+  {
+    "id": "ui_panel_open",
+    "name": "UI Panel Open",
+    "category": "ui",
+    "assetPath": "assets/audio/ui/panel_open.ogg",
+    "volume": 0.4
+  },
+  {
+    "id": "ui_level_up",
+    "name": "Level Up",
+    "category": "ui",
+    "assetPath": "assets/audio/ui/level_up.ogg",
+    "volume": 0.55
+  }
+]

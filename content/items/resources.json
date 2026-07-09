@@ -228,7 +228,8 @@
     "icon": "icon_small_bones",
     "value": 1,
     "weight": 0.3,
-    "options": []
+    "options": ["bury"],
+    "bury": { "favourXp": 10 }
   },
   {
     "id": "bone_chips",
@@ -239,7 +240,8 @@
     "icon": "icon_bone_chips",
     "value": 2,
     "weight": 0.2,
-    "options": []
+    "options": ["bury"],
+    "bury": { "favourXp": 8 }
   },
   {
     "id": "grave_dust",

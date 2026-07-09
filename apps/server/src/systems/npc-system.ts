@@ -360,7 +360,7 @@ export function processNpcAiPhase(ctx: NpcSystemContext, tick: number): void {
       continue;
     }
 
-    const aggroRadius = def.aggressiveRadius ?? 0;
+    const aggroRadius = def.aggressionMode === "aggressive" ? (def.aggressiveRadius ?? 0) : 0;
     const aggroTarget =
       aggroRadius > 0 ? nearestAggroTarget(ctx, tile, aggroRadius, def.combatLevel) : undefined;
     if (aggroTarget !== undefined && combatant) {

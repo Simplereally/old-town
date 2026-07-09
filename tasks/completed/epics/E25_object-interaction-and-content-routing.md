@@ -25,11 +25,11 @@ Implement object non-skilling interaction routing and the remaining skilling act
 
 ## Ordered stories
 
-- [X] `E25-S01` — [Object Non-Skilling Interaction Router](completed/stories/E25/E25-S01_object-non-skilling-interaction-router.md)
-- [X] `E25-S02` — [Favour Offering Action](completed/stories/E25/E25-S02_favour-offering-action.md)
-- [X] `E25-S03` — [Fishing Action Support](completed/stories/E25/E25-S03_fishing-action-support.md)
-- [X] `E25-S04` — [Trapping Action Runtime](completed/stories/E25/E25-S04_trapping-action-runtime.md)
-- [X] `E25-S05` — [Map Table Survey Action](completed/stories/E25/E25-S05_map-table-survey-action.md)
+- [X] `E25-S01` — [Object Non-Skilling Interaction Router](../stories/E25/E25-S01_object-non-skilling-interaction-router.md)
+- [X] `E25-S02` — [Favour Offering Action](../stories/E25/E25-S02_favour-offering-action.md)
+- [X] `E25-S03` — [Fishing Action Support](../stories/E25/E25-S03_fishing-action-support.md)
+- [X] `E25-S04` — [Trapping Action Runtime](../stories/E25/E25-S04_trapping-action-runtime.md)
+- [X] `E25-S05` — [Map Table Survey Action](../stories/E25/E25-S05_map-table-survey-action.md)
 
 ## Epic acceptance criteria
 

@@ -30,6 +30,7 @@ export const CONTENT_DIR_KINDS: Readonly<Record<string, ContentKind>> = {
   trails: "trail",
   charters: "charter",
   properties: "property",
+  audio: "audio",
 };
 
 /** Resolve the content kind for a top-level content directory name, if known. */

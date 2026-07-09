@@ -43,11 +43,11 @@ This epic also wires the economy UI (bank, shop, inventory) to the server runtim
 
 ## Ordered stories
 
-- [X] `E44-S01` — [Service NPC dialogue and option content pack](stories/E44/E44-S01_service-npc-dialogue-and-option-content-pack.md)
-- [X] `E44-S02` — [Bank NPC and bank panel wiring](stories/E44/E44-S02_bank-npc-and-bank-panel-wiring.md)
-- [X] `E44-S03` — [Shop NPCs and shop transaction UI](stories/E44/E44-S03_shop-npcs-and-shop-transaction-ui.md)
-- [X] `E44-S04` — [Skill station objects and recipe routing](stories/E44/E44-S04_skill-station-objects-and-recipe-routing.md)
-- [X] `E44-S05` — [Warden board and shrine starter activities](stories/E44/E44-S05_warden-board-and-shrine-starter-activities.md)
+- [X] `E44-S01` — [Service NPC dialogue and option content pack](../stories/E44/E44-S01_service-npc-dialogue-and-option-content-pack.md)
+- [X] `E44-S02` — [Bank NPC and bank panel wiring](../stories/E44/E44-S02_bank-npc-and-bank-panel-wiring.md)
+- [X] `E44-S03` — [Shop NPCs and shop transaction UI](../stories/E44/E44-S03_shop-npcs-and-shop-transaction-ui.md)
+- [X] `E44-S04` — [Skill station objects and recipe routing](../stories/E44/E44-S04_skill-station-objects-and-recipe-routing.md)
+- [X] `E44-S05` — [Warden board and shrine starter activities](../stories/E44/E44-S05_warden-board-and-shrine-starter-activities.md)
 
 ## Epic acceptance criteria
 

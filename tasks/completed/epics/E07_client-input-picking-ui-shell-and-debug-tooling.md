@@ -29,11 +29,11 @@ Make the rendered world playable through click-to-move, tile/entity picking, con
 
 ## Ordered stories
 
-- [X] `E07-S01` — [Implement tile picking and move command UX](../completed/stories/E07/E07-S01_implement-tile-picking-and-move-command-ux.md)
-- [X] `E07-S02` — [Implement entity picking and context menu](../completed/stories/E07/E07-S02_implement-entity-picking-and-context-menu.md)
-- [X] `E07-S03` — [Create core UI panels](../completed/stories/E07/E07-S03_create-core-ui-panels.md)
-- [X] `E07-S04` — [Implement debug overlay controls](../completed/stories/E07/E07-S04_implement-debug-overlay-controls.md)
-- [X] `E07-S05` — [Implement UI command routing and feedback messages](../completed/stories/E07/E07-S05_implement-ui-command-routing-and-feedback-messages.md)
+- [X] `E07-S01` — [Implement tile picking and move command UX](../stories/E07/E07-S01_implement-tile-picking-and-move-command-ux.md)
+- [X] `E07-S02` — [Implement entity picking and context menu](../stories/E07/E07-S02_implement-entity-picking-and-context-menu.md)
+- [X] `E07-S03` — [Create core UI panels](../stories/E07/E07-S03_create-core-ui-panels.md)
+- [X] `E07-S04` — [Implement debug overlay controls](../stories/E07/E07-S04_implement-debug-overlay-controls.md)
+- [X] `E07-S05` — [Implement UI command routing and feedback messages](../stories/E07/E07-S05_implement-ui-command-routing-and-feedback-messages.md)
 
 ## Epic acceptance criteria
 

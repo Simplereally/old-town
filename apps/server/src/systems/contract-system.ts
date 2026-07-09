@@ -1,7 +1,7 @@
 import type {
+  ContentRegistries,
   ContractBoardEntry,
   ContractBoardPacket,
-  ContentRegistries,
   EntityId,
   ObjectIntent,
   TileCoord,
@@ -37,9 +37,7 @@ function systemMessage(
 
 function tileOf(world: World, entityId: EntityId): TileCoord | undefined {
   const position = world.getComponent(entityId, "position");
-  return position
-    ? { x: position.x, y: position.y, plane: position.plane }
-    : undefined;
+  return position ? { x: position.x, y: position.y, plane: position.plane } : undefined;
 }
 
 function chebyshev(a: TileCoord, b: TileCoord): number {
@@ -413,9 +411,7 @@ const CONTRACT_BOARD_INTERFACE_ID = "contract_board";
  * warden board objects in the world. Only contracts with status "available"
  * are listed — accepted/expired/completed contracts are excluded.
  */
-export function buildContractBoard(
-  ctx: ContractTrackerContext,
-): ContractBoardPacket {
+export function buildContractBoard(ctx: ContractTrackerContext): ContractBoardPacket {
   const entries: ContractBoardEntry[] = [];
   for (const [entityId, contract] of ctx.world.componentEntries("contract")) {
     if (contract.status !== "available") continue;

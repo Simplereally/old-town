@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  CollisionFlag,
   COLLISION_FLAG_DESCRIPTORS,
+  CollisionFlag,
   isValidStaticCollisionMask,
   STATIC_COLLISION_FLAG_DESCRIPTORS,
   STATIC_COLLISION_MASK,

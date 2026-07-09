@@ -2,13 +2,13 @@ import type { ChunkData, RegionTileData } from "@old-town/shared";
 import type { Group, InstancedMesh, Scene } from "three";
 import {
   DoubleSide,
-  InstancedMesh as ThreeInstancedMesh,
   MeshBasicMaterial,
   MeshLambertMaterial,
+  Object3D,
   PlaneGeometry,
   BoxGeometry as ThreeBoxGeometry,
   Group as ThreeGroup,
-  Object3D,
+  InstancedMesh as ThreeInstancedMesh,
 } from "three";
 import { MaterialColorResolver } from "../renderer/MaterialColorResolver";
 
@@ -201,11 +201,7 @@ export class TerrainLayer {
     yOffset: number,
   ): InstancedMesh {
     const material = this.getMaterial(materialId);
-    const mesh = new ThreeInstancedMesh(
-      this.tileGeometry,
-      material,
-      tiles.length,
-    );
+    const mesh = new ThreeInstancedMesh(this.tileGeometry, material, tiles.length);
     for (let i = 0; i < tiles.length; i++) {
       const t = tiles[i]!;
       this._dummy.rotation.set(-Math.PI / 2, 0, 0);

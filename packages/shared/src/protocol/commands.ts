@@ -149,7 +149,10 @@ export type ObjectOptionCommand = ClientCommandBase<
 >;
 export type NpcOptionCommand = ClientCommandBase<typeof ClientCommandType.NpcOption, NpcIntent>;
 export type ItemOptionCommand = ClientCommandBase<typeof ClientCommandType.ItemOption, ItemIntent>;
-export type UseItemOnCommand = ClientCommandBase<typeof ClientCommandType.UseItemOn, UseItemOnIntent>;
+export type UseItemOnCommand = ClientCommandBase<
+  typeof ClientCommandType.UseItemOn,
+  UseItemOnIntent
+>;
 export type GroundItemOptionCommand = ClientCommandBase<
   typeof ClientCommandType.GroundItemOption,
   GroundItemIntent
@@ -167,7 +170,10 @@ export type SetCombatStyleCommand = ClientCommandBase<
   typeof ClientCommandType.SetCombatStyle,
   SetCombatStyleIntent
 >;
-export type SetPrayerCommand = ClientCommandBase<typeof ClientCommandType.SetPrayer, SetPrayerIntent>;
+export type SetPrayerCommand = ClientCommandBase<
+  typeof ClientCommandType.SetPrayer,
+  SetPrayerIntent
+>;
 export type PingCommand = ClientCommandBase<typeof ClientCommandType.Ping, PingIntent>;
 
 /** The discriminated union of every client → server command. */

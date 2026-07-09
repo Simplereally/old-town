@@ -1,10 +1,10 @@
+import { combatLevelColor } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
 import {
   calculateCombatLevel,
   InputInterpreter,
   shouldNpcAttackBeLeftClick,
 } from "./InputInterpreter";
-import { combatLevelColor } from "@old-town/shared";
 
 function createMockResolver(): ConstructorParameters<typeof InputInterpreter>[0] {
   return {
@@ -217,9 +217,13 @@ describe("InputInterpreter content-driven", () => {
 
     it("appends NPC name and combat level to attackable NPC options (OSRS Choose Option)", () => {
       const entity = { entityId: 11, kind: "npc" as const, defId: "goblin", distance: 1 };
-      const options = interpreter.getContextMenuOptions(entity, { x: 1, y: 2 }, {
-        playerCombatLevel: 3,
-      });
+      const options = interpreter.getContextMenuOptions(
+        entity,
+        { x: 1, y: 2 },
+        {
+          playerCombatLevel: 3,
+        },
+      );
       const labels = options.map((o) => o.label);
       expect(labels).toContain("Attack Goblin (level-2)");
       expect(labels).toContain("Walk here");
@@ -230,9 +234,13 @@ describe("InputInterpreter content-driven", () => {
 
     it("colors the NPC name yellow and the level suffix by level difference", () => {
       const entity = { entityId: 11, kind: "npc" as const, defId: "goblin", distance: 1 };
-      const options = interpreter.getContextMenuOptions(entity, { x: 1, y: 2 }, {
-        playerCombatLevel: 3,
-      });
+      const options = interpreter.getContextMenuOptions(
+        entity,
+        { x: 1, y: 2 },
+        {
+          playerCombatLevel: 3,
+        },
+      );
       // Goblin is level 2, player is 3 → diff -1 → yellow-green (#80ff00).
       const attack = options.find((o) => o.actionId === "attack");
       expect(attack?.parts).toEqual([
@@ -253,24 +261,40 @@ describe("InputInterpreter content-driven", () => {
     });
 
     it("tints the level suffix across OSRS color tiers by level difference", () => {
-      const entity = (defId: string) =>
-        ({ entityId: 11, kind: "npc" as const, defId, distance: 1 });
-      // goblin is level 2: player 2 → diff 0 → true yellow.
-      const equal = interpreter.getContextMenuOptions(entity("goblin"), { x: 1, y: 2 }, {
-        playerCombatLevel: 2,
+      const entity = (defId: string) => ({
+        entityId: 11,
+        kind: "npc" as const,
+        defId,
+        distance: 1,
       });
+      // goblin is level 2: player 2 → diff 0 → true yellow.
+      const equal = interpreter.getContextMenuOptions(
+        entity("goblin"),
+        { x: 1, y: 2 },
+        {
+          playerCombatLevel: 2,
+        },
+      );
       const equalSuffix = equal.find((o) => o.actionId === "examine")?.parts?.[2];
       expect(equalSuffix?.color).toBe("#ffff00");
       // goblin is level 2: player 50 → diff -48 → deep green.
-      const deepGreen = interpreter.getContextMenuOptions(entity("goblin"), { x: 1, y: 2 }, {
-        playerCombatLevel: 50,
-      });
+      const deepGreen = interpreter.getContextMenuOptions(
+        entity("goblin"),
+        { x: 1, y: 2 },
+        {
+          playerCombatLevel: 50,
+        },
+      );
       const deepGreenSuffix = deepGreen.find((o) => o.actionId === "examine")?.parts?.[2];
       expect(deepGreenSuffix?.color).toBe("#00ff00");
       // guard is level 21: player 3 → diff +18 → dark orange.
-      const darkOrange = interpreter.getContextMenuOptions(entity("guard"), { x: 1, y: 2 }, {
-        playerCombatLevel: 3,
-      });
+      const darkOrange = interpreter.getContextMenuOptions(
+        entity("guard"),
+        { x: 1, y: 2 },
+        {
+          playerCombatLevel: 3,
+        },
+      );
       const darkOrangeSuffix = darkOrange.find((o) => o.actionId === "examine")?.parts?.[2];
       expect(darkOrangeSuffix?.color).toBe("#ff4000");
     });
@@ -302,7 +326,13 @@ describe("InputInterpreter content-driven", () => {
     });
 
     it("chooses walk for empty tile", () => {
-      const decision = interpreter.interpretCanvasClick(null, { x: 15, y: 25 }, null, undefined, undefined);
+      const decision = interpreter.interpretCanvasClick(
+        null,
+        { x: 15, y: 25 },
+        null,
+        undefined,
+        undefined,
+      );
       expect(decision).toEqual({ type: "move", tile: { x: 15, y: 25, plane: 0 } });
     });
 
@@ -326,9 +356,15 @@ describe("InputInterpreter content-driven", () => {
 
     it("chooses cast spell when in spell target mode", () => {
       const entity = { entityId: 10, kind: "npc" as const, defId: "guard", distance: 1 };
-      const decision = interpreter.interpretCanvasClick(entity, null, null, {
-        spellId: "wind_strike",
-      }, undefined);
+      const decision = interpreter.interpretCanvasClick(
+        entity,
+        null,
+        null,
+        {
+          spellId: "wind_strike",
+        },
+        undefined,
+      );
       expect(decision.type).toBe("castSpell");
       expect(decision).toMatchObject({
         type: "castSpell",
@@ -339,9 +375,15 @@ describe("InputInterpreter content-driven", () => {
 
     it("chooses cast spell with tile target when no entity", () => {
       const tile = { x: 10, y: 20 };
-      const decision = interpreter.interpretCanvasClick(null, tile, null, {
-        spellId: "wind_strike",
-      }, undefined);
+      const decision = interpreter.interpretCanvasClick(
+        null,
+        tile,
+        null,
+        {
+          spellId: "wind_strike",
+        },
+        undefined,
+      );
       expect(decision.type).toBe("castSpell");
       expect(decision).toMatchObject({
         type: "castSpell",
@@ -353,13 +395,21 @@ describe("InputInterpreter content-driven", () => {
     it("uses Walk here when attack is demoted below movement", () => {
       const local = new InputInterpreter(createMockResolver(), { npcAttack: "always-right-click" });
       const entity = { entityId: 10, kind: "npc" as const, defId: "goblin", distance: 1 };
-      const decision = local.interpretCanvasClick(entity, { x: 15, y: 25 }, null, undefined, undefined);
+      const decision = local.interpretCanvasClick(
+        entity,
+        { x: 15, y: 25 },
+        null,
+        undefined,
+        undefined,
+      );
       expect(decision).toEqual({ type: "move", tile: { x: 15, y: 25, plane: 0 } });
     });
 
     it("chooses useItemOn with entity target when in item target mode", () => {
       const entity = { entityId: 10, kind: "npc" as const, defId: "guard", distance: 1 };
-      const decision = interpreter.interpretCanvasClick(entity, null, null, undefined, { itemUid: 5 });
+      const decision = interpreter.interpretCanvasClick(entity, null, null, undefined, {
+        itemUid: 5,
+      });
       expect(decision).toEqual({
         type: "useItemOn",
         itemUid: 5,
@@ -385,7 +435,9 @@ describe("InputInterpreter content-driven", () => {
         npcAttack: "left-click-where-available",
       });
       const entity = { entityId: 11, kind: "npc" as const, defId: "goblin", distance: 1 };
-      expect(local.interpretCanvasClick(entity, { x: 1, y: 2 }, null, undefined, undefined)).toEqual({
+      expect(
+        local.interpretCanvasClick(entity, { x: 1, y: 2 }, null, undefined, undefined),
+      ).toEqual({
         type: "npcOption",
         entityId: 11,
         actionId: "attack",
@@ -397,7 +449,9 @@ describe("InputInterpreter content-driven", () => {
       const entity = { entityId: 12, kind: "npc" as const, defId: "knight", distance: 1 };
       const options = local.getContextMenuOptions(entity, { x: 1, y: 2 });
       expect(options.map((option) => option.actionId)).not.toContain("attack");
-      expect(local.interpretCanvasClick(entity, { x: 1, y: 2 }, null, undefined, undefined)).toEqual({
+      expect(
+        local.interpretCanvasClick(entity, { x: 1, y: 2 }, null, undefined, undefined),
+      ).toEqual({
         type: "npcOption",
         entityId: 12,
         actionId: "pickpocket",
@@ -405,7 +459,9 @@ describe("InputInterpreter content-driven", () => {
     });
 
     it("depends on combat levels with equal-or-lower NPCs left-clickable", () => {
-      const local = new InputInterpreter(createMockResolver(), { npcAttack: "depends-on-combat-levels" });
+      const local = new InputInterpreter(createMockResolver(), {
+        npcAttack: "depends-on-combat-levels",
+      });
       const entity = { entityId: 13, kind: "npc" as const, defId: "guard", distance: 1 };
       expect(
         local.interpretCanvasClick(entity, { x: 1, y: 2 }, null, undefined, undefined, {
@@ -415,7 +471,9 @@ describe("InputInterpreter content-driven", () => {
     });
 
     it("depends on combat levels with higher NPCs requiring explicit menu attack", () => {
-      const local = new InputInterpreter(createMockResolver(), { npcAttack: "depends-on-combat-levels" });
+      const local = new InputInterpreter(createMockResolver(), {
+        npcAttack: "depends-on-combat-levels",
+      });
       const entity = { entityId: 14, kind: "npc" as const, defId: "guard", distance: 1 };
       expect(
         local.interpretCanvasClick(entity, { x: 1, y: 2 }, null, undefined, undefined, {
@@ -425,7 +483,9 @@ describe("InputInterpreter content-driven", () => {
     });
 
     it("depends on combat levels left-clicks bosses above max player combat", () => {
-      const local = new InputInterpreter(createMockResolver(), { npcAttack: "depends-on-combat-levels" });
+      const local = new InputInterpreter(createMockResolver(), {
+        npcAttack: "depends-on-combat-levels",
+      });
       const entity = { entityId: 15, kind: "npc" as const, defId: "boss", distance: 1 };
       expect(
         local.interpretCanvasClick(entity, { x: 1, y: 2 }, null, undefined, undefined, {
@@ -440,7 +500,9 @@ describe("InputInterpreter content-driven", () => {
         menuSwaps: [{ actionId: "walk_here", priority: 200, entityKind: "npc" }],
       });
       const entity = { entityId: 16, kind: "npc" as const, defId: "goblin", distance: 1 };
-      expect(local.interpretCanvasClick(entity, { x: 1, y: 2 }, null, undefined, undefined)).toEqual({
+      expect(
+        local.interpretCanvasClick(entity, { x: 1, y: 2 }, null, undefined, undefined),
+      ).toEqual({
         type: "move",
         tile: { x: 1, y: 2, plane: 0 },
       });
@@ -566,13 +628,9 @@ describe("InputInterpreter content-driven", () => {
 
     it("chooses useItemOn when use_item_on action is selected with item mode", () => {
       const entity = { entityId: 10, kind: "npc" as const, defId: "guard", distance: 1 };
-      const decision = interpreter.interpretContextMenu(
-        entity,
-        null,
-        "use_item_on",
-        undefined,
-        { itemUid: 5 },
-      );
+      const decision = interpreter.interpretContextMenu(entity, null, "use_item_on", undefined, {
+        itemUid: 5,
+      });
       expect(decision).toEqual({
         type: "useItemOn",
         itemUid: 5,

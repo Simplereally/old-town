@@ -25,9 +25,9 @@ Implement spell effect application: damage, bind, teleport, and the magic combat
 
 ## Ordered stories
 
-- [X] `E23-S01` — [Apply Combat Spell Damage](completed/stories/E23/E23-S01_apply-combat-spell-damage.md)
-- [X] `E23-S02` — [Apply Bind and Teleport Effects](completed/stories/E23/E23-S02_apply-bind-and-teleport-effects.md)
-- [X] `E23-S03` — [Magic Combat System and XP](completed/stories/E23/E23-S03_magic-combat-system-and-xp.md)
+- [X] `E23-S01` — [Apply Combat Spell Damage](../stories/E23/E23-S01_apply-combat-spell-damage.md)
+- [X] `E23-S02` — [Apply Bind and Teleport Effects](../stories/E23/E23-S02_apply-bind-and-teleport-effects.md)
+- [X] `E23-S03` — [Magic Combat System and XP](../stories/E23/E23-S03_magic-combat-system-and-xp.md)
 
 ## Epic acceptance criteria
 

@@ -68,6 +68,16 @@ export const consumableDefSchema = z
 
 export type ConsumableDef = z.infer<typeof consumableDefSchema>;
 
+/** Bury data attached to a bone/offering item (POC_SPEC §16.1). */
+export const buryDefSchema = z
+  .object({
+    /** Favour XP granted when the item is buried. */
+    favourXp: nonNegInt,
+  })
+  .strict();
+
+export type BuryDef = z.infer<typeof buryDefSchema>;
+
 /** A complete item definition (POC_SPEC §16.1). */
 export const itemDefSchema = z
   .object({
@@ -92,6 +102,7 @@ export const itemDefSchema = z
     tags: z.array(z.string().min(1)).default([]),
     equipment: equipmentDefSchema.optional(),
     consumable: consumableDefSchema.optional(),
+    bury: buryDefSchema.optional(),
     maxDurability: nonNegInt.optional(),
   })
   .strict();

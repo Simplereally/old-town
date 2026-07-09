@@ -33,7 +33,7 @@ const NPC_DEF: NpcDef = {
   respawnTicks: 3,
   options: [{ label: "Attack", actionId: "attack", priority: 10, requiredDistance: 1 }],
   movementType: "static",
-  aggressionMode: "peaceful",
+  aggressionMode: "aggressive",
   contractEligible: false,
 };
 
@@ -209,6 +209,26 @@ describe("NPC AI", () => {
     // NPC is NOT moving every tick (which would be ~600 moves).
     expect(moves).toBeLessThan(ticks * 0.05);
     expect(moves).toBeGreaterThan(0);
+  });
+
+  it("does not auto-aggro when content marks the NPC peaceful", () => {
+    const { ctx, world, npc } = setup({
+      npcDef: { ...NPC_DEF, aggressionMode: "peaceful" },
+    });
+    const player = world.createEntity();
+    world.setComponent(player, "position", { entityId: player, x: 5, y: 6, plane: 0 });
+    world.setComponent(player, "player", {
+      entityId: player,
+      accountId: "a",
+      sessionId: "s",
+      interestRadius: 8,
+    });
+    world.setComponent(player, "combatant", { ...combatant(player, 10), combatLevel: 1 });
+
+    processNpcAiPhase(ctx, 1);
+
+    expect(world.getComponent(npc, "combatant")?.targetId).toBeUndefined();
+    expect(world.getComponent(npc, "npc")?.brainState).toBe("idle");
   });
 
   it("does not auto-aggro a player whose combat level is more than double the NPC's (unaggressive rule)", () => {

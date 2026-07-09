@@ -109,13 +109,13 @@ function buildGates(output: VitestJsonOutput, _ciOnly: boolean): Report {
       let actual: string | null = null;
 
       // Derive target and actual from known test suites
-      if (fileName === "region-crossing.stress.test.ts") {
+      if (fileName === "region-crossing.perf.test.ts") {
         if (describeTitle === "RegionCrossingHarness") {
           target =
             "Cross ≥4 region boundaries, revisit evicted region, visible pipeline, lifecycle transitions, re-enter recovery, diagnostics, upload exhaustion, out-of-order completions";
           actual = allPassed ? "7/7 passed" : null;
         }
-      } else if (fileName === "snapshot-jitter.stress.test.ts") {
+      } else if (fileName === "snapshot-jitter.perf.test.ts") {
         if (describeTitle === "SnapshotJitterHarness") {
           target =
             "Deterministic path ≥120 ticks, deterministic seeded schedule, no WebGL required";
@@ -125,7 +125,7 @@ function buildGates(output: VitestJsonOutput, _ciOnly: boolean): Report {
             "No stale packet mutates accepted state, mode distribution includes interpolate/hold/freeze/snap, snap threshold respected, no invented ticks";
           actual = allPassed ? "4/4 passed" : null;
         }
-      } else if (fileName === "entity-scale.stress.test.ts") {
+      } else if (fileName === "entity-scale.perf.test.ts") {
         if (describeTitle === "EntityScaleHarness") {
           target =
             "1000 entities with stable ids and mixed kinds, ≥60 server ticks, deterministic paths, fake RAF without WebGL";
@@ -151,7 +151,7 @@ function buildGates(output: VitestJsonOutput, _ciOnly: boolean): Report {
           actual = null;
           status = "manual";
         }
-      } else if (fileName === "instanced-props.stress.test.ts") {
+      } else if (fileName === "instanced-props.perf.test.ts") {
         if (describeTitle === "InstancedPropHarness stress") {
           target =
             "10k props ≤10 buckets, 30k props ≤20 buckets, needsUpdate policy, dirty range policy, bounds policy, release/re-acquire, mixed flush, deterministic generation";

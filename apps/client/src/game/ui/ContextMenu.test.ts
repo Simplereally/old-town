@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PickedEntity } from "../picking/EntityPicker";
 import { ContextMenu, type ContextMenuCallbacks } from "./ContextMenu";
 
@@ -24,9 +24,14 @@ describe("ContextMenu view adapter", () => {
   let callbacks: ContextMenuCallbacks;
 
   beforeEach(() => {
+    vi.useFakeTimers();
     document.body.innerHTML = "";
     callbacks = setupCallbacks();
     menu = new ContextMenu({ container: document.body, callbacks });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("shows menu with provided options", () => {
@@ -77,7 +82,8 @@ describe("ContextMenu view adapter", () => {
   it("hides menu on Escape key", async () => {
     menu.show(100, 100, NPC_OPTIONS, npcEntity("goblin"), { x: 5, y: 5 });
     expect(menu.visible).toBe(true);
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    // ContextMenu defers keydown registration with setTimeout(0); advance fake timers.
+    await vi.advanceTimersByTimeAsync(0);
     const event = new KeyboardEvent("keydown", { key: "Escape" });
     document.dispatchEvent(event);
     expect(menu.visible).toBe(false);
@@ -88,7 +94,7 @@ describe("ContextMenu view adapter", () => {
     expect(menu.visible).toBe(true);
     const outside = document.createElement("div");
     document.body.appendChild(outside);
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    await vi.advanceTimersByTimeAsync(0);
     outside.click();
     expect(menu.visible).toBe(false);
   });
@@ -122,11 +128,7 @@ describe("ContextMenu view adapter", () => {
       label: "Attack Guard (level-20)",
       actionId: "attack",
       priority: 90,
-      parts: [
-        { text: "Attack " },
-        { text: "Guard", color: "#ffff00" },
-        { text: " (level-20)" },
-      ],
+      parts: [{ text: "Attack " }, { text: "Guard", color: "#ffff00" }, { text: " (level-20)" }],
     };
     menu.show(100, 100, [attack], npcEntity("guard"), { x: 5, y: 5 });
     const item = document.querySelector(".context-menu > .context-menu-item");

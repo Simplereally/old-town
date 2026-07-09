@@ -23,6 +23,7 @@ import {
 } from "@old-town/shared";
 import type { World } from "../ecs/world";
 import type { DeltaAccumulator } from "../sim/delta-accumulator";
+import { addXp } from "../skills/skill-state";
 import type { ConsumableSystem } from "../systems/consumable-system";
 import { equipItem, equipmentUpdate, unequipSlot } from "./equipment";
 import { buildDelta, count, findSlotByUid, removeFromSlot } from "./inventory";
@@ -45,6 +46,7 @@ export type ItemActionOutcome =
   | "equipped"
   | "unequipped"
   | "eaten"
+  | "buried"
   | "used"
   | "invalid";
 
@@ -255,6 +257,46 @@ export function handleItemIntent(
     const message = `You ${verb} the ${def.name}.`;
     emitMessage(ctx, owner, message, serverTime);
     return { outcome: "eaten", message };
+  }
+
+  if (actionId === "bury") {
+    if (!def.bury) {
+      return invalid(GENERIC_NOTHING);
+    }
+    const xp = def.bury.favourXp;
+    // Grant favour XP first; addXp returns undefined (without mutating) if the actor
+    // has no favour skill, in which case we leave the bone untouched rather than waste it.
+    const xpResult = addXp({ world: ctx.world, deltas: ctx.deltas }, owner, "favour", xp);
+    if (!xpResult) {
+      return invalid(GENERIC_NOTHING);
+    }
+    const beforeQuantity = count(inventory, occupant.itemId);
+    const { changes } = removeFromSlot(inventory, slot, 1);
+    const afterQuantity = count(inventory, occupant.itemId);
+    ctx.deltas.markInventoryDelta(buildDelta(inventory, changes));
+    // Bury animation — a discrete server-signalled action pose (POC_SPEC §13.9).
+    ctx.deltas.markEntityUpdate(owner, {
+      animation: { id: "bury_bones", startTick: tick },
+    });
+    ctx.itemAudit?.recordForEntity(owner, {
+      tick,
+      itemId: occupant.itemId,
+      quantity: 1,
+      reason: "bury_bones",
+      beforeQuantity,
+      afterQuantity,
+      metadata: {
+        actionId,
+        slot,
+        uid: occupant.uid,
+        favourXp: xp,
+      },
+    });
+    const message = xpResult.levelUp
+      ? `You bury the ${def.name}. Your Favour level is now ${xpResult.newLevel}!`
+      : `You bury the ${def.name}.`;
+    emitMessage(ctx, owner, message, serverTime);
+    return { outcome: "buried", message };
   }
 
   if (actionId === "use") {

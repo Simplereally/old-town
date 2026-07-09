@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { actionId, ACTION_ID_PATTERN, actionIdSchema } from "./action-id";
+import { ACTION_ID_PATTERN, actionId, actionIdSchema } from "./action-id";
 
 describe("ACTION_ID_PATTERN", () => {
   it("accepts lowercase snake_case tokens starting with a letter", () => {

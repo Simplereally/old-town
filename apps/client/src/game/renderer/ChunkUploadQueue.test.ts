@@ -575,9 +575,10 @@ describe("ChunkUploadQueue", () => {
   });
 
   it("dispose is idempotent", () => {
-    queue.dispose();
-    queue.dispose();
-    expect(true).toBe(true);
+    expect(() => {
+      queue.dispose();
+      queue.dispose();
+    }).not.toThrow();
   });
 
   it("throws after dispose", () => {

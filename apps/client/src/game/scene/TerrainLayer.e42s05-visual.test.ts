@@ -46,7 +46,15 @@ function marketBellSpawnChunk(): ChunkData {
   const tiles: ChunkData["tiles"] = [];
   for (let x = 40; x < 48; x++) {
     for (let y = 40; y < 48; y++) {
-      (tiles as Array<{ x: number; y: number; height: number; underlayId: string; collision: number }>).push({
+      (
+        tiles as Array<{
+          x: number;
+          y: number;
+          height: number;
+          underlayId: string;
+          collision: number;
+        }>
+      ).push({
         x,
         y,
         height: 0,

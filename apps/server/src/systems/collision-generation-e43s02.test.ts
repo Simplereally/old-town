@@ -1,10 +1,10 @@
 import type { ObjectDef } from "@old-town/shared";
 import { CollisionFlag } from "@old-town/shared";
 import { describe, expect, it } from "vitest";
+import { createWorld, type World } from "../ecs/world";
 import { applyObjectCollision, CollisionMap, objectCollisionFlags } from "../world/collision";
 import { findPath } from "../world/pathfinding";
 import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
-import { createWorld, type World } from "../ecs/world";
 
 function makeMap(size = 8): RuntimeMap {
   const map = createRuntimeMap();
@@ -23,12 +23,7 @@ function makeMap(size = 8): RuntimeMap {
   return map;
 }
 
-function addObject(
-  world: World,
-  objectId: string,
-  x: number,
-  y: number,
-): number {
+function addObject(world: World, objectId: string, x: number, y: number): number {
   const entityId = world.createEntity();
   world.setComponent(entityId, "position", { entityId, x, y, plane: 0 });
   world.setComponent(entityId, "object", { entityId, objectId, facing: 0, variant: 0 });

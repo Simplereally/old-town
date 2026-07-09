@@ -14,9 +14,7 @@ export interface TrailSystemContext {
 
 function tileOf(world: World, entityId: EntityId): TileCoord | undefined {
   const position = world.getComponent(entityId, "position");
-  return position
-    ? { x: position.x, y: position.y, plane: position.plane }
-    : undefined;
+  return position ? { x: position.x, y: position.y, plane: position.plane } : undefined;
 }
 
 function chebyshev(a: TileCoord, b: TileCoord): number {

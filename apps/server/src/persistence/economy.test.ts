@@ -9,7 +9,7 @@ import {
   PersistenceIdempotencyConflictError,
   PersistenceVersionConflictError,
 } from "./adapter";
-import { economyPayloadHash, type EconomyStore } from "./economy";
+import { type EconomyStore, economyPayloadHash } from "./economy";
 import { InMemorySqlClient } from "./postgres/fake-sql-client";
 import { PostgresPersistenceAdapter } from "./postgres/postgres-adapter";
 
@@ -33,11 +33,7 @@ function snapshot(characterId: string, coins: number, savedAt = 1_700_000_000): 
   };
 }
 
-function ledger(
-  characterId: string,
-  quantity: number,
-  reason: string,
-): ItemTransactionAuditEvent {
+function ledger(characterId: string, quantity: number, reason: string): ItemTransactionAuditEvent {
   return { tick: 12, characterId, itemId: "coin", quantity, reason, metadata: {} };
 }
 

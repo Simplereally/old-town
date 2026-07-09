@@ -13,6 +13,7 @@ function registries(overrides: Partial<ContentClientRegistries> = {}): ContentCl
     dialogue: {},
     contract: {},
     material: {},
+    audio: {},
     ...overrides,
   } as ContentClientRegistries;
 }
@@ -198,5 +199,47 @@ describe("ContentClient", () => {
     expect(client.getAllSkills()).toEqual([]);
     expect(client.getAllSpells()).toEqual([]);
     expect(client.getAllQuests()).toEqual([]);
+  });
+
+  it("exposes audio definitions by id and category", async () => {
+    const data = registries({
+      audio: {
+        ui_click: {
+          id: "ui_click",
+          name: "UI Click",
+          category: "ui",
+          assetPath: "assets/audio/ui/click.ogg",
+          volume: 0.45,
+          loop: false,
+          fadeMs: 0,
+          zoneIds: [],
+          fallback: false,
+        },
+        door_open: {
+          id: "door_open",
+          name: "Door Open",
+          category: "action",
+          assetPath: "assets/audio/action/door_open.ogg",
+          volume: 0.55,
+          loop: false,
+          fadeMs: 0,
+          zoneIds: [],
+          fallback: false,
+        },
+      },
+    });
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      json: async () => data,
+    } as unknown as Response) as unknown as typeof fetch;
+
+    const client = new ContentClient();
+    await client.load("http://localhost:8080");
+
+    expect(client.getAudio("ui_click")?.category).toBe("ui");
+    expect(client.getAudioByCategory("action")).toHaveLength(1);
+    expect(Object.keys(client.getAllAudio())).toEqual(["ui_click", "door_open"]);
   });
 });

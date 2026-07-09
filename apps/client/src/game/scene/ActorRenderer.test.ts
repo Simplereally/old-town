@@ -2,7 +2,7 @@ import type { TileCoord } from "@old-town/shared";
 import { Direction, entityId } from "@old-town/shared";
 import { type MeshLambertMaterial, Scene } from "three";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ActorRenderer } from "./ActorRenderer";
+import { ActorRenderer, resolveActionPose } from "./ActorRenderer";
 
 const TILE: TileCoord = { x: 5, y: 5, plane: 0 };
 const ID1 = entityId(1);
@@ -32,6 +32,10 @@ describe("ActorRenderer", () => {
 
   it("starts with no actors", () => {
     expect(renderer.actorCount).toBe(0);
+  });
+
+  it("resolves the level-up content animation to a celebratory cast pose", () => {
+    expect(resolveActionPose("level_up")).toBe("cast");
   });
 
   it("spawns an actor", () => {

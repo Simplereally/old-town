@@ -27,9 +27,9 @@ Implement recipe selection UI, extend object interaction routing for all remaini
 
 ## Ordered stories
 
-- [X] `E37-S01` — [Recipe Selection Packet and UI](stories/E37/E37-S01_recipe-selection-packet-and-ui.md)
-- [X] `E37-S02` — [Extended Object Interaction Routing](stories/E37/E37-S02_extended-object-interaction-routing.md)
-- [X] `E37-S03` — [Trapping Action and Content Wiring](stories/E37/E37-S03_trapping-action-and-content-wiring.md)
+- [X] `E37-S01` — [Recipe Selection Packet and UI](../stories/E37/E37-S01_recipe-selection-packet-and-ui.md)
+- [X] `E37-S02` — [Extended Object Interaction Routing](../stories/E37/E37-S02_extended-object-interaction-routing.md)
+- [X] `E37-S03` — [Trapping Action and Content Wiring](../stories/E37/E37-S03_trapping-action-and-content-wiring.md)
 
 ## Epic acceptance criteria
 

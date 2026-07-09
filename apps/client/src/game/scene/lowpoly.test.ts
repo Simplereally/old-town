@@ -1,6 +1,6 @@
 import { BoxGeometry, BufferAttribute } from "three";
-import { describe, expect, it } from "vitest";
-import { compose, jitter, paint, PALETTE, type Part } from "./lowpoly";
+import { describe, expect, it, vi } from "vitest";
+import { compose, eyePart, jitter, PALETTE, type Part, paint, taperedBox } from "./lowpoly";
 
 describe("PALETTE", () => {
   it("exposes a non-empty set of named hex colors", () => {
@@ -61,11 +61,7 @@ describe("jitter", () => {
     const pb = b.getAttribute("position");
     let anyDiff = false;
     for (let i = 0; i < pa.count && !anyDiff; i += 1) {
-      if (
-        pa.getX(i) !== pb.getX(i) ||
-        pa.getY(i) !== pb.getY(i) ||
-        pa.getZ(i) !== pb.getZ(i)
-      ) {
+      if (pa.getX(i) !== pb.getX(i) || pa.getY(i) !== pb.getY(i) || pa.getZ(i) !== pb.getZ(i)) {
         anyDiff = true;
       }
     }
@@ -134,11 +130,78 @@ describe("compose", () => {
       "extra",
       new BufferAttribute(new Float32Array(g1.getAttribute("position").count), 1),
     );
-    expect(() =>
-      compose([
-        { geometry: g1, color: PALETTE.steel },
-        { geometry: g2, color: PALETTE.barkMid },
-      ]),
-    ).toThrow("lowpoly.compose: failed to merge geometries");
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      expect(() =>
+        compose([
+          { geometry: g1, color: PALETTE.steel },
+          { geometry: g2, color: PALETTE.barkMid },
+        ]),
+      ).toThrow("lowpoly.compose: failed to merge geometries");
+      expect(consoleError).toHaveBeenCalledOnce();
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
+});
+
+describe("taperedBox", () => {
+  it("returns a plain BoxGeometry when topScale is 1", () => {
+    const geo = taperedBox(1, 2, 1, 1);
+    const pos = geo.getAttribute("position");
+    // A default 1x2x1 box has x in [-0.5, 0.5]; tapering with scale 1 is a no-op.
+    let hasFullWidth = false;
+    for (let i = 0; i < pos.count; i += 1) {
+      if (Math.abs(pos.getX(i)) > 0.49) hasFullWidth = true;
+    }
+    expect(hasFullWidth).toBe(true);
+  });
+
+  it("widens the top face when topScale > 1", () => {
+    const geo = taperedBox(1, 2, 1, 2);
+    const pos = geo.getAttribute("position");
+    let topMaxX = -Infinity;
+    let bottomMaxX = 0;
+    for (let i = 0; i < pos.count; i += 1) {
+      const y = pos.getY(i);
+      const x = Math.abs(pos.getX(i));
+      if (y > 0) {
+        topMaxX = Math.max(topMaxX, x);
+      } else {
+        bottomMaxX = Math.max(bottomMaxX, x);
+      }
+    }
+    // Bottom stays at 0.5, top widens to 1.0.
+    expect(bottomMaxX).toBeCloseTo(0.5, 5);
+    expect(topMaxX).toBeCloseTo(1.0, 5);
+  });
+
+  it("narrows the top face when topScale < 1", () => {
+    const geo = taperedBox(1, 2, 1, 0.5);
+    const pos = geo.getAttribute("position");
+    let topMaxX = Infinity;
+    for (let i = 0; i < pos.count; i += 1) {
+      if (pos.getY(i) > 0) {
+        topMaxX = Math.min(topMaxX, Math.abs(pos.getX(i)));
+      }
+    }
+    // Top narrows from 0.5 to 0.25.
+    expect(topMaxX).toBeCloseTo(0.25, 5);
+  });
+});
+
+describe("eyePart", () => {
+  it("returns a Part positioned at the given coordinates with the default eye color", () => {
+    const eye = eyePart(0.1, 0.5, 0.3);
+    expect(eye.x).toBe(0.1);
+    expect(eye.y).toBe(0.5);
+    expect(eye.z).toBe(0.3);
+    expect(eye.color).toBe(PALETTE.shadow);
+    expect(eye.geometry.getAttribute("position").count).toBeGreaterThan(0);
+  });
+
+  it("accepts a custom color for glowing/red eyes", () => {
+    const eye = eyePart(0, 0, 0, PALETTE.ember);
+    expect(eye.color).toBe(PALETTE.ember);
   });
 });

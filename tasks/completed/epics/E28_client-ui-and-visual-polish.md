@@ -25,9 +25,9 @@ Implement the equipment appearance system and client visual polish: minimap, XP 
 
 ## Ordered stories
 
-- [X] `E28-S01` — [Equipment Appearance System](../completed/stories/E28/E28-S01_equipment-appearance-system.md)
-- [X] `E28-S02` — [Minimap Rendering](../completed/stories/E28/E28-S02_minimap-rendering.md)
-- [X] `E28-S03` — [XP Drop Visualization](../completed/stories/E28/E28-S03_xp-drop-visualization.md)
+- [X] `E28-S01` — [Equipment Appearance System](../stories/E28/E28-S01_equipment-appearance-system.md)
+- [X] `E28-S02` — [Minimap Rendering](../stories/E28/E28-S02_minimap-rendering.md)
+- [X] `E28-S03` — [XP Drop Visualization](../stories/E28/E28-S03_xp-drop-visualization.md)
 
 ## Epic acceptance criteria
 

@@ -176,6 +176,9 @@ function applyStartQuest(ctx: EffectContext, entityId: EntityId, questId: string
   const firstStage =
     quest.stages.filter((stage) => stage.stage > 0).toSorted((a, b) => a.stage - b.stage)[0]
       ?.stage ?? 1;
+  for (const variable of quest.variables ?? []) {
+    setVar(ctx, entityId, variable.key, variable.initialValue);
+  }
   setVar(ctx, entityId, questCompletedVarKey(quest), false);
   return { applied: setQuestStage(ctx, entityId, quest, firstStage) };
 }

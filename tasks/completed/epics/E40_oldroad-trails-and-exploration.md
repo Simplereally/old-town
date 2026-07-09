@@ -26,8 +26,8 @@ Oldroad Trails and Exploration. This epic addresses the remaining gaps in the Ol
 - [X] Move this epic file into `tasks/completed/epics/` after all stories are complete.
 
 ## Ordered stories
-- [X] `E40-S01` — [Oldroad Trail Schema and Discovery](stories/E40/E40-S01_oldroad-trail-schema-and-discovery.md)
-- [X] `E40-S02` — [Charter and Permit System](stories/E40/E40-S02_charter-and-permit-system.md)
+- [X] `E40-S01` — [Oldroad Trail Schema and Discovery](../stories/E40/E40-S01_oldroad-trail-schema-and-discovery.md)
+- [X] `E40-S02` — [Charter and Permit System](../stories/E40/E40-S02_charter-and-permit-system.md)
 
 ## Epic acceptance criteria
 

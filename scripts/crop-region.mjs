@@ -1,7 +1,7 @@
 // One-off visual crop helper: extract a rectangle from the menu sheet so it can
 // be Read/inspected at full resolution. Usage: node crop-region.mjs x y w h out.png
 import { readFileSync, writeFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import pkg from "pngjs";
 
@@ -11,7 +11,10 @@ const ROOT = resolve(__dirname, "..");
 const SHEET = resolve(ROOT, "apps/client/public/assets/ui/menu-sheet.png");
 
 const [, , xs, ys, ws, hs, out] = process.argv;
-const x = +xs, y = +ys, w = +ws, h = +hs;
+const x = +xs,
+  y = +ys,
+  w = +ws,
+  h = +hs;
 const src = PNG.sync.read(readFileSync(SHEET));
 const dst = new PNG({ width: w, height: h });
 for (let row = 0; row < h; row++) {

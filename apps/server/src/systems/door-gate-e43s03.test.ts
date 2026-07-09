@@ -1,5 +1,5 @@
-import { tileKey } from "@old-town/shared/types/coords";
 import type { EntityId, ObjectDef } from "@old-town/shared";
+import { tileKey } from "@old-town/shared/types/coords";
 import { describe, expect, it } from "vitest";
 import { createWorld, type World } from "../ecs/world";
 import { createInventory } from "../items/inventory";

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { regionId } from "../types/coords";
 import { entityId } from "../types/ids";
 import type { EntitySpawnPacket, EntityUpdatePacket } from "./entity-update";
+import { parseServerPacket, parseTransportServerPacket } from "./packet-schemas";
 import {
   decodeServerPacket,
   encodeServerPacket,
@@ -11,13 +12,12 @@ import {
   ServerPacketType,
   type TickDeltaPacket,
 } from "./packets";
-import { parseServerPacket, parseTransportServerPacket } from "./packet-schemas";
 import {
-  encodeTransportPacket,
-  TransportServerMessageType,
-  type PongPacket,
   type CommandRejectedPacket,
+  encodeTransportPacket,
+  type PongPacket,
   type TransportErrorPacket,
+  TransportServerMessageType,
 } from "./transport";
 
 const spawn: EntitySpawnPacket = {
@@ -65,6 +65,7 @@ const tickDelta: TickDeltaPacket = {
   chat: [{ text: "hello", channel: "public", serverTime: 1700000000600, entityId: entityId(42) }],
   hitsplats: [{ entityId: entityId(1), hitsplat: { amount: 4, type: "damage" } }],
   xpDrops: [{ skillId: "attack", amount: 16 }],
+  levelUps: [{ skillId: "attack", newLevel: 2 }],
   interfaceOpens: [
     {
       interfaceId: "dialogue",

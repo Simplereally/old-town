@@ -12,15 +12,18 @@ import { createWorld, type World } from "../ecs/world";
 import { count, createInventory } from "../items/inventory";
 import { ItemAuditLog } from "../items/item-audit";
 import { InterestManager } from "../net/interest-manager";
+import { ActionQueue } from "../sim/action-queue";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { makeRegistries } from "../test-support/registries";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
 import {
+  type BeginPickupPayload,
   DROP_PRIVATE_TICKS,
   dropInventoryOnDeath,
   GROUND_ITEM_DESPAWN_TICKS,
   type GroundItemSystemContext,
+  handleBeginPickup,
   handleGroundItemIntent,
   processDeathResolution,
   processGroundItemLifecycle,
@@ -177,6 +180,7 @@ function setup(rng: Rng = fixedRng([1, 2])) {
   const collision = new CollisionMap(map);
   const deltas = new DeltaAccumulator();
   const itemAudit = new ItemAuditLog();
+  const actionQueue = new ActionQueue();
   const ctx: GroundItemSystemContext = {
     world,
     collision,
@@ -184,8 +188,26 @@ function setup(rng: Rng = fixedRng([1, 2])) {
     registries: registries(),
     rng,
     itemAudit,
+    actionQueue,
   };
-  return { ctx, world, deltas, itemAudit };
+  return { ctx, world, deltas, itemAudit, actionQueue };
+}
+
+function pollBeginPickup(
+  ctx: GroundItemSystemContext,
+  actionQueue: ActionQueue,
+  tick: number,
+  serverTime: number,
+): void {
+  const execution = actionQueue.advanceTick()[0];
+  if (!execution) throw new Error("expected a queued begin_pickup execution");
+  handleBeginPickup(
+    ctx,
+    execution,
+    execution.entry.payload as BeginPickupPayload,
+    tick,
+    serverTime,
+  );
 }
 
 describe("ground item and drop system", () => {
@@ -272,6 +294,68 @@ describe("ground item and drop system", () => {
       6_600,
     );
     expect(count(inventory, "coin")).toBe(5);
+  });
+
+  it("walks to a distant ground item and picks it up on arrival", () => {
+    const { ctx, world, deltas, actionQueue } = setup();
+    const owner = addPlayer(world, 0, 0);
+    const groundItem = spawnGroundItem(ctx, "coin", 5, { x: 3, y: 3, plane: 0 }, { tick: 10 });
+    if (groundItem === undefined) throw new Error("ground item was not spawned");
+    deltas.consume(10, 6_000);
+
+    expect(
+      handleGroundItemIntent(
+        ctx,
+        owner,
+        { groundItemEntityId: groundItem, actionId: "pickup" },
+        10,
+        6_000,
+      ),
+    ).toBe(true);
+
+    // No rejection message; the actor paths toward the item with a pending poll.
+    expect(deltas.peek().chat).toBeUndefined();
+    const movement = world.getComponent(owner, "movement");
+    expect(movement?.path.length).toBeGreaterThan(0);
+    const queued = actionQueue.getDebugState();
+    expect(queued.some((q) => (q.payload as { kind?: string }).kind === "begin_pickup")).toBe(true);
+
+    // Poll before arrival: nothing happens, the poll stays queued.
+    pollBeginPickup(ctx, actionQueue, 11, 6_600);
+    expect(world.isAlive(groundItem)).toBe(true);
+    expect(actionQueue.getDebugState()).toHaveLength(1);
+
+    // Arrive on the item's tile: the next poll completes the pickup.
+    world.setComponent(owner, "position", { entityId: owner, x: 3, y: 3, plane: 0 });
+    pollBeginPickup(ctx, actionQueue, 12, 7_200);
+
+    const inventory = world.getComponent(owner, "inventory");
+    if (!inventory) throw new Error("missing inventory");
+    expect(count(inventory, "coin")).toBe(5);
+    expect(world.isAlive(groundItem)).toBe(false);
+    expect(actionQueue.getDebugState()).toEqual([]);
+  });
+
+  it("cancels the pickup approach when the item vanishes mid-walk", () => {
+    const { ctx, world, deltas, actionQueue } = setup();
+    const owner = addPlayer(world, 0, 0);
+    const groundItem = spawnGroundItem(ctx, "coin", 5, { x: 3, y: 3, plane: 0 }, { tick: 10 });
+    if (groundItem === undefined) throw new Error("ground item was not spawned");
+    deltas.consume(10, 6_000);
+
+    handleGroundItemIntent(
+      ctx,
+      owner,
+      { groundItemEntityId: groundItem, actionId: "pickup" },
+      10,
+      6_000,
+    );
+    world.destroyEntity(groundItem);
+
+    pollBeginPickup(ctx, actionQueue, 11, 6_600);
+
+    expect(actionQueue.getDebugState()).toEqual([]);
+    expect(deltas.peek().chat?.[0]?.text).toBe("That item is no longer there.");
   });
 
   it("blocks non-owner pickup before public reveal", () => {

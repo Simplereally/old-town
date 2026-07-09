@@ -36,11 +36,24 @@ export const PLACEHOLDER_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponen
 /**
  * Icon atlas client. Loaded once at startup alongside `ContentClient.load`.
  * Resolution is synchronous after load so UI re-renders never await.
+ *
+ * Two atlases are supported:
+ * 1. The SVG sprite sheet (`atlas-0.svg` + `atlas-index.json`) — composed from
+ *    silhouette + tier palette by `items:build-assets`.
+ * 2. A raster PNG sprite sheet (`atlas-png-0.png` + `atlas-png-index.json`) —
+ *    packed from Blender-rendered icons by `icons:pack-png`.
+ *
+ * Both atlases share the same `AtlasIndex` format. PNG cells take precedence
+ * over SVG cells when an icon id exists in both, so Blender-rendered icons
+ * override the procedural SVG ones transparently.
  */
 export class IconAtlas {
   private _index: AtlasIndex | undefined;
   private _atlasUrl = "";
   private _ready = false;
+  /** Raster PNG atlas cells, keyed by icon AssetId. */
+  private _pngCells: Record<string, AtlasCell> | undefined;
+  private _pngAtlasUrl = "";
 
   get ready(): boolean {
     return this._ready;
@@ -74,13 +87,36 @@ export class IconAtlas {
     } catch {
       // Non-fatal: placeholders will render.
     }
+
+    // Load the raster PNG atlas (optional — non-fatal if absent).
+    const pngIndexUrl = new URL("/assets/items/atlases/atlas-png-index.json", base);
+    try {
+      const pngResp = await fetch(pngIndexUrl.toString());
+      if (pngResp.ok) {
+        const pngData = (await pngResp.json()) as AtlasIndex;
+        if (pngData && typeof pngData.cellSize === "number" && pngData.cells) {
+          this._pngCells = pngData.cells;
+          this._pngAtlasUrl = new URL(`/assets/items/atlases/${pngData.atlas}`, base).toString();
+        }
+      }
+    } catch {
+      // Non-fatal: SVG atlas alone is sufficient.
+    }
   }
 
   /**
-   * Resolve an `icon` AssetId to an atlas cell. Returns `null` when the atlas
-   * is not loaded or the AssetId is absent — callers render the placeholder.
+   * Resolve an `icon` AssetId to an atlas cell. Returns `null` when no atlas
+   * is loaded or the AssetId is absent — callers render the placeholder.
+   *
+   * PNG (Blender-rendered) cells take precedence over SVG cells.
    */
   resolveIcon(assetId: string): ResolvedIcon | null {
+    if (this._pngCells && this._pngAtlasUrl) {
+      const pngCell = this._pngCells[assetId];
+      if (pngCell) {
+        return { atlasUrl: this._pngAtlasUrl, cell: pngCell, cellSize: 64 };
+      }
+    }
     if (!this._index || !this._atlasUrl) return null;
     const cell = this._index.cells[assetId];
     if (!cell) return null;

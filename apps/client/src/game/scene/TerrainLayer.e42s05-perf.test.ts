@@ -49,7 +49,14 @@ function createChunk(cx: number, cy: number, tiles: ChunkData["tiles"]): ChunkDa
 
 /** Generate an 8x8 chunk with mixed materials simulating a real district boundary. */
 function mixedChunk(cx: number, cy: number): ChunkData {
-  const tiles: Array<{ x: number; y: number; height: number; underlayId: string; collision: number; water?: boolean }> = [];
+  const tiles: Array<{
+    x: number;
+    y: number;
+    height: number;
+    underlayId: string;
+    collision: number;
+    water?: boolean;
+  }> = [];
   for (let dx = 0; dx < 8; dx++) {
     for (let dy = 0; dy < 8; dy++) {
       const x = cx * 8 + dx;
@@ -112,7 +119,14 @@ describe("E42-S05 — Terrain performance budget", () => {
   });
 
   it("water adds at most 1 additional draw call per chunk", () => {
-    const tiles: Array<{ x: number; y: number; height: number; underlayId: string; collision: number; water?: boolean }> = [];
+    const tiles: Array<{
+      x: number;
+      y: number;
+      height: number;
+      underlayId: string;
+      collision: number;
+      water?: boolean;
+    }> = [];
     for (let dx = 0; dx < 8; dx++) {
       for (let dy = 0; dy < 8; dy++) {
         const isWater = dx >= 4;

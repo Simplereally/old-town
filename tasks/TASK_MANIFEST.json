@@ -1323,143 +1323,627 @@
     {
       "id": "E45",
       "title": "Old Town Core Gameplay Loop",
-      "file": "epics/E45_old-town-core-gameplay-loop.md",
+      "file": "completed/epics/E45_old-town-core-gameplay-loop.md",
       "stories": [
         {
           "id": "E45-S01",
           "title": "Starter spawn point and first-load bootstrap",
-          "file": "stories/E45/E45-S01_starter-spawn-point-and-first-load-bootstrap.md"
+          "file": "completed/stories/E45/E45-S01_starter-spawn-point-and-first-load-bootstrap.md"
         },
         {
           "id": "E45-S02",
           "title": "Woodcutting and mining loops in the starter region",
-          "file": "stories/E45/E45-S02_woodcutting-and-mining-loops-in-the-starter-region.md"
+          "file": "completed/stories/E45/E45-S02_woodcutting-and-mining-loops-in-the-starter-region.md"
         },
         {
           "id": "E45-S03",
           "title": "Smithing, cooking, and crafting processing loops",
-          "file": "stories/E45/E45-S03_smithing-cooking-and-crafting-processing-loops.md"
+          "file": "completed/stories/E45/E45-S03_smithing-cooking-and-crafting-processing-loops.md"
         },
         {
           "id": "E45-S04",
           "title": "Combat loop against cellar rats and mud goblins",
-          "file": "stories/E45/E45-S04_combat-loop-against-cellar-rats-and-mud-goblins.md"
+          "file": "completed/stories/E45/E45-S04_combat-loop-against-cellar-rats-and-mud-goblins.md"
         },
         {
           "id": "E45-S05",
           "title": "XP drops, level-ups, and skill panel wiring",
-          "file": "stories/E45/E45-S05_xp-drops-level-ups-and-skill-panel-wiring.md"
+          "file": "completed/stories/E45/E45-S05_xp-drops-level-ups-and-skill-panel-wiring.md"
         },
         {
           "id": "E45-S06",
           "title": "End-to-end integration smoke test",
-          "file": "stories/E45/E45-S06_end-to-end-integration-smoke-test.md"
+          "file": "completed/stories/E45/E45-S06_end-to-end-integration-smoke-test.md"
         }
       ]
     },
     {
       "id": "E46",
       "title": "Smoke Over Old Town Quest End-to-End",
-      "file": "epics/E46_smoke-over-old-town-quest-end-to-end.md",
+      "file": "completed/epics/E46_smoke-over-old-town-quest-end-to-end.md",
       "stories": [
         {
           "id": "E46-S01",
           "title": "Quest content and variable schema",
-          "file": "stories/E46/E46-S01_quest-content-and-variable-schema.md"
+          "file": "completed/stories/E46/E46-S01_quest-content-and-variable-schema.md"
         },
         {
           "id": "E46-S02",
           "title": "Baker dialogue and quest start hook",
-          "file": "stories/E46/E46-S02_baker-dialogue-and-quest-start-hook.md"
+          "file": "completed/stories/E46/E46-S02_baker-dialogue-and-quest-start-hook.md"
         },
         {
           "id": "E46-S03",
           "title": "Gather, kill, and light objectives",
-          "file": "stories/E46/E46-S03_gather-kill-and-light-objectives.md"
+          "file": "completed/stories/E46/E46-S03_gather-kill-and-light-objectives.md"
         },
         {
           "id": "E46-S04",
           "title": "Quest rewards and completion",
-          "file": "stories/E46/E46-S04_quest-rewards-and-completion.md"
+          "file": "completed/stories/E46/E46-S04_quest-rewards-and-completion.md"
         },
         {
           "id": "E46-S05",
           "title": "Quest journal UI and end-to-end test",
-          "file": "stories/E46/E46-S05_quest-journal-ui-and-end-to-end-test.md"
+          "file": "completed/stories/E46/E46-S05_quest-journal-ui-and-end-to-end-test.md"
         }
       ]
     },
     {
       "id": "E47",
       "title": "Old Town Audio, Atmosphere, and UI Juice",
-      "file": "epics/E47_old-town-audio-atmosphere-and-ui-juice.md",
+      "file": "completed/epics/E47_old-town-audio-atmosphere-and-ui-juice.md",
       "stories": [
+        {
+          "id": "E47-S00",
+          "title": "Audio content pipeline and client exposure",
+          "file": "completed/stories/E47/E47-S00_audio-content-pipeline-and-client-exposure.md"
+        },
         {
           "id": "E47-S01",
           "title": "Ambient sound and district audio manager",
-          "file": "stories/E47/E47-S01_ambient-sound-and-district-audio-manager.md"
+          "file": "completed/stories/E47/E47-S01_ambient-sound-and-district-audio-manager.md"
         },
         {
           "id": "E47-S02",
-          "title": "UI and action sound effects",
-          "file": "stories/E47/E47-S02_ui-and-action-sound-effects.md"
+          "title": "UI and packet audio cues",
+          "file": "completed/stories/E47/E47-S02_ui-and-action-sound-effects.md"
         },
         {
           "id": "E47-S03",
           "title": "Lighting, shadows, and day/night foundation",
-          "file": "stories/E47/E47-S03_lighting-shadows-and-day-night-foundation.md"
+          "file": "completed/stories/E47/E47-S03_lighting-shadows-and-day-night-foundation.md"
         },
         {
           "id": "E47-S04",
-          "title": "Hitsplats, XP drops, and selection rings",
-          "file": "stories/E47/E47-S04_hitsplats-xp-drops-and-selection-rings.md"
+          "title": "Feedback polish and selection rings",
+          "file": "completed/stories/E47/E47-S04_feedback-polish-and-selection-rings.md"
         },
         {
           "id": "E47-S05",
           "title": "Atmosphere validation and performance pass",
-          "file": "stories/E47/E47-S05_atmosphere-validation-and-performance-pass.md"
+          "file": "completed/stories/E47/E47-S05_atmosphere-validation-and-performance-pass.md"
         }
       ]
     },
     {
       "id": "E48",
       "title": "Wire Validation for Server-to-Client Protocol",
-      "file": "epics/E48_wire-validation-for-s2c-protocol.md",
+      "file": "completed/epics/E48_wire-validation-for-s2c-protocol.md",
       "stories": [
         {
           "id": "E48-S01",
           "title": "S2C packet Zod schemas",
-          "file": "stories/E48/E48-S01_s2c-packet-zod-schemas.md"
+          "file": "completed/stories/E48/E48-S01_s2c-packet-zod-schemas.md"
         },
         {
           "id": "E48-S02",
           "title": "Validated server packet decoder",
-          "file": "stories/E48/E48-S02_validated-server-packet-decoder.md"
+          "file": "completed/stories/E48/E48-S02_validated-server-packet-decoder.md"
         },
         {
           "id": "E48-S03",
           "title": "DevAuth and transport message Zod validation",
-          "file": "stories/E48/E48-S03_devauth-and-transport-message-zod-validation.md"
+          "file": "completed/stories/E48/E48-S03_devauth-and-transport-message-zod-validation.md"
         },
         {
           "id": "E48-S04",
           "title": "Client GameSocket validated decoder integration",
-          "file": "stories/E48/E48-S04_client-gamesocket-validated-decoder-integration.md"
+          "file": "completed/stories/E48/E48-S04_client-gamesocket-validated-decoder-integration.md"
         },
         {
           "id": "E48-S05",
           "title": "Content registry HTTP response validation",
-          "file": "stories/E48/E48-S05_content-registry-http-response-validation.md"
+          "file": "completed/stories/E48/E48-S05_content-registry-http-response-validation.md"
         },
         {
           "id": "E48-S06",
           "title": "HTTP URL decoupling from WebSocket URL",
-          "file": "stories/E48/E48-S06_http-url-decoupling-from-websocket-url.md"
+          "file": "completed/stories/E48/E48-S06_http-url-decoupling-from-websocket-url.md"
         },
         {
           "id": "E48-S07",
           "title": "Wire validation policy ADR and final validation pass",
-          "file": "stories/E48/E48-S07_wire-validation-policy-adr-and-final-validation-pass.md"
+          "file": "completed/stories/E48/E48-S07_wire-validation-policy-adr-and-final-validation-pass.md"
+        }
+      ]
+    },
+    {
+      "id": "E49",
+      "title": "Unified Weapon and Equipment Attachment Rig",
+      "file": "completed/epics/E49_unified-weapon-and-equipment-attachment-rig.md",
+      "stories": [
+        {
+          "id": "E49-S01",
+          "title": "Hand sockets on the humanoid rig",
+          "file": "completed/stories/E49/E49-S01_hand-sockets-on-the-humanoid-rig.md"
+        },
+        {
+          "id": "E49-S02",
+          "title": "Reparent weapons to hand sockets with data-driven grips",
+          "file": "completed/stories/E49/E49-S02_reparent-weapons-to-hand-sockets-with-data-driven-grips.md"
+        },
+        {
+          "id": "E49-S03",
+          "title": "Shields and off-hand attachments on sockets",
+          "file": "completed/stories/E49/E49-S03_shields-and-off-hand-attachments-on-sockets.md"
+        },
+        {
+          "id": "E49-S04",
+          "title": "Shoulder-pivot arms and weapon-carrying animations",
+          "file": "completed/stories/E49/E49-S04_shoulder-pivot-arms-and-weapon-carrying-animations.md"
+        },
+        {
+          "id": "E49-S05",
+          "title": "Attachment regression suite and legacy path removal",
+          "file": "completed/stories/E49/E49-S05_attachment-regression-suite-and-legacy-path-removal.md"
+        }
+      ]
+    },
+    {
+      "id": "E50",
+      "title": "Test Suite Performance and Quality Gates",
+      "file": "completed/epics/E50_test-suite-performance-and-quality-gates.md",
+      "stories": [
+        {
+          "id": "E50-S01",
+          "title": "Test-suite profiling and committed baseline",
+          "file": "completed/stories/E50/E50-S01_test-suite-profiling-and-committed-baseline.md"
+        },
+        {
+          "id": "E50-S02",
+          "title": "Deterministic tests: kill real timers and real sockets",
+          "file": "completed/stories/E50/E50-S02_deterministic-tests-kill-real-timers-and-real-sockets.md"
+        },
+        {
+          "id": "E50-S03",
+          "title": "Two-lane vitest projects split",
+          "file": "completed/stories/E50/E50-S03_two-lane-vitest-projects-split.md"
+        },
+        {
+          "id": "E50-S04",
+          "title": "CI pipeline and enforced quality gates",
+          "file": "completed/stories/E50/E50-S04_ci-pipeline-and-enforced-quality-gates.md"
+        }
+      ]
+    },
+    {
+      "id": "E51",
+      "title": "Accounts, Login, and Durable Characters",
+      "file": "epics/E51_accounts-login-and-durable-characters.md",
+      "stories": [
+        {
+          "id": "E51-S01",
+          "title": "Auth protocol types and pre-auth gate",
+          "file": "stories/E51/E51-S01_auth-protocol-types-and-pre-auth-gate.md"
+        },
+        {
+          "id": "E51-S02",
+          "title": "Server account store and login handshake",
+          "file": "stories/E51/E51-S02_server-account-store-and-login-handshake.md"
+        },
+        {
+          "id": "E51-S03",
+          "title": "Autosave, dirty triggers, and shutdown flush",
+          "file": "stories/E51/E51-S03_autosave-dirty-triggers-and-shutdown-flush.md"
+        },
+        {
+          "id": "E51-S04",
+          "title": "Disconnect grace and session resume",
+          "file": "stories/E51/E51-S04_disconnect-grace-and-session-resume.md"
+        },
+        {
+          "id": "E51-S05",
+          "title": "Client login screen and persistence e2e",
+          "file": "stories/E51/E51-S05_client-login-screen-and-persistence-e2e.md"
+        }
+      ]
+    },
+    {
+      "id": "E52",
+      "title": "Armour and NPC GLB Visual Pipeline",
+      "file": "epics/E52_armour-and-npc-glb-visual-pipeline.md",
+      "stories": [
+        {
+          "id": "E52-S01",
+          "title": "Armour GLB asset generation pipeline",
+          "file": "stories/E52/E52-S01_armour-glb-asset-generation-pipeline.md"
+        },
+        {
+          "id": "E52-S02",
+          "title": "ArmourGltfLoader and runtime override",
+          "file": "stories/E52/E52-S02_armour-gltf-loader-and-runtime-override.md"
+        },
+        {
+          "id": "E52-S03",
+          "title": "Starter creature GLB bodies",
+          "file": "stories/E52/E52-S03_starter-creature-glb-bodies.md"
+        },
+        {
+          "id": "E52-S04",
+          "title": "Render settings expansion and performance gate",
+          "file": "stories/E52/E52-S04_render-settings-expansion-and-performance-gate.md"
+        }
+      ]
+    },
+    {
+      "id": "E53",
+      "title": "Unique Building GLB Pipeline",
+      "file": "epics/E53_unique-building-glb-pipeline.md",
+      "stories": [
+        {
+          "id": "E53-S01",
+          "title": "Building object defs and procedural fallback archetypes",
+          "file": "stories/E53/E53-S01_building-object-defs-and-procedural-fallback-archetypes.md"
+        },
+        {
+          "id": "E53-S02",
+          "title": "Blender building generator and copy script",
+          "file": "completed/stories/E53/E53-S02_blender-building-generator-and-copy-script.md"
+        },
+        {
+          "id": "E53-S03",
+          "title": "BuildingGltfLoader and ObjectRenderer GLB preference",
+          "file": "stories/E53/E53-S03_building-gltf-loader-and-objectrenderer-glb-preference.md"
+        },
+        {
+          "id": "E53-S04",
+          "title": "Building pipeline tests and performance gate",
+          "file": "stories/E53/E53-S04_building-pipeline-tests-and-performance-gate.md"
+        }
+      ]
+    },
+    {
+      "id": "E54",
+      "title": "Terrain, Water, and Natural Features",
+      "file": "epics/E54_terrain-water-and-natural-features.md",
+      "stories": [
+        {
+          "id": "E54-S01",
+          "title": "Material palette retune and additions",
+          "file": "stories/E54/E54-S01_material-palette-retune-and-additions.md"
+        },
+        {
+          "id": "E54-S02",
+          "title": "Baked terrain textures in TerrainLayer",
+          "file": "stories/E54/E54-S02_baked-terrain-textures-in-terrainlayer.md"
+        },
+        {
+          "id": "E54-S03",
+          "title": "Map generator: terrain feature authoring support",
+          "file": "stories/E54/E54-S03_map-generator-terrain-feature-authoring-support.md"
+        },
+        {
+          "id": "E54-S04",
+          "title": "River, bridge, and elevation carving",
+          "file": "stories/E54/E54-S04_river-bridge-and-elevation-carving.md"
+        }
+      ]
+    },
+    {
+      "id": "E55",
+      "title": "District Layout and Placement Overhaul",
+      "file": "epics/E55_district-layout-and-placement-overhaul.md",
+      "stories": [
+        {
+          "id": "E55-S01",
+          "title": "Town core districts and the Oldroad spine",
+          "file": "stories/E55/E55-S01_town-core-districts-and-the-oldroad-spine.md"
+        },
+        {
+          "id": "E55-S02",
+          "title": "River Stoop and Gravegate",
+          "file": "stories/E55/E55-S02_river-stoop-and-gravegate.md"
+        },
+        {
+          "id": "E55-S03",
+          "title": "Chalkhouse Court, Warden Steps, and residential fill",
+          "file": "stories/E55/E55-S03_chalkhouse-court-warden-steps-and-residential-fill.md"
+        },
+        {
+          "id": "E55-S04",
+          "title": "Collision pass, content fills, and full-town acceptance",
+          "file": "stories/E55/E55-S04_collision-pass-content-fills-and-full-town-acceptance.md"
+        }
+      ]
+    },
+    {
+      "id": "E56",
+      "title": "Deterministic Simulation Replay and Incident Time-Travel",
+      "file": "epics/E56_deterministic-simulation-replay.md",
+      "stories": [
+        {
+          "id": "E56-S01",
+          "title": "Determinism audit and nondeterminism fences",
+          "file": "stories/E56/E56-S01_determinism-audit-and-nondeterminism-fences.md"
+        },
+        {
+          "id": "E56-S02",
+          "title": "Input journal: record every command, session event, and boot fingerprint",
+          "file": "stories/E56/E56-S02_input-journal.md"
+        },
+        {
+          "id": "E56-S03",
+          "title": "Replay harness with state hashing and divergence bisect",
+          "file": "stories/E56/E56-S03_replay-harness-and-divergence-bisect.md"
+        },
+        {
+          "id": "E56-S04",
+          "title": "Golden replay regression suite in CI",
+          "file": "stories/E56/E56-S04_golden-replay-regression-suite.md"
+        },
+        {
+          "id": "E56-S05",
+          "title": "Time-travel inspection tooling and the RCA runbook",
+          "file": "stories/E56/E56-S05_time-travel-tooling-and-rca-runbook.md"
+        }
+      ]
+    },
+    {
+      "id": "E57",
+      "title": "Player-to-Player Trading",
+      "file": "epics/E57_player-to-player-trading.md",
+      "stories": [
+        {
+          "id": "E57-S01",
+          "title": "Trade protocol, session state machine, and validation rules",
+          "file": "stories/E57/E57-S01_trade-protocol-state-machine-and-validation.md"
+        },
+        {
+          "id": "E57-S02",
+          "title": "Server trade engine and atomic settlement",
+          "file": "stories/E57/E57-S02_server-trade-engine-and-atomic-settlement.md"
+        },
+        {
+          "id": "E57-S03",
+          "title": "Client trade UI with anti-scam affordances",
+          "file": "stories/E57/E57-S03_client-trade-ui.md"
+        },
+        {
+          "id": "E57-S04",
+          "title": "Adversarial hardening and end-to-end suite",
+          "file": "stories/E57/E57-S04_adversarial-hardening-and-e2e.md"
+        }
+      ]
+    },
+    {
+      "id": "E58",
+      "title": "Social Fabric: Friends, Private Messages, Channels, Presence",
+      "file": "epics/E58_social-fabric.md",
+      "stories": [
+        {
+          "id": "E58-S01",
+          "title": "Social protocol, storage, and the relationship service",
+          "file": "stories/E58/E58-S01_social-protocol-storage-relationship-service.md"
+        },
+        {
+          "id": "E58-S02",
+          "title": "Presence and private messages",
+          "file": "stories/E58/E58-S02_presence-and-private-messages.md"
+        },
+        {
+          "id": "E58-S03",
+          "title": "Channels: global and trade, with moderation reuse",
+          "file": "stories/E58/E58-S03_channels-global-and-trade.md"
+        },
+        {
+          "id": "E58-S04",
+          "title": "Client: chat tabs, friends panel, and social context-menu actions",
+          "file": "stories/E58/E58-S04_client-chat-tabs-friends-panel-context-actions.md"
+        }
+      ]
+    },
+    {
+      "id": "E59",
+      "title": "Run Energy, Item Weight, and the Stamina Economy",
+      "file": "epics/E59_run-energy-weight-and-stamina-economy.md",
+      "stories": [
+        {
+          "id": "E59-S01",
+          "title": "Energy and weight components, drain/regen model, persistence",
+          "file": "stories/E59/E59-S01_energy-weight-components-drain-regen-persistence.md"
+        },
+        {
+          "id": "E59-S02",
+          "title": "Run-toggle intent, forced-walk enforcement, and client energy orb",
+          "file": "stories/E59/E59-S02_run-toggle-intent-forced-walk-and-energy-orb.md"
+        },
+        {
+          "id": "E59-S03",
+          "title": "Apothecary products: energy and stamina potions end-to-end",
+          "file": "stories/E59/E59-S03_apothecary-energy-and-stamina-potions.md"
+        },
+        {
+          "id": "E59-S04",
+          "title": "Balance pass, content audit, and integration suite",
+          "file": "stories/E59/E59-S04_balance-pass-content-audit-and-integration-suite.md"
+        }
+      ]
+    },
+    {
+      "id": "E60",
+      "title": "Observability and Operations Surface",
+      "file": "epics/E60_observability-and-operations-surface.md",
+      "stories": [
+        {
+          "id": "E60-S01",
+          "title": "Per-phase tick profiler and expanded kernel stats",
+          "file": "stories/E60/E60-S01_per-phase-tick-profiler-and-expanded-stats.md"
+        },
+        {
+          "id": "E60-S02",
+          "title": "Per-session bandwidth and delta-path truth metrics",
+          "file": "stories/E60/E60-S02_per-session-bandwidth-and-delta-truth-metrics.md"
+        },
+        {
+          "id": "E60-S03",
+          "title": "HTTP stats and health surface",
+          "file": "stories/E60/E60-S03_http-stats-and-health-surface.md"
+        },
+        {
+          "id": "E60-S04",
+          "title": "Admin commands with audit trail",
+          "file": "stories/E60/E60-S04_admin-commands-with-audit-trail.md"
+        }
+      ]
+    },
+    {
+      "id": "E61",
+      "title": "Scale Proving: Bot Fleet, Baselines, and the Delta-Path Diet",
+      "file": "epics/E61_scale-proving-bot-fleet-and-delta-path.md",
+      "stories": [
+        {
+          "id": "E61-S01",
+          "title": "Bot fleet harness: scripted real-socket players",
+          "file": "stories/E61/E61-S01_bot-fleet-harness.md"
+        },
+        {
+          "id": "E61-S02",
+          "title": "Baseline measurement campaign and the scaling report",
+          "file": "stories/E61/E61-S02_baseline-measurement-campaign.md"
+        },
+        {
+          "id": "E61-S03",
+          "title": "Delta-path optimizations driven by the measurements",
+          "file": "stories/E61/E61-S03_delta-path-optimizations.md"
+        },
+        {
+          "id": "E61-S04",
+          "title": "Capacity regression lane and load-test runbook",
+          "file": "stories/E61/E61-S04_capacity-regression-lane-and-runbook.md"
+        }
+      ]
+    },
+    {
+      "id": "E62",
+      "title": "Save and Content Safety: Snapshot Migrations and Content-ID Lifecycle",
+      "file": "epics/E62_snapshot-migrations-and-content-id-lifecycle.md",
+      "stories": [
+        {
+          "id": "E62-S01",
+          "title": "Migration chain framework and the version-fixture corpus",
+          "file": "stories/E62/E62-S01_migration-chain-framework-and-fixtures.md"
+        },
+        {
+          "id": "E62-S02",
+          "title": "Content-id lifecycle: aliases, tombstones, and load-time resolution",
+          "file": "stories/E62/E62-S02_content-id-lifecycle-aliases-and-tombstones.md"
+        },
+        {
+          "id": "E62-S03",
+          "title": "Adapter integration: migrate-on-load with atomic write-back",
+          "file": "stories/E62/E62-S03_adapter-integration-migrate-on-load-atomic-writeback.md"
+        },
+        {
+          "id": "E62-S04",
+          "title": "Guard rails: CI enforcement and the schema-change playbook",
+          "file": "stories/E62/E62-S04_ci-enforcement-and-schema-change-playbook.md"
+        }
+      ]
+    },
+    {
+      "id": "E63",
+      "title": "Living World: Clock, Schedules, Ambient Behavior, and World Events",
+      "file": "epics/E63_living-world-clock-schedules-ambient-events.md",
+      "stories": [
+        {
+          "id": "E63-S01",
+          "title": "World clock and day-phase protocol",
+          "file": "stories/E63/E63-S01_world-clock-and-day-phase-protocol.md"
+        },
+        {
+          "id": "E63-S02",
+          "title": "NPC schedules and shop hours",
+          "file": "stories/E63/E63-S02_npc-schedules-and-shop-hours.md"
+        },
+        {
+          "id": "E63-S03",
+          "title": "Ambient barks",
+          "file": "stories/E63/E63-S03_ambient-barks.md"
+        },
+        {
+          "id": "E63-S04",
+          "title": "World-event framework and two shipped events",
+          "file": "stories/E63/E63-S04_world-event-framework-and-two-events.md"
+        }
+      ]
+    },
+    {
+      "id": "E64",
+      "title": "First Session: Guided Onboarding",
+      "file": "epics/E64_first-session-guided-onboarding.md",
+      "stories": [
+        {
+          "id": "E64-S01",
+          "title": "Onboarding quest content and trigger coverage audit",
+          "file": "stories/E64/E64-S01_onboarding-quest-content-and-trigger-audit.md"
+        },
+        {
+          "id": "E64-S02",
+          "title": "The guide NPC and greeting flow",
+          "file": "stories/E64/E64-S02_guide-npc-and-greeting-flow.md"
+        },
+        {
+          "id": "E64-S03",
+          "title": "Client nudges: hint line and target highlight",
+          "file": "stories/E64/E64-S03_client-nudges-hint-line-and-target-highlight.md"
+        },
+        {
+          "id": "E64-S04",
+          "title": "First-session acceptance run and polish",
+          "file": "stories/E64/E64-S04_first-session-acceptance-run-and-polish.md"
+        }
+      ]
+    },
+    {
+      "id": "E65",
+      "title": "Client Architecture: Decomposing the God Files",
+      "file": "epics/E65_client-architecture-decomposing-god-files.md",
+      "stories": [
+        {
+          "id": "E65-S01",
+          "title": "Seam map and boundary contract for both god files",
+          "file": "stories/E65/E65-S01_seam-map-and-boundary-contract.md"
+        },
+        {
+          "id": "E65-S02",
+          "title": "ActorRenderer decomposition: materials and armour visuals",
+          "file": "stories/E65/E65-S02_actorrenderer-materials-and-armour.md"
+        },
+        {
+          "id": "E65-S03",
+          "title": "ActorRenderer decomposition: pooling and animation/equipment",
+          "file": "stories/E65/E65-S03_actorrenderer-pooling-and-animation.md"
+        },
+        {
+          "id": "E65-S04",
+          "title": "UIManager decomposition: panel registry and per-panel modules",
+          "file": "stories/E65/E65-S04_uimanager-panel-registry.md"
+        },
+        {
+          "id": "E65-S05",
+          "title": "Boundary guards, GameEngine wiring pass, and the regression sweep",
+          "file": "stories/E65/E65-S05_boundary-guards-wiring-pass-regression-sweep.md"
         }
       ]
     }

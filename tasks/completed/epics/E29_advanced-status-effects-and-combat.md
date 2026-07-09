@@ -25,8 +25,8 @@ Implement advanced status effects (poison, burn, freeze, buffs/debuffs) and drop
 
 ## Ordered stories
 
-- [X] `E29-S01` — [Advanced Status Effect System](completed/stories/E29/E29-S01_advanced-status-effect-system.md)
-- [X] `E29-S02` — [Drop Table Rarity and Conditionals](completed/stories/E29/E29-S02_drop-table-rarity-and-conditionals.md)
+- [X] `E29-S01` — [Advanced Status Effect System](../stories/E29/E29-S01_advanced-status-effect-system.md)
+- [X] `E29-S02` — [Drop Table Rarity and Conditionals](../stories/E29/E29-S02_drop-table-rarity-and-conditionals.md)
 
 ## Epic acceptance criteria
 

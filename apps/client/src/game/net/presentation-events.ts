@@ -32,7 +32,11 @@ export type PresentationEvent =
   | { readonly type: "region.unload"; readonly payload: { readonly regionId: string } }
   | {
       readonly type: "objects.spawn";
-      readonly payload: { readonly entityId: number; readonly tile: TileCoord; readonly defId: string };
+      readonly payload: {
+        readonly entityId: number;
+        readonly tile: TileCoord;
+        readonly defId: string;
+      };
     }
   | { readonly type: "objects.remove"; readonly payload: { readonly entityId: number } }
   | {
@@ -64,7 +68,11 @@ export type PresentationEvent =
     }
   | {
       readonly type: "actors.updateHealthBar";
-      readonly payload: { readonly entityId: number; readonly health: number; readonly maxHealth: number };
+      readonly payload: {
+        readonly entityId: number;
+        readonly health: number;
+        readonly maxHealth: number;
+      };
     }
   | {
       readonly type: "actors.notifyHit";
@@ -80,11 +88,19 @@ export type PresentationEvent =
     }
   | {
       readonly type: "actors.setArmourModel";
-      readonly payload: { readonly entityId: number; readonly slot: string; readonly itemId: string | null };
+      readonly payload: {
+        readonly entityId: number;
+        readonly slot: string;
+        readonly itemId: string | null;
+      };
     }
   | {
       readonly type: "actors.setAccessoryModel";
-      readonly payload: { readonly entityId: number; readonly slot: string; readonly itemId: string | null };
+      readonly payload: {
+        readonly entityId: number;
+        readonly slot: string;
+        readonly itemId: string | null;
+      };
     }
   | {
       readonly type: "actors.updateAnimation";
@@ -126,6 +142,23 @@ export type PresentationEvent =
         readonly skillId: string;
         readonly amount: number;
         readonly tick: number;
+      };
+    }
+  | {
+      readonly type: "levelUps.show";
+      readonly payload: {
+        readonly entityId: number;
+        readonly skillId: string;
+        readonly newLevel: number;
+        readonly tick: number;
+      };
+    }
+  | {
+      readonly type: "sounds.play";
+      readonly payload: {
+        readonly soundId: string;
+        readonly tile?: TileCoord;
+        readonly volume?: number;
       };
     }
   | {

@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { EntityId, PrayerDef } from "@old-town/shared";
+import { describe, expect, it } from "vitest";
 import { createWorld } from "../ecs/world";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { makeRegistries } from "../test-support/registries";
@@ -53,7 +53,9 @@ const PROTECT_FROM_MAGIC: PrayerDef = {
   protection: { style: "magic", npcReduction: 1.0, playerReduction: 0.4 },
 };
 
-function setup(prayers: PrayerDef[] = [THICK_SKIN, ROCK_SKIN, PROTECT_FROM_MELEE, PROTECT_FROM_MAGIC]) {
+function setup(
+  prayers: PrayerDef[] = [THICK_SKIN, ROCK_SKIN, PROTECT_FROM_MELEE, PROTECT_FROM_MAGIC],
+) {
   const world = createWorld();
   const owner = world.createEntity();
   const deltas = new DeltaAccumulator();
@@ -63,7 +65,12 @@ function setup(prayers: PrayerDef[] = [THICK_SKIN, ROCK_SKIN, PROTECT_FROM_MELEE
   return { world, owner, deltas, registries };
 }
 
-function setPrayer(world: ReturnType<typeof createWorld>, owner: EntityId, prayerLevel: number, points?: number) {
+function setPrayer(
+  world: ReturnType<typeof createWorld>,
+  owner: EntityId,
+  prayerLevel: number,
+  points?: number,
+) {
   world.setComponent(owner, "prayer", createPrayerComponent(owner, points ?? prayerLevel));
   world.setComponent(owner, "skills", {
     entityId: owner,
@@ -76,7 +83,9 @@ function setPrayer(world: ReturnType<typeof createWorld>, owner: EntityId, praye
 describe("prayerDrainResistance", () => {
   it("is 60 with no prayer bonus", () => {
     const { world, owner, registries } = setup();
-    expect(prayerDrainResistance({ world, deltas: new DeltaAccumulator(), registries }, owner)).toBe(60);
+    expect(
+      prayerDrainResistance({ world, deltas: new DeltaAccumulator(), registries }, owner),
+    ).toBe(60);
   });
 
   it("is 2 × prayerBonus + 60 with equipment prayer bonus", () => {
@@ -86,7 +95,9 @@ describe("prayerDrainResistance", () => {
       slots: {},
       bonuses: { prayer: 10 },
     });
-    expect(prayerDrainResistance({ world, deltas: new DeltaAccumulator(), registries }, owner)).toBe(80);
+    expect(
+      prayerDrainResistance({ world, deltas: new DeltaAccumulator(), registries }, owner),
+    ).toBe(80);
   });
 });
 
@@ -94,14 +105,24 @@ describe("handlePrayerIntent", () => {
   it("activates a prayer the player meets the level requirement for", () => {
     const { world, owner, deltas, registries } = setup();
     setPrayer(world, owner, 50);
-    handlePrayerIntent({ world, deltas, registries }, owner, { prayerId: "thick_skin", active: true }, 0);
+    handlePrayerIntent(
+      { world, deltas, registries },
+      owner,
+      { prayerId: "thick_skin", active: true },
+      0,
+    );
     expect(world.getComponent(owner, "prayer")?.activePrayers).toEqual(["thick_skin"]);
   });
 
   it("refuses to activate a prayer above the player's Prayer level", () => {
     const { world, owner, deltas, registries } = setup();
     setPrayer(world, owner, 5);
-    handlePrayerIntent({ world, deltas, registries }, owner, { prayerId: "rock_skin", active: true }, 0);
+    handlePrayerIntent(
+      { world, deltas, registries },
+      owner,
+      { prayerId: "rock_skin", active: true },
+      0,
+    );
     expect(world.getComponent(owner, "prayer")?.activePrayers).toEqual([]);
     expect(deltas.peek().chat?.some((c) => c.text.includes("need Prayer level 10"))).toBe(true);
   });
@@ -109,7 +130,12 @@ describe("handlePrayerIntent", () => {
   it("refuses to activate when prayer points are 0", () => {
     const { world, owner, deltas, registries } = setup();
     setPrayer(world, owner, 50, 0);
-    handlePrayerIntent({ world, deltas, registries }, owner, { prayerId: "thick_skin", active: true }, 0);
+    handlePrayerIntent(
+      { world, deltas, registries },
+      owner,
+      { prayerId: "thick_skin", active: true },
+      0,
+    );
     expect(world.getComponent(owner, "prayer")?.activePrayers).toEqual([]);
     expect(deltas.peek().chat?.some((c) => c.text.includes("no prayer points"))).toBe(true);
   });
@@ -117,23 +143,48 @@ describe("handlePrayerIntent", () => {
   it("deactivates a conflicting prayer when activating one in the same group", () => {
     const { world, owner, deltas, registries } = setup();
     setPrayer(world, owner, 50);
-    handlePrayerIntent({ world, deltas, registries }, owner, { prayerId: "thick_skin", active: true }, 0);
-    handlePrayerIntent({ world, deltas, registries }, owner, { prayerId: "rock_skin", active: true }, 0);
+    handlePrayerIntent(
+      { world, deltas, registries },
+      owner,
+      { prayerId: "thick_skin", active: true },
+      0,
+    );
+    handlePrayerIntent(
+      { world, deltas, registries },
+      owner,
+      { prayerId: "rock_skin", active: true },
+      0,
+    );
     expect(world.getComponent(owner, "prayer")?.activePrayers).toEqual(["rock_skin"]);
   });
 
   it("deactivates a prayer on a deactivate intent", () => {
     const { world, owner, deltas, registries } = setup();
     setPrayer(world, owner, 50);
-    handlePrayerIntent({ world, deltas, registries }, owner, { prayerId: "thick_skin", active: true }, 0);
-    handlePrayerIntent({ world, deltas, registries }, owner, { prayerId: "thick_skin", active: false }, 0);
+    handlePrayerIntent(
+      { world, deltas, registries },
+      owner,
+      { prayerId: "thick_skin", active: true },
+      0,
+    );
+    handlePrayerIntent(
+      { world, deltas, registries },
+      owner,
+      { prayerId: "thick_skin", active: false },
+      0,
+    );
     expect(world.getComponent(owner, "prayer")?.activePrayers).toEqual([]);
   });
 
   it("is a no-op for an unknown prayer id", () => {
     const { world, owner, deltas, registries } = setup();
     setPrayer(world, owner, 50);
-    handlePrayerIntent({ world, deltas, registries }, owner, { prayerId: "does_not_exist", active: true }, 0);
+    handlePrayerIntent(
+      { world, deltas, registries },
+      owner,
+      { prayerId: "does_not_exist", active: true },
+      0,
+    );
     expect(world.getComponent(owner, "prayer")?.activePrayers).toEqual([]);
   });
 });
@@ -142,7 +193,12 @@ describe("processPrayerDrainPhase", () => {
   it("drains one point after enough ticks accumulate past the resistance", () => {
     const { world, owner, deltas, registries } = setup();
     setPrayer(world, owner, 50, 50);
-    handlePrayerIntent({ world, deltas, registries }, owner, { prayerId: "thick_skin", active: true }, 0);
+    handlePrayerIntent(
+      { world, deltas, registries },
+      owner,
+      { prayerId: "thick_skin", active: true },
+      0,
+    );
     // drainEffect 10, resistance 60 → 6 ticks to lose one point.
     for (let i = 0; i < 5; i++) {
       processPrayerDrainPhase({ world, deltas, registries }, i);
@@ -155,7 +211,12 @@ describe("processPrayerDrainPhase", () => {
   it("deactivates all prayers when points reach 0", () => {
     const { world, owner, deltas, registries } = setup([PROTECT_FROM_MELEE]);
     setPrayer(world, owner, 50, 1);
-    handlePrayerIntent({ world, deltas, registries }, owner, { prayerId: "protect_from_melee", active: true }, 0);
+    handlePrayerIntent(
+      { world, deltas, registries },
+      owner,
+      { prayerId: "protect_from_melee", active: true },
+      0,
+    );
     // drainEffect 20, resistance 60 → 3 ticks to lose the last point.
     for (let i = 0; i < 3; i++) {
       processPrayerDrainPhase({ world, deltas, registries }, i);
@@ -177,7 +238,12 @@ describe("prayerBoostedLevel", () => {
   it("adds flat levels for an 'add' mode prayer", () => {
     const { world, owner, deltas, registries } = setup();
     setPrayer(world, owner, 50);
-    handlePrayerIntent({ world, deltas, registries }, owner, { prayerId: "thick_skin", active: true }, 0);
+    handlePrayerIntent(
+      { world, deltas, registries },
+      owner,
+      { prayerId: "thick_skin", active: true },
+      0,
+    );
     expect(prayerBoostedLevel({ world, deltas, registries }, owner, "defence", 10)).toBe(11);
   });
 
@@ -200,11 +266,18 @@ describe("prayerStatModifier", () => {
     };
     const { world, owner, deltas, registries } = setup([multiplyPrayer]);
     setPrayer(world, owner, 50);
-    handlePrayerIntent({ world, deltas, registries }, owner, { prayerId: "hawk_eye", active: true }, 0);
+    handlePrayerIntent(
+      { world, deltas, registries },
+      owner,
+      { prayerId: "hawk_eye", active: true },
+      0,
+    );
     const mod = prayerStatModifier({ world, deltas, registries }, owner, "ranged");
     expect(mod.add).toBe(0);
     expect(mod.multiply).toBeCloseTo(0.15);
-    expect(prayerBoostedLevel({ world, deltas, registries }, owner, "ranged", 50)).toBe(Math.floor(50 * 1.15));
+    expect(prayerBoostedLevel({ world, deltas, registries }, owner, "ranged", 50)).toBe(
+      Math.floor(50 * 1.15),
+    );
   });
 });
 
@@ -212,29 +285,40 @@ describe("applyPrayerProtection", () => {
   it("reduces NPC damage to 0 for a full npcReduction protection prayer", () => {
     const { world, owner, deltas, registries } = setup();
     setPrayer(world, owner, 50);
-    handlePrayerIntent({ world, deltas, registries }, owner, { prayerId: "protect_from_melee", active: true }, 0);
-    expect(
-      applyPrayerProtection({ world, deltas, registries }, owner, "melee", 20, false),
-    ).toBe(0);
+    handlePrayerIntent(
+      { world, deltas, registries },
+      owner,
+      { prayerId: "protect_from_melee", active: true },
+      0,
+    );
+    expect(applyPrayerProtection({ world, deltas, registries }, owner, "melee", 20, false)).toBe(0);
   });
 
   it("reduces player damage by the playerReduction fraction", () => {
     const { world, owner, deltas, registries } = setup();
     setPrayer(world, owner, 50);
-    handlePrayerIntent({ world, deltas, registries }, owner, { prayerId: "protect_from_melee", active: true }, 0);
+    handlePrayerIntent(
+      { world, deltas, registries },
+      owner,
+      { prayerId: "protect_from_melee", active: true },
+      0,
+    );
     // 20 × (1 − 0.4) = 12
-    expect(
-      applyPrayerProtection({ world, deltas, registries }, owner, "melee", 20, true),
-    ).toBe(12);
+    expect(applyPrayerProtection({ world, deltas, registries }, owner, "melee", 20, true)).toBe(12);
   });
 
   it("does not reduce damage when no matching protection prayer is active", () => {
     const { world, owner, deltas, registries } = setup();
     setPrayer(world, owner, 50);
-    handlePrayerIntent({ world, deltas, registries }, owner, { prayerId: "protect_from_magic", active: true }, 0);
-    expect(
-      applyPrayerProtection({ world, deltas, registries }, owner, "melee", 20, false),
-    ).toBe(20);
+    handlePrayerIntent(
+      { world, deltas, registries },
+      owner,
+      { prayerId: "protect_from_magic", active: true },
+      0,
+    );
+    expect(applyPrayerProtection({ world, deltas, registries }, owner, "melee", 20, false)).toBe(
+      20,
+    );
   });
 });
 

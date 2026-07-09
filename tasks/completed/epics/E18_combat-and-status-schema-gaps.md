@@ -28,10 +28,10 @@ Extend the combat content schemas to support creature movement, aggression, drop
 
 ## Ordered stories
 
-- [X] `E18-S01` — [Extend Creature Movement and Aggression](stories/E18/E18-S01_extend-creature-movement-and-aggression.md)
-- [X] `E18-S02` — [Add Drop Table Conditionals](stories/E18/E18-S02_add-drop-table-conditionals.md)
-- [X] `E18-S03` — [Define Status Effects System](stories/E18/E18-S03_define-status-effects-system.md)
-- [X] `E18-S04` — [Validate Combat Content](stories/E18/E18-S04_validate-combat-content.md)
+- [X] `E18-S01` — [Extend Creature Movement and Aggression](../stories/E18/E18-S01_extend-creature-movement-and-aggression.md)
+- [X] `E18-S02` — [Add Drop Table Conditionals](../stories/E18/E18-S02_add-drop-table-conditionals.md)
+- [X] `E18-S03` — [Define Status Effects System](../stories/E18/E18-S03_define-status-effects-system.md)
+- [X] `E18-S04` — [Validate Combat Content](../stories/E18/E18-S04_validate-combat-content.md)
 
 ## Epic acceptance criteria
 

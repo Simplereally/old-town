@@ -1960,47 +1960,47 @@
     {
       "id": "icon_ember_bead",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/ember_bead.png"
     },
     {
       "id": "icon_gust_bead",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/gust_bead.png"
     },
     {
       "id": "icon_wit_bead",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/wit_bead.png"
     },
     {
       "id": "icon_writ_bead",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/writ_bead.png"
     },
     {
       "id": "icon_tide_bead",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/tide_bead.png"
     },
     {
       "id": "icon_loam_bead",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/loam_bead.png"
     },
     {
       "id": "icon_bone_bead",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/bone_bead.png"
     },
     {
       "id": "icon_grave_bead",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/grave_bead.png"
     },
     {
       "id": "icon_threadbare_bead_pouch",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/threadbare_bead_pouch.png"
     },
     {
       "id": "model_threadbare_bead_pouch",
@@ -2010,7 +2010,7 @@
     {
       "id": "icon_waxed_bead_pouch",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/waxed_bead_pouch.png"
     },
     {
       "id": "model_waxed_bead_pouch",
@@ -2020,7 +2020,7 @@
     {
       "id": "icon_warden_bead_pouch",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/warden_bead_pouch.png"
     },
     {
       "id": "model_warden_bead_pouch",
@@ -2030,7 +2030,7 @@
     {
       "id": "icon_grave_bead_pouch",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/grave_bead_pouch.png"
     },
     {
       "id": "model_grave_bead_pouch",
@@ -2040,7 +2040,7 @@
     {
       "id": "icon_starfall_bead_pouch",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/starfall_bead_pouch.png"
     },
     {
       "id": "model_starfall_bead_pouch",
@@ -2050,97 +2050,97 @@
     {
       "id": "icon_coin",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/coin.png"
     },
     {
       "id": "icon_quest_point",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/quest_point.png"
     },
     {
       "id": "icon_bell_token",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/bell_token.png"
     },
     {
       "id": "icon_warden_mark",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/warden_mark.png"
     },
     {
       "id": "icon_crusty_loaf",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/crusty_loaf.png"
     },
     {
       "id": "icon_antidote",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/antidote.png"
     },
     {
       "id": "icon_raw_fish",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/raw_fish.png"
     },
     {
       "id": "icon_bread",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/bread.png"
     },
     {
       "id": "icon_cooked_fish",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/cooked_fish.png"
     },
     {
       "id": "icon_burnt_fish",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/burnt_fish.png"
     },
     {
       "id": "icon_bellbread",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/bellbread.png"
     },
     {
       "id": "icon_ditch_shrimp_skewer",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/ditch_shrimp_skewer.png"
     },
     {
       "id": "icon_tinfin_pie",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/tinfin_pie.png"
     },
     {
       "id": "icon_warden_ration",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/warden_ration.png"
     },
     {
       "id": "icon_arms_tincture",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/arms_tincture.png"
     },
     {
       "id": "icon_cleanblood_salve",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/cleanblood_salve.png"
     },
     {
       "id": "icon_favour_cordial",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/favour_cordial.png"
     },
     {
       "id": "icon_shrine_candle",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/shrine_candle.png"
     },
     {
       "id": "icon_prayer_knot",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/prayer_knot.png"
     },
     {
       "id": "icon_cobbled_cowl",
@@ -4017,12 +4017,12 @@
     {
       "id": "icon_smoke_over_old_town_cellar_rat_tail",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/smoke_over_old_town_cellar_rat_tail.png"
     },
     {
       "id": "icon_smoke_over_old_town_baker_oven_key",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/smoke_over_old_town_baker_oven_key.png"
     },
     {
       "id": "model_smoke_over_old_town_baker_oven_key",
@@ -4032,192 +4032,192 @@
     {
       "id": "icon_smoke_over_old_town_old_town_bread",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/smoke_over_old_town_old_town_bread.png"
     },
     {
       "id": "icon_ledger_seven",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/ledger_seven.png"
     },
     {
       "id": "icon_listening_clay",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/listening_clay.png"
     },
     {
       "id": "icon_warm_scale",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/warm_scale.png"
     },
     {
       "id": "icon_sooted_receipt",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/sooted_receipt.png"
     },
     {
       "id": "icon_grave_flower_bundle",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/grave_flower_bundle.png"
     },
     {
       "id": "icon_ratcatcher_tail",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/ratcatcher_tail.png"
     },
     {
       "id": "icon_bell_token_proof",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/bell_token_proof.png"
     },
     {
       "id": "icon_dry_log",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/dry_log.png"
     },
     {
       "id": "icon_oak_log",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/oak_log.png"
     },
     {
       "id": "icon_copper_ore",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/copper_ore.png"
     },
     {
       "id": "icon_iron_ore",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/iron_ore.png"
     },
     {
       "id": "icon_penny_copper_ore",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/penny_copper_ore.png"
     },
     {
       "id": "icon_tinstone",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/tinstone.png"
     },
     {
       "id": "icon_pig_iron_ore",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/pig_iron_ore.png"
     },
     {
       "id": "icon_pig_iron_scrap",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/pig_iron_scrap.png"
     },
     {
       "id": "icon_blackcoal",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/blackcoal.png"
     },
     {
       "id": "icon_oldroad_oak_log",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/oldroad_oak_log.png"
     },
     {
       "id": "icon_riverwillow_log",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/riverwillow_log.png"
     },
     {
       "id": "icon_bellfeathers",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/bellfeathers.png"
     },
     {
       "id": "icon_sinew_cord",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/sinew_cord.png"
     },
     {
       "id": "icon_rabbit_hide",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/rabbit_hide.png"
     },
     {
       "id": "icon_soft_leather",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/soft_leather.png"
     },
     {
       "id": "icon_fox_hide",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/fox_hide.png"
     },
     {
       "id": "icon_bead_clay",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/bead_clay.png"
     },
     {
       "id": "icon_glass_sand",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/glass_sand.png"
     },
     {
       "id": "icon_ditch_shrimp",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/ditch_shrimp.png"
     },
     {
       "id": "icon_raw_tinfin",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/raw_tinfin.png"
     },
     {
       "id": "icon_small_bones",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/small_bones.png"
     },
     {
       "id": "icon_bone_chips",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/bone_chips.png"
     },
     {
       "id": "icon_grave_dust",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/grave_dust.png"
     },
     {
       "id": "icon_rat_tail",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/rat_tail.png"
     },
     {
       "id": "icon_pennywrought_ingot",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/pennywrought_ingot.png"
     },
     {
       "id": "icon_grave_flower",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/grave_flower.png"
     },
     {
       "id": "icon_graveyard_moss",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/graveyard_moss.png"
     },
     {
       "id": "icon_torn_ledger_scrap",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/torn_ledger_scrap.png"
     },
     {
       "id": "icon_cellar_fur_bundle",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/cellar_fur_bundle.png"
     },
     {
       "id": "icon_bent_nail_ring",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/bent_nail_ring.png"
     },
     {
       "id": "model_bent_nail_ring",
@@ -4227,17 +4227,17 @@
     {
       "id": "icon_cellar_king_whisker",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/cellar_king_whisker.png"
     },
     {
       "id": "icon_pig_iron_scrap_bundle",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/pig_iron_scrap_bundle.png"
     },
     {
       "id": "icon_mudhook_charm",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/mudhook_charm.png"
     },
     {
       "id": "model_mudhook_charm",
@@ -4247,7 +4247,7 @@
     {
       "id": "icon_crude_hookblade",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/crude_hookblade.png"
     },
     {
       "id": "model_crude_hookblade",
@@ -4257,52 +4257,52 @@
     {
       "id": "icon_quarry_token",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/quarry_token.png"
     },
     {
       "id": "icon_mudhook_jaw",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/mudhook_jaw.png"
     },
     {
       "id": "icon_blackcoal_ash",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/blackcoal_ash.png"
     },
     {
       "id": "icon_drake_tooth",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/drake_tooth.png"
     },
     {
       "id": "icon_tallow_drake_scale",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/tallow_drake_scale.png"
     },
     {
       "id": "icon_ashling_ember",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/ashling_ember.png"
     },
     {
       "id": "icon_bellfeather_bundle",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/bellfeather_bundle.png"
     },
     {
       "id": "icon_wing_hide_roll",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/wing_hide_roll.png"
     },
     {
       "id": "icon_echo_dust",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/echo_dust.png"
     },
     {
       "id": "icon_bellfang_charm",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/bellfang_charm.png"
     },
     {
       "id": "model_bellfang_charm",
@@ -4312,102 +4312,102 @@
     {
       "id": "icon_bat_mother_claw",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/bat_mother_claw.png"
     },
     {
       "id": "icon_snapper_meat",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/snapper_meat.png"
     },
     {
       "id": "icon_shell_chip_bundle",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/shell_chip_bundle.png"
     },
     {
       "id": "icon_river_tooth",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/river_tooth.png"
     },
     {
       "id": "icon_old_snapper_shell",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/old_snapper_shell.png"
     },
     {
       "id": "icon_snapped_hook",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/snapped_hook.png"
     },
     {
       "id": "icon_grave_flower_seed",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/grave_flower_seed.png"
     },
     {
       "id": "icon_grave_dust_bundle",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/grave_dust_bundle.png"
     },
     {
       "id": "icon_cleanroot_wash",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/cleanroot_wash.png"
     },
     {
       "id": "icon_wrong_flower_petal",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/wrong_flower_petal.png"
     },
     {
       "id": "icon_polite_root",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/polite_root.png"
     },
     {
       "id": "icon_rope_belt",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/rope_belt.png"
     },
     {
       "id": "icon_threadbare_tool_roll",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/threadbare_tool_roll.png"
     },
     {
       "id": "icon_empty_phial",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/empty_phial.png"
     },
     {
       "id": "icon_flintbox",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/flintbox.png"
     },
     {
       "id": "icon_blank_map",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/blank_map.png"
     },
     {
       "id": "icon_bone_needle",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/bone_needle.png"
     },
     {
       "id": "icon_whittling_knife",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/whittling_knife.png"
     },
     {
       "id": "icon_market_pot",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/market_pot.png"
     },
     {
       "id": "icon_pig_iron_hammer",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/pig_iron_hammer.png"
     },
     {
       "id": "model_pig_iron_hammer",
@@ -4417,27 +4417,27 @@
     {
       "id": "icon_tongs",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/tongs.png"
     },
     {
       "id": "icon_basic_mould",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/basic_mould.png"
     },
     {
       "id": "icon_blackcoal_bundle",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/blackcoal_bundle.png"
     },
     {
       "id": "icon_arrow_shafts",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/arrow_shafts.png"
     },
     {
       "id": "icon_penny_arrowheads",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/penny_arrowheads.png"
     },
     {
       "id": "icon_lathwood_knife",
@@ -4454,17 +4454,17 @@
     {
       "id": "icon_awl",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/awl.png"
     },
     {
       "id": "icon_thread",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/thread.png"
     },
     {
       "id": "icon_patch_leather",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/patch_leather.png"
     },
     {
       "id": "icon_threadbare_belt",
@@ -4476,157 +4476,157 @@
     {
       "id": "icon_bead_drill",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/bead_drill.png"
     },
     {
       "id": "icon_glaze_bowl",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/glaze_bowl.png"
     },
     {
       "id": "icon_offering_bowl",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/offering_bowl.png"
     },
     {
       "id": "icon_reed_rod",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/reed_rod.png"
     },
     {
       "id": "icon_small_net",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/small_net.png"
     },
     {
       "id": "icon_bait_jar",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/bait_jar.png"
     },
     {
       "id": "icon_tin_badge",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/tin_badge.png"
     },
     {
       "id": "icon_warden_contract_book",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/warden_contract_book.png"
     },
     {
       "id": "icon_bent_pick",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/bent_pick.png"
     },
     {
       "id": "icon_blank_writ",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/blank_writ.png"
     },
     {
       "id": "icon_wax_seal",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/wax_seal.png"
     },
     {
       "id": "icon_false_bottom_pouch",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/false_bottom_pouch.png"
     },
     {
       "id": "icon_blacksealed_pickset",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/blacksealed_pickset.png"
     },
     {
       "id": "icon_cow_hide",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/cow_hide.png"
     },
     {
       "id": "icon_tin_ore",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/tin_ore.png"
     },
     {
       "id": "icon_raw_bead",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/raw_bead.png"
     },
     {
       "id": "icon_prayer_bead",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/prayer_bead.png"
     },
     {
       "id": "icon_blank_parchment",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/blank_parchment.png"
     },
     {
       "id": "icon_leather",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/leather.png"
     },
     {
       "id": "icon_bronze_bar",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/bronze_bar.png"
     },
     {
       "id": "icon_fired_bead",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/fired_bead.png"
     },
     {
       "id": "icon_old_town_map",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/old_town_map.png"
     },
     {
       "id": "icon_soot_mark",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/soot_mark.png"
     },
     {
       "id": "icon_soot_ash",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/soot_ash.png"
     },
     {
       "id": "icon_ledger_sort_voucher",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/ledger_sort_voucher.png"
     },
     {
       "id": "icon_market_token",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/market_token.png"
     },
     {
       "id": "icon_grave_token",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/grave_token.png"
     },
     {
       "id": "icon_foundry_token",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/foundry_token.png"
     },
     {
       "id": "icon_kiln_token",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/kiln_token.png"
     },
     {
       "id": "icon_river_token",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/river_token.png"
     },
     {
       "id": "icon_pennywrought_axe",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/pennywrought_axe.png"
     },
     {
       "id": "model_pennywrought_axe",
@@ -4636,7 +4636,7 @@
     {
       "id": "icon_pennywrought_pickaxe",
       "kind": "icon",
-      "source": "silhouettes/_placeholder.svg"
+      "source": "icons-png/pennywrought_pickaxe.png"
     },
     {
       "id": "model_pennywrought_pickaxe",

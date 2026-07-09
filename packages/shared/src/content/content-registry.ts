@@ -12,6 +12,7 @@ import type { ZodError } from "zod";
 import type { ContentKind } from "../content/content-kind";
 import type { ActivityDef } from "../content-schemas/activity";
 import type { AnimationDef } from "../content-schemas/animation";
+import type { AudioDef } from "../content-schemas/audio";
 import type { BankDef } from "../content-schemas/bank";
 import type { BossDef } from "../content-schemas/boss";
 import type { CharterDef } from "../content-schemas/charter";
@@ -89,6 +90,7 @@ const CONTENT_KINDS: readonly ContentKind[] = [
   "activity",
   "boss",
   "trail",
+  "audio",
 ];
 
 function jsonPointer(path: readonly (string | number)[]): string {
@@ -202,6 +204,7 @@ export function validateContent(files: readonly LoadedContentFile[]): ContentVal
     activity: maps.get("activity") as Map<string, ActivityDef>,
     boss: maps.get("boss") as Map<string, BossDef>,
     trail: maps.get("trail") as Map<string, TrailDef>,
+    audio: maps.get("audio") as Map<string, AudioDef>,
   };
 
   const graphResult = validateContentGraph(registries, sources);

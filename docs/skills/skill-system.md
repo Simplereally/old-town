@@ -224,32 +224,34 @@ A player's combat level is calculated from their seven combat skills. It is disp
 
 **Formula:**
 
-Combat Level = floor( DefensiveBase / 4 + MeleePower / 4 + RangedPower × 3 / 4 + MagicPower × 3 / 4 + 1 )
+Combat Level = floor( DefensiveBase / 4 + MeleePower × 13/40 + RangedPower × 13/40 + MagicPower × 13/40 )
 
 Where:
-- DefensiveBase = Guard + Vitality + floor(Favour / 2)
-- MeleePower = Arms + Might
-- RangedPower = Ranged
-- MagicPower = Magic
+- DefensiveBase = Defence + Hitpoints + floor(Prayer / 2)
+- MeleePower = Attack + Strength
+- RangedPower = floor(Ranged / 2) + Ranged
+- MagicPower = floor(Magic / 2) + Magic
+
+The final combat level is `floor(DefensiveBase / 4 + max(MeleePower, RangedPower, MagicPower) × 13/40)`.
 
 All internal division uses integer division (fractions are discarded before the final floor).
 
 **How to read it:**
-- Guard, Vitality, and half of Favour form the defensive base.
-- Arms and Might form the melee power component.
-- Ranged and Magic each contribute three-quarters of their level (ranged and magic are more front-loaded).
-- The `+ 1` ensures no player is level 0.
+- Defence, Hitpoints, and half of Prayer form the defensive base.
+- Attack and Strength form the melee power component.
+- Ranged and Magic each contribute 3/2 of their level (ranged and magic are more front-loaded).
+- The highest of melee, ranged, or magic power is used — not all three added.
 
-**Example:** A player with 50 Arms, 50 Might, 50 Guard, 50 Vitality, 1 Ranged, 1 Magic, 1 Favour has combat level:
+**Example:** A player with 50 Attack, 50 Strength, 50 Defence, 50 Hitpoints, 1 Ranged, 1 Magic, 1 Prayer has combat level:
 
 | Step | Calculation | Result |
 |------|-------------|--------|
 | DefensiveBase | (50 + 50 + floor(1 / 2)) = 100 + 0 | 100 |
 | MeleePower | (50 + 50) | 100 |
-| Ranged contribution | 1 × 3 / 4 = 0 (integer division) | 0 |
-| Magic contribution | 1 × 3 / 4 = 0 (integer division) | 0 |
-| Sum before floor | 100 / 4 + 100 / 4 + 0 + 0 + 1 = 25 + 25 + 0 + 0 + 1 | 51 |
-| Final | floor(51) | **51** |
+| RangedPower | floor(1 / 2) + 1 = 0 + 1 | 1 |
+| MagicPower | floor(1 / 2) + 1 = 0 + 1 | 1 |
+| Sum before floor | 100 / 4 + max(100, 1, 1) × 13/40 = 25 + 32.5 | 57.5 |
+| Final | floor(57.5) | **57** |
 
 **PvP bracket rule:** Players can only attack other players within 10 combat levels of themselves, unless both parties are in a designated PvP zone.
 
@@ -265,7 +267,7 @@ All internal division uses integer division (fractions are discarded before the 
 6. **Tool requirements.** Every gathering and production action requires a tool. Tools have skill level requirements.
 7. **Equip requirements.** Weapons and armour require combat skill levels. Accessories do not.
 8. **Interlock first.** When adding a new skill, define its input and output connections before defining its internal mechanics.
-9. **Familiar skeleton, Old Town skin.** Skill names are culturally grounded (Arms, Might, Favour, Wayfaring) but the mechanics are recognizable to OSRS players.
+9. **Familiar skeleton, Old Town skin.** Skill names are culturally grounded (Favour, Wayfaring) but the mechanics are recognizable to OSRS players.
 10. **No non-combat skill is globally mandatory.** A player can ignore any gathering, production, or utility skill and still progress through combat, trade, exploration, and social content. Combat skills are mandatory only for combat progression, not for skilling or other paths. Ignoring a skill means missing synergies and efficiency, not being blocked.
 
 ---

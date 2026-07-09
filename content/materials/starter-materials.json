@@ -1,47 +1,371 @@
 [
-  { "id": "grass", "name": "Grass", "color": 5214010, "accentColor": 6908265, "category": "grass", "roughness": 0.9 },
-  { "id": "dirt_path", "name": "Dirt Path", "color": 8871970, "accentColor": 10064206, "category": "road", "roughness": 0.95 },
-  { "id": "stone_floor", "name": "Stone Floor", "color": 6316128, "accentColor": 7895160, "category": "floor", "roughness": 0.7 },
-  { "id": "wood_floor", "name": "Wood Floor", "color": 8015130, "accentColor": 9874186, "category": "wood", "roughness": 0.8 },
-  { "id": "dark_cellar_floor", "name": "Dark Cellar Floor", "color": 3026478, "accentColor": 4342318, "category": "floor", "roughness": 0.85 },
-  { "id": "penny_copper", "name": "Penny Copper", "color": 12094771, "accentColor": 13684999, "category": "metal", "roughness": 0.4 },
-  { "id": "tinstone", "name": "Tinstone", "color": 9083306, "accentColor": 10790068, "category": "stone", "roughness": 0.7 },
-  { "id": "pig_iron", "name": "Pig Iron", "color": 4868618, "accentColor": 6579498, "category": "metal", "roughness": 0.5 },
-  { "id": "blackcoal", "name": "Blackcoal", "color": 1710618, "accentColor": 3289658, "category": "stone", "roughness": 0.6 },
-  { "id": "oldroad_oak", "name": "Oldroad Oak", "color": 9138452, "accentColor": 11010044, "category": "wood", "roughness": 0.8 },
-  { "id": "riverwillow", "name": "Riverwillow", "color": 7048739, "accentColor": 8947848, "category": "wood", "roughness": 0.8 },
-  { "id": "bellfeather", "name": "Bellfeather", "color": 7372944, "accentColor": 9211020, "category": "organic", "roughness": 0.9 },
-  { "id": "sinew_cord", "name": "Sinew Cord", "color": 14596253, "accentColor": 15921906, "category": "organic", "roughness": 0.95 },
-  { "id": "rabbit_hide", "name": "Rabbit Hide", "color": 13909436, "accentColor": 15267888, "category": "organic", "roughness": 0.9 },
-  { "id": "fox_hide", "name": "Fox Hide", "color": 13468927, "accentColor": 14803427, "category": "organic", "roughness": 0.9 },
-  { "id": "bead_clay", "name": "Bead Clay", "color": 13426150, "accentColor": 14793308, "category": "organic", "roughness": 0.85 },
-  { "id": "glass_sand", "name": "Glass Sand", "color": 16119260, "accentColor": 16777215, "category": "stone", "roughness": 0.3 },
-  { "id": "graveyard_moss", "name": "Graveyard Moss", "color": 5597999, "accentColor": 7372944, "category": "organic", "roughness": 0.95 },
-  { "id": "grave_flower", "name": "Grave Flower", "color": 9109503, "accentColor": 12111769, "category": "organic", "roughness": 0.9 },
-  { "id": "ditch_shrimp", "name": "Ditch Shrimp", "color": 16737095, "accentColor": 16764159, "category": "organic", "roughness": 0.9 },
-  { "id": "tinfin", "name": "Tinfin", "color": 4620980, "accentColor": 6316128, "category": "metal", "roughness": 0.45 },
-  { "id": "small_bone", "name": "Small Bone", "color": 16119260, "accentColor": 16777215, "category": "organic", "roughness": 0.6 },
-  { "id": "grave_dust", "name": "Grave Dust", "color": 6908265, "accentColor": 9342606, "category": "soil", "roughness": 0.95 },
-  { "id": "packed_road", "name": "Packed Road", "color": 7768698, "accentColor": 9211020, "category": "road", "roughness": 0.85 },
-  { "id": "bellstone_plaza", "name": "Bellstone Plaza", "color": 10197915, "accentColor": 12303291, "category": "plaza", "roughness": 0.6, "textureNoise": { "scale": 2, "amplitude": 0.05 } },
-  { "id": "soot_cobble", "name": "Soot Cobble", "color": 4934475, "accentColor": 6776667, "category": "road", "roughness": 0.75, "textureNoise": { "scale": 3, "amplitude": 0.08 } },
-  { "id": "chalk_flagstone", "name": "Chalk Flagstone", "color": 14079702, "accentColor": 15658734, "category": "plaza", "roughness": 0.65, "textureNoise": { "scale": 2.5, "amplitude": 0.04 } },
-  { "id": "river_mud", "name": "River Mud", "color": 6908265, "accentColor": 8947848, "category": "soil", "roughness": 0.95, "textureNoise": { "scale": 4, "amplitude": 0.1 } },
-  { "id": "patch_grass", "name": "Patch Grass", "color": 7094158, "accentColor": 8947848, "category": "grass", "roughness": 0.9, "textureNoise": { "scale": 5, "amplitude": 0.12 } },
-  { "id": "quarry_grit", "name": "Quarry Grit", "color": 9211020, "accentColor": 11579568, "category": "stone", "roughness": 0.8, "textureNoise": { "scale": 6, "amplitude": 0.15 } },
-  { "id": "grave_soil", "name": "Grave Soil", "color": 3684408, "accentColor": 5263448, "category": "soil", "roughness": 0.95, "textureNoise": { "scale": 4, "amplitude": 0.08 } },
-  { "id": "oldroad_slabs", "name": "Oldroad Slabs", "color": 8224125, "accentColor": 10263708, "category": "road", "roughness": 0.7, "textureNoise": { "scale": 3, "amplitude": 0.06 } },
-  { "id": "water", "name": "Water", "color": 2838188, "accentColor": 4605510, "category": "water", "isWater": true, "roughness": 0.1 },
-  { "id": "grass_to_bellstone", "name": "Grass to Bellstone Border", "color": 7707498, "accentColor": 9747081, "category": "transition", "roughness": 0.75 },
-  { "id": "grass_to_wood_floor", "name": "Grass to Wood Floor Border", "color": 6587994, "accentColor": 8627577, "category": "transition", "roughness": 0.85 },
-  { "id": "grass_to_dark_cellar", "name": "Grass to Dark Cellar Border", "color": 4087348, "accentColor": 6126931, "category": "transition", "roughness": 0.9 },
-  { "id": "grass_to_stone_floor", "name": "Grass to Stone Floor Border", "color": 5735245, "accentColor": 7774828, "category": "transition", "roughness": 0.8 },
-  { "id": "grass_to_soot_cobble", "name": "Grass to Soot Cobble Border", "color": 5074242, "accentColor": 7113825, "category": "transition", "roughness": 0.8 },
-  { "id": "grass_to_chalk_flagstone", "name": "Grass to Chalk Flagstone Border", "color": 9614216, "accentColor": 11653799, "category": "transition", "roughness": 0.75 },
-  { "id": "grass_to_river_mud", "name": "Grass to River Mud Border", "color": 6061377, "accentColor": 8100960, "category": "transition", "roughness": 0.9 },
-  { "id": "grass_to_patch_grass", "name": "Grass to Patch Grass Border", "color": 6123316, "accentColor": 8162899, "category": "transition", "roughness": 0.9 },
-  { "id": "grass_to_quarry_grit", "name": "Grass to Quarry Grit Border", "color": 7179619, "accentColor": 9219202, "category": "transition", "roughness": 0.85 },
-  { "id": "grass_to_grave_soil", "name": "Grass to Grave Soil Border", "color": 4416313, "accentColor": 6455896, "category": "transition", "roughness": 0.9 },
-  { "id": "grass_to_oldroad_slabs", "name": "Grass to Oldroad Slabs Border", "color": 6720851, "accentColor": 8760434, "category": "transition", "roughness": 0.8 },
-  { "id": "grass_to_packed_road", "name": "Grass to Packed Road Border", "color": 6458458, "accentColor": 8498041, "category": "transition", "roughness": 0.85 }
+  {
+    "id": "grass",
+    "name": "Grass",
+    "color": 5214010,
+    "accentColor": 6908265,
+    "category": "grass",
+    "roughness": 0.9
+  },
+  {
+    "id": "dirt_path",
+    "name": "Dirt Path",
+    "color": 8871970,
+    "accentColor": 10064206,
+    "category": "road",
+    "roughness": 0.95
+  },
+  {
+    "id": "stone_floor",
+    "name": "Stone Floor",
+    "color": 6316128,
+    "accentColor": 7895160,
+    "category": "floor",
+    "roughness": 0.7
+  },
+  {
+    "id": "wood_floor",
+    "name": "Wood Floor",
+    "color": 8015130,
+    "accentColor": 9874186,
+    "category": "wood",
+    "roughness": 0.8
+  },
+  {
+    "id": "dark_cellar_floor",
+    "name": "Dark Cellar Floor",
+    "color": 3026478,
+    "accentColor": 4342318,
+    "category": "floor",
+    "roughness": 0.85
+  },
+  {
+    "id": "penny_copper",
+    "name": "Penny Copper",
+    "color": 12094771,
+    "accentColor": 13684999,
+    "category": "metal",
+    "roughness": 0.4
+  },
+  {
+    "id": "tinstone",
+    "name": "Tinstone",
+    "color": 9083306,
+    "accentColor": 10790068,
+    "category": "stone",
+    "roughness": 0.7
+  },
+  {
+    "id": "pig_iron",
+    "name": "Pig Iron",
+    "color": 4868618,
+    "accentColor": 6579498,
+    "category": "metal",
+    "roughness": 0.5
+  },
+  {
+    "id": "blackcoal",
+    "name": "Blackcoal",
+    "color": 1710618,
+    "accentColor": 3289658,
+    "category": "stone",
+    "roughness": 0.6
+  },
+  {
+    "id": "oldroad_oak",
+    "name": "Oldroad Oak",
+    "color": 9138452,
+    "accentColor": 11010044,
+    "category": "wood",
+    "roughness": 0.8
+  },
+  {
+    "id": "riverwillow",
+    "name": "Riverwillow",
+    "color": 7048739,
+    "accentColor": 8947848,
+    "category": "wood",
+    "roughness": 0.8
+  },
+  {
+    "id": "bellfeather",
+    "name": "Bellfeather",
+    "color": 7372944,
+    "accentColor": 9211020,
+    "category": "organic",
+    "roughness": 0.9
+  },
+  {
+    "id": "sinew_cord",
+    "name": "Sinew Cord",
+    "color": 14596253,
+    "accentColor": 15921906,
+    "category": "organic",
+    "roughness": 0.95
+  },
+  {
+    "id": "rabbit_hide",
+    "name": "Rabbit Hide",
+    "color": 13909436,
+    "accentColor": 15267888,
+    "category": "organic",
+    "roughness": 0.9
+  },
+  {
+    "id": "fox_hide",
+    "name": "Fox Hide",
+    "color": 13468927,
+    "accentColor": 14803427,
+    "category": "organic",
+    "roughness": 0.9
+  },
+  {
+    "id": "bead_clay",
+    "name": "Bead Clay",
+    "color": 13426150,
+    "accentColor": 14793308,
+    "category": "organic",
+    "roughness": 0.85
+  },
+  {
+    "id": "glass_sand",
+    "name": "Glass Sand",
+    "color": 16119260,
+    "accentColor": 16777215,
+    "category": "stone",
+    "roughness": 0.3
+  },
+  {
+    "id": "graveyard_moss",
+    "name": "Graveyard Moss",
+    "color": 5597999,
+    "accentColor": 7372944,
+    "category": "organic",
+    "roughness": 0.95
+  },
+  {
+    "id": "grave_flower",
+    "name": "Grave Flower",
+    "color": 9109503,
+    "accentColor": 12111769,
+    "category": "organic",
+    "roughness": 0.9
+  },
+  {
+    "id": "ditch_shrimp",
+    "name": "Ditch Shrimp",
+    "color": 16737095,
+    "accentColor": 16764159,
+    "category": "organic",
+    "roughness": 0.9
+  },
+  {
+    "id": "tinfin",
+    "name": "Tinfin",
+    "color": 4620980,
+    "accentColor": 6316128,
+    "category": "metal",
+    "roughness": 0.45
+  },
+  {
+    "id": "small_bone",
+    "name": "Small Bone",
+    "color": 16119260,
+    "accentColor": 16777215,
+    "category": "organic",
+    "roughness": 0.6
+  },
+  {
+    "id": "grave_dust",
+    "name": "Grave Dust",
+    "color": 6908265,
+    "accentColor": 9342606,
+    "category": "soil",
+    "roughness": 0.95
+  },
+  {
+    "id": "packed_road",
+    "name": "Packed Road",
+    "color": 7768698,
+    "accentColor": 9211020,
+    "category": "road",
+    "roughness": 0.85
+  },
+  {
+    "id": "bellstone_plaza",
+    "name": "Bellstone Plaza",
+    "color": 10197915,
+    "accentColor": 12303291,
+    "category": "plaza",
+    "roughness": 0.6,
+    "textureNoise": { "scale": 2, "amplitude": 0.05 }
+  },
+  {
+    "id": "soot_cobble",
+    "name": "Soot Cobble",
+    "color": 4934475,
+    "accentColor": 6776667,
+    "category": "road",
+    "roughness": 0.75,
+    "textureNoise": { "scale": 3, "amplitude": 0.08 }
+  },
+  {
+    "id": "chalk_flagstone",
+    "name": "Chalk Flagstone",
+    "color": 14079702,
+    "accentColor": 15658734,
+    "category": "plaza",
+    "roughness": 0.65,
+    "textureNoise": { "scale": 2.5, "amplitude": 0.04 }
+  },
+  {
+    "id": "river_mud",
+    "name": "River Mud",
+    "color": 6908265,
+    "accentColor": 8947848,
+    "category": "soil",
+    "roughness": 0.95,
+    "textureNoise": { "scale": 4, "amplitude": 0.1 }
+  },
+  {
+    "id": "patch_grass",
+    "name": "Patch Grass",
+    "color": 7094158,
+    "accentColor": 8947848,
+    "category": "grass",
+    "roughness": 0.9,
+    "textureNoise": { "scale": 5, "amplitude": 0.12 }
+  },
+  {
+    "id": "quarry_grit",
+    "name": "Quarry Grit",
+    "color": 9211020,
+    "accentColor": 11579568,
+    "category": "stone",
+    "roughness": 0.8,
+    "textureNoise": { "scale": 6, "amplitude": 0.15 }
+  },
+  {
+    "id": "grave_soil",
+    "name": "Grave Soil",
+    "color": 3684408,
+    "accentColor": 5263448,
+    "category": "soil",
+    "roughness": 0.95,
+    "textureNoise": { "scale": 4, "amplitude": 0.08 }
+  },
+  {
+    "id": "oldroad_slabs",
+    "name": "Oldroad Slabs",
+    "color": 8224125,
+    "accentColor": 10263708,
+    "category": "road",
+    "roughness": 0.7,
+    "textureNoise": { "scale": 3, "amplitude": 0.06 }
+  },
+  {
+    "id": "water",
+    "name": "Water",
+    "color": 2838188,
+    "accentColor": 4605510,
+    "category": "water",
+    "isWater": true,
+    "roughness": 0.1
+  },
+  {
+    "id": "grass_to_bellstone",
+    "name": "Grass to Bellstone Border",
+    "color": 7707498,
+    "accentColor": 9747081,
+    "category": "transition",
+    "roughness": 0.75
+  },
+  {
+    "id": "grass_to_wood_floor",
+    "name": "Grass to Wood Floor Border",
+    "color": 6587994,
+    "accentColor": 8627577,
+    "category": "transition",
+    "roughness": 0.85
+  },
+  {
+    "id": "grass_to_dark_cellar",
+    "name": "Grass to Dark Cellar Border",
+    "color": 4087348,
+    "accentColor": 6126931,
+    "category": "transition",
+    "roughness": 0.9
+  },
+  {
+    "id": "grass_to_stone_floor",
+    "name": "Grass to Stone Floor Border",
+    "color": 5735245,
+    "accentColor": 7774828,
+    "category": "transition",
+    "roughness": 0.8
+  },
+  {
+    "id": "grass_to_soot_cobble",
+    "name": "Grass to Soot Cobble Border",
+    "color": 5074242,
+    "accentColor": 7113825,
+    "category": "transition",
+    "roughness": 0.8
+  },
+  {
+    "id": "grass_to_chalk_flagstone",
+    "name": "Grass to Chalk Flagstone Border",
+    "color": 9614216,
+    "accentColor": 11653799,
+    "category": "transition",
+    "roughness": 0.75
+  },
+  {
+    "id": "grass_to_river_mud",
+    "name": "Grass to River Mud Border",
+    "color": 6061377,
+    "accentColor": 8100960,
+    "category": "transition",
+    "roughness": 0.9
+  },
+  {
+    "id": "grass_to_patch_grass",
+    "name": "Grass to Patch Grass Border",
+    "color": 6123316,
+    "accentColor": 8162899,
+    "category": "transition",
+    "roughness": 0.9
+  },
+  {
+    "id": "grass_to_quarry_grit",
+    "name": "Grass to Quarry Grit Border",
+    "color": 7179619,
+    "accentColor": 9219202,
+    "category": "transition",
+    "roughness": 0.85
+  },
+  {
+    "id": "grass_to_grave_soil",
+    "name": "Grass to Grave Soil Border",
+    "color": 4416313,
+    "accentColor": 6455896,
+    "category": "transition",
+    "roughness": 0.9
+  },
+  {
+    "id": "grass_to_oldroad_slabs",
+    "name": "Grass to Oldroad Slabs Border",
+    "color": 6720851,
+    "accentColor": 8760434,
+    "category": "transition",
+    "roughness": 0.8
+  },
+  {
+    "id": "grass_to_packed_road",
+    "name": "Grass to Packed Road Border",
+    "color": 6458458,
+    "accentColor": 8498041,
+    "category": "transition",
+    "roughness": 0.85
+  }
 ]

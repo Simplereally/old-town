@@ -10,8 +10,8 @@ import {
 } from "three";
 import type { ChunkBakeQueue } from "./ChunkBakeQueue";
 import type { BakedChunkPayload, MaterialGroup } from "./ChunkBakeWorkerClient";
-import type { RenderResourceKey, RenderResourceRegistry } from "./RenderResourceRegistry";
 import { MaterialColorResolver } from "./MaterialColorResolver";
+import type { RenderResourceKey, RenderResourceRegistry } from "./RenderResourceRegistry";
 
 /** Per-frame budget for GPU upload work. */
 export interface ChunkUploadBudget {

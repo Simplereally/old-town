@@ -17,7 +17,15 @@ import { contentIdSchema, positiveInt } from "./common";
 export const prayerEffectSchema = z
   .object({
     /** Stat being modified. */
-    stat: z.enum(["attack", "strength", "defence", "ranged", "magic", "rangedStrength", "magicDamage"]),
+    stat: z.enum([
+      "attack",
+      "strength",
+      "defence",
+      "ranged",
+      "magic",
+      "rangedStrength",
+      "magicDamage",
+    ]),
     /** "add" adds a flat level boost; "multiply" scales the effective level by (1 + value). */
     mode: z.enum(["add", "multiply"]),
     /** For "add": whole levels added. For "multiply": fraction (e.g. 0.05 = +5%). */

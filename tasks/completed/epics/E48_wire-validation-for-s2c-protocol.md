@@ -53,13 +53,13 @@ This epic closes those gaps by:
 
 ## Ordered stories
 
-- [X] `E48-S01` — [S2C packet Zod schemas](completed/stories/E48/E48-S01_s2c-packet-zod-schemas.md)
-- [X] `E48-S02` — [Validated server packet decoder](completed/stories/E48/E48-S02_validated-server-packet-decoder.md)
-- [X] `E48-S03` — [DevAuth and transport message Zod validation](completed/stories/E48/E48-S03_devauth-and-transport-message-zod-validation.md)
-- [X] `E48-S04` — [Client GameSocket validated decoder integration](completed/stories/E48/E48-S04_client-gamesocket-validated-decoder-integration.md)
-- [X] `E48-S05` — [Content registry HTTP response validation](completed/stories/E48/E48-S05_content-registry-http-response-validation.md)
-- [X] `E48-S06` — [HTTP URL decoupling from WebSocket URL](completed/stories/E48/E48-S06_http-url-decoupling-from-websocket-url.md)
-- [X] `E48-S07` — [Wire validation policy ADR and final validation pass](completed/stories/E48/E48-S07_wire-validation-policy-adr-and-final-validation-pass.md)
+- [X] `E48-S01` — [S2C packet Zod schemas](../stories/E48/E48-S01_s2c-packet-zod-schemas.md)
+- [X] `E48-S02` — [Validated server packet decoder](../stories/E48/E48-S02_validated-server-packet-decoder.md)
+- [X] `E48-S03` — [DevAuth and transport message Zod validation](../stories/E48/E48-S03_devauth-and-transport-message-zod-validation.md)
+- [X] `E48-S04` — [Client GameSocket validated decoder integration](../stories/E48/E48-S04_client-gamesocket-validated-decoder-integration.md)
+- [X] `E48-S05` — [Content registry HTTP response validation](../stories/E48/E48-S05_content-registry-http-response-validation.md)
+- [X] `E48-S06` — [HTTP URL decoupling from WebSocket URL](../stories/E48/E48-S06_http-url-decoupling-from-websocket-url.md)
+- [X] `E48-S07` — [Wire validation policy ADR and final validation pass](../stories/E48/E48-S07_wire-validation-policy-adr-and-final-validation-pass.md)
 
 ## Epic acceptance criteria
 

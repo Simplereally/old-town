@@ -28,9 +28,7 @@ export type NookEntryResult =
 
 function tileOf(world: World, entityId: EntityId): TileCoord | undefined {
   const position = world.getComponent(entityId, "position");
-  return position
-    ? { x: position.x, y: position.y, plane: position.plane }
-    : undefined;
+  return position ? { x: position.x, y: position.y, plane: position.plane } : undefined;
 }
 
 function isOnTile(a: TileCoord, b: TileCoord): boolean {
@@ -96,7 +94,8 @@ export function validateNookEntry(
   }
 
   if (nook.timeWindow) {
-    const hour = new Date(serverTime).getHours();
+    // Server time is epoch ms; use UTC hours so entry gates are timezone-independent.
+    const hour = new Date(serverTime).getUTCHours();
     const { startHour, endHour } = nook.timeWindow;
     if (startHour < endHour) {
       if (hour < startHour || hour >= endHour) {

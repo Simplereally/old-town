@@ -41,11 +41,11 @@ The goal is not photorealism. It is readability: every district should have a cl
 
 ## Ordered stories
 
-- [X] `E42-S01` — [Ground material registry and tile material mapping](stories/E42/E42-S01_ground-material-registry-and-tile-material-mapping.md)
-- [X] `E42-S02` — [Render terrain chunks from region underlay and overlay data](stories/E42/E42-S02_render-terrain-chunks-from-region-underlay-and-overlay-data.md)
-- [X] `E42-S03` — [District material painting and transitions](stories/E42/E42-S03_district-material-painting-and-transitions.md)
-- [X] `E42-S04` — [Water, bridges, and elevation rendering](stories/E42/E42-S04_water-bridges-and-elevation-rendering.md)
-- [X] `E42-S05` — [Terrain validation and starter-region visual pass](stories/E42/E42-S05_terrain-validation-and-starter-region-visual-pass.md)
+- [X] `E42-S01` — [Ground material registry and tile material mapping](../stories/E42/E42-S01_ground-material-registry-and-tile-material-mapping.md)
+- [X] `E42-S02` — [Render terrain chunks from region underlay and overlay data](../stories/E42/E42-S02_render-terrain-chunks-from-region-underlay-and-overlay-data.md)
+- [X] `E42-S03` — [District material painting and transitions](../stories/E42/E42-S03_district-material-painting-and-transitions.md)
+- [X] `E42-S04` — [Water, bridges, and elevation rendering](../stories/E42/E42-S04_water-bridges-and-elevation-rendering.md)
+- [X] `E42-S05` — [Terrain validation and starter-region visual pass](../stories/E42/E42-S05_terrain-validation-and-starter-region-visual-pass.md)
 
 ## Epic acceptance criteria
 

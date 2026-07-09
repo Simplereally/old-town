@@ -29,10 +29,10 @@ Implement missing content schemas for the economy layer: shops, banks, and servi
 
 ## Ordered stories
 
-- [X] `E16-S01` — [Define Shop Schema](stories/E16/E16-S01_define-shop-schema.md)
-- [X] `E16-S02` — [Define Bank Schema](stories/E16/E16-S02_define-bank-schema.md)
-- [X] `E16-S03` — [Define Service Fee Schema](stories/E16/E16-S03_define-service-fee-schema.md)
-- [X] `E16-S04` — [Validate Economy Content and Cross-References](stories/E16/E16-S04_validate-economy-content-and-cross-references.md)
+- [X] `E16-S01` — [Define Shop Schema](../stories/E16/E16-S01_define-shop-schema.md)
+- [X] `E16-S02` — [Define Bank Schema](../stories/E16/E16-S02_define-bank-schema.md)
+- [X] `E16-S03` — [Define Service Fee Schema](../stories/E16/E16-S03_define-service-fee-schema.md)
+- [X] `E16-S04` — [Validate Economy Content and Cross-References](../stories/E16/E16-S04_validate-economy-content-and-cross-references.md)
 
 ## Epic acceptance criteria
 

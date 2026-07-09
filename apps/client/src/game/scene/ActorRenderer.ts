@@ -20,7 +20,7 @@ import {
   Vector3,
 } from "three";
 import { type RenderResourceKey, RenderResourceRegistry } from "../renderer/RenderResourceRegistry";
-import { compose, PALETTE, vertexColorMaterial } from "./lowpoly";
+import { compose, eyePart, PALETTE, taperedBox, vertexColorMaterial } from "./lowpoly";
 import {
   getAccessorySlot,
   registerAccessoryAssets,
@@ -39,6 +39,7 @@ import {
   resolveRangedMagicArmourFamily,
   resolveRangedMagicArmourTier,
 } from "./models/armour-ranged/register";
+import { registerGlbWeaponMaterials } from "./models/glb-materials";
 import { MAGIC_FAMILIES } from "./models/magic";
 import { registerMagicAssets, resolveMagicFamily, resolveMagicTier } from "./models/magic/register";
 import { MELEE_FAMILIES } from "./models/melee";
@@ -49,6 +50,8 @@ import {
   resolveRangedFamily,
   resolveRangedTier,
 } from "./models/ranged/register";
+import { type GripCategory, resolveGrip } from "./models/weapon-grips";
+import { preloadWeaponGltbs, type WeaponModelMode } from "./WeaponGltfLoader";
 
 export type AnimationState = "idle" | "walk" | "run" | "attack" | "cast" | "hit" | "die";
 
@@ -76,6 +79,7 @@ export const ACTION_ANIMATION_DURATION_MS = GAME_TICK_MS;
  */
 export function resolveActionPose(animationId: string): AnimationState {
   const id = animationId.toLowerCase();
+  if (/level[_-]?up|celebrate|victory/.test(id)) return "cast";
   if (/cast|magic|spell|teleport|channel|enchant|alch|curse|bind/.test(id)) return "cast";
   if (/death|die|defeat|collapse/.test(id)) return "die";
   if (/block|defend|flinch|stagger|recoil/.test(id)) return "hit";
@@ -120,6 +124,10 @@ export interface ActorMeshes {
   readonly body: Mesh;
   readonly parts: Mesh[];
   readonly marker: Mesh | undefined;
+  /** Right-hand attachment point; child of rightArm. Humanoid-only. */
+  readonly handSocketR?: Group;
+  /** Left-hand attachment point; child of leftArm. Humanoid-only. */
+  readonly handSocketL?: Group;
   healthBar?: {
     group: Group;
     bg: Sprite;
@@ -155,6 +163,13 @@ const HEAD_S = 0.36;
 const LEG_Y = LEG_H / 2;
 const TORSO_Y = LEG_H + TORSO_H / 2;
 const ARM_Y = LEG_H + TORSO_H * 0.55;
+/** Shoulder height: arm mesh origin after geometry is translated so the pivot is at the top. */
+const SHOULDER_Y = ARM_Y + LEG_H / 2;
+/**
+ * Arm-local hand point. After shoulder-pivot translation the mesh origin is at
+ * the shoulder, so the hand sits at local y = -LEG_H.
+ */
+const HAND_SOCKET_LOCAL_Y = -LEG_H;
 const HEAD_Y = LEG_H + TORSO_H + HEAD_S / 2;
 // Lift the whole figure so its feet rest on top of the terrain tile surface.
 const GROUND_OFFSET = 0.1;
@@ -261,6 +276,8 @@ function buildCreatureGeometry(spec: CreatureSpec): BufferGeometry {
         },
         { geometry: new IcosahedronGeometry(0.06, 0), color: body, x: -0.07, y: 0.4, z: 0.27 },
         { geometry: new IcosahedronGeometry(0.06, 0), color: body, x: 0.07, y: 0.4, z: 0.27 },
+        eyePart(-0.05, 0.3, 0.4),
+        eyePart(0.05, 0.3, 0.4),
         leg(-0.09, 0.16),
         leg(0.09, 0.16),
         leg(-0.09, -0.16),
@@ -288,6 +305,8 @@ function buildCreatureGeometry(spec: CreatureSpec): BufferGeometry {
         { geometry: new BoxGeometry(0.14, 0.13, 0.18), color: accent, y: 0.5, z: 0.58 },
         { geometry: new BoxGeometry(0.06, 0.12, 0.04), color: body, x: -0.09, y: 0.73, z: 0.4 },
         { geometry: new BoxGeometry(0.06, 0.12, 0.04), color: body, x: 0.09, y: 0.73, z: 0.4 },
+        eyePart(-0.1, 0.62, 0.56),
+        eyePart(0.1, 0.62, 0.56),
         leg(-0.11, 0.22),
         leg(0.11, 0.22),
         leg(-0.11, -0.22),
@@ -309,6 +328,8 @@ function buildCreatureGeometry(spec: CreatureSpec): BufferGeometry {
         { geometry: new BoxGeometry(0.1, 0.32, 0.1), color: accent, x: -0.25, y: 0.46 },
         { geometry: new BoxGeometry(0.1, 0.32, 0.1), color: accent, x: 0.25, y: 0.46 },
         { geometry: new BoxGeometry(0.27, 0.26, 0.26), color: accent, y: 0.8 },
+        eyePart(-0.08, 0.84, 0.14, PALETTE.ember),
+        eyePart(0.08, 0.84, 0.14, PALETTE.ember),
         { geometry: new ConeGeometry(0.06, 0.16, 4), color: accent, x: -0.17, y: 0.84, rotZ: 1.1 },
         { geometry: new ConeGeometry(0.06, 0.16, 4), color: accent, x: 0.17, y: 0.84, rotZ: -1.1 },
         {
@@ -339,6 +360,8 @@ function buildCreatureGeometry(spec: CreatureSpec): BufferGeometry {
         },
         { geometry: new ConeGeometry(0.04, 0.1, 4), color: body, x: -0.06, y: 0.68 },
         { geometry: new ConeGeometry(0.04, 0.1, 4), color: body, x: 0.06, y: 0.68 },
+        eyePart(-0.06, 0.58, 0.15, PALETTE.ember),
+        eyePart(0.06, 0.58, 0.15, PALETTE.ember),
       ]);
     }
     case "bird": {
@@ -361,6 +384,8 @@ function buildCreatureGeometry(spec: CreatureSpec): BufferGeometry {
         { geometry: new BoxGeometry(0.12, 0.04, 0.24), color: body, y: 0.3, z: -0.18 },
         { geometry: new BoxGeometry(0.05, 0.18, 0.28), color: body, x: -0.14, y: 0.34 },
         { geometry: new BoxGeometry(0.05, 0.18, 0.28), color: body, x: 0.14, y: 0.34 },
+        eyePart(-0.07, 0.48, 0.13),
+        eyePart(0.07, 0.48, 0.13),
         leg(-0.06),
         leg(0.06),
       ]);
@@ -377,6 +402,8 @@ function buildCreatureGeometry(spec: CreatureSpec): BufferGeometry {
         { geometry: new BoxGeometry(0.4, 0.36, 0.7), color: body, y: 0.55 },
         { geometry: new BoxGeometry(0.2, 0.2, 0.28), color: body, y: 0.66, z: 0.42 },
         { geometry: new BoxGeometry(0.24, 0.22, 0.26), color: body, y: 0.66, z: 0.6 },
+        eyePart(-0.1, 0.78, 0.5, PALETTE.ember),
+        eyePart(0.1, 0.78, 0.5, PALETTE.ember),
         { geometry: new ConeGeometry(0.05, 0.16, 4), color: accent, x: -0.08, y: 0.84, z: 0.56 },
         { geometry: new ConeGeometry(0.05, 0.16, 4), color: accent, x: 0.08, y: 0.84, z: 0.56 },
         {
@@ -412,6 +439,7 @@ function buildCreatureGeometry(spec: CreatureSpec): BufferGeometry {
       return compose([
         { geometry: new IcosahedronGeometry(0.2, 1), color: body, y: 0.7 },
         { geometry: new IcosahedronGeometry(0.32, 0), color: body, y: 0.7 },
+        { geometry: new IcosahedronGeometry(0.1, 0), color: accent, y: 0.7 },
         { geometry: new IcosahedronGeometry(0.05, 0), color: accent, x: 0.28, y: 0.92 },
         { geometry: new IcosahedronGeometry(0.05, 0), color: accent, x: -0.24, y: 0.5 },
       ]);
@@ -429,6 +457,8 @@ function buildCreatureGeometry(spec: CreatureSpec): BufferGeometry {
         { geometry: shell, color: accent, y: 0.24, sy: 0.55 },
         { geometry: new CylinderGeometry(0.32, 0.32, 0.12, 8), color: body, y: 0.1 },
         { geometry: new BoxGeometry(0.2, 0.18, 0.2), color: body, y: 0.2, z: 0.36 },
+        eyePart(-0.1, 0.24, 0.47),
+        eyePart(0.1, 0.24, 0.47),
         leg(-0.22, 0.18),
         leg(0.22, 0.18),
         leg(-0.22, -0.18),
@@ -448,19 +478,21 @@ function buildCreatureGeometry(spec: CreatureSpec): BufferGeometry {
       // _buildHumanoid); this keeps the function total.
       return compose([
         {
-          geometry: new BoxGeometry(0.2, LEG_H, 0.24),
+          geometry: taperedBox(0.2, LEG_H, 0.24, 1.3),
           color: PALETTE.clothGrey,
           x: -0.13,
           y: LEG_Y,
         },
         {
-          geometry: new BoxGeometry(0.2, LEG_H, 0.24),
+          geometry: taperedBox(0.2, LEG_H, 0.24, 1.3),
           color: PALETTE.clothGrey,
           x: 0.13,
           y: LEG_Y,
         },
-        { geometry: new BoxGeometry(0.52, TORSO_H, 0.34), color: body, y: TORSO_Y },
+        { geometry: taperedBox(0.52, TORSO_H, 0.34, 1.22), color: body, y: TORSO_Y },
         { geometry: new BoxGeometry(HEAD_S, HEAD_S, HEAD_S), color: accent, y: HEAD_Y },
+        eyePart(-0.07, HEAD_Y, HEAD_S / 2 + 0.01),
+        eyePart(0.07, HEAD_Y, HEAD_S / 2 + 0.01),
       ]);
     }
   }
@@ -497,11 +529,13 @@ export class ActorRenderer {
   private readonly headGeometry: BufferGeometry;
   private readonly legGeometry: BufferGeometry;
   private readonly armGeometry: BufferGeometry;
+  private readonly hairGeometry: BufferGeometry;
   private readonly playerMaterial: MeshLambertMaterial;
   private readonly npcMaterial: MeshLambertMaterial;
   private readonly localPlayerMaterial: MeshLambertMaterial;
   private readonly skinMaterial: MeshLambertMaterial;
   private readonly legMaterial: MeshLambertMaterial;
+  private readonly hairMaterial: MeshLambertMaterial;
   private readonly markerGeometry: SphereGeometry;
   private readonly markerMaterial: MeshLambertMaterial;
   // One shared material for every non-humanoid creature; colour lives in the geometry.
@@ -521,6 +555,13 @@ export class ActorRenderer {
   private _nextPoolSlot = 0;
   private readonly weaponMeshes = new Map<number, Mesh>();
   private readonly armourMeshes = new Map<number, Map<string, Mesh>>();
+  /** Weapon families with a loaded GLB geometry (overrides procedural). */
+  private readonly glbFamilies = new Set<string>();
+  private _weaponModelsPreloaded = false;
+  /** Which weapon geometry source to render: Blender GLBs or procedural. */
+  private _weaponModelMode: WeaponModelMode = "glb";
+  /** Last-applied weapon AssetId per entity, so a mode toggle can re-apply. */
+  private readonly weaponModelAssetIds = new Map<number, string | null>();
 
   constructor(options: ActorRendererOptions) {
     this.scene = options.scene;
@@ -552,6 +593,11 @@ export class ActorRenderer {
       contentId: "humanoid",
       variant: "arm",
     });
+    this.hairGeometry = this.registry.getGeometry({
+      type: "actor",
+      contentId: "humanoid",
+      variant: "hair",
+    });
     this.markerGeometry = this.registry.getGeometry({
       type: "actor",
       contentId: "humanoid",
@@ -578,6 +624,10 @@ export class ActorRenderer {
     this.legMaterial = this.registry.getMaterial({
       type: "actor",
       contentId: "leg",
+    }) as MeshLambertMaterial;
+    this.hairMaterial = this.registry.getMaterial({
+      type: "actor",
+      contentId: "hair",
     }) as MeshLambertMaterial;
     this.markerMaterial = this.registry.getMaterial({
       type: "actor",
@@ -618,6 +668,25 @@ export class ActorRenderer {
 
   setSelfEntityId(id: number): void {
     this.selfEntityId = id;
+  }
+
+  /**
+   * Preload Blender-authored GLB weapon models and register their geometries +
+   * vertex-colour tier materials. Families that load successfully override the
+   * procedural geometry factories; families that fail fall back to procedural.
+   * Safe to call once at engine start; subsequent calls are no-ops.
+   */
+  async preloadWeaponModels(): Promise<void> {
+    if (this._weaponModelsPreloaded) return;
+    this._weaponModelsPreloaded = true;
+    registerGlbWeaponMaterials(this.registry);
+    try {
+      const loaded = await preloadWeaponGltbs(this.registry);
+      this.glbFamilies.clear();
+      for (const f of loaded) this.glbFamilies.add(f);
+    } catch (error) {
+      console.warn("[ActorRenderer] GLB weapon preload failed, using procedural:", error);
+    }
   }
 
   /** Return the render handle for an actor, if present. */
@@ -680,17 +749,22 @@ export class ActorRenderer {
   /** Remove an actor. */
   remove(entityId: number): void {
     const meshes = this.meshes.get(entityId);
-    if (meshes) {
-      this._releaseMeshes(meshes);
-      this.meshes.delete(entityId);
+    const existingWeapon = this.weaponMeshes.get(entityId);
+    if (existingWeapon) {
+      existingWeapon.parent?.remove(existingWeapon);
+      this.weaponMeshes.delete(entityId);
     }
-    this.weaponMeshes.delete(entityId);
+    this.weaponModelAssetIds.delete(entityId);
     const armourSlots = this.armourMeshes.get(entityId);
     if (armourSlots) {
       for (const mesh of armourSlots.values()) {
-        meshes?.group.remove(mesh);
+        mesh.parent?.remove(mesh);
       }
       this.armourMeshes.delete(entityId);
+    }
+    if (meshes) {
+      this._releaseMeshes(meshes);
+      this.meshes.delete(entityId);
     }
     this.actors.delete(entityId);
   }
@@ -790,20 +864,23 @@ export class ActorRenderer {
   }
 
   /**
-   * Attach a weapon model to an actor's right hand (E41-S03/S04/S05).
+   * Attach a weapon model to an actor's hand socket (E49).
    * Resolves the model AssetId to a melee, ranged, or magic family geometry +
-   * tier material and attaches the mesh to the humanoid group. Pass `null` to
-   * clear. Two-handed families angle for a 2H stance. Off-hand foci attach to
-   * the left hand.
+   * tier material and parents the mesh to `handSocketR` / `handSocketL` with a
+   * data-driven grip. Pass `null` to clear. Creatures (no sockets) skip
+   * attachment — only humanoids equip weapons.
    */
   setWeaponModel(entityId: number, modelAssetId: string | null): void {
     const meshes = this.meshes.get(entityId);
     if (!meshes) return;
 
-    // Remove existing weapon mesh
+    // Remember the asset id so a mode toggle can re-apply it.
+    this.weaponModelAssetIds.set(entityId, modelAssetId);
+
+    // Remove existing weapon mesh from whatever parent currently holds it.
     const existing = this.weaponMeshes.get(entityId);
     if (existing) {
-      meshes.group.remove(existing);
+      existing.parent?.remove(existing);
       this.weaponMeshes.delete(entityId);
     }
 
@@ -813,12 +890,12 @@ export class ActorRenderer {
     let familyId: string | null = resolveMeleeFamily(modelAssetId);
     let tier: string | null = resolveMeleeTier(modelAssetId);
     let materialContentId = "melee_weapon";
-    let twoHanded: boolean;
+    let gripCategory: GripCategory = "melee_1h";
     let offHand = false;
 
     if (familyId && tier) {
       const familySpec = MELEE_FAMILIES.find((f) => f.id === familyId);
-      twoHanded = familySpec?.twoHanded ?? false;
+      gripCategory = familySpec?.twoHanded ? "melee_2h" : "melee_1h";
     } else {
       const rangedFamily = resolveRangedFamily(modelAssetId);
       const rangedTier = resolveRangedTier(modelAssetId);
@@ -827,7 +904,13 @@ export class ActorRenderer {
         tier = rangedTier.tier;
         materialContentId = rangedTier.palette === "ranged" ? "ranged_weapon" : "crossbow_weapon";
         const rangedSpec = RANGED_FAMILIES.find((f) => f.id === rangedFamily);
-        twoHanded = rangedSpec?.twoHanded ?? false;
+        if (rangedSpec?.category === "bow") {
+          gripCategory = "ranged_bow";
+        } else if (rangedSpec?.category === "crossbow") {
+          gripCategory = "ranged_crossbow";
+        } else {
+          gripCategory = "thrown";
+        }
       } else {
         const magicFamily = resolveMagicFamily(modelAssetId);
         const magicTier = resolveMagicTier(modelAssetId);
@@ -836,41 +919,79 @@ export class ActorRenderer {
         tier = magicTier;
         materialContentId = "magic_weapon";
         const magicSpec = MAGIC_FAMILIES.find((f) => f.id === magicFamily);
-        twoHanded = magicSpec?.twoHanded ?? false;
         offHand = magicSpec?.offHand ?? false;
+        gripCategory = offHand ? "magic_offhand" : "magic_main";
       }
     }
 
     if (!familyId || !tier) return;
 
+    // Creatures have no hand sockets; only humanoids equip weapons.
+    const socket = offHand ? meshes.handSocketL : meshes.handSocketR;
+    if (!socket) return;
+
+    // In GLB mode, use the Blender geometry + vertex-colour material for families
+    // that loaded successfully; otherwise fall back to procedural for this family.
+    const useGlb = this._weaponModelMode === "glb" && this.glbFamilies.has(familyId);
     const geometry = this.registry.getGeometry({
       type: "prop",
-      contentId: `model_${familyId}`,
+      contentId: `model_${familyId}${useGlb ? "_glb" : ""}`,
     });
     const material = this.registry.getMaterial({
       type: "prop",
-      contentId: materialContentId,
+      contentId: useGlb ? `${materialContentId}_glb` : materialContentId,
       materialId: tier,
     });
 
+    const grip = resolveGrip(familyId, gripCategory);
     const weaponMesh = new Mesh(geometry, material);
     weaponMesh.name = "weapon";
-    if (offHand) {
-      // Off-hand focus: attach to left arm (x=-0.34)
-      weaponMesh.position.set(-0.34, ARM_Y + 0.1, 0.06);
-      weaponMesh.rotation.z = 0.1;
-    } else {
-      // Main hand: attach to right arm (x=0.34)
-      weaponMesh.position.set(0.34, ARM_Y + 0.15, 0.06);
-      weaponMesh.rotation.z = -0.1;
-      if (twoHanded) {
-        weaponMesh.rotation.z = -0.25;
-      }
-    }
+    weaponMesh.position.set(...grip.position);
+    weaponMesh.rotation.set(...grip.rotation);
     weaponMesh.castShadow = false;
     weaponMesh.receiveShadow = false;
-    meshes.group.add(weaponMesh);
+    socket.add(weaponMesh);
     this.weaponMeshes.set(entityId, weaponMesh);
+  }
+
+  /**
+   * Switch the weapon geometry source between Blender GLBs and procedural
+   * Three.js primitives. Re-applies the last-known weapon model for every
+   * active actor so the change is visible immediately.
+   */
+  setWeaponModelMode(mode: WeaponModelMode): void {
+    if (this._weaponModelMode === mode) return;
+    this._weaponModelMode = mode;
+    for (const [entityId, assetId] of this.weaponModelAssetIds) {
+      if (this.meshes.has(entityId)) {
+        this.setWeaponModel(entityId, assetId);
+      }
+    }
+  }
+
+  /** Current weapon geometry source (read by tests + the settings panel). */
+  get weaponModelMode(): WeaponModelMode {
+    return this._weaponModelMode;
+  }
+
+  /** Whether an actor currently has a weapon mesh attached (test helper). */
+  hasWeaponMesh(entityId: number): boolean {
+    return this.weaponMeshes.has(entityId);
+  }
+
+  /** Whether a weapon asset id is tracked for an actor (test helper). */
+  hasWeaponAssetId(entityId: number): boolean {
+    return this.weaponModelAssetIds.has(entityId);
+  }
+
+  /**
+   * Hand socket for equipment attachment (test helper + attachment path).
+   * "main" = right hand, "off" = left hand. Undefined for creatures.
+   */
+  getHandSocket(entityId: number, hand: "main" | "off"): Group | undefined {
+    const meshes = this.meshes.get(entityId);
+    if (!meshes) return undefined;
+    return hand === "main" ? meshes.handSocketR : meshes.handSocketL;
   }
 
   /**
@@ -889,10 +1010,10 @@ export class ActorRenderer {
       this.armourMeshes.set(entityId, slotMap);
     }
 
-    // Remove existing armour for this slot
+    // Remove existing armour for this slot (parent may be group or a hand socket).
     const existing = slotMap.get(slot);
     if (existing) {
-      meshes.group.remove(existing);
+      existing.parent?.remove(existing);
       slotMap.delete(slot);
     }
 
@@ -930,32 +1051,39 @@ export class ActorRenderer {
 
     const armourMesh = new Mesh(geometry, material);
     armourMesh.name = `armour_${slot}`;
-
-    // Position based on body part
-    switch (armourSlot) {
-      case "head":
-        armourMesh.position.set(0, HEAD_Y, 0);
-        break;
-      case "body":
-        armourMesh.position.set(0, TORSO_Y, 0);
-        break;
-      case "legs":
-        armourMesh.position.set(0, LEG_Y, 0);
-        break;
-      case "feet":
-        armourMesh.position.set(0, 0, 0);
-        break;
-      case "hands":
-        armourMesh.position.set(0, ARM_Y, 0);
-        break;
-      case "shield":
-        // Shield attaches to left hand
-        armourMesh.position.set(-0.34, ARM_Y, 0.1);
-        break;
-    }
     armourMesh.castShadow = false;
     armourMesh.receiveShadow = false;
-    meshes.group.add(armourMesh);
+
+    // Body-relative slots stay on the actor root. Shield is limb-relative and
+    // parents to handSocketL. Hands (gloves) use a single combined geometry
+    // spanning both arms — leave on the group until a per-hand split exists.
+    if (armourSlot === "shield") {
+      const socket = meshes.handSocketL;
+      if (!socket) return;
+      const grip = resolveGrip(familyId, "shield");
+      armourMesh.position.set(...grip.position);
+      armourMesh.rotation.set(...grip.rotation);
+      socket.add(armourMesh);
+    } else {
+      switch (armourSlot) {
+        case "head":
+          armourMesh.position.set(0, HEAD_Y, 0);
+          break;
+        case "body":
+          armourMesh.position.set(0, TORSO_Y, 0);
+          break;
+        case "legs":
+          armourMesh.position.set(0, LEG_Y, 0);
+          break;
+        case "feet":
+          armourMesh.position.set(0, 0, 0);
+          break;
+        case "hands":
+          armourMesh.position.set(0, ARM_Y, 0);
+          break;
+      }
+      meshes.group.add(armourMesh);
+    }
     slotMap.set(slot, armourMesh);
   }
 
@@ -974,10 +1102,10 @@ export class ActorRenderer {
       this.armourMeshes.set(entityId, slotMap);
     }
 
-    // Remove existing accessory for this slot
+    // Remove existing accessory for this slot (parent-relative).
     const existing = slotMap.get(slot);
     if (existing) {
-      meshes.group.remove(existing);
+      existing.parent?.remove(existing);
       slotMap.delete(slot);
     }
 
@@ -1124,6 +1252,7 @@ export class ActorRenderer {
     this.registry.releaseGeometry({ type: "actor", contentId: "humanoid", variant: "head" });
     this.registry.releaseGeometry({ type: "actor", contentId: "humanoid", variant: "leg" });
     this.registry.releaseGeometry({ type: "actor", contentId: "humanoid", variant: "arm" });
+    this.registry.releaseGeometry({ type: "actor", contentId: "humanoid", variant: "hair" });
     this.registry.releaseGeometry({ type: "actor", contentId: "humanoid", variant: "marker" });
 
     this.registry.releaseMaterial({ type: "actor", contentId: "player" });
@@ -1131,6 +1260,7 @@ export class ActorRenderer {
     this.registry.releaseMaterial({ type: "actor", contentId: "localPlayer" });
     this.registry.releaseMaterial({ type: "actor", contentId: "skin" });
     this.registry.releaseMaterial({ type: "actor", contentId: "leg" });
+    this.registry.releaseMaterial({ type: "actor", contentId: "hair" });
     this.registry.releaseMaterial({ type: "actor", contentId: "marker" });
     this.registry.releaseMaterial({ type: "actor", contentId: "creature", materialId: "default" });
     this.registry.releaseMaterial({ type: "actor", contentId: "healthBar", materialId: "bg" });
@@ -1186,21 +1316,25 @@ export class ActorRenderer {
   // --- Private ---
 
   private _ensureHumanoidResourcesRegistered(): void {
-    this.registry.registerGeometry(
-      { type: "actor", contentId: "humanoid", variant: "body" },
-      () => new BoxGeometry(0.52, TORSO_H, 0.34),
+    this.registry.registerGeometry({ type: "actor", contentId: "humanoid", variant: "body" }, () =>
+      taperedBox(0.52, TORSO_H, 0.34, 1.22),
     );
     this.registry.registerGeometry(
       { type: "actor", contentId: "humanoid", variant: "head" },
       () => new BoxGeometry(HEAD_S, HEAD_S, HEAD_S),
     );
-    this.registry.registerGeometry(
-      { type: "actor", contentId: "humanoid", variant: "leg" },
-      () => new BoxGeometry(0.2, LEG_H, 0.24),
+    this.registry.registerGeometry({ type: "actor", contentId: "humanoid", variant: "leg" }, () =>
+      taperedBox(0.2, LEG_H, 0.24, 1.3),
     );
-    this.registry.registerGeometry(
-      { type: "actor", contentId: "humanoid", variant: "arm" },
-      () => new BoxGeometry(0.16, LEG_H, 0.22),
+    this.registry.registerGeometry({ type: "actor", contentId: "humanoid", variant: "arm" }, () => {
+      // Translate so the mesh origin is at the shoulder (top of the arm), not
+      // the geometric centre — rotations then swing from the shoulder.
+      const geo = taperedBox(0.16, LEG_H, 0.22, 1.25);
+      geo.translate(0, -LEG_H / 2, 0);
+      return geo;
+    });
+    this.registry.registerGeometry({ type: "actor", contentId: "humanoid", variant: "hair" }, () =>
+      taperedBox(HEAD_S * 1.1, HEAD_S * 0.55, HEAD_S * 1.1, 0.85),
     );
     this.registry.registerGeometry(
       { type: "actor", contentId: "humanoid", variant: "marker" },
@@ -1226,6 +1360,10 @@ export class ActorRenderer {
     this.registry.registerMaterial(
       { type: "actor", contentId: "leg" },
       () => new MeshLambertMaterial({ color: 0x394a63, flatShading: true }),
+    );
+    this.registry.registerMaterial(
+      { type: "actor", contentId: "hair" },
+      () => new MeshLambertMaterial({ color: PALETTE.barkDark, flatShading: true }),
     );
     this.registry.registerMaterial(
       { type: "actor", contentId: "marker" },
@@ -1323,6 +1461,38 @@ export class ActorRenderer {
     }
     // Reset body userData
     meshes.body.userData = {};
+    // Restore humanoid limb rest pose so pool reuse never inherits mid-animation transforms.
+    if (meshes.parts.length > 0) {
+      const leftLeg = meshes.parts[1];
+      const rightLeg = meshes.parts[2];
+      const leftArm = meshes.parts[3];
+      const rightArm = meshes.parts[4];
+      if (leftLeg) {
+        leftLeg.position.set(-0.13, LEG_Y, 0);
+        leftLeg.rotation.set(0, 0, 0);
+      }
+      if (rightLeg) {
+        rightLeg.position.set(0.13, LEG_Y, 0);
+        rightLeg.rotation.set(0, 0, 0);
+      }
+      if (leftArm) {
+        leftArm.position.set(-0.34, SHOULDER_Y, 0);
+        leftArm.rotation.set(0, 0, 0);
+      }
+      if (rightArm) {
+        rightArm.position.set(0.34, SHOULDER_Y, 0);
+        rightArm.rotation.set(0, 0, 0);
+      }
+    }
+    // Keep hand sockets on the arms; restore their rest transform for pool reuse.
+    if (meshes.handSocketL) {
+      meshes.handSocketL.position.set(0, HAND_SOCKET_LOCAL_Y, 0);
+      meshes.handSocketL.rotation.set(0, 0, 0);
+    }
+    if (meshes.handSocketR) {
+      meshes.handSocketR.position.set(0, HAND_SOCKET_LOCAL_Y, 0);
+      meshes.handSocketR.rotation.set(0, 0, 0);
+    }
   }
 
   private _disposeMeshes(meshes: ActorMeshes): void {
@@ -1410,6 +1580,12 @@ export class ActorRenderer {
     head.name = "head";
     head.position.y = HEAD_Y;
 
+    // Hair caps the head — a child of head so it follows head animation.
+    const hair = new Mesh(this.hairGeometry, this.hairMaterial);
+    hair.name = "hair";
+    hair.position.y = HEAD_S * 0.22;
+    head.add(hair);
+
     const leftLeg = new Mesh(this.legGeometry, this.legMaterial);
     leftLeg.name = "leftLeg";
     leftLeg.position.set(-0.13, LEG_Y, 0);
@@ -1419,10 +1595,20 @@ export class ActorRenderer {
 
     const leftArm = new Mesh(this.armGeometry, this.playerMaterial);
     leftArm.name = "leftArm";
-    leftArm.position.set(-0.34, ARM_Y, 0);
+    leftArm.position.set(-0.34, SHOULDER_Y, 0);
     const rightArm = new Mesh(this.armGeometry, this.playerMaterial);
     rightArm.name = "rightArm";
-    rightArm.position.set(0.34, ARM_Y, 0);
+    rightArm.position.set(0.34, SHOULDER_Y, 0);
+
+    const handSocketL = new Group();
+    handSocketL.name = "handSocketL";
+    handSocketL.position.set(0, HAND_SOCKET_LOCAL_Y, 0);
+    leftArm.add(handSocketL);
+
+    const handSocketR = new Group();
+    handSocketR.name = "handSocketR";
+    handSocketR.position.set(0, HAND_SOCKET_LOCAL_Y, 0);
+    rightArm.add(handSocketR);
 
     const parts = [head, leftLeg, rightLeg, leftArm, rightArm];
     for (const part of parts) {
@@ -1440,7 +1626,7 @@ export class ActorRenderer {
     healthBar.group.name = "healthBar";
     group.add(healthBar.group);
 
-    return { group, body, parts, marker, healthBar };
+    return { group, body, parts, marker, handSocketR, handSocketL, healthBar };
   }
 
   private _createCreatureMeshes(
@@ -1557,12 +1743,20 @@ export class ActorRenderer {
       if (leftLeg) leftLeg.position.set(-0.13, LEG_Y, 0);
       if (rightLeg) rightLeg.position.set(0.13, LEG_Y, 0);
       if (leftArm) {
-        leftArm.position.set(-0.34, ARM_Y, 0);
+        leftArm.position.set(-0.34, SHOULDER_Y, 0);
         leftArm.rotation.set(0, 0, 0);
       }
       if (rightArm) {
-        rightArm.position.set(0.34, ARM_Y, 0);
+        rightArm.position.set(0.34, SHOULDER_Y, 0);
         rightArm.rotation.set(0, 0, 0);
+      }
+      if (meshes.handSocketL) {
+        meshes.handSocketL.position.set(0, HAND_SOCKET_LOCAL_Y, 0);
+        meshes.handSocketL.rotation.set(0, 0, 0);
+      }
+      if (meshes.handSocketR) {
+        meshes.handSocketR.position.set(0, HAND_SOCKET_LOCAL_Y, 0);
+        meshes.handSocketR.rotation.set(0, 0, 0);
       }
     } else {
       // Single-body creature: rest scale (idle breathing squashes/stretches it).
@@ -1584,8 +1778,8 @@ export class ActorRenderer {
           const rightArm = meshes.parts[4];
           meshes.body.position.y = TORSO_Y + lift;
           if (head) head.position.y = HEAD_Y + lift;
-          if (leftArm) leftArm.position.y = ARM_Y + lift * 0.6;
-          if (rightArm) rightArm.position.y = ARM_Y + lift * 0.6;
+          if (leftArm) leftArm.position.y = SHOULDER_Y + lift * 0.6;
+          if (rightArm) rightArm.position.y = SHOULDER_Y + lift * 0.6;
         } else {
           // Creature: gentle vertical breathing from a planted base.
           meshes.body.scale.y = 1 + breath * 0.03;
@@ -1593,7 +1787,7 @@ export class ActorRenderer {
         break;
       }
       case "walk": {
-        // Bobbing and leg swing
+        // Bobbing and leg swing; arms pendulum from the shoulder.
         const bob = Math.sin((quantizedSubstep * Math.PI) / 2) * 0.04;
         meshes.group.position.y += bob;
         if (meshes.parts.length > 0) {
@@ -1602,15 +1796,16 @@ export class ActorRenderer {
           const leftArm = meshes.parts[3];
           const rightArm = meshes.parts[4];
           const swing = Math.sin((quantizedSubstep * Math.PI) / 2) * 0.08;
+          const swingAngle = swing * 1.2;
           if (leftLeg) leftLeg.position.z = swing;
           if (rightLeg) rightLeg.position.z = -swing;
-          if (leftArm) leftArm.position.z = -swing;
-          if (rightArm) rightArm.position.z = swing;
+          if (leftArm) leftArm.rotation.x = -swingAngle;
+          if (rightArm) rightArm.rotation.x = swingAngle;
         }
         break;
       }
       case "run": {
-        // Faster bobbing and larger leg swing
+        // Faster bobbing and larger shoulder-pivot arm swing.
         const bob = Math.sin((quantizedSubstep * Math.PI) / 2) * 0.07;
         meshes.group.position.y += bob;
         if (meshes.parts.length > 0) {
@@ -1619,23 +1814,28 @@ export class ActorRenderer {
           const leftArm = meshes.parts[3];
           const rightArm = meshes.parts[4];
           const swing = Math.sin((quantizedSubstep * Math.PI) / 2) * 0.14;
+          const swingAngle = swing * 1.5;
           if (leftLeg) leftLeg.position.z = swing;
           if (rightLeg) rightLeg.position.z = -swing;
-          if (leftArm) leftArm.rotation.z = swing;
-          if (rightArm) rightArm.rotation.z = -swing;
+          if (leftArm) leftArm.rotation.x = -swingAngle;
+          if (rightArm) rightArm.rotation.x = swingAngle;
         }
         break;
       }
       case "attack": {
-        // Arm swing forward
+        // Forward swing from the shoulder with a slight inward twist.
         if (meshes.parts.length > 0) {
           const rightArm = meshes.parts[4];
-          if (rightArm) rightArm.rotation.x = Math.sin((quantizedSubstep * Math.PI) / 2) * 0.6;
+          if (rightArm) {
+            const phase = Math.sin((quantizedSubstep * Math.PI) / 2);
+            rightArm.rotation.x = phase * 0.9;
+            rightArm.rotation.z = -phase * 0.15;
+          }
         }
         break;
       }
       case "cast": {
-        // Arm raise
+        // Raise left arm from the shoulder.
         if (meshes.parts.length > 0) {
           const leftArm = meshes.parts[3];
           if (leftArm)

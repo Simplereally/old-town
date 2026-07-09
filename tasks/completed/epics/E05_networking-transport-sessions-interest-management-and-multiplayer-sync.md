@@ -28,12 +28,12 @@ Connect browsers to the authoritative world using intent commands and tick delta
 
 ## Ordered stories
 
-- [X] `E05-S01` — [Create WebSocket transport shell](../completed/stories/E05/E05-S01_create-websocket-transport-shell.md)
-- [X] `E05-S02` — [Implement dev character session bootstrap](../completed/stories/E05/E05-S02_implement-dev-character-session-bootstrap.md)
-- [X] `E05-S03` — [Implement interest manager](../completed/stories/E05/E05-S03_implement-interest-manager.md)
-- [X] `E05-S04` — [Wire command transport into simulation command buffer](../completed/stories/E05/E05-S04_wire-command-transport-into-simulation-command-buffer.md)
-- [X] `E05-S05` — [Broadcast tick deltas to clients](../completed/stories/E05/E05-S05_broadcast-tick-deltas-to-clients.md)
-- [X] `E05-S06` — [Implement chat transport and overhead text packets](../completed/stories/E05/E05-S06_implement-chat-transport-and-overhead-text-packets.md)
+- [X] `E05-S01` — [Create WebSocket transport shell](../stories/E05/E05-S01_create-websocket-transport-shell.md)
+- [X] `E05-S02` — [Implement dev character session bootstrap](../stories/E05/E05-S02_implement-dev-character-session-bootstrap.md)
+- [X] `E05-S03` — [Implement interest manager](../stories/E05/E05-S03_implement-interest-manager.md)
+- [X] `E05-S04` — [Wire command transport into simulation command buffer](../stories/E05/E05-S04_wire-command-transport-into-simulation-command-buffer.md)
+- [X] `E05-S05` — [Broadcast tick deltas to clients](../stories/E05/E05-S05_broadcast-tick-deltas-to-clients.md)
+- [X] `E05-S06` — [Implement chat transport and overhead text packets](../stories/E05/E05-S06_implement-chat-transport-and-overhead-text-packets.md)
 
 ## Epic acceptance criteria
 

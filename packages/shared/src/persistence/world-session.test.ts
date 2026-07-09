@@ -25,22 +25,20 @@ describe("worldSessionLeaseSchema", () => {
   });
 
   it("rejects empty string identifiers", () => {
-    expect(
-      worldSessionLeaseSchema.safeParse({ ...validLease, characterId: "" }).success,
-    ).toBe(false);
+    expect(worldSessionLeaseSchema.safeParse({ ...validLease, characterId: "" }).success).toBe(
+      false,
+    );
     expect(worldSessionLeaseSchema.safeParse({ ...validLease, worldId: "" }).success).toBe(false);
-    expect(
-      worldSessionLeaseSchema.safeParse({ ...validLease, sessionId: "" }).success,
-    ).toBe(false);
+    expect(worldSessionLeaseSchema.safeParse({ ...validLease, sessionId: "" }).success).toBe(false);
   });
 
   it("rejects negative or non-integer timestamps", () => {
-    expect(
-      worldSessionLeaseSchema.safeParse({ ...validLease, leaseExpiresAt: -1 }).success,
-    ).toBe(false);
-    expect(
-      worldSessionLeaseSchema.safeParse({ ...validLease, lastHeartbeatAt: 1.5 }).success,
-    ).toBe(false);
+    expect(worldSessionLeaseSchema.safeParse({ ...validLease, leaseExpiresAt: -1 }).success).toBe(
+      false,
+    );
+    expect(worldSessionLeaseSchema.safeParse({ ...validLease, lastHeartbeatAt: 1.5 }).success).toBe(
+      false,
+    );
   });
 
   it("rejects identifiers exceeding their max length", () => {

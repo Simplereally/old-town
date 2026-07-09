@@ -26,9 +26,9 @@ Implement the runtime economy systems: bank storage and shop trading. This epic 
 
 ## Ordered stories
 
-- [X] `E22-S01` — [Bank Storage System Runtime](completed/stories/E22/E22-S01_bank-storage-system-runtime.md)
-- [X] `E22-S02` — [Shop Trade Transaction System](completed/stories/E22/E22-S02_shop-trade-transaction-system.md)
-- [X] `E22-S03` — [Economy UI Protocol and Client Rendering](completed/stories/E22/E22-S03_economy-ui-protocol-and-client-rendering.md)
+- [X] `E22-S01` — [Bank Storage System Runtime](../stories/E22/E22-S01_bank-storage-system-runtime.md)
+- [X] `E22-S02` — [Shop Trade Transaction System](../stories/E22/E22-S02_shop-trade-transaction-system.md)
+- [X] `E22-S03` — [Economy UI Protocol and Client Rendering](../stories/E22/E22-S03_economy-ui-protocol-and-client-rendering.md)
 
 ## Epic acceptance criteria
 

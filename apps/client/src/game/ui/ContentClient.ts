@@ -1,4 +1,6 @@
 import type {
+  AudioCategory,
+  AudioDef,
   ContentClientRegistries,
   DialogueDef,
   ItemDef,
@@ -76,6 +78,18 @@ export class ContentClient {
 
   getAllMaterials(): Record<string, MaterialDef> {
     return this._registries?.material ?? {};
+  }
+
+  getAudio(id: string): AudioDef | undefined {
+    return this._registries?.audio[id];
+  }
+
+  getAllAudio(): Record<string, AudioDef> {
+    return this._registries?.audio ?? {};
+  }
+
+  getAudioByCategory(category: AudioCategory): readonly AudioDef[] {
+    return Object.values(this._registries?.audio ?? {}).filter((def) => def.category === category);
   }
 
   getQuestStage(questId: string, stage: number): QuestStage | undefined {

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "positional_forge_crackle",
+    "name": "Forge Crackle",
+    "category": "positional",
+    "assetPath": "assets/audio/positional/forge_crackle.ogg",
+    "volume": 0.45,
+    "loop": true,
+    "fadeMs": 400,
+    "tile": { "x": 60, "y": 46, "plane": 0 },
+    "maxDistanceTiles": 12,
+    "falloffStartTiles": 2
+  },
+  {
+    "id": "positional_market_bell",
+    "name": "Market Bell Presence",
+    "category": "positional",
+    "assetPath": "assets/audio/positional/market_bell.ogg",
+    "volume": 0.4,
+    "loop": true,
+    "fadeMs": 500,
+    "tile": { "x": 48, "y": 48, "plane": 0 },
+    "maxDistanceTiles": 14,
+    "falloffStartTiles": 3
+  },
+  {
+    "id": "positional_river_water",
+    "name": "River Water",
+    "category": "positional",
+    "assetPath": "assets/audio/positional/river_water.ogg",
+    "volume": 0.42,
+    "loop": true,
+    "fadeMs": 600,
+    "tile": { "x": 56, "y": 36, "plane": 0 },
+    "maxDistanceTiles": 16,
+    "falloffStartTiles": 4
+  }
+]

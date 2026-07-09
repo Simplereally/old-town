@@ -36,8 +36,8 @@ import { DisabledPersistenceAdapter, type PersistenceAdapter } from "../persiste
 import { applyCharacterSnapshot, snapshotCharacter } from "../persistence/character-state";
 import { computeCombatLevel } from "../skills/combat-level";
 import { maxHealthForHitpointsLevel } from "../skills/skill-state";
-import { createPrayerComponent } from "../systems/prayer-system";
 import { groundItemVisibleToPlayer } from "../systems/ground-item-system";
+import { createPrayerComponent } from "../systems/prayer-system";
 import { createVarComponent, toVarDeltas } from "../vars/player-vars";
 import type { PlayerSpawnPoint, RuntimeMap } from "../world/runtime-map";
 import { projectWorldEntities } from "./entity-spawn-projector";
@@ -258,8 +258,7 @@ export class DevSessionManager {
     const hitpointsLevel =
       this.world.getComponent(entityId, "skills")?.skills.hitpoints?.level ?? 1;
     const maxHealth = maxHealthForHitpointsLevel(hitpointsLevel);
-    const prayerLevel =
-      this.world.getComponent(entityId, "skills")?.skills.prayer?.level ?? 1;
+    const prayerLevel = this.world.getComponent(entityId, "skills")?.skills.prayer?.level ?? 1;
     this.world.setComponent(entityId, "prayer", createPrayerComponent(entityId, prayerLevel));
     this.world.setComponent(entityId, "combatant", {
       entityId,
@@ -408,6 +407,7 @@ export class DevSessionManager {
         collision: tile.collision,
         ...(tile.water ? { water: true } : {}),
         ...(tile.bridge ? { bridge: true } : {}),
+        ...(tile.zoneId ? { zoneId: tile.zoneId } : {}),
       });
     }
     return Array.from(chunkMap.values());

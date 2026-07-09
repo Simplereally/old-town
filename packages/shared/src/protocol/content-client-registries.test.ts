@@ -11,6 +11,7 @@ const validRegistries = {
   dialogue: {},
   contract: {},
   material: {},
+  audio: {},
 };
 
 describe("contentClientRegistriesSchema", () => {
@@ -25,9 +26,9 @@ describe("contentClientRegistriesSchema", () => {
   });
 
   it("rejects an extra registry key (strict)", () => {
-    expect(
-      contentClientRegistriesSchema.safeParse({ ...validRegistries, extra: {} }).success,
-    ).toBe(false);
+    expect(contentClientRegistriesSchema.safeParse({ ...validRegistries, extra: {} }).success).toBe(
+      false,
+    );
   });
 
   it("rejects a non-object response", () => {

@@ -27,8 +27,8 @@ import {
 import {
   type EconomyCommitInput,
   type EconomyCommitResult,
-  economyPayloadHash,
   type EconomyStore,
+  economyPayloadHash,
 } from "../economy";
 import {
   type CharacterStateColumns,

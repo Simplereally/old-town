@@ -36,9 +36,7 @@ export interface ApproachBeginPayload {
 
 function actorTileOf(world: World, owner: EntityId): TileCoord | undefined {
   const position = world.getComponent(owner, "position");
-  return position
-    ? { x: position.x, y: position.y, plane: position.plane }
-    : undefined;
+  return position ? { x: position.x, y: position.y, plane: position.plane } : undefined;
 }
 
 function chebyshev(a: TileCoord, b: TileCoord): number {

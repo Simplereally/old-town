@@ -167,7 +167,8 @@ export async function startServer(): Promise<GameServer> {
             idleTimeoutMs: config.persistence.pgIdleTimeoutMillis,
             statementTimeoutMs: config.persistence.pgStatementTimeoutMs,
             lockTimeoutMs: config.persistence.pgLockTimeoutMs,
-            idleInTransactionSessionTimeoutMs: config.persistence.pgIdleInTransactionSessionTimeoutMs,
+            idleInTransactionSessionTimeoutMs:
+              config.persistence.pgIdleInTransactionSessionTimeoutMs,
           },
           metrics: kernel.persistenceMetrics(),
         }),
@@ -395,6 +396,7 @@ function serializeContentForClient(registries: BootContentResult["registries"]):
     dialogue: Object.fromEntries(registries.dialogue),
     contract: Object.fromEntries(registries.contract),
     material: Object.fromEntries(registries.material),
+    audio: Object.fromEntries(registries.audio),
   };
 }
 

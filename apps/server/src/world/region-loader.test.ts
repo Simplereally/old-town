@@ -23,18 +23,18 @@ describe("region loader", () => {
     expect(summaries.length).toBe(4);
     expect(summaries.map((s) => s.regionId).sort()).toEqual(["0:0:0", "0:1:0", "1:0:0", "1:1:0"]);
     expect(summaries.reduce((sum, s) => sum + s.tileCount, 0)).toBe(4 * REGION_SIZE * REGION_SIZE);
-    expect(summaries.reduce((sum, s) => sum + s.objectCount, 0)).toBe(54);
+    expect(summaries.reduce((sum, s) => sum + s.objectCount, 0)).toBe(62);
     expect(summaries.reduce((sum, s) => sum + s.npcCount, 0)).toBe(60);
     expect(summaries.reduce((sum, s) => sum + s.groundItemCount, 0)).toBe(1);
-    expect(summaries.reduce((sum, s) => sum + s.resourceNodeCount, 0)).toBe(6);
+    expect(summaries.reduce((sum, s) => sum + s.resourceNodeCount, 0)).toBe(12);
     expect(summaries.reduce((sum, s) => sum + s.triggerCount, 0)).toBe(23);
   });
 
   it("instantiates runtime entities while preserving content ids", async () => {
     const { world } = await loadSeedRegion();
 
-    expect(world.componentCount("object")).toBe(54);
-    expect(world.componentCount("resourceNode")).toBe(6);
+    expect(world.componentCount("object")).toBe(62);
+    expect(world.componentCount("resourceNode")).toBe(12);
     expect(world.componentCount("npc")).toBe(60);
     expect(world.componentCount("groundItem")).toBe(1);
 
@@ -43,9 +43,14 @@ describe("region loader", () => {
     expect(firstObject?.objectId).toBe("oldroad_signpost");
     expect(firstObject?.objectId).not.toBe(String(firstObject?.entityId));
 
-    const firstNpc = world.getComponent(entityId(35), "npc");
+    const firstNpcId = world
+      .entityIdsWith("npc")
+      .find((id) => world.getComponent(id, "npc")?.npcId === "stray_dog");
+    const firstNpc = firstNpcId === undefined ? undefined : world.getComponent(firstNpcId, "npc");
     expect(firstNpc?.npcId).toBe("stray_dog");
-    expect(world.getComponent(entityId(35), "actor")?.name).toBe("Stray Dog");
+    expect(
+      firstNpcId === undefined ? undefined : world.getComponent(firstNpcId, "actor")?.name,
+    ).toBe("Stray Dog");
 
     const groundItemId = world.entityIdsWith("groundItem")[0];
     const firstGroundItem =

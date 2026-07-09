@@ -37,10 +37,10 @@ Create the technical architecture documents and coding standards that govern the
 
 ## Ordered stories
 
-- [X] `E31-S01` - [Render ECS Architecture Decision](stories/E31/E31-S01_render-ecs-architecture-decision.md)
-- [X] `E31-S02` - [Snapshot Interpolation Contract](stories/E31/E31-S02_snapshot-interpolation-contract.md)
-- [X] `E31-S03` - [Asset Baking and Instancing Contract](stories/E31/E31-S03_asset-baking-and-instancing-contract.md)
-- [X] `E31-S04` - [Performance Budgets and Diagnostics Contract](stories/E31/E31-S04_performance-budgets-and-diagnostics-contract.md)
+- [X] `E31-S01` - [Render ECS Architecture Decision](../stories/E31/E31-S01_render-ecs-architecture-decision.md)
+- [X] `E31-S02` - [Snapshot Interpolation Contract](../stories/E31/E31-S02_snapshot-interpolation-contract.md)
+- [X] `E31-S03` - [Asset Baking and Instancing Contract](../stories/E31/E31-S03_asset-baking-and-instancing-contract.md)
+- [X] `E31-S04` - [Performance Budgets and Diagnostics Contract](../stories/E31/E31-S04_performance-budgets-and-diagnostics-contract.md)
 
 ## Epic acceptance criteria
 

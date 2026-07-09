@@ -1,0 +1,115 @@
+{
+  "id": "pippa_hearth_dialogue",
+  "name": "Pippa Hearth Dialogue",
+  "root": "start",
+  "nodes": [
+    {
+      "id": "start",
+      "npcText": "The bakery should smell of bread, not old smoke. What can I do for you?",
+      "playerOptions": [
+        {
+          "text": "What's with all the smoke?",
+          "next": "intro",
+          "requirements": [
+            { "kind": "var", "key": "quest.smoke_over_old_town.stage", "op": "eq", "value": 0 }
+          ]
+        },
+        {
+          "text": "I said I'd help.",
+          "next": "accepted",
+          "requirements": [
+            { "kind": "var", "key": "quest.smoke_over_old_town.stage", "op": "eq", "value": 1 }
+          ]
+        },
+        {
+          "text": "I'm gathering the dry logs.",
+          "next": "logs_reminder",
+          "requirements": [
+            { "kind": "var", "key": "quest.smoke_over_old_town.stage", "op": "eq", "value": 2 }
+          ]
+        },
+        {
+          "text": "The cellar rats are next.",
+          "next": "rats_reminder",
+          "requirements": [
+            { "kind": "var", "key": "quest.smoke_over_old_town.stage", "op": "eq", "value": 3 }
+          ]
+        },
+        {
+          "text": "I'm ready to light the hearth.",
+          "next": "oven_reminder",
+          "requirements": [
+            { "kind": "var", "key": "quest.smoke_over_old_town.stage", "op": "eq", "value": 4 }
+          ]
+        },
+        {
+          "text": "The hearth is drawing cleanly.",
+          "next": "completed",
+          "requirements": [
+            {
+              "kind": "var",
+              "key": "quest.smoke_over_old_town.completed",
+              "op": "eq",
+              "value": true
+            }
+          ]
+        },
+        { "text": "I should go.", "next": "end" }
+      ]
+    },
+    {
+      "id": "intro",
+      "npcText": "The hearth is choked, the cellar rats keep fouling the flue, and my last wood is damp. Will you help?",
+      "playerOptions": [
+        {
+          "text": "Yes, I'll help.",
+          "next": "accepted",
+          "effects": [
+            { "kind": "start_quest", "questId": "smoke_over_old_town" },
+            {
+              "kind": "set_var",
+              "key": "quest.smoke_over_old_town.talk.pippa_hearth",
+              "value": true
+            },
+            {
+              "kind": "set_var",
+              "key": "quest.smoke_over_old_town.spoke_to_pippa",
+              "value": true
+            },
+            { "kind": "send_message", "text": "Quest started: Smoke Over Old Town." }
+          ]
+        },
+        { "text": "Not just now.", "next": "end" }
+      ]
+    },
+    {
+      "id": "accepted",
+      "npcText": "First bring me three dry logs. Once the fire is clean, deal with two cellar rats and light the hearth.",
+      "playerOptions": [{ "text": "I'll get to it.", "next": "end" }]
+    },
+    {
+      "id": "logs_reminder",
+      "npcText": "Three dry logs, please. Damp wood will put us straight back under that smoke.",
+      "playerOptions": [{ "text": "I'll find them.", "next": "end" }]
+    },
+    {
+      "id": "rats_reminder",
+      "npcText": "Two cellar rats are nesting by the flue. Clear them out before we light anything.",
+      "playerOptions": [{ "text": "Down to the cellar, then.", "next": "end" }]
+    },
+    {
+      "id": "oven_reminder",
+      "npcText": "Use the three dry logs to light the Market Kitchen Hearth. It should draw cleanly now.",
+      "playerOptions": [{ "text": "Time to light it.", "next": "end" }]
+    },
+    {
+      "id": "completed",
+      "npcText": "Clean flame, rising bread, and room to breathe. Thank you. There'll always be bread here for you.",
+      "playerOptions": [{ "text": "Glad to help.", "next": "end" }]
+    },
+    {
+      "id": "end",
+      "npcText": "Mind the smoke. It gets into everything."
+    }
+  ]
+}

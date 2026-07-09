@@ -99,7 +99,9 @@ describe("E42-S02 — TerrainLayer material rendering", () => {
 
     // Should have exactly 2 InstancedMesh children (one per material), no Mesh children.
     const instancedMeshes = group!.children.filter((c) => c instanceof InstancedMesh);
-    const meshes = group!.children.filter((c) => c instanceof Mesh && !(c instanceof InstancedMesh));
+    const meshes = group!.children.filter(
+      (c) => c instanceof Mesh && !(c instanceof InstancedMesh),
+    );
     expect(instancedMeshes.length).toBe(2);
     expect(meshes.length).toBe(0);
 

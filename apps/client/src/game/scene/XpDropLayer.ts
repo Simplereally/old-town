@@ -74,14 +74,6 @@ function colorForSkill(skillId: string): string {
       return "#ff8c00";
     case "cartography":
       return "#1e90ff";
-    case "arms":
-      return "#dc143c";
-    case "might":
-      return "#ff4500";
-    case "guard":
-      return "#0000cd";
-    case "vitality":
-      return "#ff69b4";
     case "favour":
       return "#ffd700";
     default:

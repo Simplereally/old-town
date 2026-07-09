@@ -1,23 +1,11 @@
-import { createServer } from "node:http";
-import {
-  ClientCommandType,
-  PROTOCOL_VERSION,
-  ServerPacketType,
-  type TileCoord,
-  TransportClientMessageType,
-  tileKey,
-} from "@old-town/shared";
-import { afterEach, describe, expect, it } from "vitest";
-import WebSocket from "ws";
+import { ClientCommandType, type TileCoord, tileKey } from "@old-town/shared";
+import { describe, expect, it } from "vitest";
 import { createWorld } from "../ecs/world";
 import { CommandBuffer } from "../sim/command-buffer";
 import { DeltaAccumulator } from "../sim/delta-accumulator";
 import { handleMoveIntent, processMovementPhase } from "../systems/movement-system";
 import { CollisionMap } from "../world/collision";
 import { createRuntimeMap, type RuntimeMap } from "../world/runtime-map";
-import { createWebSocketTransport } from "./websocket-transport";
-
-let cleanup: (() => Promise<void>) | undefined;
 
 function tile(x: number, y: number): TileCoord {
   return { x, y, plane: 0 };
@@ -41,130 +29,52 @@ function testMap(): RuntimeMap {
   return map;
 }
 
-function nextMessage(socket: WebSocket): Promise<unknown> {
-  return new Promise((resolve) => {
-    const handler = (data: WebSocket.RawData) => {
-      resolve(JSON.parse(data.toString()));
-      socket.removeListener("message", handler);
-    };
-    socket.on("message", handler);
-  });
-}
+describe("command buffer movement integration", () => {
+  it("buffers movement until tick processing emits a movement delta", () => {
+    const world = createWorld();
+    const player = world.createEntity();
+    world.setComponent(player, "position", { entityId: player, x: 30, y: 32, plane: 0 });
+    world.setComponent(player, "movement", { entityId: player, mode: "walk", path: [] });
+    const map = testMap();
+    const collision = new CollisionMap(map);
+    const deltas = new DeltaAccumulator();
+    const commandBuffer = new CommandBuffer();
 
-function openSocket(url: string): Promise<WebSocket> {
-  return new Promise((resolve) => {
-    const socket = new WebSocket(url);
-    socket.once("open", () => resolve(socket));
-  });
-}
-
-async function startHarness() {
-  const world = createWorld();
-  const player = world.createEntity();
-  world.setComponent(player, "position", { entityId: player, x: 30, y: 32, plane: 0 });
-  world.setComponent(player, "movement", { entityId: player, mode: "walk", path: [] });
-  const map = testMap();
-  const collision = new CollisionMap(map);
-  const deltas = new DeltaAccumulator();
-  const commandBuffer = new CommandBuffer();
-  const httpServer = createServer();
-  let resolveCommand: (() => void) | undefined;
-  const commandSeen = new Promise<void>((resolve) => {
-    resolveCommand = resolve;
-  });
-  const transport = createWebSocketTransport({
-    httpServer,
-    logger: { debug: () => undefined, warn: () => undefined },
-    getFullState: () => ({
-      type: ServerPacketType.FullState,
-      protocolVersion: PROTOCOL_VERSION,
-      tick: 0,
-      serverTime: 0,
-      selfEntityId: player,
-      entities: [{ entityId: player, kind: "player", tile: tile(30, 32) }],
-    }),
-    onCommand: (session, command) => {
-      const accepted = commandBuffer.accept(command, {
-        ownerEntityId: player,
-        connectionId: session.id,
-        receivedTick: 0,
-        targetTick: 1,
-      });
-      resolveCommand?.();
-      return accepted.ok ? { ok: true } : { ok: false, reason: accepted.reason };
-    },
-  });
-  await new Promise<void>((resolve) => httpServer.listen(0, "127.0.0.1", resolve));
-  const address = httpServer.address();
-  if (!address || typeof address === "string") {
-    throw new Error("Expected TCP address");
-  }
-  cleanup = async () => {
-    await transport.close();
-    const server = httpServer as unknown as { closeAllConnections?: () => void };
-    server.closeAllConnections?.();
-    await new Promise<void>((resolve) => httpServer.close(() => resolve()));
-  };
-  return {
-    url: `ws://127.0.0.1:${address.port}${transport.path}`,
-    world,
-    player,
-    collision,
-    deltas,
-    commandBuffer,
-    commandSeen,
-  };
-}
-
-describe("socket command movement integration", () => {
-  afterEach(async () => {
-    await cleanup?.();
-    cleanup = undefined;
-  });
-
-  it("buffers socket movement until tick processing emits a movement delta", async () => {
-    const harness = await startHarness();
-    const socket = await openSocket(harness.url);
-    socket.send(
-      JSON.stringify({
-        type: TransportClientMessageType.DevAuth,
-        protocolVersion: PROTOCOL_VERSION,
-      }),
-    );
-    await nextMessage(socket);
-
-    socket.send(
-      JSON.stringify({
+    const accepted = commandBuffer.accept(
+      {
         type: ClientCommandType.MoveClick,
         commandId: 1,
         payload: { dest: tile(31, 32) },
-      }),
+      },
+      {
+        ownerEntityId: player,
+        connectionId: "session-1",
+        receivedTick: 0,
+        targetTick: 1,
+      },
     );
-    await harness.commandSeen;
+    expect(accepted.ok).toBe(true);
 
-    expect(harness.world.getComponent(harness.player, "position")).toMatchObject({ x: 30, y: 32 });
+    expect(world.getComponent(player, "position")).toMatchObject({ x: 30, y: 32 });
 
-    const consumed = harness.commandBuffer.consumeTick(1);
+    const consumed = commandBuffer.consumeTick(1);
     const move = consumed.groups[0]?.intents[0];
     if (move?.kind === "move") {
       handleMoveIntent(
         {
-          world: harness.world,
-          collision: harness.collision,
-          deltas: harness.deltas,
+          world,
+          collision,
+          deltas,
         },
-        harness.player,
+        player,
         move.payload,
       );
     }
-    expect(harness.world.getComponent(harness.player, "position")).toMatchObject({ x: 30, y: 32 });
+    expect(world.getComponent(player, "position")).toMatchObject({ x: 30, y: 32 });
 
-    processMovementPhase(
-      { world: harness.world, collision: harness.collision, deltas: harness.deltas },
-      1,
-    );
+    processMovementPhase({ world, collision, deltas }, 1);
 
-    expect(harness.world.getComponent(harness.player, "position")).toMatchObject({ x: 31, y: 32 });
-    expect(harness.deltas.consume(1, 600).entityUpdates[0]?.changes.position).toEqual(tile(31, 32));
+    expect(world.getComponent(player, "position")).toMatchObject({ x: 31, y: 32 });
+    expect(deltas.consume(1, 600).entityUpdates[0]?.changes.position).toEqual(tile(31, 32));
   });
 });

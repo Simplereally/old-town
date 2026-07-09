@@ -163,6 +163,10 @@ export const xpDropPacketSchema = z
   .object({ skillId: contentIdSchema, amount: z.number().nonnegative() })
   .strict();
 
+export const levelUpPacketSchema = z
+  .object({ skillId: contentIdSchema, newLevel: z.number().int().positive() })
+  .strict();
+
 export const projectilePacketSchema = z
   .object({
     id: z.string().min(1),
@@ -328,6 +332,7 @@ export const regionTileDataSchema = z
     collision: z.number().int().nonnegative(),
     water: z.boolean().optional(),
     bridge: z.boolean().optional(),
+    zoneId: z.string().min(1).optional(),
   })
   .strict();
 
@@ -427,6 +432,7 @@ export const tickDeltaPacketSchema = z
     chat: z.array(chatPacketSchema).optional(),
     hitsplats: z.array(hitsplatPacketSchema).optional(),
     xpDrops: z.array(xpDropPacketSchema).optional(),
+    levelUps: z.array(levelUpPacketSchema).optional(),
     projectiles: z.array(projectilePacketSchema).optional(),
     sounds: z.array(soundPacketSchema).optional(),
     regionLoads: z.array(regionLoadPacketSchema).optional(),
